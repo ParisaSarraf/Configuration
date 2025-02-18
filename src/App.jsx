@@ -1,20 +1,26 @@
-import MainLayout from "./Layout"
+import { ConfigProvider } from "antd";
+import { RouterProvider } from "react-router-dom";
+import router from "./router.jsx";
 
-function App() {
-
+const App = () => {
   return (
-    <>
-      <MainLayout>
-        {/* محتوای هر صفحه */}
-        <h1 className="text-2xl text-indigo-500 dark:text-indigo-300">
-          صفحه اصلی
-        </h1>
-        <p className="text-gray-700 dark:text-gray-300">
-          محتوای تستی
-        </p>
-      </MainLayout>
-    </>
-  )
-}
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: '#3b82f6',
+          colorBgBase: '#f3f4f6',
+          colorTextBase: '#1f2937',
+        },
+        components: {
+          Layout: {
+            colorBgHeader: '#3b82f6',
+          },
+        },
+      }}
+    >
+      <RouterProvider router={router} />
+    </ConfigProvider>
+  );
+};
 
-export default App
+export default App;

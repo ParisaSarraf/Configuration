@@ -1,16 +1,34 @@
-// tailwind.config.js
 module.exports = {
   darkMode: "class",
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        indigo: {
-          300: "#a5b4fc",
-          500: "#6366f1",
-          700: "#4338ca",
+        light: {
+          primary: "#f3f4f6",
+          secondary: "#e5e7eb",
+          accent: "#3b82f6",
+          text: {
+            primary: "#1f2937",
+            secondary: "#6b7280",
+          },
         },
+
+        dark: {
+          primary: "#111827",
+          secondary: "#1f2937",
+          accent: "#60a5fa",
+          text: {
+            primary: "#f9fafb",
+            secondary: "#d1d5db",
+          },
+        },
+      },
+      screens: {
+        xs: "480px",
+        "3xl": "1920px",
       },
     },
   },
+  plugins: [],
 };
