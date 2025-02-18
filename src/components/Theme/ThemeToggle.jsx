@@ -25,7 +25,7 @@ const ThemeToggle = () => {
 
     return (
         <div className="flex items-center gap-2 px-4 dark:text-white">
-            <span className="text-sm">{isDark ? '🌙' : '☀️'}</span>
+            {/* <span className="text-sm">{isDark ? '🌙' : '☀️'}</span> */}
             <Switch checked={isDark} onChange={toggleTheme} />
         </div>
     );

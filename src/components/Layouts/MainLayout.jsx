@@ -3,9 +3,12 @@ import { Layout, Menu } from 'antd';
 import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
+  HomeOutlined,
+  UserOutlined,
+  DashboardOutlined,
 } from '@ant-design/icons';
+import { Link } from 'react-router-dom';
 import ThemeToggle from '../Theme/ThemeToggle';
-import { items } from './menuItems';
 
 const { Header, Sider, Content } = Layout;
 
@@ -31,15 +34,53 @@ const MainLayout = ({ children }) => {
             </span>
           )}
         </div>
+        <Menu
+          theme="light"
+          mode="inline"
+          defaultSelectedKeys={['1']}
+          className="bg-light-secondary dark:bg-dark-secondary"
+          items={[
+            {
+              key: '1',
+              icon: <HomeOutlined className="text-light-text-primary dark:text-dark-text-primary" />,
+              label: (
+                <Link
+                  to="/"
+                  className="text-light-text-primary dark:text-dark-text-primary hover:text-light-accent dark:hover:text-dark-accent"
+                >
+                  Home
+                </Link>
+              ),
+            },
+            {
+              key: '2',
+              icon: <DashboardOutlined className="text-light-text-primary dark:text-dark-text-primary" />,
+              label: (
+                <Link
+                  to="/dashboard"
+                  className="text-light-text-primary dark:text-dark-text-primary hover:text-light-accent dark:hover:text-dark-accent"
+                >
+                  Dashboard
+                </Link>
+              ),
+            },
+            {
+              key: '3',
+              icon: <UserOutlined className="text-light-text-primary dark:text-dark-text-primary" />,
+              label: (
+                <Link
+                  to="/about"
+                  className="text-light-text-primary dark:text-dark-text-primary hover:text-light-accent dark:hover:text-dark-accent"
+                >
+                  About
+                </Link>
+              ),
+            },
+          ]}
+        />
 
-        <div className="absolute mt-4 w-full px-4">
-          <Menu
-            theme="light"
-            mode="inline"
-            defaultSelectedKeys={['1']}
-            className="bg-light-secondary dark:bg-dark-secondary"
-            items={items}
-          />
+        <div className="absolute bottom-4 w-full ">
+          <ThemeToggle />
         </div>
       </Sider>
 
@@ -52,7 +93,6 @@ const MainLayout = ({ children }) => {
               onClick: () => setCollapsed(!collapsed),
             }
           )}
-          <ThemeToggle />
         </Header>
 
         <Content className="p-4 md:p-6 min-h-[calc(100vh-64px)] bg-light-primary dark:bg-dark-primary transition-colors duration-300">
