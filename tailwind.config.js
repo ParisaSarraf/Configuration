@@ -24,6 +24,9 @@ module.exports = {
           },
         },
       },
+      fontFamily: {
+        vazir: ["Vazir", "sans-serif"],
+      },
       screens: {
         xs: "480px",
         "3xl": "1920px",

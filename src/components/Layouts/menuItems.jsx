@@ -12,11 +12,11 @@ export const items = [
         icon: <DashboardOutlined />,
         label: <Link to="/dashboard">داشبورد</Link>,
     },
-    {
-        key: '3',
-        icon: <SignatureOutlined />,
-        label: <Link to="/signIn">ورود</Link>,
-    },
+    // {
+    //     key: '3',
+    //     icon: <SignatureOutlined />,
+    //     label: <Link to="/signIn">ورود</Link>,
+    // },
     {
         key: '4',
         icon: <UserOutlined />,

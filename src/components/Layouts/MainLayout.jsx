@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
 import { Layout, Menu } from 'antd';
-import {
-  MenuUnfoldOutlined,
-  MenuFoldOutlined,
-} from '@ant-design/icons';
 import { Outlet } from 'react-router-dom';
 import ThemeToggle from '../Theme/ThemeToggle';
 import { items } from './menuItems';
+import CustomHeader from './Header'; // تغییر نام کامپوننت
 
-const { Header, Sider, Content } = Layout;
+const { Sider, Content } = Layout;
 
 const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -46,16 +43,10 @@ const MainLayout = () => {
       </Sider>
 
       <Layout>
-        <Header className="flex items-center px-4 shadow-sm bg-light-primary dark:bg-dark-primary">
-          {React.createElement(
-            collapsed ? MenuUnfoldOutlined : MenuFoldOutlined,
-            {
-              className: 'text-lg text-light-text-primary dark:text-dark-text-primary',
-              onClick: () => setCollapsed(!collapsed),
-            }
-          )}
-        </Header>
-
+        <CustomHeader
+          collapsed={collapsed}
+          setCollapsed={setCollapsed}
+        />
         <Content className="p-4 md:p-6 min-h-[calc(100vh-64px)] bg-light-primary dark:bg-dark-primary transition-colors duration-300">
           <div className="text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 p-6 rounded-lg">
             <Outlet />
