@@ -1,10 +1,14 @@
+import { Button } from 'antd';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const NotFound = () => {
+
+    const navigate = useNavigate()
     return (
         <section class="">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-             
+
                 <div class="w-full flex-col justify-start items-center lg:gap-16 gap-10 inline-flex lg:pt-[50px] pt-12 lg:pb-28 pb-12">
                     <div class="border border-indigo-300 h-[550px] rounded-lg w-full">
                         <div class="p-8 flex justify-between items-center border-b border-indigo-100">
@@ -41,13 +45,13 @@ const NotFound = () => {
                                 <circle cx="147.131" cy="31.0854" r="1.36752" fill="#4F46E5" />
                             </svg>
                             <div class="block text-center mt-5">
-                                <h5 class="md:text-xl text-lg leading-8 text-gray-900 font-medium mb-1.5"><span class="text-indigo-600 font-semibold ">Oops!</span> It seems like you've taken a wrong turn</h5>
-                                <p class="text-sm text-gray-500">We're working to bring it back.</p>
+                                <h5 class="md:text-xl text-lg leading-8 text-gray-900 font-medium mb-1.5"><span class="text-indigo-600 font-semibold "> متاسفم!</span> این صفحه وجود ندارد  </h5>
+                                <Button onClick={() => navigate('/')} >برگشت به صفحه قبل</Button>
                             </div>
                         </div>
                     </div>
                 </div>
-              
+
             </div>
         </section>
 
