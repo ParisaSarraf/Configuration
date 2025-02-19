@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Layout, Menu } from 'antd';
 import { Outlet } from 'react-router-dom';
-import ThemeToggle from '../Theme/ThemeToggle';
 import { items } from './menuItems';
-import CustomHeader from './Header'; // تغییر نام کامپوننت
+import CustomHeader from './Header';
 
 const { Sider, Content } = Layout;
 
@@ -22,10 +21,11 @@ const MainLayout = () => {
         trigger={null}
         className="shadow-lg bg-light-secondary dark:bg-dark-secondary"
       >
-        <div className="h-8 mt-2 text-center rounded bg-light-secondary dark:bg-dark-secondary">
+        <div className="h-4 my-8 text-center rounded bg-light-secondary dark:bg-dark-secondary">
           {!collapsed && (
-            <span className="text-light-text-primary dark:text-dark-text-primary font-medium">
-              نرم افزار سما
+            <span className="font-medium text-light-text-primary dark:text-dark-text-primary text-lg">
+              {/* نرم افزار پیکربندی */}
+              Configuration Project
             </span>
           )}
         </div>
@@ -37,11 +37,7 @@ const MainLayout = () => {
           items={items}
         />
 
-        <div className="absolute bottom-4 w-full ">
-          <ThemeToggle />
-        </div>
       </Sider>
-
       <Layout>
         <CustomHeader
           collapsed={collapsed}

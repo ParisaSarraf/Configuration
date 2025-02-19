@@ -1,10 +1,16 @@
-import { Form, Input, Button, Checkbox, Typography } from 'antd';
-import { Link } from 'react-router-dom';
-import { GoogleOutlined, TwitterOutlined } from '@ant-design/icons';
+import { Form, Input, Button, Typography } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
 
 const { Title, Text, Paragraph } = Typography;
 
 export function SignIn() {
+    const navigate = useNavigate();
+
+    const handleLogin = () => {
+        navigate("/")   
+    }
+
+
     return (
         <section className="m-8 flex gap-4">
             <div className="w-full lg:w-3/5 mt-24">
@@ -20,7 +26,7 @@ export function SignIn() {
                         <Text strong className="block mb-2">نام کاربری</Text>
                         <Input
                             size="large"
-                            placeholder="name@mail.com"
+                            placeholder="پریسا"
                             className="w-full"
                         />
                     </Form.Item>
@@ -34,23 +40,14 @@ export function SignIn() {
                         />
                     </Form.Item>
 
-                    <Form.Item>
-                        <Checkbox>
-                            من با
-                            <a className="text-black underline hover:text-gray-900">
-                                قوانین و مقررات موافقم
-                            </a>
-                        </Checkbox>
-                    </Form.Item>
-
-                    <Button type="primary" htmlType="submit" block size="large">
+                    <Button type="primary" htmlType="submit" block size="large" onClick={handleLogin}>
                         ورود
                     </Button>
 
                     <div className="flex justify-between items-center mt-6">
-                        <a href="#" className="text-gray-900 hover:text-gray-600">
+                        <Button type='text' className="text-gray-900 hover:text-gray-600">
                             فراموشی رمز
-                        </a>
+                        </Button>
                     </div>
 
 

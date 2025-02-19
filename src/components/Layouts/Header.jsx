@@ -7,29 +7,30 @@ import {
     LoginOutlined,
     UserAddOutlined
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
+import ThemeToggle from '../Theme/ThemeToggle';
 
 const { Header: AntHeader } = Layout;
 
 const CustomHeader = ({ collapsed, setCollapsed }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
 
     const handleLogout = () => {
         setIsLoggedIn(false);
-        navigate('/signIn');
+        navigate('/sign-in');
     };
 
-    const menuItems = [
-        {
-            key: '1',
-            label: (
-                <span onClick={handleLogout}>
-                    خروج
-                </span>
-            ),
-        },
-    ];
+    // const menuItems = [
+    //     {
+    //         key: '1',
+    //         label: (
+    //             <span onClick={handleLogout}>
+    //                 خروج
+    //             </span>
+    //         ),
+    //     },
+    // ];
 
     return (
         <AntHeader className="flex items-center justify-between px-4 shadow-sm bg-light-primary dark:bg-dark-primary">
@@ -56,12 +57,14 @@ const CustomHeader = ({ collapsed, setCollapsed }) => {
                     <>
                         <LoginOutlined
                             className="text-light-text-primary dark:text-dark-text-primary text-lg cursor-pointer"
-                            onClick={() => navigate('/signIn')}
+                            onClick={() => navigate('/sign-in')}
                         />
                         <UserAddOutlined
                             className="text-light-text-primary dark:text-dark-text-primary text-lg cursor-pointer"
-                            onClick={() => navigate('/signUp')}
+                            // onClick={() => navigate('/sign-up')}
                         />
+                        <ThemeToggle />
+
                     </>
                 )}
             </div>
