@@ -3,16 +3,14 @@ import { Layout, Menu } from 'antd';
 import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
-  HomeOutlined,
-  UserOutlined,
-  DashboardOutlined,
 } from '@ant-design/icons';
-import { Link } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import ThemeToggle from '../Theme/ThemeToggle';
+import { items } from './menuItems';
 
 const { Header, Sider, Content } = Layout;
 
-const MainLayout = ({ children }) => {
+const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [breakpointBroken, setBreakpointBroken] = useState(false);
 
@@ -39,44 +37,7 @@ const MainLayout = ({ children }) => {
           mode="inline"
           defaultSelectedKeys={['1']}
           className="bg-light-secondary dark:bg-dark-secondary"
-          items={[
-            {
-              key: '1',
-              icon: <HomeOutlined className="text-light-text-primary dark:text-dark-text-primary" />,
-              label: (
-                <Link
-                  to="/"
-                  className="text-light-text-primary dark:text-dark-text-primary hover:text-light-accent dark:hover:text-dark-accent"
-                >
-                  Home
-                </Link>
-              ),
-            },
-            {
-              key: '2',
-              icon: <DashboardOutlined className="text-light-text-primary dark:text-dark-text-primary" />,
-              label: (
-                <Link
-                  to="/dashboard"
-                  className="text-light-text-primary dark:text-dark-text-primary hover:text-light-accent dark:hover:text-dark-accent"
-                >
-                  Dashboard
-                </Link>
-              ),
-            },
-            {
-              key: '3',
-              icon: <UserOutlined className="text-light-text-primary dark:text-dark-text-primary" />,
-              label: (
-                <Link
-                  to="/about"
-                  className="text-light-text-primary dark:text-dark-text-primary hover:text-light-accent dark:hover:text-dark-accent"
-                >
-                  About
-                </Link>
-              ),
-            },
-          ]}
+          items={items}
         />
 
         <div className="absolute bottom-4 w-full ">
@@ -96,8 +57,8 @@ const MainLayout = ({ children }) => {
         </Header>
 
         <Content className="p-4 md:p-6 min-h-[calc(100vh-64px)] bg-light-primary dark:bg-dark-primary transition-colors duration-300">
-          <div className="rounded-lg p-6 bg-light-secondary dark:bg-dark-secondary">
-            {children}
+          <div className="text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 p-6 rounded-lg">
+            <Outlet />
           </div>
         </Content>
       </Layout>

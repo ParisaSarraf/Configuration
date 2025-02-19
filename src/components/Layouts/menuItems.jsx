@@ -1,4 +1,4 @@
-import { HomeOutlined, DashboardOutlined, UserOutlined } from '@ant-design/icons';
+import { HomeOutlined, DashboardOutlined, UserOutlined, SignatureOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 
 export const items = [
@@ -14,6 +14,11 @@ export const items = [
     },
     {
         key: '3',
+        icon: <SignatureOutlined />,
+        label: <Link to="/signIn">ورود</Link>,
+    },
+    {
+        key: '4',
         icon: <UserOutlined />,
         label: <Link to="/about">درباره ما</Link>,
     },
