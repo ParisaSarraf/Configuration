@@ -9,6 +9,7 @@ const { Sider, Content } = Layout;
 const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [breakpointBroken, setBreakpointBroken] = useState(false);
+  const [theme, setTheme] = useState('light'); // Added theme state
 
   return (
     <Layout className="min-h-screen transition-colors duration-300">
@@ -24,19 +25,17 @@ const MainLayout = () => {
         <div className="h-4 my-8 text-center rounded bg-light-secondary dark:bg-dark-secondary">
           {!collapsed && (
             <span className="font-medium text-light-text-primary dark:text-dark-text-primary text-lg">
-              {/* نرم افزار پیکربندی */}
               Configuration Project
             </span>
           )}
         </div>
         <Menu
-          theme="light"
+          theme={theme}
           mode="inline"
           defaultSelectedKeys={['1']}
           className="bg-light-secondary dark:bg-dark-secondary"
           items={items}
         />
-
       </Sider>
       <Layout>
         <CustomHeader

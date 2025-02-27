@@ -42,4 +42,44 @@
   .ant-switch {
     @apply transition-all duration-200;
   }
+
+  .dark .ant-menu-submenu-title {
+    @apply text-white;
+  }
+
+  .dark .ant-menu-submenu .ant-menu-submenu-inline .ant-menu-submenu-open {
+    @apply text-white;
+  }
+}
+
+@layer utilities {
+ 
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-blue-700 dark:bg-dark-secondary; 
+    border-radius: 4px; 
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-blue-700 dark:bg-dark-accent; 
+    border-radius: 4px; 
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-blue-700 dark:bg-dark-accent/80;
+  }
+
+  /* Firefox */
+  html {
+    scrollbar-width: thin; 
+    scrollbar-color: #0171a5 #f1f1f1; 
+  }
+
+  .dark html {
+    scrollbar-color: #666 #333;
+  }
 }
