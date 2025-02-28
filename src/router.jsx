@@ -9,8 +9,14 @@ import ProtectedRoute from "./components/‎ProtectedRoute‎"
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <MainLayout />,
-    errorElement: <NotFound />,
+    element:
+      <ProtectedRoute>
+        <MainLayout />
+      </ProtectedRoute>,
+    errorElement:
+      <ProtectedRoute>
+        <NotFound />
+      </ProtectedRoute>,
     children: [
       {
         index: true,

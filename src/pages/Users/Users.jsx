@@ -1,44 +1,52 @@
-import { Table, Pagination, Button, Modal } from "antd";
-import { useState } from "react";
+import { Table, Pagination, Button, message } from "antd";
+import { useEffect, useState } from "react";
 import ExportButton from "../../components/ExportButton/ExportButton.jsx";
-import { columns, dataSource } from "./_components/usersColumn.jsx";
+import { columns } from "./_components/usersColumn.jsx";
 import { PlusOutlined } from "@ant-design/icons";
-import AddUsersDrawer from "./AddUsersDrawer.jsx";
+import AddUsersModal from "./AddUsersModal.jsx";
 import usePagination from "../../hooks/usePagination.jsx";
+import UserQuery from "../../QueryServises/UsersQuery";
 
 const Users = () => {
-  const [isDrawerVisible, setIsDrawerVisible] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const pageSize = 5;
+  const { deleteUser, gettAllUser } = UserQuery();
+  const [data, setData] = useState([]);
 
-  const { currentPage, handlePageChange, paginatedData } = usePagination(dataSource, pageSize);
-
-  const handleShowUsersDrawer = () => {
-    setIsDrawerVisible(true);
+  const fetchAllUser = async () => {
+    try {
+      const response = await gettAllUser();
+      setData(response);
+    } catch (error) {
+      message.error("مشکلی در دریافت داده‌ها به وجود آمده است.");
+    }
   };
 
-  const handleDrawerClose = () => {
-    setIsDrawerVisible(false);
+  useEffect(() => {
+    fetchAllUser();
+  }, []);
+
+  const { currentPage, handlePageChange, paginatedData } = usePagination(data, pageSize);
+
+  const handleShowUsersModal = () => {
+    setIsModalVisible(true);
   };
 
-  const handleAddUser = (values) => {
-    console.log("User added:", values);
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+    fetchAllUser();
   };
 
-  const handleEditUser = (record) => {
-    console.log("Edit user:", record);
-  };
-
-  const handleDeleteUser = (record) => {
-    console.log("حذف کاریر با ایدی:", record.id);
-    Modal.confirm({
-      title: "آیا مطمئن هستید؟",
-      content: "این عمل قابل بازگشت نیست!",
-      okText: "بله",
-      cancelText: "لغو",
-      onOk: () => {
-      },
-    });
-  };
+  const handleDeleteUser = async (record) => {
+    console.log(record.id);
+    try {
+      await deleteUser(record.id);
+      message.success("کاربر با موفقیت حذف شد.");
+      fetchAllUser();
+    } catch (error) {
+      message.error("مشکلی در حذف کاربر به وجود آمده است.");
+    }
+  }
 
 
   return (
@@ -47,15 +55,15 @@ const Users = () => {
         <Button
           className="bg-blue-500 text-white p-4 rounded-lg hover:bg-blue-600 dark:bg-blue-700 dark:hover:bg-blue-800"
           icon={<PlusOutlined className="text-center" />}
-          onClick={handleShowUsersDrawer}
+          onClick={handleShowUsersModal}
         >
           افزودن کاربر
         </Button>
-        <ExportButton data={dataSource} filename="داده‌های فارسی" />
+        <ExportButton data={data} filename="داده‌های فارسی" />
       </div>
       <Table
         dataSource={paginatedData}
-        columns={columns(handleEditUser, handleDeleteUser)}
+        columns={columns(handleDeleteUser)}
         className="mb-4"
         pagination={false}
         rowKey="id"
@@ -63,14 +71,14 @@ const Users = () => {
       <Pagination
         current={currentPage}
         pageSize={pageSize}
-        total={dataSource.length}
+        total={data.length}
         onChange={handlePageChange}
         className="mb-4 text-right"
       />
-      <AddUsersDrawer
-        visible={isDrawerVisible}
-        onClose={handleDrawerClose}
-        onSubmit={handleAddUser}
+      <AddUsersModal
+        visible={isModalVisible}
+        onClose={handleModalClose}
+        onSubmit={handleModalClose}
       />
     </div>
   );

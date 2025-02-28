@@ -26,11 +26,11 @@ const ThemeToggle = () => {
     return (
         <div className="flex items-center gap-2 px-4 ">
             <Switch
-                size='small'
+                size='default'
                 checked={isDark}
                 onChange={toggleTheme}
-                checkedChildren="🌙"
-                unCheckedChildren="☀️"
+            // checkedChildren="🌙"
+            // unCheckedChildren="☀️"
             />
         </div>
     );

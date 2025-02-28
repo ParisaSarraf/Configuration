@@ -1,79 +1,68 @@
-import React, { useState } from 'react';
-import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
-import { message, Upload } from 'antd';
+import { Upload, Button, Image } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
+import { useState } from "react";
 
-const getBase64 = (img, callback) => {
-    const reader = new FileReader();
-    reader.addEventListener('load', () => callback(reader.result));
-    reader.readAsDataURL(img);
-};
+const FileUploader = ({ value = [], onChange, maxFiles = 1 }) => {
+    const [fileList, setFileList] = useState(value);
+    const [previewImage, setPreviewImage] = useState(null);
 
-const FileUploader = ({
-    name = 'file',
-    listType = 'picture-circle',
-    action = 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
-    maxSizeMB = 2,
-    allowedTypes = ['image/jpeg', 'image/png'],
-    onUploadSuccess,
-    onUploadError,
-}) => {
-    const [loading, setLoading] = useState(false);
-    const [imageUrl, setImageUrl] = useState();
+    const handleChange = async (info) => {
+        const updatedFileList = info.fileList.slice(0, maxFiles);
 
-    const beforeUpload = (file) => {
-        const isAllowedType = allowedTypes.includes(file.type);
-        if (!isAllowedType) {
-            message.error(`You can only upload ${allowedTypes.join(', ')} files!`);
-            return false;
-        }
-        const isLtMaxSize = file.size / 1024 / 1024 < maxSizeMB;
-        if (!isLtMaxSize) {
-            message.error(`فایل آپلودی کمتر از ${maxSizeMB}MB است.`);
-            return false;
-        }
-        return isAllowedType && isLtMaxSize;
+        const base64Files = await Promise.all(
+            updatedFileList.map(async (file) => {
+                if (!file.originFileObj) return file;
+                const base64 = await toBase64(file.originFileObj);
+                return { ...file, base64 };
+            })
+        );
+
+        setFileList(base64Files);
+        onChange?.(base64Files);
     };
 
-    const handleChange = (info) => {
-        if (info.file.status === 'uploading') {
-            setLoading(true);
-            return;
-        }
-        if (info.file.status === 'done') {
-            getBase64(info.file.originFileObj, (url) => {
-                setLoading(false);
-                setImageUrl(url);
-                if (onUploadSuccess) {
-                    onUploadSuccess(url);
-                }
-            });
-        } else if (info.file.status === 'error') {
-            setLoading(false);
-            if (onUploadError) {
-                onUploadError('Upload failed');
-            }
-        }
-    };
+    const toBase64 = (file) =>
+        new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+            reader.readAsDataURL(file);
+        });
 
-    const uploadButton = (
-        <button style={{ border: 0, background: 'none' }} type="button">
-            {loading ? <LoadingOutlined /> : <PlusOutlined />}
-            <div style={{ marginTop: 8 }}>آپلود تصویر</div>
-        </button>
-    );
+    const handlePreview = async (file) => {
+        if (!file.base64 && file.originFileObj) {
+            file.base64 = await toBase64(file.originFileObj);
+        }
+        setPreviewImage(file.base64);
+    };
 
     return (
-        <Upload
-            name={name}
-            listType={listType}
-            className="avatar-uploader"
-            showUploadList={false}
-            action={action}
-            beforeUpload={beforeUpload}
-            onChange={handleChange}
-        >
-            {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
-        </Upload>
+        <div>
+            <Upload
+                listType="picture-circle"
+                fileList={fileList}
+                onChange={handleChange}
+                onPreview={handlePreview}
+                beforeUpload={() => false}
+            >
+                {fileList.length < maxFiles && (
+                    <span>آپلود <UploadOutlined /></span>
+                )}
+            </Upload>
+
+            {previewImage && (
+                <Image
+                    src={previewImage}
+                    style={{ display: 'none' }}
+                    preview={{
+                        visible: !!previewImage,
+                        onVisibleChange: (visible) => {
+                            if (!visible) setPreviewImage(null);
+                        },
+                    }}
+                />
+            )}
+        </div>
     );
 };
 

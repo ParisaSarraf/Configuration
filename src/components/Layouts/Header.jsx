@@ -7,21 +7,14 @@ import {
     LoginOutlined,
     UserAddOutlined
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
 import ThemeToggle from '../Theme/ThemeToggle';
+import { useMyAxios } from '../../utils/Api';
 
 const { Header: AntHeader } = Layout;
 
 const CustomHeader = ({ collapsed, setCollapsed }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const navigate = useNavigate();
-
-    const handleLogout = () => {
-        localStorage.setItem("accessToken", "");
-        localStorage.setItem("refreshToken", "");
-        setIsLoggedIn(false);
-        navigate('/sign-in');
-    };
+    const { handleLogout } = useMyAxios();
 
     return (
         <AntHeader className="flex items-center justify-between px-4 shadow-sm bg-light-primary dark:bg-dark-primary">
@@ -48,7 +41,7 @@ const CustomHeader = ({ collapsed, setCollapsed }) => {
                     <>
                         <LoginOutlined
                             className="text-light-text-primary dark:text-dark-text-primary text-lg cursor-pointer"
-                            onClick={handleLogout}
+                            onClick={handleLogout} 
                         />
                         <UserAddOutlined
                             className="text-light-text-primary dark:text-dark-text-primary text-lg cursor-pointer"

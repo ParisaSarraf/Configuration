@@ -57,7 +57,24 @@ export const useMyAxios = () => {
     }
   );
 
-  return myAxios;
+  const handleLogout = async () => {
+    const refreshToken = localStorage.getItem("refreshToken");
+
+    try {
+      await myAxios.post("/user/blacklist/", {
+        refresh: refreshToken,
+      });
+
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      setAuthToken(null);
+      navigate("/sign-in");
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  };
+
+  return { myAxios, handleLogout };
 };
 
 export const SignInFn = async (usersData) => {
