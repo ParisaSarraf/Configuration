@@ -1,12 +1,15 @@
 import { ConfigProvider } from "antd";
 import { RouterProvider } from "react-router-dom";
 import router from "./router.jsx";
+import ContextProvider from "./Servises/AuthContext.jsx";
 
 const App = () => {
   return (
-    <ConfigProvider>
-      <RouterProvider router={router} />
-    </ConfigProvider>
+    <ContextProvider>
+      <ConfigProvider>
+        <RouterProvider router={router} />
+      </ConfigProvider>
+    </ContextProvider>
   );
 };
 

@@ -5,34 +5,6 @@ import FileUploader from "../../components/FileUploader/FileUploader";
 const AddUsersDrawer = ({ visible, onClose, onSubmit }) => {
     const [form] = Form.useForm();
 
-    const formFields = [
-        {
-            name: "username",
-            component: <FileUploader />,
-        },
-        {
-            label: "نام کاربری",
-            name: "username",
-            rules: [{ required: true, message: "لطفاً نام کاربری را وارد کنید!" }],
-            component: <Input />,
-        },
-        {
-            label: "ایمیل",
-            name: "email",
-            rules: [
-                { required: true, message: "لطفاً ایمیل را وارد کنید!" },
-                { type: "email", message: "ایمیل معتبر نیست!" },
-            ],
-            component: <Input type="email" />,
-        },
-        {
-            label: "رمز عبور",
-            name: "password",
-            rules: [{ required: true, message: "لطفاً رمز عبور را وارد کنید!" }],
-            component: <Input.Password />,
-        },
-    ];
-
     const handleSubmit = () => {
         form
             .validateFields()
@@ -53,7 +25,7 @@ const AddUsersDrawer = ({ visible, onClose, onSubmit }) => {
             placement={"left"}
             onClose={onClose}
             open={visible}
-            extra={
+            footer={
                 <Space>
                     <Button onClick={handleSubmit} type="primary">
                         تایید
@@ -63,16 +35,12 @@ const AddUsersDrawer = ({ visible, onClose, onSubmit }) => {
             }
         >
             <Form form={form} layout="vertical" onFinish={handleSubmit}>
-                {formFields.map((field, index) => (
-                    <Form.Item
-                        key={index}
-                        label={field.label}
-                        name={field.name}
-                        rules={field.rules}
-                    >
-                        {field.component}
-                    </Form.Item>
-                ))}
+                <Form.Item name="avatar" className="flex flex-row w-full justify-center">
+                    <FileUploader />
+                </Form.Item>
+                <Form.Item name="avatar">
+                    <Input />
+                </Form.Item>
             </Form>
         </Drawer>
     );

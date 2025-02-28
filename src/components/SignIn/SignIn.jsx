@@ -1,15 +1,35 @@
-import { Form, Input, Button, Typography } from 'antd';
+import { Form, Input, Button, Typography, message } from 'antd';
+import { useContext } from 'react';
+import { MainContext } from '../../Servises/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import { SignInFn } from '../../utils/Api';
 
 const { Title, Text, Paragraph } = Typography;
 
 export function SignIn() {
     const navigate = useNavigate();
+    const { setAuthToken } = useContext(MainContext);
 
-    const handleLogin = () => {
-        navigate("/")
-    }
-
+    const onFinish = async (values) => {
+        try {
+            const payload = {
+                username: values.username,
+                password: values.password
+            };
+            const data = await SignInFn(payload);
+            if (data && data.access) {
+                setAuthToken(data.access);
+                localStorage.setItem("accessToken", data.access);
+                localStorage.setItem("refreshToken", data.refresh);
+                navigate("/");
+            } else {
+                message.error("نام کاربری یا رمز عبور نادرست است");
+            }
+        } catch (error) {
+            console.error("Login error:", error);
+            message.error("خطا در ارتباط با سرور");
+        }
+    };
 
     return (
         <section className="m-8 flex gap-4">
@@ -21,18 +41,24 @@ export function SignIn() {
                     </Paragraph>
                 </div>
 
-                <Form className="mt-8 mb-2 mx-auto w-80 max-w-screen-lg lg:w-1/2">
-                    <Form.Item>
-                        <Text strong className="block mb-2">نام کاربری</Text>
+                <Form className="mt-8 mb-2 mx-auto w-80 max-w-screen-lg lg:w-1/2" onFinish={onFinish} layout='vertical'>
+                    <Form.Item
+                        name="username"
+                        label="نام کاربری"
+                        rules={[{ required: true, message: 'لطفا نام کاربری خود را وارد کنید' }]}
+                    >
                         <Input
                             size="large"
-                            placeholder="پریسا"
+                            placeholder="نام کاربری"
                             className="w-full"
                         />
                     </Form.Item>
 
-                    <Form.Item>
-                        <Text strong className="block mb-2">رمزعبور</Text>
+                    <Form.Item
+                        name="password"
+                        label="رمزعبور"
+                        rules={[{ required: true, message: 'لطفا رمز عبور خود را وارد کنید' }]}
+                    >
                         <Input.Password
                             size="large"
                             placeholder="********"
@@ -40,7 +66,7 @@ export function SignIn() {
                         />
                     </Form.Item>
 
-                    <Button type="primary" htmlType="submit" block size="large" onClick={handleLogin}>
+                    <Button type="primary" htmlType="submit" block size="large">
                         ورود
                     </Button>
 
@@ -49,7 +75,6 @@ export function SignIn() {
                             فراموشی رمز
                         </Button>
                     </div>
-
 
                     <Paragraph className="text-center text-gray-500 mt-4">
                         ثبت نام نیستید؟
