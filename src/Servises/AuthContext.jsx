@@ -5,7 +5,7 @@ import React, { createContext, useState } from "react";
 export const MainContext = createContext();
 
 const ContextProvider = ({ children }) => {
-    const [authToken, setAuthToken] = useState(() => localStorage.getItem("accessToken") || null);
+    const [authToken, setAuthToken] = useState(() => localStorage.getItem("accessToken"));
 
     return (
         <MainContext.Provider

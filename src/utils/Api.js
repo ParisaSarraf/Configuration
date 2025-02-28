@@ -1,29 +1,61 @@
-import { useEffect, useContext } from "react";
+import { useContext, useEffect } from "react";
 import { MainContext } from "../Servises/AuthContext";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export const BASEURL = "http://87.248.150.51:8000/api/v1";
 
-// Create a custom Axios instance
 const myAxios = axios.create({
   baseURL: BASEURL,
   timeout: 50000,
   headers: {
     Accept: "*/*",
-    "Content-Type": "application/json", 
+    "Content-Type": "application/json",
   },
 });
 
 export const useMyAxios = () => {
-  const { authToken } = useContext(MainContext);
+  const { authToken, setAuthToken } = useContext(MainContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (authToken) {
-      myAxios.defaults.headers["Authorization"] = `Bearer ${authToken}`;
+    const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) {
+      navigate("/sign-in");
     } else {
-      delete myAxios.defaults.headers["Authorization"]; 
+      myAxios.defaults.headers["Authorization"] = `Bearer ${accessToken}`;
     }
-  }, [authToken]);
+  }, [authToken, navigate]);
+
+  myAxios.interceptors.request.use(async (config) => {
+    const accessToken = localStorage.getItem("accessToken");
+    if (accessToken) {
+      config.headers["Authorization"] = `Bearer ${accessToken}`;
+    }
+    return config;
+  });
+
+  myAxios.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      const originalRequest = error.config;
+      if (error.response.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true;
+        try {
+          const newAccessToken = await refreshAccessToken();
+          setAuthToken(newAccessToken);
+          originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+          return myAxios(originalRequest);
+        } catch (refreshError) {
+          console.error("Unable to refresh token:", refreshError);
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          navigate("/sign-in");
+        }
+      }
+      return Promise.reject(error);
+    }
+  );
 
   return myAxios;
 };
@@ -38,6 +70,26 @@ export const SignInFn = async (usersData) => {
     return response.data;
   } catch (error) {
     console.error("Error in SignIn:", error);
+    throw error;
+  }
+};
+
+export const refreshAccessToken = async () => {
+  try {
+    const refreshToken = localStorage.getItem("refreshToken");
+    if (!refreshToken) {
+      throw new Error("No refresh token found");
+    }
+
+    const response = await myAxios.post("/user/refresh/", {
+      refresh: refreshToken,
+    });
+
+    const { access } = response.data;
+    localStorage.setItem("accessToken", access);
+    return access;
+  } catch (error) {
+    console.error("Error refreshing access token:", error);
     throw error;
   }
 };

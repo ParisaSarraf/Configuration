@@ -4,6 +4,7 @@ import SignIn from "./components/SignIn/SignIn";
 import Projects from "./pages/Projects";
 import NotFound from "./pages/NotFound";
 import Users from "./pages/Users/Users";
+import ProtectedRoute from "./components/‎ProtectedRoute‎"
 
 const router = createBrowserRouter([
   {
@@ -13,11 +14,17 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Users />,
+        element:
+          <ProtectedRoute>
+            <Users />
+          </ProtectedRoute>,
       },
       {
         path: "/projects",
-        element: <Projects />,
+        element:
+          <ProtectedRoute>
+            <Projects />
+          </ProtectedRoute>,
       },
     ],
   },

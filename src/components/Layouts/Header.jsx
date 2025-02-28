@@ -17,20 +17,11 @@ const CustomHeader = ({ collapsed, setCollapsed }) => {
     const navigate = useNavigate();
 
     const handleLogout = () => {
+        localStorage.setItem("accessToken", "");
+        localStorage.setItem("refreshToken", "");
         setIsLoggedIn(false);
         navigate('/sign-in');
     };
-
-    // const menuItems = [
-    //     {
-    //         key: '1',
-    //         label: (
-    //             <span onClick={handleLogout}>
-    //                 خروج
-    //             </span>
-    //         ),
-    //     },
-    // ];
 
     return (
         <AntHeader className="flex items-center justify-between px-4 shadow-sm bg-light-primary dark:bg-dark-primary">
@@ -57,11 +48,11 @@ const CustomHeader = ({ collapsed, setCollapsed }) => {
                     <>
                         <LoginOutlined
                             className="text-light-text-primary dark:text-dark-text-primary text-lg cursor-pointer"
-                            onClick={() => navigate('/sign-in')}
+                            onClick={handleLogout}
                         />
                         <UserAddOutlined
                             className="text-light-text-primary dark:text-dark-text-primary text-lg cursor-pointer"
-                            // onClick={() => navigate('/sign-up')}
+                        // onClick={() => navigate('/sign-up')}
                         />
                         <ThemeToggle />
 
