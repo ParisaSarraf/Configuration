@@ -1,15 +1,33 @@
-import React, { useState } from "react";
-import { Modal, Button, Form, Input, Row, Col, Radio, message } from "antd";
+import React, { useEffect } from "react";
+import { Drawer, Button, Form, Input, Row, Col, Radio, message } from "antd";
 import FileUploader from "../../components/FileUploader/FileUploader";
 import UserQuery from "../../QueryServises/UsersQuery";
 
-const AddUsersModal = ({ visible, onClose, onSubmit }) => {
+const EditUserDrawer = ({ visible, onClose, onSubmit, user }) => {
     const [form] = Form.useForm();
-    const { createUser } = UserQuery();
-    const [images, setImages] = useState({
+    const { modifyUser } = UserQuery();
+    const [images, setImages] = React.useState({
         signatureImage: [],
         tempImage: [],
     });
+
+    useEffect(() => {
+        if (user) {
+            form.setFieldsValue({
+                userName: user.username,
+                Name: user.name,
+                lastName: user.last_name,
+                phoneNumber: user.phone_number,
+                nationalCode: user.national_code,
+                isStaff: user.is_staff,
+                isSuperuser: user.is_superuser,
+            });
+            setImages({
+                signatureImage: user.signature_image ? [user.signature_image] : [],
+                tempImage: user.temp_image ? [user.temp_image] : [],
+            });
+        }
+    }, [user, form]);
 
     const handleImageChange = (type, fileList) => {
         setImages((prev) => ({ ...prev, [type]: fileList }));
@@ -17,6 +35,7 @@ const AddUsersModal = ({ visible, onClose, onSubmit }) => {
 
     const onFinish = async (values) => {
         const payload = {
+            id: user.id,
             username: values.userName,
             password: values.password,
             is_superuser: values.isSuperuser,
@@ -30,27 +49,34 @@ const AddUsersModal = ({ visible, onClose, onSubmit }) => {
         };
 
         try {
-            await createUser(payload);
-            message.success("کاربر با موفقیت اضافه شد.");
+            await modifyUser(payload);
+            message.success("کاربر با موفقیت ویرایش شد.");
             onSubmit(payload);
             form.resetFields();
             setImages({ signatureImage: [], tempImage: [] });
         } catch (error) {
             console.log(error);
-            
-            message.error("مشکلی در افزودن کاربر به وجود آمده است.");
+            message.error("مشکلی در ویرایش کاربر به وجود آمده است.");
         }
     };
 
     return (
-        <Modal
-            title="کاربر جدید"
-            width={"30%"}
-            placement="left"
+        <Drawer
+            title="ویرایش کاربر"
+            width={500}
+            placement="right"
             onClose={onClose}
             open={visible}
-            footer={false}
-            centered
+            footer={
+                <div style={{ textAlign: "right" }}>
+                    <Button onClick={onClose} style={{ marginRight: 8 }}>
+                        لغو
+                    </Button>
+                    <Button onClick={form.submit} type="primary">
+                        تایید
+                    </Button>
+                </div>
+            }
         >
             <Form form={form} layout="vertical" onFinish={onFinish}>
                 <Row gutter={[16, 16]}>
@@ -69,11 +95,11 @@ const AddUsersModal = ({ visible, onClose, onSubmit }) => {
                             <Input />
                         </Form.Item>
                     </Col>
-                    <Col xs={24} sm={12} md={12}>
-                        <Form.Item name="password" label="رمز عبور" rules={[{ required: true, message: "لطفا رمز عبور را وارد کنید!" }]}>
+                    {/* <Col xs={24} sm={12} md={12}>
+                        <Form.Item name="password" label="رمز عبور">
                             <Input.Password />
                         </Form.Item>
-                    </Col>
+                    </Col> */}
                     <Col xs={24} sm={12} md={12}>
                         <Form.Item name="Name" label="نام" rules={[{ required: true, message: "لطفا نام را وارد کنید!" }]}>
                             <Input />
@@ -111,13 +137,9 @@ const AddUsersModal = ({ visible, onClose, onSubmit }) => {
                         </Form.Item>
                     </Col>
                 </Row>
-                <div className="w-full flex flex-row justify-end gap-2">
-                    <Button htmlType="submit" type="primary">تایید</Button>
-                    <Button onClick={onClose}>لغو</Button>
-                </div>
             </Form>
-        </Modal>
+        </Drawer>
     );
 };
 
-export default AddUsersModal;
+export default EditUserDrawer;

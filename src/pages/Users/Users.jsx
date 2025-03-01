@@ -4,13 +4,16 @@ import ExportButton from "../../components/ExportButton/ExportButton.jsx";
 import { columns } from "./_components/usersColumn.jsx";
 import { PlusOutlined } from "@ant-design/icons";
 import AddUsersModal from "./AddUsersModal.jsx";
+import EditUserDrawer from "./EditUserDrawer.jsx"; // Import the new EditUserDrawer
 import usePagination from "../../hooks/usePagination.jsx";
 import UserQuery from "../../QueryServises/UsersQuery";
 
 const Users = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isEditDrawerVisible, setIsEditDrawerVisible] = useState(false); // State for edit drawer
+  const [selectedUser, setSelectedUser] = useState(null); // State to hold the selected user for editing
   const pageSize = 5;
-  const { deleteUser, gettAllUser } = UserQuery();
+  const { deleteUser, gettAllUser, updateUser } = UserQuery();
   const [data, setData] = useState([]);
 
   const fetchAllUser = async () => {
@@ -48,6 +51,15 @@ const Users = () => {
     }
   }
 
+  const handleEditUser = (record) => {
+    setSelectedUser(record); // Set the selected user for editing
+    setIsEditDrawerVisible(true); // Open the edit drawer
+  }
+
+  const handleEditDrawerClose = () => {
+    setIsEditDrawerVisible(false);
+    fetchAllUser();
+  }
 
   return (
     <div className="p-8 bg-white dark:bg-gray-800 min-h-full">
@@ -63,7 +75,7 @@ const Users = () => {
       </div>
       <Table
         dataSource={paginatedData}
-        columns={columns(handleDeleteUser)}
+        columns={columns(handleDeleteUser, handleEditUser)}
         className="mb-4"
         pagination={false}
         rowKey="id"
@@ -79,6 +91,12 @@ const Users = () => {
         visible={isModalVisible}
         onClose={handleModalClose}
         onSubmit={handleModalClose}
+      />
+      <EditUserDrawer
+        visible={isEditDrawerVisible}
+        onClose={handleEditDrawerClose}
+        onSubmit={handleEditDrawerClose}
+        user={selectedUser}
       />
     </div>
   );
