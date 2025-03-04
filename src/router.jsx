@@ -5,6 +5,7 @@ import Projects from "./pages/Projects";
 import NotFound from "./pages/NotFound";
 import Users from "./pages/Users/Users";
 import ProtectedRoute from "./components/‎ProtectedRoute‎"
+import UnderDevelopment from "./pages/UnderDevelopment";
 
 const router = createBrowserRouter([
   {
@@ -20,6 +21,13 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
+        element:
+          <ProtectedRoute>
+            <UnderDevelopment />
+          </ProtectedRoute>,
+      },
+      {
+        path: "/users/list",
         element:
           <ProtectedRoute>
             <Users />
