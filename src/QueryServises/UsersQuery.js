@@ -17,7 +17,7 @@ const UserQuery = () => {
     console.log(userData, "userData");
 
     try {
-      const response = await myAxios.post(`/user/add-user`, userData, {
+      const response = await myAxios.post(`/user/add-user/`, userData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -48,6 +48,7 @@ const UserQuery = () => {
           },
         }
       );
+      return response.data
     } catch (error) {
       throw error;
     }

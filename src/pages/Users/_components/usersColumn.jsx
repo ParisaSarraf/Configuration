@@ -1,7 +1,7 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Button, Image } from "antd";
 
-export const columns = (handleDeleteUser) => [
+export const columns = (handleDeleteUser, handleEditUser) => [
     {
         title: 'نام کاربری',
         dataIndex: 'username',
@@ -56,7 +56,7 @@ export const columns = (handleDeleteUser) => [
         dataIndex: "temp_image",
         key: "temp_image",
         render: (_, record) => (
-            record.temp_image ? <Image src={record.temp_image} /> : "تصویری وجود ندارد"
+            record.temp_image ? <Image src={record.temp_image} alt={record.temp_image} /> : "تصویری وجود ندارد"
         )
     },
     {
@@ -68,7 +68,7 @@ export const columns = (handleDeleteUser) => [
                     type="text"
                     title="ویرایش"
                     icon={<EditOutlined className="text-green-600" />}
-                    onClick={() => {}}
+                    onClick={() => handleEditUser(record)}
                 />
                 <Button
                     type="text"
