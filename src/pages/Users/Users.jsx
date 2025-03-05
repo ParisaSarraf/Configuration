@@ -4,14 +4,14 @@ import ExportButton from "../../components/ExportButton/ExportButton.jsx";
 import { columns } from "./_components/usersColumn.jsx";
 import { PlusOutlined } from "@ant-design/icons";
 import AddUsersModal from "./AddUsersModal.jsx";
-import EditUserDrawer from "./EditUserDrawer.jsx"; // Import the new EditUserDrawer
+import EditUserDrawer from "./EditUserDrawer.jsx";
 import usePagination from "../../hooks/usePagination.jsx";
 import UserQuery from "../../QueryServises/UsersQuery";
 
 const Users = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isEditDrawerVisible, setIsEditDrawerVisible] = useState(false); // State for edit drawer
-  const [selectedUser, setSelectedUser] = useState(null); // State to hold the selected user for editing
+  const [isEditDrawerVisible, setIsEditDrawerVisible] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null); 
   const pageSize = 5;
   const { deleteUser, gettAllUser, updateUser } = UserQuery();
   const [data, setData] = useState([]);
@@ -29,7 +29,10 @@ const Users = () => {
     fetchAllUser();
   }, []);
 
-  const { currentPage, handlePageChange, paginatedData } = usePagination(data, pageSize);
+  const { currentPage, handlePageChange, paginatedData } = usePagination(
+    data,
+    pageSize
+  );
 
   const handleShowUsersModal = () => {
     setIsModalVisible(true);
@@ -49,17 +52,17 @@ const Users = () => {
     } catch (error) {
       message.error("مشکلی در حذف کاربر به وجود آمده است.");
     }
-  }
+  };
 
   const handleEditUser = (record) => {
-    setSelectedUser(record); // Set the selected user for editing
-    setIsEditDrawerVisible(true); // Open the edit drawer
-  }
+    setSelectedUser(record);
+    setIsEditDrawerVisible(true);
+  };
 
   const handleEditDrawerClose = () => {
     setIsEditDrawerVisible(false);
     fetchAllUser();
-  }
+  };
 
   return (
     <div className="p-8 bg-white dark:bg-gray-800 min-h-full">
@@ -76,9 +79,14 @@ const Users = () => {
       <Table
         dataSource={paginatedData}
         columns={columns(handleDeleteUser, handleEditUser)}
-        className="mb-4"
         pagination={false}
         rowKey="id"
+        scroll={{ x: true }} 
+        responsive={{
+          small: { columnWidth: 100 }, 
+          middle: { columnWidth: 150 },
+          large: { columnWidth: 200 }, 
+        }}
       />
       <Pagination
         current={currentPage}

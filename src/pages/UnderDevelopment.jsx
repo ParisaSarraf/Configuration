@@ -4,7 +4,9 @@ const UnderDevelopment = () => {
   return (
     <div className="w-full flex flex-col">
       <span className="text-3xl text-center">درحال توسعه هستیم...</span>
-      <img src="public/assets/underDevelop.jpg" width={500} height={500} />
+      <div className="w-full flex flex-row justify-center">
+      <img src="public/assets/underDevelop.jpg" alt="under development" className="w-2/4"  />
+      </div>
     </div>
   );
 };
