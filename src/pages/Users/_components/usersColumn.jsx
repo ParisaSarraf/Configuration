@@ -20,12 +20,14 @@ export const columns = (handleDeleteUser, handleEditUser) => [
     {
         title: "شماره تلفن",
         dataIndex: "phone_number",
-        key: "phone_number"
+        key: "phone_number",
+        sorter: (a, b) => a.phone_number - b.phone_number,
     },
     {
         title: "کد ملی",
         dataIndex: "national_code",
-        key: "national_code"
+        key: "national_code",
+        sorter: (a, b) => a.national_code - b.national_code,
     },
     {
         title: "مدیر",
