@@ -6,49 +6,58 @@ import { PlusOutlined } from "@ant-design/icons";
 import AddUsersModal from "./AddUsersModal.jsx";
 import EditUserDrawer from "./EditUserDrawer.jsx";
 import usePagination from "../../hooks/usePagination.jsx";
-import UserQuery from "../../QueryServises/UsersQuery";
+import { useUserList, useCreateUser, useDeleteUser, useUpdateUser } from "../../QueryServises/userQuery/index.js";
 
 const Users = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditDrawerVisible, setIsEditDrawerVisible] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null); 
+  const [selectedUser, setSelectedUser] = useState(null);
   const pageSize = 5;
-  const { deleteUser, gettAllUser, updateUser } = UserQuery();
-  const [data, setData] = useState([]);
 
-  const fetchAllUser = async () => {
-    try {
-      const response = await gettAllUser();
-      setData(response);
-    } catch (error) {
-      message.error("مشکلی در دریافت داده‌ها به وجود آمده است.");
-    }
-  };
+  // Fetch user data
+  const { data: userData, isFetching, error, refetch } = useUserList({
+    onSuccess: (userData) => {
+      setData(userData);
+    },
+  });
 
   useEffect(() => {
-    fetchAllUser();
-  }, []);
+    console.log("User Data:", userData);
+    console.log("Fetching:", isFetching);
+    console.log("Error:", error);
+  }, [userData, isFetching, error]);
 
+
+  const [data, setData] = useState([]);
+
+  // Pagination
   const { currentPage, handlePageChange, paginatedData } = usePagination(
-    data,
+    userData || [],
     pageSize
   );
 
+
+
+  // Mutations
+  const { mutate: createUser } = useCreateUser();
+  const { mutate: deleteUser } = useDeleteUser();
+  const { mutate: updateUser } = useUpdateUser();
+
+  // Handlers
   const handleShowUsersModal = () => {
     setIsModalVisible(true);
   };
 
   const handleModalClose = () => {
     setIsModalVisible(false);
-    fetchAllUser();
+    refetch();
   };
 
   const handleDeleteUser = async (record) => {
-    console.log(record.id);
     try {
       await deleteUser(record.id);
       message.success("کاربر با موفقیت حذف شد.");
-      fetchAllUser();
+      refetch();
     } catch (error) {
       message.error("مشکلی در حذف کاربر به وجود آمده است.");
     }
@@ -61,7 +70,29 @@ const Users = () => {
 
   const handleEditDrawerClose = () => {
     setIsEditDrawerVisible(false);
-    fetchAllUser();
+    refetch();
+  };
+
+  const handleAddUser = async (userData) => {
+    try {
+      await createUser(userData);
+      message.success("کاربر با موفقیت افزوده شد.");
+      refetch();
+      setIsModalVisible(false);
+    } catch (error) {
+      message.error("مشکلی در افزودن کاربر به وجود آمده است.");
+    }
+  };
+
+  const handleUpdateUser = async (userData) => {
+    try {
+      await updateUser({ userId: selectedUser.id, userData });
+      message.success("کاربر با موفقیت به‌روزرسانی شد.");
+      refetch();
+      setIsEditDrawerVisible(false);
+    } catch (error) {
+      message.error("مشکلی در به‌روزرسانی کاربر به وجود آمده است.");
+    }
   };
 
   return (
@@ -77,15 +108,15 @@ const Users = () => {
         <ExportButton data={data} filename="داده‌های فارسی" />
       </div>
       <Table
-        dataSource={paginatedData}
+        dataSource={isFetching ? [] : paginatedData}
         columns={columns(handleDeleteUser, handleEditUser)}
         pagination={false}
         rowKey="id"
-        scroll={{ x: true }} 
+        scroll={{ x: true }}
         responsive={{
-          small: { columnWidth: 100 }, 
+          small: { columnWidth: 100 },
           middle: { columnWidth: 150 },
-          large: { columnWidth: 200 }, 
+          large: { columnWidth: 200 },
         }}
       />
       <Pagination
@@ -98,12 +129,12 @@ const Users = () => {
       <AddUsersModal
         visible={isModalVisible}
         onClose={handleModalClose}
-        onSubmit={handleModalClose}
+        onSubmit={handleAddUser}
       />
       <EditUserDrawer
         visible={isEditDrawerVisible}
         onClose={handleEditDrawerClose}
-        onSubmit={handleEditDrawerClose}
+        onSubmit={handleUpdateUser}
         user={selectedUser}
       />
     </div>

@@ -34,7 +34,7 @@ export const columns = (handleDeleteUser, handleEditUser) => [
         dataIndex: "is_superuser",
         key: "is_superuser",
         render: (is_superuser) => (
-            is_superuser ? "✅" : "❌"
+            is_superuser ? "yes" : "no"
         )
     },
     {
@@ -42,7 +42,7 @@ export const columns = (handleDeleteUser, handleEditUser) => [
         dataIndex: "is_staff",
         key: "is_staff",
         render: (is_staff) => (
-            is_staff ? "✅" : "❌"
+            is_staff ? "yes" : "no"
         )
     },
     {

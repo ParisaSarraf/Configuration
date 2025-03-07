@@ -1,6 +1,6 @@
 import { Form, Input, Button, Typography, message } from 'antd';
 import { useContext } from 'react';
-import { MainContext } from '../../Servises/AuthContext';
+import { MainContext } from '../../Services/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { SignInFn } from '../../utils/Api';
 

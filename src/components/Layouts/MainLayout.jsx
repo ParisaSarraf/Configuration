@@ -22,7 +22,7 @@ const MainLayout = () => {
   };
 
   return (
-    <Layout className="min-h-screen transition-colors duration-300">
+    <Layout className="min-h-screen h-screen transition-colors duration-300">
       <Sider
         breakpoint="md"
         collapsedWidth={0}
@@ -30,7 +30,7 @@ const MainLayout = () => {
         collapsed={collapsed}
         onBreakpoint={(broken) => setBreakpoint(broken ? 'xs' : 'md')}
         trigger={null}
-        className={`bg-light-secondary dark:bg-dark-secondary shadow-xl drop-shadow-sm mr-4 my-4 ${
+        className={`bg-light-secondary dark:bg-dark-secondary shadow-xl drop-shadow-sm mr-4 my-4  ${
           !collapsed ? 'border border-gray-400 rounded-lg' : ''
         }`}
         width={getSiderWidth()}

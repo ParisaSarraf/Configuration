@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
 import { Drawer, Button, Form, Input, Row, Col, Radio, message } from "antd";
 import FileUploader from "../../components/FileUploader/FileUploader";
-import UserQuery from "../../QueryServises/UsersQuery";
+import { useUpdateUser } from "../../QueryServises/userQuery"; 
 
 const EditUserDrawer = ({ visible, onClose, onSubmit, user }) => {
   const [form] = Form.useForm();
-  const { modifyUser } = UserQuery();
+  const { mutate: updateUser, isLoading } = useUpdateUser();
   const [images, setImages] = React.useState({
     signatureImage: [],
     tempImage: [],
@@ -50,14 +50,21 @@ const EditUserDrawer = ({ visible, onClose, onSubmit, user }) => {
       temp_image:
         images.tempImage.length > 0 ? images.tempImage[0].originFileObj : null,
       is_staff: values.isStaff,
+
     };
 
     try {
-      await modifyUser(payload);
-      message.success("کاربر با موفقیت ویرایش شد.");
-      onSubmit(payload);
-      form.resetFields();
-      setImages({ signatureImage: [], tempImage: [] });
+      await updateUser(payload, {
+        onSuccess: () => {
+          message.success("کاربر با موفقیت ویرایش شد.");
+          onSubmit(payload.userData);
+          form.resetFields();
+          setImages({ signatureImage: [], tempImage: [] });
+        },
+        onError: () => {
+          message.error("مشکلی در ویرایش کاربر به وجود آمده است.");
+        },
+      });
     } catch (error) {
       console.log(error);
       message.error("مشکلی در ویرایش کاربر به وجود آمده است.");
@@ -73,7 +80,7 @@ const EditUserDrawer = ({ visible, onClose, onSubmit, user }) => {
       open={visible}
       footer={
         <div className="w-full flex flex-row justify-end gap-1">
-          <Button onClick={form.submit} type="primary">
+          <Button onClick={form.submit} type="primary" loading={isLoading}>
             تایید
           </Button>
           <Button onClick={onClose} style={{ marginRight: 8 }}>
@@ -115,11 +122,6 @@ const EditUserDrawer = ({ visible, onClose, onSubmit, user }) => {
               <Input />
             </Form.Item>
           </Col>
-          {/* <Col xs={24} sm={12} md={12}>
-                        <Form.Item name="password" label="رمز عبور">
-                            <Input.Password />
-                        </Form.Item>
-                    </Col> */}
           <Col xs={24} sm={12} md={12}>
             <Form.Item
               name="Name"

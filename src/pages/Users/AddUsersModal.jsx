@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Modal, Button, Form, Input, Row, Col, Radio, message } from "antd";
 import FileUploader from "../../components/FileUploader/FileUploader";
-import UserQuery from "../../QueryServises/UsersQuery";
+import { useCreateUser } from "../../QueryServises/userQuery"; 
 
 const AddUsersModal = ({ visible, onClose, onSubmit }) => {
     const [form] = Form.useForm();
-    const { createUser } = UserQuery();
+    const { mutate: createUser, isLoading } = useCreateUser(); 
     const [images, setImages] = useState({
         signatureImage: [],
         tempImage: [],
@@ -30,14 +30,19 @@ const AddUsersModal = ({ visible, onClose, onSubmit }) => {
         };
 
         try {
-            await createUser(payload);
-            message.success("کاربر با موفقیت اضافه شد.");
-            onSubmit(payload);
-            form.resetFields();
-            setImages({ signatureImage: [], tempImage: [] });
+            await createUser(payload, {
+                onSuccess: () => {
+                    message.success("کاربر با موفقیت اضافه شد.");
+                    onSubmit(payload);
+                    form.resetFields();
+                    setImages({ signatureImage: [], tempImage: [] });
+                },
+                onError: () => {
+                    message.error("مشکلی در افزودن کاربر به وجود آمده است.");
+                },
+            });
         } catch (error) {
             console.log(error);
-            
             message.error("مشکلی در افزودن کاربر به وجود آمده است.");
         }
     };
@@ -112,7 +117,7 @@ const AddUsersModal = ({ visible, onClose, onSubmit }) => {
                     </Col>
                 </Row>
                 <div className="w-full flex flex-row justify-end gap-2">
-                    <Button htmlType="submit" type="primary">تایید</Button>
+                    <Button htmlType="submit" type="primary" loading={isLoading}>تایید</Button>
                     <Button onClick={onClose}>لغو</Button>
                 </div>
             </Form>
