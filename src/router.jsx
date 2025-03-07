@@ -6,6 +6,7 @@ import NotFound from "./pages/NotFound";
 import Users from "./pages/Users/Users";
 import ProtectedRoute from "./components/‎ProtectedRoute‎"
 import UnderDevelopment from "./pages/UnderDevelopment";
+import ForgetPassword from "./pages/ForgetPassword/ForgetPassword";
 
 const router = createBrowserRouter([
   {
@@ -27,14 +28,14 @@ const router = createBrowserRouter([
           </ProtectedRoute>,
       },
       {
-        path: "/users/list",
+        path: "/panel/users/list",
         element:
           <ProtectedRoute>
             <Users />
           </ProtectedRoute>,
       },
       {
-        path: "/projects",
+        path: "/panel/projects",
         element:
           <ProtectedRoute>
             <Projects />
@@ -45,6 +46,10 @@ const router = createBrowserRouter([
   {
     path: "/sign-in",
     element: <SignIn />,
+  },
+  {
+    path: "/forget-password",
+    element: <ForgetPassword />,
   },
 ]);
 

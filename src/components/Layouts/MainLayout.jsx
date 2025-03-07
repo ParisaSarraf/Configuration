@@ -8,29 +8,42 @@ const { Sider, Content } = Layout;
 
 const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const [breakpointBroken, setBreakpointBroken] = useState(false);
-  const [theme, setTheme] = useState('light'); // Added theme state
+  const [breakpoint, setBreakpoint] = useState('md');
+
+  const getSiderWidth = () => {
+    switch (breakpoint) {
+      case 'xs': return collapsed ? 0 : 200;
+      case 'sm': return collapsed ? 0 : 220;
+      case 'md': return collapsed ? 80 : 240;
+      case 'lg': return collapsed ? 100 : 260;
+      case 'xl': return collapsed ? 120 : 280;
+      default: return collapsed ? 0 : 80;
+    }
+  };
 
   return (
     <Layout className="min-h-screen transition-colors duration-300">
       <Sider
         breakpoint="md"
-        collapsedWidth={breakpointBroken ? 0 : 80}
+        collapsedWidth={0}
         collapsible
         collapsed={collapsed}
-        onBreakpoint={(broken) => setBreakpointBroken(broken)}
+        onBreakpoint={(broken) => setBreakpoint(broken ? 'xs' : 'md')}
         trigger={null}
-        className="shadow-lg bg-light-secondary dark:bg-dark-secondary"
+        className={`bg-light-secondary dark:bg-dark-secondary shadow-xl drop-shadow-sm mr-4 my-4 ${
+          !collapsed ? 'border border-gray-400 rounded-lg' : ''
+        }`}
+        width={getSiderWidth()}
       >
         <div className="h-4 my-8 text-center rounded bg-light-secondary dark:bg-dark-secondary">
           {!collapsed && (
-            <span className="font-medium text-light-text-primary dark:text-dark-text-primary text-lg">
-              Configuration Project
+            <span className="font-bold text-light-text-primary dark:text-dark-text-primary text-lg">
+              مدیریت پیکربندی
             </span>
           )}
         </div>
         <Menu
-          theme={theme}
+          theme="light"
           mode="inline"
           defaultSelectedKeys={['1']}
           className="bg-light-secondary dark:bg-dark-secondary"
@@ -38,12 +51,9 @@ const MainLayout = () => {
         />
       </Sider>
       <Layout>
-        <CustomHeader
-          collapsed={collapsed}
-          setCollapsed={setCollapsed}
-        />
+        <CustomHeader collapsed={collapsed} setCollapsed={setCollapsed} />
         <Content className="p-4 md:p-6 min-h-[calc(100vh-64px)] bg-light-primary dark:bg-dark-primary transition-colors duration-300">
-          <div className="text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 p-6 rounded-lg">
+          <div className="text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 p-6 border border-gray-400 shadow-sm drop-shadow-xl rounded-lg">
             <Outlet />
           </div>
         </Content>

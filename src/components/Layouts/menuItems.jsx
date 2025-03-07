@@ -10,12 +10,12 @@ export const items = [
             {
                 key: '1-1',
                 icon: <TeamOutlined />,
-                label: <Link to="/users/list">لیست کاربران</Link>,
+                label: <Link to="/panel/users/list">لیست کاربران</Link>,
             },
             {
                 key: '1-2',
                 icon: <UserSwitchOutlined />,
-                label: <Link to="/users/roles">نقش‌های کاربری</Link>,
+                label: <Link to="/panel/users/roles">نقش‌های کاربری</Link>,
             },
         ],
     },
@@ -27,12 +27,12 @@ export const items = [
             {
                 key: '2-1',
                 icon: <ProjectOutlined />,
-                label: <Link to="/projects/list">لیست پروژه‌ها</Link>,
+                label: <Link to="/panel/projects/list">لیست پروژه‌ها</Link>,
             },
             {
                 key: '2-2',
                 icon: <ProductOutlined />,
-                label: <Link to="/projects/categories">دسته‌بندی‌ها</Link>,
+                label: <Link to="/panel/projects/categories">دسته‌بندی‌ها</Link>,
             },
         ],
     },
