@@ -1,23 +1,13 @@
 import { ProductOutlined, UserSwitchOutlined, TeamOutlined, ProjectOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
+import Users from '../../pages/Users/Users';
 
 export const items = [
     {
         key: '1',
         icon: <UserSwitchOutlined />,
-        label: 'کاربران',
-        children: [
-            {
-                key: '1-1',
-                icon: <TeamOutlined />,
-                label: <Link to="/panel/users/list">لیست کاربران</Link>,
-            },
-            {
-                key: '1-2',
-                icon: <UserSwitchOutlined />,
-                label: <Link to="/panel/users/roles">نقش‌های کاربری</Link>,
-            },
-        ],
+        label: <Link to="/panel/system-managment">مدیریت سیستم</Link>
+        
     },
     {
         key: '2',

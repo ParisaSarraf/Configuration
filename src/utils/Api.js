@@ -2,6 +2,7 @@ import { useContext, useEffect } from "react";
 import { MainContext } from "../Services/AuthContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 export const BASEURL = "http://87.248.150.51:8000/api/v1";
 
@@ -59,12 +60,10 @@ export const useMyAxios = () => {
 
   const handleLogout = async () => {
     const refreshToken = localStorage.getItem("refreshToken");
-
     try {
       await myAxios.post("/user/blacklist/", {
         refresh: refreshToken,
       });
-
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       setAuthToken(null);
@@ -74,7 +73,7 @@ export const useMyAxios = () => {
     }
   };
 
-  return { myAxios, handleLogout };
+  return { myAxios, handleLogout }; 
 };
 
 export const SignInFn = async (usersData) => {
@@ -83,7 +82,9 @@ export const SignInFn = async (usersData) => {
     const { access, refresh } = response.data;
     localStorage.setItem("accessToken", access);
     localStorage.setItem("refreshToken", refresh);
-
+    // todo
+    const decode = jwtDecode(access)
+    console.log(decode);
     return response.data;
   } catch (error) {
     console.error("Error in SignIn:", error);

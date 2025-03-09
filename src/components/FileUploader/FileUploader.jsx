@@ -1,17 +1,21 @@
-import { Upload, Button, Image } from "antd";
+import { Upload, Image } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const FileUploader = ({ value = [], onChange, maxFiles = 1 }) => {
     const [fileList, setFileList] = useState(value);
     const [previewImage, setPreviewImage] = useState(null);
+
+    useEffect(() => {
+        setFileList(value);
+    }, [value]);
 
     const handleChange = async (info) => {
         const updatedFileList = info.fileList.slice(0, maxFiles);
 
         const base64Files = await Promise.all(
             updatedFileList.map(async (file) => {
-                if (!file.originFileObj) return file;
+                if (!file.originFileObj) return file; 
                 const base64 = await toBase64(file.originFileObj);
                 return { ...file, base64 };
             })
@@ -33,7 +37,7 @@ const FileUploader = ({ value = [], onChange, maxFiles = 1 }) => {
         if (!file.base64 && file.originFileObj) {
             file.base64 = await toBase64(file.originFileObj);
         }
-        setPreviewImage(file.base64);
+        setPreviewImage(file.base64 || file.url); 
     };
 
     return (
@@ -43,17 +47,19 @@ const FileUploader = ({ value = [], onChange, maxFiles = 1 }) => {
                 fileList={fileList}
                 onChange={handleChange}
                 onPreview={handlePreview}
-                beforeUpload={() => false}
+                beforeUpload={() => false} 
             >
                 {fileList.length < maxFiles && (
-                    <span>آپلود <UploadOutlined /></span>
+                    <span>
+                        آپلود <UploadOutlined />
+                    </span>
                 )}
             </Upload>
 
             {previewImage && (
                 <Image
                     src={previewImage}
-                    style={{ display: 'none' }}
+                    style={{ display: "none" }}
                     preview={{
                         visible: !!previewImage,
                         onVisibleChange: (visible) => {

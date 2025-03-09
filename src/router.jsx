@@ -1,45 +1,50 @@
 import { createBrowserRouter } from "react-router-dom";
+import ProtectedRoute from "./components/‎ProtectedRoute‎";
 import MainLayout from "./components/Layouts/MainLayout";
 import SignIn from "./components/SignIn/SignIn";
 import Projects from "./pages/Projects/Projects";
 import NotFound from "./pages/NotFound/NotFound";
-import Users from "./pages/Users/Users";
-import ProtectedRoute from "./components/‎ProtectedRoute‎"
 import UnderDevelopment from "./pages/UnderDevelopment/UnderDevelopment";
 import ForgetPassword from "./pages/ForgetPassword/ForgetPassword";
+import Users from "./pages/Users/Users";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element:
+    element: (
       <ProtectedRoute>
         <MainLayout />
-      </ProtectedRoute>,
-    errorElement:
+      </ProtectedRoute>
+    ),
+    errorElement: (
       <ProtectedRoute>
         <NotFound />
-      </ProtectedRoute>,
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,
-        element:
+        element: (
           <ProtectedRoute>
             <UnderDevelopment />
-          </ProtectedRoute>,
+          </ProtectedRoute>
+        ),
       },
       {
-        path: "/panel/users/list",
-        element:
+        path: "/panel/system-managment",
+        element: (
           <ProtectedRoute>
             <Users />
-          </ProtectedRoute>,
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/panel/projects",
-        element:
+        element: (
           <ProtectedRoute>
             <Projects />
-          </ProtectedRoute>,
+          </ProtectedRoute>
+        ),
       },
     ],
   },
