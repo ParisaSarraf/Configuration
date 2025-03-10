@@ -28,7 +28,7 @@ const Users = () => {
   };
 
   return (
-    <div className="p-8 bg-white dark:bg-gray-800 min-h-full">
+    <div  className="text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 p-6 border border-gray-400 shadow-sm drop-shadow-xl rounded-lg">
       <div className="flex flex-row gap-2 my-4">
         <UserModal 
           isOpen={isOpen} 

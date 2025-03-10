@@ -53,7 +53,7 @@ const MainLayout = () => {
       <Layout>
         <CustomHeader collapsed={collapsed} setCollapsed={setCollapsed} />
         <Content className="p-4 md:p-6 min-h-[calc(100vh-64px)] bg-light-primary dark:bg-dark-primary transition-colors duration-300">
-          <div className="text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 p-6 border border-gray-400 shadow-sm drop-shadow-xl rounded-lg">
+          <div>
             <Outlet />
           </div>
         </Content>

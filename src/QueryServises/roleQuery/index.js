@@ -1,0 +1,73 @@
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMyAxios } from "../../utils/Api";
+export const useRoleListKey = ["list", "roles"];
+export const useRoleList = (queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: useRoleListKey,
+    queryFn: () =>
+      myAxios.get(`/user/role/`).then((response) => {
+        queryOptions?.onSuccess?.(response?.data);
+        return response?.data;
+      }),
+    ...queryOptions,
+  });
+};
+
+export const useRoleKey = (id) => ["role", id];
+export const useRole = (queryOptions, params) => {
+  const myAxios = useMyAxios();
+  return useQuery({
+    queryKey: useRoleKey(params?.id),
+    queryFn: () =>
+      myAxios.get(`/user/role/${params?.id}/`).then((response) => {
+        queryOptions?.onSuccess?.(response?.data?.[0]);
+        return response?.data?.[0];
+      }),
+  });
+};
+
+export const useCreateRole = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: (params) => {
+      return myAxios
+        .post(`/user/role/`, params, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((response) => {
+          return response?.data;
+        });
+    },
+  });
+};
+
+export const useDeleteUser = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: (params) => {
+      return myAxios.delete(`/user/role/${params}`).then((response) => {
+        return response?.data;
+      });
+    },
+  });
+};
+
+export const useUpdateUser = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: ({ userId, ...params }) => {
+      return myAxios
+        .put(`/user/role/${userId}`, params, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((response) => {
+          return response?.data;
+        });
+    },
+  });
+};

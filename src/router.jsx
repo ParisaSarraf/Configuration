@@ -7,6 +7,7 @@ import NotFound from "./pages/NotFound/NotFound";
 import UnderDevelopment from "./pages/UnderDevelopment/UnderDevelopment";
 import ForgetPassword from "./pages/ForgetPassword/ForgetPassword";
 import Users from "./pages/Users/Users";
+import SystemManagment from "./pages/SystemManagment";
 
 const router = createBrowserRouter([
   {
@@ -34,7 +35,7 @@ const router = createBrowserRouter([
         path: "/panel/system-managment",
         element: (
           <ProtectedRoute>
-            <Users />
+            <SystemManagment />
           </ProtectedRoute>
         ),
       },
