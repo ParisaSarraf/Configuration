@@ -6,7 +6,7 @@ import FileUploader from "../../../components/FileUploader/FileUploader";
 import { useCreateUser, useUpdateUser } from "../../../QueryServises/userQuery";
 import { BASEURL } from "../../../utils/Api";
 
-const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) => {
+const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) => {
   const [form] = Form.useForm();
   const BaseUrl = BASEURL;
   const { isPending: isCreating, mutateAsync: createUser } = useCreateUser();
@@ -180,4 +180,4 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) => {
   );
 };
 
-export default UserModal;
+export default DocumentModal;

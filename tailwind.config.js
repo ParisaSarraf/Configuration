@@ -13,7 +13,6 @@ module.exports = {
             secondary: "#6b7280",
           },
         },
-
         dark: {
           primary: "#111827",
           secondary: "#1f2937",
@@ -37,5 +36,16 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ addComponents }) {
+      addComponents({
+        '.modal-button': {
+          '@apply bg-blue-500 text-white p-4 my-4 rounded-lg hover:bg-blue-600 dark:bg-blue-700 dark:hover:bg-blue-800': {},
+        },
+        '.card': {
+          '@apply text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 p-4 border border-gray-400 shadow-sm drop-shadow-xl rounded-lg': {},
+        },
+      });
+    },
+  ],
 };

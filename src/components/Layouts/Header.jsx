@@ -9,6 +9,7 @@ import {
 } from "@ant-design/icons";
 import { useMyAxios } from "../../utils/Api";
 const { Header: AntHeader } = Layout;
+import  ThemeToggle  from "../Theme/ThemeToggle";
 
 const CustomHeader = ({ collapsed, setCollapsed }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

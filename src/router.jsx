@@ -2,12 +2,11 @@ import { createBrowserRouter } from "react-router-dom";
 import ProtectedRoute from "./components/‎ProtectedRoute‎";
 import MainLayout from "./components/Layouts/MainLayout";
 import SignIn from "./components/SignIn/SignIn";
-import Projects from "./pages/Projects/Projects";
 import NotFound from "./pages/NotFound/NotFound";
 import UnderDevelopment from "./pages/UnderDevelopment/UnderDevelopment";
 import ForgetPassword from "./pages/ForgetPassword/ForgetPassword";
-import Users from "./pages/Users/Users";
 import SystemManagment from "./pages/SystemManagment";
+import Documents from "./pages/Documents/Documents";
 
 const router = createBrowserRouter([
   {
@@ -40,10 +39,10 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/panel/projects",
+        path: "/panel/document/list",
         element: (
           <ProtectedRoute>
-            <Projects />
+            <Documents />
           </ProtectedRoute>
         ),
       },

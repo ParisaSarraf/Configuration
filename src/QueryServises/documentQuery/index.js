@@ -1,13 +1,13 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMyAxios } from "../../utils/Api";
 
-export const useUserListKey = ["list", "users"];
-export const useUserList = (queryOptions) => {
+export const useDocumentsListKey = ["list", "documents"];
+export const useDocumentList = (queryOptions) => {
   const { myAxios } = useMyAxios();
   return useQuery({
-    queryKey: useUserListKey,
+    queryKey: useDocumentsListKey,
     queryFn: () =>
-      myAxios.get(`/user/get-user/`).then((response) => {
+      myAxios.get(`/document/get-document/`).then((response) => {
         queryOptions?.onSuccess?.(response?.data);
         return response?.data;
       }),
@@ -15,16 +15,20 @@ export const useUserList = (queryOptions) => {
   });
 };
 
-export const useCreateUser = () => {
+export const useCreateDocument = () => {
   const { myAxios } = useMyAxios();
   return useMutation({
     mutationFn: (params) => {
       return myAxios
-        .post(`/user/add-user/`, params, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
+        .post(
+          `/document/add-document/`,
+          params
+          //     , {
+          //   headers: {
+          //     "Content-Type": "multipart/form-data",
+          //   },
+          // }
+        )
         .then((response) => {
           return response?.data;
         });
@@ -32,12 +36,12 @@ export const useCreateUser = () => {
   });
 };
 
-export const useDeleteUser = () => {
+export const useDeleteDocument = () => {
   const { myAxios } = useMyAxios();
   return useMutation({
     mutationFn: (params) => {
       return myAxios
-        .delete(`/user/delete-user/${params}`)
+        .delete(`/document/delete-document/${params}`)
         .then((response) => {
           return response?.data;
         });
@@ -45,16 +49,20 @@ export const useDeleteUser = () => {
   });
 };
 
-export const useUpdateUser = () => {
+export const useUpdateDocument = () => {
   const { myAxios } = useMyAxios();
   return useMutation({
-    mutationFn: ({ userId, ...params }) => {
+    mutationFn: ({ documentId, ...params }) => {
       return myAxios
-        .put(`/user/update-user/${userId}`, params, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
+        .put(
+          `/document/update-document/${documentId}`,
+          params
+          //     , {
+          //   headers: {
+          //     "Content-Type": "multipart/form-data",
+          //   },
+          // }
+        )
         .then((response) => {
           return response?.data;
         });

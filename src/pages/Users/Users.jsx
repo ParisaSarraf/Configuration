@@ -28,8 +28,8 @@ const Users = () => {
   };
 
   return (
-    <div  className="text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 p-6 border border-gray-400 shadow-sm drop-shadow-xl rounded-lg">
-      <div className="flex flex-row gap-2 my-4">
+    <div className="card">
+      <div className="flex flex-row gap-2">
         <UserModal 
           isOpen={isOpen} 
           modalMode={modalMode} 
@@ -41,7 +41,7 @@ const Users = () => {
       <Table
         columns={columns(handleEditUser, handleDeleteUser)}
         dataSource={isFetching ? [] : data}
-        isLoading={isFetching}
+        loading={isFetching}
         rowKey="id"
         scroll={{ x: true }}
         responsive={{

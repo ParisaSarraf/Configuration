@@ -1,14 +1,15 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMyAxios } from "../../utils/Api";
-export const useRoleListKey = ["list", "roles"];
+
+export const useRoleListKey = ["lists", "roles"];
 export const useRoleList = (queryOptions) => {
   const { myAxios } = useMyAxios();
   return useQuery({
     queryKey: useRoleListKey,
-    queryFn: () =>
+    queryFn: () => 
       myAxios.get(`/user/role/`).then((response) => {
         queryOptions?.onSuccess?.(response?.data);
-        return response?.data;
+      return response?.data; 
       }),
     ...queryOptions,
   });
@@ -16,7 +17,7 @@ export const useRoleList = (queryOptions) => {
 
 export const useRoleKey = (id) => ["role", id];
 export const useRole = (queryOptions, params) => {
-  const myAxios = useMyAxios();
+  const { myAxios } = useMyAxios();
   return useQuery({
     queryKey: useRoleKey(params?.id),
     queryFn: () =>

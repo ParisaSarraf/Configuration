@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Layout, Menu } from 'antd';
 import { Outlet } from 'react-router-dom';
-import { items } from './menuItems';
 import CustomHeader from './Header';
+import { items } from './menuItems';
 
 const { Sider, Content } = Layout;
 
