@@ -1,45 +1,33 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import Modal from "../../../components/Modal";
-import { Button, Col, Form, Input, message, Radio, Row } from "antd";
+import { Button, Col, Form, Input, message, Row } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import FileUploader from "../../../components/FileUploader/FileUploader";
-import { useCreateUser, useUpdateUser } from "../../../QueryServises/userQuery";
-import { BASEURL } from "../../../utils/Api";
+import {
+  useCreateDocument,
+  useUpdateDocument,
+} from "../../../QueryServises/documentQuery";
 
-const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) => {
+const DocumentModal = ({
+  isOpen,
+  modalMode,
+  modalData,
+  closeModal,
+  setModal,
+}) => {
   const [form] = Form.useForm();
-  const BaseUrl = BASEURL;
-  const { isPending: isCreating, mutateAsync: createUser } = useCreateUser();
-  const { isPending: isUpdating, mutateAsync: updateUser } = useUpdateUser();
+  const { isPending: isCreating, mutateAsync: createDocument } =
+    useCreateDocument();
+  const { isPending: isUpdating, mutateAsync: updateDocument } =
+    useUpdateDocument();
 
   useEffect(() => {
     if (modalMode === "edit" && modalData) {
       form.setFieldsValue({
-        username: modalData.username,
-        name: modalData.name,
-        lastName: modalData.last_name,
-        PhoneNumber: modalData.phone_number,
-        nationalCode: modalData.national_code,
-        isStaff: modalData.is_staff,
-        isSuperuser: modalData.is_superuser,
-        signatureImage: modalData.signature_image
-          ? [
-              {
-                uid: "-1",
-                name: "signature_image",
-                url: BaseUrl.replace("/api/v1", "") + modalData.signature_image,
-              },
-            ]
-          : [],
-        tempImage: modalData.temp_image
-          ? [
-              {
-                uid: "-2",
-                name: "temp_image",
-                url: BaseUrl.replace("/api/v1", "") +  modalData.temp_image,
-              },
-            ]
-          : [],
+        code: modalData.code,
+        persianTitle: modalData.persian_title,
+        englishTitle: modalData.english_title,
+        isUsable: modalData.is_usable,
+        isReproducible: modalData.is_reproducible,
       });
     } else if (modalMode === "add") {
       form.resetFields();
@@ -48,28 +36,17 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) =
 
   const onFinishForm = (values) => {
     const payload = {
-      username: values.username,
-      password: values.password,
-      is_superuser: values.isSuperuser,
-      name: values.name,
-      last_name: values.lastName,
-      phone_number: values.PhoneNumber,
-      national_code: values.nationalCode,
-      signature_image:
-        values.signatureImage && values.signatureImage.length > 0
-          ? values.signatureImage[0].originFileObj
-          : null,
-      temp_image:
-        values.tempImage && values.tempImage.length > 0
-          ? values.tempImage[0].originFileObj
-          : null,
-      is_staff: values.isStaff,
+      code: values.code,
+      persianTitle: values.persianTitle,
+      englishTitle: values.englishTitle,
+      isUsable: values.isUsable,
+      isReproducible: values.isReproducible,
     };
 
     if (modalMode === "add") {
-      createUser(payload)
+      createDocument(payload)
         .then(() => {
-          message.success("کاربر با موفقیت اضافه شد");
+          message.success("سند با موفقیت اضافه شد");
           closeModal();
         })
         .catch((error) => {
@@ -77,7 +54,7 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) =
           console.error(error);
         });
     } else if (modalMode === "edit") {
-      updateUser({ userId: modalData.id, userData: payload })
+      updateDocument({ documentId: modalData.id, documentData: payload })
         .then(() => {
           message.success("کاربر با موفقیت ویرایش شد");
           closeModal();
@@ -96,7 +73,7 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) =
         icon={<PlusOutlined className="text-center" />}
         onClick={() => setModal({ mode: "add", data: null })}
       >
-        <span className="xs:hidden sm:hidden md:inline">افزودن کاربر</span>
+        <span className="xs:hidden sm:hidden md:inline">افزودن سند</span>
       </Button>
       <Modal
         isOpen={isOpen}
@@ -114,63 +91,29 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) =
           onFinish={onFinishForm}
         >
           <Row gutter={[16, 16]}>
-            <Col span={12}>
-              <Form.Item name="signatureImage" label="امضا کاربر">
-                <FileUploader />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="tempImage" label="تصویر کاربر">
-                <FileUploader />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="username" label="نام کاربری">
+            <Col span={4}>
+              <Form.Item label="کد" name="code">
                 <Input />
               </Form.Item>
             </Col>
-            {modalMode !==
-              "edit" &&(
-                <Col span={12}>
-                  <Form.Item name="password" label="رمزعبور">
-                    <Input.Password />
-                  </Form.Item>
-                </Col>
-              )}
-            <Col span={12}>
-              <Form.Item name="name" label="نام">
+            <Col span={6}>
+              <Form.Item label="نام فارسی" name="persianTitle">
                 <Input />
               </Form.Item>
             </Col>
-            <Col span={12}>
-              <Form.Item name="lastName" label="نام خانوادگی">
+            <Col span={6}>
+              <Form.Item label="نام انگلیسی" name="englishTitle">
                 <Input />
               </Form.Item>
             </Col>
-            <Col span={12}>
-              <Form.Item name="PhoneNumber" label="شماره تلفن">
+            <Col span={4}>
+              <Form.Item label="قابل قبول" name="isUsable">
                 <Input />
               </Form.Item>
             </Col>
-            <Col span={12}>
-              <Form.Item name="nationalCode" label="کدملی">
+            <Col span={4}>
+              <Form.Item label="قابل تولید" name="isReproducible">
                 <Input />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="isStaff" label="مدیر">
-                <Radio.Group buttonStyle="solid">
-                  <Radio.Button value={true}>بله</Radio.Button>
-                  <Radio.Button value={false}>خیر</Radio.Button>
-                </Radio.Group>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="isSuperuser" label="ادمین">
-                <Radio.Group buttonStyle="solid">
-                  <Radio.Button value={true}>بله</Radio.Button>
-                  <Radio.Button value={false}>خیر</Radio.Button>
-                </Radio.Group>
               </Form.Item>
             </Col>
           </Row>

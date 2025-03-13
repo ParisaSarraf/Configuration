@@ -22,12 +22,10 @@ export function SignIn() {
         localStorage.setItem("accessToken", data.access);
         localStorage.setItem("refreshToken", data.refresh);
         navigate("/");
-      } else {
-        message.error("نام کاربری یا رمز عبور نادرست است");
-      }
+      } 
     } catch (error) {
       console.error("Login error:", error);
-      message.error("خطا در ارتباط با سرور");
+      message.error("نام کاربری یا رمز عبور نادرست است");
     }
   };
 

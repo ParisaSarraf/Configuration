@@ -84,6 +84,15 @@
   }
 }
 
-.add-Button {
-  
+.custom-tree .ant-tree-treenode {
+  padding: 8px; 
+}
+
+.custom-tree .ant-tree-node-content-wrapper {
+  font-size: 18px;
+}
+
+.custom-tree .ant-tree-switcher {
+  width: 24px;
+  height: 24px;
 }

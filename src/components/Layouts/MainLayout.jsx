@@ -22,7 +22,7 @@ const MainLayout = () => {
   };
 
   return (
-    <Layout className="min-h-screen h-screen transition-colors duration-300">
+    <Layout className="min-h-full max-h-full transition-colors duration-300">
       <Sider
         breakpoint="md"
         collapsedWidth={0}
