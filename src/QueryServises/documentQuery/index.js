@@ -20,15 +20,7 @@ export const useCreateDocument = () => {
   return useMutation({
     mutationFn: (params) => {
       return myAxios
-        .post(
-          `/document/add-document/`,
-          params
-          //     , {
-          //   headers: {
-          //     "Content-Type": "multipart/form-data",
-          //   },
-          // }
-        )
+        .post(`/document/add-document/`, params)
         .then((response) => {
           return response?.data;
         });
@@ -54,15 +46,7 @@ export const useUpdateDocument = () => {
   return useMutation({
     mutationFn: ({ documentId, ...params }) => {
       return myAxios
-        .put(
-          `/document/update-document/${documentId}`,
-          params
-          //     , {
-          //   headers: {
-          //     "Content-Type": "multipart/form-data",
-          //   },
-          // }
-        )
+        .put(`/document/update-document/${documentId}`, params)
         .then((response) => {
           return response?.data;
         });

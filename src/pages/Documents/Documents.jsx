@@ -15,7 +15,7 @@ const Documents = () => {
           closeModal={closeModal}
           setModal={setModal}
         />
-        <DocumentTree />
+        <DocumentTree setModal={setModal} />
       </div>
       <div className="card">سلام</div>
     </div>
