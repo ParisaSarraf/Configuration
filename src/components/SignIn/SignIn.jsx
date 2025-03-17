@@ -1,5 +1,5 @@
 import { Form, Input, Button, Typography, message } from "antd";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { MainContext } from "../../Services/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { SignInFn } from "../../utils/Api";
@@ -9,8 +9,10 @@ const { Title, Paragraph } = Typography;
 export function SignIn() {
   const navigate = useNavigate();
   const { setAuthToken } = useContext(MainContext);
+  const [loading, setLoading] = useState(false)
 
   const onFinish = async (values) => {
+    setLoading(true)
     try {
       const payload = {
         username: values.username,
@@ -21,11 +23,14 @@ export function SignIn() {
         setAuthToken(data.access);
         localStorage.setItem("accessToken", data.access);
         localStorage.setItem("refreshToken", data.refresh);
+        message.success("با موفقیت وارد شدید ", 3)
         navigate("/");
-      } 
+      }
     } catch (error) {
       console.error("Login error:", error);
       message.error("نام کاربری یا رمز عبور نادرست است");
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -70,7 +75,7 @@ export function SignIn() {
             />
           </Form.Item>
 
-          <Button type="primary" htmlType="submit" block size="large">
+          <Button type="primary" htmlType="submit" block size="large" loading={loading}>
             ورود
           </Button>
 
