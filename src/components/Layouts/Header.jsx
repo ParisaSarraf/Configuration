@@ -5,15 +5,58 @@ import {
   MenuUnfoldOutlined,
   UserOutlined,
   LoginOutlined,
-  UserAddOutlined,
+  SettingOutlined,
+  ProfileOutlined,
+  SecurityScanOutlined,
+  BellOutlined,
 } from "@ant-design/icons";
 import { useMyAxios } from "../../utils/Api";
+import ThemeToggle from "../Theme/ThemeToggle";
+import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 const { Header: AntHeader } = Layout;
-import  ThemeToggle  from "../Theme/ThemeToggle";
 
 const CustomHeader = ({ collapsed, setCollapsed }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const isLoggedIn = localStorage.getItem("accessToken");
   const { handleLogout } = useMyAxios();
+  const navigate = useNavigate()
+  const decode = jwtDecode(localStorage.getItem("accessToken"))
+
+
+  const menuItems = [
+    {
+      key: '1',
+      icon: <ProfileOutlined />,
+      label: `سلام ${decode.last_name} `,
+    },
+    {
+      key: '2',
+      label: 'تغییر رمزعبور',
+      icon: <SecurityScanOutlined />,
+      onClick: () => {
+        navigate("/forget-password")
+      }
+    },
+    // {
+    //   key: '4',
+    //   label: 'تنظیمات',
+    //   icon: <SettingOutlined />,
+    // },
+    {
+      type: 'divider',
+    },
+    {
+      key: '3',
+      label: 'خروج',
+      icon: <LoginOutlined />,
+      onClick: () => {
+        handleLogout();
+      },
+    },
+
+  ];
+
+
 
   return (
     <AntHeader className="flex items-center justify-between px-4 mt-4 mx-6 bg-light-primary dark:bg-dark-primary border border-gray-400 shadow-xl drop-shadow-sm rounded-lg">
@@ -28,28 +71,27 @@ const CustomHeader = ({ collapsed, setCollapsed }) => {
         )}
       </div>
 
-      <div className="flex items-center gap-4 ">
-        {isLoggedIn ? (
-          <Dropdown menu={{ items: menuItems }} trigger={["click"]}>
-            <Avatar
-              className="cursor-pointer"
-              icon={<UserOutlined />}
-              src="https://example.com/avatar.png"
-            />
-          </Dropdown>
-        ) : (
-          <div className="flex items-center justify-between ml-4 gap-4">
-            <LoginOutlined
-              className="text-light-text-primary dark:text-dark-text-primary text-lg cursor-pointer"
-              onClick={handleLogout}
-            />
-            <UserAddOutlined
-              className="text-light-text-primary dark:text-dark-text-primary text-lg cursor-pointer"
-              // onClick={() => navigate('/sign-up')}
-            />
-            {/* <ThemeToggle /> */}
-          </div>
+      <div className="flex items-center gap-4">
+        {isLoggedIn && (
+          <>
+            <BellOutlined size={"10px"} />
+
+            <Dropdown
+              menu={{
+                items: menuItems,
+              }}
+              trigger={["hover"]}
+            >
+              <Avatar
+                className="cursor-pointer"
+                icon={<UserOutlined />}
+                src={decode.signature_image ? decode.signature_image : "/user.png"}
+              />
+            </Dropdown>
+          </>
+
         )}
+        {/* <ThemeToggle /> */}
       </div>
     </AntHeader>
   );
