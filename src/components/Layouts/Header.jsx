@@ -74,7 +74,7 @@ const CustomHeader = ({ collapsed, setCollapsed }) => {
       <div className="flex items-center gap-4">
         {isLoggedIn && (
           <>
-            <BellOutlined size={"10px"} />
+            <BellOutlined className="text-xl p-1.5 bg-[#B5B6B7] text-white rounded-full" />
 
             <Dropdown
               menu={{
