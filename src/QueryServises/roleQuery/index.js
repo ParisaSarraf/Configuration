@@ -32,31 +32,25 @@ export const useCreateRole = () => {
   const { myAxios } = useMyAxios();
   return useMutation({
     mutationFn: (params) => {
-      return myAxios
-        .post(`/user/role/`, params, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
-        .then((response) => {
-          return response?.data;
-        });
-    },
-  });
-};
-
-export const useDeleteUser = () => {
-  const { myAxios } = useMyAxios();
-  return useMutation({
-    mutationFn: (params) => {
-      return myAxios.delete(`/user/role/${params}`).then((response) => {
+      return myAxios.post(`/user/role/`, params).then((response) => {
         return response?.data;
       });
     },
   });
 };
 
-export const useUpdateUser = () => {
+export const useDeleteRole = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: (params) => {
+      return myAxios.delete(`/user/role/${params}/`).then((response) => {
+        return response?.data;
+      });
+    },
+  });
+};
+
+export const useUpdateRole = () => {
   const { myAxios } = useMyAxios();
   return useMutation({
     mutationFn: ({ userId, ...params }) => {

@@ -1,4 +1,4 @@
-import { Button, message, Table } from "antd";
+import { Button, Card, message, Table } from "antd";
 import { columns } from "./_components/usersColumn.jsx";
 import { useUserList } from "../../QueryServises/userQuery/index.js";
 import UserModal from "./_components/UserModal.jsx";
@@ -31,25 +31,24 @@ const Users = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="w-full p-4 bg-white shadow-sm">
-        <div className="flex flex-row gap-4">
-          <Button
-            className="modal-button"
-            onClick={() => navigate("/panel/system-managment")}
-            icon={< RollbackOutlined />}
-          >
-            بازگشت به صفحه قبل
-          </Button>
-          <UserModal
-            isOpen={isOpen}
-            modalMode={modalMode}
-            modalData={modalData}
-            closeModal={closeModal}
-            setModal={setModal}
-          />
-        </div>
-
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="mb-6 p-4 bg-white shadow-md rounded-lg">
+        <Button
+          type="primary"
+          className="bg-blue-500 hover:bg-blue-600 text-white"
+          onClick={() => navigate("/panel/system-managment/")}
+        >
+          بازگشت به صفحه اصلی
+        </Button>
+      </div>
+      <UserModal
+        isOpen={isOpen}
+        modalMode={modalMode}
+        modalData={modalData}
+        closeModal={closeModal}
+        setModal={setModal}
+      />
+      <Card>
         <Table
           columns={columns(handleEditUser, handleDeleteUser)}
           dataSource={isFetching ? [] : data}
@@ -62,7 +61,9 @@ const Users = () => {
             large: { columnWidth: 200 },
           }}
         />
-      </div>
+      </Card>
+
+      {/* </div> */}
     </div>
 
   );

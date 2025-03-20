@@ -9,6 +9,7 @@ import SystemManagment from "./pages/SystemManagment";
 import Documents from "./pages/Documents/Documents";
 import Users from "./pages/Users/Users"
 import Permissions from "./pages/Permission/Permissions";
+import Rols from "./pages/Rols/Rols";
 
 const router = createBrowserRouter([
   {
@@ -56,7 +57,7 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <SystemManagment />
-      </ProtectedRoute> 
+      </ProtectedRoute>
     ),
   },
   {
@@ -72,6 +73,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <Permissions />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/panel/system-managment/roles",
+    element: (
+      <ProtectedRoute>
+        <Rols />
       </ProtectedRoute>
     ),
   },
