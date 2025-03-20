@@ -1,3 +1,4 @@
+import { Card } from "antd";
 import useModal from "../../hooks/useModal";
 import DocumentModal from "./_components/documentModal";
 import DocumentTree from "./_components/DocumentTree";
@@ -7,7 +8,8 @@ const Documents = () => {
 
   return (
     <div className="flex flex-row gap-4">
-      <div className="card">
+      {/* <div className="card"> */}
+      <Card>
         <DocumentModal
           isOpen={isOpen}
           modalMode={modalMode}
@@ -16,9 +18,10 @@ const Documents = () => {
           setModal={setModal}
         />
         <DocumentTree setModal={setModal} />
-      </div>
-      <div className="card">سلام</div>
-    </div>
+        {/* </div> */}
+      </Card >
+      <Card>سلام</Card>
+    </div >
   );
 };
 

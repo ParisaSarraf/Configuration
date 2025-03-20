@@ -7,6 +7,8 @@ import UnderDevelopment from "./pages/UnderDevelopment/UnderDevelopment";
 import ForgetPassword from "./pages/ForgetPassword/ForgetPassword";
 import SystemManagment from "./pages/SystemManagment";
 import Documents from "./pages/Documents/Documents";
+import Users from "./pages/Users/Users"
+import Permissions from "./pages/Permission/Permissions";
 
 const router = createBrowserRouter([
   {
@@ -30,14 +32,7 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-      {
-        path: "/panel/system-managment",
-        element: (
-          <ProtectedRoute>
-            <SystemManagment />
-          </ProtectedRoute>
-        ),
-      },
+
       {
         path: "/panel/document/list",
         element: (
@@ -55,6 +50,30 @@ const router = createBrowserRouter([
   {
     path: "/forget-password",
     element: <ForgetPassword />,
+  },
+  {
+    path: "/panel/system-managment",
+    element: (
+      <ProtectedRoute>
+        <SystemManagment />
+      </ProtectedRoute> 
+    ),
+  },
+  {
+    path: "/panel/system-managment/user",
+    element: (
+      <ProtectedRoute>
+        <Users />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/panel/system-managment/permissions",
+    element: (
+      <ProtectedRoute>
+        <Permissions />
+      </ProtectedRoute>
+    ),
   },
 ]);
 

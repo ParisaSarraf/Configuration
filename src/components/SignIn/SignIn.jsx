@@ -1,5 +1,5 @@
 import { Form, Input, Button, Typography, message } from "antd";
-import { useContext, useState } from "react";
+import { Suspense, useContext, useState } from "react";
 import { MainContext } from "../../Services/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { SignInFn } from "../../utils/Api";
@@ -76,7 +76,7 @@ export function SignIn() {
           </Form.Item>
 
           <Button type="primary" htmlType="submit" block size="large" loading={loading}>
-            ورود
+            {loading ? "" : "ورود"}
           </Button>
 
           <div className="flex justify-between items-center mt-6">

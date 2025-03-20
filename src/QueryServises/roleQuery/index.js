@@ -6,10 +6,10 @@ export const useRoleList = (queryOptions) => {
   const { myAxios } = useMyAxios();
   return useQuery({
     queryKey: useRoleListKey,
-    queryFn: () => 
+    queryFn: () =>
       myAxios.get(`/user/role/`).then((response) => {
         queryOptions?.onSuccess?.(response?.data);
-      return response?.data; 
+        return response?.data;
       }),
     ...queryOptions,
   });

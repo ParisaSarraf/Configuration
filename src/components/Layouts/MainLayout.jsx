@@ -30,12 +30,11 @@ const MainLayout = () => {
         collapsed={collapsed}
         onBreakpoint={(broken) => setBreakpoint(broken ? 'xs' : 'md')}
         trigger={null}
-        className={`bg-light-secondary dark:bg-dark-secondary shadow-xl drop-shadow-sm mr-4 my-4  ${
-          !collapsed ? 'border border-gray-400 rounded-lg' : ''
-        }`}
+        className={`bg-[#FFFFFF] dark:bg-dark-secondary mr-4 my-4  ${!collapsed ? '' : ''
+          }`}
         width={getSiderWidth()}
       >
-        <div className="h-4 my-8 text-center rounded bg-light-secondary dark:bg-dark-secondary">
+        <div className="my-8 text-center bg-[#FFFFFF] dark:bg-dark-secondary">
           {!collapsed && (
             <span className="font-bold text-light-text-primary dark:text-dark-text-primary text-lg">
               مدیریت پیکربندی
@@ -46,7 +45,7 @@ const MainLayout = () => {
           theme="light"
           mode="inline"
           defaultSelectedKeys={['1']}
-          className="bg-light-secondary dark:bg-dark-secondary"
+          className="bg-[#FFFFFF] dark:bg-dark-secondary"
           items={items}
         />
       </Sider>

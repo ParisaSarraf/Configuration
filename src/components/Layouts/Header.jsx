@@ -37,11 +37,14 @@ const CustomHeader = ({ collapsed, setCollapsed }) => {
         navigate("/forget-password")
       }
     },
-    // {
-    //   key: '4',
-    //   label: 'تنظیمات',
-    //   icon: <SettingOutlined />,
-    // },
+    {
+      key: '4',
+      label: 'مدیریت سیستم',
+      icon: <SettingOutlined />,
+      onClick: () => {
+        navigate("/panel/system-managment")
+      }
+    },
     {
       type: 'divider',
     },
@@ -59,7 +62,7 @@ const CustomHeader = ({ collapsed, setCollapsed }) => {
 
 
   return (
-    <AntHeader className="flex items-center justify-between px-4 mt-4 mx-6 bg-light-primary dark:bg-dark-primary border border-gray-400 shadow-xl drop-shadow-sm rounded-lg">
+    <AntHeader className="flex items-center justify-between px-4 mt-4 mx-6 bg-[#FFFFFF] dark:bg-dark-primary ">
       <div className="flex items-center">
         {React.createElement(
           collapsed ? MenuUnfoldOutlined : MenuFoldOutlined,
