@@ -30,7 +30,7 @@ const MainLayout = () => {
         collapsed={collapsed}
         onBreakpoint={(broken) => setBreakpoint(broken ? 'xs' : 'md')}
         trigger={null}
-        className={`bg-[#FFFFFF] dark:bg-dark-secondary mr-4 my-4  ${!collapsed ? '' : ''
+        className={`bg-[#FFFFFF] dark:bg-dark-secondary mr-4 my-4 rounded-xl  ${!collapsed ? '' : ''
           }`}
         width={getSiderWidth()}
       >

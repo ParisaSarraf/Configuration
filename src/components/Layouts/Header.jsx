@@ -62,7 +62,7 @@ const CustomHeader = ({ collapsed, setCollapsed }) => {
 
 
   return (
-    <AntHeader className="flex items-center justify-between px-4 mt-4 mx-6 bg-[#FFFFFF] dark:bg-dark-primary ">
+    <AntHeader className="flex items-center justify-between px-4 mt-4 mx-6 bg-[#FFFFFF] dark:bg-dark-primary rounded-xl">
       <div className="flex items-center">
         {React.createElement(
           collapsed ? MenuUnfoldOutlined : MenuFoldOutlined,

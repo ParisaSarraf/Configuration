@@ -30,7 +30,7 @@ const Permissions = () => {
                 <Button
                     icon={<PlusOutlined />}
                     type="primary"
-                    className="w-40 ml-4 bg-green-500 hover:bg-green-600 text-white"
+                    className="w-40 ml-4"
                     onClick={handleOpenModal}
                 >
                     افزودن کاربر و سمت
