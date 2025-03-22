@@ -4,7 +4,7 @@ import { usePermissionList } from "../../../QueryServises/PermissionQuery";
 
 const { DirectoryTree } = Tree;
 
-const PermissionsTree = ({ onChange }) => {
+const PermissionsTree = ({ onChange ,checkedKeys  }) => {
     const { data: permissions, isLoading, isError } = usePermissionList();
     const [rightClickNode, setRightClickNode] = useState(null);
     const [showDropDown, setShowDropDown] = useState(false);
@@ -130,6 +130,7 @@ const PermissionsTree = ({ onChange }) => {
                 checkable
                 onSelect={onSelect}
                 onCheck={onCheck}
+                checkedKeys={checkedKeys}
             />
 
             {rightClickNode && showDropDown && (

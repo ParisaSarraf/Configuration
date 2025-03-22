@@ -32,12 +32,18 @@ export const columns = (handleEditUser, handleDeleteUser) => [
     key: "national_code",
     sorter: (a, b) => a.national_code - b.national_code,
   },
-  {
-    title: "مدیر",
-    dataIndex: "is_superuser",
-    key: "is_superuser",
-    render: (is_superuser) => (is_superuser ? "بله" : "خیر"),
-  },
+  // {
+  //   title: "مدیر",
+  //   dataIndex: "is_superuser",
+  //   key: "is_superuser",
+  //   render: (is_superuser) => (is_superuser ? "بله" : "خیر"),
+  // },
+  // {
+  //   title: "سمت",
+  //   dataIndex: "is_superuser",
+  //   key: "is_superuser",
+  //   render: (is_superuser) => (is_superuser ? "بله" : "خیر"),
+  // },
 //   {
 //     title: "کارکنان",
 //     dataIndex: "is_staff",

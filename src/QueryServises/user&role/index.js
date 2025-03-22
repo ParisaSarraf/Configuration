@@ -1,0 +1,68 @@
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMyAxios } from "../../utils/Api";
+
+export const useUsersRoleListKey = ["lists", "users&roles"];
+export const useUsersRoleList = (queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: useUsersRoleListKey,
+    queryFn: () =>
+      myAxios.get(`/user/get-role-users/`).then((response) => {
+        queryOptions?.onSuccess?.(response?.data);
+        return response?.data;
+      }),
+    ...queryOptions,
+  });
+};
+
+export const useCreateUsersRoles = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: (params) => {
+      return myAxios.post(`/user/add-role-user/`, params).then((response) => {
+        return response?.data;
+      });
+    },
+  });
+};
+
+// export const useDeleteRole = () => {
+//   const { myAxios } = useMyAxios();
+//   return useMutation({
+//     mutationFn: (params) => {
+//       return myAxios.delete(`/user/role/${params}/`).then((response) => {
+//         return response?.data;
+//       });
+//     },
+//   });
+// };
+
+export const usePutUsersRole = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: ({ randuId, ...params }) => {
+      return myAxios
+        .put(`/user/update-role-users/${randuId}/`, params)
+        .then((response) => {
+          return response?.data;
+        });
+    },
+  });
+};
+
+// export const usePatchRole = () => {
+//   const { myAxios } = useMyAxios();
+//   return useMutation({
+//     mutationFn: ({ roleId, ...params }) => {
+//       return myAxios.patch(`/user/role/${roleId}/`, params).then((response) => {
+//         return response?.data;
+//       });
+//     },
+//     onSuccess: (data) => {
+//       console.log("Update successful:", data);
+//     },
+//     onError: (error) => {
+//       console.error("Update failed:", error);
+//     },
+//   });
+// };

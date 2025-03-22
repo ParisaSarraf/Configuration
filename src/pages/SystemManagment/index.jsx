@@ -23,19 +23,19 @@ function SystemManagment() {
             onClick={() => navigate("/panel/system-managment/user")}
             className="flex items-center justify-center h-48 bg-white shadow-lg hover:shadow-xl transition-shadow text-blue-500 hover:text-white hover:bg-blue-500 text-lg font-medium  rounded-tl-3xl rounded-br-3xl"
           >
-            کاربران
+            مدیریت کاربران
           </Button>
           <Button
-            onClick={() => navigate("/panel/system-managment/roles")}
+            onClick={() => navigate("/panel/system-managment/roles-permission")}
             className="flex items-center justify-center h-48 bg-white shadow-lg hover:shadow-xl transition-shadow text-green-500 hover:text-white hover:bg-green-500 text-lg font-medium rounded-sm rounded-tl-3xl rounded-br-3xl"
           >
-            سمت ها
+            مدیریت سمت ها و دسترسی ها
           </Button>
           <Button
-            onClick={() => navigate("/panel/system-managment/permissions")}
+            onClick={() => navigate("/panel/system-managment/roles-users")}
             className="flex items-center justify-center h-48 bg-white shadow-lg hover:shadow-xl transition-shadow text-purple-500 hover:text-white hover:bg-purple-500 text-lg font-medium rounded-sm rounded-tl-3xl rounded-br-3xl"
           >
-            دسترسی ها
+            مدیریت کاربران و دسترسی ها
           </Button>
         </div>
       </div>

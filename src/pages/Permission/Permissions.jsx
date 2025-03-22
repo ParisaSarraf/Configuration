@@ -1,13 +1,20 @@
 import { Button, Card } from "antd";
 import { useNavigate } from "react-router-dom";
-import PermissionsTree from "./_components/PermissionListTree";
-import RoleListTree from "./_components/RoleListTree";
+import useModal from "../../hooks/useModal";
+import UsersRoleModal from "../SystemManagment/UsersRoleModal/UsersRoleModal";
+import { PlusOutlined } from "@ant-design/icons";
+import UsersAndRoleTree from "../SystemManagment/UsersAndRoleTree/UsersAndRoleTree";
 
 const Permissions = () => {
+    const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
     const navigate = useNavigate();
 
+    const handleOpenModal = () => {
+        setModal({ mode: "create", data: null });
+    };
+
     return (
-        <div className="min-h-screen bg-gray-50 p-6 overflow-hidden">
+        <div className="min-h-screen bg-gray-50 p-4 md:p-6 overflow-hidden">
             <div className="mb-6 p-4 bg-white shadow-md rounded-lg">
                 <Button
                     type="primary"
@@ -16,28 +23,27 @@ const Permissions = () => {
                 >
                     بازگشت به صفحه قبل
                 </Button>
+
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-9xl">
-                <Card
-                    title="لیست دسترسی‌ها"
-                    className="shadow-lg rounded-lg h-full flex flex-col"
->
-                        <PermissionsTree />
-                </Card>
-
-                <Card
-                    title="لیست سمت ها"
-                    className="shadow-lg rounded-lg h-full flex flex-col"
+            <div className="grid grid-cols-1 gap-6 w-full max-w-9xl mx-auto">
+                <Button
+                    icon={<PlusOutlined />}
+                    type="primary"
+                    className="w-40 ml-4 bg-green-500 hover:bg-green-600 text-white"
+                    onClick={handleOpenModal}
                 >
-                    <RoleListTree />
-                </Card>
-
-                <Card
-                    title="لیست دسترسی های سمت ها "
-                    className="shadow-lg rounded-lg h-full flex flex-col"
-                >
-                    باکس 3
+                    افزودن کاربر و سمت
+                </Button>
+                <UsersRoleModal
+                    isOpen={isOpen}
+                    modalMode={modalMode}
+                    modalData={modalData}
+                    closeModal={closeModal}
+                    setModal={setModal}
+                />
+                <Card>
+                    <UsersAndRoleTree />
                 </Card>
             </div>
         </div>

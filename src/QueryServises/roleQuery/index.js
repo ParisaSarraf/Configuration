@@ -50,19 +50,40 @@ export const useDeleteRole = () => {
   });
 };
 
-export const useUpdateRole = () => {
+export const usePutRole = () => {
   const { myAxios } = useMyAxios();
   return useMutation({
-    mutationFn: ({ userId, ...params }) => {
+    mutationFn: ({ roleId, ...params }) => {
       return myAxios
-        .put(`/user/role/${userId}`, params, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
+        .put(
+          `/user/role/${roleId}/`,
+          params
+          //   , {
+          //   headers: {
+          //     "Content-Type": "multipart/form-data",
+          //   },
+          // }
+        )
         .then((response) => {
           return response?.data;
         });
+    },
+  });
+};
+
+export const usePatchRole = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: ({ roleId, ...params }) => {
+      return myAxios.patch(`/user/role/${roleId}/`, params).then((response) => {
+        return response?.data;
+      });
+    },
+    onSuccess: (data) => {
+      console.log("Update successful:", data);
+    },
+    onError: (error) => {
+      console.error("Update failed:", error);
     },
   });
 };

@@ -1,31 +1,35 @@
 import { PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Form, Input, message, Tree } from "antd";
+import { Button, Card, Form, Input, message } from "antd";
 import React, { useEffect, useState } from "react";
 import Modal from "../../../components/Modal";
-import { useCreateRole, useUpdateRole } from "../../../QueryServises/roleQuery";
+import { useCreateRole, usePatchRole } from "../../../QueryServises/roleQuery";
 import PermissionsTree from "../../Permission/_components/PermissionListTree";
 
 const RoleModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch }) => {
   const [form] = Form.useForm();
   const { isPending: isCreating, mutateAsync: createRole } = useCreateRole();
-  const { isPending: isUpdating, mutateAsync: updateRole } = useUpdateRole();
+  const { isPending: isUpdating, mutateAsync: updateRole } = usePatchRole();
   const [selectedPermissions, setSelectedPermissions] = useState([]);
-
+  const [initialCheckedKeys, setInitialCheckedKeys] = useState([]);
 
   useEffect(() => {
     if (modalMode === "edit" && modalData) {
       form.setFieldsValue({
         name: modalData.name,
-        permissions: modalData.permissionsIds
+        permissions: modalData.permissions.map((permissionsIds) => `permission-${permissionsIds}`),
       });
+      setInitialCheckedKeys(modalData.permissions.map((permissionsIds) => `permission-${permissionsIds}`));
+      setSelectedPermissions(modalData.permissions.map((permissionsIds) => `permission-${permissionsIds}`));
     } else if (modalMode === "add") {
       form.resetFields();
+      setInitialCheckedKeys([]);
+      setSelectedPermissions([]);
     }
   }, [modalMode, modalData, form]);
 
-
   const onFinish = (values) => {
-    const permissionsIds = selectedPermissions.map((key) => Number(key.replace("permission-", "")))
+
+    const permissionsIds = selectedPermissions.map((key) => Number(key.replace("permission-", "")));
     const payload = {
       name: values.name,
       permissions: permissionsIds,
@@ -34,18 +38,20 @@ const RoleModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
     if (modalMode === "add") {
       createRole(payload)
         .then(() => {
-          message.success("سمت بادسترسی های انتخاب شده با موفقیت اضافه شد");
+          message.success("سمت با دسترسی‌های انتخاب شده با موفقیت اضافه شد");
           closeModal();
+          refetch();
         })
         .catch((error) => {
           message.error("موفقیت آمیز نبود، دوباره امتحان کنید");
           console.error(error);
         });
     } else if (modalMode === "edit") {
-      updateRole({ roleId: modalData.id, roleData: payload })
+      updateRole({ roleId: modalData.id, ...payload })
         .then(() => {
           message.success("کاربر با موفقیت ویرایش شد");
           closeModal();
+          refetch();
         })
         .catch((error) => {
           message.error("موفقیت آمیز نبود، دوباره امتحان کنید");
@@ -77,10 +83,10 @@ const RoleModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
         loading={isCreating || isUpdating}
       >
         <Form layout="vertical" form={form} onFinish={onFinish}>
-          <Form.Item label="نام سمت :" name="name">
+          <Form.Item label="نام سمت :" name="name" rules={[{ required: true, message: "این فیلد الزامی است" }]}>
             <Input />
           </Form.Item>
-          <Form.Item label="لیست دسترسی ها : " name="permissionsIds">
+          <Form.Item label="لیست دسترسی ها : ">
             <Card
               style={{
                 border: "1px solid #d9d9d9",
@@ -90,7 +96,7 @@ const RoleModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
                 height: "290px",
               }}
             >
-              <PermissionsTree onChange={handlePermissionsChange} />
+              <PermissionsTree onChange={handlePermissionsChange} checkedKeys={selectedPermissions} />
             </Card>
           </Form.Item>
         </Form>

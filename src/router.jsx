@@ -69,7 +69,7 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/panel/system-managment/permissions",
+    path: "/panel/system-managment/roles-users",
     element: (
       <ProtectedRoute>
         <Permissions />
@@ -77,7 +77,7 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/panel/system-managment/roles",
+    path: "/panel/system-managment/roles-permission",
     element: (
       <ProtectedRoute>
         <Rols />
