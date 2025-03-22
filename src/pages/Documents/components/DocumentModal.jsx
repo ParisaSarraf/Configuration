@@ -20,20 +20,20 @@ const DocumentModal = ({
   const { isPending: isUpdating, mutateAsync: updateDocument } =
     useUpdateDocument();
 
-    useEffect(() => {
-      if (modalMode === "edit" && modalData) {
-        form.setFieldsValue({
-          code: modalData.code,
-          persianTitle: modalData.persianTitle, 
-          englishTitle: modalData.englishTitle,
-          isUsable: modalData.isUsable,
-          isReproducible: modalData.isReproducible,
-        });
-      } else if (modalMode === "add") {
-        form.resetFields();
-      }
-    }, [modalMode, modalData, form]);
-    
+  useEffect(() => {
+    if (modalMode === "edit" && modalData) {
+      form.setFieldsValue({
+        code: modalData.code,
+        persianTitle: modalData.persianTitle,
+        englishTitle: modalData.englishTitle,
+        isUsable: modalData.isUsable,
+        isReproducible: modalData.isReproducible,
+      });
+    } else if (modalMode === "add") {
+      form.resetFields();
+    }
+  }, [modalMode, modalData, form]);
+
 
   const onFinishForm = (values) => {
     const payload = {

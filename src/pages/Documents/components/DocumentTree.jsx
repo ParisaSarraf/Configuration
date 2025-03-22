@@ -24,10 +24,10 @@ const DocumentTree = ({ setModal }) => {
       key: `document-${document.id}-${document.parentId || "root"}`,
       children: Array.isArray(document.children)
         ? document.children.map((child) => ({
-            title: child.persianTitle,
-            key: `document-${child.id}-${document.id}`,
-            isLeaf: true,
-          }))
+          title: child.persianTitle,
+          key: `document-${child.id}-${document.id}`,
+          isLeaf: true,
+        }))
         : [],
     }));
   };
@@ -85,7 +85,7 @@ const DocumentTree = ({ setModal }) => {
 
       {rightClickNode && showDropDown && (
         <Dropdown
-          menu={{items: [itemsMenu]}}
+          menu={{ items: [itemsMenu] }}
           visible={showDropDown}
           onVisibleChange={(visible) => setShowDropDown(visible)}
           trigger={["contextMenu"]}

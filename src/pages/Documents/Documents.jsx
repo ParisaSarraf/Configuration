@@ -1,7 +1,9 @@
 import { Card } from "antd";
 import useModal from "../../hooks/useModal";
-import DocumentModal from "./_components/documentModal";
-import DocumentTree from "./_components/DocumentTree";
+import DocumentModal from "./components/DocumentModal";
+import DocumentTree from "./components/DocumentTree";
+
+
 
 const Documents = () => {
   const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
@@ -20,7 +22,6 @@ const Documents = () => {
         <DocumentTree setModal={setModal} />
         {/* </div> */}
       </Card >
-      <Card>سلام</Card>
     </div >
   );
 };
