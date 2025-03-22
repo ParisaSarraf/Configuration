@@ -54,19 +54,9 @@ export const usePutRole = () => {
   const { myAxios } = useMyAxios();
   return useMutation({
     mutationFn: ({ roleId, ...params }) => {
-      return myAxios
-        .put(
-          `/user/role/${roleId}/`,
-          params
-          //   , {
-          //   headers: {
-          //     "Content-Type": "multipart/form-data",
-          //   },
-          // }
-        )
-        .then((response) => {
-          return response?.data;
-        });
+      return myAxios.put(`/user/role/${roleId}/`, params).then((response) => {
+        return response?.data;
+      });
     },
   });
 };

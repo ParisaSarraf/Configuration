@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { Layout, Menu } from 'antd';
+import { Button, Layout, Menu, Modal } from 'antd';
 import { Outlet } from 'react-router-dom';
 import CustomHeader from './Header';
 import { items } from './menuItems';
+import { PlusCircleFilled } from '@ant-design/icons';
 
 const { Sider, Content } = Layout;
 
 const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [breakpoint, setBreakpoint] = useState('md');
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const getSiderWidth = () => {
     switch (breakpoint) {
@@ -21,6 +23,18 @@ const MainLayout = () => {
     }
   };
 
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleOk = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
   return (
     <Layout className="min-h-full max-h-full transition-colors duration-300">
       <Sider
@@ -30,17 +44,21 @@ const MainLayout = () => {
         collapsed={collapsed}
         onBreakpoint={(broken) => setBreakpoint(broken ? 'xs' : 'md')}
         trigger={null}
-        className={`bg-[#FFFFFF] dark:bg-dark-secondary mr-4 my-4 rounded-xl  ${!collapsed ? '' : ''
+        className={`bg-[#FFFFFF] dark:bg-dark-secondary mr-2 my-3 rounded-xl  ${!collapsed ? '' : ''
           }`}
         width={getSiderWidth()}
       >
-        <div className="my-8 text-center bg-[#FFFFFF] dark:bg-dark-secondary">
+        {/* <div className="my-8 text-center bg-[#FFFFFF] dark:bg-dark-secondary">
           {!collapsed && (
             <span className="font-bold text-light-text-primary dark:text-dark-text-primary text-lg">
               مدیریت پیکربندی
             </span>
           )}
-        </div>
+        </div> */}
+        <Button type="primary" onClick={showModal} className="w-20 mb-4 my-2
+        ">
+          <PlusCircleFilled />
+        </Button>
         <Menu
           theme="light"
           mode="inline"
@@ -57,6 +75,9 @@ const MainLayout = () => {
           </div>
         </Content>
       </Layout>
+      <Modal title="مودال" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
+        <p>این محتوای مودال است.</p>
+      </Modal>
     </Layout>
   );
 };

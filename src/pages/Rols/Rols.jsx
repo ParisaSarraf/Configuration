@@ -1,16 +1,16 @@
 import React from "react";
 import RoleModal from "./_components/RoleModal";
 import { Button, Card, message, Table } from "antd";
-import { roleColumns } from "./_components/roleColumns";
 import { useDeleteRole, useRoleList } from "../../QueryServises/roleQuery";
 import { useNavigate } from "react-router-dom";
 import useModal from "../../hooks/useModal";
+import { roleColumns } from "./_components/roleColumns"
 
 function Rols() {
-  const { isFetching, data, refetch } = useRoleList();
+  const { isFetching, data: roleData, refetch } = useRoleList();
   const { mutateAsync: deleteRole } = useDeleteRole();
   const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleDeleteRole = (record) => {
     deleteRole(record.id)
@@ -25,7 +25,6 @@ function Rols() {
   };
 
   const handleEditRole = (record) => {
-    console.log(record);
     setModal({ mode: "edit", data: record });
   };
 
@@ -53,7 +52,7 @@ function Rols() {
       <Card>
         <Table
           columns={roleColumns(handleEditRole, handleDeleteRole)}
-          dataSource={isFetching ? [] : data}
+          dataSource={isFetching ? [] : roleData}  
           loading={isFetching}
           rowKey="id"
           scroll={{ x: true }}
@@ -64,7 +63,6 @@ function Rols() {
           }}
         />
       </Card>
-
     </div>
   );
 }
