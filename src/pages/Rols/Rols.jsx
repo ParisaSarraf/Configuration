@@ -13,6 +13,8 @@ function Rols() {
   const navigate = useNavigate();
 
   const handleDeleteRole = (record) => {
+    console.log(record.id);
+    
     deleteRole(record.id)
       .then(() => {
         message.success("سمت با موفقیت حذف شد");

@@ -10,40 +10,43 @@ import {
   SecurityScanOutlined,
   BellOutlined,
 } from "@ant-design/icons";
+import { Grid } from 'antd';
 import { useMyAxios } from "../../utils/Api";
 import ThemeToggle from "../Theme/ThemeToggle";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+
 const { Header: AntHeader } = Layout;
+const { useBreakpoint } = Grid;
 
 const CustomHeader = ({ collapsed, setCollapsed }) => {
   const isLoggedIn = localStorage.getItem("accessToken");
   const { handleLogout } = useMyAxios();
-  const navigate = useNavigate()
-  const decode = jwtDecode(localStorage.getItem("accessToken"))
-
+  const navigate = useNavigate();
+  const decode = jwtDecode(localStorage.getItem("accessToken"));
+  const screens = useBreakpoint();
 
   const menuItems = [
     {
       key: '1',
       icon: <ProfileOutlined />,
-      label: `سلام ${decode.last_name} `,
+      label: `سلام ${decode.last_name}`,
     },
     {
       key: '2',
       label: 'تغییر رمزعبور',
       icon: <SecurityScanOutlined />,
       onClick: () => {
-        navigate("/forget-password")
-      }
+        navigate("/forget-password");
+      },
     },
     {
       key: '4',
       label: 'مدیریت سیستم',
       icon: <SettingOutlined />,
       onClick: () => {
-        navigate("/panel/system-managment")
-      }
+        navigate("/panel/system-managment");
+      },
     },
     {
       type: 'divider',
@@ -56,10 +59,7 @@ const CustomHeader = ({ collapsed, setCollapsed }) => {
         handleLogout();
       },
     },
-
   ];
-
-
 
   return (
     <AntHeader className="flex items-center justify-between px-4 mt-3 mx-2 bg-[#FFFFFF] dark:bg-dark-primary rounded-xl">
@@ -77,7 +77,9 @@ const CustomHeader = ({ collapsed, setCollapsed }) => {
       <div className="flex items-center gap-4">
         {isLoggedIn && (
           <>
-            <BellOutlined className="text-xl p-1.5 bg-[#B5B6B7] text-white rounded-full" />
+            {screens.md && (
+              <BellOutlined className="text-xl p-1.5 bg-[#B5B6B7] text-white rounded-full" />
+            )}
 
             <Dropdown
               menu={{
@@ -92,7 +94,6 @@ const CustomHeader = ({ collapsed, setCollapsed }) => {
               />
             </Dropdown>
           </>
-
         )}
         {/* <ThemeToggle /> */}
       </div>

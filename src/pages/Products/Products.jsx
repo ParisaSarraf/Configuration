@@ -1,9 +1,10 @@
 import { useProductList } from "../../QueryServises/productQuery"
 
 const Products = () => {
-    const { data: productData } = useProductList()
+    const { data: productData, refetch } = useProductList()
     return (
         <div>
+           
 
         </div>
     )

@@ -1,6 +1,6 @@
 import { Modal as MDL, Button } from 'antd';
 
-const Modal = ({ isOpen, size = 200, title, onClose = () => {}, onSubmit = () => {}, children, loading, mode = 'add' }) => {
+const Modal = ({ isOpen, size = 200, title, onClose = () => { }, onSubmit = () => { }, children, loading, mode = 'add', className }) => {
   return (
     <MDL
       open={isOpen}
@@ -8,6 +8,7 @@ const Modal = ({ isOpen, size = 200, title, onClose = () => {}, onSubmit = () =>
       title={title}
       onClose={onClose}
       centered
+      className={className}
       onOk={onSubmit}
       onCancel={onClose}
       footer={[
@@ -27,7 +28,7 @@ const Modal = ({ isOpen, size = 200, title, onClose = () => {}, onSubmit = () =>
               left: 0,
               width: '100%',
               height: '100%',
-              backdropFilter: 'blur(2px)', 
+              backdropFilter: 'blur(2px)',
               backgroundColor: 'rgba(0, 0, 0, 0.2)',
             }}
           />

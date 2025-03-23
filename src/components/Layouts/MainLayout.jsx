@@ -4,13 +4,16 @@ import { Outlet } from 'react-router-dom';
 import CustomHeader from './Header';
 import { items } from './menuItems';
 import { PlusCircleFilled } from '@ant-design/icons';
+import ProductModal from '../../pages/Products/components/ProductModal';
+import useModal from '../../hooks/useModal';
 
 const { Sider, Content } = Layout;
 
 const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [breakpoint, setBreakpoint] = useState('md');
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
+
 
   const getSiderWidth = () => {
     switch (breakpoint) {
@@ -55,10 +58,17 @@ const MainLayout = () => {
             </span>
           )}
         </div> */}
-        <Button type="primary" onClick={showModal} className="w-20 mb-4 my-2
-        ">
-          <PlusCircleFilled />
-        </Button>
+        {/* <Button type="primary" onClick={showModal} className="w-12 mx-2 my-2"> */}
+        {/* <PlusCircleFilled /> */}
+        {/* </Button> */}
+        <ProductModal
+          isOpen={isOpen}
+          modalMode={modalMode}
+          modalData={modalData}
+          closeModal={closeModal}
+          setModal={setModal}
+          // refetch={refetch}
+        />
         <Menu
           theme="light"
           mode="inline"
@@ -75,9 +85,6 @@ const MainLayout = () => {
           </div>
         </Content>
       </Layout>
-      <Modal title="مودال" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
-        <p>این محتوای مودال است.</p>
-      </Modal>
     </Layout>
   );
 };

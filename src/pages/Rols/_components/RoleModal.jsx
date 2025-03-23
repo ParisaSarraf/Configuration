@@ -16,10 +16,10 @@ const RoleModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
     if (modalMode === "edit" && modalData) {
       form.setFieldsValue({
         name: modalData.name,
-        permissions: modalData.permissions.map((permissionsIds) => `permission-${permissionsIds}`),
       });
-      setInitialCheckedKeys(modalData.permissions.map((permissionsIds) => `permission-${permissionsIds}`));
-      setSelectedPermissions(modalData.permissions.map((permissionsIds) => `permission-${permissionsIds}`));
+      const permissionsKeys = modalData.permissions.map((permission) => `permission-${permission.id}`);
+      setInitialCheckedKeys(permissionsKeys);
+      setSelectedPermissions(permissionsKeys);
     } else if (modalMode === "add") {
       form.resetFields();
       setInitialCheckedKeys([]);
@@ -28,14 +28,16 @@ const RoleModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
   }, [modalMode, modalData, form]);
 
   const onFinish = (values) => {
-
     const permissionsIds = selectedPermissions.map((key) => Number(key.replace("permission-", "")));
     const payload = {
       name: values.name,
       permissions: permissionsIds,
     };
+    console.log(permissionsIds);
 
     if (modalMode === "add") {
+      console.log(payload);
+      
       createRole(payload)
         .then(() => {
           message.success("سمت با دسترسی‌های انتخاب شده با موفقیت اضافه شد");
@@ -96,7 +98,11 @@ const RoleModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
                 height: "290px",
               }}
             >
-              <PermissionsTree onChange={handlePermissionsChange} checkedKeys={selectedPermissions} />
+              <PermissionsTree
+                onChange={handlePermissionsChange}
+                checkedKeys={selectedPermissions}
+                initialCheckedKeys={initialCheckedKeys}
+              />
             </Card>
           </Form.Item>
         </Form>
@@ -105,4 +111,4 @@ const RoleModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
   );
 };
 
-export default RoleModal;
+export default RoleModal;   

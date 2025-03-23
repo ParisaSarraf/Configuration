@@ -18,8 +18,8 @@ export const roleColumns = (handleEditRole, handleDeleteRole) => [
     key: "actions",
     render: (_, record) => (
       <div className="flex flex-row ">
-        <Button type="text" className="text-red-600" onClick={() => handleEditRole(record)} icon={<DeleteOutlined />}/>
-        <Button type="text" className="text-green-600" onClick={() => handleDeleteRole(record)} icon={<EditOutlined />} />
+        <Button type="text" className="text-green-600" onClick={() => handleEditRole(record)} icon={<EditOutlined />}/>
+        <Button type="text" className="text-red-600" onClick={() => handleDeleteRole(record)} icon={<DeleteOutlined />} />
       </div>
     ),
   },
