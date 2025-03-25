@@ -9,6 +9,8 @@ import {
   ProfileOutlined,
   SecurityScanOutlined,
   BellOutlined,
+  SettingFilled,
+  SecurityScanFilled,
 } from "@ant-design/icons";
 import { Grid } from 'antd';
 import { useMyAxios } from "../../utils/Api";
@@ -41,9 +43,17 @@ const CustomHeader = ({ collapsed, setCollapsed }) => {
       },
     },
     {
+      key: '3',
+      label: 'داده بان',
+      icon: <SettingOutlined />,
+      onClick: () => {
+        navigate("/panel/datas");
+      },
+    },
+    {
       key: '4',
       label: 'مدیریت سیستم',
-      icon: <SettingOutlined />,
+      icon: <SecurityScanOutlined />,
       onClick: () => {
         navigate("/panel/system-managment");
       },
@@ -52,7 +62,7 @@ const CustomHeader = ({ collapsed, setCollapsed }) => {
       type: 'divider',
     },
     {
-      key: '3',
+      key: '5',
       label: 'خروج',
       icon: <LoginOutlined />,
       onClick: () => {

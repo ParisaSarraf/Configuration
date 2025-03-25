@@ -52,10 +52,9 @@ const UsersAndRoleTree = () => {
     const handleAddRemoveUsers = async () => {
         const roleId = Number(selectedRole.key.split('-')[1]);
         const payload = {
-            role_id: roleId, // اضافه کردن role_id به payload
+            role_id: roleId,
             users_ids: selectedUsers
         };
-
         try {
             updateUserRole(payload)
             message.success("با موفقیت اضافه شد.")
@@ -79,7 +78,7 @@ const UsersAndRoleTree = () => {
     };
 
     const renderTitle = (node) => (
-        <Dropdown overlay={contextMenu(node)} trigger={["contextMenu"]}>
+        <Dropdown menu={contextMenu(node)} trigger={["contextMenu"]}>
             <span onDoubleClick={() => !node.isLeaf && handleShowUserList(node)}>
                 {node.title}
             </span>

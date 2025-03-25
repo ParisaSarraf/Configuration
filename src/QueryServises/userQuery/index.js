@@ -36,11 +36,9 @@ export const useDeleteUser = () => {
   const { myAxios } = useMyAxios();
   return useMutation({
     mutationFn: (params) => {
-      return myAxios
-        .delete(`/user/delete-user/${params}`)
-        .then((response) => {
-          return response?.data;
-        });
+      return myAxios.delete(`/user/delete-user/${params}`).then((response) => {
+        return response?.data;
+      });
     },
   });
 };
@@ -48,9 +46,9 @@ export const useDeleteUser = () => {
 export const useUpdateUser = () => {
   const { myAxios } = useMyAxios();
   return useMutation({
-    mutationFn: ({ userId, ...params }) => {
+    mutationFn: ({ userId, userData }) => {
       return myAxios
-        .put(`/user/update-user/${userId}`, params, {
+        .put(`/user/update-user/${userId}`, userData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },

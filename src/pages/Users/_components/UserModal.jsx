@@ -6,7 +6,7 @@ import FileUploader from "../../../components/FileUploader/FileUploader";
 import { useCreateUser, useUpdateUser } from "../../../QueryServises/userQuery";
 import { BASEURL } from "../../../utils/Api";
 
-const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) => {
+const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch }) => {
   const [form] = Form.useForm();
   const BaseUrl = BASEURL;
   const { isPending: isCreating, mutateAsync: createUser } = useCreateUser();
@@ -15,7 +15,7 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) => {
   useEffect(() => {
     if (modalMode === "edit" && modalData) {
       form.setFieldsValue({
-        username: modalData.username,
+        userName: modalData.username,
         name: modalData.name,
         lastName: modalData.last_name,
         PhoneNumber: modalData.phone_number,
@@ -24,21 +24,21 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) => {
         isSuperuser: modalData.is_superuser,
         signatureImage: modalData.signature_image
           ? [
-              {
-                uid: "-1",
-                name: "signature_image",
-                url: BaseUrl.replace("/api/v1", "") + modalData.signature_image,
-              },
-            ]
+            {
+              uid: "-1",
+              name: "signature_image",
+              url: BaseUrl.replace("/api/v1", "") + modalData.signature_image,
+            },
+          ]
           : [],
         tempImage: modalData.temp_image
           ? [
-              {
-                uid: "-2",
-                name: "temp_image",
-                url: BaseUrl.replace("/api/v1", "") +  modalData.temp_image,
-              },
-            ]
+            {
+              uid: "-2",
+              name: "temp_image",
+              url: BaseUrl.replace("/api/v1", "") + modalData.temp_image,
+            },
+          ]
           : [],
       });
     } else if (modalMode === "add") {
@@ -48,7 +48,7 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) => {
 
   const onFinishForm = (values) => {
     const payload = {
-      username: values.username,
+      username: values.userName,
       password: values.password,
       is_superuser: values.isSuperuser,
       name: values.name,
@@ -71,6 +71,7 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) => {
         .then(() => {
           message.success("کاربر با موفقیت اضافه شد");
           closeModal();
+          refetch()
         })
         .catch((error) => {
           message.error("موفقیت آمیز نبود، دوباره امتحان کنید");
@@ -81,6 +82,7 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) => {
         .then(() => {
           message.success("کاربر با موفقیت ویرایش شد");
           closeModal();
+          refetch()
         })
         .catch((error) => {
           message.error("موفقیت آمیز نبود، دوباره امتحان کنید");
@@ -125,18 +127,31 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) => {
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="username" label="نام کاربری">
+              <Form.Item
+                name="userName"
+                label="نام کاربری"
+                rules={[
+                  { required: true, message: "لطفاً نام کاربری را وارد کنید" },
+                  { min: 3, message: "نام کاربری باید حداقل 3 کاراکتر باشد" }
+                ]}
+              >
                 <Input />
               </Form.Item>
             </Col>
-            {modalMode !==
-              "edit" &&(
-                <Col span={12}>
-                  <Form.Item name="password" label="رمزعبور">
-                    <Input.Password />
-                  </Form.Item>
-                </Col>
-              )}
+            {modalMode !== "edit" && (
+              <Col span={12}>
+                <Form.Item
+                  name="password"
+                  label="رمزعبور"
+                  rules={[
+                    { required: modalMode === "add", message: "لطفاً رمز عبور را وارد کنید" },
+                    { min: 6, message: "رمز عبور باید حداقل 6 کاراکتر باشد" }
+                  ]}
+                >
+                  <Input.Password />
+                </Form.Item>
+              </Col>
+            )}
             <Col span={12}>
               <Form.Item name="name" label="نام">
                 <Input />
@@ -153,7 +168,14 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) => {
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="nationalCode" label="کدملی">
+              <Form.Item
+                name="nationalCode"
+                label="کدملی"
+                rules={[
+                  { required: true, message: "لطفاً کد ملی را وارد کنید" },
+                  { pattern: /^\d{10}$/, message: "کد ملی باید 10 رقم باشد" }
+                ]}
+              >
                 <Input />
               </Form.Item>
             </Col>

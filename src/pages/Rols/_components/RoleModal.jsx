@@ -4,11 +4,14 @@ import React, { useEffect, useState } from "react";
 import Modal from "../../../components/Modal";
 import { useCreateRole, usePatchRole } from "../../../QueryServises/roleQuery";
 import PermissionsTree from "../../Permission/_components/PermissionListTree";
+import { useCreateRolePermission, usePutRolePermission } from "../../../QueryServises/role&permission";
 
 const RoleModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch }) => {
   const [form] = Form.useForm();
   const { isPending: isCreating, mutateAsync: createRole } = useCreateRole();
   const { isPending: isUpdating, mutateAsync: updateRole } = usePatchRole();
+  const { isPending: isCreat, mutateAsync: createRolePermissions } = useCreateRolePermission();
+  const { isPending: isUpdate, mutateAsync: updateRolePermissions } = usePutRolePermission();
   const [selectedPermissions, setSelectedPermissions] = useState([]);
   const [initialCheckedKeys, setInitialCheckedKeys] = useState([]);
 
@@ -27,38 +30,42 @@ const RoleModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
     }
   }, [modalMode, modalData, form]);
 
-  const onFinish = (values) => {
-    const permissionsIds = selectedPermissions.map((key) => Number(key.replace("permission-", "")));
-    const payload = {
-      name: values.name,
-      permissions: permissionsIds,
-    };
-    console.log(permissionsIds);
+  const onFinish = async (values) => {
+    const permissionsIds = selectedPermissions.map((key) =>
+      Number(key.replace("permission-", ""))
+    );
 
     if (modalMode === "add") {
-      console.log(payload);
-      
-      createRole(payload)
-        .then(() => {
-          message.success("سمت با دسترسی‌های انتخاب شده با موفقیت اضافه شد");
-          closeModal();
-          refetch();
-        })
-        .catch((error) => {
-          message.error("موفقیت آمیز نبود، دوباره امتحان کنید");
-          console.error(error);
+      try {
+        const createdRole = await createRole({ name: values.name });
+        await createRolePermissions({
+          roles_ids: [createdRole.id],
+          permissions_ids: permissionsIds
         });
+        message.success("سمت با موفقیت اضافه شد");
+        closeModal();
+        refetch();
+      } catch (error) {
+        message.error("خطا در افزودن سمت");
+        console.error(error);
+      }
     } else if (modalMode === "edit") {
-      updateRole({ roleId: modalData.id, ...payload })
-        .then(() => {
-          message.success("کاربر با موفقیت ویرایش شد");
-          closeModal();
-          refetch();
-        })
-        .catch((error) => {
-          message.error("موفقیت آمیز نبود، دوباره امتحان کنید");
-          console.error(error);
+      try {
+        await updateRole({
+          roleId: modalData.id,
+          name: values.name
         });
+        await updateRolePermissions({
+          roleId: modalData.id,
+          permission_ids: permissionsIds
+        });
+        message.success("سمت و دسترسی های آن با موفقیت ویرایش شد.");
+        closeModal();
+        refetch();
+      } catch (error) {
+        console.error("Update error:", error);
+        message.error(error.message || "مشکلی در ویرایش پیش آمده است.");
+      }
     }
   };
 
@@ -82,7 +89,7 @@ const RoleModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
         onClose={closeModal}
         onSubmit={() => form.submit()}
         mode={modalMode}
-        loading={isCreating || isUpdating}
+        loading={isCreating || isUpdating || isCreat}
       >
         <Form layout="vertical" form={form} onFinish={onFinish}>
           <Form.Item label="نام سمت :" name="name" rules={[{ required: true, message: "این فیلد الزامی است" }]}>
@@ -111,4 +118,4 @@ const RoleModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
   );
 };
 
-export default RoleModal;   
+export default RoleModal;

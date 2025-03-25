@@ -47,6 +47,7 @@ const Users = () => {
         modalData={modalData}
         closeModal={closeModal}
         setModal={setModal}
+        refetch={refetch}
       />
       <Card>
         <Table
@@ -62,8 +63,6 @@ const Users = () => {
           }}
         />
       </Card>
-
-      {/* </div> */}
     </div>
 
   );

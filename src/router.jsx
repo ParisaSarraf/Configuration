@@ -10,6 +10,7 @@ import Documents from "./pages/Documents/Documents";
 import Users from "./pages/Users/Users"
 import Permissions from "./pages/Permission/Permissions";
 import Rols from "./pages/Rols/Rols";
+import Setting from "./pages/Setting/Setting";
 
 const router = createBrowserRouter([
   {
@@ -81,6 +82,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <Rols />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/panel/datas",
+    element: (
+      <ProtectedRoute>
+        <Setting />
       </ProtectedRoute>
     ),
   },
