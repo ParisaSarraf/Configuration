@@ -1,6 +1,9 @@
 import { Button, Card } from 'antd'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import Genus from './components/Genus'
+import Personality from './components/Personality'
+import Casing from './components/Casing'
 
 const Setting = () => {
     const navigate = useNavigate()
@@ -15,7 +18,11 @@ const Setting = () => {
                     بازگشت به صفحه اصلی
                 </Button>
             </div>
-            <Card className="p-4 bg-white shadow-md rounded-lg"></Card>
+            <div className='grid grid-cols-2 gap-2'>
+                <Casing />
+                <Genus />
+                <Personality />
+            </div>
         </div>
     )
 }

@@ -1,84 +1,21 @@
 import React, { useState } from 'react';
-import { Button, Layout, Menu, Modal } from 'antd';
+import { Layout } from 'antd';
 import { Outlet } from 'react-router-dom';
 import CustomHeader from './Header';
 import { items } from './menuItems';
-import { PlusCircleFilled } from '@ant-design/icons';
-import ProductModal from '../../pages/Products/components/ProductModal';
-import useModal from '../../hooks/useModal';
+import Products from '../../pages/Products/Products';
 
-const { Sider, Content } = Layout;
+const { Content } = Layout;
 
 const MainLayout = () => {
-  const [collapsed, setCollapsed] = useState(false);
-  const [breakpoint, setBreakpoint] = useState('md');
-  const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
-
-
-  const getSiderWidth = () => {
-    switch (breakpoint) {
-      case 'xs': return collapsed ? 0 : 200;
-      case 'sm': return collapsed ? 0 : 220;
-      case 'md': return collapsed ? 80 : 240;
-      case 'lg': return collapsed ? 100 : 260;
-      case 'xl': return collapsed ? 120 : 280;
-      default: return collapsed ? 0 : 80;
-    }
-  };
-
-  const showModal = () => {
-    setIsModalVisible(true);
-  };
-
-  const handleOk = () => {
-    setIsModalVisible(false);
-  };
-
-  const handleCancel = () => {
-    setIsModalVisible(false);
-  };
+  const [collapsed, setCollapsed] = useState(true);
 
   return (
     <Layout className="min-h-full max-h-full transition-colors duration-300">
-      <Sider
-        breakpoint="md"
-        collapsedWidth={0}
-        collapsible
-        collapsed={collapsed}
-        onBreakpoint={(broken) => setBreakpoint(broken ? 'xs' : 'md')}
-        trigger={null}
-        className={`bg-[#FFFFFF] dark:bg-dark-secondary mr-2 my-3 rounded-xl  ${!collapsed ? '' : ''
-          }`}
-        width={getSiderWidth()}
-      >
-        {/* <div className="my-8 text-center bg-[#FFFFFF] dark:bg-dark-secondary">
-          {!collapsed && (
-            <span className="font-bold text-light-text-primary dark:text-dark-text-primary text-lg">
-              مدیریت پیکربندی
-            </span>
-          )}
-        </div> */}
-        {/* <Button type="primary" onClick={showModal} className="w-12 mx-2 my-2"> */}
-        {/* <PlusCircleFilled /> */}
-        {/* </Button> */}
-        <ProductModal
-          isOpen={isOpen}
-          modalMode={modalMode}
-          modalData={modalData}
-          closeModal={closeModal}
-          setModal={setModal}
-          // refetch={refetch}
-        />
-        <Menu
-          theme="light"
-          mode="inline"
-          defaultSelectedKeys={['1']}
-          className="bg-[#FFFFFF] dark:bg-dark-secondary"
-          items={items}
-        />
-      </Sider>
       <Layout>
+
         <CustomHeader collapsed={collapsed} setCollapsed={setCollapsed} />
+        <Products />
         <Content className="p-4 md:p-6 min-h-[calc(100vh-64px)] bg-light-primary dark:bg-dark-primary transition-colors duration-300">
           <div>
             <Outlet />
