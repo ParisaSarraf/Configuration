@@ -72,13 +72,6 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
 
     return (
         <div>
-            <Button
-                className="modal-button mx-4"
-                icon={<PlusOutlined className="text-center" />}
-                onClick={() => setModal({ mode: "add", data: null })}
-            >
-                <span className="xs:hidden sm:hidden md:inline">افزودن محصول</span>
-            </Button>
             <Modal
                 isOpen={isOpen}
                 title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} محصول`}

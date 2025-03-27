@@ -21,7 +21,7 @@ import { jwtDecode } from "jwt-decode";
 const { Header: AntHeader } = Layout;
 const { useBreakpoint } = Grid;
 
-const CustomHeader = ({ collapsed, setCollapsed }) => {
+const CustomHeader = () => {
   const isLoggedIn = localStorage.getItem("accessToken");
   const { handleLogout } = useMyAxios();
   const navigate = useNavigate();
@@ -72,18 +72,7 @@ const CustomHeader = ({ collapsed, setCollapsed }) => {
   ];
 
   return (
-    <AntHeader className="flex items-center justify-between px-4 mt-3 mx-2 bg-[#FFFFFF] dark:bg-dark-primary rounded-xl">
-      <div className="flex items-center">
-        {React.createElement(
-          collapsed ? MenuUnfoldOutlined : MenuFoldOutlined,
-          {
-            className:
-              "text-lg text-light-text-primary dark:text-dark-text-primary cursor-pointer",
-            onClick: () => setCollapsed(!collapsed),
-          }
-        )}
-      </div>
-
+    <AntHeader className="flex items-center justify-end px-4 bg-[#FFFFFF] dark:bg-dark-primary">
       <div className="flex items-center gap-4">
         {isLoggedIn && (
           <>
