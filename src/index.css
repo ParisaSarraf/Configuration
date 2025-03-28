@@ -96,3 +96,16 @@
   width: 24px;
   height: 24px;
 }
+
+.custom-tabs .ant-tabs-nav {
+  margin: 0 !important;
+}
+
+.custom-tabs .ant-tabs-tab {
+  margin-left: 170px !important;
+  padding: 12px 0 !important;
+}
+
+.custom-tabs .ant-tabs-ink-bar {
+  bottom: 0;
+}

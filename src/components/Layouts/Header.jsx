@@ -1,25 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { Layout, Avatar, Dropdown, Image } from "antd";
-import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
+import Icon, {
   UserOutlined,
   LoginOutlined,
   SettingOutlined,
   ProfileOutlined,
   SecurityScanOutlined,
   BellOutlined,
-  SettingFilled,
-  SecurityScanFilled,
+  SolutionOutlined,
 } from "@ant-design/icons";
 import { Grid } from 'antd';
 import { useMyAxios } from "../../utils/Api";
-import ThemeToggle from "../Theme/ThemeToggle";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import PersianDate from "persian-date";
 
-const { Header: AntHeader } = Layout;
+const { Header } = Layout;
 const { useBreakpoint } = Grid;
 const baseUrl = "http://87.248.150.51:8000"
 
@@ -99,15 +95,19 @@ const CustomHeader = () => {
       },
     }]
 
-  return  (
-    <AntHeader className="flex items-center justify-between px-4 bg-white dark:bg-dark-primary shadow-sm">
-      <div className="hidden md:flex items-center gap-2 text-sm">
+  return (
+    <Header className="flex items-center justify-between px-4 bg-white dark:bg-dark-primary shadow-sm">
+      <div className="hidden md:flex items-center gap-2">
         <time dateTime={currentTime.format()} className="font-medium">
           {currentTime.format("HH:mm")}
         </time>
-        <span className="text-gray-500 dark:text-gray-400">
+        <span>
           {currentTime.format("dddd D MMMM YYYY")}
         </span>
+      </div>
+
+      <div className="flex flex-row gap-2">
+        <span className="text-sky-800">سامانه سما (سیستم مدیریت اسناد )</span>
       </div>
 
       <div className="flex items-center gap-4">
@@ -128,7 +128,7 @@ const CustomHeader = () => {
                 <span className="hidden sm:inline text-sm">
                   {userData?.name || 'کاربر'}
                 </span>
-                
+
                 {userData?.temp_image ? (
                   <Image
                     src={`${baseUrl}${userData.temp_image}`}
@@ -149,7 +149,7 @@ const CustomHeader = () => {
         )}
         {/* <ThemeToggle /> */}
       </div>
-    </AntHeader>
+    </Header>
   );
 };
 

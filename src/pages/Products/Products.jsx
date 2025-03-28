@@ -22,7 +22,7 @@ const Products = () => {
                     type="primary"
                     onClick={() => setModal({ mode: 'create' })}
                     icon={<PlusCircleFilled />}
-                    className="w-full"
+                    className="w-full hidden md:block"
                 >
                     افزودن محصول
                 </Button>
