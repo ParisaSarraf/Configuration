@@ -39,7 +39,7 @@ const Casing = () => {
         setModal({ mode: 'edit', data: record });
     };
 
-    // const casingData = data.filter(item => item.type === 'casing');
+    const casingData = data?.filter(item => item?.type === 'casing') || [];
 
     return (
         <Card
@@ -58,7 +58,7 @@ const Casing = () => {
         >
             <Table
                 columns={casingCol({ handleDelete, handleEdit })}
-                dataSource={data}
+                dataSource={casingData}
                 rowKey="id"
                 loading={isFetching}
                 scroll={{ x: true }}

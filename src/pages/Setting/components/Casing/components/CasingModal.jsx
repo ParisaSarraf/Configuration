@@ -1,9 +1,8 @@
 import React, { useEffect } from "react";
 import { Button, Col, Form, Input, message, Row } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import { useCreateUser, useUpdateUser } from "../../../../../QueryServises/userQuery";
-import Modal from "../../../../../components/Modal";
 import { useCreateCoreSetting, useUpdateCoreSetting } from "../../../../../QueryServises/settingQuery";
+import Modal from "../../../../../components/Modal";
 
 const CasingModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch }) => {
     const [form] = Form.useForm();
@@ -14,6 +13,7 @@ const CasingModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refet
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
                 name: modalData.name,
+                type: modalData.type || "casing" 
             });
         } else if (modalMode === "add") {
             form.resetFields();
@@ -23,7 +23,7 @@ const CasingModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refet
     const onFinishForm = (values) => {
         const payload = {
             name: values.name,
-            type: "casing"
+            type: "casing" 
         };
 
         if (modalMode === "add") {
@@ -38,9 +38,9 @@ const CasingModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refet
                     console.error(error);
                 });
         } else if (modalMode === "edit") {
-            updateCasing({ casingId: modalData.id, updateData: payload })
+            updateCasing({ id: modalData.id, ...payload })
                 .then(() => {
-                    message.success("کاربر با موفقیت ویرایش شد");
+                    message.success("پوشش با موفقیت ویرایش شد");
                     closeModal();
                     refetch();
                 })
@@ -73,18 +73,20 @@ const CasingModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refet
                     form={form}
                     layout="vertical"
                     onFinish={onFinishForm}
+                    initialValues={{
+                        type: "case" 
+                    }}
                 >
                     <Row gutter={16}>
                         <Col span={24}>
                             <Form.Item
                                 name="name"
-                                label="پوشش "
-                                rules={[{ required: true, message: "لطفاً  پوشش را وارد کنید" }]}
+                                label="پوشش"
+                                rules={[{ required: true, message: "لطفاً پوشش را وارد کنید" }]}
                             >
-                                <Input placeholder=" پوشش" />
+                                <Input placeholder="پوشش" />
                             </Form.Item>
                         </Col>
-
                     </Row>
                 </Form>
             </Modal>

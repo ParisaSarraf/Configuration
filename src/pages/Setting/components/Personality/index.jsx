@@ -11,7 +11,7 @@ import PersonalityModal from './components/PersonalityModal';
 const Personality = () => {
     const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
     const {
-        data = [],
+        data,
         isFetching,
         refetch
     } = useCoreSettingsList();
@@ -39,7 +39,7 @@ const Personality = () => {
         setModal({ mode: 'edit', data: record });
     };
 
-    // const genusData = data.filter(item => item.type === 'genus');
+    const personalityData = data?.filter(item => item?.type === 'personality') || [];
 
     return (
         <Card
@@ -58,7 +58,7 @@ const Personality = () => {
         >
             <Table
                 columns={PersonalityCol({ handleDelete, handleEdit })}
-                dataSource={data}
+                dataSource={personalityData}
                 rowKey="id"
                 loading={isFetching}
                 scroll={{ x: true }}

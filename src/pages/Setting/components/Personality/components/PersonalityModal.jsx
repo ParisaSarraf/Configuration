@@ -13,6 +13,7 @@ const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
                 name: modalData.name,
+                type: modalData.type || "personality"
             });
         } else if (modalMode === "add") {
             form.resetFields();
@@ -20,6 +21,11 @@ const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
     }, [modalMode, modalData, form]);
 
     const onFinishForm = (values) => {
+        if (!values.name) {
+            message.error("لطفاً نام شخصیت را وارد کنید");
+            return;
+        }
+
         const payload = {
             name: values.name,
             type: "personality"
@@ -33,19 +39,26 @@ const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
                     refetch();
                 })
                 .catch((error) => {
-                    message.error("موفقیت آمیز نبود، دوباره امتحان کنید");
-                    console.error(error);
+                    message.error("خطا در اضافه کردن شخصیت");
+                    console.error("Create error:", error);
                 });
         } else if (modalMode === "edit") {
-            updatePersonality({ PersonalityId: modalData.id, updateData: payload })
+            if (!modalData?.id) {
+                message.error("شناسه شخصیت برای ویرایش یافت نشد");
+                return;
+            }
+            updatePersonality({
+                id: modalData.id,
+                ...payload
+            })
                 .then(() => {
                     message.success("شخصیت با موفقیت ویرایش شد");
                     closeModal();
                     refetch();
                 })
                 .catch((error) => {
-                    message.error("موفقیت آمیز نبود، دوباره امتحان کنید");
-                    console.error(error);
+                    message.error("خطا در ویرایش شخصیت");
+                    console.error("Update error:", error.response?.data || error);
                 });
         }
     };
@@ -72,18 +85,26 @@ const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
                     form={form}
                     layout="vertical"
                     onFinish={onFinishForm}
+                    initialValues={{
+                        type: "personality"
+                    }}
                 >
                     <Row gutter={16}>
                         <Col span={24}>
                             <Form.Item
                                 name="name"
                                 label="شخصیت"
-                                rules={[{ required: true, message: "لطفاً  شخصیت را وارد کنید" }]}
+                                rules={[{
+                                    required: true,
+                                    message: "لطفاً نام شخصیت را وارد کنید"
+                                }]}
                             >
-                                <Input placeholder=" شخصیت" />
+                                <Input placeholder="نام شخصیت" />
+                            </Form.Item>
+                            <Form.Item name="type" hidden>
+                                <Input type="hidden" />
                             </Form.Item>
                         </Col>
-
                     </Row>
                 </Form>
             </Modal>

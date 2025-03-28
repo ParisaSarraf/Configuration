@@ -13,6 +13,7 @@ const GenusModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetc
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
                 name: modalData.name,
+                type: modalData.type || "genus" 
             });
         } else if (modalMode === "add") {
             form.resetFields();
@@ -37,7 +38,7 @@ const GenusModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetc
                     console.error(error);
                 });
         } else if (modalMode === "edit") {
-            updateGenus({ GenusId: modalData.id, updateData: payload })
+            updateGenus({ id: modalData.id, ...payload })
                 .then(() => {
                     message.success("جنس با موفقیت ویرایش شد");
                     closeModal();
@@ -72,6 +73,9 @@ const GenusModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetc
                     form={form}
                     layout="vertical"
                     onFinish={onFinishForm}
+                    initialValues={{
+                        type: "genus" 
+                    }}
                 >
                     <Row gutter={16}>
                         <Col span={24}>
