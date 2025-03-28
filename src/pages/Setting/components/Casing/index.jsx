@@ -1,44 +1,76 @@
-import { Card, Table, Typography } from 'antd'
-import React from 'react'
+import { Card, Table, message } from 'antd';
+import React from 'react';
+import useModal from '../../../../hooks/useModal';
+import CasingModal from './components/casingModal';
 import { casingCol } from './components/casingCol';
+import {
+    useCoreSettingsList,
+    useDeleteCoreSetting
+} from '../../../../QueryServises/settingQuery';
 
 const Casing = () => {
+    const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
+    const {
+        data = [],
+        isFetching,
+        refetch
+    } = useCoreSettingsList();
 
-    const data = [
-        {
-            "id": 1,
-            "name": "string",
-        }
-    ];
-
-    const handleEdit = (record) => {
-        console.log(record)
-    }
+    const { mutate: deleteCasing, isPending: isDeleting } = useDeleteCoreSetting();
 
     const handleDelete = (record) => {
-        console.log(record);
-    }
+        deleteCasing(record, {
+            onSuccess: () => {
+                message.success("پوشش با موفقیت حذف شد");
+                refetch();
+            },
+            onError: (error) => {
+                if (error.response?.status === 404) {
+                    message.error("پوشش مورد نظر یافت نشد");
+                } else {
+                    message.error(error.response?.data?.detail || "خطا در حذف پوشش");
+                }
+                console.error("Delete error:", error);
+            }
+        });
+    };
 
+    const handleEdit = (record) => {
+        setModal({ mode: 'edit', data: record });
+    };
+
+    // const casingData = data.filter(item => item.type === 'casing');
 
     return (
-
-        <Card className=" bg-white shadow-md rounded-lg">
-            {/* <Typography>پوشش */}
-                <Table
-                    columns={casingCol({ handleDelete, handleEdit })}
-                    dataSource={data}
-                    rowKey="id"
-                    scroll={{ x: true }}
-                    responsive={{
-                        small: { columnWidth: 100 },
-                        middle: { columnWidth: 150 },
-                        large: { columnWidth: 200 },
-                    }}
+        <Card
+            title="مدیریت پوشش"
+            extra={
+                <CasingModal
+                    isOpen={isOpen}
+                    modalMode={modalMode}
+                    modalData={modalData}
+                    closeModal={closeModal}
+                    setModal={setModal}
+                    refetch={refetch}
                 />
-            {/* </Typography>   */}
-             </Card>
+            }
+            loading={isFetching || isDeleting}
+        >
+            <Table
+                columns={casingCol({ handleDelete, handleEdit })}
+                dataSource={data}
+                rowKey="id"
+                loading={isFetching}
+                scroll={{ x: true }}
+                pagination={{
+                    pageSize: 10,
+                }}
+                locale={{
+                    emptyText: 'هیچ پوششی یافت نشد'
+                }}
+            />
+        </Card>
+    );
+};
 
-    )
-}
-
-export default Casing
+export default Casing;

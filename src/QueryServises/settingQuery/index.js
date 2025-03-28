@@ -1,3 +1,4 @@
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMyAxios } from "../../utils/Api";
 
 export const coreSettingsQueryKeys = {
@@ -51,8 +52,10 @@ export const useDeletedCoreSettings = (options = {}) => {
 export const useCreateCoreSetting = () => {
   const { myAxios } = useMyAxios();
   return useMutation({
-    mutationFn: (newData) =>
-      myAxios.post("/core/setting/", newData).then((res) => res.data),
+    mutationFn: (params) =>
+      myAxios.post("/core/setting/", params).then((response) => {
+        return response?.data;
+      }),
   });
 };
 
@@ -60,7 +63,7 @@ export const useUpdateCoreSetting = () => {
   const { myAxios } = useMyAxios();
   return useMutation({
     mutationFn: ({ id, ...updateData }) =>
-      myAxios.put(`/core/setting/${id}`, updateData).then((res) => res.data),
+      myAxios.put(`/core/setting/${id}/`, updateData).then((res) => res.data),
   });
 };
 
@@ -76,7 +79,7 @@ export const useDeleteCoreSetting = () => {
   const { myAxios } = useMyAxios();
   return useMutation({
     mutationFn: (id) =>
-      myAxios.delete(`/core/setting/${id}`).then((res) => res.data),
+      myAxios.delete(`/core/setting/${id}/`).then((res) => res.data),
   });
 };
 

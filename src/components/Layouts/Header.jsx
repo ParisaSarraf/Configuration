@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Layout, Avatar, Dropdown } from "antd";
+import React, { useEffect, useState } from "react";
+import { Layout, Avatar, Dropdown, Image } from "antd";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -17,25 +17,53 @@ import { useMyAxios } from "../../utils/Api";
 import ThemeToggle from "../Theme/ThemeToggle";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import PersianDate from "persian-date";
 
 const { Header: AntHeader } = Layout;
 const { useBreakpoint } = Grid;
+const baseUrl = "http://87.248.150.51:8000"
+
 
 const CustomHeader = () => {
   const isLoggedIn = localStorage.getItem("accessToken");
   const { handleLogout } = useMyAxios();
+  const [currentTime, setCurrentTime] = useState(new PersianDate());
+  const [userData, setUserData] = useState({});
   const navigate = useNavigate();
-  const decode = jwtDecode(localStorage.getItem("accessToken"));
   const screens = useBreakpoint();
+
+  useEffect(() => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        const decoded = jwtDecode(token);
+        setUserData(decoded || {});
+      }
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      setUserData({});
+    }
+
+    const interval = setInterval(() => {
+      setCurrentTime(new PersianDate());
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const menuItems = [
     {
-      key: '1',
+      key: 'profile',
       icon: <ProfileOutlined />,
-      label: `سلام ${decode.last_name}`,
+      label: `سلام ${userData?.last_name || "کاربر"}`,
     },
     {
-      key: '2',
+      key: 'last-login',
+      label: `آخرین ورود: ${userData?.last_login ? new PersianDate(userData.last_login).format(' HH:mm MM/DD') : "-"}`,
+      icon: <UserOutlined />,
+    },
+    {
+      key: 'change-password',
       label: 'تغییر رمزعبور',
       icon: <SecurityScanOutlined />,
       onClick: () => {
@@ -43,7 +71,7 @@ const CustomHeader = () => {
       },
     },
     {
-      key: '3',
+      key: 'datas',
       label: 'داده بان',
       icon: <SettingOutlined />,
       onClick: () => {
@@ -51,7 +79,7 @@ const CustomHeader = () => {
       },
     },
     {
-      key: '4',
+      key: 'system-managment',
       label: 'مدیریت سیستم',
       icon: <SecurityScanOutlined />,
       onClick: () => {
@@ -62,35 +90,60 @@ const CustomHeader = () => {
       type: 'divider',
     },
     {
-      key: '5',
+      key: 'logout',
       label: 'خروج',
-      icon: <LoginOutlined />,
+      danger: true,
+      icon: <LoginOutlined rotate={90} />,
       onClick: () => {
         handleLogout();
       },
-    },
-  ];
+    }]
 
-  return (
-    <AntHeader className="flex items-center justify-end px-4 bg-[#FFFFFF] dark:bg-dark-primary">
+  return  (
+    <AntHeader className="flex items-center justify-between px-4 bg-white dark:bg-dark-primary shadow-sm">
+      <div className="hidden md:flex items-center gap-2 text-sm">
+        <time dateTime={currentTime.format()} className="font-medium">
+          {currentTime.format("HH:mm")}
+        </time>
+        <span className="text-gray-500 dark:text-gray-400">
+          {currentTime.format("dddd D MMMM YYYY")}
+        </span>
+      </div>
+
       <div className="flex items-center gap-4">
         {isLoggedIn && (
           <>
             {screens.md && (
-              <BellOutlined className="text-xl p-1.5 bg-[#B5B6B7] text-white rounded-full" />
+              <BellOutlined className="text-xl p-1.5 bg-gray-400 text-white rounded-full hover:bg-gray-500 transition-colors" />
             )}
 
             <Dropdown
               menu={{
                 items: menuItems,
               }}
-              trigger={["hover"]}
+              trigger={["click"]}
+              overlayClassName="dark:bg-dark-secondary"
             >
-              <Avatar
-                className="cursor-pointer"
-                icon={<UserOutlined />}
-                src={decode.signature_image ? decode.signature_image : "/user.png"}
-              />
+              <div className="flex items-center gap-2 cursor-pointer">
+                <span className="hidden sm:inline text-sm">
+                  {userData?.name || 'کاربر'}
+                </span>
+                
+                {userData?.temp_image ? (
+                  <Image
+                    src={`${baseUrl}${userData.temp_image}`}
+                    width={33}
+                    height={33}
+                    style={{ borderRadius: '50%' }}
+                    preview={false}
+                    className="text-xl border-2 border-green-600"
+                    alt={`${userData.name}'s profile`}
+                    fallback={<UserOutlined className="text-xl" />}
+                  />
+                ) : (
+                  <UserOutlined className="text-xl" />
+                )}
+              </div>
             </Dropdown>
           </>
         )}
