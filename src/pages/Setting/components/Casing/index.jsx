@@ -1,12 +1,12 @@
 import { Card, Table, message } from 'antd';
 import React from 'react';
 import useModal from '../../../../hooks/useModal';
-import { casingCol } from './components/casingCol';
+import { casingCol } from './components/CasingCol';
 import {
     useCoreSettingsList,
     useDeleteCoreSetting
 } from '../../../../QueryServises/settingQuery';
-import CasingModal from './components/casingModal';
+import CasingModal from './components/CasingModal';
 
 const Casing = () => {
     const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
@@ -15,7 +15,6 @@ const Casing = () => {
         isFetching,
         refetch
     } = useCoreSettingsList();
-
     const { mutate: deleteCasing, isPending: isDeleting } = useDeleteCoreSetting();
 
     const handleDelete = (record) => {
