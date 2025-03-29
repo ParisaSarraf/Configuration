@@ -1,7 +1,7 @@
 import { Card, Table, message } from 'antd';
 import React from 'react';
 import useModal from '../../../../hooks/useModal';
-import { casingCol } from './components/CasingCol';
+import { CasingCol } from './components/CasingCol';
 import {
     useCoreSettingsList,
     useDeleteCoreSetting
@@ -56,7 +56,7 @@ const Casing = () => {
             loading={isFetching || isDeleting}
         >
             <Table
-                columns={casingCol({ handleDelete, handleEdit })}
+                columns={CasingCol({ handleDelete, handleEdit })}
                 dataSource={casingData}
                 rowKey="id"
                 loading={isFetching}
