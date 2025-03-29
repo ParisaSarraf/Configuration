@@ -13,7 +13,7 @@ const CasingModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refet
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
                 name: modalData.name,
-                type: modalData.type || "casing" 
+                type: modalData.type || "casing"
             });
         } else if (modalMode === "add") {
             form.resetFields();
@@ -23,7 +23,7 @@ const CasingModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refet
     const onFinishForm = (values) => {
         const payload = {
             name: values.name,
-            type: "casing" 
+            type: "casing"
         };
 
         if (modalMode === "add") {
@@ -74,7 +74,7 @@ const CasingModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refet
                     layout="vertical"
                     onFinish={onFinishForm}
                     initialValues={{
-                        type: "case" 
+                        type: "case"
                     }}
                 >
                     <Row gutter={16}>

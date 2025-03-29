@@ -96,7 +96,7 @@ const CustomHeader = () => {
     }]
 
   return (
-    <Header className="flex items-center justify-between px-4 bg-white dark:bg-dark-primary shadow-sm">
+    <Header className="flex items-center justify-between px-4 bg-white dark:bg-dark-primary shadow-sm ">
       <div className="hidden md:flex items-center gap-2">
         <time dateTime={currentTime.format()} className="font-medium">
           {currentTime.format("HH:mm")}
@@ -113,9 +113,7 @@ const CustomHeader = () => {
       <div className="flex items-center gap-4">
         {isLoggedIn && (
           <>
-            {screens.md && (
-              <BellOutlined className="text-xl p-1.5 bg-gray-400 text-white rounded-full hover:bg-gray-500 transition-colors" />
-            )}
+
 
             <Dropdown
               menu={{
@@ -145,6 +143,9 @@ const CustomHeader = () => {
                 )}
               </div>
             </Dropdown>
+            {screens.md && (
+              <BellOutlined className="text-xl p-1.5 bg-gray-400 text-white rounded-full hover:bg-gray-500 transition-colors" />
+            )}
           </>
         )}
         {/* <ThemeToggle /> */}

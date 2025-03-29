@@ -42,10 +42,7 @@ const UnderDevelopment = () => {
         items={items}
         tabBarStyle={{
           display: 'flex',
-          padding: '0 65px',
           width: '100%',
-          overflow: "hidden",
-          boxSizing: 'border-box',
         }}
         className="custom-tabs"
       />

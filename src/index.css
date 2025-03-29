@@ -101,11 +101,31 @@
   margin: 0 !important;
 }
 
-.custom-tabs .ant-tabs-tab {
-  margin-left: 170px !important;
-  padding: 12px 0 !important;
+.custom-tabs .ant-tabs-nav {
+  display: flex;
+  width: 100%;
+}
+
+.custom-tabs .ant-tabs-nav-list {
+  display: flex;
+  justify-content: space-evenly; 
+  width: 100%;
 }
 
 .custom-tabs .ant-tabs-ink-bar {
   bottom: 0;
+}
+
+.uniform-form-item .ant-form-item-label {
+  width: 120px; 
+  text-align: right;
+}
+
+.uniform-form-item .ant-form-item-control {
+  width: calc(100% - 120px); 
+}
+
+.uniform-form-item {
+  /* margin-bottom: px;  */
+  height: 10px; 
 }

@@ -75,7 +75,7 @@ const Tree = ({
 
   const transformData = (data) => {
     if (!data) return [];
-    
+
     return data.map((item) => ({
       title: item[titleField],
       key: item[keyField],

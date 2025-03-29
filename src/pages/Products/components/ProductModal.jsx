@@ -75,113 +75,62 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
             <Modal
                 isOpen={isOpen}
                 title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} محصول`}
-                size={600}
+                size={1000}
                 onClose={closeModal}
                 onSubmit={() => form.submit()}
                 mode={modalMode}
                 loading={isCreating || isUpdating}
             >
-                <Form layout="vertical" form={form} onFinish={onFinish}
-                    className="pl-4 h-80 overflow-y-scroll overflow-hidden">
+                <Form
+                    layout="horizontal"
+                    form={form}
+                    onFinish={onFinish}
+                    className="pl-4 h-80 overflow-y-scroll overflow-hidden"
+                >
                     <Row gutter={[16, 16]}>
-                        <Col span={8}>
-                            <Form.Item name="parentId" label="ایدی والد">
-                                <Input placeholder="" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="casingId" label="شناسه پوشش">
-                                <Input placeholder="" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="genusId" label="شماسه کلاس">
-                                <Input placeholder="" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="personalityId" label="شناسه شخصیت">
-                                <Input placeholder="" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="code" label="کد">
-                                <Input placeholder="" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="persianTitle" label="نام فارسی">
-                                <Input placeholder="" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="productNumber" label="شماره محصول">
-                                <Input placeholder="" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="alternativeCode" label="کد جایگزین">
-                                <Input placeholder="" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="proType" label="نوع حرفه ای">
-                                <Input placeholder="" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="parentCodeId" label="شناسه کد والد">
-                                <Input placeholder="" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="weight" label="وزن">
-                                <Input placeholder="" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="height" label="ارتفاع">
-                                <Input placeholder="" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="width" label="عرض">
-                                <Input placeholder="" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="lengthCode" label="طول">
-                                <Input placeholder="" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="price" label="قیمت">
-                                <Input placeholder="" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="externalDiagonal" label="مورب خارجی">
-                                <Input placeholder="" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="internalDiagonal" label="مورب داخلی">
-                                <Input placeholder="" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="statusCode" label="وضعیت">
-                                <Input placeholder="" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="storeCode" label="رمز فروشگاه">
-                                <Input placeholder="" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="description" label="توضیحات">
-                                <Input placeholder="" />
+                        {[
+                            // { name: "casingId", label: "شناسه پوشش" },
+                            // { name: "genusId", label: "شناسه کلاس" },
+                            // { name: "personalityId", label: "شناسه شخصیت" },
+                            { name: "parentCodeId", label: "شناسه کد والد" },
+                            { name: "parentId", label: "ایدی والد" },
+                            { name: "persianTitle", label: "عنوان فارسی" },
+                            { name: "code", label: "کد محصول" },
+                            { name: "productNumber", label: "شماره محصول" },
+                            { name: "alternativeCode", label: "کد جایگزین" },
+                            { name: "proType", label: "نوع حرفه ای" },
+                            { name: "lengthCode", label: "طول" },
+                            { name: "width", label: "عرض" },
+                            { name: "height", label: "ارتفاع" },
+                            { name: "weight", label: "وزن" },
+                            { name: "externalDiagonal", label: "قطر خارجی" },
+                            { name: "internalDiagonal", label: "قطر داخلی" },
+                            { name: "statusCode", label: "وضعیت" },
+                            { name: "storeCode", label: "رمز فروشگاه" },
+                            { name: "price", label: "قیمت" },
+                        ].map((item, index) => (
+                            <Col span={8} key={index}>
+                                <Form.Item
+                                    name={item.name}
+                                    label={item.label}
+                                    className="uniform-form-item"
+                                >
+                                    <Input placeholder="" style={{ width: '100%' }} />
+                                </Form.Item>
+                            </Col>
+                        ))}
+
+                        <Col span={24}>
+                            <Form.Item
+                                name="description"
+                                label="توضیحات"
+                                className="uniform-form-item"
+                            >
+                                <Input.TextArea
+                                    rows={1}
+                                    style={{ width: '100%' }}
+                                    placeholder="توضیحات کامل را وارد کنید..."
+                                />
                             </Form.Item>
                         </Col>
                     </Row>

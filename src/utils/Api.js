@@ -60,12 +60,13 @@ export const useMyAxios = () => {
 
   const handleLogout = async () => {
     const refreshToken = localStorage.getItem("refreshToken");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
     try {
       await myAxios.post("/user/blacklist/", {
         refresh: refreshToken,
       });
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+
       setAuthToken(null);
       navigate("/sign-in");
     } catch (error) {
@@ -73,7 +74,7 @@ export const useMyAxios = () => {
     }
   };
 
-  return { myAxios, handleLogout }; 
+  return { myAxios, handleLogout };
 };
 
 export const SignInFn = async (usersData) => {
@@ -83,8 +84,8 @@ export const SignInFn = async (usersData) => {
     localStorage.setItem("accessToken", access);
     localStorage.setItem("refreshToken", refresh);
     // todo
-    const decode = jwtDecode(access)
-    console.log(decode);
+    // const decode = jwtDecode(access);
+    // console.log(decode);
     return response.data;
   } catch (error) {
     console.error("Error in SignIn:", error);

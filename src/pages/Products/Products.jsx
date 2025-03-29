@@ -9,13 +9,21 @@ import useModal from "../../hooks/useModal";
 const { Sider } = Layout;
 
 const Products = () => {
-    const { data: productData, isLoading, refetch } = useProductList();
+    const { data: productData, isLoading, isError, refetch } = useProductList();
     const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
+
+    const [checkedKeys, setCheckedKeys] = useState([]);
+
+    const handleTreeChange = (newCheckedKeys) => {
+        setCheckedKeys(newCheckedKeys);
+    };
+
     return (
         <Sider
-            width={270}
-            className="bg-white dark:bg-dark-secondary fixed h-[100vh] overflow-y-scroll "
+            width={300}
+            className="bg-white dark:bg-dark-secondary fixed h-[100vh] overflow-y-scroll"
             breakpoint="lg"
+            collapsedWidth={0}
         >
             <div className="p-4">
                 <Button
@@ -32,14 +40,19 @@ const Products = () => {
                 <div className="flex justify-center p-4">
                     <Spin />
                 </div>
+            ) : isError ? (
+                <div className="p-4 text-red-500">خطا در بارگذاری داده‌ها</div>
             ) : (
                 <ProductTree
                     productData={productData}
                     setModal={setModal}
                     refetch={refetch}
+                    isLoading={isLoading}
+                    isError={isError}
+                    checkedKeys={checkedKeys}
+                    onChange={handleTreeChange}
                 />
             )}
-
             <ProductModal
                 isOpen={isOpen}
                 modalMode={modalMode}
