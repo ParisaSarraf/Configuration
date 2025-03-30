@@ -47,9 +47,7 @@ export const useUpdateDocument = () => {
     mutationFn: ({ documentId, ...params }) => {
       return myAxios
         .put(`/document/update-document/${documentId}`, params)
-        .then((response) => {
-          return response?.data;
-        });
+        .then((response) => response?.data);
     },
   });
 };

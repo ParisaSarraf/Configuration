@@ -3,7 +3,7 @@ import ProtectedRoute from "./components/‎ProtectedRoute‎";
 import MainLayout from "./components/Layouts/MainLayout";
 import SignIn from "./components/SignIn/SignIn";
 import NotFound from "./pages/NotFound/NotFound";
-import UnderDevelopment from "./pages/UnderDevelopment/UnderDevelopment";
+import GoodsCategories from "./pages/GoodsCategories/GoodsCategories";
 import ForgetPassword from "./pages/ForgetPassword/ForgetPassword";
 import SystemManagment from "./pages/SystemManagment";
 import Documents from "./pages/Documents/Documents";
@@ -30,7 +30,7 @@ const router = createBrowserRouter([
         index: true,
         element: (
           <ProtectedRoute>
-            <UnderDevelopment />
+            <GoodsCategories />
           </ProtectedRoute>
         ),
       },

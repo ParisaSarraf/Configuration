@@ -20,6 +20,7 @@ const Tree = ({
     { key: "delete", label: "حذف" },
   ],
   onRightClickAction,
+  onSelect = () => {}, 
   loadingComponent = <div className="text-center py-8">در حال بارگذاری...</div>,
   errorComponent = (
     <div className="text-center py-8 text-red-500">خطا در دریافت اطلاعات!</div>
@@ -27,14 +28,10 @@ const Tree = ({
   ...props
 }) => {
   const [rightClickNode, setRightClickNode] = useState(null);
-  const [showDropDown, setShowDropDown] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ x: 0, y: 0 });
 
-  const onSelect = (selectedKeys, info) => {
-    if (props.onSelect) {
-      props.onSelect(selectedKeys, info);
-    } else {
-      console.log(info.node);
-    }
+  const handleSelect = (selectedKeys, info) => {
+    onSelect(selectedKeys, info); 
   };
 
   const onCheck = (checkedKeys, info) => {
@@ -43,9 +40,10 @@ const Tree = ({
 
   const onRightClick = ({ event, node }) => {
     if (!showRightClickMenu) return;
-
-    setRightClickNode({ ...node, x: event.pageX, y: event.pageY });
-    setShowDropDown(true);
+    
+    event.preventDefault();
+    setRightClickNode(node);
+    setDropdownPosition({ x: event.clientX, y: event.clientY });
   };
 
   const handleMenuClick = ({ key }) => {
@@ -60,12 +58,10 @@ const Tree = ({
         message.success(`حذف: ${rightClickNode.title}`);
       }
     }
-
     setRightClickNode(null);
-    setShowDropDown(false);
   };
 
-  const itemsMenu = (
+  const menu = (
     <Menu onClick={handleMenuClick}>
       {rightClickMenuItems.map((item) => (
         <Menu.Item key={item.key}>{item.label}</Menu.Item>
@@ -98,29 +94,29 @@ const Tree = ({
         treeData={treeData}
         showLine={showLine}
         checkable={checkable}
-        onSelect={onSelect}
+        onSelect={handleSelect} 
         onCheck={onCheck}
         checkedKeys={checkedKeys}
         {...props}
       />
 
-      {showRightClickMenu && rightClickNode && showDropDown && (
-        <Dropdown
-          menu={{ items: [itemsMenu] }}
-          open={showDropDown}
-          onOpenChange={(visible) => setShowDropDown(visible)}
-          trigger={["contextMenu"]}
+      {showRightClickMenu && rightClickNode && (
+        <div
+          style={{
+            position: 'fixed',
+            left: dropdownPosition.x,
+            top: dropdownPosition.y,
+            visibility: 'hidden',
+          }}
         >
-          <div
-            style={{
-              position: "absolute",
-              top: rightClickNode.y,
-              left: rightClickNode.x,
-              width: "1px",
-              height: "1px",
-            }}
-          />
-        </Dropdown>
+          <Dropdown 
+            overlay={menu} 
+            open={!!rightClickNode}
+            onOpenChange={(open) => !open && setRightClickNode(null)}
+          >
+            <span />
+          </Dropdown>
+        </div>
       )}
     </div>
   );

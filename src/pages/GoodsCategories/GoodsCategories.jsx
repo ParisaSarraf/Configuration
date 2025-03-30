@@ -1,7 +1,8 @@
 import { Tabs } from "antd";
 import React, { useState } from "react";
+import Documents from "../Documents/Documents";
 
-const UnderDevelopment = () => {
+const GoodsCategories = () => {
   const [items, setItems] = useState([
     {
       label: 'معرفی و مشخصات',
@@ -11,7 +12,7 @@ const UnderDevelopment = () => {
     {
       label: 'اسناد',
       key: '2',
-      children: 'اسناد',
+      children: <Documents />,
     },
     {
       label: 'الزامات',
@@ -50,4 +51,4 @@ const UnderDevelopment = () => {
   );
 };
 
-export default UnderDevelopment;
+export default GoodsCategories;

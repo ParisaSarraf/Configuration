@@ -1,12 +1,12 @@
 import { Card, Table, message } from 'antd';
 import React from 'react';
 import useModal from '../../../../hooks/useModal';
-import { CasingCol } from './components/CasingCol';
 import {
     useCoreSettingsList,
     useDeleteCoreSetting
 } from '../../../../QueryServises/settingQuery';
 import CasingModal from './components/CasingModal';
+import { CasingCol } from './components/CasingCol';
 
 const Casing = () => {
     const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();

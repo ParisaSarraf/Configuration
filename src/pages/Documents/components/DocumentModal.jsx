@@ -1,24 +1,18 @@
 import { useEffect } from "react";
 import Modal from "../../../components/Modal";
-import { Button, Col, Form, Input, message, Row } from "antd";
+import { Button, Col, Form, Input, message, Row, Switch } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import {
   useCreateDocument,
   useUpdateDocument,
+  useDocumentList,
 } from "../../../QueryServises/documentQuery";
 
-const DocumentModal = ({
-  isOpen,
-  modalMode,
-  modalData,
-  closeModal,
-  setModal,
-}) => {
+const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) => {
   const [form] = Form.useForm();
-  const { isPending: isCreating, mutateAsync: createDocument } =
-    useCreateDocument();
-  const { isPending: isUpdating, mutateAsync: updateDocument } =
-    useUpdateDocument();
+  const { isPending: isCreating, mutateAsync: createDocument } = useCreateDocument();
+  const { isPending: isUpdating, mutateAsync: updateDocument } = useUpdateDocument();
+  const { refetch } = useDocumentList();
 
   useEffect(() => {
     if (modalMode === "edit" && modalData) {
@@ -34,8 +28,7 @@ const DocumentModal = ({
     }
   }, [modalMode, modalData, form]);
 
-
-  const onFinishForm = (values) => {
+  const onFinishForm = async (values) => {
     const payload = {
       code: values.code,
       persianTitle: values.persianTitle,
@@ -44,26 +37,19 @@ const DocumentModal = ({
       isReproducible: values.isReproducible,
     };
 
-    if (modalMode === "add") {
-      createDocument(payload)
-        .then(() => {
-          message.success("سند با موفقیت اضافه شد");
-          closeModal();
-        })
-        .catch((error) => {
-          message.error("موفقیت آمیز نبود، دوباره امتحان کنید");
-          console.error(error);
-        });
-    } else if (modalMode === "edit") {
-      updateDocument({ documentId: modalData.id, documentData: payload })
-        .then(() => {
-          message.success("کاربر با موفقیت ویرایش شد");
-          closeModal();
-        })
-        .catch((error) => {
-          message.error("موفقیت آمیز نبود، دوباره امتحان کنید");
-          console.error(error);
-        });
+    try {
+      if (modalMode === "add") {
+        await createDocument(payload);
+        message.success("سند با موفقیت اضافه شد");
+      } else {
+        await updateDocument({ documentId: modalData.id, ...payload });
+        message.success("سند با موفقیت ویرایش شد");
+      }
+      await refetch();
+      closeModal();
+    } catch (error) {
+      message.error("موفقیت آمیز نبود، دوباره امتحان کنید");
+      console.error("Error details:", error.response?.data);
     }
   };
 
@@ -78,43 +64,54 @@ const DocumentModal = ({
       </Button>
       <Modal
         isOpen={isOpen}
-        title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} کاربر`}
-        size={600}
+        title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} سند`}
+        size={700}
         onClose={closeModal}
         onSubmit={() => form.submit()}
         mode={modalMode}
         loading={isCreating || isUpdating}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          className="flex flex-col space-y-4"
-          onFinish={onFinishForm}
-        >
-          <Row gutter={[16, 16]}>
-            <Col span={4}>
-              <Form.Item label="کد" name="code">
+        <Form form={form} layout="vertical" className="p-4" onFinish={onFinishForm}>
+          <Row gutter={[24, 16]}>
+            <Col xs={24} sm={12} md={6} lg={4}>
+              <Form.Item
+                label="کد"
+                name="code"
+                rules={[{ required: true, message: "لطفاً کد را وارد کنید" }]}
+              >
                 <Input />
               </Form.Item>
             </Col>
-            <Col span={6}>
-              <Form.Item label="نام فارسی" name="persianTitle">
+
+            <Col xs={24} sm={12} md={8} lg={6}>
+              <Form.Item
+                label="نام فارسی"
+                name="persianTitle"
+                rules={[{ required: true, message: "لطفاً نام فارسی را وارد کنید" }]}
+              >
                 <Input />
               </Form.Item>
             </Col>
-            <Col span={6}>
-              <Form.Item label="نام انگلیسی" name="englishTitle">
+
+            <Col xs={24} sm={12} md={8} lg={6}>
+              <Form.Item
+                label="نام انگلیسی"
+                name="englishTitle"
+                rules={[{ required: true, message: "لطفاً نام انگلیسی را وارد کنید" }]}
+              >
                 <Input />
               </Form.Item>
             </Col>
-            <Col span={4}>
-              <Form.Item label="قابل قبول" name="isUsable">
-                <Input />
+
+            <Col xs={24} sm={12} md={6} lg={4}>
+              <Form.Item label="قابل قبول" name="isUsable" valuePropName="checked">
+                <Switch checkedChildren="بله" unCheckedChildren="خیر" className="bg-gray-300" />
               </Form.Item>
             </Col>
-            <Col span={4}>
-              <Form.Item label="قابل تولید" name="isReproducible">
-                <Input />
+
+            <Col xs={24} sm={12} md={6} lg={4}>
+              <Form.Item label="قابل تولید" name="isReproducible" valuePropName="checked">
+                <Switch checkedChildren="بله" unCheckedChildren="خیر" className="bg-gray-300" />
               </Form.Item>
             </Col>
           </Row>
