@@ -63,10 +63,40 @@ const GenusModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetc
     const getParentOptions = () => {
         if (!genusList) return [];
 
-        return genusList
+        const flattenGenusList = (items) => {
+            let result = [];
+            items.forEach(item => {
+                result.push({
+                    id: item.id,
+                    name: item.name,
+                    parent: item.parent
+                });
+                if (item.children && item.children.length > 0) {
+                    result = result.concat(flattenGenusList(item.children));
+                }
+            });
+            return result;
+        };
+
+        const allGenus = flattenGenusList(genusList);
+
+        return allGenus
             .filter(genus => {
                 if (modalMode !== "edit") return true;
-                return genus.id !== modalData?.id;
+
+                if (genus.id === modalData?.id) return false;
+
+                const isChildOfCurrent = (items, parentId) => {
+                    return items.some(item => {
+                        if (item.id === parentId) return true;
+                        if (item.children && item.children.length > 0) {
+                            return isChildOfCurrent(item.children, parentId);
+                        }
+                        return false;
+                    });
+                };
+
+                return !isChildOfCurrent(genusList, modalData?.id);
             })
             .map(genus => ({
                 label: genus.name,

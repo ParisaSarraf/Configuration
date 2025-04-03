@@ -14,19 +14,19 @@ const GenusTree = ({ setModal }) => {
     const transformDataToTreeFormat = (genusData) => {
         if (!genusData) return [];
         return genusData.map(item => ({
-          title: item.name,
-          key: `genus-${item.id}`,
-          id: item.id,
-          name: item.name,
-          parentId: item.parent,
-          children: item.children && item.children.length > 0 
-            ? transformDataToTreeFormat(item.children) 
-            : undefined,
-          isLeaf: !item.children || item.children.length === 0
+            title: item.name,
+            key: `genus-${item.id}`,
+            id: item.id,
+            name: item.name,
+            parentId: item.parent,
+            children: item.children && item.children.length > 0
+                ? transformDataToTreeFormat(item.children)
+                : undefined,
+            isLeaf: !item.children || item.children.length === 0
         }));
-      };
+    };
 
-      
+
     const handleRightClickAction = (actionKey, node) => {
         const genusId = node.id;
         if (actionKey === "delete") {
@@ -71,7 +71,7 @@ const GenusTree = ({ setModal }) => {
         <Tree
             className="custom-tree"
             data={transformDataToTreeFormat(data)}
-            isLoading={isFetching}
+            isLoading={isFetching || isDeleting}
             isError={isError}
             showLine
             blockNode
