@@ -13,29 +13,29 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
     const { data: personalityData } = useOneCoreSetting("personality");
     const { data: genusData } = useGenusProductList();
 
-
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
+            console.log(modalData, "modalData is");
             form.setFieldsValue({
-                persian_title: modalData.persian_title || null,
-                code: modalData.code || null,
-                alternative_code: modalData.alternative_code || null,
-                product_number: modalData.product_number || null,
-                store_code: modalData.store_code || null,
-                status: modalData.status || 'active',
-                weight: modalData.weight ? Number(modalData.weight) : null,
-                height: modalData.height ? Number(modalData.height) : null,
-                width: modalData.width ? Number(modalData.width) : null,
-                length: modalData.length ? Number(modalData.length) : null,
-                price: modalData.price ? Number(modalData.price) : null,
-                external_diagonal: modalData.external_diagonal ? Number(modalData.external_diagonal) : null,
-                internal_diagonal: modalData.internal_diagonal ? Number(modalData.internal_diagonal) : null,
-                parent_code_id: modalData.parent_code_id || null,
-                casing_id: modalData.casing_id ? Number(modalData.casing_id) : null,
-                genus_id: modalData.genus_id ? Number(modalData.genus_id) : null,
-                personality_id: modalData.personality_id ? Number(modalData.personality_id) : null,
-                pro_type: modalData.pro_type ? Number(modalData.pro_type) : null,
-                description: modalData.description || null
+                persian_title: modalData.name || '',
+                code: modalData.code,
+                alternative_code: modalData.alternative_code,
+                product_number: modalData.product_number,
+                store_code: modalData.store_code,
+                status: modalData.status,
+                weight: modalData.weight,
+                height: modalData.height,
+                width: modalData.width,
+                length: modalData.length,
+                price: modalData.price,
+                external_diagonal: modalData.external_diagonal,
+                internal_diagonal: modalData.internal_diagonal,
+                parent_code_id: modalData.parentId || null,
+                casing_id: modalData.casing_id,
+                genus_id: modalData.genus_id,
+                personality_id: modalData.personality_id,
+                pro_type: modalData.pro_type,
+                description: modalData.description
             });
         } else if (modalMode === "add") {
             form.resetFields();
@@ -55,9 +55,8 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
     }, [modalMode, modalData, form]);
 
     const onFinish = (values) => {
-        console.log("hi");
-
         const payload = {
+            parent_id: values.parent_id,
             persian_title: values.persian_title,
             code: values.code,
             alternative_code: values.alternative_code || null,
@@ -71,7 +70,7 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
             price: values.price ? Number(values.price) : null,
             external_diagonal: values.external_diagonal ? Number(values.external_diagonal) : null,
             internal_diagonal: values.internal_diagonal ? Number(values.internal_diagonal) : null,
-            parent_code_id: values.parent_code_id || null,
+            // parent_code_id: values.parent_code_id || null,
             casing_id: values.casing_id ? Number(values.casing_id) : null,
             genus_id: values.genus_id ? Number(values.genus_id) : null,
             personality_id: values.personality_id ? Number(values.personality_id) : null,
@@ -83,7 +82,6 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
         console.log(modalMode);
 
         if (modalMode === "add") {
-            console.log("in toe");
             createProduct(payload)
                 .then(() => {
                     message.success("محصول با موفقیت اضافه شد");
@@ -128,7 +126,7 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
                 onFinish={onFinish}
                 initialValues={{
                     status: 'active',
-                    parent_code_id: null
+                    // parent_id: values.parent_code_id,
                 }}
             >
                 <Row gutter={[14, 14]}>
@@ -266,8 +264,8 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
 
                     <Col span={4}>
                         <Form.Item
-                            name="parent_code_id"
-                            label="محصول والد"
+                            name="parent_id"
+                             label="محصول والد"
                         >
                             <Select
                                 showSearch

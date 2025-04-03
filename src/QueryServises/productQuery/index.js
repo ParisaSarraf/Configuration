@@ -15,6 +15,19 @@ export const useProductList = (queryOptions) => {
   });
 };
 
+// export const useOneProduct = ["product", productId];
+// export const useProductDetails = (productId) => {
+//   return useQuery({
+//     queryKey: useOneProduct,
+//     queryFn: () =>
+//       myAxios.get(`/product/get-product/${productId}`).then((response) => {
+//         queryOptions?.onSuccess?.(response?.data);
+//         return response?.data;
+//       }),
+//     ...queryOptions,
+//   });
+// };
+
 export const useCreateProduct = () => {
   const { myAxios } = useMyAxios();
   return useMutation({

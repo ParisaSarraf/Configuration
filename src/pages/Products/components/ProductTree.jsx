@@ -5,6 +5,8 @@ import Tree from "../../../components/Tree";
 
 const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onChange, checkedKeys }) => {
     const { mutate: deleteProduct, isLoading: isDeleting } = useDeleteProduct();
+    // const { mutateAsync: fetchProductDetails } = useProductDetails();
+
 
 
     const transformDataToTreeFormat = (productData) => {
@@ -29,7 +31,7 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
 
 
 
-    const handleRightClickAction = (actionKey, node) => {
+    const handleRightClickAction = async (actionKey, node) => {
         const genusId = node.id;
         if (actionKey === "delete") {
             Modal.confirm({
@@ -58,16 +60,17 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
                 },
             });
         } else if (actionKey === "edit") {
-            setModal({
-                mode: "edit",
-                data: {
-                    id: node.id,
-                    name: node.name,
-                    parentId: node.parentId
-                }
-            });
+            try {
+                // const productDetails = await fetchProductDetails(node.id);
+                setModal({
+                    mode: "edit",
+                    // data: productDetails
+                });
+            } catch (error) {
+                message.error("خطا در دریافت اطلاعات محصول");
+            }
         }
-    };
+    }
 
 
     return (
