@@ -23,6 +23,24 @@ export const useCoreSettingsList = (options = {}) => {
   });
 };
 
+export const useOneCoreSettingKey = (type) => ["type", "core", type];
+export const useOneCoreSetting = (type, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: useOneCoreSettingKey(type),
+    queryFn: () =>
+      myAxios
+        .get(`/core/setting/`, {
+          params: { type },
+        })
+        .then((response) => {
+          queryOptions?.onSuccess?.(response?.data);
+          return response?.data;
+        }),
+    ...queryOptions,
+  });
+};
+
 export const useCoreSettingDetails = (id, options = {}) => {
   const { myAxios } = useMyAxios();
   return useQuery({

@@ -11,7 +11,6 @@ const { Sider } = Layout;
 const Products = () => {
     const { data: productData, isLoading, isError, refetch } = useProductList();
     const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
-
     const [checkedKeys, setCheckedKeys] = useState([]);
 
     const handleTreeChange = (newCheckedKeys) => {
@@ -28,7 +27,7 @@ const Products = () => {
             <div className="p-4">
                 <Button
                     type="primary"
-                    onClick={() => setModal({ mode: 'create' })}
+                    onClick={() => setModal({ mode: 'add' })}
                     icon={<PlusCircleFilled />}
                     className="w-full hidden md:block"
                 >
@@ -54,6 +53,7 @@ const Products = () => {
                 />
             )}
             <ProductModal
+                productData={productData}
                 isOpen={isOpen}
                 modalMode={modalMode}
                 modalData={modalData}

@@ -6,13 +6,22 @@ import Tree from "../../../components/Tree";
 const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onChange, checkedKeys }) => {
     const { mutate: deleteProduct, isLoading: isDeleting } = useDeleteProduct();
 
-    const transformDataToTreeFormat = (data) => {
-        return data?.map((product) => ({
-            title: product.name,
-            key: `product-${product.id}`,
-            originalData: product,
+
+    const transformDataToTreeFormat = (productData) => {
+        if (!productData) return [];
+        return productData.map(item => ({
+            title: item.persian_title,
+            key: `product-${item.id}`,
+            id: item.id,
+            name: item.persian_title,
+            parentId: item.parent,
+            children: item.children && item.children.length > 0
+                ? transformDataToTreeFormat(item.children)
+                : undefined,
+            isLeaf: !item.children || item.children.length === 0
         }));
     };
+
 
     const treeData = useMemo(() => {
         return transformDataToTreeFormat(productData);
