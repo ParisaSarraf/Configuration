@@ -1,19 +1,20 @@
 import React, { useEffect } from "react";
-import { Button, Col, Form, Input, message, Row } from "antd";
+import { Button, Col, Form, Input, message, Row, Select } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import Modal from "../../../../../components/Modal";
-import { useCreateCoreSetting, useUpdateCoreSetting } from "../../../../../QueryServises/settingQuery";
+import { useCreateGenusProduct, useUpdateGenusProduct, useGenusProductList } from "../../../../../QueryServises/genusQuery";
 
 const GenusModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch }) => {
     const [form] = Form.useForm();
-    const { isPending: isCreating, mutateAsync: createGenus } = useCreateCoreSetting();
-    const { isPending: isUpdating, mutateAsync: updateGenus } = useUpdateCoreSetting();
+    const { data: genusList, isFetching: isFetchingGenus } = useGenusProductList();
+    const { isPending: isCreating, mutateAsync: createGenus } = useCreateGenusProduct();
+    const { isPending: isUpdating, mutateAsync: updateGenus } = useUpdateGenusProduct();
 
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
                 name: modalData.name,
-                type: modalData.type || "genus" 
+                parent_id: modalData.parentId || undefined
             });
         } else if (modalMode === "add") {
             form.resetFields();
@@ -23,7 +24,7 @@ const GenusModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetc
     const onFinishForm = (values) => {
         const payload = {
             name: values.name,
-            type: "genus"
+            ...(values.parent_id !== undefined && { parent_id: values.parent_id })
         };
 
         if (modalMode === "add") {
@@ -34,21 +35,43 @@ const GenusModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetc
                     refetch();
                 })
                 .catch((error) => {
-                    message.error("موفقیت آمیز نبود، دوباره امتحان کنید");
+                    message.error(error.response?.data?.message || "موفقیت آمیز نبود، دوباره امتحان کنید");
                     console.error(error);
                 });
         } else if (modalMode === "edit") {
-            updateGenus({ id: modalData.id, ...payload })
+            if (!modalData?.id) {
+                message.error("شناسه جنس معتبر نیست");
+                return;
+            }
+
+            updateGenus({
+                genusId: modalData.id,
+                ...payload
+            })
                 .then(() => {
                     message.success("جنس با موفقیت ویرایش شد");
                     closeModal();
                     refetch();
                 })
                 .catch((error) => {
-                    message.error("موفقیت آمیز نبود، دوباره امتحان کنید");
+                    message.error(error.response?.data?.message || "موفقیت آمیز نبود، دوباره امتحان کنید");
                     console.error(error);
                 });
         }
+    };
+
+    const getParentOptions = () => {
+        if (!genusList) return [];
+
+        return genusList
+            .filter(genus => {
+                if (modalMode !== "edit") return true;
+                return genus.id !== modalData?.id;
+            })
+            .map(genus => ({
+                label: genus.name,
+                value: genus.id
+            }));
     };
 
     return (
@@ -67,27 +90,36 @@ const GenusModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetc
                 onClose={closeModal}
                 onSubmit={() => form.submit()}
                 mode={modalMode}
-                loading={isCreating || isUpdating}
+                loading={isCreating || isUpdating || isFetchingGenus}
             >
                 <Form
                     form={form}
                     layout="vertical"
                     onFinish={onFinishForm}
-                    initialValues={{
-                        type: "genus" 
-                    }}
                 >
                     <Row gutter={16}>
                         <Col span={24}>
                             <Form.Item
                                 name="name"
-                                label="جنس"
-                                rules={[{ required: true, message: "لطفاً  جنس را وارد کنید" }]}
+                                label="نام جنس"
+                                rules={[{ required: true, message: "لطفاً نام جنس را وارد کنید" }]}
                             >
-                                <Input placeholder=" جنس" />
+                                <Input placeholder="نام جنس" />
                             </Form.Item>
                         </Col>
-
+                        <Col span={24}>
+                            <Form.Item
+                                name="parent_id"
+                                label="جنس والد (اختیاری)"
+                            >
+                                <Select
+                                    placeholder="انتخاب جنس والد"
+                                    loading={isFetchingGenus}
+                                    allowClear
+                                    options={getParentOptions()}
+                                />
+                            </Form.Item>
+                        </Col>
                     </Row>
                 </Form>
             </Modal>

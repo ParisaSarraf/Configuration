@@ -1,12 +1,9 @@
-import { Card, Table, message, Spin } from 'antd';
+import { Card, message, Spin, Tree, Modal } from 'antd';
 import React from 'react';
 import useModal from '../../../../hooks/useModal';
-import {
-    useCoreSettingsList,
-    useDeleteCoreSetting
-} from '../../../../QueryServises/settingQuery';
 import GenusModal from './components/GenusModal';
-import { GenusCol } from './components/GenusCol';
+import { useDeleteGenusProduct, useGenusProductList } from '../../../../QueryServises/genusQuery';
+import GenusTree from './components/GenusTree';
 
 const Genus = () => {
     const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
@@ -15,37 +12,9 @@ const Genus = () => {
         isFetching,
         isError,
         refetch
-    } = useCoreSettingsList();
+    } = useGenusProductList();
 
-    const { mutate: deleteGenus, isPending: isDeleting } = useDeleteCoreSetting();
-
-    const handleDelete = (record) => {
-        deleteGenus(record, {
-            onSuccess: () => {
-                message.success("جنس با موفقیت حذف شد");
-                refetch();
-            },
-            onError: (error) => {
-                if (error.response?.status === 404) {
-                    message.error("جنس مورد نظر یافت نشد");
-                } else {
-                    message.error(error.response?.data?.detail || "خطا در حذف جنس");
-                }
-                console.error("Delete error:", error);
-            }
-        });
-    };
-
-    const handleEdit = (record) => {
-        if (!record?.id) {
-            message.error("شناسه جنس معتبر نیست");
-            return;
-        }
-        setModal({ mode: 'edit', data: record });
-    };
-
-    const genusData = data?.filter(item => item?.type === 'genus') || [];
-
+    const { mutate: deleteGenus, isPending: isDeleting } = useDeleteGenusProduct();
 
     if (isError) {
         return (
@@ -77,23 +46,9 @@ const Genus = () => {
                         refetch={refetch}
                     />
                 }
-                loading={isDeleting} 
+                loading={isDeleting}
             >
-                <Table
-                    columns={GenusCol({ handleDelete, handleEdit })}
-                    dataSource={genusData}
-                    rowKey="id"
-                    loading={isFetching && !!data} 
-                    scroll={{ x: true }}
-                    pagination={{
-                        pageSize: 10,
-                        showSizeChanger: true,
-                        pageSizeOptions: ['10', '20', '50']
-                    }}
-                    locale={{
-                        emptyText: 'هیچ جنسی یافت نشد'
-                    }}
-                />
+                <GenusTree setModal={setModal} />
             </Card>
         </Spin>
     );

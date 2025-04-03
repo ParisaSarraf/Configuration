@@ -20,7 +20,7 @@ const Tree = ({
     { key: "delete", label: "حذف" },
   ],
   onRightClickAction,
-  onSelect = () => {}, 
+  onSelect = () => { },
   loadingComponent = <div className="text-center py-8">در حال بارگذاری...</div>,
   errorComponent = (
     <div className="text-center py-8 text-red-500">خطا در دریافت اطلاعات!</div>
@@ -31,7 +31,7 @@ const Tree = ({
   const [dropdownPosition, setDropdownPosition] = useState({ x: 0, y: 0 });
 
   const handleSelect = (selectedKeys, info) => {
-    onSelect(selectedKeys, info); 
+    onSelect(selectedKeys, info);
   };
 
   const onCheck = (checkedKeys, info) => {
@@ -40,7 +40,7 @@ const Tree = ({
 
   const onRightClick = ({ event, node }) => {
     if (!showRightClickMenu) return;
-    
+
     event.preventDefault();
     setRightClickNode(node);
     setDropdownPosition({ x: event.clientX, y: event.clientY });
@@ -94,7 +94,7 @@ const Tree = ({
         treeData={treeData}
         showLine={showLine}
         checkable={checkable}
-        onSelect={handleSelect} 
+        onSelect={handleSelect}
         onCheck={onCheck}
         checkedKeys={checkedKeys}
         {...props}
@@ -109,8 +109,8 @@ const Tree = ({
             visibility: 'hidden',
           }}
         >
-          <Dropdown 
-            overlay={menu} 
+          <Dropdown
+            overlay={menu}
             open={!!rightClickNode}
             onOpenChange={(open) => !open && setRightClickNode(null)}
           >
