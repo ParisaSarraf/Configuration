@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { Dropdown, message, Empty, Modal } from "antd";
+import { useMemo } from "react";
+import { message, Modal } from "antd";
 import { useDeleteProduct } from "../../../QueryServises/productQuery";
 import Tree from "../../../components/Tree";
 
@@ -78,8 +78,8 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
             <Tree
                 className="custom-tree"
                 data={treeData}
-                isLoading={isLoading}
-                isError={isError}
+                isLoading={isLoading || isDeleting}
+                isError={isError || isDeleting}
                 onChange={onChange}
                 checkedKeys={checkedKeys}
                 showLine={true}

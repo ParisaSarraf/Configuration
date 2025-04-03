@@ -15,7 +15,6 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
 
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
-            console.log(modalData, "modalData is");
             form.setFieldsValue({
                 persian_title: modalData.name || '',
                 code: modalData.code,
@@ -30,7 +29,7 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
                 price: modalData.price,
                 external_diagonal: modalData.external_diagonal,
                 internal_diagonal: modalData.internal_diagonal,
-                parent_code_id: modalData.parentId || null,
+                parent_id: modalData.parent_id || null,
                 casing_id: modalData.casing_id,
                 genus_id: modalData.genus_id,
                 personality_id: modalData.personality_id,
@@ -41,7 +40,7 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
             form.resetFields();
             form.setFieldsValue({
                 status: 'active',
-                parent_code_id: null,
+                parent_id: null,
                 pro_type: null,
                 weight: null,
                 height: null,
@@ -53,6 +52,7 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
             });
         }
     }, [modalMode, modalData, form]);
+
 
     const onFinish = (values) => {
         const payload = {
@@ -77,9 +77,6 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
             pro_type: values.pro_type ? Number(values.pro_type) : null,
             description: values.description || null
         };
-
-        console.log(payload);
-        console.log(modalMode);
 
         if (modalMode === "add") {
             createProduct(payload)
@@ -109,6 +106,48 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
         }
     };
 
+    const getParentOptions = () => {
+        if (!productData) return [];
+        const flattenProductList = (items) => {
+            let result = [];
+            items.forEach(item => {
+                result.push({
+                    id: item.id,
+                    code: item.code,
+                    persian_title: item.persian_title,
+                    parent_id: item.parent_id
+                });
+                if (item.children && item.children.length > 0) {
+                    result = result.concat(flattenProductList(item.children));
+                }
+            });
+            return result;
+        };
+        const allProducts = flattenProductList(productData);
+        return allProducts
+            .filter(product => {
+                if (modalMode === "edit") {
+                    if (product.id === modalData?.id) return false;
+
+                    const isChildOfCurrent = (items, targetId) => {
+                        return items.some(item => {
+                            if (item.id === targetId) return true;
+                            if (item.children && item.children.length > 0) {
+                                return isChildOfCurrent(item.children, targetId);
+                            }
+                            return false;
+                        });
+                    };
+                    return !isChildOfCurrent([modalData], product.id);
+                }
+                return true;
+            })
+            .map(product => ({
+                label: `${product.code} - ${product.persian_title}`,
+                value: product.id,
+                disabled: modalMode === "edit" && product.id === modalData?.parent_id
+            }));
+    };
 
     return (
         <Modal
@@ -126,7 +165,7 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
                 onFinish={onFinish}
                 initialValues={{
                     status: 'active',
-                    // parent_id: values.parent_code_id,
+                    parent_id: null
                 }}
             >
                 <Row gutter={[14, 14]}>
@@ -265,15 +304,15 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
                     <Col span={4}>
                         <Form.Item
                             name="parent_id"
-                             label="محصول والد"
+                            label="محصول والد"
                         >
                             <Select
                                 showSearch
                                 placeholder="محصول والد را انتخاب کنید"
-                                options={productData?.map(product => ({
-                                    label: `${product.code} - ${product.persian_title}`,
-                                    value: product.id
-                                }))}
+                                filterOption={(input, option) =>
+                                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                }
+                                options={getParentOptions()}
                                 allowClear
                             />
                         </Form.Item>
