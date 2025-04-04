@@ -1,6 +1,5 @@
 import { Tabs } from "antd";
-import Documents from "../Documents/Documents";
-import { useProductContext } from "../../Services/ProductContext";
+import ProductDocuments from "../DocumentProduct/DocumentProduct";
 
 const GoodsCategories = () => {
 
@@ -13,7 +12,7 @@ const GoodsCategories = () => {
     {
       label: ` اسناد `,
       key: '2',
-      children: <Documents />,
+      children: <ProductDocuments />,
     },
     {
       label: ` الزامات`,
