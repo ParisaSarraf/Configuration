@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useMyAxios } from "../../utils/Api";
 
-export const useCreateProsuctDocument = () => {
+export const useCreateProductDocument = () => {
   const { myAxios } = useMyAxios();
   return useMutation({
     mutationFn: (params) => {
