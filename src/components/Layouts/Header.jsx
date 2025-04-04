@@ -8,6 +8,7 @@ import Icon, {
   SecurityScanOutlined,
   BellOutlined,
   SolutionOutlined,
+  DockerOutlined,
 } from "@ant-design/icons";
 import { Grid } from 'antd';
 import { useMyAxios } from "../../utils/Api";
@@ -64,6 +65,14 @@ const CustomHeader = () => {
       icon: <SecurityScanOutlined />,
       onClick: () => {
         navigate("/forget-password");
+      },
+    },
+    {
+      key: 'documents',
+      label: 'مدیریت اسناد',
+      icon: <DockerOutlined />,
+      onClick: () => {
+        navigate("/panel/document/list");
       },
     },
     {

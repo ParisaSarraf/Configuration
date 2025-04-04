@@ -10,6 +10,8 @@ const ProductDocuments = () => {
     const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
     const { refetch } = useDocumentList()
     const { currentProduct } = useProductContext();
+    console.log(currentProduct);
+
 
     return (
         <>

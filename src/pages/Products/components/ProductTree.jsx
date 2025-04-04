@@ -17,6 +17,7 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
             id: item.id,
             name: item.persian_title,
             parentId: item.parent,
+            productData: item,
             children: item.children && item.children.length > 0
                 ? transformDataToTreeFormat(item.children)
                 : undefined,
@@ -84,7 +85,7 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
                 checkedKeys={checkedKeys}
                 showLine={true}
                 onNodeClick={onProductClick}
-                 checkable={true}
+                checkable={true}
                 rightClickMenuItems={[
                     { key: "edit", label: "ویرایش" },
                     { key: "delete", label: "حذف", danger: true },

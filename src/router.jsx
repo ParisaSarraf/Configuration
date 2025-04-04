@@ -35,14 +35,14 @@ const router = createBrowserRouter([
         ),
       },
 
-      // {
-      //   path: "/panel/document/list",
-      //   element: (
-      //     <ProtectedRoute>
-      //       <Documents />
-      //     </ProtectedRoute>
-      //   ),
-      // },
+      {
+        path: "/panel/document/list",
+        element: (
+          <ProtectedRoute>
+            <Documents />
+          </ProtectedRoute>
+        ),
+      },
     ],
   },
   {

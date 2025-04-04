@@ -19,6 +19,9 @@ const Products = () => {
         setCheckedKeys(newCheckedKeys);
     };
 
+    // const handleProductSelect = (node) => {
+    //     handleProductSelect(node.productData);
+    // };
 
     return (
         <Sider
