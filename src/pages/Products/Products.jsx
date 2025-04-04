@@ -5,6 +5,7 @@ import { useProductList } from "../../QueryServises/productQuery";
 import ProductTree from "./components/ProductTree";
 import ProductModal from "./components/ProductModal";
 import useModal from "../../hooks/useModal";
+import { useProductContext } from '../../Services/ProductContext';
 
 const { Sider } = Layout;
 
@@ -12,10 +13,12 @@ const Products = () => {
     const { data: productData, isLoading, isError, refetch } = useProductList();
     const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
     const [checkedKeys, setCheckedKeys] = useState([]);
+    const { handleProductSelect } = useProductContext();
 
     const handleTreeChange = (newCheckedKeys) => {
         setCheckedKeys(newCheckedKeys);
     };
+
 
     return (
         <Sider
@@ -50,6 +53,7 @@ const Products = () => {
                     isError={isError}
                     checkedKeys={checkedKeys}
                     onChange={handleTreeChange}
+                    onProductClick={handleProductSelect}
                 />
             )}
             <ProductModal

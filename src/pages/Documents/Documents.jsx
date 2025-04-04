@@ -3,17 +3,20 @@ import useModal from "../../hooks/useModal";
 import DocumentModal from "./components/DocumentModal";
 import DocumentTree from "./components/DocumentTree";
 import { useDocumentList } from "../../QueryServises/documentQuery";
+import { useProductContext } from "../../Services/ProductContext";
 
 
 
 const Documents = () => {
   const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
   const { refetch } = useDocumentList()
+  const { currentProduct } = useProductContext();
+
 
   return (
     <>
       <Card
-        title="اسناد"
+        title={` اسناد ${currentProduct?.name || ''}`}
         extra={
           <DocumentModal
             isOpen={isOpen}

@@ -1,8 +1,11 @@
 import { Outlet } from 'react-router-dom';
 import CustomHeader from './Header';
 import Products from '../../pages/Products/Products';
+import { useProductContext } from '../../Services/ProductContext';
 
 const MainLayout = () => {
+  const { currentProduct } = useProductContext();
+
   return (
     <div className="flex flex-col h-screen">
       <CustomHeader />
@@ -13,7 +16,7 @@ const MainLayout = () => {
 
         <div className="flex-1 overflow-y-auto p-4 md:ml-4">
           <div className="h-full">
-            <Outlet />
+            <Outlet context={{ product: currentProduct }} />
           </div>
         </div>
       </div>

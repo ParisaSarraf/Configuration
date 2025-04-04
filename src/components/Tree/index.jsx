@@ -14,6 +14,7 @@ const Tree = ({
   childrenField = "children",
   showLine = true,
   checkable = true,
+  onNodeClick,
   showRightClickMenu = true,
   rightClickMenuItems = [
     { key: "edit", label: "ویرایش" },
@@ -32,6 +33,9 @@ const Tree = ({
 
   const handleSelect = (selectedKeys, info) => {
     onSelect(selectedKeys, info);
+    if (info.selected && onNodeClick) {
+      onNodeClick(info.node);
+    }
   };
 
   const onCheck = (checkedKeys, info) => {

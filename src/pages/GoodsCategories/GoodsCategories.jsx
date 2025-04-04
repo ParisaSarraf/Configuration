@@ -1,40 +1,41 @@
 import { Tabs } from "antd";
-import React, { useState } from "react";
 import Documents from "../Documents/Documents";
+import { useProductContext } from "../../Services/ProductContext";
 
 const GoodsCategories = () => {
-  const [items, setItems] = useState([
+
+  const items = [
     {
-      label: 'معرفی و مشخصات',
+      label: "معرفی و مشخصات",
       key: '1',
       children: 'معرفی و مشخصات',
     },
     {
-      label: 'اسناد',
+      label: ` اسناد `,
       key: '2',
       children: <Documents />,
     },
     {
-      label: 'الزامات',
+      label: ` الزامات`,
       key: '3',
       children: 'الزامات',
     },
     {
-      label: 'الزامات جدید',
+      label: ` الزامات جدید`,
       key: '4',
       children: 'الزامات جدید',
     },
     {
-      label: 'تحارب و خرابی',
+      label: ` تجارب و خرابی `,
       key: '5',
       children: 'تحارب و خرابی',
     },
     {
-      label: 'خرید',
+      label: ` خرید `,
       key: '6',
       children: 'خرید',
     },
-  ]);
+  ];
 
   return (
     <div className="w-full flex flex-col">

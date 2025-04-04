@@ -3,7 +3,7 @@ import { message, Modal } from "antd";
 import { useDeleteProduct } from "../../../QueryServises/productQuery";
 import Tree from "../../../components/Tree";
 
-const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onChange, checkedKeys }) => {
+const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onChange, checkedKeys, onProductClick }) => {
     const { mutate: deleteProduct, isLoading: isDeleting } = useDeleteProduct();
     // const { mutateAsync: fetchProductDetails } = useProductDetails();
 
@@ -83,7 +83,8 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
                 onChange={onChange}
                 checkedKeys={checkedKeys}
                 showLine={true}
-                checkable={true}
+                onNodeClick={onProductClick}
+                 checkable={true}
                 rightClickMenuItems={[
                     { key: "edit", label: "ویرایش" },
                     { key: "delete", label: "حذف", danger: true },
