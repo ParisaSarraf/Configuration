@@ -21,14 +21,14 @@ const Personality = () => {
     const handleDelete = (record) => {
         deletePersonality(record, {
             onSuccess: () => {
-                message.success("شخصیت با موفقیت حذف شد");
+                message.success("هویت با موفقیت حذف شد");
                 refetch();
             },
             onError: (error) => {
                 if (error.response?.status === 404) {
-                    message.error("شخصیت مورد نظر یافت نشد");
+                    message.error("هویت مورد نظر یافت نشد");
                 } else {
-                    message.error(error.response?.data?.detail || "خطا در حذف شخصیت");
+                    message.error(error.response?.data?.detail || "خطا در حذف هویت");
                 }
                 console.error("Delete error:", error);
             }
@@ -43,7 +43,7 @@ const Personality = () => {
 
     return (
         <Card
-            title="مدیریت شخصیت"
+            title="مدیریت هویت"
             extra={
                 <PersonalityModal
                     isOpen={isOpen}
@@ -66,7 +66,7 @@ const Personality = () => {
                     pageSize: 10,
                 }}
                 locale={{
-                    emptyText: 'هیچ شخصیت یافت نشد'
+                    emptyText: 'هیچ هویت یافت نشد'
                 }}
             />
         </Card>

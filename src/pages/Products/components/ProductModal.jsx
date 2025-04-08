@@ -181,8 +181,8 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
                     <Col span={4}>
                         <Form.Item
                             name="code"
-                            label="کد محصول"
-                            rules={[{ required: true, message: "لطفاً کد محصول را وارد کنید" }]}
+                            label="کد نهایی"
+                            rules={[{ required: true, message: "لطفاً کد نهایی را وارد کنید" }]}
                         >
                             <Input placeholder="کد منحصربفرد محصول" />
                         </Form.Item>
@@ -304,7 +304,7 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
                     <Col span={4}>
                         <Form.Item
                             name="parent_id"
-                            label="محصول والد"
+                            label="شاخه والد"
                         >
                             <Select
                                 showSearch
@@ -320,7 +320,7 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
                     <Col span={4}>
                         <Form.Item
                             name="casing_id"
-                            label="محفظه"
+                            label="پوشش"
                         >
                             <Select
                                 showSearch
@@ -353,11 +353,11 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
                     <Col span={4}>
                         <Form.Item
                             name="personality_id"
-                            label="شخصیت"
+                            label="هویت"
                         >
                             <Select
                                 showSearch
-                                placeholder="شناسه شخصیت"
+                                placeholder="شناسه هویت"
                                 options={personalityData?.map(personality => ({
                                     label: `${personality.name}`,
                                     value: personality.id

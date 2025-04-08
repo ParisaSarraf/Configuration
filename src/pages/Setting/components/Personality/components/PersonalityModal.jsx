@@ -22,7 +22,7 @@ const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
 
     const onFinishForm = (values) => {
         if (!values.name) {
-            message.error("لطفاً نام شخصیت را وارد کنید");
+            message.error("لطفاً نام هویت را وارد کنید");
             return;
         }
 
@@ -34,17 +34,17 @@ const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
         if (modalMode === "add") {
             createPersonality(payload)
                 .then(() => {
-                    message.success("شخصیت با موفقیت اضافه شد");
+                    message.success("هویت با موفقیت اضافه شد");
                     closeModal();
                     refetch();
                 })
                 .catch((error) => {
-                    message.error("خطا در اضافه کردن شخصیت");
+                    message.error("خطا در اضافه کردن هویت");
                     console.error("Create error:", error);
                 });
         } else if (modalMode === "edit") {
             if (!modalData?.id) {
-                message.error("شناسه شخصیت برای ویرایش یافت نشد");
+                message.error("شناسه هویت برای ویرایش یافت نشد");
                 return;
             }
             updatePersonality({
@@ -52,12 +52,12 @@ const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
                 ...payload
             })
                 .then(() => {
-                    message.success("شخصیت با موفقیت ویرایش شد");
+                    message.success("هویت با موفقیت ویرایش شد");
                     closeModal();
                     refetch();
                 })
                 .catch((error) => {
-                    message.error("خطا در ویرایش شخصیت");
+                    message.error("خطا در ویرایش هویت");
                     console.error("Update error:", error.response?.data || error);
                 });
         }
@@ -70,11 +70,11 @@ const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
                 icon={<PlusOutlined className="text-center" />}
                 onClick={() => setModal({ mode: "add", data: null })}
             >
-                <span className="xs:hidden sm:hidden md:inline">افزودن شخصیت</span>
+                <span className="xs:hidden sm:hidden md:inline">افزودن هویت</span>
             </Button>
             <Modal
                 isOpen={isOpen}
-                title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} شخصیت`}
+                title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} هویت`}
                 size={600}
                 onClose={closeModal}
                 onSubmit={() => form.submit()}
@@ -93,13 +93,13 @@ const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
                         <Col span={24}>
                             <Form.Item
                                 name="name"
-                                label="شخصیت"
+                                label="هویت"
                                 rules={[{
                                     required: true,
-                                    message: "لطفاً نام شخصیت را وارد کنید"
+                                    message: "لطفاً نام هویت را وارد کنید"
                                 }]}
                             >
-                                <Input placeholder="نام شخصیت" />
+                                <Input placeholder="نام هویت" />
                             </Form.Item>
                             <Form.Item name="type" hidden>
                                 <Input type="hidden" />

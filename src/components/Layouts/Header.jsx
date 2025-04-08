@@ -116,7 +116,7 @@ const CustomHeader = () => {
       </div>
 
       <div className="flex flex-row gap-2">
-        <span className="text-sky-800">سامانه سما (سیستم مدیریت اسناد )</span>
+        <span >سامانه سما (سیستم مدیریت اسناد )</span>
       </div>
 
       <div className="flex items-center gap-4">
