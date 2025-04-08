@@ -4,7 +4,6 @@ import { PlusCircleFilled } from '@ant-design/icons';
 import { useProductList } from "../../QueryServises/productQuery";
 import ProductTree from "./components/ProductTree";
 import ProductModal from "./components/ProductModal";
-import useModal from "../../hooks/useModal";
 import { useProductContext } from '../../Services/ProductContext';
 
 const { Sider } = Layout;

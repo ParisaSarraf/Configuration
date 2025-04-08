@@ -1,30 +1,35 @@
 import { useState } from "react";
 
-function useModal () {
-  const [isOpen, setIsOpen] = useState(false);
-  const [modalMode, setModalMode] = useState(null);
-  const [modalData, setModalData] = useState(null);
+const useModal = () => {
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    modalType: null,
+    modalMode: null,
+    modalData: null,
+  });
 
-  const setModal = ({ mode, data }) => {
-    setModalMode(mode);
-    setModalData(data);
-    setIsOpen(true);
+  const setModal = ({ type, mode, data }) => {
+    setModalState({
+      isOpen: true,
+      modalType: type,
+      modalMode: mode,
+      modalData: data,
+    });
   };
 
   const closeModal = () => {
-    setIsOpen(false);
-    setModalMode(null);
-    setModalData(null);
+    setModalState({
+      isOpen: false,
+      modalType: null,
+      modalMode: null,
+      modalData: null,
+    });
   };
 
   return {
-    isOpen,
-    modalMode,
-    modalData,
+    ...modalState,
     setModal,
     closeModal,
   };
 };
-
-
-export default useModal
+export default useModal;

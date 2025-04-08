@@ -1,33 +1,24 @@
 import React from "react";
 import RoleModal from "./_components/RoleModal";
-import { Button, Card, message, Table } from "antd";
+import { Button, Card, message } from "antd";
 import { useDeleteRole, useRoleList } from "../../QueryServises/roleQuery";
 import { useNavigate } from "react-router-dom";
 import useModal from "../../hooks/useModal";
-import { roleColumns } from "./_components/roleColumns"
+import RoleTransferModal from "./_components/roleTransferModal";
+import RoleTree from "./_components/RoleTree";
+import RolePermissionsTree from "./_components/RolePermissionsTree";
 
 function Rols() {
-  const { isFetching, data: roleData, refetch } = useRoleList();
-  const { mutateAsync: deleteRole } = useDeleteRole();
-  const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
-  const navigate = useNavigate();
+  const { refetch } = useRoleList();
+  const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
 
-  const handleDeleteRole = (record) => {
-    console.log(record.id);
-    
-    deleteRole(record.id)
-      .then(() => {
-        message.success("سمت با موفقیت حذف شد");
-        refetch();
-      })
-      .catch((error) => {
-        message.error("موفقیت آمیز نبود، دوباره امتحان کنید");
-        console.error(error);
-      });
-  };
 
   const handleEditRole = (record) => {
-    setModal({ mode: "edit", data: record });
+    setModal({ type: 'role', mode: 'edit', data: record });
+  };
+
+  const handleTransferRole = (record) => {
+    setModal({ type: 'roleTransfer', mode: 'edit', data: record });
   };
 
   return (
@@ -41,30 +32,49 @@ function Rols() {
           بازگشت به صفحه اصلی
         </Button>
       </div>
-      <div className="flex flex-row gap-2">
+      <Card
+        extra={
+          <div className="flex flex-row gap-2">
+            <Button
+              type="primary"
+              onClick={() => setModal({ type: 'role', mode: 'add', data: null })}
+            >
+              ایجاد سمت جدید
+            </Button>
+            <Button
+              type="primary"
+              onClick={() => setModal({ type: 'roleTransfer', mode: 'add', data: null })}
+            >
+              انتقال سمت
+            </Button>
+          </div>
+        }
+      >
+        <div className="w-full flex flex-row justify-evenly">
+          <RoleTree />
+          <RolePermissionsTree />
+        </div>
+      </Card>
+
+      {modalType === 'role' && (
         <RoleModal
           isOpen={isOpen}
           modalMode={modalMode}
           modalData={modalData}
           closeModal={closeModal}
-          setModal={setModal}
           refetch={refetch}
         />
-      </div>
-      <Card>
-        <Table
-          columns={roleColumns(handleEditRole, handleDeleteRole)}
-          dataSource={isFetching ? [] : roleData}  
-          loading={isFetching}
-          rowKey="id"
-          scroll={{ x: true }}
-          responsive={{
-            small: { columnWidth: 100 },
-            middle: { columnWidth: 150 },
-            large: { columnWidth: 200 },
-          }}
+      )}
+
+      {modalType === 'roleTransfer' && (
+        <RoleTransferModal
+          isOpen={isOpen}
+          modalMode={modalMode}
+          modalData={modalData}
+          closeModal={closeModal}
+          refetch={refetch}
         />
-      </Card>
+      )}
     </div>
   );
 }
