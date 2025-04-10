@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Layout, Button, Spin } from 'antd';
-import { PlusCircleFilled } from '@ant-design/icons';
+import { PlusCircleFilled, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useProductList } from "../../QueryServises/productQuery";
 import ProductTree from "./components/ProductTree";
 import ProductModal from "./components/ProductModal";
 import { useProductContext } from '../../Services/ProductContext';
+import useModal from '../../hooks/useModal';
+import { PlusOne } from '@mui/icons-material';
 
 const { Sider } = Layout;
 
@@ -20,22 +22,20 @@ const Products = () => {
 
 
     return (
-        <Sider
-            width={300}
-            className="bg-white dark:bg-dark-secondary fixed h-[100vh] overflow-y-scroll"
-            breakpoint="lg"
-            collapsedWidth={0}
-        >
-            <div className="p-4">
-                <Button
-                    type="primary"
-                    onClick={() => setModal({ mode: 'add' })}
-                    icon={<PlusCircleFilled />}
-                    className="w-full hidden md:block"
-                >
-                    افزودن محصول
-                </Button>
-            </div>
+        <div
+            className='rounded-xl mr-4 bg-Box mb-2 shadow-lg shadow-purple-6 '
+            style={{
+                width: '240px',
+                transition: 'width 0.2s',
+            }}>
+            <Button
+                type="primary"
+                onClick={() => setModal({ mode: 'add' })}
+                icon={<PlusOutlined /> }
+                className="flex flex-row items-center m-2 px-14"
+            >
+                افزودن محصول
+            </Button>
 
             {isLoading ? (
                 <div className="flex justify-center p-4">
@@ -64,7 +64,7 @@ const Products = () => {
                 setModal={setModal}
                 refetch={refetch}
             />
-        </Sider>
+        </div>
     );
 };
 

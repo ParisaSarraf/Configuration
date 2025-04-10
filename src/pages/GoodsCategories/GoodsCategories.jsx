@@ -1,4 +1,4 @@
-import { Tabs } from "antd";
+import { Card, Tabs } from "antd";
 import ProductDocuments from "../DocumentProduct/DocumentProduct";
 
 const GoodsCategories = () => {
@@ -37,7 +37,7 @@ const GoodsCategories = () => {
   ];
 
   return (
-    <div className="w-full flex flex-col">
+    <Card className="w-full flex flex-col">
       <Tabs
         type="line"
         items={items}
@@ -47,7 +47,7 @@ const GoodsCategories = () => {
         }}
         className="custom-tabs"
       />
-    </div>
+    </Card>
   );
 };
 

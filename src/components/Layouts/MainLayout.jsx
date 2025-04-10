@@ -7,17 +7,12 @@ const MainLayout = () => {
   const { currentProduct } = useProductContext();
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-full bg-Main">
       <CustomHeader />
-      <div className="flex flex-1 overflow-hidden">
-        <div className="hidden md:block h-full overflow-y-auto w-64 lg:w-72 shrink-0">
-          <Products />
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-4 md:ml-4">
-          <div className="h-full">
-            <Outlet context={{ product: currentProduct }} />
-          </div>
+      <div className="grid grid-cols-[auto_1fr] h-[calc(100dvh-4rem)]">
+        <Products />
+        <div className="w-full px-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+          <Outlet context={{ product: currentProduct }} />
         </div>
       </div>
     </div>

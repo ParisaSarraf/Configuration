@@ -4,6 +4,8 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        Main: "#2B3B50",
+        Box: "#EEF7F8",
         light: {
           primary: "#f3f4f6",
           secondary: "#e5e7eb",
@@ -39,11 +41,13 @@ module.exports = {
   plugins: [
     function ({ addComponents }) {
       addComponents({
-        '.modal-button': {
-          '@apply bg-blue-500 text-white p-4 my-4 rounded-lg hover:bg-blue-600 dark:bg-blue-700 dark:hover:bg-blue-800': {},
+        ".modal-button": {
+          "@apply bg-blue-500 text-white p-4 my-4 rounded-lg hover:bg-blue-600 dark:bg-blue-700 dark:hover:bg-blue-800":
+            {},
         },
-        '.card': {
-          '@apply text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 p-4 border border-gray-400 shadow-sm drop-shadow-xl rounded-lg': {},
+        ".card": {
+          "@apply text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 p-4 border border-gray-400 shadow-sm drop-shadow-xl rounded-lg":
+            {},
         },
       });
     },

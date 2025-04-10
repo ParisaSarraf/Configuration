@@ -10,6 +10,7 @@ import RolePermissionsTree from "./_components/RolePermissionsTree";
 
 function Rols() {
   const { refetch } = useRoleList();
+  const navigate = useNavigate()
   const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
 
 
@@ -27,7 +28,7 @@ function Rols() {
         <Button
           type="primary"
           className="bg-blue-500 hover:bg-blue-600 text-white"
-          onClick={() => navigate("/panel/system-managment/")}
+          onClick={() => navigate("/panel/system-managment")}
         >
           بازگشت به صفحه اصلی
         </Button>
@@ -45,14 +46,14 @@ function Rols() {
               type="primary"
               onClick={() => setModal({ type: 'roleTransfer', mode: 'add', data: null })}
             >
-              انتقال سمت
+              تخصیص دسترسی
             </Button>
           </div>
         }
       >
         <div className="w-full flex flex-row justify-evenly">
           <RoleTree />
-          <RolePermissionsTree />
+          {/* <RolePermissionsTree /> */}
         </div>
       </Card>
 
