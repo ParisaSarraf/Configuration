@@ -85,11 +85,11 @@
 }
 
 .custom-tree .ant-tree-treenode {
-  padding: 8px; 
+  padding: 2px; 
 }
 
 .custom-tree .ant-tree-node-content-wrapper {
-  font-size: 16px;
+  font-size: 12px;
 }
 
 .custom-tree .ant-tree-switcher {

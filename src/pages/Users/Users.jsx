@@ -31,8 +31,8 @@ const Users = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="mb-6 p-4 bg-white shadow-md rounded-lg">
+    <div className="min-h-screen bg-Main p-2">
+      <div className="my-1 p-2 bg-white shadow-md rounded-lg">
         <Button
           type="primary"
           className="bg-blue-500 hover:bg-blue-600 text-white"
@@ -41,15 +41,16 @@ const Users = () => {
           بازگشت به صفحه اصلی
         </Button>
       </div>
-      <UserModal
-        isOpen={isOpen}
-        modalMode={modalMode}
-        modalData={modalData}
-        closeModal={closeModal}
-        setModal={setModal}
-        refetch={refetch}
-      />
-      <Card>
+
+      <Card title="مدیریت کاربران"
+        extra={<UserModal
+          isOpen={isOpen}
+          modalMode={modalMode}
+          modalData={modalData}
+          closeModal={closeModal}
+          setModal={setModal}
+          refetch={refetch}
+        />}>
         <Table
           columns={columns(handleEditUser, handleDeleteUser)}
           dataSource={isFetching ? [] : data}

@@ -6,8 +6,8 @@ function SystemManagment() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="mb-6 p-4 bg-white shadow-md rounded-lg">
+    <div className="min-h-screen bg-Main p-2">
+      <div className="my-1 p-2 bg-white shadow-md rounded-lg">
         <Button
           type="primary"
           className="bg-blue-500 hover:bg-blue-600 text-white"
