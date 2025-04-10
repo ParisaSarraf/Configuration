@@ -14,9 +14,6 @@ function Rols() {
   const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
 
 
-  const handleEditRole = (record) => {
-    setModal({ type: 'role', mode: 'edit', data: record });
-  };
 
   const handleTransferRole = (record) => {
     setModal({ type: 'roleTransfer', mode: 'edit', data: record });
@@ -52,7 +49,7 @@ function Rols() {
         }
       >
         <div className="w-full flex flex-row justify-evenly">
-          <RoleTree />
+          <RoleTree setModal={setModal} />
           {/* <RolePermissionsTree /> */}
         </div>
       </Card>

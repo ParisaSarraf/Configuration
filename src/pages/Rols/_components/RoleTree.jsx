@@ -3,7 +3,7 @@ import Tree from '../../../components/Tree';
 import { useDeleteRole, useRoleList } from '../../../QueryServises/roleQuery';
 import { message } from 'antd';
 
-const RoleTree = () => {
+const RoleTree = ({ setModal }) => {
     const { isFetching, data: roleData, refetch } = useRoleList();
     const { mutateAsync: deleteRole } = useDeleteRole();
 
@@ -17,6 +17,10 @@ const RoleTree = () => {
                 message.error("موفقیت آمیز نبود، دوباره امتحان کنید");
                 console.error(error);
             });
+    };
+
+    const handleEditRole = (record) => {
+        setModal({ type: 'role', mode: 'edit', data: record });
     };
 
     return (

@@ -4,6 +4,7 @@ import useModal from "../../hooks/useModal";
 import UsersRoleModal from "../SystemManagment/UsersRoleModal/UsersRoleModal";
 import { PlusOutlined } from "@ant-design/icons";
 import UsersAndRoleTree from "../SystemManagment/UsersAndRoleTree/UsersAndRoleTree";
+import UsersAndRoleTransform from "./_components/UsersAndRoleTransform";
 
 const Permissions = () => {
     const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
@@ -25,27 +26,29 @@ const Permissions = () => {
                 </Button>
 
             </div>
+            <Card>
+                <div className="grid grid-cols-1 gap-6 w-full max-w-9xl mx-auto">
+                    <Button
+                        icon={<PlusOutlined />}
+                        type="primary"
+                        className="w-40 ml-4"
+                        onClick={handleOpenModal}
+                    >
+                        افزودن کاربر و سمت
+                    </Button>
+                    <UsersRoleModal
+                        isOpen={isOpen}
+                        modalMode={modalMode}
+                        modalData={modalData}
+                        closeModal={closeModal}
+                        setModal={setModal}
+                    />
+                    <Card>
+                        <UsersAndRoleTransform />
+                    </Card>
+                </div>
+            </Card>
 
-            <div className="grid grid-cols-1 gap-6 w-full max-w-9xl mx-auto">
-                <Button
-                    icon={<PlusOutlined />}
-                    type="primary"
-                    className="w-40 ml-4"
-                    onClick={handleOpenModal}
-                >
-                    افزودن کاربر و سمت
-                </Button>
-                <UsersRoleModal
-                    isOpen={isOpen}
-                    modalMode={modalMode}
-                    modalData={modalData}
-                    closeModal={closeModal}
-                    setModal={setModal}
-                />
-                <Card>
-                    <UsersAndRoleTree />
-                </Card>
-            </div>
         </div>
     );
 };
