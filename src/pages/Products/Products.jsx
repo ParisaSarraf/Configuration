@@ -23,7 +23,7 @@ const Products = () => {
 
     return (
         <div
-            className='rounded-xl mr-4 bg-Box mb-2 shadow-lg shadow-purple-6 '
+            className='rounded-xl mr-2 bg-Box mb-2 shadow-lg shadow-purple-6 '
             style={{
                 width: '240px',
                 transition: 'width 0.2s',
@@ -31,7 +31,7 @@ const Products = () => {
             <Button
                 type="primary"
                 onClick={() => setModal({ mode: 'add' })}
-                icon={<PlusOutlined /> }
+                icon={<PlusOutlined />}
                 className="flex flex-row items-center m-2 px-14"
             >
                 افزودن محصول
@@ -42,7 +42,7 @@ const Products = () => {
                     <Spin />
                 </div>
             ) : isError ? (
-                <div className="p-4 text-red-500">خطا در بارگذاری داده‌ها</div>
+                <div className="p-2 text-red-600">خطا در بارگذاری داده‌ها</div>
             ) : (
                 <ProductTree
                     productData={productData}
