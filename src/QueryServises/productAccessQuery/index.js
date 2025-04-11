@@ -15,18 +15,18 @@ export const useProductAccsessList = (queryOptions) => {
   });
 };
 
-export const useOneProductAccessKey = ["product", productId];
-export const useOneProductAccess = (productId) => {
-  return useQuery({
-    queryKey: useOneProductAccessKey,
-    queryFn: () =>
-      myAxios.get(`/product/get-access-by-id/${productId}`).then((response) => {
-        queryOptions?.onSuccess?.(response?.data);
-        return response?.data;
-      }),
-    ...queryOptions,
-  });
-};
+// export const useOneProductAccessKey = ["product", productId];
+// export const useOneProductAccess = (productId) => {
+//   return useQuery({
+//     queryKey: useOneProductAccessKey,
+//     queryFn: () =>
+//       myAxios.get(`/product/get-access-by-id/${productId}`).then((response) => {
+//         queryOptions?.onSuccess?.(response?.data);
+//         return response?.data;
+//       }),
+//     ...queryOptions,
+//   });
+// };
 
 export const useCreateProductAccess = () => {
   const { myAxios } = useMyAxios();
