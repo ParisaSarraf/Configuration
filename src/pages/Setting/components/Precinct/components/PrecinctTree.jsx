@@ -18,9 +18,10 @@ const PrecinctTree = ({ setModal }) => {
             key: `Precinct-${item.id}`,
             id: item.id,
             name: item.name,
-            parentId: item.parent || null,
+            parentId: item.parent_id || null,
             is_definable: item.is_definable || false,
-            life_cycle_id: item.life_cycle_id || null,
+            life_cycle: item.life_cycle || null,
+            life_cycle_id: item.life_cycle?.id || null,
             children: item.children && item.children.length > 0
                 ? transformDataToTreeFormat(item.children)
                 : undefined,
@@ -57,14 +58,16 @@ const PrecinctTree = ({ setModal }) => {
                 },
             });
         } else if (actionKey === "edit") {
+            console.log(node);
+
             setModal({
                 mode: "edit",
                 data: {
                     id: node.id,
                     title: node.title,
-                    parent_id: node.parentId || null,
+                    parent_id: node.parent_id || node.parentId || null,
                     is_definable: node.is_definable || false,
-                    life_cycle_id: node.life_cycle_id || null
+                    life_cycle_id: node.life_cycle?.id || null
                 }
             });
         }
@@ -72,7 +75,7 @@ const PrecinctTree = ({ setModal }) => {
 
     return (
         <Tree
-            // className="custom-tree"
+            className="custom-tree"
             data={transformDataToTreeFormat(data)}
             isLoading={isFetching || isDeleting}
             isError={isError}

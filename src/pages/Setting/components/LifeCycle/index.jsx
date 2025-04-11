@@ -1,4 +1,4 @@
-import { Card, Spin, Table } from 'antd';
+import { Card, message, Spin, Table } from 'antd';
 import useModal from '../../../../hooks/useModal';
 import { useDeleteLifeCycle, useLifeCycleList } from '../../../../QueryServises/lifeCycleQuery';
 import LifeCycleModal from './components/LifeCycleModal';

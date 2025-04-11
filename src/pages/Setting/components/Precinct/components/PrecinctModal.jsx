@@ -16,9 +16,9 @@ const PrecinctModal = ({ isOpen, modalMode, modalData, closeModal, setModal, ref
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
                 title: modalData.title,
-                parent_id: modalData.parent_id || undefined,
+                parent_id: modalData.parent_id ?? undefined,
                 is_definable: Boolean(modalData.is_definable),
-                life_cycle_id: modalData.life_cycle_id || undefined
+                life_cycle_id: modalData.life_cycle?.id ?? modalData.life_cycle_id ?? undefined
             });
         } else if (modalMode === "add") {
             form.resetFields();
@@ -26,10 +26,7 @@ const PrecinctModal = ({ isOpen, modalMode, modalData, closeModal, setModal, ref
     }, [modalMode, modalData, form]);
 
     const onFinishForm = (values) => {
-        if (!values.title) {
-            message.error("لطفاً نام حوزه را وارد کنید");
-            return;
-        }
+
         const payload = {
             life_cycle_id: values.life_cycle_id,
             title: values.title,
@@ -56,7 +53,7 @@ const PrecinctModal = ({ isOpen, modalMode, modalData, closeModal, setModal, ref
                 return;
             }
             updatePrecinct({
-                PrecinctId: modalData.id,
+                precinctId: modalData.id,
                 ...payload
             })
                 .then(() => {
@@ -73,49 +70,30 @@ const PrecinctModal = ({ isOpen, modalMode, modalData, closeModal, setModal, ref
 
 
     const getParentOptions = () => {
-        if (!PrecinctList || PrecinctList.length === 0) {
-            console.log('No PrecinctList available');
-            return [];
-        }
+        if (!PrecinctList || PrecinctList.length === 0) return [];
 
-        const flattenPrecinctList = (items) => {
+        const flattenPrecinctList = (items, currentId = null) => {
             let result = [];
             items.forEach(item => {
-                result.push({
-                    id: item.id,
-                    title: item.title,
-                    parent_id: item.parent_id
-                });
-                if (item.children && item.children.length > 0) {
-                    result = result.concat(flattenPrecinctList(item.children));
+                if (item.id !== currentId) {
+                    result.push({
+                        id: item.id,
+                        title: item.title,
+                        parent_id: item.parent_id
+                    });
+
+                    if (item.children && item.children.length > 0) {
+                        result = result.concat(flattenPrecinctList(item.children, currentId));
+                    }
                 }
             });
             return result;
         };
 
-        const allPrecincts = flattenPrecinctList(PrecinctList);
-        // console.log('Flattened Precincts:', allPrecincts);
+        const currentId = modalMode === "edit" ? modalData?.id : null;
+        const allPrecincts = flattenPrecinctList(PrecinctList, currentId);
 
-        const filteredPrecincts = allPrecincts.filter(Precinct => {
-            if (modalMode !== "edit") return true;
-            if (Precinct.id === modalData?.id) return false;
-
-            const isChildOfCurrent = (items, parentId) => {
-                return items.some(item => {
-                    if (item.id === parentId) return true;
-                    if (item.children && item.children.length > 0) {
-                        return isChildOfCurrent(item.children, parentId);
-                    }
-                    return false;
-                });
-            };
-
-            return !isChildOfCurrent(PrecinctList, modalData?.id);
-        });
-
-        console.log('Filtered Precincts:', filteredPrecincts);
-
-        return filteredPrecincts.map(Precinct => ({
+        return allPrecincts.map(Precinct => ({
             label: Precinct.title,
             value: Precinct.id
         }));
@@ -157,7 +135,7 @@ const PrecinctModal = ({ isOpen, modalMode, modalData, closeModal, setModal, ref
                                     loading={isFetchingPrecinct}
                                     allowClear
                                     options={getParentOptions()}
-                                    value={form.getFieldValue('parent_id') || undefined}
+
                                 />
                             </Form.Item>
 

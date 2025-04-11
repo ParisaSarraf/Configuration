@@ -1,13 +1,8 @@
 
 import React, { useEffect } from "react";
-import { Button, Col, Form, Input, message, Row, Select } from "antd";
+import { Button, Col, Form, Input, message, Row } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import Modal from "../../../../../components/Modal";
-import {
-    useCreatePersonalityProduct,
-    usePersonalityProductList,
-    useUpdatePesonalityProduct
-} from "../../../../../QueryServises/personalityQuery";
 import { useCreateLifeCycle, useUpdateLifeCycle } from "../../../../../QueryServises/lifeCycleQuery";
 
 const LifeCycleModal = ({
