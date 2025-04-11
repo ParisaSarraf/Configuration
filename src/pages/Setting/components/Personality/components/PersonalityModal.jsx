@@ -1,13 +1,14 @@
 import React, { useEffect } from "react";
-import { Button, Col, Form, Input, message, Row } from "antd";
+import { Button, Col, Form, Input, message, Row, Select } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import Modal from "../../../../../components/Modal";
-import { useCreateCoreSetting, useUpdateCoreSetting } from "../../../../../QueryServises/settingQuery";
+import { useCreatePersonalityProduct, usePersonalityProductList, useUpdatePesonalityProduct } from "../../../../../QueryServises/personalityQuery";
 
 const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch }) => {
+    const { data: personalityList, isFetching: isFetchingPersonality } = usePersonalityProductList();
     const [form] = Form.useForm();
-    const { isPending: isCreating, mutateAsync: createPersonality } = useCreateCoreSetting();
-    const { isPending: isUpdating, mutateAsync: updatePersonality } = useUpdateCoreSetting();
+    const { isPending: isCreating, mutateAsync: createPersonality } = useCreatePersonalityProduct();
+    const { isPending: isUpdating, mutateAsync: updatePersonality } = useUpdatePesonalityProduct();
 
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
@@ -28,7 +29,7 @@ const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
 
         const payload = {
             name: values.name,
-            type: "personality"
+            ...(values.parent_id !== undefined && { parent_id: values.parent_id })
         };
 
         if (modalMode === "add") {
@@ -48,7 +49,7 @@ const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
                 return;
             }
             updatePersonality({
-                id: modalData.id,
+                personalityId: modalData.id,
                 ...payload
             })
                 .then(() => {
@@ -61,6 +62,49 @@ const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
                     console.error("Update error:", error.response?.data || error);
                 });
         }
+    };
+
+    const getParentOptions = () => {
+        if (!personalityList) return [];
+
+        const flattenPersonalityList = (items) => {
+            let result = [];
+            items.forEach(item => {
+                result.push({
+                    id: item.id,
+                    name: item.name,
+                    parent: item.parent
+                });
+                if (item.children && item.children.length > 0) {
+                    result = result.concat(flattenPersonalityList(item.children));
+                }
+            });
+            return result;
+        };
+
+        const allPersonality = flattenPersonalityList(personalityList);
+        return allPersonality
+            .filter(personality => {
+                if (modalMode !== "edit") return true;
+
+                if (personality.id === modalData?.id) return false;
+
+                const isChildOfCurrent = (items, parentId) => {
+                    return items.some(item => {
+                        if (item.id === parentId) return true;
+                        if (item.children && item.children.length > 0) {
+                            return isChildOfCurrent(item.children, parentId);
+                        }
+                        return false;
+                    });
+                };
+
+                return !isChildOfCurrent(PersonalityList, modalData?.id);
+            })
+            .map(personality => ({
+                label: personality.name,
+                value: personality.id
+            }));
     };
 
     return (
@@ -85,9 +129,6 @@ const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
                     form={form}
                     layout="vertical"
                     onFinish={onFinishForm}
-                    initialValues={{
-                        type: "personality"
-                    }}
                 >
                     <Row gutter={16}>
                         <Col span={24}>
@@ -101,9 +142,19 @@ const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
                             >
                                 <Input placeholder="نام هویت" />
                             </Form.Item>
-                            <Form.Item name="type" hidden>
-                                <Input type="hidden" />
-                            </Form.Item>
+                            <Col span={24}>
+                                <Form.Item
+                                    name="parent_id"
+                                    label="هویت والد (اختیاری)"
+                                >
+                                    <Select
+                                        placeholder="انتخاب هویت والد"
+                                        loading={isFetchingPersonality}
+                                        allowClear
+                                        options={getParentOptions()}
+                                    />
+                                </Form.Item>
+                            </Col>
                         </Col>
                     </Row>
                 </Form>

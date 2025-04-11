@@ -129,7 +129,7 @@ const UsersAndPermissionsTransfer = () => {
 
     const renderAssignedBox = () => (
         <div className="flex-1 flex flex-col border rounded-lg p-4 bg-white shadow-sm">
-            <h3 className="text-center font-bold text-lg mb-3 text-gray-700">اختصاص‌های نهایی</h3>
+            <h3 className="text-center font-bold text-lg mb-3 text-gray-700">محصولات</h3>
             <div className="border border-gray-200 rounded-md p-3 h-[300px] overflow-y-auto flex-1">
                 {boxes.assigned && boxes.assigned.length > 0 ? (
                     boxes.assigned.map((assignment, index) => (
@@ -160,7 +160,7 @@ const UsersAndPermissionsTransfer = () => {
     return (
         <div className="flex gap-5 p-5 max-w-6xl mx-auto bg-gray-50 rounded-lg">
             {renderBox('users', 'لیست کاربران', boxes.users, usersLoading, true, false)}
-            {renderBox('permissions', 'لیست دسترسی‌ها', filteredPermissions, permissionsLoading, true, true)}
+            {/* {renderBox('permissions', 'لیست دسترسی‌ها', filteredPermissions, permissionsLoading, true, true)} */}
             {renderBox('products', 'لیست محصولات', filteredProducts, productsLoading, true, true)}
             {renderAssignedBox()}
         </div>

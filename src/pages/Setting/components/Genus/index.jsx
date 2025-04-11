@@ -1,5 +1,4 @@
-import { Card, message, Spin, Tree, Modal } from 'antd';
-import React from 'react';
+import { Card, Spin } from 'antd';
 import useModal from '../../../../hooks/useModal';
 import GenusModal from './components/GenusModal';
 import { useDeleteGenusProduct, useGenusProductList } from '../../../../QueryServises/genusQuery';
@@ -14,23 +13,8 @@ const Genus = () => {
         refetch
     } = useGenusProductList();
 
-    const { mutate: deleteGenus, isPending: isDeleting } = useDeleteGenusProduct();
+    const { isPending: isDeleting } = useDeleteGenusProduct();
 
-    if (isError) {
-        return (
-            <Card title="مدیریت جنس">
-                <div className="text-center py-8">
-                    <p className="text-red-500">خطا در دریافت اطلاعات جنس</p>
-                    <button
-                        onClick={() => refetch()}
-                        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                    >
-                        تلاش مجدد
-                    </button>
-                </div>
-            </Card>
-        );
-    }
 
     return (
         <Spin spinning={isFetching && !data} tip="در حال دریافت اطلاعات...">

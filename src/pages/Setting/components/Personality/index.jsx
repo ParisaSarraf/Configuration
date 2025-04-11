@@ -1,12 +1,11 @@
-import { Card, Table, message } from 'antd';
-import React from 'react';
+import { Card, Spin } from 'antd';
 import useModal from '../../../../hooks/useModal';
 import {
     useCoreSettingsList,
     useDeleteCoreSetting
 } from '../../../../QueryServises/settingQuery';
-import { PersonalityCol } from './components/PersonalityCol';
 import PersonalityModal from './components/PersonalityModal';
+import PersonalityTree from './components/PersonalityTree';
 
 const Personality = () => {
     const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
@@ -16,60 +15,28 @@ const Personality = () => {
         refetch
     } = useCoreSettingsList();
 
-    const { mutate: deletePersonality, isPending: isDeleting } = useDeleteCoreSetting();
+    const { isPending: isDeleting } = useDeleteCoreSetting();
 
-    const handleDelete = (record) => {
-        deletePersonality(record, {
-            onSuccess: () => {
-                message.success("هویت با موفقیت حذف شد");
-                refetch();
-            },
-            onError: (error) => {
-                if (error.response?.status === 404) {
-                    message.error("هویت مورد نظر یافت نشد");
-                } else {
-                    message.error(error.response?.data?.detail || "خطا در حذف هویت");
-                }
-                console.error("Delete error:", error);
-            }
-        });
-    };
-
-    const handleEdit = (record) => {
-        setModal({ mode: 'edit', data: record });
-    };
-
-    const personalityData = data?.filter(item => item?.type === 'personality') || [];
 
     return (
-        <Card
-            title="مدیریت هویت"
-            extra={
-                <PersonalityModal
-                    isOpen={isOpen}
-                    modalMode={modalMode}
-                    modalData={modalData}
-                    closeModal={closeModal}
-                    setModal={setModal}
-                    refetch={refetch}
-                />
-            }
-            loading={isFetching || isDeleting}
-        >
-            <Table
-                columns={PersonalityCol({ handleDelete, handleEdit })}
-                dataSource={personalityData}
-                rowKey="id"
-                loading={isFetching}
-                scroll={{ x: true }}
-                pagination={{
-                    pageSize: 10,
-                }}
-                locale={{
-                    emptyText: 'هیچ هویت یافت نشد'
-                }}
-            />
-        </Card>
+        <Spin spinning={isFetching && !data} tip="در حال دریافت اطلاعات...">
+            <Card
+                title="مدیریت هویت"
+                extra={
+                    <PersonalityModal
+                        isOpen={isOpen}
+                        modalMode={modalMode}
+                        modalData={modalData}
+                        closeModal={closeModal}
+                        setModal={setModal}
+                        refetch={refetch}
+                    />
+                }
+                loading={isFetching || isDeleting}
+            >
+                <PersonalityTree setModal={setModal} />
+            </Card>
+        </Spin>
     );
 };
 
