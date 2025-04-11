@@ -14,3 +14,42 @@ export const useLifeCycleList = (queryOptions) => {
     ...queryOptions,
   });
 };
+
+export const useCreateLifeCycle = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: (params) => {
+      return myAxios
+        .post(`/life-cycle/life-cycle/`, params)
+        .then((response) => {
+          return response?.data;
+        });
+    },
+  });
+};
+
+export const useDeleteLifeCycle = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: (params) => {
+      return myAxios
+        .delete(`/life-cycle/life-cycle/${params}/`)
+        .then((response) => {
+          return response?.data;
+        });
+    },
+  });
+};
+
+export const useUpdateLifeCycle = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: ({ lifeCycleId, ...params }) => {
+      return myAxios
+        .put(`/life-cycle/life-cycle/${lifeCycleId}/`, params)
+        .then((response) => {
+          return response?.data;
+        });
+    },
+  });
+};

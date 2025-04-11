@@ -72,7 +72,7 @@ const PrecinctTree = ({ setModal }) => {
 
     return (
         <Tree
-            className="custom-tree"
+            // className="custom-tree"
             data={transformDataToTreeFormat(data)}
             isLoading={isFetching || isDeleting}
             isError={isError}

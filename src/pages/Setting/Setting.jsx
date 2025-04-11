@@ -5,6 +5,7 @@ import Genus from './components/Genus'
 import Personality from './components/Personality'
 import Casing from './components/Casing'
 import Precinct from './components/Precinct'
+import LifeCycle from './components/LifeCycle'
 
 const Setting = () => {
     const navigate = useNavigate()
@@ -21,6 +22,7 @@ const Setting = () => {
             </div>
             <div className='grid grid-cols-3 gap-2'>
                 <Casing />
+                <LifeCycle />
                 <Personality />
                 <Genus />
                 <Precinct />
