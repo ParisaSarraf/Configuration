@@ -29,7 +29,7 @@ function SystemManagment() {
             onClick={() => navigate("/panel/system-managment/roles-permission")}
             className="flex items-center justify-center h-48 bg-white shadow-lg hover:shadow-xl transition-shadow text-green-500 hover:text-white hover:bg-green-500 text-lg font-medium rounded-sm rounded-tl-3xl rounded-br-3xl"
           >
-            مدیریت سمت ها و دسترسی ها
+          مدیریت سمت ها و مجوز ها
           </Button>
           <Button
             onClick={() => navigate("/panel/system-managment/roles-users")}

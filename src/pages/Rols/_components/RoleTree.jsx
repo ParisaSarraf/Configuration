@@ -1,13 +1,12 @@
 import React from 'react'
 import Tree from '../../../components/Tree';
-import { useDeleteRole, useRoleList } from '../../../QueryServises/roleQuery';
+import { useDeleteRole } from '../../../QueryServises/roleQuery';
 import { message } from 'antd';
+import { useRolePermissionList } from '../../../QueryServises/role&permission';
 
-const RoleTree = ({ setModal }) => {
-    const { isFetching, data: roleData, refetch } = useRoleList();
+const RoleTree = ({ setModal, refetch }) => {
+    const { isFetching, data: roleData } = useRolePermissionList();
     const { mutateAsync: deleteRole } = useDeleteRole();
-    console.log(roleData);
-
 
     const handleDeleteRole = (record) => {
         deleteRole(record.id)
@@ -25,22 +24,24 @@ const RoleTree = ({ setModal }) => {
         setModal({ type: 'role', mode: 'edit', data: record });
     };
 
+
     return (
         <Tree
             data={roleData}
             loading={isFetching}
             titleField="name"
             keyField="id"
-            childrenField="children"
-            onNodeClick={(node) => console.log('Node clicked', node)}
+            childrenField="permissions"
+            // onNodeClick={(node) => console.log('Node clicked', node)}
             rightClickMenuItems={[
-                { key: 'edit', label: 'ویرایش' },
+                { key: 'edit', label: 'ویرایش سمت ' },
                 { key: 'delete', label: 'حذف' },
             ]}
             onRightClickAction={(action, node) => {
-                if (action === 'edit') handleEditRole(node);
-                if (action === 'delete') handleDeleteRole(node);
+                if (action === 'edit' && !node.permission) handleEditRole(node);
+                if (action === 'delete' && !node.permission) handleDeleteRole(node);
             }}
+            showRightClickMenu={(node) => !node.permission}
         />
     )
 }

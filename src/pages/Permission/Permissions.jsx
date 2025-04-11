@@ -40,14 +40,6 @@ const Permissions = () => {
                             icon={<PlusOutlined />}
                             type="primary"
                             className="w-40 ml-4"
-                            onClick={handleOpenUsersRoleModal}
-                        >
-                            افزودن کاربر و سمت
-                        </Button>
-                        <Button
-                            icon={<PlusOutlined />}
-                            type="primary"
-                            className="w-40 ml-4"
                             onClick={handleOpenAccessModal}
                         >
                             دسترسی به کاربر

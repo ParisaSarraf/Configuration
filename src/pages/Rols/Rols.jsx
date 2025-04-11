@@ -1,21 +1,18 @@
 import React from "react";
 import RoleModal from "./_components/RoleModal";
-import { Button, Card, message } from "antd";
-import { useDeleteRole, useRoleList } from "../../QueryServises/roleQuery";
+import { Button, Card } from "antd";
+import { useRoleList } from "../../QueryServises/roleQuery";
 import { useNavigate } from "react-router-dom";
 import useModal from "../../hooks/useModal";
-import RoleTransferModal from "./_components/roleTransferModal";
 import RoleTree from "./_components/RoleTree";
-import RolePermissionsTree from "./_components/RolePermissionsTree";
+import { useRolePermissionList } from "../../QueryServises/role&permission";
+import RoleTransfer from "./_components/RoleTransfer";
 
 function Rols() {
-  const { refetch } = useRoleList();
+  const { refetch: roleRefetch } = useRoleList();
+  const { refetch: rolePermissionFetch } = useRolePermissionList();
   const navigate = useNavigate()
-  const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
-
-  const handleTransferRole = (record) => {
-    setModal({ type: 'roleTransfer', mode: 'edit', data: record });
-  };
+  const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
 
   return (
     <div className="min-h-screen bg-Main p-2">
@@ -33,44 +30,39 @@ function Rols() {
           <div className="flex flex-row gap-2">
             <Button
               type="primary"
-              onClick={() => setModal({ type: 'role', mode: 'add', data: null })}
+              onClick={() => setModal({ mode: 'add', data: null })}
             >
               ایجاد سمت جدید
-            </Button>
-            <Button
-              type="primary"
-              onClick={() => setModal({ type: 'roleTransfer', mode: 'add', data: null })}
-            >
-              تخصیص دسترسی
             </Button>
           </div>
         }
       >
-        <div className="w-full flex flex-row justify-evenly">
-          <RoleTree setModal={setModal} />
-          {/* <RolePermissionsTree /> */}
+        <div className="w-full flex flex-row justify-around">
+          <RoleTree
+            setModal={setModal}
+            refetch={() => {
+              roleRefetch();
+              rolePermissionFetch();
+            }}
+          />
+          <RoleTransfer
+            refetch={() => {
+              roleRefetch();
+              rolePermissionFetch();
+            }}
+          />
         </div>
       </Card>
-
-      {modalType === 'role' && (
-        <RoleModal
-          isOpen={isOpen}
-          modalMode={modalMode}
-          modalData={modalData}
-          closeModal={closeModal}
-          refetch={refetch}
-        />
-      )}
-
-      {modalType === 'roleTransfer' && (
-        <RoleTransferModal
-          isOpen={isOpen}
-          modalMode={modalMode}
-          modalData={modalData}
-          closeModal={closeModal}
-          refetch={refetch}
-        />
-      )}
+      <RoleModal
+        isOpen={isOpen}
+        modalMode={modalMode}
+        modalData={modalData}
+        closeModal={closeModal}
+        refetch={() => {
+          roleRefetch();
+          rolePermissionFetch();
+        }}
+      />
     </div>
   );
 }

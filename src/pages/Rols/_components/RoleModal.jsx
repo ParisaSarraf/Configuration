@@ -1,12 +1,9 @@
-import { PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Form, Input, message } from "antd";
-import React, { useEffect, useState } from "react";
+import { Form, Input, message } from "antd";
+import { useEffect } from "react";
 import Modal from "../../../components/Modal";
 import { useCreateRole, usePatchRole } from "../../../QueryServises/roleQuery";
-import PermissionsTree from "../../Permission/_components/PermissionListTree";
-import { useCreateRolePermission, usePutRolePermission } from "../../../QueryServises/role&permission";
 
-const RoleModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch }) => {
+const RoleModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
   const [form] = Form.useForm();
   const { isPending: isCreating, mutateAsync: createRole } = useCreateRole();
   const { isPending: isUpdating, mutateAsync: updateRole } = usePatchRole();
