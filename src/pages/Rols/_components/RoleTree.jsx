@@ -6,6 +6,8 @@ import { message } from 'antd';
 const RoleTree = ({ setModal }) => {
     const { isFetching, data: roleData, refetch } = useRoleList();
     const { mutateAsync: deleteRole } = useDeleteRole();
+    console.log(roleData);
+
 
     const handleDeleteRole = (record) => {
         deleteRole(record.id)

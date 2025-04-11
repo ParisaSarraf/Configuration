@@ -5,13 +5,21 @@ import UsersRoleModal from "../SystemManagment/UsersRoleModal/UsersRoleModal";
 import { PlusOutlined } from "@ant-design/icons";
 import UsersAndRoleTree from "../SystemManagment/UsersAndRoleTree/UsersAndRoleTree";
 import UsersAndRoleTransform from "./_components/UsersAndRoleTransform";
+import AccsessModal from "../Accsess/AccsessModal";
+
 
 const Permissions = () => {
-    const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
+    const usersRoleModal = useModal('usersRole');
+    const accessModal = useModal('access');
+
     const navigate = useNavigate();
 
-    const handleOpenModal = () => {
-        setModal({ mode: "create", data: null });
+    const handleOpenUsersRoleModal = () => {
+        usersRoleModal.setModal({ mode: "add", data: null });
+    };
+
+    const handleOpenAccessModal = () => {
+        accessModal.setModal({ mode: "add", data: null });
     };
 
     return (
@@ -24,33 +32,47 @@ const Permissions = () => {
                 >
                     بازگشت به صفحه قبل
                 </Button>
-
             </div>
-            <Card>
-                <div className="grid grid-cols-1 gap-6 w-full max-w-9xl mx-auto">
-                    <Button
-                        icon={<PlusOutlined />}
-                        type="primary"
-                        className="w-40 ml-4"
-                        onClick={handleOpenModal}
-                    >
-                        افزودن کاربر و سمت
-                    </Button>
-                    <UsersRoleModal
-                        isOpen={isOpen}
-                        modalMode={modalMode}
-                        modalData={modalData}
-                        closeModal={closeModal}
-                        setModal={setModal}
-                    />
-                    <Card>
-                        <UsersAndRoleTransform />
-                    </Card>
-                </div>
+            <Card
+                extra={
+                    <div className="flex flex-row gap-2">
+                        <Button
+                            icon={<PlusOutlined />}
+                            type="primary"
+                            className="w-40 ml-4"
+                            onClick={handleOpenUsersRoleModal}
+                        >
+                            افزودن کاربر و سمت
+                        </Button>
+                        <Button
+                            icon={<PlusOutlined />}
+                            type="primary"
+                            className="w-40 ml-4"
+                            onClick={handleOpenAccessModal}
+                        >
+                            دسترسی به کاربر
+                        </Button>
+                    </div>
+                }
+            >
+                <UsersAndRoleTransform />
+                <UsersRoleModal
+                    isOpen={usersRoleModal.isOpen}
+                    modalMode={usersRoleModal.modalMode}
+                    modalData={usersRoleModal.modalData}
+                    closeModal={usersRoleModal.closeModal}
+                    setModal={usersRoleModal.setModal}
+                />
+                <AccsessModal
+                    isOpen={accessModal.isOpen}
+                    modalMode={accessModal.modalMode}
+                    modalData={accessModal.modalData}
+                    closeModal={accessModal.closeModal}
+                    setModal={accessModal.setModal}
+                />
             </Card>
-
         </div>
     );
 };
 
-export default Permissions;
+export default Permissions

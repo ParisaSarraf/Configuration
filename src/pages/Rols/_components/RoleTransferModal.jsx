@@ -98,7 +98,7 @@ const RoleTransferModal = ({
             >
                 <Form.Item
                     label="نام سمت:"
-                    name="roles_ids" // Changed to match backend expectation
+                    name="roles_ids" 
                     rules={[{ required: true, message: "انتخاب سمت الزامی است" }]}
                 >
                     <Select

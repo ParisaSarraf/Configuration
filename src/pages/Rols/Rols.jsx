@@ -13,8 +13,6 @@ function Rols() {
   const navigate = useNavigate()
   const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
 
-
-
   const handleTransferRole = (record) => {
     setModal({ type: 'roleTransfer', mode: 'edit', data: record });
   };

@@ -129,3 +129,61 @@
   /* margin-bottom: px;  */
   height: 10px; 
 }
+
+
+.transfer-container {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+}
+
+.transfer-box {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  width: 200px;
+}
+
+.transfer-box h3 {
+  margin-top: 0;
+  text-align: center;
+}
+
+.transfer-box ul {
+  list-style: none;
+  padding: 0;
+  height: 300px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+.transfer-box li {
+  padding: 8px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.transfer-box li.selected {
+  background-color: #e6f7ff;
+}
+
+.transfer-box button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 8px;
+  background: #1890ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.transfer-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.transfer-buttons button {
+  flex: 1;
+}
