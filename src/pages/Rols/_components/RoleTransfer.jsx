@@ -67,13 +67,12 @@ const RoleTransfer = ({ refetch }) => {
     const onFinish = async (values) => {
         try {
             if (isEditing) {
-                console.log('Updating with:', values.permissions_ids);
-
                 await updatePermissions({
                     roleId: values.roles_ids,
                     permission_ids: values.permissions_ids
                 });
                 message.success("دسترسی‌های سمت با موفقیت به‌روزرسانی شد");
+                refetch()
             } else {
                 const payload = {
                     roles_ids: [values.roles_ids],
@@ -82,9 +81,9 @@ const RoleTransfer = ({ refetch }) => {
                 console.log('Creating with:', payload);
                 await addPermissions(payload);
                 message.success("دسترسی‌های جدید با موفقیت اضافه شدند");
+                refetch();
             }
-
-            refetch();
+            refetch()
             handleReset();
         } catch (error) {
             console.error("Error saving permissions:", error.response?.data || error.message);

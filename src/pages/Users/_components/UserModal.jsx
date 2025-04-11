@@ -50,7 +50,7 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
     const payload = {
       username: values.userName,
       password: values.password,
-      is_superuser: values.isSuperuser,
+      is_superuser: true,
       name: values.name,
       last_name: values.lastName,
       phone_number: values.PhoneNumber,
@@ -63,7 +63,7 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
         values.tempImage && values.tempImage.length > 0
           ? values.tempImage[0].originFileObj
           : null,
-      is_staff: values.isStaff,
+      is_staff: false,
     };
 
     if (modalMode === "add") {
@@ -179,7 +179,7 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
                 <Input />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            {/* <Col span={12}>
               <Form.Item name="isStaff" label="مدیر">
                 <Radio.Group buttonStyle="solid">
                   <Radio.Button value={true}>بله</Radio.Button>
@@ -194,7 +194,7 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
                   <Radio.Button value={false}>خیر</Radio.Button>
                 </Radio.Group>
               </Form.Item>
-            </Col>
+            </Col> */}
           </Row>
         </Form>
       </Modal>
