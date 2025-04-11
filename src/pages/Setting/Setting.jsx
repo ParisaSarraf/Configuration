@@ -1,9 +1,10 @@
-import { Button, Card } from 'antd'
+import { Button } from 'antd'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import Genus from './components/Genus'
 import Personality from './components/Personality'
 import Casing from './components/Casing'
+import Precinct from './components/Precinct'
 
 const Setting = () => {
     const navigate = useNavigate()
@@ -22,6 +23,7 @@ const Setting = () => {
                 <Casing />
                 <Personality />
                 <Genus />
+                <Precinct />
             </div>
         </div>
     )

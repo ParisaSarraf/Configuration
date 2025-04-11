@@ -78,7 +78,6 @@ const RoleTransfer = ({ refetch }) => {
                     roles_ids: [values.roles_ids],
                     permissions_ids: values.permissions_ids
                 };
-                console.log('Creating with:', payload);
                 await addPermissions(payload);
                 message.success("دسترسی‌های جدید با موفقیت اضافه شدند");
                 refetch();
