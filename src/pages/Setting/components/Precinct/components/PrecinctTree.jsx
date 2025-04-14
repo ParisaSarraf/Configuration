@@ -58,8 +58,6 @@ const PrecinctTree = ({ setModal }) => {
                 },
             });
         } else if (actionKey === "edit") {
-            console.log(node);
-
             setModal({
                 mode: "edit",
                 data: {

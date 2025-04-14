@@ -5,7 +5,6 @@ import UsersRoleModal from "../SystemManagment/UsersRoleModal/UsersRoleModal";
 import { PlusOutlined } from "@ant-design/icons";
 import UsersAndRoleTree from "../SystemManagment/UsersAndRoleTree/UsersAndRoleTree";
 import UsersAndRoleTransform from "./_components/UsersAndRoleTransform";
-import AccsessModal from "../Accsess/AccsessModal";
 
 
 const Permissions = () => {
@@ -55,13 +54,13 @@ const Permissions = () => {
                     closeModal={usersRoleModal.closeModal}
                     setModal={usersRoleModal.setModal}
                 />
-                <AccsessModal
+                {/* <AccsessModal
                     isOpen={accessModal.isOpen}
                     modalMode={accessModal.modalMode}
                     modalData={accessModal.modalData}
                     closeModal={accessModal.closeModal}
                     setModal={accessModal.setModal}
-                />
+                /> */}
             </Card>
         </div>
     );

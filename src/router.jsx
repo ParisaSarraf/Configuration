@@ -11,6 +11,7 @@ import Permissions from "./pages/Permission/Permissions";
 import Rols from "./pages/Rols/Rols";
 import Setting from "./pages/Setting/Setting";
 import GoodsCategories from "./pages/GoodsCategories/GoodsCategories";
+import Access from "./pages/Access/Access.JSX";
 
 const router = createBrowserRouter([
   {
@@ -48,10 +49,12 @@ const router = createBrowserRouter([
   {
     path: "/sign-in",
     element: <SignIn />,
+    errorElement: <NotFound />
   },
   {
     path: "/forget-password",
     element: <ForgetPassword />,
+    errorElement: <NotFound />
   },
   {
     path: "/panel/system-managment",
@@ -60,6 +63,7 @@ const router = createBrowserRouter([
         <SystemManagment />
       </ProtectedRoute>
     ),
+    errorElement: <NotFound />
   },
   {
     path: "/panel/system-managment/user",
@@ -68,14 +72,16 @@ const router = createBrowserRouter([
         <Users />
       </ProtectedRoute>
     ),
+    errorElement: <NotFound />
   },
   {
     path: "/panel/system-managment/roles-users",
     element: (
       <ProtectedRoute>
-        <Permissions />
+        <Access />
       </ProtectedRoute>
     ),
+    errorElement: <NotFound />
   },
   {
     path: "/panel/system-managment/roles-permission",
@@ -84,6 +90,7 @@ const router = createBrowserRouter([
         <Rols />
       </ProtectedRoute>
     ),
+    errorElement: <NotFound />
   },
   {
     path: "/panel/datas",
@@ -92,6 +99,7 @@ const router = createBrowserRouter([
         <Setting />
       </ProtectedRoute>
     ),
+    errorElement: <NotFound />
   },
 ]);
 

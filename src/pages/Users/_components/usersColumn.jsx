@@ -2,7 +2,6 @@ import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Button, Image } from "antd";
 import { BASEURL } from "../../../utils/Api";
 
-const BaseUrl = BASEURL;
 
 export const columns = (handleEditUser, handleDeleteUser) => [
   {
@@ -44,12 +43,12 @@ export const columns = (handleEditUser, handleDeleteUser) => [
   //   key: "is_superuser",
   //   render: (is_superuser) => (is_superuser ? "بله" : "خیر"),
   // },
-//   {
-//     title: "کارکنان",
-//     dataIndex: "is_staff",
-//     key: "is_staff",
-//     render: (is_staff) => (is_staff ? "بله" : "خیر"),
-//   },
+  //   {
+  //     title: "کارکنان",
+  //     dataIndex: "is_staff",
+  //     key: "is_staff",
+  //     render: (is_staff) => (is_staff ? "بله" : "خیر"),
+  //   },
   {
     title: "امضا کاربر",
     dataIndex: "signature_image",
@@ -59,7 +58,7 @@ export const columns = (handleEditUser, handleDeleteUser) => [
         <Image
           width={70}
           height={50}
-          src={`${BaseUrl.replace("/api/v1", "")}${record.signature_image}`}
+          src={`${BASEURL.replace("/api/v1", "")}${record.signature_image}`}
           alt="امضا کاربر"
         />
       ) : (
@@ -75,7 +74,7 @@ export const columns = (handleEditUser, handleDeleteUser) => [
         <Image
           width={70}
           height={50}
-          src={`${BaseUrl.replace("/api/v1", "")}${record.temp_image}`}
+          src={`${BASEURL.replace("/api/v1", "")}${record.temp_image}`}
           alt="تصویر کاربر"
         />
       ) : (
