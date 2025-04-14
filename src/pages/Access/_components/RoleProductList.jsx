@@ -1,5 +1,5 @@
 import { Card, Spin, Typography } from 'antd';
-import React from 'react';
+import React, { useState } from 'react';
 import { useAccessOfUserByIdList, useUnAccessOfUserByIdList } from '../../../QueryServises/accsessQuery';
 import Tree from '../../../components/Tree';
 
@@ -22,6 +22,8 @@ const RoleProductList = ({ selectedUserId, setSelectedUserAndRoleId, selectedUse
         enabled: !!selectedUserId
     });
 
+    const [selectedNodeKey, setSelectedNodeKey] = useState(null)
+
     if (usersHasProductFetching || usersHasNotProductFetching) {
         return (
             <Card>
@@ -31,10 +33,16 @@ const RoleProductList = ({ selectedUserId, setSelectedUserAndRoleId, selectedUse
     }
 
     const handleClick = (node) => {
-        console.log(node.key);
-        console.log(selectedUserId);
-        const Ids = [node.key, selectedUserId];
-        setSelectedUserAndRoleId(Ids);
+        if (selectedNodeKey === node.key) {
+            setSelectedNodeKey(null);
+            setSelectedUserAndRoleId([]);
+        } else {
+            setSelectedNodeKey(node.key);
+            const Ids = [node.key, selectedUserId];
+            setSelectedUserAndRoleId(Ids);
+        }
+        // const Ids = [node.key, selectedUserId];
+        // setSelectedUserAndRoleId(Ids);
     }
 
     const transformAccessData = (data) => {
@@ -58,7 +66,7 @@ const RoleProductList = ({ selectedUserId, setSelectedUserAndRoleId, selectedUse
 
         return data.map(user => ({
             title: user.name,
-            key: `perm-user-${user.id}`,
+            key: user.id,
         }));
     };
 
@@ -76,6 +84,7 @@ const RoleProductList = ({ selectedUserId, setSelectedUserAndRoleId, selectedUse
                     showLine={true}
                     checkable={false}
                     onNodeClick={handleClick}
+                    selectedKeys={selectedNodeKey ? [selectedNodeKey] : []}
                 />
             </div>
 
@@ -87,6 +96,8 @@ const RoleProductList = ({ selectedUserId, setSelectedUserAndRoleId, selectedUse
                     isError={hasNotProductError}
                     showLine={true}
                     checkable={false}
+                    onNodeClick={handleClick}
+                    selectedKeys={selectedNodeKey ? [selectedNodeKey] : []}
                 />
             </div>
         </Card>

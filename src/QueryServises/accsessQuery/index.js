@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMyAxios } from "../../utils/Api";
 
 export const useAccessOfUserByIdKey = (id) => ["access-user", id];
@@ -31,7 +31,6 @@ export const useUnAccessOfUserByIdList = (id, queryOptions) => {
   });
 };
 
-
 export const useUnAccessProductsByUserAndRoleId = (params) => {
   const { myAxios } = useMyAxios();
   return useQuery({
@@ -54,13 +53,28 @@ export const useUnAccessProductsByUserAndRoleId = (params) => {
   });
 };
 
-export const useCreateAccess = () => {
+export const useCreateAccessProducts = () => {
   const { myAxios } = useMyAxios();
   return useMutation({
     mutationFn: (params) => {
-      return myAxios.post(`/user/add-access/`, params).then((response) => {
-        return response?.data;
-      });
+      return myAxios
+        .post(`/user/add-access-products/`, params)
+        .then((response) => {
+          return response?.data;
+        });
+    },
+  });
+};
+
+export const useDeleteAccessProducts = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: (params) => {
+      return myAxios
+        .delete(`/user/delete-access/${params}`)
+        .then((response) => {
+          return response?.data;
+        });
     },
   });
 };

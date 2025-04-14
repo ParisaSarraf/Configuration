@@ -1,13 +1,51 @@
 import { useUserList } from '../../../QueryServises/userQuery';
-import { List, Avatar, Skeleton, Card, Spin } from 'antd';
+import { Avatar, Card, Spin, Empty } from 'antd';
 import { BASEURL } from '../../../utils/Api';
 import { useState } from 'react';
+import Tree from '../../../components/Tree';
 
 const UsersList = ({ refetch, selectedUserId, setSelectedUserId }) => {
-    const { data: usersList, refetch: queryRefetch, isFetching } = useUserList();
+    const { data: usersList, refetch: queryRefetch, isFetching, error } = useUserList();
+    const [expandedKeys, setExpandedKeys] = useState([]);
+    const [autoExpandParent, setAutoExpandParent] = useState(true);
 
-    const handleSelectUser = (userId) => {
-        setSelectedUserId(userId === selectedUserId ? null : userId);
+    const handleSelectUser = (selectedKeys, { node }) => {
+        setSelectedUserId(node.userId === selectedUserId ? null : node.userId);
+    };
+
+    const onExpand = (expandedKeysValue) => {
+        setExpandedKeys(expandedKeysValue);
+        setAutoExpandParent(false);
+    };
+
+    const transformUsersToTreeData = (users) => {
+        if (!users) return [];
+
+        return users.map(user => ({
+            title:
+            //  (
+                // <div className='w-full fle x'>
+                    // {/* <Avatar
+                    //     src={user.temp_image ? `${BASEURL.replace("/api/v1", "")}${user.temp_image}` : null}
+                    //     alt={`${user.name} ${user.last_name}`}
+                    //     className=" w-6 h-6"
+                    // >
+                    //     {user.name.charAt(0)}
+                    // // </Avatar> */}
+                    // <span>{`${
+                        `${user.name} ${user.last_name}`
+                        // } ${user.last_name}`}</span>
+                // </div>
+            // )
+            ,
+            key: user.id,
+            isLeaf: true,
+            userId: user.id,
+            style: {
+                backgroundColor: user.id === selectedUserId ? '#e6f7ff' : 'transparent',
+            },
+            className: user.id === selectedUserId ? 'selected-user' : ''
+        }));
     };
 
     if (isFetching) {
@@ -18,35 +56,33 @@ const UsersList = ({ refetch, selectedUserId, setSelectedUserId }) => {
         );
     }
 
+    if (error) {
+        return (
+            <Card>
+                <div className="text-red-500">خطا در بارگذاری داده‌ها</div>
+            </Card>
+        );
+    }
+
+    if (!usersList || usersList.length === 0) {
+        return (
+            <Card>
+                <Empty description="هیچ کاربری یافت نشد" />
+            </Card>
+        );
+    }
+
     return (
         <Card className='w-full'>
-            <List
-                className="demo-loadmore-list"
-                itemLayout="horizontal"
-                size='small'
-                dataSource={usersList}
-                renderItem={user => (
-                    <List.Item
-                        onClick={() => handleSelectUser(user.id)}
-                        style={{
-                            backgroundColor: user.id === selectedUserId ? '#e6f7ff' : 'transparent',
-                            cursor: 'pointer',
-                            padding: '12px 24px'
-                        }}
-                    >
-                        <Skeleton avatar title={false} loading={false} active>
-                            <List.Item.Meta
-                                avatar={
-                                    <Avatar
-                                        src={`${BASEURL.replace("/api/v1", "")}${user.temp_image}`}
-                                        alt={`${user.name} ${user.last_name}`}
-                                    />
-                                }
-                                title={<a href="#">{`${user.name} ${user.last_name}`}</a>}
-                            />
-                        </Skeleton>
-                    </List.Item>
-                )}
+            <Tree
+                multiple
+                onSelect={handleSelectUser}
+                onExpand={onExpand}
+                expandedKeys={expandedKeys}
+                autoExpandParent={autoExpandParent}
+                treeData={transformUsersToTreeData(usersList)}
+                selectedKeys={selectedUserId ? [`user-${selectedUserId}`] : []}
+                className="user-tree"
             />
         </Card>
     );

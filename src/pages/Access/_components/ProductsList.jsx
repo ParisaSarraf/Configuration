@@ -1,10 +1,13 @@
-import { Card, Empty, List, Spin, Checkbox } from "antd";
+import { Card, Empty, Spin, Alert } from "antd";
 import { useUnAccessProductsByUserAndRoleId } from "../../../QueryServises/accsessQuery";
-import { CheckBox } from "@mui/icons-material";
 import { useState } from "react";
+import Tree from "../../../components/Tree";
+
 
 const ProductsList = ({ selectedUserAndRoleId }) => {
-    const [checkedItems, setCheckedItems] = useState({});
+    const [checkedKeys, setCheckedKeys] = useState([]);
+    const [expandedKeys, setExpandedKeys] = useState([]);
+    const [autoExpandParent, setAutoExpandParent] = useState(true);
 
     const { data, isLoading, error } = useUnAccessProductsByUserAndRoleId(
         selectedUserAndRoleId?.length === 2 ? {
@@ -13,24 +16,40 @@ const ProductsList = ({ selectedUserAndRoleId }) => {
         } : null
     );
 
+    const transformDataToTree = (products) => {
+        const treeData = products.map(product => ({
+            title: product.persian_title,
+            key: `product-${product.id}`,
+            isLeaf: true,
+            ...product
+        }));
+        return treeData;
+    };
+
+    const onExpand = (expandedKeysValue) => {
+        setExpandedKeys(expandedKeysValue);
+        setAutoExpandParent(false);
+    };
+
+    const onCheck = (checkedKeysValue) => {
+        setCheckedKeys(checkedKeysValue);
+    };
+
     if (isLoading) return <Spin />;
     if (error) return <Alert message={`خطا: ${error.response?.data?.message || error.message}`} type="error" />;
 
     return (
         <Card>
             {data?.length > 0 ? (
-                <List
-                    dataSource={data}
-                    renderItem={(item) => (
-                        <List.Item>
-                            <Checkbox
-                                checked={checkedItems[item.id] || false}
-                                // onChange={handleCheck(item.id)}
-                            >
-                                {item.persian_title}
-                            </Checkbox>
-                        </List.Item>
-                    )}
+                <Tree
+                    multiple
+                    checkable
+                    onExpand={onExpand}
+                    expandedKeys={expandedKeys}
+                    autoExpandParent={autoExpandParent}
+                    onCheck={onCheck}
+                    checkedKeys={checkedKeys}
+                    treeData={transformDataToTree(data)}
                 />
             ) : (
                 <Empty description="محصولی یافت نشد" />
@@ -39,5 +58,4 @@ const ProductsList = ({ selectedUserAndRoleId }) => {
     );
 };
 
-
-export default ProductsList
+export default ProductsList;
