@@ -1,6 +1,22 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMyAxios } from "../../utils/Api";
 
+
+export const useAccessListKey = () => ["access-user"];
+export const useuseAccessList = (queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: useAccessListKey(),
+    queryFn: () =>
+      id
+        ? myAxios
+            .get('/user/get-access/')
+            .then((response) => response?.data)
+        : Promise.resolve(null),
+    ...queryOptions,
+  });
+};
+
 export const useAccessOfUserByIdKey = (id) => ["access-user", id];
 export const useAccessOfUserByIdList = (id, queryOptions) => {
   const { myAxios } = useMyAxios();
@@ -15,6 +31,9 @@ export const useAccessOfUserByIdList = (id, queryOptions) => {
     ...queryOptions,
   });
 };
+
+
+
 
 export const useUnAccessOfUserByIdKey = (id) => ["unaccess-user", id];
 export const useUnAccessOfUserByIdList = (id, queryOptions) => {
