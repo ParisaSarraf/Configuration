@@ -2,7 +2,6 @@ import { useContext, useEffect } from "react";
 import { MainContext } from "../Services/AuthContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
 
 export const BASEURL = "http://87.248.150.51:8000/api/v1";
 

@@ -1,10 +1,11 @@
-import { Card, Empty, Spin, Alert } from "antd";
-import { useUnAccessProductsByUserAndRoleId } from "../../../QueryServises/accsessQuery";
 import { useState } from "react";
+import { useUnAccessProductsByUserAndRoleId } from "../../../QueryServises/accsessQuery";
+import { Alert, Card, Empty, Spin } from "antd";
 import Tree from "../../../components/Tree";
 
+const ProductsList = ({ selectedUserAndRoleId, setSelectedProducts }) => {
+    console.log(selectedUserAndRoleId);
 
-const ProductsList = ({ selectedUserAndRoleId }) => {
     const [checkedKeys, setCheckedKeys] = useState([]);
     const [expandedKeys, setExpandedKeys] = useState([]);
     const [autoExpandParent, setAutoExpandParent] = useState(true);
@@ -33,9 +34,13 @@ const ProductsList = ({ selectedUserAndRoleId }) => {
 
     const onCheck = (checkedKeysValue) => {
         setCheckedKeys(checkedKeysValue);
+        const productIds = checkedKeysValue
+            .filter(key => key.startsWith('product-'))
+            .map(key => parseInt(key.replace('product-', '')));
+        setSelectedProducts(productIds);
     };
 
-    if (isLoading) return <Spin />;
+    if (isLoading) return <Spin size="small" />;
     if (error) return <Alert message={`خطا: ${error.response?.data?.message || error.message}`} type="error" />;
 
     return (
@@ -58,4 +63,4 @@ const ProductsList = ({ selectedUserAndRoleId }) => {
     );
 };
 
-export default ProductsList;
+export default ProductsList

@@ -22,22 +22,7 @@ const UsersList = ({ refetch, selectedUserId, setSelectedUserId }) => {
         if (!users) return [];
 
         return users.map(user => ({
-            title:
-            //  (
-                // <div className='w-full fle x'>
-                    // {/* <Avatar
-                    //     src={user.temp_image ? `${BASEURL.replace("/api/v1", "")}${user.temp_image}` : null}
-                    //     alt={`${user.name} ${user.last_name}`}
-                    //     className=" w-6 h-6"
-                    // >
-                    //     {user.name.charAt(0)}
-                    // // </Avatar> */}
-                    // <span>{`${
-                        `${user.name} ${user.last_name}`
-                        // } ${user.last_name}`}</span>
-                // </div>
-            // )
-            ,
+            title: `${user.name} ${user.last_name}`,
             key: user.id,
             isLeaf: true,
             userId: user.id,
