@@ -27,7 +27,7 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
         tagId: modalData.tag.title,
         isUsable: modalData.isUsable,
         isReproducible: modalData.isReproducible,
-        parentId: modalData.parent_id.replace(""),
+        parentId: modalData.parent_id,
       });
     } else if (modalMode === "add") {
       form.resetFields();

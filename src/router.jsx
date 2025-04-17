@@ -12,6 +12,7 @@ import Rols from "./pages/Rols/Rols";
 import Setting from "./pages/Setting/Setting";
 import GoodsCategories from "./pages/GoodsCategories/GoodsCategories";
 import Access from "./pages/Access/Access.JSX";
+import RoleLifeCycle from "./pages/RoleLifeCycle/RoleLifeCycle";
 
 const router = createBrowserRouter([
   {
@@ -88,6 +89,15 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <Rols />
+      </ProtectedRoute>
+    ),
+    errorElement: <NotFound />
+  },
+  {
+    path: "/panel/system-managment/roles-life-cycle",
+    element: (
+      <ProtectedRoute>
+        <RoleLifeCycle />
       </ProtectedRoute>
     ),
     errorElement: <NotFound />

@@ -5,9 +5,6 @@ import { useRoleList } from '../../../QueryServises/roleQuery';
 const RolePermissionsTree = () => {
     const { isFetching, data: roleData, refetch } = useRoleList();
 
-    console.log(roleData);
-    
-
     return (
         <Tree
             data={roleData}

@@ -99,7 +99,7 @@ const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
                     });
                 };
 
-                return !isChildOfCurrent(PersonalityList, modalData?.id);
+                return !isChildOfCurrent(personalityList, modalData?.id);
             })
             .map(personality => ({
                 label: personality.name,

@@ -1,60 +1,60 @@
 import { Button, Form, Select, Transfer, message } from 'antd';
 import { useRoleList } from '../../../QueryServises/roleQuery';
-import { usePermissionList } from '../../../QueryServises/PermissionQuery';
 import { useState, useEffect } from 'react';
-import { useCreateRolePermission, usePutRolePermission, useRolePermissionById } from '../../../QueryServises/role&permission';
+import { useCreateRoleLifeCycle, usePutRoleLifeCycle, useRoleLifeCycleById } from '../../../QueryServises/roleLifecycleQuery';
+import { useLifeCycleList } from '../../../QueryServises/lifeCycleQuery';
 
-const RoleTransfer = ({ refetch }) => {
+const RoleLifeCycleTransfer = ({ refetch }) => {
     const [form] = Form.useForm();
     const [targetKeys, setTargetKeys] = useState([]);
     const [selectedRoleId, setSelectedRoleId] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
 
     const { data: roleData, isLoading: isFetchingRole } = useRoleList();
-    const { data: permissionData, isLoading: isFetchingPermission } = usePermissionList();
+    const { data: lifeCycleData, isLoading: isFetchingLifecycle } = useLifeCycleList();
+
     const {
-        data: rolePermissionData,
-        refetch: refetchRolePermission
-    } = useRolePermissionById(selectedRoleId);
+        data: rolelifeCycleData,
+        refetch: refetchRoleLifeCycle
+    } = useRoleLifeCycleById(selectedRoleId);
 
-    const { mutateAsync: addPermissions, isLoading: isAdding } = useCreateRolePermission();
-    const { mutateAsync: updatePermissions, isLoading: isUpdating } = usePutRolePermission();
+    const { mutateAsync: addRoleLifecycle, isLoading: isAdding } = useCreateRoleLifeCycle();
+    const { mutateAsync: updateRoleLifecycle, isLoading: isUpdating } = usePutRoleLifeCycle();
 
-    const formattedPermissions = permissionData?.map((permission) => ({
-        key: permission.id.toString(),
-        title: permission.name,
-        description: permission.description || `دسترسی ${permission.name}`,
+    const formattedLifeCycle = lifeCycleData?.map((roleLifeCycle) => ({
+        key: roleLifeCycle.id.toString(),
+        title: roleLifeCycle.title,
     })) || [];
 
     useEffect(() => {
-        if (rolePermissionData?.permissions?.length > 0) {
+        if (rolelifeCycleData?.role_life_cycle?.length > 0) {
             setIsEditing(true);
-            const permissionIds = rolePermissionData.permissions.map(p => p.id.toString());
-            setTargetKeys(permissionIds);
+            const roleLifecycleIds = rolelifeCycleData.role_life_cycle.map(p => p.life_cycle.id.toString());
+            setTargetKeys(roleLifecycleIds);
             form.setFieldsValue({
-                permissions_ids: permissionIds
+                life_cycles: roleLifecycleIds
             });
         } else {
             setIsEditing(false);
             setTargetKeys([]);
             form.setFieldsValue({
-                permissions_ids: []
+                life_cycles: []
             });
         }
-    }, [rolePermissionData, form]);
+    }, [rolelifeCycleData, form]);
 
     useEffect(() => {
         if (selectedRoleId) {
             form.setFieldsValue({
                 roles_ids: selectedRoleId,
-                permissions_ids: targetKeys
+                life_cycles: targetKeys
             });
         }
     }, [selectedRoleId, targetKeys, form]);
 
     const handleRoleChange = (roleId) => {
         setSelectedRoleId(roleId);
-        refetchRolePermission();
+        refetchRoleLifeCycle();
     };
 
     const handleReset = () => {
@@ -63,30 +63,30 @@ const RoleTransfer = ({ refetch }) => {
         setSelectedRoleId(null);
         setIsEditing(false);
     };
-
     const onFinish = async (values) => {
         try {
             if (isEditing) {
-                await updatePermissions({
-                    roleId: values.roles_ids,
-                    permission_ids: values.permissions_ids
+                await updateRoleLifecycle({
+                    lifeCycleId: selectedRoleId,
+                    life_cycles: values.life_cycles
                 });
-                message.success("دسترسی‌های سمت با موفقیت به‌روزرسانی شد");
-                refetch()
+                message.success("چرخه حیات های سمت با موفقیت به‌روزرسانی شد");
             } else {
-                const payload = {
-                    roles_ids: [values.roles_ids],
-                    permissions_ids: values.permissions_ids
-                };
-                await addPermissions(payload);
-                message.success("دسترسی‌های جدید با موفقیت اضافه شدند");
-                refetch();
+                const requests = values.life_cycles.map(life_cycle_id =>
+                    addRoleLifecycle({
+                        role_id: selectedRoleId,
+                        life_cycle_id: parseInt(life_cycle_id)
+                    })
+                );
+
+                await Promise.all(requests);
+                message.success("چرخه حیات های جدید با موفقیت اضافه شدند");
             }
-            refetch()
+            refetch();
             handleReset();
         } catch (error) {
-            console.error("Error saving permissions:", error.response?.data || error.message);
-            message.error("خطا در ذخیره دسترسی‌ها");
+            console.error("Error saving life cycles:", error.response?.data || error.message);
+            // message.error("خطا در ذخیره چرخه حیات ها");
         }
     };
 
@@ -98,13 +98,13 @@ const RoleTransfer = ({ refetch }) => {
             form={form}
             onFinish={onFinish}
             initialValues={{
-                roles_ids: selectedRoleId,
-                permissions_ids: targetKeys
+                role_id: selectedRoleId,
+                life_cycles: targetKeys
             }}
         >
             <Form.Item
                 label="نام سمت:"
-                name="roles_ids"
+                name="role_id"
                 rules={[{ required: true, message: 'لطفا یک سمت انتخاب کنید' }]}
             >
                 <Select
@@ -122,27 +122,19 @@ const RoleTransfer = ({ refetch }) => {
             </Form.Item>
 
             <Form.Item
-                name="permissions_ids"
-                // rules={[
-                //     {
-                //         required: true,
-                //         message: "حداقل یک دسترسی باید انتخاب شود",
-                //         type: 'array',
-                //         min: 1
-                //     }
-                // ]}
+                name="life_cycles"
             >
                 <Transfer
-                    dataSource={formattedPermissions}
+                    dataSource={formattedLifeCycle}
                     targetKeys={targetKeys}
                     onChange={(newTargetKeys) => {
                         setTargetKeys(newTargetKeys);
                         form.setFieldsValue({
-                            permissions_ids: newTargetKeys
+                            life_cycles: newTargetKeys
                         });
                     }}
                     render={item => item.title}
-                    titles={['لیست دسترسی‌ها', 'دسترسی‌های انتخاب شده']}
+                    titles={['لیست چرخه حیات', 'چرخه حیات های انتخاب شده']}
                     listStyle={{
                         width: '100%',
                         height: 400,
@@ -159,7 +151,7 @@ const RoleTransfer = ({ refetch }) => {
                         option.title.toLowerCase().includes(inputValue.toLowerCase()) ||
                         option.description.toLowerCase().includes(inputValue.toLowerCase())
                     }
-                    disabled={!selectedRoleId || isFetchingPermission}
+                    disabled={!selectedRoleId || isFetchingLifecycle}
                 />
             </Form.Item>
             <div className="flex justify-end gap-4">
@@ -182,4 +174,4 @@ const RoleTransfer = ({ refetch }) => {
     );
 };
 
-export default RoleTransfer;
+export default RoleLifeCycleTransfer;
