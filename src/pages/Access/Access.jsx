@@ -5,14 +5,18 @@ import RoleProductList from './_components/RoleProductList';
 import UsersList from './_components/UsersList';
 import { useState } from 'react';
 import ProductsList from './_components/ProductsList';
-import { ArrowRightOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import { useCreateAccessProducts, useDeleteAccessProducts } from '../../QueryServises/accsessQuery';
+
+import { PlusOutlined } from '@ant-design/icons';
+import { useCreateAccessProducts, useDeleteAccessProducts, useuseAccessList } from '../../QueryServises/accsessQuery';
 
 const { Text } = Typography;
 
 const Access = () => {
     const { refetch: userRefetch } = useUserList();
-    const { refetch: userRoleRefetch } = useUserList();
+    const { refetch: accessListRefetch } = useuseAccessList();
+
+    const navigate = useNavigate();
+
     const { mutateAsync: createAccessProducts } = useCreateAccessProducts();
     const { mutateAsync: deleteAccessProducts } = useDeleteAccessProducts();
     const [selectedUserId, setSelectedUserId] = useState(null);
@@ -20,10 +24,6 @@ const Access = () => {
     const [selectedProducts, setSelectedProducts] = useState([]);
 
     console.log(selectedUserId);
-    console.log(selectedUserAndRoleId);
-
-
-
     const handleAddAccess = async () => {
         if (!selectedUserAndRoleId?.length || selectedProducts.length === 0) {
             return message.warning('لطفاً کاربر، سمت و محصولات را انتخاب کنید.');
@@ -35,59 +35,19 @@ const Access = () => {
             product_ids: selectedProducts
         };
 
+
+
         try {
             await createAccessProducts(payload);
             message.success("محصول به سمت مورد نظر با موفقیت اضافه شد");
             userRefetch();
+            accessListRefetch()
         } catch (error) {
             message.error("مشکلی در اضافه کردن محصول به سمت پیش آمده است.");
             console.error(error);
         }
     };
 
-    // const handleDeleteAccess = async () => {
-    //     if (!selectedUserAndRoleId?.length || selectedProducts.length === 0) {
-    //         return message.warning('لطفاً کاربر، سمت و محصولات را انتخاب کنید.');
-    //     }
-    //     const [role_id, user_id] = selectedUserAndRoleId;
-    //     const accessIds = selectedProducts.map(productId => {
-    //         let accessId = null;
-
-    //         usersWithAccess?.forEach(user => {
-    //             if (user.id === user_id) {
-    //                 user.access.forEach(accessItem => {
-    //                     if (accessItem.product.id === productId) {
-    //                         accessId = accessItem.id;
-    //                     }
-    //                 });
-    //             }
-    //         });
-
-    //         return accessId;
-    //     }).filter(id => id !== null);
-
-    //     if (accessIds.length === 0) {
-    //         return message.warning('دسترسی‌های محصول انتخابی یافت نشد.');
-    //     }
-
-    //     const payload = {
-    //         user_id,
-    //         role_id,
-    //         access_ids: accessIds,
-    //     };
-
-    //     try {
-    //         await deleteAccessProducts(payload);
-    //         message.success("دسترسی محصول با موفقیت حذف شد");
-    //         userRefetch();
-    //     } catch (error) {
-    //         message.error("مشکلی در حذف دسترسی محصول پیش آمده است.");
-    //         console.error(error);
-    //     }
-    // };
-
-
-    const navigate = useNavigate();
 
     return (
         <div className="min-h-screen bg-Main p-2">
@@ -115,6 +75,7 @@ const Access = () => {
                         <Text strong className='text-center'>لیست سمت‌ها</Text>
                         <RoleProductList
                             refetch={userRefetch}
+                            refetchAccess={accessListRefetch}
                             selectedUserId={selectedUserId}
                             setSelectedUserId={setSelectedUserId}
                             setSelectedUserAndRoleId={setSelectedUserAndRoleId}

@@ -5,7 +5,7 @@ import { useState } from 'react';
 import Tree from '../../../components/Tree';
 
 const UsersList = ({ refetch, selectedUserId, setSelectedUserId }) => {
-    const { data: usersList, refetch: queryRefetch, isFetching, error } = useUserList();
+    const { data: usersList, isFetching, error } = useUserList();
     const [expandedKeys, setExpandedKeys] = useState([]);
     const [autoExpandParent, setAutoExpandParent] = useState(true);
 
@@ -23,7 +23,7 @@ const UsersList = ({ refetch, selectedUserId, setSelectedUserId }) => {
 
         return users.map(user => ({
             title: `${user.name} ${user.last_name}`,
-            key: user.id,
+            key: `user-${user.id}`,
             isLeaf: true,
             userId: user.id,
             style: {
