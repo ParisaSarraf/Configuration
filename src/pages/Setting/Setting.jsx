@@ -1,4 +1,4 @@
-import { Button } from 'antd'
+import { Button, Col, Row } from 'antd'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import Genus from './components/Genus'
@@ -20,12 +20,24 @@ const Setting = () => {
                     بازگشت به صفحه اصلی
                 </Button>
             </div>
-            <div className='grid grid-cols-3 gap-2'>
+            <div className='grid grid-cols-4 gap-1'>
+                {/* <Row justify="center" align="top"> */}
+                {/* <Col span={4}> */}
                 <Casing />
-                <LifeCycle />
+                {/* </Col> */}
+                {/* <Col span={4}> */}
+                {/* </Col> */}
+                {/* <Col span={4}> */}
                 <Personality />
+                {/* </Col> */}
+                {/* <Col span={4}> */}
                 <Genus />
+                {/* </Col> */}
+                {/* <Col span={4}> */}
                 <Precinct />
+                <LifeCycle />
+                {/* </Col> */}
+                {/* </Row> */}
             </div>
         </div>
     )

@@ -1,17 +1,21 @@
 import { useEffect } from "react";
 import Modal from "../../../components/Modal";
-import { Button, Col, Form, Input, message, Row, Switch } from "antd";
+import { Button, Col, Form, Input, message, Row, Select, Switch } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import {
   useCreateDocument,
   useUpdateDocument,
   useDocumentList,
 } from "../../../QueryServises/documentQuery";
+import { useLifeCycleList } from "../../../QueryServises/lifeCycleQuery";
 
-const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) => {
+const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, documentData }) => {
   const [form] = Form.useForm();
   const { isPending: isCreating, mutateAsync: createDocument } = useCreateDocument();
   const { isPending: isUpdating, mutateAsync: updateDocument } = useUpdateDocument();
+  const {
+    data: lifeCycleList,
+  } = useLifeCycleList();
   const { refetch } = useDocumentList();
 
   useEffect(() => {
@@ -20,8 +24,10 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) =
         code: modalData.code,
         persianTitle: modalData.persianTitle,
         englishTitle: modalData.englishTitle,
+        tagId: modalData.tag.title,
         isUsable: modalData.isUsable,
         isReproducible: modalData.isReproducible,
+        parentId: modalData.parent_id.replace(""),
       });
     } else if (modalMode === "add") {
       form.resetFields();
@@ -33,8 +39,11 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) =
       code: values.code,
       persianTitle: values.persianTitle,
       englishTitle: values.englishTitle,
+      tag_id: values.tagId,
       isUsable: values.isUsable,
       isReproducible: values.isReproducible,
+      ...(values.parentId !== undefined && { parent_id: values.parentId })
+
     };
 
     try {
@@ -51,6 +60,51 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) =
       message.error("موفقیت آمیز نبود، دوباره امتحان کنید");
       console.error("Error details:", error.response?.data);
     }
+  };
+
+  const getParentOptions = () => {
+    if (!documentData) return [];
+
+    const flattenDocumentList = (items) => {
+      let result = [];
+      items.forEach(item => {
+        result.push({
+          id: item.id,
+          persianTitle: item.persianTitle,
+          parentId: item.parentId
+        });
+        if (item.children && item.children.length > 0) {
+          result = result.concat(flattenDocumentList(item.children));
+        }
+      });
+      return result;
+    };
+
+    const allDocuments = flattenDocumentList(documentData);
+
+    return allDocuments
+      .filter(document => {
+        if (modalMode === "edit") {
+          if (document.id === modalData?.id) return false;
+
+          const isChildOfCurrent = (items, targetId) => {
+            return items.some(item => {
+              if (item.id === targetId) return true;
+              if (item.children && item.children.length > 0) {
+                return isChildOfCurrent(item.children, targetId);
+              }
+              return false;
+            });
+          };
+          return !isChildOfCurrent([modalData], document.id);
+        }
+        return true;
+      })
+      .map(document => ({
+        label: document.persianTitle,
+        value: document.id,
+        disabled: modalMode === "edit" && document.id === modalData?.parentId
+      }));
   };
 
   return (
@@ -73,6 +127,22 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) =
       >
         <Form form={form} layout="vertical" className="p-4" onFinish={onFinishForm}>
           <Row gutter={[24, 16]}>
+            <Col xs={24} sm={12} md={6} lg={6}>
+              <Form.Item
+                label="شاخه والد"
+                name="parentId"
+              >
+                <Select
+                  showSearch
+                  placeholder="محصول والد را انتخاب کنید"
+                  filterOption={(input, option) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                  options={getParentOptions()}
+                  allowClear
+                />
+              </Form.Item>
+            </Col>
             <Col xs={24} sm={12} md={6} lg={4}>
               <Form.Item
                 label="کد"
@@ -100,6 +170,24 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) =
                 rules={[{ required: true, message: "لطفاً نام انگلیسی را وارد کنید" }]}
               >
                 <Input />
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} sm={12} md={8} lg={6}>
+              <Form.Item
+                label="چرخه حیات"
+                name="tagId"
+                rules={[{ required: true, message: "لطفاً نام انگلیسی را وارد کنید" }]}
+              >
+                <Select
+                  showSearch
+                  placeholder="چرخه حیات"
+                  options={lifeCycleList?.map(lifecycle => ({
+                    label: `${lifecycle.title}`,
+                    value: lifecycle.id
+                  }))}
+                  allowClear
+                />
               </Form.Item>
             </Col>
 

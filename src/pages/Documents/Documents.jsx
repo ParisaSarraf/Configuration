@@ -9,7 +9,7 @@ import { useProductContext } from "../../Services/ProductContext";
 
 const Documents = () => {
   const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
-  const { refetch } = useDocumentList()
+  const { data: documentData, refetch } = useDocumentList()
   const { currentProduct } = useProductContext();
 
 
@@ -25,6 +25,7 @@ const Documents = () => {
             closeModal={closeModal}
             setModal={setModal}
             refetch={refetch}
+            documentData={documentData}
           />
         }
       >

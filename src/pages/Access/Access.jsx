@@ -5,7 +5,7 @@ import RoleProductList from './_components/RoleProductList';
 import UsersList from './_components/UsersList';
 import { useState } from 'react';
 import ProductsList from './_components/ProductsList';
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { ArrowRightOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { useCreateAccessProducts, useDeleteAccessProducts } from '../../QueryServises/accsessQuery';
 
 const { Text } = Typography;
@@ -21,7 +21,7 @@ const Access = () => {
 
     console.log(selectedUserId);
     console.log(selectedUserAndRoleId);
-    
+
 
 
     const handleAddAccess = async () => {
@@ -129,9 +129,9 @@ const Access = () => {
                             className="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors"
                             onClick={handleAddAccess}
                         >
-                            <PlusOutlined className="text-lg" />
+                            <ArrowRightOutlined className="text-lg" />
                         </button>
-               
+
                     </div>
 
                     <div className='flex-1 flex flex-col gap-4 border rounded p-4'>

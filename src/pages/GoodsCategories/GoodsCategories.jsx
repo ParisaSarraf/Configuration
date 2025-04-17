@@ -19,11 +19,11 @@ const GoodsCategories = () => {
       key: '3',
       children: 'الزامات',
     },
-    {
-      label: ` الزامات جدید`,
-      key: '4',
-      children: 'الزامات جدید',
-    },
+    // {
+    //   label: ` الزامات جدید`,
+    //   key: '4',
+    //   children: 'الزامات جدید',
+    // },
     {
       label: ` تجارب و خرابی `,
       key: '5',
