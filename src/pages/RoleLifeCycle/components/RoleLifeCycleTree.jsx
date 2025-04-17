@@ -40,10 +40,6 @@ const RoleLifeCycleTree = ({ setModal, refetch }) => {
             titleField="title"
             keyField="key"
             childrenField="children"
-            onRightClickAction={(action, node) => {
-                if (action === 'edit' && !node.permission) handleEditRole(node);
-                if (action === 'delete' && !node.permission) handleDeleteRole(node);
-            }}
             showRightClickMenu={(node) => !node.permission}
         />
     );
