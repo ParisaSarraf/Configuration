@@ -6,7 +6,7 @@ import UsersList from './_components/UsersList';
 import { useState } from 'react';
 import ProductsList from './_components/ProductsList';
 
-import { PlusOutlined } from '@ant-design/icons';
+import { ArrowRightOutlined, PlusOutlined } from '@ant-design/icons';
 import { useCreateAccessProducts, useDeleteAccessProducts, useuseAccessList } from '../../QueryServises/accsessQuery';
 
 const { Text } = Typography;
