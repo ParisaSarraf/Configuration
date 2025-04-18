@@ -6,7 +6,7 @@ import {
     useDeleteCoreSetting
 } from '../../../../QueryServises/settingQuery';
 import CasingModal from './components/CasingModal';
-import { CasingCol } from './components/CasingCol';
+import { CasingColumns } from './components/CasingColumns';
 
 const Casing = () => {
     const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
@@ -56,7 +56,7 @@ const Casing = () => {
             loading={isFetching || isDeleting}
         >
             <Table
-                columns={CasingCol({ handleDelete, handleEdit })}
+                columns={CasingColumns({ handleDelete, handleEdit })}
                 dataSource={casingData}
                 rowKey="id"
                 loading={isFetching}

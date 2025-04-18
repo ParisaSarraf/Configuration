@@ -1,6 +1,6 @@
 import { Button, Flex } from "antd";
 
-export const CasingCol = ({ handleDelete, handleEdit }) => [
+export const CasingColumns = ({ handleDelete, handleEdit }) => [
     {
         title: 'نام',
         dataIndex: 'name',
