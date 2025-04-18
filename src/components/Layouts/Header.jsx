@@ -117,7 +117,7 @@ const CustomHeader = () => {
 
 
   return (
-    <header className="bg-Box rounded-lg my-2 mx-2 text-black ps-2 flex flex-row items-center justify-between h-12">
+    <header className="bg-white rounded-lg my-2 mx-2 text-black ps-2 flex flex-row items-center justify-between h-12">
       <div className="flex flex-row gap-2 items-center">
         <p className="hidden md:block">سامانه جامع سیستم مدیریت پروژه (سما)</p>
       </div>

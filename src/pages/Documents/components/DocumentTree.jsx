@@ -13,26 +13,26 @@ const DocumentTree = ({ setModal }) => {
   const transformDataToTreeFormat = (documentData) => {
     if (!documentData) return [];
 
-    const documents = Array.isArray(documentData) ? documentData : [documentData];
-    return documents.map((document) => ({
-      title: document.persianTitle,
-      key: `document-${document.id}`,
-      id: document.id,
-      tag: document.tag?.title,
-      code: document.code,
-      children: Array.isArray(document.children)
-        ? document.children.map((child) => ({
-          title: child.persianTitle,
-          key: `document-${child.id}-${document.id}`,
-          id: child.id,
-          tag: child.tag?.title,
-          code: child.code,
-          isLeaf: child.children?.length === 0
-        }))
+    const transformNode = (node) => ({
+      title: node.persianTitle || 'بدون عنوان',
+      key: `document-${node.id}`,
+      id: node.id,
+      tag: node.tag?.title,
+      code: node.code,
+      englishTitle: node.englishTitle,
+      isUsable: node.isUsable,
+      isReproducible: node.isReproducible,
+      parent: node.parent_id,
+      children: Array.isArray(node.children)
+        ? node.children.map(child => transformNode(child))
         : [],
-      isLeaf: document.children?.length === 0
-    }));
+      isLeaf: node.children?.length === 0
+    });
+
+    const documents = Array.isArray(documentData) ? documentData : [documentData];
+    return documents.map(document => transformNode(document));
   };
+
 
   const handleRightClickAction = (actionKey, node) => {
     const documentId = node.id;
@@ -71,14 +71,15 @@ const DocumentTree = ({ setModal }) => {
       setModal({ mode: "edit", data: { ...node } });
     }
   };
+  const treeData = transformDataToTreeFormat(documentData);
+
 
   return (
     <Tree
       className="custom-tree"
-      data={documentData}
+      data={treeData}
       isLoading={isFetching}
       titleField="persianTitle"
-      transformData={transformDataToTreeFormat}
       showLine
       blockNode
       showRightClickMenu={true}

@@ -4,6 +4,7 @@ import { useCreateProduct, useUpdateProduct } from "../../../QueryServises/produ
 import { useOneCoreSetting } from "../../../QueryServises/settingQuery";
 import { useGenusProductList } from "../../../QueryServises/genusQuery";
 import Modal from "../../../components/Modal";
+import PersonalityModels from "../../../components/PesonalityModels";
 
 const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch, productData }) => {
     const [form] = Form.useForm();
@@ -16,9 +17,9 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
-                persian_title: modalData.name || '',
+                persian_title: modalData.name,
                 code: modalData.code,
-                alternative_code: modalData.alternative_code,
+                // alternative_code: modalData.alternative_code,
                 product_number: modalData.product_number,
                 store_code: modalData.store_code,
                 status: modalData.status,
@@ -45,50 +46,43 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
             });
         } else if (modalMode === "add") {
             form.resetFields();
-            form.setFieldsValue({
-                status: 'active',
-                parent_id: null,
-                pro_type: null,
-                weight: null,
-                height: null,
-                width: null,
-                length: null,
-                price: null,
-                external_diagonal: null,
-                internal_diagonal: null
-            });
         }
     }, [modalMode, modalData, form]);
 
     const onFinish = (values) => {
         const payload = {
             parent_id: values.parent_id,
-            persian_title: values.persian_title,
+            casing_id: values.casing_id,
+            genus_id: values.genus_id,
+            alternative_genus_id: values.alternative_genus_id,
+            parent_code_id: values.parent_code_id,
+            personality_ids: values.personality_ids,
             code: values.code,
-            alternative_code: values.alternative_code || null,
-            product_number: values.product_number || null,
-            store_code: values.store_code || null,
-            status: values.status || 'active',
-            weight: values.weight ? Number(values.weight) : null,
-            height: values.height ? Number(values.height) : null,
-            width: values.width ? Number(values.width) : null,
-            length: values.length ? Number(values.length) : null,
-            price: values.price ? Number(values.price) : null,
-            external_diagonal: values.external_diagonal ? Number(values.external_diagonal) : null,
-            internal_diagonal: values.internal_diagonal ? Number(values.internal_diagonal) : null,
-            casing_id: values.casing_id ? Number(values.casing_id) : null,
-            genus_id: values.genus_id ? Number(values.genus_id) : null,
-            personality_id: values.personality_id ? Number(values.personality_id) : null,
-            pro_type: values.pro_type ? Number(values.pro_type) : null,
-            description: values.description || null,
-            brand1: values.brand1 || null,
-            brand1_desc: values.brand1_desc || null,
-            brand2: values.brand2 || null,
-            brand2_desc: values.brand2_desc || null,
-            employer_code: values.employer_code || null,
-            standard_code: values.standard_code || null,
-            alternative_genus_id: values.alternative_genus_id ? Number(values.alternative_genus_id) : null
+            persian_title: values.persian_title,
+            product_number: values.product_number,
+            alternative_code: values.alternative_code,
+            pro_type: values.pro_type,
+            store_code: values.store_code,
+            status: values.status,
+            weight: values.weight,
+            height: values.height,
+            width: values.width,
+            length: values.length,
+            price: values.price,
+            external_diagonal: values.external_diagonal,
+            internal_diagonal: values.internal_diagonal,
+            description: values.description,
+            personality_type: values.personality_type,
+            brand1: values.brand1,
+            brand1_desc: values.brand1_desc,
+            brand2: values.brand2,
+            brand2_desc: values.brand2_desc,
+            employer_code: values.employer_code,
+            standard_code: values.standard_code,
+            final_code: values.final_code,
         };
+        console.log(payload);
+
 
         if (modalMode === "add") {
             createProduct(payload)
@@ -186,10 +180,6 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
                     form={form}
                     layout="horizontal"
                     onFinish={onFinish}
-                    initialValues={{
-                        status: 'active',
-                        parent_id: null
-                    }}
                 >
                     <Row gutter={[16, 16]}>
                         <Col span={8}>
@@ -228,17 +218,17 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
                                 name="code"
                                 rules={[{ required: true, message: "لطفاً کد محصول را وارد کنید" }]}
                             >
-                                <Input addonBefore="کد محصول"  />
+                                <Input addonBefore="کد محصول" />
                             </Form.Item>
                         </Col>
                         <Col span={8}>
                             <Form.Item name="brand1">
-                                <Input addonBefore="نام تجاری 1"  />
+                                <Input addonBefore="نام تجاری 1" />
                             </Form.Item>
                         </Col>
                         <Col span={8}>
                             <Form.Item name="brand1_desc">
-                                <Input addonBefore="شرح نام تجاری1"  />
+                                <Input addonBefore="شرح نام تجاری1" />
                             </Form.Item>
                         </Col>
                         <Col span={8}>
@@ -256,7 +246,7 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
                         </Col>
                         <Col span={8}>
                             <Form.Item name="brand2_desc">
-                                <Input addonBefore="شرح نام تجاری2"/>
+                                <Input addonBefore="شرح نام تجاری2" />
                             </Form.Item>
                         </Col>
 
@@ -267,7 +257,7 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
                         </Col>
                         <Col span={8}>
                             <Form.Item name="standard_code">
-                                <Input addonBefore="کد استاندارد"  />
+                                <Input addonBefore="کد استاندارد" />
                             </Form.Item>
                         </Col>
                         <Col span={8}>
@@ -283,16 +273,9 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
                         </Col>
                         <Divider dashed />
 
-                        <Col span={8}>
+                        <Col span={16}>
                             <Form.Item name="personality_id">
-                                <Select
-                                    placeholder="هویت"
-                                    options={personalityData?.map(personality => ({
-                                        label: `${personality.name}`,
-                                        value: personality.id
-                                    }))}
-                                    allowClear
-                                />
+                                <PersonalityModels />
                             </Form.Item>
                         </Col>
                         <Col span={8}>
@@ -395,7 +378,7 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
                             </Form.Item>
                         </Col>
                         <Col span={8}>
-                            <Form.Item name="code">
+                            <Form.Item name="final_code">
                                 <Input addonBefore="کد نهایی" />
                             </Form.Item>
                         </Col>
