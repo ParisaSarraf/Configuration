@@ -7,12 +7,11 @@ import ForgetPassword from "./pages/ForgetPassword/ForgetPassword";
 import SystemManagment from "./pages/SystemManagment";
 import Documents from "./pages/Documents/Documents";
 import Users from "./pages/Users/Users"
-import Permissions from "./pages/Permission/Permissions";
 import Rols from "./pages/Rols/Rols";
 import Setting from "./pages/Setting/Setting";
 import GoodsCategories from "./pages/GoodsCategories/GoodsCategories";
-import Access from "./pages/Access/Access.JSX";
 import RoleLifeCycle from "./pages/RoleLifeCycle/RoleLifeCycle";
+import Access from "./pages/Access/Access";
 
 const router = createBrowserRouter([
   {
