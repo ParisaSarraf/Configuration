@@ -113,9 +113,7 @@ const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
                 className="modal-button"
                 icon={<PlusOutlined className="text-center" />}
                 onClick={() => setModal({ mode: "add", data: null })}
-            >
-                <span className="xs:hidden sm:hidden md:inline">افزودن هویت</span>
-            </Button>
+                />
             <Modal
                 isOpen={isOpen}
                 title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} هویت`}

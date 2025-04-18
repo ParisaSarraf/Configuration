@@ -119,91 +119,147 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
       <Modal
         isOpen={isOpen}
         title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} سند`}
-        size={700}
+        size={400}
         onClose={closeModal}
         onSubmit={() => form.submit()}
         mode={modalMode}
         loading={isCreating || isUpdating}
+        bodyStyle={{
+          padding: 0
+        }}
+        style={{
+          top: 20
+        }}
       >
-        <Form form={form} layout="vertical" className="p-4" onFinish={onFinishForm}>
-          <Row gutter={[24, 16]}>
-            <Col xs={24} sm={12} md={6} lg={6}>
-              <Form.Item
-                label="شاخه والد"
-                name="parentId"
-              >
-                <Select
-                  showSearch
-                  placeholder="محصول والد را انتخاب کنید"
-                  filterOption={(input, option) =>
-                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                  }
-                  options={getParentOptions()}
-                  allowClear
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12} md={6} lg={4}>
-              <Form.Item
-                label="کد"
-                name="code"
-                rules={[{ required: true, message: "لطفاً کد را وارد کنید" }]}
-              >
-                <Input />
-              </Form.Item>
-            </Col>
+        <div style={{
+          maxHeight: "70vh",
+          overflowY: "auto",
+          padding: "0 24px"
+        }}>
+          <Form
+            form={form}
+            layout="vertical"
+            className="p-4"
+            onFinish={onFinishForm}
+          >
+            <Row gutter={[24, 16]}>
+              {/* ردیف اول */}
+              <Col span={24}>
+                <Form.Item
+                  label="شاخه والد"
+                  name="parentId"
+                  tooltip="محصول والد را انتخاب کنید"
+                >
+                  <Select
+                    showSearch
+                    placeholder="انتخاب کنید..."
+                    filterOption={(input, option) =>
+                      (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                    }
+                    options={getParentOptions()}
+                    allowClear
+                  />
+                </Form.Item>
+              </Col>
 
-            <Col xs={24} sm={12} md={8} lg={6}>
-              <Form.Item
-                label="نام فارسی"
-                name="persianTitle"
-                rules={[{ required: true, message: "لطفاً نام فارسی را وارد کنید" }]}
-              >
-                <Input />
-              </Form.Item>
-            </Col>
+              <Col span={24}>
+                <Form.Item
+                  label="کد محصول"
+                  name="code"
+                  rules={[{
+                    required: true,
+                    message: "لطفاً کد محصول را وارد کنید"
+                  }]}
+                  tooltip="کد منحصر به فرد محصول"
+                >
+                  <Input placeholder="مثال: PRD-001" />
+                </Form.Item>
+              </Col>
 
-            <Col xs={24} sm={12} md={8} lg={6}>
-              <Form.Item
-                label="نام انگلیسی"
-                name="englishTitle"
-                rules={[{ required: true, message: "لطفاً نام انگلیسی را وارد کنید" }]}
-              >
-                <Input />
-              </Form.Item>
-            </Col>
+              <Col span={24}>
+                <Form.Item
+                  label="نام فارسی"
+                  name="persianTitle"
+                  rules={[{
+                    required: true,
+                    message: "لطفاً نام فارسی محصول را وارد کنید"
+                  }]}
+                >
+                  <Input placeholder="نام فارسی محصول" />
+                </Form.Item>
+              </Col>
 
-            <Col xs={24} sm={12} md={8} lg={6}>
-              <Form.Item
-                label="چرخه حیات"
-                name="tagId"
-                rules={[{ required: true, message: "لطفاً نام انگلیسی را وارد کنید" }]}
-              >
-                <Select
-                  showSearch
-                  placeholder="چرخه حیات"
-                  options={lifeCycleList?.map(lifecycle => ({
-                    label: `${lifecycle.title}`,
-                    value: lifecycle.id
-                  }))}
-                  allowClear
-                />
-              </Form.Item>
-            </Col>
+              <Col span={24}>
+                <Form.Item
+                  label="نام انگلیسی"
+                  name="englishTitle"
+                  rules={[{
+                    required: true,
+                    message: "لطفاً نام انگلیسی محصول را وارد کنید",
+                    pattern: {
+                      value: /^[a-zA-Z\s]+$/,
+                      message: "فقط حروف انگلیسی مجاز است"
+                    }
+                  }]}
+                >
+                  <Input placeholder="English product name" />
+                </Form.Item>
+              </Col>
 
-            <Col xs={24} sm={12} md={6} lg={4}>
-              <Form.Item label="قابل قبول" name="isUsable" valuePropName="checked">
-                <Switch checkedChildren="بله" unCheckedChildren="خیر" className="bg-gray-300" />
-              </Form.Item>
-            </Col>
+              {/* ردیف دوم */}
+              <Col span={24}>
+                <Form.Item
+                  label="چرخه حیات محصول"
+                  name="tagId"
+                  rules={[{
+                    required: true,
+                    message: "لطفاً چرخه حیات را انتخاب کنید"
+                  }]}
+                >
+                  <Select
+                    showSearch
+                    placeholder="انتخاب چرخه حیات..."
+                    options={lifeCycleList?.map(lifecycle => ({
+                      label: lifecycle.title,
+                      value: lifecycle.id
+                    }))}
+                    allowClear
+                  />
+                </Form.Item>
+              </Col>
 
-            <Col xs={24} sm={12} md={6} lg={4}>
-              <Form.Item label="قابل تولید" name="isReproducible" valuePropName="checked">
-                <Switch checkedChildren="بله" unCheckedChildren="خیر" className="bg-gray-300" />
-              </Form.Item>
-            </Col>
-          </Row>
-        </Form>
+              <Col span={8}>
+                <Form.Item
+                  label="قابل استفاده"
+                  name="isUsable"
+                  valuePropName="checked"
+                  tooltip="آیا این محصول قابل استفاده است؟"
+                >
+                  <Switch
+                    checkedChildren="بله"
+                    unCheckedChildren="خیر"
+                    className="bg-gray-300"
+                  />
+                </Form.Item>
+              </Col>
+
+              <Col span={8}>
+                <Form.Item
+                  label="قابل تولید"
+                  name="isReproducible"
+                  valuePropName="checked"
+                  tooltip="آیا این محصول قابل تولید مجدد است؟"
+                >
+                  <Switch
+                    checkedChildren="بله"
+                    unCheckedChildren="خیر"
+                    className="bg-gray-300"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+          </Form>
+        </div>
       </Modal>
     </>
   );

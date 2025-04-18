@@ -1,9 +1,9 @@
-import { Col, Form, Input, InputNumber, message, Row, Select } from "antd";
+import { Col, Divider, Form, Input, InputNumber, message, Row, Select } from "antd";
 import React, { useEffect } from "react";
-import Modal from "../../../components/Modal";
 import { useCreateProduct, useUpdateProduct } from "../../../QueryServises/productQuery";
 import { useOneCoreSetting } from "../../../QueryServises/settingQuery";
 import { useGenusProductList } from "../../../QueryServises/genusQuery";
+import Modal from "../../../components/Modal";
 
 const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch, productData }) => {
     const [form] = Form.useForm();
@@ -170,327 +170,253 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
             onSubmit={() => form.submit()}
             mode={modalMode}
             loading={isCreating || isUpdating}
+            bodyStyle={{
+                padding: 0
+            }}
+            style={{
+                top: 20
+            }}
         >
-            <Form
-                form={form}
-                layout="horizontal"
-                onFinish={onFinish}
-                initialValues={{
-                    status: 'active',
-                    parent_id: null
-                }}
-            >
-                <Row gutter={[14, 14]}>
-                    {/* First Row */}
-                    <Col span={6}>
-                        <Form.Item
-                            name="parent_id"
-                            label="شاخه والد"
-                        >
-                            <Select
-                                showSearch
-                                placeholder="انتخاب کنید"
-                                options={getParentOptions()}
-                                allowClear
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            name="parent_code_id"
-                            label="ارث بری کد"
-                        >
-                            <Select
-                                showSearch
-                                placeholder="پیشفرض"
-                                options={getParentOptions()}
-                                allowClear
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            name="persian_title"
-                            label="عنوان فارسی"
-                            rules={[{ required: true, message: "لطفاً عنوان فارسی را وارد کنید" }]}
-                        >
-                            <Input placeholder="عنوان فارسی" />
-                        </Form.Item>
-                    </Col>
+            <div style={{
+                maxHeight: "70vh",
+                overflowY: "auto",
+                padding: "0 24px"
+            }}>
+                <Form
+                    form={form}
+                    layout="horizontal"
+                    onFinish={onFinish}
+                    initialValues={{
+                        status: 'active',
+                        parent_id: null
+                    }}
+                >
+                    <Row gutter={[16, 16]}>
+                        <Col span={8}>
+                            <Form.Item name="parent_id">
+                                <Select
+                                    addonBefore="شاخه والد"
+                                    showSearch
+                                    placeholder=" شاخه والد"
+                                    options={getParentOptions()}
+                                    allowClear
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item name="parent_code_id">
+                                <Select
+                                    addonBefore="ارث بری کد"
+                                    showSearch
+                                    placeholder="ارث بری کد"
+                                    options={getParentOptions()}
+                                    allowClear
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item
+                                name="persian_title"
+                                rules={[{ required: true, message: "لطفاً عنوان فارسی را وارد کنید" }]}
+                            >
+                                <Input addonBefore="عنوان فارسی" />
+                            </Form.Item>
+                        </Col>
 
-                    {/* Second Row */}
-                    <Col span={6}>
-                        <Form.Item
-                            name="code"
-                            label="کد محصول"
-                            rules={[{ required: true, message: "لطفاً کد محصول را وارد کنید" }]}
-                        >
-                            <Input placeholder="پیشفرض با شمارنده" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            name="brand1"
-                            label="نام تجاری 1"
-                        >
-                            <Input placeholder="نام تجاری 1" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            name="brand1_desc"
-                            label="شرح نام تجاری1"
-                        >
-                            <Input placeholder="شرح نام تجاری1" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            name="brand2_desc"
-                            label="شرح نام تجاری2"
-                        >
-                            <Input placeholder="شرح نام تجاری2" />
-                        </Form.Item>
-                    </Col>
+                        <Col span={8}>
+                            <Form.Item
+                                name="code"
+                                rules={[{ required: true, message: "لطفاً کد محصول را وارد کنید" }]}
+                            >
+                                <Input addonBefore="کد محصول"  />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item name="brand1">
+                                <Input addonBefore="نام تجاری 1"  />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item name="brand1_desc">
+                                <Input addonBefore="شرح نام تجاری1"  />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item name="product_number">
+                                <InputNumber
+                                    addonBefore="تعداد"
+                                    style={{ width: '100%' }}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item name="brand2">
+                                <Input addonBefore="نام تجاری 2" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item name="brand2_desc">
+                                <Input addonBefore="شرح نام تجاری2"/>
+                            </Form.Item>
+                        </Col>
 
-                    {/* Third Row */}
-                    <Col span={6}>
-                        <Form.Item
-                            name="product_number"
-                            label="تعداد"
-                        >
-                            <InputNumber style={{ width: '100%' }} placeholder="تعداد" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            name="brand2"
-                            label="نام تجاری 2"
-                        >
-                            <Input placeholder="نام تجاری 2" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            name="brand2_desc"
-                            label="شرح نام تجاری2"
-                        >
-                            <Input placeholder="شرح نام تجاری2" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            name="status"
-                            label="وضعیت"
-                        >
-                            <Select
-                                placeholder="پیشفرض"
-                                options={[
-                                    { label: 'فعال', value: 'active' },
-                                    { label: 'غیرفعال', value: 'inactive' }
-                                ]}
-                            />
-                        </Form.Item>
-                    </Col>
+                        <Col span={8}>
+                            <Form.Item name="employer_code">
+                                <Input addonBefore="کدکارفرما" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item name="standard_code">
+                                <Input addonBefore="کد استاندارد"  />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item name="status">
+                                <Select
+                                    addonBefore="وضعیت"
+                                    options={[
+                                        { label: 'فعال', value: 'active' },
+                                        { label: 'غیرفعال', value: 'inactive' }
+                                    ]}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Divider dashed />
 
-                    {/* Fourth Row */}
-                    <Col span={6}>
-                        <Form.Item
-                            name="employer_code"
-                            label="کدکارفرما"
-                        >
-                            <Input placeholder="کدکارفرما" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            name="standard_code"
-                            label="کد استاندارد"
-                        >
-                            <Input placeholder="کد استاندارد" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            name="store_code"
-                            label="لیست"
-                        >
-                            <Input placeholder="لیست" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            name="status"
-                            label="وضعیت"
-                        >
-                            <Input placeholder="پیشفرض" />
-                        </Form.Item>
-                    </Col>
+                        <Col span={8}>
+                            <Form.Item name="personality_id">
+                                <Select
+                                    placeholder="هویت"
+                                    options={personalityData?.map(personality => ({
+                                        label: `${personality.name}`,
+                                        value: personality.id
+                                    }))}
+                                    allowClear
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item name="genus_id">
+                                <Select
+                                    placeholder="جنس"
+                                    options={genusData?.map(genus => ({
+                                        label: `${genus.name}`,
+                                        value: genus.id
+                                    }))}
+                                    allowClear
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item name="alternative_genus_id">
+                                <Select
+                                    placeholder="جنس جایگزین"
+                                    options={genusData?.map(genus => ({
+                                        label: `${genus.name}`,
+                                        value: genus.id
+                                    }))}
+                                    allowClear
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item name="casing_id">
+                                <Select
+                                    placeholder="پوشش"
+                                    options={casingData?.map(casing => ({
+                                        label: `${casing.name}`,
+                                        value: casing.id
+                                    }))}
+                                    allowClear
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Divider dashed />
 
-                    {/* Fifth Row */}
-                    <Col span={6}>
-                        <Form.Item
-                            name="personality_id"
-                            label="هویت"
-                        >
-                            <Select
-                                placeholder="از روی لیست/توضیحات کامل"
-                                options={personalityData?.map(personality => ({
-                                    label: `${personality.name}`,
-                                    value: personality.id
-                                }))}
-                                allowClear
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            name="genus_id"
-                            label="جنس"
-                        >
-                            <Select
-                                placeholder="از روی لیست"
-                                options={genusData?.map(genus => ({
-                                    label: `${genus.name}`,
-                                    value: genus.id
-                                }))}
-                                allowClear
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            name="alternative_genus_id"
-                            label="جنس جایگزین"
-                        >
-                            <Select
-                                placeholder="از روی لیست"
-                                options={genusData?.map(genus => ({
-                                    label: `${genus.name}`,
-                                    value: genus.id
-                                }))}
-                                allowClear
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            name="casing_id"
-                            label="پوشش"
-                        >
-                            <Select
-                                placeholder="از روی لیست"
-                                options={casingData?.map(casing => ({
-                                    label: `${casing.name}`,
-                                    value: casing.id
-                                }))}
-                                allowClear
-                            />
-                        </Form.Item>
-                    </Col>
+                        <Col span={8}>
+                            <Form.Item name="length">
+                                <InputNumber
+                                    addonBefore="طول"
+                                    style={{ width: '100%' }}
+                                />
+                            </Form.Item>
+                        </Col>
 
-                    {/* Sixth Row */}
-                    <Col span={6}>
-                        <Form.Item
-                            name="width"
-                            label="عرض"
-                        >
-                            <InputNumber style={{ width: '100%' }} placeholder="عرض" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            name="height"
-                            label="ارتفاع"
-                        >
-                            <InputNumber style={{ width: '100%' }} placeholder="ارتفاع" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            name="weight"
-                            label="وزن"
-                        >
-                            <InputNumber style={{ width: '100%' }} placeholder="وزن" />
-                        </Form.Item>
-                    </Col>
+                        <Col span={8}>
+                            <Form.Item name="width">
+                                <InputNumber
+                                    addonBefore="عرض"
+                                    style={{ width: '100%' }}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item name="height">
+                                <InputNumber
+                                    addonBefore="ارتفاع"
+                                    style={{ width: '100%' }}
+                                />
+                            </Form.Item>
+                        </Col>
 
-                    {/* Seventh Row */}
-                    <Col span={6}>
-                        <Form.Item
-                            name="length"
-                            label="طول"
-                        >
-                            <InputNumber style={{ width: '100%' }} placeholder="طول" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            name="internal_diagonal"
-                            label="قطر داخل"
-                        >
-                            <InputNumber style={{ width: '100%' }} placeholder="قطر داخل" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            name="external_diagonal"
-                            label="قطر خارجی"
-                        >
-                            <InputNumber style={{ width: '100%' }} placeholder="قطر خارجی" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            name="weight"
-                            label="وزن"
-                        >
-                            <InputNumber style={{ width: '100%' }} placeholder="وزن" />
-                        </Form.Item>
-                    </Col>
+                        <Col span={8}>
+                            <Form.Item name="internal_diagonal">
+                                <InputNumber
+                                    addonBefore="قطر داخل"
+                                    style={{ width: '100%' }}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item name="external_diagonal">
+                                <InputNumber
+                                    addonBefore="قطر خارجی"
+                                    style={{ width: '100%' }}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item name="weight">
+                                <InputNumber
+                                    addonBefore="وزن"
+                                    style={{ width: '100%' }}
+                                />
+                            </Form.Item>
+                        </Col>
 
-                    {/* Eighth Row */}
-                    <Col span={6}>
-                        <Form.Item
-                            name="price"
-                            label="قیمت"
-                        >
-                            <InputNumber
-                                style={{ width: '100%' }}
-                                placeholder="قیمت"
-                                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '،')}
-                                parser={(value) => value.replace(/\$\s?|(،*)/g, '')}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            name="code"
-                            label="کد نهایی"
-                        >
-                            <Input placeholder="کد نهایی" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            name="store_code"
-                            label="کد انبار"
-                        >
-                            <Input placeholder="کد انبار" />
-                        </Form.Item>
-                    </Col>
+                        <Col span={8}>
+                            <Form.Item name="price">
+                                <InputNumber
+                                    addonBefore="قیمت"
+                                    style={{ width: '100%' }}
+                                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '،')}
+                                    parser={(value) => value.replace(/\$\s?|(،*)/g, '')}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item name="code">
+                                <Input addonBefore="کد نهایی" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item name="store_code">
+                                <Input addonBefore="کد انبار" />
+                            </Form.Item>
+                        </Col>
 
-                    {/* Description */}
-                    <Col span={24}>
-                        <Form.Item
-                            name="description"
-                            label="توضیحات"
-                        >
-                            <Input.TextArea rows={4} placeholder="توضیحات محصول" />
-                        </Form.Item>
-                    </Col>
-                </Row>
-            </Form>
+                        <Col span={24}>
+                            <Form.Item name="description">
+                                <Input.TextArea
+                                    addonBefore="توضیحات"
+                                    rows={1}
+                                    placeholder="توضیحات محصول"
+                                />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                </Form>
+            </div>
         </Modal>
     );
 };

@@ -110,9 +110,7 @@ const GenusModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetc
                 className="modal-button"
                 icon={<PlusOutlined className="text-center" />}
                 onClick={() => setModal({ mode: "add", data: null })}
-            >
-                <span className="xs:hidden sm:hidden md:inline">افزودن جنس</span>
-            </Button>
+                />
             <Modal
                 isOpen={isOpen}
                 title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} جنس`}

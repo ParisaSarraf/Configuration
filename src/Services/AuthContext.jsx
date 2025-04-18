@@ -6,6 +6,9 @@ export const MainContext = createContext();
 
 const ContextProvider = ({ children }) => {
     const [authToken, setAuthToken] = useState(() => localStorage.getItem("accessToken"));
+    const [userId, setSUserId] = useState(null);
+    const [userAndRoleId, setUserAndRoleId] = useState([]);
+    const [selectedProducts, setSelectedProducts] = useState([]);
 
     return (
         <MainContext.Provider
