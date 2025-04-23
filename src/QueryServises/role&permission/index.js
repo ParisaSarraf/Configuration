@@ -53,7 +53,6 @@ export const usePutRolePermission = () => {
       return myAxios
         .put(`/user/update-role-permission/${roleId}`, params)
         .then((response) => {
-          console.log(params);
           return response?.data;
         });
     },

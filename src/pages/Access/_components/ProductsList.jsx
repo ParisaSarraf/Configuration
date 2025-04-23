@@ -4,8 +4,6 @@ import { Alert, Card, Empty, Spin } from "antd";
 import Tree from "../../../components/Tree";
 
 const ProductsList = ({ selectedUserAndRoleId, setSelectedProducts }) => {
-    console.log(selectedUserAndRoleId);
-
     const [checkedKeys, setCheckedKeys] = useState([]);
     const [expandedKeys, setExpandedKeys] = useState([]);
     const [autoExpandParent, setAutoExpandParent] = useState(true);
@@ -18,6 +16,7 @@ const ProductsList = ({ selectedUserAndRoleId, setSelectedProducts }) => {
     );
 
     const transformDataToTree = (products) => {
+        if (!products) return [];
         const treeData = products.map(product => ({
             title: product.persian_title,
             key: `product-${product.id}`,
@@ -42,25 +41,23 @@ const ProductsList = ({ selectedUserAndRoleId, setSelectedProducts }) => {
 
     if (isLoading) return <Spin size="small" />;
     if (error) return <Alert message={`خطا: ${error.response?.data?.message || error.message}`} type="error" />;
+    if (!data || data.length === 0) return <Empty description="محصولی یافت نشد" />;
 
     return (
         <Card>
-            {data?.length > 0 ? (
-                <Tree
-                    multiple
-                    checkable
-                    onExpand={onExpand}
-                    expandedKeys={expandedKeys}
-                    autoExpandParent={autoExpandParent}
-                    onCheck={onCheck}
-                    checkedKeys={checkedKeys}
-                    treeData={transformDataToTree(data)}
-                />
-            ) : (
-                <Empty description="محصولی یافت نشد" />
-            )}
+            <Tree
+                multiple
+                checkable
+                onExpand={onExpand}
+                isLoading={isLoading}
+                expandedKeys={expandedKeys}
+                autoExpandParent={autoExpandParent}
+                onCheck={onCheck}
+                checkedKeys={checkedKeys}
+                treeData={transformDataToTree(data)}
+            />
         </Card>
     );
 };
 
-export default ProductsList
+export default ProductsList;

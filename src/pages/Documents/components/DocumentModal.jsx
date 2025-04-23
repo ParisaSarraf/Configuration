@@ -20,7 +20,6 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
 
   useEffect(() => {
     if (modalMode === "edit" && modalData) {
-      console.log(modalData);
 
       form.setFieldsValue({
         code: modalData.code,

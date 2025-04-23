@@ -6,7 +6,6 @@ import Tree from "../../../components/Tree";
 const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onChange, checkedKeys, onProductClick }) => {
     const { mutate: deleteProduct, isLoading: isDeleting } = useDeleteProduct();
     // const { mutateAsync: fetchProductDetails } = useProductDetails();
-    console.log(productData);
 
 
 

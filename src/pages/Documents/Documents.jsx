@@ -12,7 +12,6 @@ const Documents = () => {
   const { data: documentData, refetch } = useDocumentList()
   const { currentProduct } = useProductContext();
 
-  console.log(documentData);
 
 
   return (

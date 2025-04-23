@@ -23,7 +23,7 @@ const Access = () => {
     const [selectedUserAndRoleId, setSelectedUserAndRoleId] = useState([]);
     const [selectedProducts, setSelectedProducts] = useState([]);
 
-    console.log(selectedUserId);
+
     const handleAddAccess = async () => {
         if (!selectedUserAndRoleId?.length || selectedProducts.length === 0) {
             return message.warning('لطفاً کاربر، سمت و محصولات را انتخاب کنید.');

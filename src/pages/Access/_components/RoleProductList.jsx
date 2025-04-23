@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { useAccessOfUserByIdList, useUnAccessOfUserByIdList } from '../../../QueryServises/accsessQuery';
 import Tree from '../../../components/Tree';
 import { DeleteOutlined } from '@ant-design/icons';
-import { v4 as uuidv4 } from 'uuid';
 
 const { Text } = Typography;
 
@@ -65,7 +64,6 @@ const RoleProductList = ({
 
     const handleClick = (node) => {
         const roleId = node.roleId;
-        console.log(roleId);
         if (roleId) {
             if (selectedNodeKey === roleId) {
                 setSelectedNodeKey(null);
@@ -140,7 +138,6 @@ const RoleProductList = ({
     const unAccessTreeData = transformUnAccessTreeData(usersWithoutAccess);
 
 
-    console.log(checkedKeys);
 
     return (
         <Card className='w-full'>
