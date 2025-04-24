@@ -38,17 +38,17 @@ const LifeCycleModal = ({
         if (modalMode === "add") {
             createLifeCycle(payload)
                 .then(() => {
-                    message.success("چرخه حیات محصول با موفقیت اضافه شد");
+                    message.success("چرخه عمر محصول با موفقیت اضافه شد");
                     closeModal();
                     refetch();
                 })
                 .catch((error) => {
-                    message.error("خطا در اضافه کردن چرخه حیات محصول");
+                    message.error("خطا در اضافه کردن چرخه عمر محصول");
                     console.error("Create error:", error);
                 });
         } else if (modalMode === "edit") {
             if (!modalData?.id) {
-                message.error("شناسه چرخه حیات محصول برای ویرایش یافت نشد");
+                message.error("شناسه چرخه عمر محصول برای ویرایش یافت نشد");
                 return;
             }
             updateLifeCycle({
@@ -56,12 +56,12 @@ const LifeCycleModal = ({
                 ...payload
             })
                 .then(() => {
-                    message.success("چرخه حیات محصول با موفقیت ویرایش شد");
+                    message.success("چرخه عمر محصول با موفقیت ویرایش شد");
                     closeModal();
                     refetch();
                 })
                 .catch((error) => {
-                    message.error("خطا در ویرایش چرخه حیات محصول");
+                    message.error("خطا در ویرایش چرخه عمر محصول");
                     console.error("Update error:", error.response?.data || error);
                 });
         }
@@ -73,10 +73,10 @@ const LifeCycleModal = ({
                 className="modal-button"
                 icon={<PlusOutlined className="text-center" />}
                 onClick={() => setModal({ mode: "add", data: null })}
-                />
+            />
             <Modal
                 isOpen={isOpen}
-                title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} چرخه حیات محصول`}
+                title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} چرخه عمر محصول`}
                 size={600}
                 onClose={closeModal}
                 onSubmit={() => form.submit()}
@@ -92,9 +92,9 @@ const LifeCycleModal = ({
                         <Col span={24}>
                             <Form.Item
                                 name="title"
-                                label="چرخه حیات محصول"
+                                label="چرخه عمر محصول"
                             >
-                                <Input placeholder="نام چرخه حیات محصول" />
+                                <Input placeholder="نام چرخه عمر محصول" />
                             </Form.Item>
                             <Col span={24}>
                                 <Form.Item

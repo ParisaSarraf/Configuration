@@ -106,7 +106,7 @@ const PrecinctModal = ({ isOpen, modalMode, modalData, closeModal, setModal, ref
                 className="modal-button"
                 icon={<PlusOutlined className="text-center" />}
                 onClick={() => setModal({ mode: "add", data: null })}
-                />
+            />
             <Modal
                 isOpen={isOpen}
                 title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} حوزه`}
@@ -137,9 +137,9 @@ const PrecinctModal = ({ isOpen, modalMode, modalData, closeModal, setModal, ref
                                 />
                             </Form.Item>
 
-                            <Form.Item name="life_cycle_id" label="چرخه زندگی">
+                            <Form.Item name="life_cycle_id" label="چرخه عمر">
                                 <Select
-                                    placeholder="انتخاب چرخه زندگی"
+                                    placeholder="انتخاب چرخه عمر"
                                     options={LifeCycleList?.map(lifeCycle => ({
                                         label: lifeCycle.title,
                                         value: lifeCycle.id

@@ -1,5 +1,5 @@
 import { Card, message, Spin, Typography } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAccessOfUserByIdList, useUnAccessOfUserByIdList } from '../../../QueryServises/accsessQuery';
 import Tree from '../../../components/Tree';
 import { DeleteOutlined } from '@ant-design/icons';
@@ -9,6 +9,7 @@ const { Text } = Typography;
 const RoleProductList = ({
     selectedUserId,
     setSelectedUserAndRoleId,
+    accessListRefetch,
     selectedUserAndRoleId,
     setSelectedProducts,
     deleteAccessProducts,
@@ -17,7 +18,8 @@ const RoleProductList = ({
     const {
         data: usersWithAccess,
         isFetching: usersHasProductFetching,
-        error: hasProductError
+        error: hasProductError,
+        refetch: refetchAccess
     } = useAccessOfUserByIdList(selectedUserId, {
         enabled: !!selectedUserId
     });
@@ -25,7 +27,8 @@ const RoleProductList = ({
     const {
         data: usersWithoutAccess,
         isFetching: usersHasNotProductFetching,
-        error: hasNotProductError
+        error: hasNotProductError,
+        refetch: refetchUnAccess
     } = useUnAccessOfUserByIdList(selectedUserId, {
         enabled: !!selectedUserId
     });
@@ -33,19 +36,17 @@ const RoleProductList = ({
     const [selectedNodeKey, setSelectedNodeKey] = useState(null);
     const [checkedKeys, setCheckedKeys] = useState([]);
 
-    if (usersHasProductFetching || usersHasNotProductFetching) {
-        return (
-            <Card>
-                <Spin size="small" />
-            </Card>
-        );
-    }
+    useEffect(() => {
+        refetchAccess();
+        refetchUnAccess();
+    }, [selectedUserId]);
 
     const handleCheck = (checkedKeysValue) => {
-        console.log(checkedKeysValue);
         setCheckedKeys(checkedKeysValue);
+
         const productIds = [];
         let roleId = null;
+
         checkedKeysValue.forEach(key => {
             if (typeof key === 'string' && key.includes('-product-')) {
                 const match = key.match(/role-(\d+).*?-product-(\d+)/);
@@ -55,7 +56,8 @@ const RoleProductList = ({
                     productIds.push(parseInt(pId));
                 }
             }
-        })
+        });
+
         if (roleId && selectedUserId) {
             setSelectedUserAndRoleId([roleId, selectedUserId]);
         }
@@ -78,16 +80,14 @@ const RoleProductList = ({
     const transformAccessData = (data) => {
         if (!data) return [];
         return data.map(role => {
-            const roleId = role.id;
             const hasAccess = role.access?.length > 0;
-            
             const children = hasAccess
                 ? role.access.map(accessItem => {
                     const product = accessItem.product;
                     const productTitle = product?.persian_title || 'بدون عنوان';
                     const productId = product?.id;
                     const accessId = accessItem?.id;
-    
+
                     return {
                         title: (
                             <div className="w-full flex justify-between">
@@ -99,7 +99,10 @@ const RoleProductList = ({
                                         try {
                                             await deleteAccessProducts(accessId);
                                             message.success("با موفقیت حذف شد");
-                                            userRefetch();
+                                            await userRefetch();
+                                            await accessListRefetch();
+                                            await refetchAccess();
+                                            await refetchUnAccess();
                                         } catch (error) {
                                             message.error("خطا در حذف آیتم");
                                             console.error("Delete error:", error);
@@ -108,41 +111,44 @@ const RoleProductList = ({
                                 />
                             </div>
                         ),
-                        key: `access-${accessId}`,
+                        key: `access-tree-role-${role.id}-product-${productId}`,
                     };
                 })
                 : [];
-    
+
             return {
                 title: role.name,
-                key: `role-${roleId}`,
-                roleId: roleId,
-                children: children.length > 0 ? children : [],
-                isFormerRole: !hasAccess,
+                key: `access-tree-role-${role.id}`,
+                roleId: role.id,
+                children,
             };
         });
     };
-    
-    
+
     const transformUnAccessTreeData = (data) => {
         if (!data) return [];
         return data.map(role => ({
             title: role.name,
-            key: `role-${role.id}`,
+            key: `unaccess-tree-role-${role.id}`,
             roleId: role.id,
         }));
     };
-    
 
     const accessTreeData = transformAccessData(usersWithAccess);
     const unAccessTreeData = transformUnAccessTreeData(usersWithoutAccess);
 
-
+    if (usersHasProductFetching || usersHasNotProductFetching) {
+        return (
+            <Card>
+                <Spin size="small" />
+            </Card>
+        );
+    }
 
     return (
         <Card className='w-full'>
             <div style={{ marginBottom: 16 }}>
-                <Text strong>سمت های کاربر </Text>
+                <Text strong>سمت های کاربر</Text>
                 <Tree
                     data={accessTreeData}
                     isLoading={usersHasProductFetching}
@@ -151,7 +157,7 @@ const RoleProductList = ({
                     checkable={true}
                     onNodeClick={handleClick}
                     onCheck={handleCheck}
-                    selectedKeys={selectedNodeKey ? [`role-${selectedNodeKey}`] : []}
+                    selectedKeys={selectedNodeKey ? [`access-tree-role-${selectedNodeKey}`] : []}
                     checkedKeys={checkedKeys}
                 />
             </div>
@@ -165,9 +171,8 @@ const RoleProductList = ({
                     showLine={true}
                     checkable={true}
                     onNodeClick={handleClick}
-                    selectedKeys={selectedNodeKey ? [`role-${selectedNodeKey}`] : []}
+                    selectedKeys={selectedNodeKey ? [`unaccess-tree-role-${selectedNodeKey}`] : []}
                     checkedKeys={checkedKeys}
-
                 />
             </div>
         </Card>

@@ -18,14 +18,14 @@ const LifeCycle = () => {
     const handleDelete = (record) => {
         deleteLifeCycle(record, {
             onSuccess: () => {
-                message.success("چرخه حیات محصول با موفقیت حذف شد");
+                message.success("چرخه عمر محصول با موفقیت حذف شد");
                 refetch();
             },
             onError: (error) => {
                 if (error.response?.status === 404) {
-                    message.error("چرخه حیات محصول مورد نظر یافت نشد");
+                    message.error("چرخه عمر محصول مورد نظر یافت نشد");
                 } else {
-                    message.error(error.response?.data?.detail || "خطا در حذف چرخه حیات محصول");
+                    message.error(error.response?.data?.detail || "خطا در حذف چرخه عمر محصول");
                 }
                 console.error("Delete error:", error);
             }
@@ -41,7 +41,7 @@ const LifeCycle = () => {
     return (
         <Spin spinning={isFetching && !lifeCycleList} tip="در حال دریافت اطلاعات...">
             <Card
-                title="مدیریت چرخه زندگی"
+                title="مدیریت چرخه عمر"
                 extra={
                     <LifeCycleModal
                         isOpen={isOpen}
@@ -64,7 +64,7 @@ const LifeCycle = () => {
                         pageSize: 10,
                     }}
                     locale={{
-                        emptyText: 'هیچ چرخه حیات محصولی یافت نشد'
+                        emptyText: 'هیچ چرخه عمر محصولی یافت نشد'
                     }}
                 />
             </Card>

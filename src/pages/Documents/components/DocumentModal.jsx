@@ -210,16 +210,16 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
               {/* ردیف دوم */}
               <Col span={24}>
                 <Form.Item
-                  label="چرخه حیات محصول"
+                  label="چرخه عمر محصول"
                   name="tagId"
                   rules={[{
                     required: true,
-                    message: "لطفاً چرخه حیات را انتخاب کنید"
+                    message: "لطفاً چرخه عمر را انتخاب کنید"
                   }]}
                 >
                   <Select
                     showSearch
-                    placeholder="انتخاب چرخه حیات..."
+                    placeholder="انتخاب چرخه عمر..."
                     options={lifeCycleList?.map(lifecycle => ({
                       label: lifecycle.title,
                       value: lifecycle.id

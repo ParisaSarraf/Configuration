@@ -70,7 +70,7 @@ const RoleLifeCycleTransfer = ({ refetch }) => {
                     lifeCycleId: selectedRoleId,
                     life_cycles: values.life_cycles
                 });
-                message.success("چرخه حیات های سمت با موفقیت به‌روزرسانی شد");
+                message.success("چرخه عمر های سمت با موفقیت به‌روزرسانی شد");
             } else {
                 const requests = values.life_cycles.map(life_cycle_id =>
                     addRoleLifecycle({
@@ -80,13 +80,13 @@ const RoleLifeCycleTransfer = ({ refetch }) => {
                 );
 
                 await Promise.all(requests);
-                message.success("چرخه حیات های جدید با موفقیت اضافه شدند");
+                message.success("چرخه عمر های جدید با موفقیت اضافه شدند");
             }
             refetch();
             handleReset();
         } catch (error) {
             console.error("Error saving life cycles:", error.response?.data || error.message);
-            // message.error("خطا در ذخیره چرخه حیات ها");
+            // message.error("خطا در ذخیره چرخه عمر ها");
         }
     };
 
@@ -134,7 +134,7 @@ const RoleLifeCycleTransfer = ({ refetch }) => {
                         });
                     }}
                     render={item => item.title}
-                    titles={['لیست چرخه حیات', 'چرخه حیات های انتخاب شده']}
+                    titles={['لیست چرخه عمر', 'چرخه عمر های انتخاب شده']}
                     listStyle={{
                         width: '100%',
                         height: 400,

@@ -60,9 +60,10 @@ const Access = () => {
                     بازگشت به صفحه اصلی
                 </Button>
             </div>
-            <Card className='w-full'>
+            <Card className='w-full' title="مدیریت کاربران و دسترسی ها">
                 <div className='w-full flex flex-row gap-4 items-stretch'>
                     <div className='flex-1 flex flex-col gap-4 border rounded p-4'>
+
                         <Text strong className='text-center'>لیست کاربران</Text>
                         <UsersList
                             refetch={userRefetch}
@@ -74,10 +75,11 @@ const Access = () => {
                     <div className='flex-1 flex flex-col gap-4 border rounded p-4'>
                         <Text strong className='text-center'>لیست سمت‌ها</Text>
                         <RoleProductList
+                            accessListRefetch={accessListRefetch}
                             refetch={userRefetch}
                             refetchAccess={accessListRefetch}
                             selectedUserId={selectedUserId}
-                            setSelectedUserId={setSelectedUserId}
+                            // setSelectedUserId={setSelectedUserId}
                             setSelectedUserAndRoleId={setSelectedUserAndRoleId}
                             selectedUserAndRoleId={selectedUserAndRoleId}
                             setSelectedProducts={setSelectedProducts}
@@ -98,6 +100,7 @@ const Access = () => {
                     <div className='flex-1 flex flex-col gap-4 border rounded p-4'>
                         <Text strong className='text-center'>لیست محصولات</Text>
                         <ProductsList
+                            accessListRefetch={accessListRefetch}
                             refetch={userRefetch}
                             setSelectedUserAndRoleId={setSelectedUserAndRoleId}
                             selectedUserAndRoleId={selectedUserAndRoleId}

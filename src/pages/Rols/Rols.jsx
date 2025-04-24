@@ -26,6 +26,7 @@ function Rols() {
         </Button>
       </div>
       <Card
+        title="مدیریت سمت ها و مجوز ها"
         extra={
           <div className="flex flex-row gap-2">
             <Button
@@ -35,6 +36,7 @@ function Rols() {
               ایجاد سمت جدید
             </Button>
           </div>
+
         }
       >
         <div className="w-full flex flex-row justify-around">

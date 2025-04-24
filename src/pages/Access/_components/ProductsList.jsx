@@ -8,22 +8,24 @@ const ProductsList = ({ selectedUserAndRoleId, setSelectedProducts }) => {
     const [expandedKeys, setExpandedKeys] = useState([]);
     const [autoExpandParent, setAutoExpandParent] = useState(true);
 
+    const userId = selectedUserAndRoleId?.[1];
+    const roleId = selectedUserAndRoleId?.[0];
+
     const { data, isLoading, error } = useUnAccessProductsByUserAndRoleId(
-        selectedUserAndRoleId?.length === 2 ? {
-            user_id: selectedUserAndRoleId[1],
-            role_id: selectedUserAndRoleId[0]
+        userId && roleId ? {
+            user_id: userId,
+            role_id: roleId
         } : null
     );
 
     const transformDataToTree = (products) => {
         if (!products) return [];
-        const treeData = products.map(product => ({
+        return products.map(product => ({
             title: product.persian_title,
-            key: `product-${product.id}`,
+            key: `unaccess-product-role-${roleId}-product-${product.id}`,
             isLeaf: true,
             ...product
         }));
-        return treeData;
     };
 
     const onExpand = (expandedKeysValue) => {
@@ -34,8 +36,8 @@ const ProductsList = ({ selectedUserAndRoleId, setSelectedProducts }) => {
     const onCheck = (checkedKeysValue) => {
         setCheckedKeys(checkedKeysValue);
         const productIds = checkedKeysValue
-            .filter(key => key.startsWith('product-'))
-            .map(key => parseInt(key.replace('product-', '')));
+            .filter(key => key.startsWith(`unaccess-product-role-${roleId}-product-`))
+            .map(key => parseInt(key.split('-').pop())); // استخراج ID از انتهای کلید
         setSelectedProducts(productIds);
     };
 

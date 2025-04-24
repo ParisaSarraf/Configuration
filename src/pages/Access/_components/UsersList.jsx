@@ -60,13 +60,13 @@ const UsersList = ({ refetch, selectedUserId, setSelectedUserId }) => {
     return (
         <Card className='w-full'>
             <Tree
-                multiple
+                checkable={false}
                 onSelect={handleSelectUser}
                 onExpand={onExpand}
                 expandedKeys={expandedKeys}
                 autoExpandParent={autoExpandParent}
                 treeData={transformUsersToTreeData(usersList)}
-                selectedKeys={selectedUserId ? [`user-${selectedUserId}`] : []}
+                selectedKeys={selectedUserId ? [`user-${selectedUserId}-${Math.random()}`] : []}
                 className="user-tree"
             />
         </Card>

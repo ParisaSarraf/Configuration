@@ -261,8 +261,9 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
                             </Form.Item>
                         </Col>
                         <Col span={8}>
-                            <Form.Item name="status">
+                            <Form.Item name="status" >
                                 <Select
+                                placeholder="وضعیت"
                                     addonBefore="وضعیت"
                                     options={[
                                         { label: 'فعال', value: 'active' },
