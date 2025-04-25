@@ -1,24 +1,22 @@
-import { Form, Select, Spin, message } from "antd";
+import { Form, Select, Spin, message, Tag } from "antd";
 import { useState } from "react";
 import { usePersonalityProductList } from "../../QueryServises/personalityQuery";
 
 const PersonalityModels = () => {
     const { data: personalityData, isLoading } = usePersonalityProductList();
+    const [selectedType, setSelectedType] = useState(null);
+    const [selectedItems, setSelectedItems] = useState([]);
 
-
-    const [typeOptions] = useState([
+    const typeOptions = [
         { value: 'made', label: 'ساخت' },
         { value: 'standard', label: 'استاندارد' },
         { value: 'non-standard', label: 'غیراستاندارد' },
-    ]);
-    const [dynamicOptions, setDynamicOptions] = useState([]);
-    const [selectedType, setSelectedType] = useState(null);
-    const [selectedItems, setSelectedItems] = useState([]);
+    ];
 
     const flattenTreeWithHierarchy = (items, parentNames = []) => {
         return items.reduce((acc, item) => {
             const currentPath = [...parentNames, item.name];
-            const label = currentPath.join('/');
+            const label = currentPath.join(' / ');
             const newItem = {
                 value: item.id,
                 label: label,
@@ -37,15 +35,8 @@ const PersonalityModels = () => {
         setSelectedType(value);
         setSelectedItems([]);
 
-        if (value && personalityData) {
-            const flattenedOptions = flattenTreeWithHierarchy(personalityData);
-            setDynamicOptions(flattenedOptions);
-
-            if (value === 'non-standard') {
-                message.info('هیچ موردی برای غیراستاندارد وجود ندارد');
-            }
-        } else {
-            setDynamicOptions([]);
+        if (value === 'non-standard') {
+            message.info('هیچ موردی برای غیراستاندارد وجود ندارد');
         }
     };
 
@@ -53,30 +44,39 @@ const PersonalityModels = () => {
         setSelectedItems(value);
     };
 
+    const dynamicOptions = selectedType && personalityData
+        ? flattenTreeWithHierarchy(personalityData)
+        : [];
+
     return (
-        <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-            <Form.Item name="personality_type">
+        <div className="personality-container">
+            <Form.Item
+                name="personality_type"
+                label="نوع هویت"
+                rules={[{ required: true, message: "لطفاً نوع هویت را انتخاب کنید" }]}
+            >
                 <Select
-                    placeholder="نوع هویت"
                     options={typeOptions}
                     onChange={handleTypeChange}
                     value={selectedType}
                     allowClear
-                    style={{ width: 200 }}
                     loading={isLoading}
+                    placeholder="انتخاب نوع هویت"
                 />
             </Form.Item>
-            <Form.Item name="personality_ids">
 
-                {selectedType === 'standard' && (
+            {selectedType === 'standard' && (
+                <Form.Item
+                    name="personality_ids"
+                    label="ویژگی استاندارد"
+                >
                     <Select
-                        placeholder="یک مورد انتخاب کنید"
                         options={dynamicOptions}
                         onChange={handleItemChange}
                         value={selectedItems}
                         allowClear
-                        style={{ width: 300 }}
                         loading={isLoading}
+                        placeholder="انتخاب ویژگی"
                         optionFilterProp="label"
                         showSearch
                         notFoundContent={isLoading ? <Spin size="small" /> : "موردی یافت نشد"}
@@ -84,18 +84,23 @@ const PersonalityModels = () => {
                             option.label.toLowerCase().includes(input.toLowerCase())
                         }
                     />
-                )}
+                </Form.Item>
+            )}
 
-                {selectedType === 'made' && (
+            {selectedType === 'made' && (
+                <Form.Item
+                    name="personality_ids"
+                    label="ویژگی‌های ساخت"
+                    rules={[{ required: true, message: "لطفاً حداقل یک ویژگی انتخاب کنید" }]}
+                >
                     <Select
                         mode="multiple"
-                        placeholder="چند مورد انتخاب کنید"
                         options={dynamicOptions}
                         onChange={handleItemChange}
                         value={selectedItems}
                         allowClear
-                        style={{ width: 300 }}
                         loading={isLoading}
+                        placeholder="انتخاب ویژگی‌ها"
                         optionFilterProp="label"
                         showSearch
                         notFoundContent={isLoading ? <Spin size="small" /> : "موردی یافت نشد"}
@@ -103,31 +108,25 @@ const PersonalityModels = () => {
                             option.label.toLowerCase().includes(input.toLowerCase())
                         }
                         maxTagCount="responsive"
+                        maxTagTextLength={20}
+                        tagRender={({ label, onClose }) => (
+                            <Tag closable onClose={onClose} style={{ marginRight: 3 }}>
+                                {label.split(' / ').pop()}
+                            </Tag>
+                        )}
                     />
-                )}
-
-                {selectedType === 'non-standard' && (
-                    <Select
-                        disabled
-                        placeholder="انتخاب کنید"
-                        options={dynamicOptions}
-                        onChange={handleItemChange}
-                        value={selectedItems}
-                        allowClear
-                        style={{ width: 300 }}
-                        loading={isLoading}
-                        optionFilterProp="label"
-                        showSearch
-                        notFoundContent={isLoading ? <Spin size="small" /> : "هیچ موردی وجود ندارد"}
-                        filterOption={(input, option) =>
-                            option.label.toLowerCase().includes(input.toLowerCase())
-                        }
-                    />
-                )}
-            </Form.Item>
-
+                </Form.Item>
+            )}
         </div>
     );
 };
 
 export default PersonalityModels;
+
+<style jsx>{`
+    .personality-container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+`}</style>

@@ -1,7 +1,8 @@
-import { Tree as TR, Dropdown, Menu, message } from "antd";
 import React, { useState, useMemo } from "react";
+import { Tree as AntTree, Dropdown, Menu, message, TreeSelect } from "antd";
+import { DownOutlined, FolderOutlined, FileOutlined } from '@ant-design/icons';
 
-const { DirectoryTree } = TR;
+const { DirectoryTree } = AntTree;
 
 const Tree = ({
   data,
@@ -26,6 +27,10 @@ const Tree = ({
   errorComponent = (
     <div className="text-center py-8 text-red-500">خطا در دریافت اطلاعات!</div>
   ),
+  mode = "tree", // 'tree' یا 'select'
+  showSearch = true,
+  allowClear = true,
+  placeholder = "لطفا انتخاب کنید",
   ...props
 }) => {
   const [rightClickNode, setRightClickNode] = useState(null);
@@ -73,13 +78,26 @@ const Tree = ({
     </Menu>
   );
 
-  const transformData = (data) => {
+  const transformData = (data, level = 0) => {
     if (!data) return [];
 
     return data.map((item) => ({
       title: item[titleField],
+      label: (
+        <div style={{ paddingLeft: `${level * 16}px`, display: 'flex', alignItems: 'center' }}>
+          {item[childrenField]?.length > 0 ? (
+            <FolderOutlined style={{ marginLeft: 8 }} />
+          ) : (
+            <FileOutlined style={{ marginLeft: 8 }} />
+          )}
+          <span style={{ marginRight: 4 }}>
+            {item[titleField]}
+          </span>
+        </div>
+      ),
+      value: item[keyField],
       key: item[keyField],
-      children: item[childrenField] ? transformData(item[childrenField]) : undefined,
+      children: item[childrenField] ? transformData(item[childrenField], level + 1) : undefined,
       ...item,
     }));
   };
@@ -90,6 +108,31 @@ const Tree = ({
 
   if (isLoading) return loadingComponent;
   if (isError) return errorComponent;
+
+  if (mode === "select") {
+    return (
+      <TreeSelect
+        treeData={treeData}
+        placeholder={placeholder}
+        treeDefaultExpandAll
+        showSearch={showSearch}
+        allowClear={allowClear}
+        style={{ width: '100%' }}
+        dropdownStyle={{
+          maxHeight: 400,
+          overflow: 'auto',
+          padding: '8px 0'
+        }}
+        treeNodeLabelProp="label"
+        treeLine={{
+          showLeafIcon: false
+        }}
+        switcherIcon={<DownOutlined />}
+        onChange={(value) => onChange && onChange(value)}
+        {...props}
+      />
+    );
+  }
 
   return (
     <div>

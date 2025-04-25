@@ -50,7 +50,7 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
     const payload = {
       username: values.userName,
       password: values.password,
-      is_superuser: true,
+      is_superuser: false,
       name: values.name,
       last_name: values.lastName,
       phone_number: values.PhoneNumber,

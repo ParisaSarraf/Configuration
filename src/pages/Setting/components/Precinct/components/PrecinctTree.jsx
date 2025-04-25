@@ -33,8 +33,8 @@ const PrecinctTree = ({ setModal }) => {
         const precinctId = node.id;
         if (actionKey === "delete") {
             Modal.confirm({
-                title: 'حذف حوزه',
-                content: 'آیا از حذف این حوزه مطمئن هستید؟',
+                title: 'حذف حوزه تجارب',
+                content: 'آیا از حذف این حوزه تجارب مطمئن هستید؟',
                 okText: 'بله',
                 cancelText: 'خیر',
                 okType: 'danger',
@@ -42,12 +42,12 @@ const PrecinctTree = ({ setModal }) => {
                     return new Promise((resolve, reject) => {
                         deletePrecinct(precinctId, {
                             onSuccess: () => {
-                                message.success("حوزه با موفقیت حذف شد");
+                                message.success("حوزه تجارب با موفقیت حذف شد");
                                 refetch();
                                 resolve();
                             },
                             onError: () => {
-                                message.error("حذف حوزه با خطا مواجه شد");
+                                message.error("حذف حوزه تجارب با خطا مواجه شد");
                                 reject();
                             },
                         });

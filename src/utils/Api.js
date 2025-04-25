@@ -65,9 +65,9 @@ export const useMyAxios = () => {
       await myAxios.post("/user/blacklist/", {
         refresh: refreshToken,
       });
-
       setAuthToken(null);
       navigate("/sign-in");
+      window.location.reload();
     } catch (error) {
       console.error("Error during logout:", error);
     }

@@ -38,14 +38,14 @@ function SystemManagment() {
             onClick={() => navigate("/panel/system-managment/roles-life-cycle")}
             className="flex items-center justify-center h-48 bg-white shadow-lg hover:shadow-xl transition-shadow text-yellow-500 hover:text-white hover:bg-yellow-500 text-lg font-medium rounded-sm rounded-tl-3xl rounded-br-3xl"
           >
-            تعیین چرخه عمر سمت ها
+            مدیریت کاربران و دسترسی اسناد
           </Button>
           <Button
             ghost
             onClick={() => navigate("/panel/system-managment/roles-users")}
             className="flex items-center justify-center h-48 bg-white shadow-lg hover:shadow-xl transition-shadow text-purple-500 hover:text-white hover:bg-purple-500 text-lg font-medium rounded-sm rounded-tl-3xl rounded-br-3xl"
           >
-            مدیریت کاربران و دسترسی ها
+            مدیریت کاربران و دسترسی محصول
           </Button>
         </div>
       </div>

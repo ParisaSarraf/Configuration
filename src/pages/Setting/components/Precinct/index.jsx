@@ -21,7 +21,7 @@ const Precinct = () => {
     return (
         <Spin spinning={isFetching && !data} tip="در حال دریافت اطلاعات...">
             <Card
-                title="مدیریت حوزه"
+                title="مدیریت حوزه تجارب"
                 extra={
                     <PrecinctModal
                         isOpen={isOpen}

@@ -39,17 +39,17 @@ const PrecinctModal = ({ isOpen, modalMode, modalData, closeModal, setModal, ref
         if (modalMode === "add") {
             createPrecinct(payload)
                 .then(() => {
-                    message.success("حوزه با موفقیت اضافه شد");
+                    message.success("حوزه تجارب با موفقیت اضافه شد");
                     closeModal();
                     refetch();
                 })
                 .catch((error) => {
-                    message.error("خطا در اضافه کردن حوزه");
+                    message.error("خطا در اضافه کردن حوزه تجارب");
                     console.error("Create error:", error);
                 });
         } else if (modalMode === "edit") {
             if (!modalData?.id) {
-                message.error("شناسه حوزه برای ویرایش یافت نشد");
+                message.error("شناسه حوزه تجارب برای ویرایش یافت نشد");
                 return;
             }
             updatePrecinct({
@@ -57,12 +57,12 @@ const PrecinctModal = ({ isOpen, modalMode, modalData, closeModal, setModal, ref
                 ...payload
             })
                 .then(() => {
-                    message.success("حوزه با موفقیت ویرایش شد");
+                    message.success("حوزه تجارب با موفقیت ویرایش شد");
                     closeModal();
                     refetch();
                 })
                 .catch((error) => {
-                    message.error("خطا در ویرایش حوزه");
+                    message.error("خطا در ویرایش حوزه تجارب");
                     console.error("Update error:", error.response?.data || error);
                 });
         }
@@ -109,7 +109,7 @@ const PrecinctModal = ({ isOpen, modalMode, modalData, closeModal, setModal, ref
             />
             <Modal
                 isOpen={isOpen}
-                title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} حوزه`}
+                title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} حوزه تجارب`}
                 size={600}
                 onClose={closeModal}
                 onSubmit={() => form.submit()}
@@ -121,15 +121,15 @@ const PrecinctModal = ({ isOpen, modalMode, modalData, closeModal, setModal, ref
                         <Col span={24}>
                             <Form.Item
                                 name="title"
-                                label="عنوان حوزه"
-                                rules={[{ required: true, message: "لطفاً عنوان حوزه را وارد کنید" }]}
+                                label="عنوان حوزه تجارب"
+                                rules={[{ required: true, message: "لطفاً عنوان حوزه تجارب را وارد کنید" }]}
                             >
-                                <Input placeholder="عنوان حوزه" />
+                                <Input placeholder="عنوان حوزه تجارب" />
                             </Form.Item>
 
-                            <Form.Item name="parent_id" label="حوزه والد (اختیاری)">
+                            <Form.Item name="parent_id" label="حوزه تجارب والد (اختیاری)">
                                 <Select
-                                    placeholder="انتخاب حوزه والد"
+                                    placeholder="انتخاب حوزه تجارب والد"
                                     loading={isFetchingPrecinct}
                                     allowClear
                                     options={getParentOptions()}

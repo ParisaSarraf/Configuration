@@ -1,6 +1,5 @@
 import { useUserList } from '../../../QueryServises/userQuery';
-import { Avatar, Card, Spin, Empty } from 'antd';
-import { BASEURL } from '../../../utils/Api';
+import { Card, Spin, Empty } from 'antd';
 import { useState } from 'react';
 import Tree from '../../../components/Tree';
 

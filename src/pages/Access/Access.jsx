@@ -60,7 +60,7 @@ const Access = () => {
                     بازگشت به صفحه اصلی
                 </Button>
             </div>
-            <Card className='w-full' title="مدیریت کاربران و دسترسی ها">
+            <Card className='w-full' title="مدیریت کاربران و دسترسی محصول">
                 <div className='w-full flex flex-row gap-4 items-stretch'>
                     <div className='flex-1 flex flex-col gap-4 border rounded p-4'>
 
