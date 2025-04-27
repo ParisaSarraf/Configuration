@@ -29,11 +29,11 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
     if (modalMode === "edit" && modalData) {
       console.log(modalData);
       form.setFieldsValue({
-        parent_id: modalData.parent_id,
+        parent_id: modalData.parent,
         code: modalData.code,
         persianTitle: modalData.title,
         englishTitle: modalData.englishTitle,
-        tag_id: modalData.tag_id,
+        tag_id: modalData.tag.id,
         isUsable: modalData.isUsable,
         isReproducible: modalData.isReproducible,
       });
@@ -139,7 +139,6 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
             onFinish={onFinishForm}
           >
             <Row gutter={[24, 16]}>
-              {/* ردیف اول */}
               <Col span={24}>
                 <Form.Item
                   label="شاخه والد"
@@ -202,7 +201,6 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
                 </Form.Item>
               </Col>
 
-              {/* ردیف دوم */}
               <Col span={24}>
                 <Form.Item
                   label="چرخه عمر محصول"

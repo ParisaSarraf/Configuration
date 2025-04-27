@@ -27,19 +27,19 @@ export const DocumentCol = [
         key: 'isUsable',
         render: (value) => (value ? 'Yes' : 'No'),
     },
-    {
-        title: 'عملیات',
-        key: 'Actions',
-        render: (_, record) => (
-            <Flex gap={4}>
-                <Tooltip >
-                    <Button danger >حذف</Button>
-                </Tooltip>
-                <Tooltip>
-                    <Button className="text-green-700 border-green-700">ویرایش</Button>
-                </Tooltip>
-            </Flex>
-        )
-    },
+    // {
+    //     title: 'عملیات',
+    //     key: 'Actions',
+    //     render: (_, record) => (
+    //         <Flex gap={4}>
+    //             <Tooltip >
+    //                 <Button danger >حذف</Button>
+    //             </Tooltip>
+    //             <Tooltip>
+    //                 <Button className="text-green-700 border-green-700">ویرایش</Button>
+    //             </Tooltip>
+    //         </Flex>
+    //     )
+    // },
 ];
 

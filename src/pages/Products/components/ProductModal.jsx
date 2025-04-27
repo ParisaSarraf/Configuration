@@ -110,7 +110,7 @@ const ProductModal = ({
         } else if (modalMode === "edit") {
             updateProduct({
                 productId: modalData.id,
-                ...payload
+                productData: payload
             })
                 .then(() => {
                     message.success("محصول با موفقیت ویرایش شد");

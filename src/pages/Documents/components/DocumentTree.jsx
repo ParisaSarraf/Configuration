@@ -18,12 +18,12 @@ const DocumentTree = ({ setModal }) => {
       title: node.persianTitle || 'بدون عنوان',
       key: `document-${node.id}`,
       id: node.id,
-      tag: node.tag?.title,
+      tag: node.tag,
       code: node.code,
       englishTitle: node.englishTitle,
       isUsable: node.isUsable,
       isReproducible: node.isReproducible,
-      parent: node.parent_id,
+      parent: node.parent,
       children: Array.isArray(node.children)
         ? node.children.map(child => transformNode(child))
         : [],
@@ -96,7 +96,7 @@ const DocumentTree = ({ setModal }) => {
         mode: "edit",
         id: node.id,
         data: node,
-        parent_id : node.parent_id
+        parent: node.parent_id
       });
     }
   };
@@ -106,6 +106,7 @@ const DocumentTree = ({ setModal }) => {
 
   return (
     <Tree
+      mode="tree"
       data={treeData}
       isLoading={isFetching}
       isError={isFetching}
@@ -113,6 +114,7 @@ const DocumentTree = ({ setModal }) => {
       checkable={false}
       rightClickMenuItems={rightClickMenuItems}
       onRightClickAction={handleRightClickAction} />
+
   );
 };
 
