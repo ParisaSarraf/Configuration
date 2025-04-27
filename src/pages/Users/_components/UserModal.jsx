@@ -63,7 +63,7 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
         values.tempImage && values.tempImage.length > 0
           ? values.tempImage[0].originFileObj
           : null,
-      is_staff: false,
+      is_staff: values.isStaff,
     };
 
     if (modalMode === "add") {
@@ -78,6 +78,8 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
           console.error(error);
         });
     } else if (modalMode === "edit") {
+      console.log(payload);
+
       updateUser({ userId: modalData.id, userData: payload })
         .then(() => {
           message.success("کاربر با موفقیت ویرایش شد");
@@ -126,7 +128,7 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
                 <FileUploader />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            < Col span={12}>
               <Form.Item
                 name="userName"
                 label="نام کاربری"
@@ -179,15 +181,15 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
                 <Input />
               </Form.Item>
             </Col>
-            {/* <Col span={12}>
-              <Form.Item name="isStaff" label="مدیر">
+            <Col span={12}>
+              <Form.Item name="isStaff" label="دسترسی به تمام صفحات">
                 <Radio.Group buttonStyle="solid">
                   <Radio.Button value={true}>بله</Radio.Button>
                   <Radio.Button value={false}>خیر</Radio.Button>
                 </Radio.Group>
               </Form.Item>
             </Col>
-            <Col span={12}>
+            {/* <Col span={12}>
               <Form.Item name="isSuperuser" label="ادمین">
                 <Radio.Group buttonStyle="solid">
                   <Radio.Button value={true}>بله</Radio.Button>
@@ -197,7 +199,7 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
             </Col> */}
           </Row>
         </Form>
-      </Modal>
+      </Modal >
     </>
   );
 };

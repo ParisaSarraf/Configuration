@@ -5,6 +5,7 @@ import {
 } from "../../../QueryServises/documentQuery";
 import "../../../index.css";
 import Tree from "../../../components/Tree";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 
 const DocumentTree = ({ setModal }) => {
   const { data: documentData, isFetching, refetch } = useDocumentList();
@@ -33,9 +34,32 @@ const DocumentTree = ({ setModal }) => {
     return documents.map(document => transformNode(document));
   };
 
+  const rightClickMenuItems = [
+    {
+      key: "edit",
+      label: (
+        <div className="w-full flex flex-row items-center gap-2">
+          <EditOutlined />
+          <span>ویرایش شاخه</span>
+        </div>
+      )
+    },
+    {
+      key: "delete",
+      label: (
+        <div className="w-full flex flex-row items-center gap-2">
+          <DeleteOutlined />
+          <span>حذف شاخه</span>
+        </div>
+      ),
+      danger: true
+    },
+  ];
 
   const handleRightClickAction = (actionKey, node) => {
     const documentId = node.id;
+    console.log(node);
+
 
     if (actionKey === "delete") {
       Modal.confirm({
@@ -68,27 +92,27 @@ const DocumentTree = ({ setModal }) => {
         },
       });
     } else if (actionKey === "edit") {
-      setModal({ mode: "edit", data: { ...node } });
+      setModal({
+        mode: "edit",
+        id: node.id,
+        data: node,
+        parent_id : node.parent_id
+      });
     }
   };
+
   const treeData = transformDataToTreeFormat(documentData);
 
 
   return (
     <Tree
-      className="custom-tree"
       data={treeData}
       isLoading={isFetching}
-      titleField="persianTitle"
-      showLine
-      blockNode
-      showRightClickMenu={true}
-      rightClickMenuItems={[
-        { key: "edit", label: "ویرایش" },
-        { key: "delete", label: "حذف", danger: true },
-      ]}
-      onRightClickAction={handleRightClickAction}
-    />
+      isError={isFetching}
+      showLine={true}
+      checkable={false}
+      rightClickMenuItems={rightClickMenuItems}
+      onRightClickAction={handleRightClickAction} />
   );
 };
 

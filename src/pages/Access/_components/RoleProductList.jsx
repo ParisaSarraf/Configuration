@@ -99,10 +99,10 @@ const RoleProductList = ({
                                         try {
                                             await deleteAccessProducts(accessId);
                                             message.success("با موفقیت حذف شد");
-                                            await userRefetch();
-                                            await accessListRefetch();
-                                            await refetchAccess();
-                                            await refetchUnAccess();
+                                            // userRefetch();
+                                            accessListRefetch();
+                                            refetchAccess();
+                                            refetchUnAccess();
                                         } catch (error) {
                                             message.error("خطا در حذف آیتم");
                                             console.error("Delete error:", error);

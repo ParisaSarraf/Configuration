@@ -36,14 +36,6 @@ const router = createBrowserRouter([
         ),
       },
 
-      {
-        path: "/panel/document/list",
-        element: (
-          <ProtectedRoute>
-            <Documents />
-          </ProtectedRoute>
-        ),
-      },
     ],
   },
   {
@@ -109,6 +101,14 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     errorElement: <NotFound />
+  },
+  {
+    path: "/panel/document/list",
+    element: (
+      <ProtectedRoute>
+        <Documents />
+      </ProtectedRoute>
+    ),
   },
 ]);
 

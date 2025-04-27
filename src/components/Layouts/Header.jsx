@@ -16,7 +16,7 @@ import { BASEURL, useMyAxios } from "../../utils/Api";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import PersianDate from "persian-date";
-import { AccessTimeOutlined } from "@mui/icons-material";
+import { AccessTimeOutlined, ChangeHistoryOutlined } from "@mui/icons-material";
 
 
 const CustomHeader = () => {
@@ -57,22 +57,16 @@ const CustomHeader = () => {
     `}</style>
 
   const menuItems = [
+
     {
-      key: 'profile',
-      icon: <ProfileOutlined />,
-      label: `سلام ${userData?.last_name || "کاربر"}`,
+      type: 'divider',
     },
     {
-      key: 'last-login',
-      label: `آخرین ورود: ${userData?.last_login ? new PersianDate(userData.last_login).format(' HH:mm MM/DD') : "-"}`,
-      icon: <UserOutlined />,
-    },
-    {
-      key: 'change-password',
-      label: 'تغییر رمزعبور',
-      icon: <SecurityScanOutlined />,
+      key: 'datas',
+      label: 'داده بان',
+      icon: <SettingOutlined />,
       onClick: () => {
-        navigate("/forget-password");
+        navigate("/panel/datas");
       },
     },
     {
@@ -84,14 +78,6 @@ const CustomHeader = () => {
       },
     },
     {
-      key: 'datas',
-      label: 'داده بان',
-      icon: <SettingOutlined />,
-      onClick: () => {
-        navigate("/panel/datas");
-      },
-    },
-    {
       key: 'system-managment',
       label: 'مدیریت سیستم',
       icon: <SecurityScanOutlined />,
@@ -99,27 +85,13 @@ const CustomHeader = () => {
         navigate("/panel/system-managment");
       },
     },
-    {
-      type: 'divider',
-    },
-    {
-      key: 'logout',
-      label: 'خروج',
-      danger: true,
-      icon: <LoginOutlined rotate={90} />,
-      onClick: () => {
-        handleLogout();
-      },
-    }]
-
-
-
+  ]
 
 
   return (
     <header className="bg-white rounded-lg my-2 mx-2 text-black ps-2 flex flex-row items-center justify-between h-12">
       <div className="flex flex-row gap-2 items-center">
-        <p className="hidden md:block">سامانه جامع سیستم مدیریت پروژه (سما)</p>
+        <p className="hidden md:block">سامانه جامع سیستم مدیریت پروژه </p>
       </div>
       <div className="flex flex-row items-center gap-4">
         <InboxOutlinedIcon />
@@ -142,10 +114,18 @@ const CustomHeader = () => {
               </div>
               <div className="flex items-center gap-2 text-black">
                 <LoginOutlined fontSize="small" />
-                <span>آخرین ورود: {userData?.last_login || "-"}</span>
+                آخرین ورود: {userData?.last_login ? new PersianDate(userData.last_login).format(' HH:mm MM/DD') : "-"}
               </div>
+              <Button icon={<LoginOutlined rotate={90} />} className="flex items-center w-full bg-red-600 text-white" type="text" aria-label="Logout" onClick={() => handleLogout()}>
+                خروج
+              </Button>
+              <Button icon={<SecurityScanOutlined rotate={90} />} className="flex items-center w-full" aria-label="change pass" type="primary" onClick={() => navigate("/forget-password")}
+              >
+                تغییر رمز عبور
+              </Button>
             </div>
           }
+
           placement="bottomLeft"
           color="#ffffff"
           overlayClassName="custom-tooltip"
@@ -169,10 +149,10 @@ const CustomHeader = () => {
             {/* </Badge> */}
             <span className="hidden sm:inline text-sm font-semibold">{userData?.name || 'کاربر'}</span>
           </Button>
-        </Tooltip>
+        </Tooltip >
 
-      </div>
-    </header>
+      </div >
+    </header >
   );
 };
 

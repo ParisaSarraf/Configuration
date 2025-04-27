@@ -12,7 +12,7 @@
   @font-face {
     font-family: 'Vazir';
     font-style: normal;
-    font-weight: 400;
+    font-weight: 100;
     font-display: swap;
     src: url('/public/fonts/Vazirmatn-Medium.woff2') format('woff2');
   }
@@ -89,7 +89,7 @@
 }
 
 .custom-tree .ant-tree-node-content-wrapper {
-  font-size: 16px;
+  font-size: 13px;
 }
 
 .custom-tree .ant-tree-switcher {

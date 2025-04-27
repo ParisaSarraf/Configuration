@@ -1,18 +1,71 @@
 import { useMemo } from "react";
 import { message, Modal } from "antd";
+import {
+    EditOutlined,
+    DeleteOutlined,
+    PlusOutlined,
+    FileExcelOutlined,
+    FileOutlined
+} from '@ant-design/icons';
 import { useDeleteProduct } from "../../../QueryServises/productQuery";
 import Tree from "../../../components/Tree";
 
 const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onChange, checkedKeys, onProductClick }) => {
     const { mutate: deleteProduct, isLoading: isDeleting } = useDeleteProduct();
-    // const { mutateAsync: fetchProductDetails } = useProductDetails();
 
-
+    const rightClickMenuItems = [
+        {
+            key: "edit",
+            label: (
+                <div className="w-full flex flex-row items-center gap-2">
+                    <EditOutlined />
+                    <span>ویرایش شاخه</span>
+                </div>
+            )
+        },
+        {
+            key: "delete",
+            label: (
+                <div className="w-full flex flex-row items-center gap-2">
+                    <DeleteOutlined />
+                    <span>حذف شاخه</span>
+                </div>
+            ),
+            danger: true
+        },
+        {
+            key: "addToParent",
+            label: (
+                <div className="w-full flex flex-row items-center gap-2">
+                    <PlusOutlined />
+                    <span>افزودن زیرشاخه</span>
+                </div>
+            )
+        },
+        // {
+        //     key: "exportExcel",
+        //     label: (
+        //         <div className="w-full flex flex-row items-center gap-2">
+        //             <FileExcelOutlined />
+        //             <span>خروجی اکسل</span>
+        //         </div>
+        //     )
+        // },
+        // {
+        //     key: "export",
+        //     label: (
+        //         <div className="w-full flex flex-row items-center gap-2">
+        //             <FileOutlined />
+        //             <span>خروجی اسناد</span>
+        //         </div>
+        //     )
+        // }
+    ];
 
     const transformDataToTreeFormat = (productData) => {
         if (!productData) return [];
         return productData.map(item => ({
-            title: item.persian_title,
+            title: ` ${item.persian_title}  (${item.code}) `,
             key: `product-${item.id}`,
             id: item.id,
             name: item.persian_title,
@@ -50,7 +103,7 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
                                 resolve();
                             },
                             onError: () => {
-                                message.error("حذف محصول با خطا مواجه شد");
+                                message.error("محصول دارای زیرمجموعه است ")
                                 reject();
                             },
                         });
@@ -62,10 +115,18 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
             });
         } else if (actionKey === "edit") {
             try {
-                // const productDetails = await fetchProductDetails(node.id);
                 setModal({
                     mode: "edit",
-                    // data: productDetails
+                    data: node.productData,
+                });
+            } catch (error) {
+                message.error("خطا در دریافت اطلاعات محصول");
+            }
+        } else if (actionKey === "addToParent") {
+            try {
+                setModal({
+                    mode: "addToParent",
+                    data: node.productData,
                 });
             } catch (error) {
                 message.error("خطا در دریافت اطلاعات محصول");
@@ -75,9 +136,8 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
 
 
     return (
-        <div className="p-4">
+        <div className="p-2">
             <Tree
-                className="custom-tree"
                 data={treeData}
                 isLoading={isLoading || isDeleting}
                 isError={isError || isDeleting}
@@ -85,11 +145,8 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
                 checkedKeys={checkedKeys}
                 showLine={true}
                 onNodeClick={onProductClick}
-                checkable={true}
-                rightClickMenuItems={[
-                    { key: "edit", label: "ویرایش" },
-                    { key: "delete", label: "حذف", danger: true },
-                ]}
+                checkable={false}
+                rightClickMenuItems={rightClickMenuItems}
                 onRightClickAction={handleRightClickAction} />
         </div>
     );

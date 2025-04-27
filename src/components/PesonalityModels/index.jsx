@@ -1,11 +1,12 @@
-import { Form, Select, Spin, message, Tag } from "antd";
+import { Form, Select, Spin, message, Tag, Row, Col } from "antd";
 import { useState } from "react";
 import { usePersonalityProductList } from "../../QueryServises/personalityQuery";
 
-const PersonalityModels = () => {
+const PersonalityModels = ({ showAlongside = false, value }) => {
     const { data: personalityData, isLoading } = usePersonalityProductList();
-    const [selectedType, setSelectedType] = useState(null);
-    const [selectedItems, setSelectedItems] = useState([]);
+    const [selectedType, setSelectedType] = useState(value?.personality_type || null);
+    const [selectedItems, setSelectedItems] = useState(value?.product_personalities?.map(p => p.personality.id) || []);
+
 
     const typeOptions = [
         { value: 'made', label: 'ساخت' },
@@ -34,7 +35,6 @@ const PersonalityModels = () => {
     const handleTypeChange = (value) => {
         setSelectedType(value);
         setSelectedItems([]);
-
         if (value === 'non-standard') {
             message.info('هیچ موردی برای غیراستاندارد وجود ندارد');
         }
@@ -48,12 +48,12 @@ const PersonalityModels = () => {
         ? flattenTreeWithHierarchy(personalityData)
         : [];
 
-    return (
-        <div className="personality-container">
+    const renderContent = () => (
+        <>
             <Form.Item
                 name="personality_type"
                 label="نوع هویت"
-                rules={[{ required: true, message: "لطفاً نوع هویت را انتخاب کنید" }]}
+                // rules={[{ required: true, message: "لطفاً نوع هویت را انتخاب کنید" }]}
             >
                 <Select
                     options={typeOptions}
@@ -91,7 +91,7 @@ const PersonalityModels = () => {
                 <Form.Item
                     name="personality_ids"
                     label="ویژگی‌های ساخت"
-                    rules={[{ required: true, message: "لطفاً حداقل یک ویژگی انتخاب کنید" }]}
+                    // rules={[{ required: true, message: "لطفاً حداقل یک ویژگی انتخاب کنید" }]}
                 >
                     <Select
                         mode="multiple"
@@ -116,6 +116,18 @@ const PersonalityModels = () => {
                         )}
                     />
                 </Form.Item>
+            )}
+        </>
+    );
+
+    return (
+        <div className="personality-container">
+            {showAlongside ? (
+                <>
+                    {renderContent()}
+                </>
+            ) : (
+                renderContent()
             )}
         </div>
     );

@@ -4,22 +4,30 @@ import { useCreateProduct, useUpdateProduct } from "../../../QueryServises/produ
 import { useOneCoreSetting } from "../../../QueryServises/settingQuery";
 import { useGenusProductList } from "../../../QueryServises/genusQuery";
 import Modal from "../../../components/Modal";
+import { TreeSelect } from "antd";
 import PersonalityModels from "../../../components/PesonalityModels";
 
-const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch, productData }) => {
+const ProductModal = ({
+    isOpen,
+    modalMode,
+    modalData,
+    closeModal,
+    refetch,
+    productData
+}) => {
     const [form] = Form.useForm();
     const { isPending: isCreating, mutateAsync: createProduct } = useCreateProduct();
     const { isPending: isUpdating, mutateAsync: updateProduct } = useUpdateProduct();
     const { data: casingData } = useOneCoreSetting("casing");
-    const { data: personalityData } = useOneCoreSetting("personality");
     const { data: genusData } = useGenusProductList();
+
+    console.log(modalMode);
 
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
-                persian_title: modalData.name,
+                persian_title: modalData.persian_title,
                 code: modalData.code,
-                // alternative_code: modalData.alternative_code,
                 product_number: modalData.product_number,
                 store_code: modalData.store_code,
                 status: modalData.status,
@@ -30,7 +38,8 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
                 price: modalData.price,
                 external_diagonal: modalData.external_diagonal,
                 internal_diagonal: modalData.internal_diagonal,
-                parent_id: modalData.parent_id || null,
+                parent_id: modalData.parent_code || null,
+                parent_code_id: modalData.parent_code || null,
                 casing_id: modalData.casing_id,
                 genus_id: modalData.genus_id,
                 personality_id: modalData.personality_id,
@@ -46,6 +55,11 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
             });
         } else if (modalMode === "add") {
             form.resetFields();
+        } else if (modalMode === "addToParent") {
+            form.setFieldsValue({
+                parent_id: modalData.id,
+                parent_code_id: modalData.id,
+            });
         }
     }, [modalMode, modalData, form]);
 
@@ -81,8 +95,6 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
             standard_code: values.standard_code,
             final_code: values.final_code,
         };
-        console.log(payload);
-
 
         if (modalMode === "add") {
             createProduct(payload)
@@ -98,7 +110,7 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
         } else if (modalMode === "edit") {
             updateProduct({
                 productId: modalData.id,
-                data: payload
+                ...payload
             })
                 .then(() => {
                     message.success("محصول با موفقیت ویرایش شد");
@@ -109,51 +121,43 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
                     message.error(error.response?.data?.message || "خطا در ویرایش محصول");
                     console.error(error);
                 });
+        } else {
+            console.log("سلام");
+
         }
+
     };
 
-    const getParentOptions = () => {
-        if (!productData) return [];
-        const flattenProductList = (items) => {
-            let result = [];
-            items.forEach(item => {
-                result.push({
-                    id: item.id,
-                    code: item.code,
-                    persian_title: item.persian_title,
-                    parent_id: item.parent_id
-                });
-                if (item.children && item.children.length > 0) {
-                    result = result.concat(flattenProductList(item.children));
+    const getTreeSelectOptions = (data, modalMode = null, modalData = null) => {
+        return data.map(item => {
+            const titleFields = [
+                'persian_title',
+                'title',
+                'name',
+                'label',
+                'display_name',
+                'code'
+            ];
+            let title = 'بدون عنوان';
+            for (const field of titleFields) {
+                if (item[field]) {
+                    title = item[field];
+                    if (field !== 'code' && item.code) {
+                        title = `${item.code} - ${title}`;
+                    }
+                    break;
                 }
-            });
-            return result;
-        };
-        const allProducts = flattenProductList(productData);
-        return allProducts
-            .filter(product => {
-                if (modalMode === "edit") {
-                    if (product.id === modalData?.id) return false;
-
-                    const isChildOfCurrent = (items, targetId) => {
-                        return items.some(item => {
-                            if (item.id === targetId) return true;
-                            if (item.children && item.children.length > 0) {
-                                return isChildOfCurrent(item.children, targetId);
-                            }
-                            return false;
-                        });
-                    };
-                    return !isChildOfCurrent([modalData], product.id);
-                }
-                return true;
-            })
-            .map(product => ({
-                label: `${product.code} - ${product.persian_title}`,
-                value: product.id,
-                disabled: modalMode === "edit" && product.id === modalData?.parent_id
-            }));
+                disabled: modalMode === "edit" && modalData && (item.id === modalData.id || item.id === modalData.parent_code)
+            }
+            return {
+                title: title,
+                value: item.id,
+                children: item.children ? getTreeSelectOptions(item.children, modalMode, modalData) : [],
+                disabled: modalMode === "edit" && item.id === modalData?.id
+            };
+        });
     };
+
 
     return (
         <Modal
@@ -164,43 +168,41 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
             onSubmit={() => form.submit()}
             mode={modalMode}
             loading={isCreating || isUpdating}
-            bodyStyle={{
-                padding: 0
-            }}
-            style={{
-                top: 20
-            }}
+            bodyStyle={{ padding: 0 }}
+            style={{ top: 20 }}
         >
             <div style={{
-                maxHeight: "70vh",
+                maxHeight: "60vh",
                 overflowY: "auto",
                 padding: "0 24px"
             }}>
-                <Form
-                    form={form}
-                    layout="horizontal"
-                    onFinish={onFinish}
-                >
-                    <Row gutter={[16, 16]}>
+                <Form form={form} layout="horizontal" onFinish={onFinish}>
+                    <Row gutter={[6, 0]}>
                         <Col span={8}>
                             <Form.Item name="parent_id">
-                                <Select
-                                    addonBefore="شاخه والد"
-                                    showSearch
-                                    placeholder=" شاخه والد"
-                                    options={getParentOptions()}
-                                    allowClear
-                                />
+                                <Form.Item name="parent_id" label="شاخه والد">
+                                    <TreeSelect
+                                        treeData={getTreeSelectOptions(productData || [])}
+                                        placeholder="شاخه والد"
+                                        allowClear
+                                        treeIcon={true}
+                                        treeLine={true}
+                                        showSearch
+                                    />
+                                </Form.Item>
+
                             </Form.Item>
                         </Col>
                         <Col span={8}>
-                            <Form.Item name="parent_code_id">
-                                <Select
-                                    addonBefore="ارث بری کد"
+                            <Form.Item name="parent_code_id" label="ارث بری کد">
+                                <TreeSelect
                                     showSearch
                                     placeholder="ارث بری کد"
-                                    options={getParentOptions()}
+                                    treeData={getTreeSelectOptions(productData || [])}
                                     allowClear
+                                    treeIcon={true}
+                                    treeLine={true}
+
                                 />
                             </Form.Item>
                         </Col>
@@ -231,6 +233,7 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
                                 <Input addonBefore="شرح نام تجاری1" />
                             </Form.Item>
                         </Col>
+
                         <Col span={8}>
                             <Form.Item name="product_number">
                                 <InputNumber
@@ -261,9 +264,9 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
                             </Form.Item>
                         </Col>
                         <Col span={8}>
-                            <Form.Item name="status" >
+                            <Form.Item name="status">
                                 <Select
-                                placeholder="وضعیت"
+                                    placeholder="وضعیت"
                                     addonBefore="وضعیت"
                                     options={[
                                         { label: 'فعال', value: 'active' },
@@ -272,51 +275,53 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
                                 />
                             </Form.Item>
                         </Col>
-                        <Divider dashed />
 
-                        <Col span={16}>
+
+                        <Col span={24}>
                             <Form.Item name="personality_id">
-                                <PersonalityModels />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="genus_id">
-                                <Select
-                                    placeholder="جنس"
-                                    options={genusData?.map(genus => ({
-                                        label: `${genus.name}`,
-                                        value: genus.id
-                                    }))}
-                                    allowClear
+                                <PersonalityModels
+                                    showAlongside={true}
+                                    value={modalData}
                                 />
                             </Form.Item>
                         </Col>
                         <Col span={8}>
-                            <Form.Item name="alternative_genus_id">
-                                <Select
-                                    placeholder="جنس جایگزین"
-                                    options={genusData?.map(genus => ({
-                                        label: `${genus.name}`,
-                                        value: genus.id
-                                    }))}
+                            <Form.Item name="genus_id">
+                                <TreeSelect
+                                    treeData={getTreeSelectOptions(genusData || [])}
+                                    placeholder="جنس"
                                     allowClear
+                                    treeIcon={true}
+                                    treeLine={true}
+                                    showSearch
+                                />
+                            </Form.Item>
+                        </Col>
+
+                        <Col span={8}>
+                            <Form.Item name="alternative_genus_id">
+                                <TreeSelect
+                                    treeData={getTreeSelectOptions(genusData || [])}
+                                    placeholder="جنس جایگزین"
+                                    allowClear
+                                    treeIcon={true}
+                                    treeLine={true}
+                                    showSearch
                                 />
                             </Form.Item>
                         </Col>
                         <Col span={8}>
                             <Form.Item name="casing_id">
-                                <Select
-                                    placeholder="پوشش"
-                                    options={casingData?.map(casing => ({
-                                        label: `${casing.name}`,
-                                        value: casing.id
-                                    }))}
+                                <TreeSelect
+                                    treeData={getTreeSelectOptions(casingData || [])}
+                                    placeholder="جنس"
                                     allowClear
+                                    treeIcon={true}
+                                    treeLine={true}
+                                    showSearch
                                 />
                             </Form.Item>
                         </Col>
-                        <Divider dashed />
-
                         <Col span={8}>
                             <Form.Item name="length">
                                 <InputNumber
@@ -325,7 +330,6 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refe
                                 />
                             </Form.Item>
                         </Col>
-
                         <Col span={8}>
                             <Form.Item name="width">
                                 <InputNumber

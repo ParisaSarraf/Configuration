@@ -2,7 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMyAxios } from "../../utils/Api";
 
 export const useAccessListKey = () => ["access-user"];
-export const useuseAccessList = (queryOptions) => {
+export const useAccessList = (queryOptions) => {
   const { myAxios } = useMyAxios();
   return useQuery({
     queryKey: useAccessListKey(),

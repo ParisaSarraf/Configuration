@@ -4,7 +4,7 @@ import Products from '../../pages/Products/Products';
 import { useProductContext } from '../../Services/ProductContext';
 
 const MainLayout = () => {
-  const { currentProduct } = useProductContext();
+  const { currentProduct, activeProducts } = useProductContext();
 
   return (
     <div className="flex flex-col h-full bg-Main">
@@ -12,7 +12,13 @@ const MainLayout = () => {
       <div className="grid grid-cols-[auto_1fr] h-[calc(100dvh-4rem)]">
         <Products />
         <div className="w-full px-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-          <Outlet context={{ product: currentProduct }} />
+          {currentProduct ? (
+            <Outlet context={{ product: currentProduct }} />
+          ) : (
+            <div className="flex items-center justify-center h-full text-white text-2xl">
+              <p>لطفاً یک محصول را از لیست انتخاب کنید</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

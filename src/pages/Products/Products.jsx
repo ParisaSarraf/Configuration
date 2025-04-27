@@ -1,14 +1,11 @@
 import { useState } from 'react';
-import { Layout, Button, Spin } from 'antd';
-import { PlusCircleFilled, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Spin } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import { useProductList } from "../../QueryServises/productQuery";
 import ProductTree from "./components/ProductTree";
 import ProductModal from "./components/ProductModal";
 import { useProductContext } from '../../Services/ProductContext';
 import useModal from '../../hooks/useModal';
-import { PlusOne } from '@mui/icons-material';
-
-const { Sider } = Layout;
 
 const Products = () => {
     const { data: productData, isLoading, isError, refetch } = useProductList();
@@ -25,7 +22,7 @@ const Products = () => {
         <div
             className='rounded-xl mr-2 bg-white mb-2 shadow-lg shadow-purple-6 '
             style={{
-                width: '240px',
+                width: '300px',
                 transition: 'width 0.2s',
             }}>
             <Button
@@ -33,7 +30,7 @@ const Products = () => {
                 onClick={() => setModal({ mode: 'add' })}
                 icon={<PlusOutlined />}
                 className="flex flex-row items-center m-2 px-14"
-            >
+                style={{ width: '282px' }}            >
                 افزودن محصول
             </Button>
 
@@ -53,6 +50,7 @@ const Products = () => {
                     checkedKeys={checkedKeys}
                     onChange={handleTreeChange}
                     onProductClick={handleProductSelect}
+
                 />
             )}
             <ProductModal

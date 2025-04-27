@@ -7,14 +7,13 @@ import { useState } from 'react';
 import ProductsList from './_components/ProductsList';
 
 import { ArrowRightOutlined } from '@ant-design/icons';
-import { useCreateAccessProducts, useDeleteAccessProducts, useuseAccessList } from '../../QueryServises/accsessQuery';
+import { useCreateAccessProducts, useDeleteAccessProducts, useAccessList, useUnAccessOfUserByIdList, useAccessOfUserByIdList } from '../../QueryServises/accsessQuery';
 
 const { Text } = Typography;
 
 const Access = () => {
     const { refetch: userRefetch } = useUserList();
-    const { refetch: accessListRefetch } = useuseAccessList();
-
+    const { refetch: accessListRefetch } = useAccessList();
     const navigate = useNavigate();
 
     const { mutateAsync: createAccessProducts } = useCreateAccessProducts();
@@ -23,9 +22,16 @@ const Access = () => {
     const [selectedUserAndRoleId, setSelectedUserAndRoleId] = useState([]);
     const [selectedProducts, setSelectedProducts] = useState([]);
 
+    const {
+        refetch: refetchAccess
+    } = useAccessOfUserByIdList(selectedUserId);
+
+    const {
+        refetch: refetchUnAccess
+    } = useUnAccessOfUserByIdList(selectedUserId);
 
     const handleAddAccess = async () => {
-        if (!selectedUserAndRoleId?.length || selectedProducts.length === 0) {
+        if (!selectedUserAndRoleId || selectedUserAndRoleId.length !== 2 || selectedProducts.length === 0) {
             return message.warning('لطفاً کاربر، سمت و محصولات را انتخاب کنید.');
         }
         const [role_id, user_id] = selectedUserAndRoleId;
@@ -34,20 +40,18 @@ const Access = () => {
             role_id,
             product_ids: selectedProducts
         };
-
-
-
         try {
             await createAccessProducts(payload);
             message.success("محصول به سمت مورد نظر با موفقیت اضافه شد");
             userRefetch();
-            accessListRefetch()
+            accessListRefetch();
+            refetchAccess();
+            refetchUnAccess();
         } catch (error) {
             message.error("مشکلی در اضافه کردن محصول به سمت پیش آمده است.");
             console.error(error);
         }
     };
-
 
     return (
         <div className="min-h-screen bg-Main p-2">
@@ -63,7 +67,6 @@ const Access = () => {
             <Card className='w-full' title="مدیریت کاربران و دسترسی محصول">
                 <div className='w-full flex flex-row gap-4 items-stretch'>
                     <div className='flex-1 flex flex-col gap-4 border rounded p-4'>
-
                         <Text strong className='text-center'>لیست کاربران</Text>
                         <UsersList
                             refetch={userRefetch}
@@ -77,16 +80,14 @@ const Access = () => {
                         <RoleProductList
                             accessListRefetch={accessListRefetch}
                             refetch={userRefetch}
-                            refetchAccess={accessListRefetch}
                             selectedUserId={selectedUserId}
-                            // setSelectedUserId={setSelectedUserId}
                             setSelectedUserAndRoleId={setSelectedUserAndRoleId}
                             selectedUserAndRoleId={selectedUserAndRoleId}
                             setSelectedProducts={setSelectedProducts}
                             deleteAccessProducts={deleteAccessProducts}
                         />
                     </div>
-
+                    
                     <div className='flex flex-col justify-center gap-4 px-2'>
                         <button
                             className="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors"
@@ -94,7 +95,6 @@ const Access = () => {
                         >
                             <ArrowRightOutlined className="text-lg" />
                         </button>
-
                     </div>
 
                     <div className='flex-1 flex flex-col gap-4 border rounded p-4'>
