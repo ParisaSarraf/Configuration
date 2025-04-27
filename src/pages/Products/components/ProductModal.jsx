@@ -96,7 +96,7 @@ const ProductModal = ({
             final_code: values.final_code,
         };
 
-        if (modalMode === "add") {
+        if (modalMode === "add" || modalMode === "addToParent") {
             createProduct(payload)
                 .then(() => {
                     message.success("محصول با موفقیت اضافه شد");
@@ -121,11 +121,7 @@ const ProductModal = ({
                     message.error(error.response?.data?.message || "خطا در ویرایش محصول");
                     console.error(error);
                 });
-        } else {
-            console.log("سلام");
-
         }
-
     };
 
     const getTreeSelectOptions = (data, modalMode = null, modalData = null) => {
@@ -179,18 +175,15 @@ const ProductModal = ({
                 <Form form={form} layout="horizontal" onFinish={onFinish}>
                     <Row gutter={[6, 0]}>
                         <Col span={8}>
-                            <Form.Item name="parent_id">
-                                <Form.Item name="parent_id" label="شاخه والد">
-                                    <TreeSelect
-                                        treeData={getTreeSelectOptions(productData || [])}
-                                        placeholder="شاخه والد"
-                                        allowClear
-                                        treeIcon={true}
-                                        treeLine={true}
-                                        showSearch
-                                    />
-                                </Form.Item>
-
+                            <Form.Item name="parent_id" label="شاخه والد">
+                                <TreeSelect
+                                    treeData={getTreeSelectOptions(productData || [])}
+                                    placeholder="شاخه والد"
+                                    allowClear
+                                    treeIcon={true}
+                                    treeLine={true}
+                                    showSearch
+                                />
                             </Form.Item>
                         </Col>
                         <Col span={8}>
