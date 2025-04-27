@@ -17,6 +17,7 @@ const myAxios = axios.create({
 export const useMyAxios = () => {
   const { authToken, setAuthToken } = useContext(MainContext);
   const navigate = useNavigate();
+  let isGettingNewToken = false
 
   useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
@@ -42,10 +43,13 @@ export const useMyAxios = () => {
       if (error.response.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
         try {
-          const newAccessToken = await refreshAccessToken();
-          setAuthToken(newAccessToken);
-          originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-          return myAxios(originalRequest);
+          if(!isGettingNewToken){
+            isGettingNewToken = true ; 
+            const newAccessToken = await refreshAccessToken();
+            setAuthToken(newAccessToken);
+            originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+            return myAxios(originalRequest);
+          }
         } catch (refreshError) {
           console.error("Unable to refresh token:", refreshError);
           localStorage.removeItem("accessToken");
