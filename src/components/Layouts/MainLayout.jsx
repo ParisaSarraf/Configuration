@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import CustomHeader from './Header';
 import Products from '../../pages/Products/Products';
-import { useProductContext } from '../../Services/ProductContext';
+import { useProductContext } from '../../Services/Context/ProductContext';
 
 const MainLayout = () => {
   const { currentProduct, activeProducts } = useProductContext();

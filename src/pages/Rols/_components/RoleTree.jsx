@@ -32,7 +32,6 @@ const RoleTree = ({ setModal, refetch }) => {
             titleField="name"
             keyField="id"
             childrenField="permissions"
-            // onNodeClick={(node) => console.log('Node clicked', node)}
             rightClickMenuItems={[
                 { key: 'edit', label: 'ویرایش سمت ' },
                 { key: 'delete', label: 'حذف' },

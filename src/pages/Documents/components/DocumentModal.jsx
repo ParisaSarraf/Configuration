@@ -13,7 +13,6 @@ import { useLifeCycleList } from "../../../QueryServises/lifeCycleQuery";
 const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, documentData }) => {
 
 
-  console.log(modalData);
 
 
 
@@ -27,7 +26,6 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
 
   useEffect(() => {
     if (modalMode === "edit" && modalData) {
-      console.log(modalData);
       form.setFieldsValue({
         parent_id: modalData.parent,
         code: modalData.code,
@@ -59,7 +57,6 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
         await createDocument(payload);
         message.success("سند با موفقیت اضافه شد");
       } else if (modalMode === "edit") {
-        console.log(modalData);
 
         await updateDocument({ documentId: modalData.id, ...payload });
         message.success("سند با موفقیت ویرایش شد");

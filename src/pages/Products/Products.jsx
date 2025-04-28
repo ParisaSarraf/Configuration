@@ -4,7 +4,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useProductList } from "../../QueryServises/productQuery";
 import ProductTree from "./components/ProductTree";
 import ProductModal from "./components/ProductModal";
-import { useProductContext } from '../../Services/ProductContext';
+import { useProductContext } from '../../Services/Context/ProductContext';
 import useModal from '../../hooks/useModal';
 
 const Products = () => {

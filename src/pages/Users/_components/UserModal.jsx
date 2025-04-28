@@ -4,11 +4,10 @@ import { Button, Col, Form, Input, message, Radio, Row } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import FileUploader from "../../../components/FileUploader/FileUploader";
 import { useCreateUser, useUpdateUser } from "../../../QueryServises/userQuery";
-import { BASEURL } from "../../../utils/Api";
+import { BASEURL } from "../../../Services/axiosInstance";
 
 const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch }) => {
   const [form] = Form.useForm();
-  const BaseUrl = BASEURL;
   const { isPending: isCreating, mutateAsync: createUser } = useCreateUser();
   const { isPending: isUpdating, mutateAsync: updateUser } = useUpdateUser();
 
@@ -27,7 +26,7 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
             {
               uid: "-1",
               name: "signature_image",
-              url: BaseUrl.replace("/api/v1", "") + modalData.signature_image,
+              url: BASEURL.replace("/api/v1", "") + modalData.signature_image,
             },
           ]
           : [],
@@ -36,7 +35,7 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
             {
               uid: "-2",
               name: "temp_image",
-              url: BaseUrl.replace("/api/v1", "") + modalData.temp_image,
+              url: BASEURL.replace("/api/v1", "") + modalData.temp_image,
             },
           ]
           : [],
@@ -78,7 +77,6 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
           console.error(error);
         });
     } else if (modalMode === "edit") {
-      console.log(payload);
 
       updateUser({ userId: modalData.id, userData: payload })
         .then(() => {

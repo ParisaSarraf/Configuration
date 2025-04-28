@@ -58,7 +58,6 @@ const DocumentTree = ({ setModal }) => {
 
   const handleRightClickAction = (actionKey, node) => {
     const documentId = node.id;
-    console.log(node);
 
 
     if (actionKey === "delete") {

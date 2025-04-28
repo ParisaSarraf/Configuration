@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Dropdown, Image, Tooltip, Button } from "antd";
 import {
-  UserOutlined,
   LoginOutlined,
   SettingOutlined,
-  ProfileOutlined,
   SecurityScanOutlined,
   DockerOutlined,
   CalendarOutlined,
@@ -12,11 +10,11 @@ import {
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined';
-import { BASEURL, useMyAxios } from "../../utils/Api";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import PersianDate from "persian-date";
-import { AccessTimeOutlined, ChangeHistoryOutlined } from "@mui/icons-material";
+import { AccessTimeOutlined } from "@mui/icons-material";
+import { useMyAxios } from "../../hooks/useMyAxios";
 
 
 const CustomHeader = () => {

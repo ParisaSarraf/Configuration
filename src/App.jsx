@@ -1,8 +1,8 @@
 import { ConfigProvider } from "antd";
 import { RouterProvider } from "react-router-dom";
 import router from "./router.jsx";
-import ContextProvider from "./Services/AuthContext.jsx";
-import { ProductProvider } from "./Services/ProductContext.jsx";
+import { ProductProvider } from "./Services/Context/ProductContext.jsx";
+import ContextProvider from "./Services/Context/AuthContext.jsx";
 
 const App = () => {
   return (

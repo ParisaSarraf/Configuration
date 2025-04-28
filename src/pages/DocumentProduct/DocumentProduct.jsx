@@ -1,7 +1,7 @@
 import { Card } from "antd";
 import useModal from "../../hooks/useModal";
 import { useDocumentList } from "../../QueryServises/documentQuery";
-import { useProductContext } from "../../Services/ProductContext";
+import { useProductContext } from "../../Services/Context/ProductContext";
 import DocumentProductModal from "./components/DocumentProductModal";
 
 
@@ -10,7 +10,6 @@ const ProductDocuments = () => {
     const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
     const { refetch } = useDocumentList()
     const { currentProduct } = useProductContext();
-    console.log(currentProduct);
 
 
     return (

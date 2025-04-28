@@ -26,7 +26,6 @@ const Users = () => {
   };
 
   const handleEditUser = (record) => {
-    console.log(record);
     setModal({ mode: "edit", data: record });
   };
 

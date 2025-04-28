@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useMyAxios } from "../../utils/Api";
+import { useMyAxios } from "../../hooks/useMyAxios";
 
 export const useRoleLifeCycleListKey = ["lists", "roles-lifecycle"];
 export const useRoleLifeCycleList = (queryOptions) => {
@@ -53,7 +53,6 @@ export const usePutRoleLifeCycle = () => {
       return myAxios
         .put(`/life-cycle/update-role-life-cycle/${lifeCycleId}/`, params)
         .then((response) => {
-          console.log(params);
           return response?.data;
         });
     },

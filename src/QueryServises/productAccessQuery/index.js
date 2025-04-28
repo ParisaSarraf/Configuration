@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useMyAxios } from "../../utils/Api";
+import { useMyAxios } from "../../hooks/useMyAxios";
 
 export const useProductAccsessKey = ["lists", "accsess-product"];
 export const useProductAccsessList = (queryOptions) => {

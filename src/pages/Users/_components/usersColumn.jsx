@@ -1,6 +1,6 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Button, Image } from "antd";
-import { BASEURL } from "../../../utils/Api";
+import { BASEURL } from "../../../Services/axiosInstance";
 
 
 export const columns = (handleEditUser, handleDeleteUser) => [

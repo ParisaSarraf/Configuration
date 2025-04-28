@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { useMyAxios } from "../../utils/Api";
+import { useMyAxios } from "../../hooks/useMyAxios";
 
 export const useCreateProductDocument = () => {
   const { myAxios } = useMyAxios();

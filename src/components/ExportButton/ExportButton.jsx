@@ -3,7 +3,7 @@ import React from 'react';
 import * as XLSX from 'xlsx';
 
 const ExportButton = ({ data, filename }) => {
-  // تابع برای خروجی Excel
+
   const exportToExcel = () => {
     const ws = XLSX.utils.json_to_sheet(data);
     const range = XLSX.utils.decode_range(ws['!ref']);
@@ -12,7 +12,7 @@ const ExportButton = ({ data, filename }) => {
         const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
         if (!ws[cellAddress]) continue;
 
-        // راست‌چین کردن متن
+
         ws[cellAddress].s = ws[cellAddress].s || {};
         ws[cellAddress].s.alignment = ws[cellAddress].s.alignment || {};
         ws[cellAddress].s.alignment.horizontal = 'right';
@@ -24,7 +24,7 @@ const ExportButton = ({ data, filename }) => {
     XLSX.writeFile(wb, `${filename}.xlsx`);
   };
 
-  // تابع برای خروجی CSV
+
   const exportToCSV = () => {
     const headers = Object.keys(data[0]).join(',');
     const rows = data.map(row => Object.values(row).join(','));
@@ -36,7 +36,7 @@ const ExportButton = ({ data, filename }) => {
     link.click();
   };
 
-  // پرسش از کاربر برای انتخاب فرمت خروجی
+
   const handleExport = () => {
     const format = prompt('لطفاً فرمت خروجی را انتخاب کنید (csv یا excel):').toLowerCase();
     if (format === 'csv') {

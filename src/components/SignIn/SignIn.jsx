@@ -1,8 +1,8 @@
 import { Form, Input, Button, Typography, message } from "antd";
 import { Suspense, useContext, useState } from "react";
-import { MainContext } from "../../Services/AuthContext";
+import { MainContext } from "../../Services/Context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
-import { SignInFn } from "../../utils/Api";
+import { SignInFn } from "../../Services/authService";
 
 const { Title, Paragraph } = Typography;
 

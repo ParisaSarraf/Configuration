@@ -21,7 +21,6 @@ const ProductModal = ({
     const { data: casingData } = useOneCoreSetting("casing");
     const { data: genusData } = useGenusProductList();
 
-    console.log(modalMode);
 
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
