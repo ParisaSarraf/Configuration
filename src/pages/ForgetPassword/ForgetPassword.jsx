@@ -1,10 +1,30 @@
-import { Form, Input, Button } from 'antd';
+import { Form, Input, Button, message } from 'antd';
 import Paragraph from 'antd/es/typography/Paragraph';
 import Title from 'antd/es/typography/Title';
-import { Link } from 'react-router-dom';
+import { useChangePassword } from '../../QueryServises/forgetPassQuery';
+import { useNavigate } from 'react-router-dom';
 
 
 const ForgetPassword = () => {
+    const navigate = useNavigate()
+    const { mutateAsync: changePass } = useChangePassword()
+
+    const onFinish = async (values) => {
+        const payload = {
+            old_password: values.previousPassword,
+            new_password: values.newPassword
+        }
+        try {
+            await changePass(payload)
+            message.success('رمزعبور با موفقیت تغییر کرد')
+            navigate('/sign-in')
+        } catch (error) {
+            console.error(error);
+            message.error("مشکلی در تغییر رمزعبور پیش آمده است.")
+        }
+
+    }
+
     return (
         <section className="m-8 flex gap-4">
             <div className="w-2/5 h-full hidden lg:block">
@@ -15,7 +35,7 @@ const ForgetPassword = () => {
                 />
             </div>
             <div className="w-full lg:w-3/5 mt-24">
-            
+
                 <div className="text-center">
                     <Title level={2} className="font-bold mb-4">تغییر رمز عبور</Title>
                     <Paragraph className="text-gray-600 text-lg">
@@ -23,7 +43,7 @@ const ForgetPassword = () => {
                     </Paragraph>
                 </div>
 
-                <Form className="mt-8 mb-2 mx-auto w-80 max-w-screen-lg lg:w-1/2"  layout='vertical'>
+                <Form className="mt-8 mb-2 mx-auto w-80 max-w-screen-lg lg:w-1/2" layout='vertical' onFinish={onFinish} >
                     <Form.Item
                         name="previousPassword"
                         label="رمز عبور قبلی"
@@ -66,7 +86,7 @@ const ForgetPassword = () => {
                 </Form>
             </div>
 
-            
+
         </section>
     )
 }

@@ -2,6 +2,7 @@ import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MainContext } from "../Services/Context/AuthContext";
 import myAxios from "../Services/axiosInstance";
+import { logoutFn } from "../Services/authService";
 
 export const useMyAxios = () => {
   const { authToken, setAuthToken } = useContext(MainContext);
