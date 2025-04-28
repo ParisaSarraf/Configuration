@@ -5,7 +5,9 @@ import { PlusOutlined } from "@ant-design/icons";
 import { useDocumentList } from "../../../QueryServises/documentQuery";
 import { useCreateProductDocument, useUpdateProductDocument } from "../../../QueryServises/productDocumentQuery";
 
-const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal }) => {
+const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, currentProduct }) => {
+    // console.log(currentProduct.id);
+
     const [form] = Form.useForm();
     const { isPending: isCreating, mutateAsync: createProductDocument } = useCreateProductDocument();
     const { isPending: isUpdating, mutateAsync: updateProductDocument } = useUpdateProductDocument();
@@ -27,12 +29,11 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
 
     const onFinishForm = async (values) => {
         const payload = {
-            product_id: values.code,
-            document_id: values.persianTitle,
-            title: values.englishTitle,
-            gant_doc: values.isUsable,
+            product_id: currentProduct.id,
+            document_id: values.document_id,
+            title: values.title,
+            gant_doc: values.gant_doc,
         };
-
         try {
             if (modalMode === "add") {
                 await createProductDocument(payload);
@@ -41,7 +42,7 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
                 await updateProductDocument({ documentId: modalData.id, ...payload });
                 message.success("سند با موفقیت ویرایش شد");
             }
-            await refetch();
+            refetch();
             closeModal();
         } catch (error) {
             message.error("موفقیت آمیز نبود، دوباره امتحان کنید");
@@ -99,8 +100,6 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
                                 />
                             </Form.Item>
                         </Col>
-
-
 
                         <Col span={16}>
                             <Form.Item

@@ -18,6 +18,7 @@ const ProductDocuments = () => {
                 title={` اسناد ${currentProduct?.name || ''}`}
                 extra={
                     <DocumentProductModal
+                        currentProduct={currentProduct}
                         isOpen={isOpen}
                         modalMode={modalMode}
                         modalData={modalData}
