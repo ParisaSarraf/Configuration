@@ -147,7 +147,8 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
                 onNodeClick={onProductClick}
                 checkable={false}
                 rightClickMenuItems={rightClickMenuItems}
-                onRightClickAction={handleRightClickAction} />
+                onRightClickAction={handleRightClickAction}
+            />
         </div>
     );
 };

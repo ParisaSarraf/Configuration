@@ -3,6 +3,7 @@ import useModal from "../../hooks/useModal";
 import { useDocumentList } from "../../QueryServises/documentQuery";
 import { useProductContext } from "../../Services/Context/ProductContext";
 import DocumentProductModal from "./components/DocumentProductModal";
+import ProductDocumentTree from "./components/ProductDocumentTree";
 
 
 
@@ -10,6 +11,7 @@ const ProductDocuments = () => {
     const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
     const { refetch } = useDocumentList()
     const { currentProduct } = useProductContext();
+
 
 
     return (
@@ -28,7 +30,7 @@ const ProductDocuments = () => {
                     />
                 }
             >
-                {/* <DocumentTree setModal={setModal} refetch={refetch} /> */}
+                <ProductDocumentTree setModal={setModal} refetch={refetch} />
             </Card >
         </ >
     );

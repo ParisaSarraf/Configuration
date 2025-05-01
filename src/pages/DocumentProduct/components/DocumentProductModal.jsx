@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import Modal from "../../../components/Modal";
-import { Button, Col, Form, Input, message, Row, Select, Switch } from "antd";
+import { Button, Col, Form, Input, message, Row, Switch, TreeSelect } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useDocumentList } from "../../../QueryServises/documentQuery";
 import { useCreateProductDocument, useUpdateProductDocument } from "../../../QueryServises/productDocumentQuery";
@@ -50,6 +50,33 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
         }
     };
 
+
+    const getTreeSelectOptions = (data, modalMode = null, modalData = null) => {
+        return data.map(item => {
+            const titleFields = [
+                'persianTitle',
+
+            ];
+            let title = 'بدون عنوان';
+            for (const field of titleFields) {
+                if (item[field]) {
+                    title = item[field];
+                    if (field !== 'code' && item.code) {
+                        title = ` ${title}`;
+                    }
+                    break;
+                }
+                disabled: modalMode === "edit" && modalData && (item.id === modalData.id || item.id === modalData.parent_code)
+            }
+            return {
+                title: title,
+                value: item.id,
+                children: item.children ? getTreeSelectOptions(item.children, modalMode, modalData) : [],
+                disabled: modalMode === "edit" && item.id === modalData?.id
+            };
+        });
+    };
+
     return (
         <>
             <Button
@@ -76,7 +103,7 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
                     <Row gutter={[16, 16]}>
                         <Col span={24}>
                             <Form.Item
-                                label="نام"
+                                label="عنوان سند"
                                 name="title"
                                 rules={[{ required: true, message: "لطفاً نام را وارد کنید" }]}
                             >
@@ -85,18 +112,17 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
                         </Col>
                         <Col span={24}>
                             <Form.Item
-                                label="اسناد"
+                                label="نوع سند"
                                 name="document_id"
                                 rules={[{ required: true, message: "لطفاً اسناد را انتخاب کنید" }]}
                             >
-                                <Select
-                                    showSearch
+                                <TreeSelect
+                                    treeData={getTreeSelectOptions(documentList || [])}
                                     placeholder="اسناد"
-                                    options={documentList?.map(document => ({
-                                        label: `${document.persianTitle}`,
-                                        value: document.id
-                                    }))}
                                     allowClear
+                                    treeIcon={true}
+                                    treeLine={true}
+                                    showSearch
                                 />
                             </Form.Item>
                         </Col>

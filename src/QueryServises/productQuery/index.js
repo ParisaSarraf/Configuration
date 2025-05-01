@@ -15,18 +15,20 @@ export const useProductList = (queryOptions) => {
   });
 };
 
-// export const useOneProduct = ["product", productId];
-// export const useProductDetails = (productId) => {
-//   return useQuery({
-//     queryKey: useOneProduct,
-//     queryFn: () =>
-//       myAxios.get(`/product/get-product/${productId}`).then((response) => {
-//         queryOptions?.onSuccess?.(response?.data);
-//         return response?.data;
-//       }),
-//     ...queryOptions,
-//   });
-// };
+export const useProductByIdKey = (id) => ["product", id];
+export const useProductById = (id, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: useProductByIdKey(id),
+    queryFn: () =>
+      id
+        ? myAxios
+            .get(`/product/get-product-by-id/${id}`)
+            .then((response) => response?.data)
+        : Promise.resolve(null),
+    ...queryOptions,
+  });
+};
 
 export const useCreateProduct = () => {
   const { myAxios } = useMyAxios();
