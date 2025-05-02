@@ -66,13 +66,20 @@ const ProductModal = ({
 
     const onFinish = (values) => {
         // console.log(values);
+        if (values.personality_ids && !Array.isArray(values.personality_ids)) {
+            values.personality_ids = [values.personality_ids];
+        }
         const payload = {
             parent_id: values.parent_id,
             casing_id: values.casing_id,
             genus_id: values.genus_id,
             alternative_genus_id: values.alternative_genus_id,
             parent_code_id: values.parent_code_id,
-            personality_ids: values.personality_ids || [],
+            personality_ids: Array.isArray(values.personality_ids)
+                ? values.personality_ids
+                : values.personality_ids
+                    ? [values.personality_ids]
+                    : [],
             code: values.code,
             persian_title: values.persian_title,
             product_number: values.product_number,
@@ -113,7 +120,7 @@ const ProductModal = ({
 
             updateProduct({
                 productId: modalData.id,
-               ...payload
+                ...payload
             })
                 .then(() => {
                     message.success("محصول با موفقیت ویرایش شد");

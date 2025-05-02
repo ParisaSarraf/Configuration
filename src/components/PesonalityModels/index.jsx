@@ -1,4 +1,4 @@
-import { Form, Select, Spin, message, Tag, Row, Col } from "antd";
+import { Form, Select, Spin, message, Tag } from "antd";
 import { useState } from "react";
 import { usePersonalityProductList } from "../../QueryServises/personalityQuery";
 
@@ -6,7 +6,9 @@ const PersonalityModels = ({ showAlongside = false, value }) => {
     const { data: personalityData, isLoading } = usePersonalityProductList();
     const [selectedType, setSelectedType] = useState(value?.personality_type || null);
     const [selectedItems, setSelectedItems] = useState(
-        value?.product_personalities?.map(p => p.personality.id) || []
+        Array.isArray(value?.product_personalities)
+            ? value.product_personalities.map(p => p.personality.id)
+            : []
     );
 
     const typeOptions = [
@@ -42,17 +44,22 @@ const PersonalityModels = ({ showAlongside = false, value }) => {
     };
 
     const handleItemChange = (value) => {
-        setSelectedItems(value);
+        // Ensure value is always an array
+        const newValue = value === undefined || value === null
+            ? []
+            : Array.isArray(value)
+                ? value
+                : [value];
+        setSelectedItems(newValue);
     };
 
     const dynamicOptions = selectedType && personalityData
         ? flattenTreeWithHierarchy(personalityData)
         : [];
 
-    // Find the full label for a given value
     const getLabelForValue = (value) => {
         const option = dynamicOptions.find(opt => opt.value === value);
-        return option ? option.label : String(value); // Fallback to string conversion
+        return option ? option.label : String(value);
     };
 
     const renderContent = () => (
@@ -75,6 +82,7 @@ const PersonalityModels = ({ showAlongside = false, value }) => {
                 <Form.Item
                     name="personality_ids"
                     label="ویژگی استاندارد"
+                    getValueFromEvent={(value) => Array.isArray(value) ? value : [value]}
                 >
                     <Select
                         options={dynamicOptions}
@@ -130,13 +138,7 @@ const PersonalityModels = ({ showAlongside = false, value }) => {
 
     return (
         <div className="personality-container">
-            {showAlongside ? (
-                <>
-                    {renderContent()}
-                </>
-            ) : (
-                renderContent()
-            )}
+            {showAlongside ? renderContent() : renderContent()}
         </div>
     );
 };
