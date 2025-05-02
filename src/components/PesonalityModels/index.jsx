@@ -5,8 +5,9 @@ import { usePersonalityProductList } from "../../QueryServises/personalityQuery"
 const PersonalityModels = ({ showAlongside = false, value }) => {
     const { data: personalityData, isLoading } = usePersonalityProductList();
     const [selectedType, setSelectedType] = useState(value?.personality_type || null);
-    const [selectedItems, setSelectedItems] = useState(value?.product_personalities?.map(p => p.personality.id) || []);
-
+    const [selectedItems, setSelectedItems] = useState(
+        value?.product_personalities?.map(p => p.personality.id) || []
+    );
 
     const typeOptions = [
         { value: 'made', label: 'ساخت' },
@@ -48,12 +49,17 @@ const PersonalityModels = ({ showAlongside = false, value }) => {
         ? flattenTreeWithHierarchy(personalityData)
         : [];
 
+    // Find the full label for a given value
+    const getLabelForValue = (value) => {
+        const option = dynamicOptions.find(opt => opt.value === value);
+        return option ? option.label : String(value); // Fallback to string conversion
+    };
+
     const renderContent = () => (
         <>
             <Form.Item
                 name="personality_type"
                 label="نوع هویت"
-                // rules={[{ required: true, message: "لطفاً نوع هویت را انتخاب کنید" }]}
             >
                 <Select
                     options={typeOptions}
@@ -91,7 +97,6 @@ const PersonalityModels = ({ showAlongside = false, value }) => {
                 <Form.Item
                     name="personality_ids"
                     label="ویژگی‌های ساخت"
-                    // rules={[{ required: true, message: "لطفاً حداقل یک ویژگی انتخاب کنید" }]}
                 >
                     <Select
                         mode="multiple"
@@ -109,11 +114,14 @@ const PersonalityModels = ({ showAlongside = false, value }) => {
                         }
                         maxTagCount="responsive"
                         maxTagTextLength={20}
-                        tagRender={({ label, onClose }) => (
-                            <Tag closable onClose={onClose} style={{ marginRight: 3 }}>
-                                {label.split(' / ').pop()}
-                            </Tag>
-                        )}
+                        tagRender={({ value, onClose }) => {
+                            const label = getLabelForValue(value);
+                            return (
+                                <Tag closable onClose={onClose} style={{ marginRight: 3 }}>
+                                    {typeof label === 'string' ? label.split(' / ').pop() : String(value)}
+                                </Tag>
+                            );
+                        }}
                     />
                 </Form.Item>
             )}
@@ -134,11 +142,3 @@ const PersonalityModels = ({ showAlongside = false, value }) => {
 };
 
 export default PersonalityModels;
-
-<style jsx>{`
-    .personality-container {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-`}</style>

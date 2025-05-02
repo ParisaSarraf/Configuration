@@ -23,6 +23,7 @@ const ProductModal = ({
 
 
     useEffect(() => {
+        // console.log(modalData);
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
                 persian_title: modalData.persian_title,
@@ -39,13 +40,14 @@ const ProductModal = ({
                 internal_diagonal: modalData.internal_diagonal,
                 parent_id: modalData.parent_code || null,
                 parent_code_id: modalData.parent_code || null,
-                casing_id: modalData.casing_id,
-                genus_id: modalData.genus_id,
-                personality_id: modalData.personality_id,
+                casing_id: modalData.casing?.id || [],
+                genus_id: modalData.genus?.id || [],
                 pro_type: modalData.pro_type,
                 description: modalData.description,
                 brand1: modalData.brand1,
                 brand1_desc: modalData.brand1_desc,
+                personality_type: modalData.personality_type,
+                personality_ids: modalData.product_personalities?.map(p => p.personality.id) || [],
                 brand2: modalData.brand2,
                 brand2_desc: modalData.brand2_desc,
                 employer_code: modalData.employer_code,
@@ -63,13 +65,14 @@ const ProductModal = ({
     }, [modalMode, modalData, form]);
 
     const onFinish = (values) => {
+        // console.log(values);
         const payload = {
             parent_id: values.parent_id,
             casing_id: values.casing_id,
             genus_id: values.genus_id,
             alternative_genus_id: values.alternative_genus_id,
             parent_code_id: values.parent_code_id,
-            personality_ids: values.personality_ids,
+            personality_ids: values.personality_ids || [],
             code: values.code,
             persian_title: values.persian_title,
             product_number: values.product_number,
@@ -100,27 +103,28 @@ const ProductModal = ({
                 .then(() => {
                     message.success("محصول با موفقیت اضافه شد");
                     closeModal();
-                    refetch();
                 })
                 .catch((error) => {
                     message.error(error.response?.data?.message || "خطا در افزودن محصول");
                     console.error(error);
                 });
         } else if (modalMode === "edit") {
+            console.log(payload);
+
             updateProduct({
                 productId: modalData.id,
-                productData: payload
+               ...payload
             })
                 .then(() => {
                     message.success("محصول با موفقیت ویرایش شد");
                     closeModal();
-                    refetch();
                 })
                 .catch((error) => {
                     message.error(error.response?.data?.message || "خطا در ویرایش محصول");
                     console.error(error);
                 });
         }
+        refetch()
     };
 
     const getTreeSelectOptions = (data, modalMode = null, modalData = null) => {
@@ -270,7 +274,7 @@ const ProductModal = ({
 
 
                         <Col span={24}>
-                            <Form.Item name="personality_id">
+                            <Form.Item>
                                 <PersonalityModels
                                     showAlongside={true}
                                     value={modalData}

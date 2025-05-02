@@ -58,6 +58,7 @@ export const useUpdateProduct = () => {
   const { myAxios } = useMyAxios();
   return useMutation({
     mutationFn: ({ productId, ...params }) => {
+      
       return myAxios
         .put(`/product/update-product/${productId}/`, params)
         .then((response) => {
