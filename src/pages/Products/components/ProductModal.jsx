@@ -38,8 +38,8 @@ const ProductModal = ({
                 price: modalData.price,
                 external_diagonal: modalData.external_diagonal,
                 internal_diagonal: modalData.internal_diagonal,
-                parent_id: modalData.parent_code || null,
-                parent_code_id: modalData.parent_code || null,
+                parent_id: modalData.parent_code,
+                parent_code_id: modalData.parent_code,
                 casing_id: modalData.casing?.id || [],
                 genus_id: modalData.genus?.id || [],
                 pro_type: modalData.pro_type,
@@ -70,11 +70,11 @@ const ProductModal = ({
             values.personality_ids = [values.personality_ids];
         }
         const payload = {
-            parent_id: values.parent_id,
+            parent_id: values.parent_id || null,
             casing_id: values.casing_id,
             genus_id: values.genus_id,
             alternative_genus_id: values.alternative_genus_id,
-            parent_code_id: values.parent_code_id,
+            parent_code_id: values.parent_code_id || null,
             personality_ids: Array.isArray(values.personality_ids)
                 ? values.personality_ids
                 : values.personality_ids

@@ -15,6 +15,7 @@ const Tree = ({
   childrenField = "children",
   showLine = true,
   checkable = true,
+  className,
   onNodeClick,
   showRightClickMenu = true,
   rightClickMenuItems = [
@@ -145,6 +146,7 @@ const Tree = ({
         onCheck={onCheck}
         checkedKeys={checkedKeys}
         {...props}
+        className={className}
       />
 
       {showRightClickMenu && rightClickNode && (

@@ -4,8 +4,6 @@ import {
     EditOutlined,
     DeleteOutlined,
     PlusOutlined,
-    FileExcelOutlined,
-    FileOutlined
 } from '@ant-design/icons';
 import { useDeleteProduct } from "../../../QueryServises/productQuery";
 import Tree from "../../../components/Tree";
@@ -65,7 +63,7 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
     const transformDataToTreeFormat = (productData) => {
         if (!productData) return [];
         return productData.map(item => ({
-            title: ` ${item.persian_title}  (${item.code}) `,
+            title: `  .${item.persian_title}  (${item.code}) `,
             key: `product-${item.id}`,
             id: item.id,
             name: item.persian_title,
@@ -78,12 +76,9 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
         }));
     };
 
-
     const treeData = useMemo(() => {
         return transformDataToTreeFormat(productData);
     }, [productData]);
-
-
 
     const handleRightClickAction = async (actionKey, node) => {
         const genusId = node.id;
@@ -139,6 +134,7 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
         <div className="p-2">
             <Tree
                 data={treeData}
+                className="text-[12px]"
                 isLoading={isLoading || isDeleting}
                 isError={isError || isDeleting}
                 onChange={onChange}

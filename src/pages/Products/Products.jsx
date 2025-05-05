@@ -30,7 +30,7 @@ const Products = () => {
                 onClick={() => setModal({ mode: 'add' })}
                 icon={<PlusOutlined />}
                 className="flex flex-row items-center m-2 px-14"
-                style={{ width: '282px' }}            >
+                style={{ width: '283px' }}            >
                 افزودن محصول
             </Button>
 
@@ -50,7 +50,6 @@ const Products = () => {
                     checkedKeys={checkedKeys}
                     onChange={handleTreeChange}
                     onProductClick={handleProductSelect}
-
                 />
             )}
             <ProductModal
