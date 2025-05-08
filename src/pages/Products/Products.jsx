@@ -22,7 +22,7 @@ const Products = () => {
         <div
             className='rounded-xl mr-2 bg-white mb-2 shadow-lg shadow-purple-6 '
             style={{
-                width: '300px',
+                width: '360px',
                 transition: 'width 0.2s',
             }}>
             <Button
@@ -30,7 +30,7 @@ const Products = () => {
                 onClick={() => setModal({ mode: 'add' })}
                 icon={<PlusOutlined />}
                 className="flex flex-row items-center m-2 px-14"
-                style={{ width: '283px' }}            >
+                style={{ width: '343px' }}            >
                 افزودن محصول
             </Button>
 

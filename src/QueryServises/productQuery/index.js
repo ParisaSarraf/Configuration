@@ -30,6 +30,21 @@ export const useProductById = (id, queryOptions) => {
   });
 };
 
+export const useFinakCodeProductByIdKey = (id) => ["final-product-code", id];
+export const useFinakCodeProductById = (id, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: useFinakCodeProductByIdKey(id),
+    queryFn: () =>
+      id
+        ? myAxios
+            .get(`/product/get-product-parents-code/${id}`)
+            .then((response) => response?.data)
+        : Promise.resolve(null),
+    ...queryOptions,
+  });
+};
+
 export const useCreateProduct = () => {
   const { myAxios } = useMyAxios();
   return useMutation({
@@ -58,7 +73,6 @@ export const useUpdateProduct = () => {
   const { myAxios } = useMyAxios();
   return useMutation({
     mutationFn: ({ productId, ...params }) => {
-      
       return myAxios
         .put(`/product/update-product/${productId}/`, params)
         .then((response) => {

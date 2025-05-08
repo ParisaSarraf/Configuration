@@ -1,6 +1,6 @@
 import { Col, Divider, Form, Input, InputNumber, message, Row, Select } from "antd";
 import React, { useEffect } from "react";
-import { useCreateProduct, useUpdateProduct } from "../../../QueryServises/productQuery";
+import { useCreateProduct, useFinakCodeProductById, useUpdateProduct } from "../../../QueryServises/productQuery";
 import { useOneCoreSetting } from "../../../QueryServises/settingQuery";
 import { useGenusProductList } from "../../../QueryServises/genusQuery";
 import Modal from "../../../components/Modal";
@@ -16,6 +16,7 @@ const ProductModal = ({
     productData
 }) => {
     const [form] = Form.useForm();
+    const { data: parentCodeId } = useFinakCodeProductById()
     const { isPending: isCreating, mutateAsync: createProduct } = useCreateProduct();
     const { isPending: isUpdating, mutateAsync: updateProduct } = useUpdateProduct();
     const { data: casingData } = useOneCoreSetting("casing");
@@ -23,7 +24,26 @@ const ProductModal = ({
 
 
     useEffect(() => {
-        // console.log(modalData);
+        if (parentCodeId) {
+            setFinalCodePrefix(parentCodeId + "/");
+        }
+    }, [parentCodeId]);
+
+    // مدیریت تغییرات فیلد کد نهایی
+    const handleFinalCodeChange = (e) => {
+        const value = e.target.value;
+        if (value.startsWith(finalCodePrefix)) {
+            // اگر کاربر کد پایه را تغییر داد، آن را در state ذخیره کنید
+            form.setFieldsValue({ final_code: value });
+        } else {
+            // در غیر این صورت، کد پایه را حفظ کرده و بقیه را اضافه کنید
+            form.setFieldsValue({ final_code: finalCodePrefix + value });
+        }
+    };
+
+    useEffect(() => {
+        console.log(modalMode);
+        console.log(modalData);
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
                 persian_title: modalData.persian_title,
@@ -52,29 +72,36 @@ const ProductModal = ({
                 brand2_desc: modalData.brand2_desc,
                 employer_code: modalData.employer_code,
                 standard_code: modalData.standard_code,
-                alternative_genus_id: modalData.alternative_genus_id
+                alternative_genus_id: modalData.alternative_genus?.id,
+                final_code: modalData.final_code || (parentCodeId ? parentCodeId + "/" : "")
+
             });
         } else if (modalMode === "add") {
             form.resetFields();
+            if (parentCodeId) {
+                form.setFieldsValue({ final_code: parentCodeId + "/" });
+            }
         } else if (modalMode === "addToParent") {
-            form.setFieldsValue({
-                parent_id: modalData.id,
-                parent_code_id: modalData.id,
-            });
+            form.resetFields(),
+                form.setFieldsValue({
+                    parent_id: modalData.id,
+                    parent_code_id: modalData.id,
+                    final_code: parentCodeId ? parentCodeId + "/" : ""
+
+                });
         }
     }, [modalMode, modalData, form]);
 
     const onFinish = (values) => {
-        // console.log(values);
         if (values.personality_ids && !Array.isArray(values.personality_ids)) {
             values.personality_ids = [values.personality_ids];
         }
         const payload = {
-            parent_id: values.parent_id || null,
+            parent_id: values.parent_id,
             casing_id: values.casing_id,
             genus_id: values.genus_id,
             alternative_genus_id: values.alternative_genus_id,
-            parent_code_id: values.parent_code_id || null,
+            parent_code_id: values.parent_code_id,
             personality_ids: Array.isArray(values.personality_ids)
                 ? values.personality_ids
                 : values.personality_ids
@@ -115,6 +142,7 @@ const ProductModal = ({
                     message.error(error.response?.data?.message || "خطا در افزودن محصول");
                     console.error(error);
                 });
+            refetch()
         } else if (modalMode === "edit") {
             console.log(payload);
 
@@ -122,6 +150,7 @@ const ProductModal = ({
                 productId: modalData.id,
                 ...payload
             })
+
                 .then(() => {
                     message.success("محصول با موفقیت ویرایش شد");
                     closeModal();
@@ -130,8 +159,8 @@ const ProductModal = ({
                     message.error(error.response?.data?.message || "خطا در ویرایش محصول");
                     console.error(error);
                 });
+            refetch()
         }
-        refetch()
     };
 
     const getTreeSelectOptions = (data, modalMode = null, modalData = null) => {
@@ -224,6 +253,13 @@ const ProductModal = ({
                                 rules={[{ required: true, message: "لطفاً کد محصول را وارد کنید" }]}
                             >
                                 <Input addonBefore="کد محصول" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item name="final_code">
+                                <Input addonBefore="کد نهایی"
+                                    onChange={handleFinalCodeChange}
+                                />
                             </Form.Item>
                         </Col>
                         <Col span={8}>
@@ -385,11 +421,7 @@ const ProductModal = ({
                                 />
                             </Form.Item>
                         </Col>
-                        <Col span={8}>
-                            <Form.Item name="final_code">
-                                <Input addonBefore="کد نهایی" />
-                            </Form.Item>
-                        </Col>
+              
                         <Col span={8}>
                             <Form.Item name="store_code">
                                 <Input addonBefore="کد انبار" />

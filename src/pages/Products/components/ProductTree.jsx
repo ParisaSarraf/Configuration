@@ -134,7 +134,7 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
         <div className="p-2">
             <Tree
                 data={treeData}
-                className="text-[12px]"
+                className="text-[12px] "
                 isLoading={isLoading || isDeleting}
                 isError={isError || isDeleting}
                 onChange={onChange}
