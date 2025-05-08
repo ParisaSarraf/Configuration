@@ -9,13 +9,9 @@ import {
   useDocumentList,
 } from "../../../QueryServises/documentQuery";
 import { useLifeCycleList } from "../../../QueryServises/lifeCycleQuery";
+import DatepickerCustom from "../../../components/DatePicker";
 
 const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, documentData }) => {
-
-
-
-
-
   const [form] = Form.useForm();
   const { isPending: isCreating, mutateAsync: createDocument } = useCreateDocument();
   const { isPending: isUpdating, mutateAsync: updateDocument } = useUpdateDocument();
@@ -31,7 +27,7 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
         code: modalData.code,
         persianTitle: modalData.title,
         englishTitle: modalData.englishTitle,
-        tag_id: modalData.tag.id,
+        tag_id: modalData?.tag?.id,
         isUsable: modalData.isUsable,
         isReproducible: modalData.isReproducible,
       });
@@ -131,13 +127,14 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
         }}>
           <Form
             form={form}
-            layout="horizontal"
+            layout="vertical"
             className="p-4"
             onFinish={onFinishForm}
           >
             <Row gutter={[24, 16]}>
-              <Col span={24}>
+              <Col span={12}>
                 <Form.Item
+                  layout="vertical"
                   label="شاخه والد"
                   name="parent_id"
                   tooltip="محصول والد را انتخاب کنید"
@@ -154,23 +151,25 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
                 </Form.Item>
               </Col>
 
-              <Col span={24}>
+              <Col span={12}>
                 <Form.Item
                   label="کد محصول"
+                  layout="vertical"
+
                   name="code"
                   rules={[{
                     required: true,
                     message: "لطفاً کد محصول را وارد کنید"
                   }]}
-                  tooltip="کد منحصر به فرد محصول"
                 >
                   <Input placeholder="مثال: PRD-001" />
                 </Form.Item>
               </Col>
 
-              <Col span={24}>
+              <Col span={12}>
                 <Form.Item
                   label="نام فارسی"
+                  layout="vertical"
                   name="persianTitle"
                   rules={[{
                     required: true,
@@ -181,10 +180,13 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
                 </Form.Item>
               </Col>
 
-              <Col span={24}>
+
+              <Col span={12}>
                 <Form.Item
                   label="نام انگلیسی"
                   name="englishTitle"
+                  layout="vertical"
+
                   rules={[{
                     required: true,
                     message: "لطفاً نام انگلیسی محصول را وارد کنید",
@@ -198,8 +200,9 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
                 </Form.Item>
               </Col>
 
-              <Col span={24}>
+              <Col span={12}>
                 <Form.Item
+                  layout="vertical"
                   label="چرخه عمر محصول"
                   name="tag_id"
                 >
@@ -214,10 +217,24 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
                   />
                 </Form.Item>
               </Col>
+              <Col span={12}>
+                <Form.Item
+                  layout="vertical"
+                  label="تاریخ تهیه سند"
+                  name="DocumentDate"
+
+                // rules={[{
+                //   required: true,
+                //   message: "لطفاً نام فارسی محصول را وارد کنید"
+                // }]}
+                >
+                  <DatepickerCustom />
+                </Form.Item>
+              </Col>
 
               <Col span={8}>
                 <Form.Item
-                  label="قابل استفاده"
+                  label="Doc"
                   name="isUsable"
                   valuePropName="checked"
                   tooltip="آیا این محصول قابل استفاده است؟"
@@ -232,7 +249,7 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
 
               <Col span={8}>
                 <Form.Item
-                  label="قابل تولید"
+                  label="Log"
                   name="isReproducible"
                   valuePropName="checked"
                   tooltip="آیا این محصول قابل تولید مجدد است؟"
