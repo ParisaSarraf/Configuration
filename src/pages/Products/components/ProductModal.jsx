@@ -1,5 +1,5 @@
 import { Col, Divider, Form, Input, InputNumber, message, Row, Select } from "antd";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useCreateProduct, useFinalCodeProductById, useUpdateProduct } from "../../../QueryServises/productQuery";
 import { useOneCoreSetting } from "../../../QueryServises/settingQuery";
 import { useGenusProductList } from "../../../QueryServises/genusQuery";
@@ -16,32 +16,27 @@ const ProductModal = ({
     productData
 }) => {
     const [form] = Form.useForm();
-    const { data: parentCodeId } = useFinalCodeProductById()
     const { isPending: isCreating, mutateAsync: createProduct } = useCreateProduct();
     const { isPending: isUpdating, mutateAsync: updateProduct } = useUpdateProduct();
     const { data: casingData } = useOneCoreSetting("casing");
     const { data: genusData } = useGenusProductList();
+    const [selectedParentCodeId, setSelectedParentCodeId] = useState(null);
+    const [productCoding, setProductCoding] = useState(null);
+    const { data: parentCodeData } = useFinalCodeProductById(selectedParentCodeId);
+    const parentCodeId = parentCodeData?.code || "";
+
+    useEffect(() => {
+        if (parentCodeId && productCoding) {
+            form.setFieldsValue({
+                final_code: `${parentCodeId}${productCoding}`
+            });
+        }
+    }, [parentCodeId, productCoding, form]);
 
 
     useEffect(() => {
-        if (parentCodeId) {
-            setFinalCodePrefix(parentCodeId + "/");
-        }
-    }, [parentCodeId]);
-
-    const handleFinalCodeChange = (e) => {
-        const value = e.target.value;
-        if (value.startsWith(finalCodePrefix)) {
-            form.setFieldsValue({ final_code: value });
-        } else {
-            form.setFieldsValue({ final_code: finalCodePrefix + value });
-        }
-    };
-
-    useEffect(() => {
-        console.log(modalMode);
-        console.log(modalData);
         if (modalMode === "edit" && modalData) {
+            form.resetFields()
             form.setFieldsValue({
                 persian_title: modalData.persian_title,
                 code: modalData.code,
@@ -70,29 +65,30 @@ const ProductModal = ({
                 employer_code: modalData.employer_code,
                 standard_code: modalData.standard_code,
                 alternative_genus_id: modalData.alternative_genus?.id,
-                final_code: modalData.final_code || (parentCodeId ? parentCodeId + "/" : "")
-
+                final_code: modalData.final_code || (parentCodeId ? parentCodeId : ""),
             });
         } else if (modalMode === "add") {
             form.resetFields();
             if (parentCodeId) {
-                form.setFieldsValue({ final_code: parentCodeId + "/" });
+                form.setFieldsValue({
+                    final_code: parentCodeId + productCoding,
+                });
             }
         } else if (modalMode === "addToParent") {
-            form.resetFields(),
-                form.setFieldsValue({
-                    parent_id: modalData.id,
-                    parent_code_id: modalData.id,
-                    final_code: parentCodeId ? parentCodeId + "/" : ""
-
-                });
+            form.resetFields();
+            form.setFieldsValue({
+                parent_id: modalData.id,
+                parent_code_id: modalData.id,
+                final_code: parentCodeId ? parentCodeId + "/" : ""
+            });
         }
-    }, [modalMode, modalData, form]);
+    }, [modalMode, modalData, form, parentCodeId]);
 
     const onFinish = (values) => {
         if (values.personality_ids && !Array.isArray(values.personality_ids)) {
             values.personality_ids = [values.personality_ids];
         }
+
         const payload = {
             parent_id: values.parent_id,
             casing_id: values.casing_id,
@@ -126,7 +122,7 @@ const ProductModal = ({
             brand2_desc: values.brand2_desc,
             employer_code: values.employer_code,
             standard_code: values.standard_code,
-            final_code: values.final_code,
+            // final_code: values.final_code,
         };
 
         if (modalMode === "add" || modalMode === "addToParent") {
@@ -134,15 +130,13 @@ const ProductModal = ({
                 .then(() => {
                     message.success("محصول با موفقیت اضافه شد");
                     closeModal();
+                    refetch();
                 })
                 .catch((error) => {
                     message.error(error.response?.data?.message || "خطا در افزودن محصول");
                     console.error(error);
                 });
-            refetch()
         } else if (modalMode === "edit") {
-            console.log(payload);
-
             updateProduct({
                 productId: modalData.id,
                 ...payload
@@ -150,13 +144,12 @@ const ProductModal = ({
                 .then(() => {
                     message.success("محصول با موفقیت ویرایش شد");
                     closeModal();
-                    refetch()
+                    refetch();
                 })
                 .catch((error) => {
                     message.error(error.response?.data?.message || "خطا در ویرایش محصول");
                     console.error(error);
                 });
-            refetch()
         }
     };
 
@@ -179,7 +172,6 @@ const ProductModal = ({
                     }
                     break;
                 }
-                disabled: modalMode === "edit" && modalData && (item.id === modalData.id || item.id === modalData.parent_code)
             }
             return {
                 title: title,
@@ -189,7 +181,6 @@ const ProductModal = ({
             };
         });
     };
-
 
     return (
         <Modal
@@ -219,6 +210,7 @@ const ProductModal = ({
                                     treeIcon={true}
                                     treeLine={true}
                                     showSearch
+                                    onChange={(value) => setSelectedParentCodeId(value || null)}
                                 />
                             </Form.Item>
                         </Col>
@@ -231,7 +223,6 @@ const ProductModal = ({
                                     allowClear
                                     treeIcon={true}
                                     treeLine={true}
-
                                 />
                             </Form.Item>
                         </Col>
@@ -243,23 +234,36 @@ const ProductModal = ({
                                 <Input addonBefore="عنوان فارسی" />
                             </Form.Item>
                         </Col>
-                     
+
                         <Col span={8}>
                             <Form.Item
                                 name="code"
                                 rules={[{ required: true, message: "لطفاً کد محصول را وارد کنید" }]}
                             >
-                                <Input addonBefore="کد محصول" />
+                                <Input
+                                    addonBefore="کد محصول"
+                                    onChange={(e) => {
+                                        setProductCoding(e.target.value);
+                                        if (parentCodeId) {
+                                            console.log(parentCodeId);
+                                            
+                                            form.setFieldsValue({
+                                                final_code: `${parentCodeId}/${e.target.value}`
+                                            });
+                                        }
+                                    }}
+                                />
                             </Form.Item>
                         </Col>
                         <Col span={8}>
                             <Form.Item name="final_code">
-                                <Input addonBefore="کد نهایی"
-                                    onChange={handleFinalCodeChange}
+                                <Input
+                                    addonBefore="کد نهایی"
+                                    disabled
                                 />
                             </Form.Item>
                         </Col>
-                      
+
                         <Col span={8}>
                             <Form.Item name="brand1">
                                 <Input addonBefore="نام تجاری 1" />
@@ -297,7 +301,7 @@ const ProductModal = ({
                             <Form.Item name="standard_code">
                                 <Input addonBefore="کد استاندارد" />
                             </Form.Item>
-                        </Col>                  
+                        </Col>
                         <Col span={24}>
                             <Form.Item>
                                 <PersonalityModels

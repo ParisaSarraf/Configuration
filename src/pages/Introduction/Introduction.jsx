@@ -1,8 +1,8 @@
 import React from 'react';
 import { useProductContext } from '../../Services/Context/ProductContext';
-import { Card, Descriptions, Tag, Typography, Divider, List, Row, Col } from 'antd';
+import { Card, Descriptions, Tag, Typography, List, Row, Col } from 'antd';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const Introduction = () => {
     const { currentProduct } = useProductContext();
@@ -12,17 +12,15 @@ const Introduction = () => {
         return <div>محصولی یافت نشد</div>;
     }
 
-    // تابع برای نمایش مقدار یا خط تیره اگر نال باشد
     const renderValue = (value) => {
         return value !== null && value !== undefined ? value : '-';
     };
 
     return (
         <div style={{ padding: 24 }}>
-            <Title level={3} style={{ marginBottom: 24 }}>مشخصات محصول</Title>
+            {/* <Title level={3} style={{ marginBottom: 24 }}>مشخصات محصول</Title> */}
 
-            {/* کارت اطلاعات اصلی */}
-            <Card title="اطلاعات پایه" style={{ marginBottom: 24 }}>
+            <Card title="اطلاعات پایه" style={{ marginBottom: 24  }}>
                 <Descriptions bordered column={2}>
                     <Descriptions.Item label="عنوان فارسی">{product.persian_title}</Descriptions.Item>
                     <Descriptions.Item label="کد محصول">{product.code}</Descriptions.Item>
@@ -43,7 +41,6 @@ const Introduction = () => {
                 </Descriptions>
             </Card>
 
-            {/* کارت مشخصات فیزیکی */}
             <Card title="مشخصات فیزیکی" style={{ marginBottom: 24 }}>
                 <Row gutter={16}>
                     <Col span={12}>
@@ -63,7 +60,6 @@ const Introduction = () => {
                 </Row>
             </Card>
 
-            {/* کارت اطلاعات مالی */}
             <Card title="اطلاعات مالی" style={{ marginBottom: 24 }}>
                 <Descriptions bordered column={2}>
                     <Descriptions.Item label="قیمت">{renderValue(product.price)} تومان</Descriptions.Item>
@@ -71,7 +67,6 @@ const Introduction = () => {
                 </Descriptions>
             </Card>
 
-            {/* کارت اطلاعات برند */}
             <Card title="اطلاعات برند" style={{ marginBottom: 24 }}>
                 <Descriptions bordered column={2}>
                     <Descriptions.Item label="برند ۱">{renderValue(product.brand1)}</Descriptions.Item>
@@ -81,7 +76,6 @@ const Introduction = () => {
                 </Descriptions>
             </Card>
 
-            {/* کارت اطلاعات فنی */}
             <Card title="اطلاعات فنی" style={{ marginBottom: 24 }}>
                 <Descriptions bordered column={2}>
                     <Descriptions.Item label="جنس اصلی">
@@ -99,7 +93,6 @@ const Introduction = () => {
                 </Descriptions>
             </Card>
 
-            {/* کارت محصولات مرتبط (فرزندان) */}
             {product.children && product.children.length > 0 && (
                 <Card title="محصولات مرتبط">
                     <List
@@ -109,8 +102,8 @@ const Introduction = () => {
                                 <Descriptions bordered column={2} style={{ width: '100%' }}>
                                     <Descriptions.Item label="عنوان">{child.persian_title}</Descriptions.Item>
                                     <Descriptions.Item label="کد محصول">{child.code}</Descriptions.Item>
-                                    <Descriptions.Item label="برند ۱">{renderValue(child.brand1)}</Descriptions.Item>
-                                    <Descriptions.Item label="توضیحات برند ۱">{renderValue(child.brand1_desc)}</Descriptions.Item>
+                                    <Descriptions.Item label="نام تجاری ۱">{renderValue(child.brand1)}</Descriptions.Item>
+                                    <Descriptions.Item label=" شرح نام تجاری ۱">{renderValue(child.brand1_desc)}</Descriptions.Item>
                                 </Descriptions>
                             </List.Item>
                         )}

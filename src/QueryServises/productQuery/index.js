@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { queryOptions, useMutation, useQuery } from "@tanstack/react-query";
 import { useMyAxios } from "../../hooks/useMyAxios";
 
 export const useProductKey = ["lists", "product"];
@@ -30,17 +30,19 @@ export const useProductById = (id, queryOptions) => {
   });
 };
 
-export const useFinalCodeProductByIdKey = (id) => ["final-product-code", id];
+export const useFinalCodeProductByIdKey = (id) => ["product-parent-code", id];
 export const useFinalCodeProductById = (id, queryOptions) => {
   const { myAxios } = useMyAxios();
   return useQuery({
     queryKey: useFinalCodeProductByIdKey(id),
-    queryFn: () =>
-      id
-        ? myAxios
-            .get(`/product/get-product-parents-code/${id}`)
-            .then((response) => response?.data)
-        : Promise.resolve(null),
+    queryFn: () => {
+      if (!id) return Promise.resolve(null);
+      return myAxios
+        .get(`/product/get-product-parents-code/${id}`)
+        .then((response) => {
+          return response?.data;
+        });
+    },
     ...queryOptions,
   });
 };
