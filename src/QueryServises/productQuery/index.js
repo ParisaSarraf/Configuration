@@ -30,11 +30,11 @@ export const useProductById = (id, queryOptions) => {
   });
 };
 
-export const useFinakCodeProductByIdKey = (id) => ["final-product-code", id];
-export const useFinakCodeProductById = (id, queryOptions) => {
+export const useFinalCodeProductByIdKey = (id) => ["final-product-code", id];
+export const useFinalCodeProductById = (id, queryOptions) => {
   const { myAxios } = useMyAxios();
   return useQuery({
-    queryKey: useFinakCodeProductByIdKey(id),
+    queryKey: useFinalCodeProductByIdKey(id),
     queryFn: () =>
       id
         ? myAxios

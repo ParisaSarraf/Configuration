@@ -7,6 +7,13 @@ import {
 } from '@ant-design/icons';
 import { useDeleteProduct } from "../../../QueryServises/productQuery";
 import Tree from "../../../components/Tree";
+import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
+import CircleIcon from '@mui/icons-material/Circle';
+import SquareIcon from '@mui/icons-material/Square';
+
+
+
+
 
 const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onChange, checkedKeys, onProductClick }) => {
     const { mutate: deleteProduct, isLoading: isDeleting } = useDeleteProduct();
@@ -60,10 +67,31 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
         // }
     ];
 
+    const getIconByItem = (item) => {
+        if (item.children && item.children.length > 0) {
+            return (
+                <span className="flex items-center gap-1 mr-1">
+                    <CircleIcon fontSize="s" className="text-red-600"/>
+                    <SquareIcon fontSize="s" />
+                </span>
+            );
+        } else {
+            return <CircleIcon fontSize="small" className="mr-1" />;
+        }
+    };
+
+
     const transformDataToTreeFormat = (productData) => {
         if (!productData) return [];
         return productData.map(item => ({
-            title: `  .${item.persian_title}  (${item.code}) `,
+            title: (
+                // <div style={{ display: 'flex', alignItems: 'center'}}>
+                    // {/* {getIconByItem(item)} */}
+                    // <span>
+                        `${item.persian_title} (${item.code})`
+                    // </span>
+                // </div>
+            ),
             key: `product-${item.id}`,
             id: item.id,
             name: item.persian_title,

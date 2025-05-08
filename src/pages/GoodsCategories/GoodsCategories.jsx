@@ -1,5 +1,6 @@
 import { Card, Tabs } from "antd";
 import ProductDocuments from "../DocumentProduct/DocumentProduct";
+import Introduction from "../Introduction/Introduction";
 
 const GoodsCategories = () => {
 
@@ -7,7 +8,7 @@ const GoodsCategories = () => {
     {
       label: "معرفی و مشخصات",
       key: '1',
-      children: 'معرفی و مشخصات',
+      children: <Introduction />,
     },
     {
       label: ` اسناد `,

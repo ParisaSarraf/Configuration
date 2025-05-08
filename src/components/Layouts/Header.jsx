@@ -103,10 +103,6 @@ const CustomHeader = () => {
           title={
             <div className="flex flex-col gap-1 p-2">
               <div className="flex items-center gap-2 text-black">
-                <AccessTimeOutlined fontSize="small" />
-                <span>زمان جاری: {currentTime.format("HH:mm")}</span>
-              </div>
-              <div className="flex items-center gap-2 text-black">
                 <CalendarOutlined fontSize="small" />
                 <span>تاریخ: {currentTime.format("dddd D MMMM YYYY")}</span>
               </div>

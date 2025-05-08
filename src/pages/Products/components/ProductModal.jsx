@@ -1,6 +1,6 @@
 import { Col, Divider, Form, Input, InputNumber, message, Row, Select } from "antd";
 import React, { useEffect } from "react";
-import { useCreateProduct, useFinakCodeProductById, useUpdateProduct } from "../../../QueryServises/productQuery";
+import { useCreateProduct, useFinalCodeProductById, useUpdateProduct } from "../../../QueryServises/productQuery";
 import { useOneCoreSetting } from "../../../QueryServises/settingQuery";
 import { useGenusProductList } from "../../../QueryServises/genusQuery";
 import Modal from "../../../components/Modal";
@@ -16,7 +16,7 @@ const ProductModal = ({
     productData
 }) => {
     const [form] = Form.useForm();
-    const { data: parentCodeId } = useFinakCodeProductById()
+    const { data: parentCodeId } = useFinalCodeProductById()
     const { isPending: isCreating, mutateAsync: createProduct } = useCreateProduct();
     const { isPending: isUpdating, mutateAsync: updateProduct } = useUpdateProduct();
     const { data: casingData } = useOneCoreSetting("casing");
@@ -29,14 +29,11 @@ const ProductModal = ({
         }
     }, [parentCodeId]);
 
-    // مدیریت تغییرات فیلد کد نهایی
     const handleFinalCodeChange = (e) => {
         const value = e.target.value;
         if (value.startsWith(finalCodePrefix)) {
-            // اگر کاربر کد پایه را تغییر داد، آن را در state ذخیره کنید
             form.setFieldsValue({ final_code: value });
         } else {
-            // در غیر این صورت، کد پایه را حفظ کرده و بقیه را اضافه کنید
             form.setFieldsValue({ final_code: finalCodePrefix + value });
         }
     };
@@ -150,10 +147,10 @@ const ProductModal = ({
                 productId: modalData.id,
                 ...payload
             })
-
                 .then(() => {
                     message.success("محصول با موفقیت ویرایش شد");
                     closeModal();
+                    refetch()
                 })
                 .catch((error) => {
                     message.error(error.response?.data?.message || "خطا در ویرایش محصول");
@@ -246,7 +243,7 @@ const ProductModal = ({
                                 <Input addonBefore="عنوان فارسی" />
                             </Form.Item>
                         </Col>
-
+                     
                         <Col span={8}>
                             <Form.Item
                                 name="code"
@@ -262,6 +259,7 @@ const ProductModal = ({
                                 />
                             </Form.Item>
                         </Col>
+                      
                         <Col span={8}>
                             <Form.Item name="brand1">
                                 <Input addonBefore="نام تجاری 1" />
@@ -272,7 +270,6 @@ const ProductModal = ({
                                 <Input addonBefore="شرح نام تجاری1" />
                             </Form.Item>
                         </Col>
-
                         <Col span={8}>
                             <Form.Item name="product_number">
                                 <InputNumber
@@ -291,7 +288,6 @@ const ProductModal = ({
                                 <Input addonBefore="شرح نام تجاری2" />
                             </Form.Item>
                         </Col>
-
                         <Col span={8}>
                             <Form.Item name="employer_code">
                                 <Input addonBefore="کدکارفرما" />
@@ -301,21 +297,7 @@ const ProductModal = ({
                             <Form.Item name="standard_code">
                                 <Input addonBefore="کد استاندارد" />
                             </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="status">
-                                <Select
-                                    placeholder="وضعیت"
-                                    addonBefore="وضعیت"
-                                    options={[
-                                        { label: 'فعال', value: 'active' },
-                                        { label: 'غیرفعال', value: 'inactive' }
-                                    ]}
-                                />
-                            </Form.Item>
-                        </Col>
-
-
+                        </Col>                  
                         <Col span={24}>
                             <Form.Item>
                                 <PersonalityModels
@@ -336,7 +318,6 @@ const ProductModal = ({
                                 />
                             </Form.Item>
                         </Col>
-
                         <Col span={8}>
                             <Form.Item name="alternative_genus_id">
                                 <TreeSelect
@@ -385,7 +366,6 @@ const ProductModal = ({
                                 />
                             </Form.Item>
                         </Col>
-
                         <Col span={8}>
                             <Form.Item name="internal_diagonal">
                                 <InputNumber
@@ -410,7 +390,6 @@ const ProductModal = ({
                                 />
                             </Form.Item>
                         </Col>
-
                         <Col span={8}>
                             <Form.Item name="price">
                                 <InputNumber
@@ -421,13 +400,24 @@ const ProductModal = ({
                                 />
                             </Form.Item>
                         </Col>
-              
                         <Col span={8}>
                             <Form.Item name="store_code">
                                 <Input addonBefore="کد انبار" />
                             </Form.Item>
                         </Col>
-
+                        <Col span={8}>
+                            <Form.Item name="status">
+                                <Select
+                                    placeholder="وضعیت"
+                                    addonBefore="وضعیت"
+                                    options={[
+                                        { label: 'فعال', value: 'active' },
+                                        { label: 'غیرفعال', value: 'inactive' },
+                                        { label: 'موقت', value: 'temporary' }
+                                    ]}
+                                />
+                            </Form.Item>
+                        </Col>
                         <Col span={24}>
                             <Form.Item name="description">
                                 <Input.TextArea

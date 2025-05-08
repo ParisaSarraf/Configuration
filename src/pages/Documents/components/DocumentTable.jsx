@@ -13,11 +13,11 @@ const DocumentTable = ({ refetch, documentData }) => {
         }, []);
     };
 
-    const tableData = documentData ? flattenData(documentData) : [];
 
     return (
         <div>
             <Table
+                bordered
                 columns={DocumentCol}
                 dataSource={documentData}
                 rowKey="id"
