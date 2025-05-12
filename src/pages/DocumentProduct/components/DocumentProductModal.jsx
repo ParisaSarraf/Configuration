@@ -6,8 +6,6 @@ import { useDocumentList } from "../../../QueryServises/documentQuery";
 import { useCreateProductDocument, useUpdateProductDocument } from "../../../QueryServises/productDocumentQuery";
 
 const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, currentProduct }) => {
-    // console.log(currentProduct.id);
-
     const [form] = Form.useForm();
     const { isPending: isCreating, mutateAsync: createProductDocument } = useCreateProductDocument();
     const { isPending: isUpdating, mutateAsync: updateProductDocument } = useUpdateProductDocument();

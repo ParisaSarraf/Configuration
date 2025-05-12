@@ -12,8 +12,6 @@ const ProductDocuments = () => {
     const { refetch } = useDocumentList()
     const { currentProduct } = useProductContext();
 
-
-
     return (
         <>
             <Card

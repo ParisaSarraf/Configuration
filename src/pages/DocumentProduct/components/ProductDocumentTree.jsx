@@ -1,10 +1,15 @@
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import Tree from "../../../components/Tree";
 import { useProductById } from "../../../QueryServises/productQuery";
+import { message, Modal } from "antd";
+import { useDeleteProductDocument } from "../../../QueryServises/productDocumentQuery";
 
-const ProductDocumentTree = (currentProduct) => {
+const ProductDocumentTree = ({ currentProduct, refetch, setModal }) => {
     const selectedProductId = currentProduct?.currentProduct?.productData?.id
     const { data: productDocument, isLoading, isError } = useProductById(selectedProductId);
+    const { mutate: deleteProductDocument } = useDeleteProductDocument();
     const documentProducts = productDocument?.product_documents
+
 
     const transformDataToTreeView = (documentProducts) => {
         if (!documentProducts) return []
@@ -18,6 +23,59 @@ const ProductDocumentTree = (currentProduct) => {
     }
     const treeData = transformDataToTreeView(documentProducts);
 
+    const rightClickMenuItems = [
+        {
+            key: 'edit',
+            label: (
+                <div className="w-full flex flex-row items-center gap-2">
+                    <EditOutlined />
+                    <span>ویرایش شاخه</span>
+                </div>
+            )
+        }, {
+            key: "delete",
+            label: (
+                <div className="w-full flex flex-row items-center gap-2">
+                    <DeleteOutlined />
+                    <span>حذف شاخه</span>
+                </div>
+            ),
+            danger: true
+        },
+    ]
+
+    const handleRightClickAction = (actionKey, node) => {
+        const documentProductId = node.id
+
+        if (actionKey === ' delete') {
+            Modal.confirm({
+                title: "حذف سند",
+                content: "از حذف این سند مطمئن هستید؟",
+                okText: "بله ، مطمئنم",
+                cancelText: "خیر ، منصرف شدم.",
+                onOk() {
+                    try {
+                        deleteProductDocument(documentProductId)
+                        message.success("سند با موفقیت حذف شد")
+                        refetch()
+                    } catch (error) {
+                        message.error(error?.detail)
+                        console.error(error);
+                    }
+                },
+                onCancel() {
+                    message.warning("عملیات حذف لغو شد")
+                }
+            })
+        } else if (actionKey === 'edit') {
+            setModal({
+                mode: 'edit',
+                id: node.id,
+                data: node
+            })
+        }
+    }
+
     return (
         <Tree
             mode="tree"
@@ -26,6 +84,8 @@ const ProductDocumentTree = (currentProduct) => {
             isError={isError}
             showLine={true}
             checkable={true}
+            // rightClickMenuItems={rightClickMenuItems}
+            // onRightClickAction={handleRightClickAction}
         />
     )
 }
