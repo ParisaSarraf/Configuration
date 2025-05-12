@@ -28,7 +28,7 @@ const Tree = ({
   errorComponent = (
     <div className="text-center py-8 text-red-500">خطا در دریافت اطلاعات!</div>
   ),
-  mode = "tree", 
+  mode = "tree",
   showSearch = true,
   allowClear = true,
   placeholder = "لطفا انتخاب کنید",
