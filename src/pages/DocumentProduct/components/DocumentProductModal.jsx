@@ -12,17 +12,19 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
     const { isPending: isUpdating, mutateAsync: updateProductDocument } = useUpdateProductDocument();
     const { data: documentList } = useDocumentList();
     const selectedProductId = currentProduct?.productData?.id
-    const { data: productDocument, isLoading, isError, refetch } = useProductById(selectedProductId);
+    const { refetch } = useProductById(selectedProductId);
 
 
     useEffect(() => {
+        console.log(modalMode);
+        console.log(modalData);
+
         if (modalMode === "edit" && modalData) {
+            form.resetFields()
             form.setFieldsValue({
-                code: modalData.code,
-                persianTitle: modalData.persianTitle,
-                englishTitle: modalData.englishTitle,
-                isUsable: modalData.isUsable,
-                isReproducible: modalData.isReproducible,
+                gant_doc: modalData.gantDoc,
+                title: modalData.title,
+                document_id: modalData.document?.id,
             });
         } else if (modalMode === "add") {
             form.resetFields();
@@ -54,12 +56,10 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
         }
     };
 
-
     const getTreeSelectOptions = (data, modalMode = null, modalData = null) => {
         return data.map(item => {
             const titleFields = [
                 'persianTitle',
-
             ];
             let title = 'بدون عنوان';
             for (const field of titleFields) {
@@ -70,13 +70,12 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
                     }
                     break;
                 }
-                disabled: modalMode === "edit" && modalData && (item.id === modalData.id || item.id === modalData.parent_code)
             }
             return {
                 title: title,
                 value: item.id,
                 children: item.children ? getTreeSelectOptions(item.children, modalMode, modalData) : [],
-                disabled: modalMode === "edit" && item.id === modalData?.id
+                disabled: modalMode === "edit" && item.id === modalData?.document?.id // اصلاح این خط
             };
         });
     };

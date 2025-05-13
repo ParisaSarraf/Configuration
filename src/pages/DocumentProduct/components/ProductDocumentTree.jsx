@@ -16,7 +16,8 @@ const ProductDocumentTree = ({ currentProduct, setModal }) => {
         const transformNode = (node) => ({
             title: node.title,
             id: node.id,
-            gantDoc: node.gant_doc
+            gantDoc: node.gant_doc,
+            document: node.document
         })
         const productDoc = Array.isArray(documentProducts) ? documentProducts : [documentProducts]
         return productDoc.map((document) => transformNode(document))
@@ -67,10 +68,10 @@ const ProductDocumentTree = ({ currentProduct, setModal }) => {
                 }
             })
         } else if (actionKey === 'edit') {
+            console.log(node);
             setModal({
                 mode: 'edit',
-                id: node.id,
-                data: node
+                data: node,
             })
         }
     }
