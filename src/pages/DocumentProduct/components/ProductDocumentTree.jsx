@@ -4,9 +4,9 @@ import { useProductById } from "../../../QueryServises/productQuery";
 import { message, Modal } from "antd";
 import { useDeleteProductDocument } from "../../../QueryServises/productDocumentQuery";
 
-const ProductDocumentTree = ({ currentProduct, refetch, setModal }) => {
-    const selectedProductId = currentProduct?.currentProduct?.productData?.id
-    const { data: productDocument, isLoading, isError } = useProductById(selectedProductId);
+const ProductDocumentTree = ({ currentProduct, setModal }) => {
+    const selectedProductId = currentProduct?.productData?.id
+    const { data: productDocument, isLoading, isError, refetch } = useProductById(selectedProductId);
     const { mutate: deleteProductDocument } = useDeleteProductDocument();
     const documentProducts = productDocument?.product_documents
 
@@ -23,7 +23,7 @@ const ProductDocumentTree = ({ currentProduct, refetch, setModal }) => {
     }
     const treeData = transformDataToTreeView(documentProducts);
 
-    const rightClickMenuItems = [
+    const rightClickMenu = [
         {
             key: 'edit',
             label: (
@@ -46,8 +46,7 @@ const ProductDocumentTree = ({ currentProduct, refetch, setModal }) => {
 
     const handleRightClickAction = (actionKey, node) => {
         const documentProductId = node.id
-
-        if (actionKey === ' delete') {
+        if (actionKey === 'delete') {
             Modal.confirm({
                 title: "حذف سند",
                 content: "از حذف این سند مطمئن هستید؟",
@@ -84,10 +83,11 @@ const ProductDocumentTree = ({ currentProduct, refetch, setModal }) => {
             isError={isError}
             showLine={true}
             checkable={true}
-            // rightClickMenuItems={rightClickMenuItems}
-            // onRightClickAction={handleRightClickAction}
+            rightClickMenuItems={rightClickMenu}
+            onRightClickAction={handleRightClickAction}
         />
     )
+
 }
 
 export default ProductDocumentTree

@@ -4,12 +4,16 @@ import { Button, Col, Form, Input, message, Row, Switch, TreeSelect } from "antd
 import { PlusOutlined } from "@ant-design/icons";
 import { useDocumentList } from "../../../QueryServises/documentQuery";
 import { useCreateProductDocument, useUpdateProductDocument } from "../../../QueryServises/productDocumentQuery";
+import { useProductById } from "../../../QueryServises/productQuery";
 
 const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, currentProduct }) => {
     const [form] = Form.useForm();
     const { isPending: isCreating, mutateAsync: createProductDocument } = useCreateProductDocument();
     const { isPending: isUpdating, mutateAsync: updateProductDocument } = useUpdateProductDocument();
-    const { data: documentList, refetch } = useDocumentList();
+    const { data: documentList } = useDocumentList();
+    const selectedProductId = currentProduct?.productData?.id
+    const { data: productDocument, isLoading, isError, refetch } = useProductById(selectedProductId);
+
 
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
@@ -36,9 +40,11 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
             if (modalMode === "add") {
                 await createProductDocument(payload);
                 message.success("سند با موفقیت اضافه شد");
+                refetch()
             } else {
                 await updateProductDocument({ documentId: modalData.id, ...payload });
                 message.success("سند با موفقیت ویرایش شد");
+                refetch()
             }
             refetch();
             closeModal();

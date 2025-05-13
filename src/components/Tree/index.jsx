@@ -148,7 +148,6 @@ const Tree = ({
         {...props}
         className={className}
       />
-
       {showRightClickMenu && rightClickNode && (
         <div
           style={{
