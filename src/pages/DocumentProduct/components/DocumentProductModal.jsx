@@ -16,9 +16,6 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
 
 
     useEffect(() => {
-        console.log(modalMode);
-        console.log(modalData);
-
         if (modalMode === "edit" && modalData) {
             form.resetFields()
             form.setFieldsValue({

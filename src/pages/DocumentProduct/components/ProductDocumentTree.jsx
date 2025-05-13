@@ -68,7 +68,6 @@ const ProductDocumentTree = ({ currentProduct, setModal }) => {
                 }
             })
         } else if (actionKey === 'edit') {
-            console.log(node);
             setModal({
                 mode: 'edit',
                 data: node,
