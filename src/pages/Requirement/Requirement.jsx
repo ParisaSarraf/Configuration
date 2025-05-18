@@ -21,6 +21,7 @@ const Requirement = () => {
                     modalData={modalData}
                     closeModal={closeModal}
                     setModal={setModal}
+                    refetch={refetch}
                 />
             }
         >

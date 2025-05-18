@@ -1,4 +1,4 @@
-import { Button, Col, Row } from 'antd'
+import { Button, Card, Col, Row, Tabs } from 'antd'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import Genus from './components/Genus'
@@ -6,39 +6,65 @@ import Personality from './components/Personality'
 import Casing from './components/Casing'
 import Precinct from './components/Precinct'
 import LifeCycle from './components/LifeCycle'
+import Documents from '../Documents/Documents'
 
 const Setting = () => {
     const navigate = useNavigate()
+    const items = [
+        {
+            label: "پوشش",
+            key: '1',
+            children: <Casing />,
+        },
+        {
+            label: `هویت`,
+            key: '2',
+            children: <Personality />,
+        },
+        {
+            label: ` جنس`,
+            key: '3',
+            children: <Genus />,
+        },
+        {
+            label: `تجارب`,
+            key: '4',
+            children: <Precinct />,
+        },
+        {
+            label: `چرخه عمر `,
+            key: '5',
+            children: <LifeCycle />,
+        },
+        {
+            label: `اسناد و مدارک `,
+            key: '6',
+            children: <Documents />,
+        },
+
+    ];
     return (
         <div className="min-h-screen bg-Main p-2">
-            <div className="my-1 p-2 bg-white shadow-md rounded-lg">
-                <Button
-                    type="primary"
-                    className="bg-blue-500 hover:bg-blue-600 text-white"
-                    onClick={() => navigate("/")}
-                >
-                    بازگشت به صفحه اصلی
-                </Button>
-            </div>
-            <div className='grid grid-cols-4 gap-1'>
-                {/* <Row justify="center" align="top"> */}
-                {/* <Col span={4}> */}
-                <Casing />
-                {/* </Col> */}
-                {/* <Col span={4}> */}
-                {/* </Col> */}
-                {/* <Col span={4}> */}
-                <Personality />
-                {/* </Col> */}
-                {/* <Col span={4}> */}
-                <Genus />
-                {/* </Col> */}
-                {/* <Col span={4}> */}
-                <Precinct />
-                <LifeCycle />
-                {/* </Col> */}
-                {/* </Row> */}
-            </div>
+            <Card
+                extra={
+                    <Button
+                        type="primary"
+                        className="bg-blue-500 hover:bg-blue-600 text-white"
+                        onClick={() => navigate("/")}
+                    >
+                        بازگشت به صفحه اصلی
+                    </Button>
+                }>
+                <Tabs
+                    type="line"
+                    items={items}
+                    tabBarStyle={{
+                        display: 'flex',
+                        width: '100%',
+                    }}
+                    className="custom-tabs"
+                />
+            </Card>
         </div>
     )
 }

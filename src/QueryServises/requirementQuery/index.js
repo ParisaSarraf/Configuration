@@ -14,3 +14,16 @@ export const useRequirementList = (queryOptions) => {
     ...queryOptions,
   });
 };
+
+export const useCreateRequirement = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: (params) => {
+      return myAxios
+        .post(`/product/add-requirement-tree/`, params)
+        .then((response) => {
+          return response?.data;
+        });
+    },
+  });
+};

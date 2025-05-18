@@ -61,20 +61,20 @@ const CustomHeader = () => {
     },
     {
       key: 'datas',
-      label: 'داده بان',
+      label: 'داده های پایه',
       icon: <SettingOutlined />,
       onClick: () => {
         navigate("/panel/datas");
       },
     },
-    {
-      key: 'documents',
-      label: 'مدیریت اسناد',
-      icon: <DockerOutlined />,
-      onClick: () => {
-        navigate("/panel/document/list");
-      },
-    },
+    // {
+    //   key: 'documents',
+    //   label: 'مدیریت اسناد',
+    //   icon: <DockerOutlined />,
+    //   onClick: () => {
+    //     navigate("/panel/document/list");
+    //   },
+    // },
     {
       key: 'system-managment',
       label: 'مدیریت سیستم',

@@ -2,6 +2,7 @@ import { Card, Tabs } from "antd";
 import ProductDocuments from "../DocumentProduct/DocumentProduct";
 import Introduction from "../Introduction/Introduction";
 import Requirement from "../Requirement/Requirement";
+import ProductTracking from "../ProductTracking/ProductTracking";
 
 const GoodsCategories = () => {
 
@@ -20,6 +21,11 @@ const GoodsCategories = () => {
       label: ` الزامات`,
       key: '3',
       children: <Requirement />,
+    },
+    {
+      label: ` ردیابی محصول`,
+      key: '4',
+      children: <ProductTracking />,
     },
     {
       label: ` تجارب و خرابی `,

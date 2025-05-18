@@ -19,16 +19,6 @@ const Documents = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-Main p-2">
-        <div className="my-1 p-2 bg-white shadow-md rounded-lg">
-          <Button
-            type="primary"
-            className="bg-blue-500 hover:bg-blue-600 text-white"
-            onClick={() => navigate("/")}
-          >
-            بازگشت به صفحه اصلی
-          </Button>
-        </div>
         <Card
           title={` اسناد ${currentProduct?.name || ''}`}
           extra={
@@ -52,7 +42,6 @@ const Documents = () => {
             </div>
           </div>
         </Card >
-      </div>
     </ >
   );
 };
