@@ -1,30 +1,51 @@
-import { Card } from "antd"
+import { Button, Card, Tooltip } from "antd"
 import { useProductContext } from "../../Services/Context/ProductContext";
-import SerialListTable from "./components/SerialList/SerialListTable.jsx";
 import ListOfProductsAttachedToSerialsTransfer from "./components/ListOfProductsAttachedToSerialsTransfer";
 import useModal from "../../hooks/useModal.js";
 import SerialList from "./components/SerialList/SerialList.jsx";
+import { PlusCircleOutlined } from "@ant-design/icons";
+import { useState } from "react";
 
 const ProductTracking = () => {
-    const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
+    const { isOpen, modalMode, modalData, setModal, closeModal, modalType } = useModal();
     const { currentProduct } = useProductContext();
+    const [selectedRowId, setSelectedRowId] = useState(null);
+
+
+    const handlAddProductSerial = () => {
+        setModal({ mode: 'add', data: null, type: 'ProductSerial' })
+    }
 
     return (
         <Card
             title={` پنجره ردیابی ${currentProduct?.name || ''}`}
+            extra=
+            {
+                <Tooltip title='افزودن سریال' className='mb-2'>
+                    <Button icon={<PlusCircleOutlined />} type='primary' onClick={handlAddProductSerial} />
+                </Tooltip>
+            }
         >
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
                 <div className="col-span-1">
-                    <SerialList />
+                    <SerialList
+                        isOpen={isOpen}
+                        modalMode={modalMode}
+                        modalData={modalData}
+                        modalType={modalType}
+                        selectedRowId={selectedRowId}
+                        setSelectedRowId={setSelectedRowId}
+                        currentProduct={currentProduct}
+                        closeModal={closeModal}
+                        setModal={setModal}
+                        handlAddProductSerial={handlAddProductSerial}
+                    />
                 </div>
-                <div className="col-span-1">
-                    <ListOfProductsAttachedToSerialsTransfer />
+                <div className="col-span-2">
+                    <ListOfProductsAttachedToSerialsTransfer setSelectedRowId={setSelectedRowId} selectedRowId={selectedRowId} />
                 </div>
             </div>
-
-
-        </Card >
+        </Card>
     )
 }
 

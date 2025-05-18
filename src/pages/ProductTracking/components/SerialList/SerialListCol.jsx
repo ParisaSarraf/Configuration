@@ -1,31 +1,31 @@
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Button } from "antd";
 
-export const SerialListCol = [
+export const SerialListCol = (handleEditProductSerial, handleDeleteProductSerial) => [
     {
-        title: 'Product ID',
-        dataIndex: 'product_id',
-        key: 'product_id',
+        title: 'ردیف',
+        render: (text, record, index) => index + 1,
     },
     {
-        title: 'Parent ID',
-        dataIndex: 'parent_id',
-        key: 'parent_id',
-    },
-    {
-        title: 'Serial Number',
+        title: 'سریال',
         dataIndex: 'serial',
         key: 'serial',
     },
     {
-        title: 'Actions',
-        render() {
-            return (
-                <div>
-                    <Button>Edit</Button>
-                    <Button>Delete</Button>
-                </div>
-            );
-        }
+        title: 'عملیات',
+        render: (text, record) => (
+            <div className="flex flex-row gap-2 justify-center">
+                <Button
+                    icon={<EditOutlined />}
+                    className="border border-green-600 text-green-600"
+                    onClick={() => handleEditProductSerial(record)}
+                />
+                <Button
+                    icon={<DeleteOutlined />}
+                    danger
+                    onClick={() => handleDeleteProductSerial(record.id)}
+                />
+            </div>
+        ),
     },
 ];
-
