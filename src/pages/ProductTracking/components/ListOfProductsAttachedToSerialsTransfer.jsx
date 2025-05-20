@@ -1,49 +1,112 @@
 import { useEffect, useState } from "react";
 import CTransfer from "../../../components/Transfer";
-import { useProductSerialChildrenById, useProductSerialUnlinkedById } from "../../../QueryServises/productSerialQuery";
+import {
+    usePatchProductSerial,
+    useProductSerialChildrenById,
+    useProductSerialUnlinkedById
+} from "../../../QueryServises/productSerialQuery";
+import { Modal as Md, message } from "antd";
 
-const ListOfProductsAttachedToSerialsTransfer = ({ selectedRowId }) => {
-    // console.log(selectedRowId);
+const ListOfProductsAttachedToSerialsTransfer = ({ selectedRowId, currentProduct }) => {
+    const { data: productSerialChildren, refetch: refetchChildren } = useProductSerialChildrenById(
+        selectedRowId,
+        { enabled: !!selectedRowId }
+    );
 
-    const { data: productSerialChildren } = useProductSerialChildrenById(selectedRowId);
-    const { data: productSerialUnlinked } = useProductSerialUnlinkedById(selectedRowId);
+    const { data: productSerialUnlinked, refetch: refetchUnlinked } = useProductSerialUnlinkedById(
+        selectedRowId,
+        { enabled: !!selectedRowId }
+    );
 
-    const [leftData, setLeftData] = useState(productSerialChildren?.map(item => ({
-        id: item.id.toString(),
-        title: `${item.product.persian_title} (${item.serial})`,
-        description: `کد محصول: ${item.product.code} | سریال: ${item.serial}`,
-    })) || []);
+    // console.log("productSerialChildren", productSerialChildren);
+    // console.log("productSerialUnlinked", productSerialUnlinked);
+    console.log(currentProduct);
 
-    const [rightData, setRightData] = useState(productSerialUnlinked?.map(item => ({
-        id: item.id.toString(),
-        title: `${item.product.persian_title} (${item.serial})`,
-        description: `کد محصول: ${item.product.code} | سریال: ${item.serial}`,
-    })) || []);
 
+    const { mutateAsync: updateProductSerial } = usePatchProductSerial();
+
+    const [leftData, setLeftData] = useState([]);
+    const [rightData, setRightData] = useState([]);
     const [selectedLeftKeys, setSelectedLeftKeys] = useState([]);
     const [selectedRightKeys, setSelectedRightKeys] = useState([]);
 
     useEffect(() => {
-        setLeftData(productSerialChildren?.map(item => ({
-            id: item.id.toString(),
-            title: `${item.product.persian_title} (${item.serial})`,
-            description: `کد محصول: ${item.product.code} | سریال: ${item.serial}`,
-        })) || []);
-    }, [productSerialChildren]);
+        setLeftData([]);
+        setRightData([]);
+        setSelectedLeftKeys([]);
+        setSelectedRightKeys([]);
 
-    useEffect(() => {
-        setRightData(productSerialUnlinked?.map(item => ({
-            id: item.id.toString(),
-            title: `${item.product.persian_title} (${item.serial})`,
-            description: `کد محصول: ${item.product.code} | سریال: ${item.serial}`,
-        })) || []);
-    }, [productSerialUnlinked]);
+        const processData = (data) => {
+            if (!data) return [];
+            if (Array.isArray(data)) {
+                return data
+                    .filter((item) => item?.id && item?.serial)
+                    .map((item) => ({
+                        key: item.id.toString(),
+                        title: `${item.product?.persian_title || "محصول"}: ${item.serial}`,
+                    }));
+            }
+            return Object.entries(data).flatMap(([personName, items]) =>
+                (Array.isArray(items) ? items : []).map((item) => ({
+                    key: item.id.toString(),
+                    title: `${personName}: ${item.serial}`,
+                }))
+            );
+        };
 
-    const handleTransferChange = (newRightData) => {
-        setRightData(newRightData);
-        const movedIds = newRightData.map(item => item.id);
-        setLeftData(prevLeft =>
-            prevLeft.filter(item => !movedIds.includes(item.id)))
+        const right = processData(productSerialChildren);
+        const left = processData(productSerialUnlinked);
+        setLeftData(left);
+        setRightData(right);
+    }, [selectedRowId, productSerialChildren, productSerialUnlinked]);
+
+    const handleAdd = async () => {
+        if (selectedLeftKeys.length === 0) return;
+        Md.confirm({
+            title: "اتصال سریال",
+            content: "آیا از اتصال این سریال مطمئن هستید؟",
+            okText: "بله",
+            cancelText: "خیر",
+            onOk: async () => {
+                const payload = {
+                    id: selectedLeftKeys,
+                    parent_id: currentProduct?.id
+                }
+                try {
+                    await updateProductSerial(payload);
+                    await refetchChildren();
+                    await refetchUnlinked();
+                    setSelectedLeftKeys([]);
+                    message.success("با موفقیت متصل شد.")
+                } catch (error) {
+                    console.error(error);
+                }
+            },
+        });
+    };
+
+    const handleDelete = async () => {
+        if (selectedRightKeys.length === 0) return;
+        Md.confirm({
+            title: "حذف سریال",
+            content: "آیا از حذف این سریال مطمئن هستید؟",
+            okText: "بله",
+            cancelText: "خیر",
+            onOk: async () => {
+                const payload = {
+                    id: selectedRightKeys,
+                    parent_id: null
+                }
+                try {
+                    await updateProductSerial(payload);
+                    await refetchChildren();
+                    await refetchUnlinked();
+                    setSelectedRightKeys([]);
+                } catch (error) {
+                    console.error(error);
+                }
+            },
+        });
     };
 
     return (
@@ -53,15 +116,16 @@ const ListOfProductsAttachedToSerialsTransfer = ({ selectedRowId }) => {
                 rightDataSource={rightData}
                 selectedLeftKeys={selectedLeftKeys}
                 selectedRightKeys={selectedRightKeys}
-                onChange={handleTransferChange}
                 onSelectLeftChange={setSelectedLeftKeys}
                 onSelectRightChange={setSelectedRightKeys}
-                leftTitle="سریال های موجود"
-                rightTitle="سریال های ناموجود انتخاب شده"
-                style={{ height: '100%', border: '1px solid #f0f0f0', borderRadius: '8px' }}
+                onAdd={handleAdd}
+                onDelete={handleDelete}
+                rightTitle="سریال‌های متصل"
+                leftTitle="سریال‌های نامتصل"
+                style={{ height: "100%" }}
             />
         </div>
-    )
-}
+    );
+};
 
 export default ListOfProductsAttachedToSerialsTransfer;

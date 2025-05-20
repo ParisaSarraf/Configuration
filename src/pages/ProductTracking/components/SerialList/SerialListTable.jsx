@@ -1,7 +1,7 @@
 import { message, Modal, Table } from 'antd'
 import { SerialListCol } from './SerialListCol'
 import { useDeleteProductSerial, useProductSerialById } from '../../../../QueryServises/productSerialQuery'
-import { useState } from 'react'
+
 
 const SerialListTable = ({ isOpen, modalMode, modalData, closeModal, setModal, currentProduct,setSelectedRowId, selectedRowId }) => {
     const { data: productSerial, refetch } = useProductSerialById(currentProduct?.id)

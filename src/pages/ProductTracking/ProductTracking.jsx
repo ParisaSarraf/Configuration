@@ -8,7 +8,7 @@ import { useState } from "react";
 
 const ProductTracking = () => {
     const { isOpen, modalMode, modalData, setModal, closeModal, modalType } = useModal();
-    const { currentProduct } = useProductContext();
+    const { currentProduct, activeProducts } = useProductContext();
     const [selectedRowId, setSelectedRowId] = useState(null);
 
 
@@ -42,7 +42,7 @@ const ProductTracking = () => {
                     />
                 </div>
                 <div className="col-span-2">
-                    <ListOfProductsAttachedToSerialsTransfer setSelectedRowId={setSelectedRowId} selectedRowId={selectedRowId} />
+                    <ListOfProductsAttachedToSerialsTransfer selectedRowId={selectedRowId} currentProduct={currentProduct} />
                 </div>
             </div>
         </Card>

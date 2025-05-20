@@ -8,15 +8,16 @@ export const ProductProvider = ({ children }) => {
 
   const handleProductSelect = (productData) => {
     const product = {
-        id: productData.id,
-        name: productData.persian_title || 'محصول بدون نام',
-        ...productData
+      id: productData.id,
+      serials: productData.serials,
+      // name: productData.persian_title || 'محصول بدون نام',
+      ...productData
     };
     setCurrentProduct(product);
     if (!activeProducts.some((p) => p.id === product.id)) {
-        setActiveProducts([...activeProducts, product]);
+      setActiveProducts([...activeProducts, product]);
     }
-};
+  };
 
   const closeProductTab = (productId) => {
     setActiveProducts(activeProducts.filter((p) => p.id !== productId));

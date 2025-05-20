@@ -88,7 +88,7 @@ export const useProductSerialChildrenById = (id, queryOptions) => {
 };
 
 export const useProductSerialUnlinkedByIdKey = (id) => [
-  "product-serial-children",
+  "product-serial-unlinked",
   id,
 ];
 export const useProductSerialUnlinkedById = (id, queryOptions) => {
@@ -102,5 +102,15 @@ export const useProductSerialUnlinkedById = (id, queryOptions) => {
             .then((response) => response?.data)
         : Promise.resolve(null),
     ...queryOptions,
+  });
+};
+
+export const usePatchProductSerial = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: ({ id, ...partialData }) =>
+      myAxios
+        .patch(`/product/update-serial-parent/${id}`, partialData)
+        .then((res) => res.data),
   });
 };

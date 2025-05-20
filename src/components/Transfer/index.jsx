@@ -1,67 +1,91 @@
 import { Button, Card, List, Space } from 'antd';
-import {
-    PlusOutlined,
-    DeleteOutlined
-} from '@ant-design/icons';
+import { RightOutlined, LeftOutlined } from '@ant-design/icons';
 
 const CTransfer = ({
     leftDataSource = [],
     rightDataSource = [],
-    selectedLeftKeys = [],
-    selectedRightKeys = [],
     onChange,
     onSelectLeftChange,
     onSelectRightChange,
+    selectedLeftKeys = [],
+    selectedRightKeys = [],
     leftTitle = 'لیست منابع',
     rightTitle = 'لیست انتخاب‌ها',
     showSelectAll = true,
+    onAdd,
+    onDelete,
     style,
     className
 }) => {
-    const handleAdd = () => {
-        const itemsToMove = leftDataSource.filter(item =>
-            selectedLeftKeys.includes(item.key) && !item.disabled
-        );
-        const newRightData = [...rightDataSource, ...itemsToMove];
-        onChange(newRightData);
-        onSelectLeftChange([]);
-    };
-
-    const handleDelete = () => {
-        const newRightData = rightDataSource.filter(item =>
-            !selectedRightKeys.includes(item.key)
-        );
-        onChange(newRightData);
-        onSelectRightChange([]);
-    };
-
     const handleLeftSelect = (key) => {
-        const newSelectedKeys = selectedLeftKeys.includes(key)
-            ? selectedLeftKeys.filter(k => k !== key)
-            : [...selectedLeftKeys, key];
-        onSelectLeftChange(newSelectedKeys);
+        if (selectedLeftKeys.includes(key)) {
+            onSelectLeftChange(selectedLeftKeys.filter((k) => k !== key));
+        } else {
+            onSelectLeftChange([...selectedLeftKeys, key]);
+        }
     };
 
     const handleRightSelect = (key) => {
-        const newSelectedKeys = selectedRightKeys.includes(key)
-            ? selectedRightKeys.filter(k => k !== key)
-            : [...selectedRightKeys, key];
-        onSelectRightChange(newSelectedKeys);
+        if (selectedRightKeys.includes(key)) {
+            onSelectRightChange(selectedRightKeys.filter((k) => k !== key));
+        } else {
+            onSelectRightChange([...selectedRightKeys, key]);
+        }
     };
 
     return (
-        <div className={`custom-transfer ${className}`} style={style}>
-            <div className="transfer-content" style={{
-                display: 'flex',
-                height: '100%',
-                gap: '16px',
-                alignItems: 'center'
-            }}>
-                <Card
-                    title={leftTitle}
-                    style={{ flex: 1, height: '100%' }}
-                    headStyle={{ textAlign: 'right' }}
-                >
+        <div className={`custom-transfer ${className || ''}`} style={style}>
+            <div
+                className="transfer-content"
+                style={{
+                    display: 'flex',
+                    height: '100%',
+                    gap: '16px',
+                    alignItems: 'center',
+                }}
+            >
+
+                <Card title={rightTitle} style={{ flex: 1, height: '100%' }}>
+                    <List
+                        itemLayout="horizontal"
+                        dataSource={rightDataSource}
+                        rowKey="key"
+                        renderItem={(item) => (
+                            <List.Item
+                                onClick={() => handleRightSelect(item.key)}
+                                style={{
+                                    cursor: 'pointer',
+                                    backgroundColor: selectedRightKeys.includes(item.key)
+                                        ? '#e6f7ff'
+                                        : 'transparent',
+                                    padding: '8px',
+                                }}
+                            >
+                                <List.Item.Meta
+                                    title={item.title}
+                                    description={item.description}
+                                />
+                            </List.Item>
+                        )}
+                    />
+                </Card>
+                <Space direction="vertical">
+                    <Button
+                        type="primary"
+                        icon={< RightOutlined />}
+                        onClick={onAdd}
+                        disabled={selectedLeftKeys.length === 0}
+                    />
+                    <Button
+                        type="primary"
+                        icon={< LeftOutlined />}
+                        onClick={onDelete}
+                        disabled={selectedRightKeys.length === 0}
+                    />
+                </Space>
+
+
+                <Card title={leftTitle} style={{ flex: 1, height: '100%' }}>
                     <List
                         itemLayout="horizontal"
                         dataSource={leftDataSource}
@@ -75,51 +99,7 @@ const CTransfer = ({
                                         ? '#e6f7ff'
                                         : 'transparent',
                                     padding: '8px',
-                                    opacity: item.disabled ? 0.5 : 1
-                                }}
-                            >
-                                <List.Item.Meta
-                                    title={item.title}
-                                    description={item.description}
-                                />
-                            </List.Item>
-                        )}
-                    />
-                </Card>
-
-                <Space direction="vertical">
-                    <Button
-                        type="primary"
-                        icon={<PlusOutlined />}
-                        onClick={handleAdd}
-                        disabled={selectedLeftKeys.length === 0}
-                    />
-                    <Button
-                        type="primary"
-                        icon={< DeleteOutlined />}
-                        onClick={handleDelete}
-                        disabled={selectedRightKeys.length === 0}
-                    />
-                </Space>
-
-                <Card
-                    title={rightTitle}
-                    style={{ flex: 1, height: '100%' }}
-                    headStyle={{ textAlign: 'right' }}
-                >
-                    <List
-                        itemLayout="horizontal"
-                        dataSource={rightDataSource}
-                        rowKey="key"
-                        renderItem={(item) => (
-                            <List.Item
-                                onClick={() => handleRightSelect(item.key)}
-                                style={{
-                                    cursor: 'pointer',
-                                    backgroundColor: selectedRightKeys.includes(item.key)
-                                        ? '#e6f7ff'
-                                        : 'transparent',
-                                    padding: '8px'
+                                    opacity: item.disabled ? 0.5 : 1,
                                 }}
                             >
                                 <List.Item.Meta
