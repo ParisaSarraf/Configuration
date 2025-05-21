@@ -20,8 +20,7 @@ const ListOfProductsAttachedToSerialsTransfer = ({ selectedRowId, currentProduct
 
     // console.log("productSerialChildren", productSerialChildren);
     // console.log("productSerialUnlinked", productSerialUnlinked);
-    console.log(currentProduct);
-
+    console.log(currentProduct?.serials);
 
     const { mutateAsync: updateProductSerial } = usePatchProductSerial();
 
@@ -70,7 +69,7 @@ const ListOfProductsAttachedToSerialsTransfer = ({ selectedRowId, currentProduct
             onOk: async () => {
                 const payload = {
                     id: selectedLeftKeys,
-                    parent_id: currentProduct?.id
+                    parent_id: currentProduct?.serials?.id
                 }
                 try {
                     await updateProductSerial(payload);

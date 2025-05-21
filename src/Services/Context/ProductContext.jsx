@@ -9,8 +9,8 @@ export const ProductProvider = ({ children }) => {
   const handleProductSelect = (productData) => {
     const product = {
       id: productData.id,
-      serials: productData.serials,
-      // name: productData.persian_title || 'محصول بدون نام',
+      serials: currentProduct?.productData?.serials || [],
+      name: productData.persian_title,
       ...productData
     };
     setCurrentProduct(product);

@@ -3,7 +3,7 @@ import { SerialListCol } from './SerialListCol'
 import { useDeleteProductSerial, useProductSerialById } from '../../../../QueryServises/productSerialQuery'
 
 
-const SerialListTable = ({ isOpen, modalMode, modalData, closeModal, setModal, currentProduct,setSelectedRowId, selectedRowId }) => {
+const SerialListTable = ({ setModal, currentProduct,setSelectedRowId, selectedRowId }) => {
     const { data: productSerial, refetch } = useProductSerialById(currentProduct?.id)
     const { mutateAsync: deleteProductSerial } = useDeleteProductSerial()
 
@@ -41,7 +41,6 @@ const SerialListTable = ({ isOpen, modalMode, modalData, closeModal, setModal, c
                 type: 'radio',
                 selectedRowKeys: selectedRowId ? [selectedRowId] : [],
                 onChange: (selectedRowKeys, selectedRows) => {
-                    // console.log(selectedRowKeys, selectedRows);
                     setSelectedRowId(selectedRowKeys[0] || null);
                 }
             }}

@@ -217,7 +217,7 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
                   />
                 </Form.Item>
               </Col>
-              <Col span={12}>
+              {/* <Col span={12}>
                 <Form.Item
                   layout="vertical"
                   label="تاریخ تهیه سند"
@@ -230,7 +230,7 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
                 >
                   <DatepickerCustom />
                 </Form.Item>
-              </Col>
+              </Col> */}
 
               <Col span={8}>
                 <Form.Item

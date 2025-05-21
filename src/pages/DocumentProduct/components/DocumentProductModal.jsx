@@ -5,6 +5,7 @@ import { PlusOutlined } from "@ant-design/icons";
 import { useDocumentList } from "../../../QueryServises/documentQuery";
 import { useCreateProductDocument, useUpdateProductDocument } from "../../../QueryServises/productDocumentQuery";
 import { useProductById } from "../../../QueryServises/productQuery";
+import DatepickerCustom from "../../../components/DatePicker";
 
 const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, currentProduct }) => {
     const [form] = Form.useForm();
@@ -22,6 +23,8 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
                 gant_doc: modalData.gantDoc,
                 title: modalData.title,
                 document_id: modalData.document?.id,
+                survey_date: modalData.survey_date,
+
             });
         } else if (modalMode === "add") {
             form.resetFields();
@@ -34,6 +37,9 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
             document_id: values.document_id,
             title: values.title,
             gant_doc: values.gant_doc,
+            survey_date: values.survey_date?.format
+                ? values.survey_date.format("YYYY-MM-DD")
+                : values.survey_date,
         };
         try {
             if (modalMode === "add") {
@@ -89,7 +95,7 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
             <Modal
                 isOpen={isOpen}
                 title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} سند`}
-                size={300}
+                size={500}
                 onClose={closeModal}
                 onSubmit={() => form.submit()}
                 mode={modalMode}
@@ -101,7 +107,7 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
                     onFinish={onFinishForm}
                 >
                     <Row gutter={[16, 16]}>
-                        <Col span={24}>
+                        <Col span={12}>
                             <Form.Item
                                 label="عنوان سند"
                                 name="title"
@@ -110,7 +116,7 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
                                 <Input />
                             </Form.Item>
                         </Col>
-                        <Col span={24}>
+                        <Col span={12}>
                             <Form.Item
                                 label="نوع سند"
                                 name="document_id"
@@ -127,7 +133,16 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
                             </Form.Item>
                         </Col>
 
-                        <Col span={16}>
+                        <Col span={12}>
+                            <Form.Item
+                                label="تاریخ بررسی  "
+                                name="survey_date"
+                                valuePropName="checked"
+                            >
+                                <DatepickerCustom format="YYYY-MM-DD" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
                             <Form.Item
                                 label="دارای گانت"
                                 name="gant_doc"
