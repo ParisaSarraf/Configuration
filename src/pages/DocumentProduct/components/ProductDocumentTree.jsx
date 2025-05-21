@@ -1,8 +1,9 @@
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import Tree from "../../../components/Tree";
 import { useProductById } from "../../../QueryServises/productQuery";
 import { message, Modal } from "antd";
 import { useDeleteProductDocument } from "../../../QueryServises/productDocumentQuery";
+import ProductDocumentEditionModal from "./ProductDocumentEdition/ProductDocumentEditionModal";
 
 const ProductDocumentTree = ({ currentProduct, setModal }) => {
     const selectedProductId = currentProduct?.productData?.id
@@ -11,13 +12,15 @@ const ProductDocumentTree = ({ currentProduct, setModal }) => {
     const documentProducts = productDocument?.product_documents
 
 
+
     const transformDataToTreeView = (documentProducts) => {
         if (!documentProducts) return []
         const transformNode = (node) => ({
             title: node.title,
             id: node.id,
-            gantDoc: node.gant_doc,
-            document: node.document
+            is_reportable: node.is_reportable,
+            document: node.document,
+            survey_date: node.survey_date
         })
         const productDoc = Array.isArray(documentProducts) ? documentProducts : [documentProducts]
         return productDoc.map((document) => transformNode(document))
@@ -39,6 +42,15 @@ const ProductDocumentTree = ({ currentProduct, setModal }) => {
                 <div className="w-full flex flex-row items-center gap-2">
                     <DeleteOutlined />
                     <span>حذف شاخه</span>
+                </div>
+            ),
+            danger: true
+        }, {
+            key: "edition",
+            label: (
+                <div className="w-full flex flex-row items-center gap-2">
+                    <PlusOutlined />
+                    <span>افزودن نسخه</span>
                 </div>
             ),
             danger: true
@@ -70,22 +82,46 @@ const ProductDocumentTree = ({ currentProduct, setModal }) => {
         } else if (actionKey === 'edit') {
             setModal({
                 mode: 'edit',
-                data: node,
+                data: {
+                    title: node.title,
+                    id: node.id,
+                    is_reportable: node.is_reportable,
+                    document: node.document,
+                    survey_date: node.survey_date
+                }
+            })
+        } else if (actionKey === 'edition') {
+            setModal({
+                mode: 'edition',
+                data: {
+                    edition: node.edition,
+                    id: node.id,
+                    // is_reportable: node.is_reportable,
+                    // document: node.document,
+                    survey_date: node.survey_date
+                }
             })
         }
     }
 
     return (
-        <Tree
-            mode="tree"
-            data={treeData}
-            isLoading={isLoading}
-            isError={isError}
-            showLine={true}
-            checkable={true}
-            rightClickMenuItems={rightClickMenu}
-            onRightClickAction={handleRightClickAction}
-        />
+        <>
+            <Tree
+                mode="tree"
+                data={treeData}
+                isLoading={isLoading}
+                isError={isError}
+                showLine={true}
+                checkable={true}
+                rightClickMenuItems={rightClickMenu}
+                onRightClickAction={handleRightClickAction}
+            />
+            {
+                <ProductDocumentEditionModal />
+            }
+        </>
+
+
     )
 
 }

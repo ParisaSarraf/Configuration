@@ -6,6 +6,7 @@ import { useDocumentList } from "../../../QueryServises/documentQuery";
 import { useCreateProductDocument, useUpdateProductDocument } from "../../../QueryServises/productDocumentQuery";
 import { useProductById } from "../../../QueryServises/productQuery";
 import DatepickerCustom from "../../../components/DatePicker";
+import moment from "moment/moment";
 
 const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, currentProduct }) => {
     const [form] = Form.useForm();
@@ -15,19 +16,20 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
     const selectedProductId = currentProduct?.productData?.id
     const { refetch } = useProductById(selectedProductId);
 
-
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
-            form.resetFields()
             form.setFieldsValue({
-                gant_doc: modalData.gantDoc,
+                is_reportable: modalData.is_reportable,
                 title: modalData.title,
                 document_id: modalData.document?.id,
-                survey_date: modalData.survey_date,
-
+                survey_date: modalData.survey_date ? moment(modalData.survey_date) : null,
             });
+
         } else if (modalMode === "add") {
-            form.resetFields();
+            form.setFieldsValue({
+                is_reportable: false,
+                survey_date: null
+            });
         }
     }, [modalMode, modalData, form]);
 
@@ -36,10 +38,10 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
             product_id: currentProduct.id,
             document_id: values.document_id,
             title: values.title,
-            gant_doc: values.gant_doc,
+            is_reportable: values.is_reportable || false,
             survey_date: values.survey_date?.format
                 ? values.survey_date.format("YYYY-MM-DD")
-                : values.survey_date,
+                : null,
         };
         try {
             if (modalMode === "add") {
@@ -135,17 +137,16 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
 
                         <Col span={12}>
                             <Form.Item
-                                label="تاریخ بررسی  "
+                                label="تاریخ بررسی"
                                 name="survey_date"
-                                valuePropName="checked"
                             >
                                 <DatepickerCustom format="YYYY-MM-DD" />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
                             <Form.Item
-                                label="دارای گانت"
-                                name="gant_doc"
+                                label=" قابل گزارش است"
+                                name="is_reportable"
                                 valuePropName="checked"
                             >
                                 <Switch

@@ -29,7 +29,7 @@ export default function DatepickerCustom({
         if (day.length === 1) {
             day = '0' + day;
         }
-        return year + '/' + month + '/' + day;
+        return year + '-' + month + '-' + day;
     };
 
     return (
@@ -63,9 +63,9 @@ export default function DatepickerCustom({
                 calendarPosition={calendarPosition}
                 maxDate={maxDate}
                 disabled={disabled}
-                
+
             />
-          
+
         </div>
     );
 }

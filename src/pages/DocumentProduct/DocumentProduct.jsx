@@ -29,6 +29,7 @@ const ProductDocuments = () => {
                 }
             >
                 <ProductDocumentTree setModal={setModal} refetch={refetch} currentProduct={currentProduct} />
+                
             </Card >
         </ >
     );
