@@ -8,8 +8,9 @@ import { useState } from "react";
 
 const ProductTracking = () => {
     const { isOpen, modalMode, modalData, setModal, closeModal, modalType } = useModal();
-    const { currentProduct, activeProducts } = useProductContext();
+    const { currentProduct } = useProductContext();
     const [selectedRowId, setSelectedRowId] = useState(null);
+    const [selectedParentId, setSelectedParentId] = useState(null);
 
 
     const handlAddProductSerial = () => {
@@ -35,6 +36,7 @@ const ProductTracking = () => {
                         modalType={modalType}
                         selectedRowId={selectedRowId}
                         setSelectedRowId={setSelectedRowId}
+                        setSelectedParentId={setSelectedParentId}
                         currentProduct={currentProduct}
                         closeModal={closeModal}
                         setModal={setModal}
@@ -42,7 +44,7 @@ const ProductTracking = () => {
                     />
                 </div>
                 <div className="col-span-2">
-                    <ListOfProductsAttachedToSerialsTransfer selectedRowId={selectedRowId} currentProduct={currentProduct} />
+                    <ListOfProductsAttachedToSerialsTransfer selectedRowId={selectedRowId} currentProduct={currentProduct} selectedParentId={selectedParentId} />
                 </div>
             </div>
         </Card>

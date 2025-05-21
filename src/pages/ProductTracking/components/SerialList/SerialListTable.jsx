@@ -3,10 +3,9 @@ import { SerialListCol } from './SerialListCol'
 import { useDeleteProductSerial, useProductSerialById } from '../../../../QueryServises/productSerialQuery'
 
 
-const SerialListTable = ({ setModal, currentProduct,setSelectedRowId, selectedRowId }) => {
+const SerialListTable = ({ setModal, currentProduct, setSelectedRowId, selectedRowId, setSelectedParentId }) => {
     const { data: productSerial, refetch } = useProductSerialById(currentProduct?.id)
     const { mutateAsync: deleteProductSerial } = useDeleteProductSerial()
-
 
 
     const handleEditProductSerial = (record) => {
@@ -36,12 +35,13 @@ const SerialListTable = ({ setModal, currentProduct,setSelectedRowId, selectedRo
         <Table
             columns={columns}
             dataSource={productSerial?.serials}
-            rowKey="id" 
+            rowKey="id"
             rowSelection={{
                 type: 'radio',
                 selectedRowKeys: selectedRowId ? [selectedRowId] : [],
                 onChange: (selectedRowKeys, selectedRows) => {
                     setSelectedRowId(selectedRowKeys[0] || null);
+                    setSelectedParentId(selectedRows[0].id)
                 }
             }}
         />

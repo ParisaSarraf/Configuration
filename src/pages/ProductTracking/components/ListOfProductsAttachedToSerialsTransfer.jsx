@@ -7,7 +7,7 @@ import {
 } from "../../../QueryServises/productSerialQuery";
 import { Modal as Md, message } from "antd";
 
-const ListOfProductsAttachedToSerialsTransfer = ({ selectedRowId, currentProduct }) => {
+const ListOfProductsAttachedToSerialsTransfer = ({ selectedRowId, selectedParentId }) => {
     const { data: productSerialChildren, refetch: refetchChildren } = useProductSerialChildrenById(
         selectedRowId,
         { enabled: !!selectedRowId }
@@ -17,10 +17,6 @@ const ListOfProductsAttachedToSerialsTransfer = ({ selectedRowId, currentProduct
         selectedRowId,
         { enabled: !!selectedRowId }
     );
-
-    // console.log("productSerialChildren", productSerialChildren);
-    // console.log("productSerialUnlinked", productSerialUnlinked);
-    console.log(currentProduct?.serials);
 
     const { mutateAsync: updateProductSerial } = usePatchProductSerial();
 
@@ -69,7 +65,7 @@ const ListOfProductsAttachedToSerialsTransfer = ({ selectedRowId, currentProduct
             onOk: async () => {
                 const payload = {
                     id: selectedLeftKeys,
-                    parent_id: currentProduct?.serials?.id
+                    parent_id: selectedParentId
                 }
                 try {
                     await updateProductSerial(payload);
@@ -77,6 +73,7 @@ const ListOfProductsAttachedToSerialsTransfer = ({ selectedRowId, currentProduct
                     await refetchUnlinked();
                     setSelectedLeftKeys([]);
                     message.success("با موفقیت متصل شد.")
+
                 } catch (error) {
                     console.error(error);
                 }

@@ -27,22 +27,22 @@ const GoodsCategories = () => {
       key: '4',
       children: <ProductTracking />,
     },
-    {
-      label: ` تجارب و خرابی `,
-      key: '5',
-      children: 'تحارب و خرابی',
-    },
-    {
-      label: ` خرید `,
-      key: '6',
-      children: 'خرید',
-    },
+    // {
+    //   label: ` تجارب و خرابی `,
+    //   key: '5',
+    //   children: 'تحارب و خرابی',
+    // },
+    // {
+    //   label: ` خرید `,
+    //   key: '6',
+    //   children: 'خرید',
+    // },
   ];
 
   return (
     <Card className="w-full flex flex-col">
       <Tabs
-        defaultActiveKey="2"
+        defaultActiveKey="4"
         type="line"
         items={items}
         tabBarStyle={{

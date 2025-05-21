@@ -2,7 +2,7 @@ import SerialListTable from './SerialListTable'
 import SerialListModal from './SerialListModal';
 import { useProductSerialById } from '../../../../QueryServises/productSerialQuery';
 
-const SerialList = ({ isOpen, modalMode, modalData, modalType, closeModal, setModal, currentProduct, selectedRowId, setSelectedRowId }) => {
+const SerialList = ({ isOpen, modalMode, modalData, modalType, closeModal, setModal, currentProduct, selectedRowId, setSelectedRowId, setSelectedParentId }) => {
     const { refetch } = useProductSerialById(currentProduct?.id)
 
     return (
@@ -13,10 +13,10 @@ const SerialList = ({ isOpen, modalMode, modalData, modalType, closeModal, setMo
                 setSelectedRowId={setSelectedRowId}
                 selectedRowId={selectedRowId}
                 modalMode={modalMode}
+                setSelectedParentId={setSelectedParentId}
                 modalData={modalData}
                 closeModal={closeModal}
                 setModal={setModal}
-            // refetch={refetch}
             />
             {modalType === 'ProductSerial' && (
                 <SerialListModal
