@@ -19,7 +19,11 @@ export const useCreateProductDocumentEdition = () => {
   return useMutation({
     mutationFn: (params) => {
       return myAxios
-        .post(`/product/add-product-document-edition/`, params)
+        .post(`/product/add-product-document-edition/`, params, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
         .then((response) => {
           return response?.data;
         });
@@ -58,7 +62,15 @@ export const useUpdateProductDocumentEdition = () => {
   return useMutation({
     mutationFn: ({ documentId, ...params }) => {
       return myAxios
-        .put(`/product/update-product-document-edition/${documentId}/`, params)
+        .put(
+          `/product/update-product-document-edition/${documentId}/`,
+          params,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        )
         .then((response) => response?.data);
     },
   });

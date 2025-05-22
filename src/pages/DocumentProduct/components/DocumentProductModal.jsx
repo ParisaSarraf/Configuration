@@ -26,6 +26,7 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
             });
 
         } else if (modalMode === "add") {
+            form.resetFields()
             form.setFieldsValue({
                 is_reportable: false,
                 survey_date: null
