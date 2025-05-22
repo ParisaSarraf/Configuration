@@ -5,7 +5,7 @@ import { message, Modal } from "antd";
 import { useDeleteProductDocument } from "../../../QueryServises/productDocumentQuery";
 import ProductDocumentEditionModal from "./ProductDocumentEdition/ProductDocumentEditionModal";
 
-const ProductDocumentTree = ({ currentProduct, setModal }) => {
+const ProductDocumentTree = ({ currentProduct, setModal, modalType }) => {
     const selectedProductId = currentProduct?.productData?.id
     const { data: productDocument, isLoading, isError, refetch } = useProductById(selectedProductId);
     const { mutate: deleteProductDocument } = useDeleteProductDocument();
@@ -88,7 +88,8 @@ const ProductDocumentTree = ({ currentProduct, setModal }) => {
                     is_reportable: node.is_reportable,
                     document: node.document,
                     survey_date: node.survey_date
-                }
+                },
+                type: 'add'
             })
         } else if (actionKey === 'edition') {
             setModal({
@@ -96,10 +97,9 @@ const ProductDocumentTree = ({ currentProduct, setModal }) => {
                 data: {
                     edition: node.edition,
                     id: node.id,
-                    // is_reportable: node.is_reportable,
-                    // document: node.document,
                     survey_date: node.survey_date
-                }
+                },
+                type: 'edition' 
             })
         }
     }
@@ -116,9 +116,7 @@ const ProductDocumentTree = ({ currentProduct, setModal }) => {
                 rightClickMenuItems={rightClickMenu}
                 onRightClickAction={handleRightClickAction}
             />
-            {
-                <ProductDocumentEditionModal />
-            }
+
         </>
 
 

@@ -90,7 +90,7 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
             <Button
                 className="modal-button"
                 icon={<PlusOutlined className="text-center" />}
-                onClick={() => setModal({ mode: "add", data: null })}
+                onClick={() => setModal({ mode: "add", data: null, type: 'add' })}
             >
                 <span className="xs:hidden sm:hidden md:inline">افزودن سند</span>
             </Button>

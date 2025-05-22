@@ -7,16 +7,14 @@ import { useCreateProductDocument, useUpdateProductDocument } from "../../../../
 import { useDocumentList } from "../../../../QueryServises/documentQuery";
 import DatepickerCustom from "../../../../components/DatePicker";
 import { useProductById } from "../../../../QueryServises/productQuery";
+import FileUploader from "../../../../components/FileUploader/FileUploader";
 
-const ProductDocumentEditionModal = ({ isOpen, modalMode, modalData, closeModal, setModal, currentProduct }) => {
+const ProductDocumentEditionModal = ({ isOpen, modalMode, modalData, closeModal, currentProduct }) => {
     const [form] = Form.useForm();
     const { isPending: isCreating, mutateAsync: createProductDocument } = useCreateProductDocument();
     const { isPending: isUpdating, mutateAsync: updateProductDocument } = useUpdateProductDocument();
-    const { data: documentList } = useDocumentList();
     const selectedProductId = currentProduct?.productData?.id
     const { refetch } = useProductById(selectedProductId);
-
-    console.log('hi');
 
 
     useEffect(() => {
@@ -44,10 +42,22 @@ const ProductDocumentEditionModal = ({ isOpen, modalMode, modalData, closeModal,
                 ? values.survey_date.format("YYYY-MM-DD")
                 : null,
             state: values.is_reportable,
-            file_1: values.is_reportable,
-            file_2: values.is_reportable,
-            file_3: values.is_reportable,
-            file_4: values.is_reportable,
+            file_1:
+                values.file_1 && values.file_1.length > 0
+                    ? values.file_1[0].originFileObj
+                    : null,
+            file_2:
+                values.file_2 && values.file_2.length > 0
+                    ? values.file_2[0].originFileObj
+                    : null,
+            file_3:
+                values.file_3 && values.file_3.length > 0
+                    ? values.file_3[0].originFileObj
+                    : null,
+            file_4:
+                values.file_4 && values.file_4.length > 0
+                    ? values.file_4[0].originFileObj
+                    : null,
         };
         try {
             if (modalMode === "add") {
@@ -70,10 +80,9 @@ const ProductDocumentEditionModal = ({ isOpen, modalMode, modalData, closeModal,
 
 
     return (
-
         <Modal
             isOpen={isOpen}
-            title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} سند`}
+            title={`${modalMode === "edition" ? "افزودن" : "ویرایش"} نسخه جدید`}
             size={500}
             onClose={closeModal}
             onSubmit={() => form.submit()}
@@ -97,15 +106,50 @@ const ProductDocumentEditionModal = ({ isOpen, modalMode, modalData, closeModal,
                     </Col>
                     <Col span={12}>
                         <Form.Item
-                            label=" قابل گزارش است"
-                            name="is_reportable"
-                            valuePropName="checked"
+                            label="نسخه جدید"
+                            name="edition"
                         >
-                            <Switch
-                                checkedChildren="بله"
-                                unCheckedChildren="خیر"
-                                className="bg-gray-300"
-                            />
+                            <Input />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                        <Form.Item
+                            label="حالت "
+                            name="state"
+                        >
+                            <Input type="number" />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item
+                            label="فایل 1"
+                            name="file_1"
+                        >
+                            <FileUploader />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item
+                            label=" فایل 2"
+                            name="file_2"
+                        >
+                            <FileUploader />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item
+                            label="فایل 3"
+                            name="file_3"
+                        >
+                            <FileUploader />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item
+                            label=" فایل 4"
+                            name="file_4"
+                        >
+                            <FileUploader />
                         </Form.Item>
                     </Col>
                 </Row>

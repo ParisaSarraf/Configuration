@@ -2,7 +2,7 @@ import { Upload, Image } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { useState, useEffect } from "react";
 
-const FileUploader = ({ value = [], onChange, maxFiles = 1 }) => {
+const FileUploader = ({ value = [], onChange, maxFiles = 1, listType }) => {
     const [fileList, setFileList] = useState(value);
     const [previewImage, setPreviewImage] = useState(null);
 
@@ -15,7 +15,7 @@ const FileUploader = ({ value = [], onChange, maxFiles = 1 }) => {
 
         const base64Files = await Promise.all(
             updatedFileList.map(async (file) => {
-                if (!file.originFileObj) return file; 
+                if (!file.originFileObj) return file;
                 const base64 = await toBase64(file.originFileObj);
                 return { ...file, base64 };
             })
@@ -37,17 +37,18 @@ const FileUploader = ({ value = [], onChange, maxFiles = 1 }) => {
         if (!file.base64 && file.originFileObj) {
             file.base64 = await toBase64(file.originFileObj);
         }
-        setPreviewImage(file.base64 || file.url); 
+        setPreviewImage(file.base64 || file.url);
     };
 
     return (
         <div>
             <Upload
-                listType="picture-circle"
+                // listType="picture-circle"
+                listType={listType}
                 fileList={fileList}
                 onChange={handleChange}
                 onPreview={handlePreview}
-                beforeUpload={() => false} 
+                beforeUpload={() => false}
             >
                 {fileList.length < maxFiles && (
                     <span>

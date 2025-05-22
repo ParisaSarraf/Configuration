@@ -118,12 +118,12 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
           <Row gutter={[16, 16]}>
             <Col span={12}>
               <Form.Item name="signatureImage" label="امضا کاربر">
-                <FileUploader />
+                <FileUploader listType="picture-circle" />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item name="tempImage" label="تصویر کاربر">
-                <FileUploader />
+                <FileUploader listType="picture-circle" />
               </Form.Item>
             </Col>
             < Col span={12}>
