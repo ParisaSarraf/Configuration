@@ -15,27 +15,37 @@ const ProductDocuments = () => {
         <>
             <Card
                 title={` اسناد ${currentProduct?.name || ''}`}
-                extra={
+            // extra={
 
-                    <DocumentProductModal
-                        currentProduct={currentProduct}
-                        isOpen={isOpen && modalType === 'add'}
-                        modalMode={modalMode}
-                        modalData={modalData}
-                        modalType={modalType}
-                        closeModal={closeModal}
-                        setModal={setModal}
-                        refetch={refetch}
-                    />
 
-                }
+            // }
             >
-                <ProductDocumentTree
-                    setModal={setModal}
-                    modalType={modalType}
-                    refetch={refetch}
-                    currentProduct={currentProduct}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
+                    <div className="col-span-1">
+                        <Card
+                            extra={<DocumentProductModal
+                                currentProduct={currentProduct}
+                                isOpen={isOpen && modalType === 'add'}
+                                modalMode={modalMode}
+                                modalData={modalData}
+                                modalType={modalType}
+                                closeModal={closeModal}
+                                setModal={setModal}
+                                refetch={refetch}
+                            />}
+                        >
+                            <ProductDocumentTree
+                                setModal={setModal}
+                                modalType={modalType}
+                                refetch={refetch}
+                                currentProduct={currentProduct}
+                            />
+                        </Card>
+                    </div>
+                    <div className="col-span-1">
+
+                    </div>
+                </div>
 
                 <ProductDocumentEditionModal
                     isOpen={isOpen && modalType === 'edition'}
@@ -46,7 +56,7 @@ const ProductDocuments = () => {
                     currentProduct={currentProduct}
                     refetch={refetch}
                 />
-            </Card>
+            </Card >
         </>
     );
 };

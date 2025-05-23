@@ -200,7 +200,7 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
                 </Form.Item>
               </Col>
 
-              <Col span={12}>
+              <Col span={24}>
                 <Form.Item
                   layout="vertical"
                   label="چرخه عمر محصول"
@@ -232,12 +232,12 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
                 </Form.Item>
               </Col> */}
 
-              <Col span={8}>
+              <Col span={12}>
                 <Form.Item
                   label="Doc"
                   name="isUsable"
                   valuePropName="checked"
-                  tooltip="آیا این محصول قابل استفاده است؟"
+                  tooltip="آیا این سند قابل استفاده است؟"
                 >
                   <Switch
                     checkedChildren="بله"
@@ -247,12 +247,12 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
                 </Form.Item>
               </Col>
 
-              <Col span={8}>
+              <Col span={12}>
                 <Form.Item
                   label="Log"
                   name="isReproducible"
                   valuePropName="checked"
-                  tooltip="آیا این محصول قابل تولید مجدد است؟"
+                  tooltip="آیا این سند قابل تولید مجدد است؟"
                 >
                   <Switch
                     checkedChildren="بله"

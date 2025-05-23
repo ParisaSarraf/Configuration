@@ -1,28 +1,49 @@
 import { PlusOutlined } from "@ant-design/icons"
 import { Button, Col, Form, Input, message, Row, Switch, TreeSelect } from "antd"
 import Modal from "../../../components/Modal";
-import { useCreateRequirement } from "../../../QueryServises/requirementQuery";
+import { useCreateRequirement, useRequirementList, useUpdateRequirement } from "../../../QueryServises/requirementQuery";
+import { useLifeCycleList } from "../../../QueryServises/lifeCycleQuery";
+import { useEffect } from "react";
 
 const RequirementModal = ({ isOpen, modalMode, modalData, closeModal, setModal, currentProduct, refetch }) => {
     const [form] = Form.useForm();
     const { isPending: isCreating, mutateAsync: createProductRequirement } = useCreateRequirement();
+    const { isPending: isUpdating, mutateAsync: updateProductRequirement } = useUpdateRequirement();
+    const { data: requirementList } = useRequirementList()
+    const { data: lifeCycleList } = useLifeCycleList()
 
+    useEffect(() => {
+        if (modalMode === "edit" && modalData) {
+            form.setFieldsValue({
+                parent_id: modalData.parent_id?.id,
+                code: modalData.code,
+                persianTitle: modalData.persian_title || modalData.title,
+                englishTitle: modalData.english_title || modalData.englishTitle,
+                life_cycle_id: modalData.life_cycle?.id,
+                is_definable: modalData.is_definable || false,
+            });
+        } else {
+            form.resetFields();
+        }
+    }, [modalMode, modalData, form]);
 
     const onFinishForm = async (values) => {
         const payload = {
-            product_id: currentProduct.id,
-            document_id: values.document_id,
-            title: values.title,
-            gant_doc: values.gant_doc,
+            life_cycle_id: values.life_cycle_id || null,
+            parent_id: values.parent_id || null,
+            code: values.code,
+            persian_title: values.persianTitle,
+            english_title: values.englishTitle,
+            is_definable: values.is_definable,
         };
         try {
             if (modalMode === "add") {
                 await createProductRequirement(payload);
-                message.success("سند با موفقیت اضافه شد");
+                message.success("الزام با موفقیت اضافه شد");
                 refetch()
             } else {
-                // await updateProductDocument({ documentId: modalData.id, ...payload });
-                message.success("سند با موفقیت ویرایش شد");
+                await updateProductRequirement({ requirementId: modalData.id, ...payload });
+                message.success("الزام با موفقیت ویرایش شد");
                 refetch()
             }
             refetch();
@@ -31,6 +52,31 @@ const RequirementModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
             message.error("موفقیت آمیز نبود، دوباره امتحان کنید");
             console.error("Error details:", error.response?.data);
         }
+    };
+
+    const getTreeSelectOptions = (data, modalMode = null, modalData = null) => {
+        return data.map(item => {
+            const titleFields = [
+                'persian_title',
+                'title'
+            ];
+            let title = 'بدون عنوان';
+            for (const field of titleFields) {
+                if (item[field]) {
+                    title = item[field];
+                    if (field !== 'code' && item.code) {
+                        title = ` ${title}`;
+                    }
+                    break;
+                }
+            }
+            return {
+                title: title,
+                value: item.id,
+                children: item.children ? getTreeSelectOptions(item.children, modalMode, modalData) : [],
+                // disabled: modalMode === "edit" && item.id === modalData?.document?.id 
+            };
+        });
     };
 
     return (
@@ -49,7 +95,7 @@ const RequirementModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
                 onClose={closeModal}
                 onSubmit={() => form.submit()}
                 mode={modalMode}
-            // loading={isCreating || isUpdating}
+                loading={isCreating || isUpdating}
             >
                 <Form
                     form={form}
@@ -61,7 +107,6 @@ const RequirementModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
                             <Form.Item
                                 label="کد"
                                 name="code"
-                                rules={[{ required: true, message: "لطفاً نام را وارد کنید" }]}
                             >
                                 <Input />
                             </Form.Item>
@@ -70,11 +115,10 @@ const RequirementModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
                             <Form.Item
                                 label="والد"
                                 name="parent_id"
-                                rules={[{ required: true, message: "لطفاً والد را انتخاب کنید" }]}
                             >
                                 <TreeSelect
-                                    // treeData={getTreeSelectOptions(documentList || [])}
-                                    placeholder="والد"
+                                    treeData={getTreeSelectOptions(requirementList || [])}
+                                    placeholder="شاخه والد"
                                     allowClear
                                     treeIcon={true}
                                     treeLine={true}
@@ -86,7 +130,6 @@ const RequirementModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
                             <Form.Item
                                 label="نام فارسی"
                                 name="persianTitle"
-                                rules={[{ required: true, message: "لطفاً نام را وارد کنید" }]}
                             >
                                 <Input />
                             </Form.Item>
@@ -95,7 +138,6 @@ const RequirementModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
                             <Form.Item
                                 label="نام انگلیسی"
                                 name="englishTitle"
-                                rules={[{ required: true, message: "لطفاً نام را وارد کنید" }]}
                             >
                                 <Input />
                             </Form.Item>
@@ -105,10 +147,9 @@ const RequirementModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
                             <Form.Item
                                 label="چرخه حیات"
                                 name="life_cycle_id"
-                                rules={[{ required: true, message: "لطفاً چرخه حیات را انتخاب کنید" }]}
                             >
                                 <TreeSelect
-                                    // treeData={getTreeSelectOptions(documentList || [])}
+                                    treeData={getTreeSelectOptions(lifeCycleList || [])}
                                     placeholder="چرخه حیات"
                                     allowClear
                                     treeIcon={true}

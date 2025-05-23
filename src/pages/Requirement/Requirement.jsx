@@ -3,6 +3,7 @@ import { useProductContext } from "../../Services/Context/ProductContext";
 import RequirementModal from "./components/RequirementModal";
 import useModal from "../../hooks/useModal";
 import { useRequirementList } from "../../QueryServises/requirementQuery";
+import RequirementTree from "./components/RequirementTree";
 
 const Requirement = () => {
     const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
@@ -25,6 +26,8 @@ const Requirement = () => {
                 />
             }
         >
+            <RequirementTree setModal={setModal}
+            />
         </Card>
     )
 }

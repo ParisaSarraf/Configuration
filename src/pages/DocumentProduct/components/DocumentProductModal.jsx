@@ -89,11 +89,9 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
     return (
         <>
             <Button
-                className="modal-button"
-                icon={<PlusOutlined className="text-center" />}
+                icon={<PlusOutlined />}
                 onClick={() => setModal({ mode: "add", data: null, type: 'add' })}
             >
-                <span className="xs:hidden sm:hidden md:inline">افزودن سند</span>
             </Button>
             <Modal
                 isOpen={isOpen}
