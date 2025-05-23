@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMyAxios } from "../../hooks/useMyAxios";
 
 export const useCreateProductDocument = () => {
@@ -84,5 +84,43 @@ export const useUpdateProductDocument = () => {
         .put(`/product/update-product-document/${documentId}/`, params)
         .then((response) => response?.data);
     },
+  });
+};
+
+export const useProductDocumentTreeByIdKey = (id) => [
+  "product-document-tree",
+  id,
+];
+export const useProductDocumentTreeById = (id, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: useProductDocumentTreeByIdKey(id),
+    queryFn: () =>
+      id
+        ? myAxios
+            .get(`/product/get-product-document-tree/${id}/`)
+            .then((response) => response?.data)
+        : Promise.resolve(null),
+    ...queryOptions,
+  });
+};
+
+export const useProductDocumentEditionLogsBySerialByIdKey = (id) => [
+  "product-document-edition-log-by-serial-id",
+  id,
+];
+export const useProductDocumentEditionLogsBySerialById = (id, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: useProductDocumentEditionLogsBySerialByIdKey(id),
+    queryFn: () =>
+      id
+        ? myAxios
+            .get(
+              `/product/get-product-document-edition-logs-by-serial-id/${id}`
+            )
+            .then((response) => response?.data)
+        : Promise.resolve(null),
+    ...queryOptions,
   });
 };

@@ -1,8 +1,8 @@
 import axios from "axios";
 
 // export const BASEURL = "http://87.248.150.51:8000/api/v1";
-export const BASEURL = "http://127.0.0.1:8000/api/v1";
-// export const BASEURL = "http://192.168.40.36:8000/api/v1";
+// export const BASEURL = "http://127.0.0.1:8000/api/v1";
+export const BASEURL = "http://192.168.203.36:8000/api/v1";
 
 const myAxios = axios.create({
   baseURL: BASEURL,

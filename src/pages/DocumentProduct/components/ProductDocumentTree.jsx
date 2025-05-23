@@ -1,15 +1,15 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import Tree from "../../../components/Tree";
-import { useProductById } from "../../../QueryServises/productQuery";
 import { Button, message, Modal, Space } from "antd";
-import { useDeleteProductDocument, useDeleteProductDocumentEdition } from "../../../QueryServises/productDocumentQuery";
+import { useDeleteProductDocument, useDeleteProductDocumentEdition, useProductDocumentTreeById } from "../../../QueryServises/productDocumentQuery";
 
 const ProductDocumentTree = ({ currentProduct, setModal }) => {
     const selectedProductId = currentProduct?.productData?.id;
-    const { data: productDocument, isLoading, isError, refetch } = useProductById(selectedProductId);
+    const { data: productDocument, isLoading, isError, refetch } = useProductDocumentTreeById(selectedProductId, { enabled: !!selectedProductId }
+    );
     const { mutate: deleteProductDocument } = useDeleteProductDocument();
     const { mutate: deleteProductDocumentEdition } = useDeleteProductDocumentEdition();
-    const documentProducts = productDocument?.product_documents;
+
 
     const handleDeleteEdition = (editionId) => {
         Modal.confirm({
@@ -49,17 +49,30 @@ const ProductDocumentTree = ({ currentProduct, setModal }) => {
         });
     };
 
-    const transformDataToTreeView = (documentProducts) => {
-        if (!documentProducts) return [];
-        const transformNode = (node) => ({
-            title: node.title || `نسخه ${node.edition}`,
-            edition: node.edition,
+    const transformNode = (node) => {
+        const hasEditions = Array.isArray(node.edition) && node.edition.length > 0;
+        const baseNode = {
+            key: `node-${node.id}`,
+            title: node.title || 'بدون عنوان',
             id: node.id,
+            edition: node.edition,
+            product_document_id: node.product_document_id,
             is_reportable: node.is_reportable,
             document: node.document,
             survey_date: node.survey_date,
-            children: node.editions && node.editions.length > 0
-                ? node.editions.map(edition => ({
+            children: []
+        };
+        if (node.children && node.children.length > 0) {
+            baseNode.children = [
+                ...baseNode.children,
+                ...node.children.map(child => transformNode(child))
+            ];
+        }
+        if (hasEditions) {
+            baseNode.children = [
+                ...baseNode.children,
+                ...node.edition.map(edition => ({
+                    key: `edition-${edition.id}`,
                     title: (
                         <div className="flex flex-row -mt-2 justify-between items-center w-full h-3">
                             <span className="mr-8 -mt-4">{edition.edition}</span>
@@ -71,7 +84,7 @@ const ProductDocumentTree = ({ currentProduct, setModal }) => {
                                         e.stopPropagation();
                                         handleEditEdition(edition);
                                     }}
-                                    className="text-green-500 hover:text-green-700 "
+                                    className="text-green-500 hover:text-green-700"
                                 />
                                 <Button
                                     type="text"
@@ -90,15 +103,24 @@ const ProductDocumentTree = ({ currentProduct, setModal }) => {
                     is_reportable: node.is_reportable,
                     document: node.document,
                     survey_date: edition.survey_date,
-                    isLeaf: true
+                    product_document_id: edition.product_document_id || node.id,
+                    isLeaf: true,
                 }))
-                : undefined,
-        });
-        const productDoc = Array.isArray(documentProducts) ? documentProducts : [documentProducts];
-        return productDoc.map((document) => transformNode(document));
+            ];
+        }
+
+        return baseNode;
     };
 
-    const treeData = transformDataToTreeView(documentProducts);
+    const transformDataToTreeView = (data) => {
+        if (!data) return [];
+        if (Array.isArray(data)) {
+            return data.map(node => transformNode(node));
+        }
+        return [transformNode(data)];
+    };
+
+    const treeData = transformDataToTreeView(productDocument);
 
     const rightClickMenu = [
         {
@@ -159,7 +181,7 @@ const ProductDocumentTree = ({ currentProduct, setModal }) => {
                     id: node.id,
                     is_reportable: node.is_reportable,
                     document: node.document,
-                    survey_date: node.survey_date
+                    survey_date: node.survey_date,
                 },
                 type: 'add'
             });
@@ -170,7 +192,8 @@ const ProductDocumentTree = ({ currentProduct, setModal }) => {
                     edition: node.edition,
                     id: node.id,
                     survey_date: node.survey_date,
-                    document_id: node.document?.id
+                    document_id: node.document?.id,
+                    product_document_id: node.product_document_id,
                 },
                 type: 'edition'
             });

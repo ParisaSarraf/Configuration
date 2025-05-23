@@ -5,6 +5,8 @@ import { useProductContext } from "../../Services/Context/ProductContext";
 import DocumentProductModal from "./components/DocumentProductModal";
 import ProductDocumentTree from "./components/ProductDocumentTree";
 import ProductDocumentEditionModal from "./components/ProductDocumentEdition/ProductDocumentEditionModal";
+import ProductDocumentListSerial from "./components/ProductDocumentListSerial/ProductDocumentListSerial";
+import AddProductDocumentListSerialModal from "./components/ProductDocumentListSerial/components/AddProductDocumentListSerialModal";
 
 const ProductDocuments = () => {
     const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
@@ -15,14 +17,11 @@ const ProductDocuments = () => {
         <>
             <Card
                 title={` اسناد ${currentProduct?.name || ''}`}
-            // extra={
-
-
-            // }
             >
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
                     <div className="col-span-1">
                         <Card
+                            title="پنجره اسناد"
                             extra={
                                 <DocumentProductModal
                                     currentProduct={currentProduct}
@@ -44,7 +43,27 @@ const ProductDocuments = () => {
                         </Card>
                     </div>
                     <div className="col-span-1">
-
+                        <Card
+                            title="سریال ها"
+                            extra={
+                                <AddProductDocumentListSerialModal
+                                    currentProduct={currentProduct}
+                                    isOpen={isOpen && modalType === 'add'}
+                                    modalMode={modalMode}
+                                    modalData={modalData}
+                                    modalType={modalType}
+                                    closeModal={closeModal}
+                                    setModal={setModal}
+                                    refetch={refetch}
+                                />}
+                        >
+                            <ProductDocumentListSerial
+                                setModal={setModal}
+                                modalType={modalType}
+                                refetch={refetch}
+                                currentProduct={currentProduct}
+                            />
+                        </Card>
                     </div>
                 </div>
 
@@ -55,8 +74,8 @@ const ProductDocuments = () => {
                     closeModal={closeModal}
                     setModal={setModal}
                     currentProduct={currentProduct}
-                    refetch={refetch}
-                />
+                    refetch={refetch} 
+                    />
             </Card >
         </>
     );

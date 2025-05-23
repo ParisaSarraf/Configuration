@@ -8,12 +8,11 @@ import { useProductById } from "../../../../QueryServises/productQuery";
 import FileUploader from "../../../../components/FileUploader/FileUploader";
 import { BASEURL } from "../../../../Services/axiosInstance";
 
-const ProductDocumentEditionModal = ({ isOpen, modalMode, modalData, closeModal, currentProduct }) => {
+const ProductDocumentEditionModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
     const [form] = Form.useForm();
     const { isPending: isCreating, mutateAsync: createProductDocumentEdition } = useCreateProductDocumentEdition();
     const { isPending: isUpdating, mutateAsync: updateProductDocumentEdition } = useUpdateProductDocumentEdition();
-    const selectedProductId = currentProduct?.productData?.id;
-    const { refetch } = useProductById(selectedProductId);
+
 
     useEffect(() => {
         if (modalMode === "edition") {
@@ -64,6 +63,7 @@ const ProductDocumentEditionModal = ({ isOpen, modalMode, modalData, closeModal,
 
     const onFinishForm = async (values) => {
         const { data: productDocument } = await refetch();
+        console.log(productDocument)
         const existingEditions = productDocument?.product_documents
             ?.find(doc => doc.id === modalData?.id)
             ?.editions || [];
@@ -78,7 +78,7 @@ const ProductDocumentEditionModal = ({ isOpen, modalMode, modalData, closeModal,
         }
 
         const payload = {
-            product_document_id: modalData?.id,
+            product_document_id: modalData?.product_document_id,
             edition: values.edition,
             survey_date: values.survey_date?.format
                 ? values.survey_date.format("YYYY-MM-DD")
@@ -101,10 +101,14 @@ const ProductDocumentEditionModal = ({ isOpen, modalMode, modalData, closeModal,
                 });
                 message.success("نسخه با موفقیت ویرایش شد");
             }
-            refetch();
+            await refetch();
             closeModal();
         } catch (error) {
-            message.error("عملیات ناموفق بود، لطفا مجددا تلاش کنید");
+            if (error.response?.data?.detail === "No ProductDocument matches the given query.") {
+                message.error("در حال حاضر این سند وجود ندارد");
+            } else {
+                message.error("موفقیت آمیز نبود، دوباره امتحان کنید");
+            }
             console.error("Error details:", error.response?.data);
         }
     };

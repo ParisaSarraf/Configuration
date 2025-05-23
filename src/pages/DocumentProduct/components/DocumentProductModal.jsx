@@ -13,6 +13,8 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
     const { isPending: isCreating, mutateAsync: createProductDocument } = useCreateProductDocument();
     const { isPending: isUpdating, mutateAsync: updateProductDocument } = useUpdateProductDocument();
     const { data: documentList } = useDocumentList();
+    console.log(documentList);
+
     const selectedProductId = currentProduct?.productData?.id
     const { refetch } = useProductById(selectedProductId);
 
@@ -121,16 +123,16 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
                             <Form.Item
                                 label="نوع سند"
                                 name="document_id"
-                                rules={[{ required: true, message: "لطفاً اسناد را انتخاب کنید" }]}
+                            // rules={[{ required: true, message: "لطفاً اسناد را انتخاب کنید" }]}
                             >
-                                <TreeSelect
+                                {/* <TreeSelect
                                     treeData={getTreeSelectOptions(documentList || [])}
                                     placeholder="اسناد"
                                     allowClear
                                     treeIcon={true}
                                     treeLine={true}
                                     showSearch
-                                />
+                                /> */}
                             </Form.Item>
                         </Col>
 
