@@ -4,6 +4,7 @@ import Introduction from "../Introduction/Introduction";
 import Requirement from "../Requirement/Requirement";
 import ProductTracking from "../ProductTracking/ProductTracking";
 import Experience from "../Experience/Experience";
+import ProductRequirement from "../../ProductRequirement/ProductRequirement";
 
 const GoodsCategories = () => {
 
@@ -21,7 +22,7 @@ const GoodsCategories = () => {
     {
       label: ` الزامات`,
       key: '3',
-      children: <Requirement />,
+      children: <ProductRequirement />,
     },
     {
       label: ` ردیابی محصول`,
@@ -43,7 +44,7 @@ const GoodsCategories = () => {
   return (
     <Card className="w-full flex flex-col">
       <Tabs
-        defaultActiveKey="5"
+        defaultActiveKey="3"
         type="line"
         items={items}
         tabBarStyle={{

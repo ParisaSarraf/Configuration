@@ -14,12 +14,6 @@ const ExperienceCol = () => {
             key: 'experienceText'
         },
         {
-            title: 'فایل پیوست',
-            dataIndex: 'attachment',
-            key: 'attachment',
-            render: (file) => file ? <a href={file.url} target="_blank" rel="noreferrer">{file.name}</a> : 'ندارد'
-        },
-        {
             title: 'کاربر ثبت کننده',
             dataIndex: 'createdBy',
             key: 'createdBy'
@@ -33,6 +27,12 @@ const ExperienceCol = () => {
             title: 'کد پروژه',
             dataIndex: 'projectCode',
             key: 'projectCode'
+        },
+        {
+            title: 'فایل پیوست',
+            dataIndex: 'attachment',
+            key: 'attachment',
+            render: (file) => file ? <a href={file.url} target="_blank" rel="noreferrer">{file.name}</a> : 'ندارد'
         },
         {
             title: 'عملیات',

@@ -1,5 +1,4 @@
 import { Button, Card, Col, Row, Tabs } from 'antd'
-import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import Genus from './components/Genus'
 import Personality from './components/Personality'
@@ -7,6 +6,7 @@ import Casing from './components/Casing'
 import Precinct from './components/Precinct'
 import LifeCycle from './components/LifeCycle'
 import Documents from '../Documents/Documents'
+import Requirement from '../Requirement/Requirement'
 
 const Setting = () => {
     const navigate = useNavigate()
@@ -40,6 +40,11 @@ const Setting = () => {
             label: `اسناد و مدارک `,
             key: '6',
             children: <Documents />,
+        },
+        {
+            label: `الزامات `,
+            key: '7',
+            children: <Requirement />,
         },
 
     ];
