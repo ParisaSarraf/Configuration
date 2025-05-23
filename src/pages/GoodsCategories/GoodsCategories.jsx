@@ -3,6 +3,7 @@ import ProductDocuments from "../DocumentProduct/DocumentProduct";
 import Introduction from "../Introduction/Introduction";
 import Requirement from "../Requirement/Requirement";
 import ProductTracking from "../ProductTracking/ProductTracking";
+import Experience from "../Experience/Experience";
 
 const GoodsCategories = () => {
 
@@ -27,11 +28,11 @@ const GoodsCategories = () => {
       key: '4',
       children: <ProductTracking />,
     },
-    // {
-    //   label: ` تجارب و خرابی `,
-    //   key: '5',
-    //   children: 'تحارب و خرابی',
-    // },
+    {
+      label: ` تجارب و خرابی `,
+      key: '5',
+      children: <Experience />,
+    },
     // {
     //   label: ` خرید `,
     //   key: '6',
@@ -42,7 +43,7 @@ const GoodsCategories = () => {
   return (
     <Card className="w-full flex flex-col">
       <Tabs
-        defaultActiveKey="3"
+        defaultActiveKey="5"
         type="line"
         items={items}
         tabBarStyle={{
