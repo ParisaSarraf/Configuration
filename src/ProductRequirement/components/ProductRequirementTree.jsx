@@ -1,7 +1,7 @@
 import { Button, Card, Space } from 'antd'
 import { useProductContext } from '../../Services/Context/ProductContext';
 import { useRequirementList } from '../../QueryServises/requirementQuery';
-import { CloseCircleOutlined, PlusCircleOutlined, RightCircleOutlined } from '@ant-design/icons';
+import { CloseCircleOutlined, CloseOutlined, PlusCircleOutlined, PlusOutlined, RightCircleOutlined, RightOutlined } from '@ant-design/icons';
 import Tree from '../../components/Tree';
 import useModal from '../../hooks/useModal';
 import DescribeTheRequirementModal from './DescribeTheRequirementModal';
@@ -16,26 +16,34 @@ const ProductRequirementTree = () => {
         if (!requirementList) return [];
         const transformNode = (node) => ({
             title: (
-                <div className="flex flex-row -mt-2 justify-between items-center w-full h-3">
+                <div
+                    className="flex flex-row -mt-2 justify-between items-center w-full h-3"
+                    onDoubleClick={() => {
+                        setModal({ mode: 'view', data: node, type: 'AcknowledgmentOfRequirement' })
+                    }}
+                >
                     <span className="mr-8 -mt-5">{node.persian_title}</span>
                     <Space className="-mt-4">
                         <Button
                             type="text"
-                            icon={<RightCircleOutlined />}
-                            onClick={() => {
+                            icon={<RightOutlined />}
+                            onClick={(e) => {
+                                e.stopPropagation();
                                 setModal({ mode: 'add', data: null, type: 'AcknowledgmentOfRequirement' })
                             }}
                             className="text-yellow-500 hover:text-yellow-700 "
                         />
                         <Button
                             type="text"
-                            icon={<CloseCircleOutlined />}
+                            icon={<CloseOutlined />}
                             className="text-red-500 hover:text-red-700"
+                            onClick={(e) => e.stopPropagation()}
                         />
                         <Button
                             type="text"
-                            icon={<PlusCircleOutlined />}
-                            onClick={() => {
+                            icon={<PlusOutlined />}
+                            onClick={(e) => {
+                                e.stopPropagation();
                                 setModal({ mode: 'add', data: null, type: 'DescribeTheRequirementModal' })
                             }}
                             className="text-blue-500 hover:text-blue-700"
@@ -68,6 +76,11 @@ const ProductRequirementTree = () => {
                 isError={isError}
                 showLine={true}
                 checkable={true}
+                onSelect={(selectedKeys, { node }) => {
+                }}
+                onDoubleClick={(event, node) => {
+                    setModal({ mode: 'view', data: node, type: 'AcknowledgmentOfRequirement' })
+                }}
             />
             {modalType === 'DescribeTheRequirementModal' && (
                 <DescribeTheRequirementModal
