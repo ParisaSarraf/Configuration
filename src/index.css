@@ -186,3 +186,11 @@
 .transfer-buttons button {
   flex: 1;
 }
+
+/* scroll  in modal*/
+.scroll-modal {
+  max-height: 80vh !important;
+  overflow-y: auto !important;
+  padding: 0 !important;
+  z-index: 1000000000000000 !important;
+}

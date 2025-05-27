@@ -7,8 +7,11 @@ const FileUploader = ({ value = [], onChange, maxFiles = 1, listType, className 
     const [previewImage, setPreviewImage] = useState(null);
 
     useEffect(() => {
-        setFileList(value);
-    }, [value]);
+        // Only update if the incoming value is different from current fileList
+        if (JSON.stringify(value) !== JSON.stringify(fileList)) {
+            setFileList(value);
+        }
+    }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleChange = async (info) => {
         const updatedFileList = info.fileList.slice(0, maxFiles);
