@@ -9,7 +9,7 @@ import useModal from '../../hooks/useModal';
 
 const Experience = () => {
     const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
-    const { refetch } = usExperienceList()
+    // const { refetch } = usExperienceList()
     const { currentProduct } = useProductContext();
 
     return (
@@ -25,15 +25,15 @@ const Experience = () => {
                         modalType={modalType}
                         closeModal={closeModal}
                         setModal={setModal}
-                        refetch={refetch}
+                        // refetch={refetch}
                     />
                 </>
             }
         >
             <Table
-                columns={ExperienceCol()}
-                dataSource={mockData}
-                locale={{ emptyText: 'هیچ داده ای وجود ندارد' }}
+                // columns={ExperienceCol()}
+                // dataSource={mockData}
+                // locale={{ emptyText: 'هیچ داده ای وجود ندارد' }}
             />
         </Card >
     )

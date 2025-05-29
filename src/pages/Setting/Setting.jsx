@@ -27,7 +27,7 @@ const Setting = () => {
             children: <Genus />,
         },
         {
-            label: `تجارب`,
+            label: `حوزه`,
             key: '4',
             children: <Precinct />,
         },

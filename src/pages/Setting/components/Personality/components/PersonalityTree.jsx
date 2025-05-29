@@ -84,6 +84,9 @@ const PersonalityTree = ({ setModal }) => {
                 { key: "delete", label: "حذف", danger: true },
             ]}
             onRightClickAction={handleRightClickAction}
+            locale={{
+                emptyText: 'هیچ چرخه عمر محصولی یافت نشد'
+            }}
         />
     );
 }
