@@ -57,12 +57,12 @@ export const useUpdateProductRequirement = () => {
 	});
 };
 
-export const useDeleteRequirement = () => {
+export const useDeleteProductRequirement = () => {
 	const { myAxios } = useMyAxios();
 	return useMutation({
 		mutationFn: (params) => {
 			return myAxios
-				.delete(`/product/delete-requirement-tree/${params}/`)
+				.delete(`/product/delete-product-requirement/${params}`)
 				.then((response) => {
 					return response?.data;
 				});

@@ -1,6 +1,7 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import Tree from "../../../components/Tree";
 import { useDeleteRequirement, useRequirementList } from "../../../QueryServises/requirementQuery";
+import { Modal } from "antd";
 
 const RequirementTree = ({ setModal }) => {
     const { data: requirementList, isLoading, isError, refetch } = useRequirementList();

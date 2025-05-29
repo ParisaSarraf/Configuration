@@ -9,7 +9,6 @@ import {
   useDocumentList,
 } from "../../../QueryServises/documentQuery";
 import { useLifeCycleList } from "../../../QueryServises/lifeCycleQuery";
-import DatepickerCustom from "../../../components/DatePicker";
 
 const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, documentData }) => {
   const [form] = Form.useForm();
@@ -113,111 +112,102 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
         onSubmit={() => form.submit()}
         mode={modalMode}
         loading={isCreating || isUpdating}
-        bodyStyle={{
-          padding: 0
-        }}
-        style={{
-          top: 20
-        }}
+        className=""
       >
-        <div style={{
-          maxHeight: "70vh",
-          overflowY: "auto",
-          padding: "0 24px"
-        }}>
-          <Form
-            form={form}
-            layout="vertical"
-            className="p-4"
-            onFinish={onFinishForm}
-          >
-            <Row gutter={[24, 16]}>
-              <Col span={12}>
-                <Form.Item
-                  layout="vertical"
-                  label="شاخه والد"
-                  name="parent_id"
-                  tooltip="محصول والد را انتخاب کنید"
-                >
-                  <TreeSelect
-                    treeData={getTreeSelectOptions(documentData || [])}
-                    placeholder="انتخاب کنید..."
-                    allowClear
-                    treeIcon={true}
-                    treeLine={true}
-                    showSearch
-                  />
 
-                </Form.Item>
-              </Col>
+        <Form
+          form={form}
+          layout="vertical"
+          className="p-4"
+          onFinish={onFinishForm}
+        >
+          <Row gutter={[24, 16]}>
+            <Col span={12}>
+              <Form.Item
+                layout="vertical"
+                label="شاخه والد"
+                name="parent_id"
+                tooltip="محصول والد را انتخاب کنید"
+              >
+                <TreeSelect
+                  treeData={getTreeSelectOptions(documentData || [])}
+                  placeholder="انتخاب کنید..."
+                  allowClear
+                  treeIcon={true}
+                  treeLine={true}
+                  showSearch
+                />
 
-              <Col span={12}>
-                <Form.Item
-                  label="کد محصول"
-                  layout="vertical"
+              </Form.Item>
+            </Col>
 
-                  name="code"
-                  rules={[{
-                    required: true,
-                    message: "لطفاً کد محصول را وارد کنید"
-                  }]}
-                >
-                  <Input placeholder="مثال: PRD-001" />
-                </Form.Item>
-              </Col>
+            <Col span={12}>
+              <Form.Item
+                label="کد سند"
+                layout="vertical"
 
-              <Col span={12}>
-                <Form.Item
-                  label="نام فارسی"
-                  layout="vertical"
-                  name="persianTitle"
-                  rules={[{
-                    required: true,
-                    message: "لطفاً نام فارسی محصول را وارد کنید"
-                  }]}
-                >
-                  <Input placeholder="نام فارسی محصول" />
-                </Form.Item>
-              </Col>
+                name="code"
+                rules={[{
+                  required: true,
+                  message: "لطفاً کد سند را وارد کنید"
+                }]}
+              >
+                <Input placeholder="مثال: PRD-001" />
+              </Form.Item>
+            </Col>
+
+            <Col span={12}>
+              <Form.Item
+                label="نام فارسی"
+                layout="vertical"
+                name="persianTitle"
+                rules={[{
+                  required: true,
+                  message: "لطفاً نام فارسی محصول را وارد کنید"
+                }]}
+              >
+                <Input placeholder="نام فارسی محصول" />
+              </Form.Item>
+            </Col>
 
 
-              <Col span={12}>
-                <Form.Item
-                  label="نام انگلیسی"
-                  name="englishTitle"
-                  layout="vertical"
+            <Col span={12}>
+              <Form.Item
+                label="نام انگلیسی"
+                name="englishTitle"
+                layout="vertical"
 
-                  rules={[{
-                    required: true,
-                    message: "لطفاً نام انگلیسی محصول را وارد کنید",
-                    pattern: {
-                      value: /^[a-zA-Z\s]+$/,
-                      message: "فقط حروف انگلیسی مجاز است"
-                    }
-                  }]}
-                >
-                  <Input placeholder="English product name" />
-                </Form.Item>
-              </Col>
+                rules={[{
+                  required: true,
+                  message: "لطفاً نام انگلیسی محصول را وارد کنید",
+                  pattern: {
+                    value: /^[a-zA-Z\s]+$/,
+                    message: "فقط حروف انگلیسی مجاز است"
+                  }
+                }]}
+              >
+                <Input placeholder="English product name" />
+              </Form.Item>
+            </Col>
 
-              <Col span={24}>
-                <Form.Item
-                  layout="vertical"
-                  label="چرخه عمر محصول"
-                  name="tag_id"
-                >
-                  <Select
-                    showSearch
-                    placeholder="انتخاب چرخه عمر..."
-                    options={lifeCycleList?.map(lifecycle => ({
-                      label: lifecycle.title,
-                      value: lifecycle.id
-                    }))}
-                    allowClear
-                  />
-                </Form.Item>
-              </Col>
-              {/* <Col span={12}>
+            <Col span={24}>
+              <Form.Item
+                layout="vertical"
+                label="چرخه عمر محصول"
+                name="tag_id"
+              >
+                <Select
+                  showSearch
+                  placeholder="انتخاب چرخه عمر..."
+                  options={lifeCycleList?.map(lifecycle => ({
+                    label: lifecycle.title,
+                    value: lifecycle.id
+                  }))}
+                  allowClear
+                />
+              </Form.Item>
+            </Col>
+            {/* <Col span={12}>
                 <Form.Item
                   layout="vertical"
                   label="تاریخ تهیه سند"
@@ -232,38 +222,37 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
                 </Form.Item>
               </Col> */}
 
-              <Col span={12}>
-                <Form.Item
-                  label="Doc"
-                  name="isUsable"
-                  valuePropName="checked"
-                  tooltip="آیا این سند قابل استفاده است؟"
-                >
-                  <Switch
-                    checkedChildren="بله"
-                    unCheckedChildren="خیر"
-                    className="bg-gray-300"
-                  />
-                </Form.Item>
-              </Col>
+            <Col span={12}>
+              <Form.Item
+                label="Doc"
+                name="isUsable"
+                valuePropName="checked"
+                tooltip="آیا این سند قابل استفاده است؟"
+              >
+                <Switch
+                  checkedChildren="بله"
+                  unCheckedChildren="خیر"
+                  className="bg-gray-300"
+                />
+              </Form.Item>
+            </Col>
 
-              <Col span={12}>
-                <Form.Item
-                  label="Log"
-                  name="isReproducible"
-                  valuePropName="checked"
-                  tooltip="آیا این سند قابل تولید مجدد است؟"
-                >
-                  <Switch
-                    checkedChildren="بله"
-                    unCheckedChildren="خیر"
-                    className="bg-gray-300"
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-          </Form>
-        </div>
+            <Col span={12}>
+              <Form.Item
+                label="Log"
+                name="isReproducible"
+                valuePropName="checked"
+                tooltip="آیا این سند قابل تولید مجدد است؟"
+              >
+                <Switch
+                  checkedChildren="بله"
+                  unCheckedChildren="خیر"
+                  className="bg-gray-300"
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
       </Modal>
     </>
   );

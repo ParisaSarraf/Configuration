@@ -38,7 +38,7 @@ const DescribeTheRequirementModal = ({ isOpen, modalMode, closeModal, currentPro
                 message.success("الزام با موفقیت ویرایش شد");
             }
 
-            await refetch();
+            refetch();
             closeModal();
         } catch (error) {
             console.error("Error:", error);
@@ -48,6 +48,7 @@ const DescribeTheRequirementModal = ({ isOpen, modalMode, closeModal, currentPro
             message.error(errorMessage);
         }
     };
+
     const getTreeSelectOptions = (data, modalMode = null, modalData = null) => {
         return data.map(item => {
             const titleFields = [
@@ -111,7 +112,7 @@ const DescribeTheRequirementModal = ({ isOpen, modalMode, closeModal, currentPro
                             name="pass_comment"
                             rules={[{ required: true, message: 'لطفا توصیف الزام را وارد کنید' }]}
                         >
-                            <Input placeholder="توضیحات الزام" />
+                            <Input.TextArea rows={1} placeholder="توصیف الزام" />
                         </Form.Item>
                     </Col>
                     <Col xs={24} md={12}>

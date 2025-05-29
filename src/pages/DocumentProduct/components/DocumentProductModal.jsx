@@ -125,14 +125,14 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
                                 name="document_id"
                             // rules={[{ required: true, message: "لطفاً اسناد را انتخاب کنید" }]}
                             >
-                                {/* <TreeSelect
+                                <TreeSelect
                                     treeData={getTreeSelectOptions(documentList || [])}
                                     placeholder="اسناد"
                                     allowClear
                                     treeIcon={true}
                                     treeLine={true}
                                     showSearch
-                                /> */}
+                                />
                             </Form.Item>
                         </Col>
 

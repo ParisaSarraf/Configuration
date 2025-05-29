@@ -1,16 +1,42 @@
-import { Button, Card, Space } from 'antd'
+import { Button, Card, message, Modal, Space } from 'antd'
 import { useProductContext } from '../../Services/Context/ProductContext';
-import { CloseOutlined, PlusOutlined, RightOutlined } from '@ant-design/icons';
+import { DeleteOutlined, PlusOutlined, RightOutlined } from '@ant-design/icons';
 import Tree from '../../components/Tree';
 import useModal from '../../hooks/useModal';
 import DescribeTheRequirementModal from './DescribeTheRequirementModal';
 import AcknowledgmentOfRequirement from './AcknowledgmentOfRequirement';
-import { useProductRequirementList } from '../../QueryServises/productRequirementQuery';
+import { useDeleteProductRequirement, useProductRequirementList } from '../../QueryServises/productRequirementQuery';
 
 const ProductRequirementTree = () => {
     const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
     const { currentProduct } = useProductContext();
-    const { data: requirementList, isLoading, isError } = useProductRequirementList(currentProduct?.id);
+    const { data: requirementList, isLoading, isError, refetch } = useProductRequirementList(currentProduct?.id);
+    const { mutateAsync: deleteProductRequirement } = useDeleteProductRequirement();
+
+
+    const handleDelete = (node) => {
+        const NodeId = node?.product_requirements[0]?.id
+        Modal.confirm({
+            title: "حذف الزام",
+            content: "از حذف مطمئن هستید؟",
+            okText: "بله ، مطمئنم",
+            cancelText: "خیر ، منصرف شدم.",
+            onOk() {
+                try {
+                    deleteProductRequirement(NodeId)
+                    message.success("نسخه با موفقیت حذف شد");
+                    refetch();
+                } catch (error) {
+                    message.error(error?.detail);
+                    console.error(error);
+                }
+            },
+            onCancel() {
+                message.warning("عملیات حذف لغو شد");
+            }
+        });
+
+    }
 
     const transformDataToTreeView = (requirementList) => {
         if (!requirementList) return [];
@@ -35,9 +61,12 @@ const ProductRequirementTree = () => {
                         />
                         <Button
                             type="text"
-                            icon={<CloseOutlined />}
+                            icon={<DeleteOutlined />}
                             className="text-red-500 hover:text-red-700"
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(node)
+                            }}
                         />
                         <Button
                             type="text"
@@ -64,11 +93,16 @@ const ProductRequirementTree = () => {
         const productDoc = Array.isArray(requirementList) ? requirementList : [requirementList];
         return productDoc.map((document) => transformNode(document));
     };
+    
     const treeData = transformDataToTreeView(requirementList);
 
 
     return (
-        <Card title={`الزامات محصول ${currentProduct?.name || ''}`}>
+        <Card title={`الزامات محصول ${currentProduct?.name || ''}`} extra={
+            <>
+                <Button icon={<PlusOutlined />} onClick={() => setModal({ mode: 'add', data: null, type: "DescribeTheRequirementModal" })} />
+            </>
+        }>
             <Tree
                 mode="tree"
                 data={treeData}
