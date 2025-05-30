@@ -13,7 +13,7 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
     const { isPending: isCreating, mutateAsync: createProductDocument } = useCreateProductDocument();
     const { isPending: isUpdating, mutateAsync: updateProductDocument } = useUpdateProductDocument();
     const { data: documentList } = useDocumentList();
-    console.log(documentList);
+    // console.log(documentList);
 
     const selectedProductId = currentProduct?.productData?.id
     const { refetch } = useProductById(selectedProductId);

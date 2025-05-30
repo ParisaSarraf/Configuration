@@ -85,6 +85,7 @@ const ExperienceModal = ({ isOpen, modalMode, modalData, closeModal, setModal, c
                                 <Input.TextArea />
                             </Form.Item>
                         </Col>
+
                         {/* <Col span={24}>
                             <Form.Item label="فایل پیوست" name="files">
                                 <FileUploader
@@ -95,6 +96,7 @@ const ExperienceModal = ({ isOpen, modalMode, modalData, closeModal, setModal, c
                                 />
                             </Form.Item>
                         </Col> */}
+                        
                     </Row>
                 </Form>
             </Modal>

@@ -13,7 +13,6 @@ const ProductDocumentEditionModal = ({ isOpen, modalMode, modalData, closeModal,
     const { isPending: isCreating, mutateAsync: createProductDocumentEdition } = useCreateProductDocumentEdition();
     const { isPending: isUpdating, mutateAsync: updateProductDocumentEdition } = useUpdateProductDocumentEdition();
 
-
     useEffect(() => {
         if (modalMode === "edition") {
             form.resetFields()
@@ -63,7 +62,6 @@ const ProductDocumentEditionModal = ({ isOpen, modalMode, modalData, closeModal,
 
     const onFinishForm = async (values) => {
         const { data: productDocument } = await refetch();
-        console.log(productDocument)
         const existingEditions = productDocument?.product_documents
             ?.find(doc => doc.id === modalData?.id)
             ?.editions || [];
@@ -76,9 +74,8 @@ const ProductDocumentEditionModal = ({ isOpen, modalMode, modalData, closeModal,
             message.error("این نسخه قبلاً اضافه شده است");
             return;
         }
-
         const payload = {
-            product_document_id: modalData?.product_document_id,
+            product_document_id: modalData?.product_document_id?.id,
             edition: values.edition,
             survey_date: values.survey_date?.format
                 ? values.survey_date.format("YYYY-MM-DD")
@@ -101,7 +98,7 @@ const ProductDocumentEditionModal = ({ isOpen, modalMode, modalData, closeModal,
                 });
                 message.success("نسخه با موفقیت ویرایش شد");
             }
-            await refetch();
+            refetch();
             closeModal();
         } catch (error) {
             if (error.response?.data?.detail === "No ProductDocument matches the given query.") {
