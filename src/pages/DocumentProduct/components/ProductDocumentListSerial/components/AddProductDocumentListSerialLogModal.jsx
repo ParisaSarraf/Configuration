@@ -1,28 +1,41 @@
 import { PlusOutlined } from '@ant-design/icons'
-import { Button, Checkbox, Col, Form, Input, Row, TreeSelect } from 'antd'
+import { Button, Checkbox, Col, Form, Input, message, Row, TreeSelect } from 'antd'
 import Modal from '../../../../../components/Modal'
 import DatepickerCustom from '../../../../../components/DatePicker'
 import FileUploader from '../../../../../components/FileUploader/FileUploader'
 import { useEffect } from 'react'
-import { useAvailableProductEditionList } from '../../../../../QueryServises/productDocumentEditionLogQuery'
+import { useAvailableProductEditionList, useCreateProductEditionlog, useUpdateProductEditionlog } from '../../../../../QueryServises/productDocumentEditionLogQuery'
 
-const AddProductDocumentListSerialLogModal = ({ isOpen, modalMode, modalData, closeModal, setModal, currentProduct, serialId }) => {
-    const [form] = Form.useForm();
-    const { data: documentList } = useAvailableProductEditionList(serialId);
-
-    console.log(documentList);
+const AddProductDocumentListSerialLogModal = ({ isOpen, modalMode, modalData, closeModal, setModal, serialId, refetch }) => {
+    const [form] = Form.useForm()
+    const { data: documentList, isLoading } = useAvailableProductEditionList(serialId)
+    const { mutateAsync: createProductEditionlog } = useCreateProductEditionlog();
+    const { mutateAsync: updateProductEditionlog } = useUpdateProductEditionlog();
 
     useEffect(() => {
-        if (modalMode === 'add' && modalData) {
-            form.setFieldValue({
-
+        if (serialId) {
+            form.setFieldsValue({ serialId: serialId });
+        }
+        if (modalMode === 'edit' && modalData) {
+            form.setFieldsValue({
+                document_edition_id: modalData.edition,
+                survey_date: modalData.survey_date,
+                file: modalData?.file
+                    ? [
+                        {
+                            uid: "-4",
+                            name: "file",
+                            url: BASEURL.replace("/api/v1", "") + modalData.file,
+                        },
+                    ]
+                    : [],
             })
         } else {
             form.resetFields()
         }
-    }, [form, modalData])
+    }, [form, modalData, modalMode])
 
-    const onFinish = (values) => {
+    const onFinish = async (values) => {
         const payload = {
             product_document_edition_id: values.document_edition_id,
             product_serial_id: serialId,
@@ -30,55 +43,48 @@ const AddProductDocumentListSerialLogModal = ({ isOpen, modalMode, modalData, cl
             status: 10,
             file: values.file?.[0]?.originFileObj
         }
-        console.log(payload);
+        try {
+            if (modalMode === "add") {
+                await createProductEditionlog(payload);
+                message.success("سند با موفقیت اضافه شد");
+                refetch()
+            } else {
+                await updateProductEditionlog({ EditionLogId: modalData.id, ...payload });
+                message.success("سند با موفقیت ویرایش شد");
+                refetch()
+            }
+            refetch();
+            closeModal();
+        } catch (error) {
+            message.error("موفقیت آمیز نبود، دوباره امتحان کنید");
+            console.error("Error details:", error.response?.data);
+        }
 
     }
 
-    const getTreeSelectOptions = (data, modalMode = null, modalData = null) => {
-        return data.map(item => {
-            const titleFields = [
-                'edition',
-            ];
-            let title = 'بدون عنوان';
-            for (const field of titleFields) {
-                if (item[field]) {
-                    title = item[field];
-                    if (field !== 'code' && item.code) {
-                        title = ` ${title}`;
-                    }
-                    break;
-                }
-            }
-            return {
-                title: title,
-                value: item.id,
-                children: item.children ? getTreeSelectOptions(item.children, modalMode, modalData) : [],
-                // disabled: modalMode === "edit" && item.id === modalData?.document?.id 
-            };
-        });
-    };
+    const treeData = (documentList || []).flatMap(item =>
+        item?.editions?.map(edition => ({
+            value: edition.id,
+            title: edition.edition,
+        })) || []
+    )
 
     return (
         <>
             <Button
                 icon={<PlusOutlined />}
-                onClick={() => setModal({ mode: "add", data: null, type: 'add' })}
+                onClick={() => setModal({ mode: "add", data: null, type: 'AddLogEdition' })}
             >
             </Button>
             <Modal
                 isOpen={isOpen}
-                title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} اسناد log `}
+                title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} اسناد log`}
                 size={500}
                 onClose={closeModal}
                 onSubmit={() => form.submit()}
                 mode={modalMode}
-            // loading={isCreating || isUpdating}
             >
-                <Form
-                    form={form}
-                    layout="vertical"
-                    onFinish={onFinish}
-                >
+                <Form form={form} layout="vertical" onFinish={onFinish} initialValues={{ serialId: serialId }}>
                     <Row gutter={[16, 16]}>
                         <Col span={24}>
                             <Form.Item
@@ -86,22 +92,20 @@ const AddProductDocumentListSerialLogModal = ({ isOpen, modalMode, modalData, cl
                                 name="document_edition_id"
                                 rules={[{ required: true, message: "لطفاً سند قابل ادیت را انتخاب کنید" }]}
                             >
-                                {/* <TreeSelect
-                                    treeData={getTreeSelectOptions(documentList[0]?.editions || [])}
+                                <TreeSelect
+                                    treeData={treeData}
                                     placeholder="اسناد"
                                     allowClear
-                                    treeIcon={true}
                                     treeLine={true}
                                     showSearch
-                                /> */}
-                                {/* <Input /> */}
+                                    loading={isLoading}
+                                />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
                             <Form.Item
                                 label="سریال محصول"
-                                name="document_id"
-                                rules={[{ required: true, message: "سریال محصول انتخاب نشده است." }]}
+                                name="serialId"
                             >
                                 <Input disabled value={serialId} />
                             </Form.Item>
@@ -127,6 +131,7 @@ const AddProductDocumentListSerialLogModal = ({ isOpen, modalMode, modalData, cl
                             <Form.Item
                                 label="تهیه"
                                 name="is_reportable"
+                                valuePropName="checked"
                             >
                                 <Checkbox />
                             </Form.Item>
@@ -134,7 +139,8 @@ const AddProductDocumentListSerialLogModal = ({ isOpen, modalMode, modalData, cl
                         <Col span={8}>
                             <Form.Item
                                 label="بازنگری"
-                                name="is_reportable"
+                                name="needs_review"
+                                valuePropName="checked"
                             >
                                 <Checkbox />
                             </Form.Item>
@@ -142,7 +148,8 @@ const AddProductDocumentListSerialLogModal = ({ isOpen, modalMode, modalData, cl
                         <Col span={8}>
                             <Form.Item
                                 label="تصدیق"
-                                name="is_reportable"
+                                name="needs_approval"
+                                valuePropName="checked"
                             >
                                 <Checkbox />
                             </Form.Item>

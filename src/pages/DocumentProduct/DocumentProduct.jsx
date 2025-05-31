@@ -8,12 +8,15 @@ import ProductDocumentEditionModal from "./components/ProductDocumentEdition/Pro
 import ProductDocumentListSerial from "./components/ProductDocumentListSerial/ProductDocumentListSerial";
 import AddProductDocumentListSerialLogModal from "./components/ProductDocumentListSerial/components/AddProductDocumentListSerialLogModal";
 import { useState } from "react";
+import { useProductDocumentEditionLogsBySerialById, useProductDocumentTreeById } from "../../QueryServises/productDocumentQuery";
 
 const ProductDocuments = () => {
-    const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
-    const { refetch } = useDocumentList()
-    const [serialId, setSerialId] = useState(null)
     const { currentProduct } = useProductContext();
+    const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
+    const { refetch } = useProductDocumentTreeById(currentProduct?.id)
+    const [serialId, setSerialId] = useState(null)
+    const { refetchSerialId } = useProductDocumentEditionLogsBySerialById(serialId)
+
 
     return (
         <>
@@ -27,7 +30,7 @@ const ProductDocuments = () => {
                             extra={
                                 <DocumentProductModal
                                     currentProduct={currentProduct}
-                                    isOpen={isOpen && modalType === 'add'}
+                                    isOpen={isOpen && modalType === 'AddDocumentProduct'}
                                     modalMode={modalMode}
                                     modalData={modalData}
                                     modalType={modalType}
@@ -51,7 +54,7 @@ const ProductDocuments = () => {
                                 <AddProductDocumentListSerialLogModal
                                     serialId={serialId}
                                     currentProduct={currentProduct}
-                                    isOpen={isOpen && modalType === 'add'}
+                                    isOpen={isOpen && modalType === 'AddLogEdition'}
                                     modalMode={modalMode}
                                     modalData={modalData}
                                     modalType={modalType}
@@ -63,10 +66,11 @@ const ProductDocuments = () => {
                             <ProductDocumentListSerial
                                 setModal={setModal}
                                 modalType={modalType}
-                                refetch={refetch}
+                                refetchSerialId={refetchSerialId}
                                 setSerialId={setSerialId}
                                 serialId={serialId}
                                 currentProduct={currentProduct}
+
                             />
                         </Card>
                     </div>

@@ -45,7 +45,11 @@ export const useCreateProductEditionlog = () => {
 	return useMutation({
 		mutationFn: (params) => {
 			return myAxios
-				.post(`/product/add-product-document-edition-log/`, params)
+				.post(`/product/add-product-document-edition-log/`, params, {
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				})
 				.then((response) => {
 					return response?.data;
 				});
@@ -73,7 +77,12 @@ export const useUpdateProductEditionlog = () => {
 			return myAxios
 				.put(
 					`/product/update-product-document-edition-log/${EditionLogId}`,
-					params
+					params,
+					{
+						headers: {
+							"Content-Type": "multipart/form-data",
+						},
+					}
 				)
 				.then((response) => response?.data);
 		},

@@ -9,7 +9,7 @@ const ProductRequirement = () => {
         >
             <div className="grid grid-cols-1 md:grid-cols-2 justify-between gap-2">
                 <div className="col-span-1">
-                    <ProductRequirementTree  />
+                    <ProductRequirementTree />
                 </div>
                 <div className="col-span-1">
                     <ListOfProductsAcceptingTheRequirement />

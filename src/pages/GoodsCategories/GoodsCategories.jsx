@@ -3,17 +3,16 @@ import ProductDocuments from "../DocumentProduct/DocumentProduct";
 import Introduction from "../Introduction/Introduction";
 import ProductTracking from "../ProductTracking/ProductTracking";
 import Experience from "../Experience/Experience";
-import ProductRequirement from "../../ProductRequirement/ProductRequirement";
+import ProductRequirement from '../ProductRequirement/ProductRequirement'
 
 const GoodsCategories = () => {
-
   const items = [
     {
       label: "معرفی و مشخصات",
       key: '1',
       children: <Introduction />,
     },
-      {
+    {
       label: ` ردیابی محصول`,
       key: '2',
       children: <ProductTracking />,
@@ -28,7 +27,6 @@ const GoodsCategories = () => {
       key: '4',
       children: <ProductRequirement />,
     },
-  
     {
       label: ` تجارب و خرابی `,
       key: '5',
