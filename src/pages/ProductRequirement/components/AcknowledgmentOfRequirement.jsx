@@ -1,6 +1,6 @@
 import { Col, Form, Input, Row } from 'antd';
-import Modal from '../../components/Modal'
-import FileUploader from '../../components/FileUploader/FileUploader';
+import Modal from '../../../components/Modal'
+import FileUploader from '../../../components/FileUploader/FileUploader';
 
 const AcknowledgmentOfRequirement = ({ isOpen, modalMode, modalData, closeModal, setModal, currentProduct }) => {
     console.log(modalMode);

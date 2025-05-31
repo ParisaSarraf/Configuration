@@ -1,11 +1,11 @@
 import { Button, Card, message, Modal, Space } from 'antd'
-import { useProductContext } from '../../Services/Context/ProductContext';
+import { useProductContext } from '../../../Services/Context/ProductContext';
 import { DeleteOutlined, PlusOutlined, RightOutlined } from '@ant-design/icons';
-import Tree from '../../components/Tree';
-import useModal from '../../hooks/useModal';
+import Tree from '../../../components/Tree';
+import useModal from '../../../hooks/useModal';
 import DescribeTheRequirementModal from './DescribeTheRequirementModal';
 import AcknowledgmentOfRequirement from './AcknowledgmentOfRequirement';
-import { useDeleteProductRequirement, useProductRequirementList } from '../../QueryServises/productRequirementQuery';
+import { useDeleteProductRequirement, useProductRequirementList } from '../../../QueryServises/productRequirementQuery';
 
 const ProductRequirementTree = () => {
     const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
@@ -93,7 +93,7 @@ const ProductRequirementTree = () => {
         const productDoc = Array.isArray(requirementList) ? requirementList : [requirementList];
         return productDoc.map((document) => transformNode(document));
     };
-    
+
     const treeData = transformDataToTreeView(requirementList);
 
 

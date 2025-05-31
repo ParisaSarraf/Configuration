@@ -1,5 +1,5 @@
 import { Card, List } from "antd";
-import { useProductList } from "../../QueryServises/productQuery";
+import { useProductList } from "../../../QueryServises/productQuery";
 
 const ListOfProductsAcceptingTheRequirement = () => {
     const { data: productList, isLoading } = useProductList();

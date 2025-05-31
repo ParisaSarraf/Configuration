@@ -1,8 +1,8 @@
 import { Checkbox, Col, Form, Input, message, Row, TreeSelect } from 'antd';
-import Modal from '../../components/Modal'
-import FileUploader from '../../components/FileUploader/FileUploader';
-import { useRequirementList } from '../../QueryServises/requirementQuery';
-import { useCreatepRroductRequirement, useUpdateProductRequirement } from '../../QueryServises/productRequirementQuery';
+import Modal from '../../../components/Modal'
+import FileUploader from '../../../components/FileUploader/FileUploader';
+import { useRequirementList } from '../../../QueryServises/requirementQuery';
+import { useCreatepRroductRequirement, useUpdateProductRequirement } from '../../../QueryServises/productRequirementQuery';
 
 const DescribeTheRequirementModal = ({ isOpen, modalMode, closeModal, currentProduct }) => {
     const [form] = Form.useForm();
