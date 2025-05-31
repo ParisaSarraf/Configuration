@@ -6,11 +6,13 @@ import DocumentProductModal from "./components/DocumentProductModal";
 import ProductDocumentTree from "./components/ProductDocumentTree";
 import ProductDocumentEditionModal from "./components/ProductDocumentEdition/ProductDocumentEditionModal";
 import ProductDocumentListSerial from "./components/ProductDocumentListSerial/ProductDocumentListSerial";
-import AddProductDocumentListSerialModal from "./components/ProductDocumentListSerial/components/AddProductDocumentListSerialModal";
+import AddProductDocumentListSerialLogModal from "./components/ProductDocumentListSerial/components/AddProductDocumentListSerialLogModal";
+import { useState } from "react";
 
 const ProductDocuments = () => {
     const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
     const { refetch } = useDocumentList()
+    const [serialId, setSerialId] = useState(null)
     const { currentProduct } = useProductContext();
 
     return (
@@ -46,12 +48,24 @@ const ProductDocuments = () => {
                         <Card
                             title="سریال ها"
                             // extra={
-                            
+                                // <AddProductDocumentListSerialLogModal
+                                //     serialId={serialId}
+                                //     currentProduct={currentProduct}
+                                //     isOpen={isOpen && modalType === 'add'}
+                                //     modalMode={modalMode}
+                                //     modalData={modalData}
+                                //     modalType={modalType}
+                                //     closeModal={closeModal}
+                                //     setModal={setModal}
+                                //     refetch={refetch}
+                                // />}
                         >
                             <ProductDocumentListSerial
                                 setModal={setModal}
                                 modalType={modalType}
                                 refetch={refetch}
+                                setSerialId={setSerialId}
+                                serialId={serialId}
                                 currentProduct={currentProduct}
                             />
                         </Card>
@@ -65,8 +79,8 @@ const ProductDocuments = () => {
                     closeModal={closeModal}
                     setModal={setModal}
                     currentProduct={currentProduct}
-                    refetch={refetch} 
-                    />
+                    refetch={refetch}
+                />
             </Card >
         </>
     );

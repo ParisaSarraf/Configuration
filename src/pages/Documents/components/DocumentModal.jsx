@@ -28,7 +28,7 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
         englishTitle: modalData.englishTitle,
         tag_id: modalData?.tag?.id,
         isUsable: modalData.isUsable,
-        isReproducible: modalData.isReproducible,
+        log: modalData.log,
       });
     } else if (modalMode === "add") {
       form.resetFields();
@@ -44,7 +44,7 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
       englishTitle: values.englishTitle,
       tag_id: values.tag_id,
       isUsable: values.isUsable,
-      isReproducible: values.isReproducible,
+      log: values.log,
     };
 
     try {
@@ -240,7 +240,7 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
             <Col span={12}>
               <Form.Item
                 label="Log"
-                name="isReproducible"
+                name="log"
                 valuePropName="checked"
                 tooltip="آیا این سند قابل تولید مجدد است؟"
               >

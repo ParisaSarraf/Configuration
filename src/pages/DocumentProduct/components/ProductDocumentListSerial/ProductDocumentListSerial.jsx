@@ -1,11 +1,9 @@
 import { Form, Layout, Select, Table } from "antd"
 import { useProductSerialById } from "../../../../QueryServises/productSerialQuery"
 import { useProductDocumentEditionLogsBySerialById } from "../../../../QueryServises/productDocumentQuery";
-import { useState } from "react";
 import ProductDocumentListSerialCol from "./components/ProductDocumentListSerialCol";
 
-const ProductDocumentListSerial = ({ isOpen, modalMode, modalData, closeModal, setModal, currentProduct }) => {
-    const [serialId, setSerialId] = useState(null)
+const ProductDocumentListSerial = ({ currentProduct, serialId, setSerialId }) => {
     const { data: ProductSerialList } = useProductSerialById(currentProduct?.id);
     const { data: ProductDocumentEditionLogsBySerialData } = useProductDocumentEditionLogsBySerialById(serialId);
     const serials = ProductSerialList?.serials || [];

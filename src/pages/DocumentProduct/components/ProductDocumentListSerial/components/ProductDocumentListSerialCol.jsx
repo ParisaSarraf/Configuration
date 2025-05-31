@@ -28,6 +28,7 @@ const ProductDocumentListSerialCol = () => {
                 title="ویرایش"
                 icon={<EditOutlined />}
                 className="text-green-500 , border-green-500"
+                
               />
             </Tooltip>
             <Tooltip title="حذف">
