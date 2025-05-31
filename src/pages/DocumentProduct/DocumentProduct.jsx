@@ -47,18 +47,18 @@ const ProductDocuments = () => {
                     <div className="col-span-1">
                         <Card
                             title="سریال ها"
-                            // extra={
-                                // <AddProductDocumentListSerialLogModal
-                                //     serialId={serialId}
-                                //     currentProduct={currentProduct}
-                                //     isOpen={isOpen && modalType === 'add'}
-                                //     modalMode={modalMode}
-                                //     modalData={modalData}
-                                //     modalType={modalType}
-                                //     closeModal={closeModal}
-                                //     setModal={setModal}
-                                //     refetch={refetch}
-                                // />}
+                            extra={
+                                <AddProductDocumentListSerialLogModal
+                                    serialId={serialId}
+                                    currentProduct={currentProduct}
+                                    isOpen={isOpen && modalType === 'add'}
+                                    modalMode={modalMode}
+                                    modalData={modalData}
+                                    modalType={modalType}
+                                    closeModal={closeModal}
+                                    setModal={setModal}
+                                    refetch={refetch}
+                                />}
                         >
                             <ProductDocumentListSerial
                                 setModal={setModal}
