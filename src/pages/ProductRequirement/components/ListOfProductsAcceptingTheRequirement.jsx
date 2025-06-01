@@ -1,16 +1,30 @@
 import { Card, List } from "antd";
-import { useProductList } from "../../../QueryServises/productQuery";
+import { useProductChildren } from "../../../QueryServises/productQuery";
+import { useMemo } from "react";
 
-const ListOfProductsAcceptingTheRequirement = () => {
-    const { data: productList, isLoading } = useProductList();
+const ListOfProductsAcceptingTheRequirement = ({ currentProduct }) => {
+    const { data: productList = [], isLoading } = useProductChildren(currentProduct?.id);
+
+    const groupedProducts = useMemo(() => {
+        if (!Array.isArray(productList)) return [];
+        const map = new Map();
+        productList.forEach((product) => {
+            if (!product.parent) {
+                map.set(product.id, { ...product, children: [] });
+            }
+        });
+        productList.forEach((product) => {
+            if (product.parent && map.has(product.parent)) {
+                map.get(product.parent).children.push(product);
+            }
+        });
+        return Array.from(map.values());
+    }, [productList]);
 
     return (
-        <Card
-            title="لیست محصولات پذیرنده الزام"
-            loading={isLoading}
-        >
+        <Card title="لیست محصولات پذیرنده الزام" loading={isLoading}>
             <List
-                dataSource={productList}
+                dataSource={groupedProducts}
                 renderItem={(item) => (
                     <List.Item>
                         <div style={{ width: '100%' }}>
@@ -20,12 +34,11 @@ const ListOfProductsAcceptingTheRequirement = () => {
 
                             {item.children && item.children.length > 0 && (
                                 <List
+                                    size="small"
                                     dataSource={item.children}
                                     renderItem={(child) => (
                                         <List.Item style={{ paddingRight: '24px' }}>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                                                <span> - {child.persian_title} ({child.code})</span>
-                                            </div>
+                                            <span> - {child.persian_title} ({child.code})</span>
                                         </List.Item>
                                     )}
                                 />
