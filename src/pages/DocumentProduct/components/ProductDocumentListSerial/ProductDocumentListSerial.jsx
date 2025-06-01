@@ -4,7 +4,7 @@ import { useProductDocumentEditionLogsBySerialById } from "../../../../QueryServ
 import ProductDocumentListSerialCol from "./components/ProductDocumentListSerialCol";
 import { useDeleteProductEditionlog } from "../../../../QueryServises/productDocumentEditionLogQuery";
 
-const ProductDocumentListSerial = ({ currentProduct, serialId, setSerialId, refetchSerialId,setModal }) => {
+const ProductDocumentListSerial = ({ currentProduct, serialId, setSerialId, refetchSerialId, setModal }) => {
     const { data: ProductSerialList } = useProductSerialById(currentProduct?.id);
     const { mutateAsync: deleteProductEditionlog } = useDeleteProductEditionlog();
 
@@ -67,7 +67,8 @@ const ProductDocumentListSerial = ({ currentProduct, serialId, setSerialId, refe
                 dataSource={tableData}
                 columns={ProductDocumentListSerialCol({ handleDeleteLogEdition, handleEditLogEdition })}
                 size="small"
-                loading={!ProductDocumentEditionLogsBySerialData}
+                // loading={!ProductDocumentEditionLogsBySerialData}
+                locale={{ emptyText: 'باید یک سریال انتخاب کنید' }}
             />
         </>
     )
