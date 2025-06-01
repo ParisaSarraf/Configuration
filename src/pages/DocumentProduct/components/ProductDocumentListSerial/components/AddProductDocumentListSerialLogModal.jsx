@@ -6,7 +6,7 @@ import FileUploader from '../../../../../components/FileUploader/FileUploader'
 import { useEffect } from 'react'
 import { useAvailableProductEditionList, useCreateProductEditionlog, useUpdateProductEditionlog } from '../../../../../QueryServises/productDocumentEditionLogQuery'
 
-const AddProductDocumentListSerialLogModal = ({ isOpen, modalMode, modalData, closeModal, setModal, serialId, refetch }) => {
+const AddProductDocumentListSerialLogModal = ({ isOpen, modalMode, modalData, closeModal, setModal, serialId, refetchSerialId }) => {
     const [form] = Form.useForm()
     const { data: documentList, isLoading } = useAvailableProductEditionList(serialId)
     const { mutateAsync: createProductEditionlog } = useCreateProductEditionlog();
@@ -35,6 +35,7 @@ const AddProductDocumentListSerialLogModal = ({ isOpen, modalMode, modalData, cl
         }
     }, [form, modalData, modalMode])
 
+
     const onFinish = async (values) => {
         const payload = {
             product_document_edition_id: values.document_edition_id,
@@ -47,13 +48,11 @@ const AddProductDocumentListSerialLogModal = ({ isOpen, modalMode, modalData, cl
             if (modalMode === "add") {
                 await createProductEditionlog(payload);
                 message.success("سند با موفقیت اضافه شد");
-                refetch()
             } else {
-                await updateProductEditionlog({ EditionLogId: modalData.id, ...payload });
+                await updateProductEditionlog({ EditionLogId: modalData?.key, ...payload });
                 message.success("سند با موفقیت ویرایش شد");
-                refetch()
             }
-            refetch();
+            await refetchSerialId();
             closeModal();
         } catch (error) {
             message.error("موفقیت آمیز نبود، دوباره امتحان کنید");

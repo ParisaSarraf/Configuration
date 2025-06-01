@@ -1,6 +1,5 @@
 import { Card } from "antd";
 import useModal from "../../hooks/useModal";
-import { useDocumentList } from "../../QueryServises/documentQuery";
 import { useProductContext } from "../../Services/Context/ProductContext";
 import DocumentProductModal from "./components/DocumentProductModal";
 import ProductDocumentTree from "./components/ProductDocumentTree";
@@ -15,7 +14,7 @@ const ProductDocuments = () => {
     const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
     const { refetch } = useProductDocumentTreeById(currentProduct?.id)
     const [serialId, setSerialId] = useState(null)
-    const { refetchSerialId } = useProductDocumentEditionLogsBySerialById(serialId)
+    const { refetch: refetchSerialId } = useProductDocumentEditionLogsBySerialById(serialId)
 
 
     return (
@@ -60,7 +59,7 @@ const ProductDocuments = () => {
                                     modalType={modalType}
                                     closeModal={closeModal}
                                     setModal={setModal}
-                                    refetch={refetch}
+                                    refetchSerialId={refetchSerialId}
                                 />}
                         >
                             <ProductDocumentListSerial

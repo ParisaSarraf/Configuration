@@ -1,9 +1,9 @@
 import { Card, Tabs } from "antd";
-import ProductDocuments from "../DocumentProduct/DocumentProduct";
 import Introduction from "../Introduction/Introduction";
 import ProductTracking from "../ProductTracking/ProductTracking";
 import Experience from "../Experience/Experience";
-import ProductRequirement from '../ProductRequirement/ProductRequirement'
+import ProductDocuments from "../DocumentProduct/ProductDocuments";
+import ProductRequirement from "../ProductRequirement/ProductRequirement";
 
 const GoodsCategories = () => {
   const items = [

@@ -29,17 +29,17 @@ const ProductDocumentListSerial = ({ currentProduct, serialId, setSerialId, refe
         setModal({ mode: 'edit', data: record, type: 'AddLogEdition' })
     }
 
-    const handleDeleteLogEdition = (record) => {
+    const handleDeleteLogEdition = async (record) => {
         Modal.confirm({
             title: "حذف نسخه",
             content: "از حذف این نسخه مطمئن هستید؟",
             okText: "بله ، مطمئنم",
             cancelText: "خیر ، منصرف شدم.",
-            onOk() {
+            async onOk() {
                 try {
-                    deleteProductEditionlog(record?.key)
+                    await deleteProductEditionlog(record?.key)
                     message.success("نسخه با موفقیت حذف شد");
-                    // refetchSerialId()
+                    await refetchSerialId()
                 } catch (error) {
                     message.error(error?.detail);
                     console.error(error);
@@ -67,6 +67,9 @@ const ProductDocumentListSerial = ({ currentProduct, serialId, setSerialId, refe
                 dataSource={tableData}
                 columns={ProductDocumentListSerialCol({ handleDeleteLogEdition, handleEditLogEdition })}
                 size="small"
+                pagination={
+                    { pageSize: 3 }
+                }
                 // loading={!ProductDocumentEditionLogsBySerialData}
                 locale={{ emptyText: 'باید یک سریال انتخاب کنید' }}
             />
