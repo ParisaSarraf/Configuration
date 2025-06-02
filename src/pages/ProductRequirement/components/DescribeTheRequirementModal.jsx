@@ -4,11 +4,12 @@ import FileUploader from '../../../components/FileUploader/FileUploader';
 import { useRequirementList } from '../../../QueryServises/requirementQuery';
 import { useCreatepRroductRequirement, useUpdateProductRequirement } from '../../../QueryServises/productRequirementQuery';
 
-const DescribeTheRequirementModal = ({ isOpen, modalMode, closeModal, currentProduct }) => {
+const DescribeTheRequirementModal = ({ isOpen, modalMode, closeModal, currentProduct, refetch }) => {
     const [form] = Form.useForm();
-    const { data: requirementList, refetch } = useRequirementList();
+    const { data: requirementList } = useRequirementList();
     const { mutateAsync: createProductRequirement } = useCreatepRroductRequirement();
     const { mutateAsync: updateProductRequirement } = useUpdateProductRequirement();
+
     const onFinish = async (values) => {
         const payload = {
             product_id: currentProduct?.id,
@@ -27,6 +28,8 @@ const DescribeTheRequirementModal = ({ isOpen, modalMode, closeModal, currentPro
             if (modalMode === "add") {
                 await createProductRequirement(payload);
                 message.success("الزام با موفقیت اضافه شد");
+                await refetch();
+
             } else {
                 if (!modalData?.id) {
                     throw new Error("Missing product requirement ID for edit");
@@ -36,9 +39,10 @@ const DescribeTheRequirementModal = ({ isOpen, modalMode, closeModal, currentPro
                     ...payload
                 });
                 message.success("الزام با موفقیت ویرایش شد");
+                await refetch();
+
             }
 
-            refetch();
             closeModal();
         } catch (error) {
             console.error("Error:", error);
@@ -80,7 +84,6 @@ const DescribeTheRequirementModal = ({ isOpen, modalMode, closeModal, currentPro
             onClose={closeModal}
             onSubmit={() => form.submit()}
             mode={modalMode}
-            // loading={isCreating || isUpdating}
             className="scroll-modal"
         >
 
@@ -104,7 +107,7 @@ const DescribeTheRequirementModal = ({ isOpen, modalMode, closeModal, currentPro
                     </Col>
                 </Row>
 
-                {/* Description and Code */}
+
                 <Row gutter={[24]}>
                     <Col xs={24} md={12}>
                         <Form.Item
@@ -126,7 +129,7 @@ const DescribeTheRequirementModal = ({ isOpen, modalMode, closeModal, currentPro
                     </Col>
                 </Row>
 
-                {/* File Attachments */}
+
                 <Row gutter={[24]}>
                     <Col span={24}>
                         <h4 className="mb-4">فایل‌های پیوست</h4>
@@ -149,7 +152,7 @@ const DescribeTheRequirementModal = ({ isOpen, modalMode, closeModal, currentPro
                     </Col>
                 </Row>
 
-                {/* Additional Notes */}
+
                 <Row gutter={[24]}>
                     <Col span={24}>
                         <Form.Item
@@ -161,10 +164,9 @@ const DescribeTheRequirementModal = ({ isOpen, modalMode, closeModal, currentPro
                     </Col>
                 </Row>
 
-                {/* Roles */}
+
                 <Row gutter={[24]}>
                     <Col span={24}>
-                        <h4 className="mb-4">نقش‌ها</h4>
                         <div className="flex flex-wrap gap-4">
                             <Form.Item name="preparer" valuePropName="checked">
                                 <Checkbox>تهیه کننده</Checkbox>
@@ -179,11 +181,8 @@ const DescribeTheRequirementModal = ({ isOpen, modalMode, closeModal, currentPro
                     </Col>
                 </Row>
 
-                {/* Signatures */}
+
                 <Row gutter={[24]}>
-                    <Col span={24}>
-                        <h4 className="mb-4">محل‌های امضا</h4>
-                    </Col>
                     {['تهیه کننده', 'بازبین', 'تصویب کننده'].map((title, index) => (
                         <Col xs={24} md={8} key={index}>
                             <Form.Item

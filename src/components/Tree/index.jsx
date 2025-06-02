@@ -147,6 +147,7 @@ const Tree = ({
         checkedKeys={checkedKeys}
         {...props}
         className={className}
+       
       />
       {showRightClickMenu && rightClickNode && (
         <div

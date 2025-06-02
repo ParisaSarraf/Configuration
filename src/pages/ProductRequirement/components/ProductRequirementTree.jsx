@@ -7,9 +7,8 @@ import DescribeTheRequirementModal from './DescribeTheRequirementModal';
 import AcknowledgmentOfRequirement from './AcknowledgmentOfRequirement';
 import { useDeleteProductRequirement, useProductRequirementList } from '../../../QueryServises/productRequirementQuery';
 
-const ProductRequirementTree = () => {
+const ProductRequirementTree = ({ currentProduct, selectProduct }) => {
     const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
-    const { currentProduct } = useProductContext();
     const { data: requirementList, isLoading, isError, refetch } = useProductRequirementList(currentProduct?.id);
     const { mutateAsync: deleteProductRequirement } = useDeleteProductRequirement();
 
@@ -55,7 +54,7 @@ const ProductRequirementTree = () => {
                             icon={<RightOutlined />}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                setModal({ mode: 'add', data: null, type: 'AcknowledgmentOfRequirement' })
+                                setModal({ mode: 'add', data: node, type: 'AcknowledgmentOfRequirement' })
                             }}
                             className="text-yellow-500 hover:text-yellow-700 "
                         />
@@ -113,26 +112,31 @@ const ProductRequirementTree = () => {
                 onSelect={(selectedKeys, { node }) => {
                 }}
                 onDoubleClick={(event, node) => {
-                    setModal({ mode: 'view', data: node, type: 'AcknowledgmentOfRequirement' })
+
+                    setModal({ mode: 'add', data: node, type: 'AcknowledgmentOfRequirement' })
                 }}
             />
             {modalType === 'DescribeTheRequirementModal' && (
                 <DescribeTheRequirementModal
                     isOpen={isOpen}
+                    selectProduct={selectProduct}
                     modalMode={modalMode}
                     modalData={modalData}
                     setModal={setModal}
                     closeModal={closeModal}
                     currentProduct={currentProduct}
+                    refetch={refetch}
                 />
             )}
             {modalType === 'AcknowledgmentOfRequirement' && (
                 <AcknowledgmentOfRequirement
+                    selectProduct={selectProduct}
                     isOpen={isOpen}
                     modalMode={modalMode}
                     modalData={modalData}
                     closeModal={closeModal}
                     setModal={setModal}
+                    refetch={refetch}
                     currentProduct={currentProduct}
                 />
             )}

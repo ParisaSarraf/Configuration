@@ -1,51 +1,38 @@
-import { Card, List } from "antd";
+import { Card } from "antd";
 import { useProductChildren } from "../../../QueryServises/productQuery";
-import { useMemo } from "react";
+import Tree from "../../../components/Tree";
 
-const ListOfProductsAcceptingTheRequirement = ({ currentProduct }) => {
+const ListOfProductsAcceptingTheRequirement = ({ currentProduct, setSelectProduct }) => {
     const { data: productList = [], isLoading } = useProductChildren(currentProduct?.id);
 
-    const groupedProducts = useMemo(() => {
-        if (!Array.isArray(productList)) return [];
-        const map = new Map();
-        productList.forEach((product) => {
-            if (!product.parent) {
-                map.set(product.id, { ...product, children: [] });
-            }
+    const transformDataToTreeView = (productList) => {
+        if (!productList) return [];
+        const transformNode = (node) => ({
+            title: `${node.persian_title}- (${node.code})`,
+            id: node.id,
+            children: node.children && node.children.length > 0
+                ? node.children.map(child => transformNode(child))
+                : undefined,
         });
-        productList.forEach((product) => {
-            if (product.parent && map.has(product.parent)) {
-                map.get(product.parent).children.push(product);
-            }
-        });
-        return Array.from(map.values());
-    }, [productList]);
+        const productDoc = Array.isArray(productList) ? productList : [productList];
+        return productDoc.map((document) => transformNode(document));
+    };
+    const treeData = transformDataToTreeView(productList);
+
 
     return (
-        <Card title="لیست محصولات پذیرنده الزام" loading={isLoading}>
-            <List
-                dataSource={groupedProducts}
-                renderItem={(item) => (
-                    <List.Item>
-                        <div style={{ width: '100%' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                <span> - {item.persian_title} ({item.code})</span>
-                            </div>
-
-                            {item.children && item.children.length > 0 && (
-                                <List
-                                    size="small"
-                                    dataSource={item.children}
-                                    renderItem={(child) => (
-                                        <List.Item style={{ paddingRight: '24px' }}>
-                                            <span> - {child.persian_title} ({child.code})</span>
-                                        </List.Item>
-                                    )}
-                                />
-                            )}
-                        </div>
-                    </List.Item>
-                )}
+        <Card
+            title="لیست محصولات پذیرنده الزام"
+            loading={isLoading}
+        >
+            <Tree
+                mode="tree"
+                data={treeData}
+                showLine
+                checkable={false}
+                onSelect={(selectedKeys, { node }) => {
+                    setSelectProduct(node.id)
+                }}
             />
         </Card>
     );

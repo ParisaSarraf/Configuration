@@ -69,3 +69,41 @@ export const useDeleteProductRequirement = () => {
 		},
 	});
 };
+
+export const useCreatepProductRequirementExported = () => {
+	const { myAxios } = useMyAxios();
+	return useMutation({
+		mutationFn: (params) => {
+			return myAxios
+				.post(`/product/add-product-requirement-exported/`, params, {
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				})
+				.then((response) => {
+					return response?.data;
+				});
+		},
+	});
+};
+
+export const useUpdateProductRequirementExported = () => {
+	const { myAxios } = useMyAxios();
+	return useMutation({
+		mutationFn: ({ productRequirementExportedId, ...params }) => {
+			return myAxios
+				.put(
+					`/product/update-product-requirement-exported/${productRequirementExportedId}`,
+					params,
+					{
+						headers: {
+							"Content-Type": "multipart/form-data",
+						},
+					}
+				)
+				.then((response) => {
+					return response?.data;
+				});
+		},
+	});
+};
