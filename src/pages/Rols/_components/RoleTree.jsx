@@ -26,22 +26,24 @@ const RoleTree = ({ setModal, refetch }) => {
 
 
     return (
-        <Tree
-            data={roleData}
-            loading={isFetching}
-            titleField="name"
-            keyField="id"
-            childrenField="permissions"
-            rightClickMenuItems={[
-                { key: 'edit', label: 'ویرایش سمت ' },
-                { key: 'delete', label: 'حذف' },
-            ]}
-            onRightClickAction={(action, node) => {
-                if (action === 'edit' && !node.permission) handleEditRole(node);
-                if (action === 'delete' && !node.permission) handleDeleteRole(node);
-            }}
-            showRightClickMenu={(node) => !node.permission}
-        />
+        <div className='max-h-[490px] overflow-y-auto'>
+            <Tree
+                data={roleData}
+                loading={isFetching}
+                titleField="name"
+                keyField="id"
+                childrenField="permissions"
+                rightClickMenuItems={[
+                    { key: 'edit', label: 'ویرایش سمت ' },
+                    { key: 'delete', label: 'حذف' },
+                ]}
+                onRightClickAction={(action, node) => {
+                    if (action === 'edit' && !node.permission) handleEditRole(node);
+                    if (action === 'delete' && !node.permission) handleDeleteRole(node);
+                }}
+                showRightClickMenu={(node) => !node.permission}
+            />
+        </div>
     )
 }
 

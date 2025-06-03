@@ -124,6 +124,7 @@ const Tree = ({
           overflow: 'auto',
           padding: '8px 0'
         }}
+        className={className}
         treeNodeLabelProp="label"
         treeLine={{
           showLeafIcon: false
@@ -146,8 +147,8 @@ const Tree = ({
         onCheck={onCheck}
         checkedKeys={checkedKeys}
         {...props}
-        className={className}
-       
+        
+
       />
       {showRightClickMenu && rightClickNode && (
         <div

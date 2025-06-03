@@ -45,7 +45,7 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
     }
   }, [modalMode, modalData, form]);
 
-  const onFinishForm = (values) => {
+  const onFinish = (values) => {
     const payload = {
       username: values.userName,
       password: values.password,
@@ -78,7 +78,7 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
         });
     } else if (modalMode === "edit") {
 
-      updateUser({ userId: modalData.id, userData: payload })
+      updateUser({ userId: modalData.id, ...payload })
         .then(() => {
           message.success("کاربر با موفقیت ویرایش شد");
           closeModal();
@@ -113,7 +113,7 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
           form={form}
           layout="vertical"
           className="flex flex-col space-y-4"
-          onFinish={onFinishForm}
+          onFinish={onFinish}
         >
           <Row gutter={[16, 16]}>
             <Col span={12}>

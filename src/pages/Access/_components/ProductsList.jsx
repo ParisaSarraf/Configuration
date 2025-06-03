@@ -37,7 +37,7 @@ const ProductsList = ({ selectedUserAndRoleId, setSelectedProducts }) => {
         setCheckedKeys(checkedKeysValue);
         const productIds = checkedKeysValue
             .filter(key => key.startsWith(`unaccess-product-role-${roleId}-product-`))
-            .map(key => parseInt(key.split('-').pop())); // استخراج ID از انتهای کلید
+            .map(key => parseInt(key.split('-').pop())); 
         setSelectedProducts(productIds);
     };
 
@@ -49,7 +49,7 @@ const ProductsList = ({ selectedUserAndRoleId, setSelectedProducts }) => {
         <Card>
             <Tree
                 multiple
-                checkable
+                checkable={false}
                 onExpand={onExpand}
                 isLoading={isLoading}
                 expandedKeys={expandedKeys}
