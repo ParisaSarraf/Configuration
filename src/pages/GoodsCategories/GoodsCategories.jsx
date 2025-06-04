@@ -4,6 +4,7 @@ import ProductTracking from "../ProductTracking/ProductTracking";
 import Experience from "../Experience/Experience";
 import ProductDocuments from "../DocumentProduct/ProductDocuments";
 import ProductRequirement from "../ProductRequirement/ProductRequirement";
+import ProductPurchase from "../productPurchase/ProductPurchase";
 
 const GoodsCategories = () => {
   const items = [
@@ -35,14 +36,14 @@ const GoodsCategories = () => {
     {
       label: ` خرید `,
       key: '6',
-      children: 'خرید',
+      children: <ProductPurchase />
     },
   ];
 
   return (
     <Card className="w-full flex flex-col">
       <Tabs
-        defaultActiveKey="4"
+        defaultActiveKey="6"
         type="card"
         items={items}
         tabBarStyle={{
