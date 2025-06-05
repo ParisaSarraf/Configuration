@@ -1,9 +1,8 @@
+import { Table } from "antd"
 
 const RequestOfWarehouse = () => {
     return (
-        <div>
-
-        </div>
+        <Table />
     )
 }
 

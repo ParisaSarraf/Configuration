@@ -2,9 +2,12 @@ import { Button, Card } from "antd"
 import { useProductContext } from "../../Services/Context/ProductContext";
 import RequestOfWarehouse from "./components/RequestOfWarehouse/RequestOfWarehouse";
 import PurchaseProductTable from "./components/PurchaseProductTable/PurchaseProductTable";
+import PurchaseModal from "./components/PurchaseModal/PurchaseModal";
+import useModal from "../../hooks/useModal";
 
 const ProductPurchase = () => {
     const { currentProduct } = useProductContext();
+    const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
 
     return (
         <Card
@@ -23,7 +26,7 @@ const ProductPurchase = () => {
                 <PurchaseModal
                     isOpen={modalType ? `purchaseModal` : isOpen}
 
-                    
+
                 />
             </div>
 

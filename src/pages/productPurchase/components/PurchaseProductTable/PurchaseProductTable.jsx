@@ -8,7 +8,7 @@ const PurchaseProductTable = ({ currentProduct }) => {
     // console.log(purchaseData);
 
     return (
-        <Table columns={PurchaseProductCol} dataSource={purchaseData} />
+        <Table  />
     )
 }
 
