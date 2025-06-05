@@ -1,16 +1,36 @@
-import { Table } from "antd"
+import { message, Modal, Table } from "antd"
 import PurchaseProductCol from "./PurchaseProductCol"
-import { useUnConfirmProductPurchaseById } from "../../../../QueryServises/productPurchase"
+import { useDeleteProductPurchase, useUnConfirmProductPurchaseById, useUpdateProductPurchase } from "../../../../QueryServises/productPurchase"
 
-const PurchaseProductTable = ({ currentProduct, setSelectedPurchaseId }) => {
+const PurchaseProductTable = ({ currentProduct, setSelectedPurchaseId, setModal }) => {
     const { data: purchaseData, refetch } = useUnConfirmProductPurchaseById(currentProduct?.id)
+    const { mutateAsync: deleteProductPurchase } = useDeleteProductPurchase();
 
-    // console.log(purchaseData);
 
-    const handleEdit = () => {
+    const handleEdit = (record) => {
+        setModal({ mode: 'edit', data: record, type: 'add' })
     }
 
-    const handleDelete = () => {
+    const handleDelete = (id) => {
+        Modal.confirm({
+            title: "حذف درخواست خرید",
+            content: "از حذف این درخواست خرید مطمئن هستید؟",
+            okText: "بله ، مطمئنم",
+            cancelText: "خیر ، منصرف شدم.",
+            async onOk() {
+                try {
+                    await deleteProductPurchase(id)
+                    message.success("درخواست خرید با موفقیت حذف شد");
+                    await refetch()
+                } catch (error) {
+                    message.error(error?.detail);
+                    console.error(error);
+                }
+            },
+            onCancel() {
+                message.warning("عملیات حذف لغو شد");
+            }
+        });
     }
 
     const rowSelection = {

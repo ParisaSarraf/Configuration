@@ -2,11 +2,26 @@ import { PlusOutlined } from "@ant-design/icons"
 import { Button, Checkbox, Col, Form, Input, InputNumber, message, Radio, Row } from "antd"
 import Modal from "../../../../components/Modal"
 import { useCreateProductPurchase, useUpdateProductPurchase } from "../../../../QueryServises/productPurchase";
+import { useEffect } from "react";
 
 const PurchaseModal = ({ isOpen, modalMode, modalData, closeModal, currentProduct, refetch }) => {
     const [form] = Form.useForm();
     const { mutateAsync: createProductPurchase } = useCreateProductPurchase();
     const { mutateAsync: updateProductPurchase } = useUpdateProductPurchase();
+
+    useEffect(() => {
+        if (modalMode === "edit" && modalData) {
+            form.setFieldsValue({
+                purchase_type: modalData.purchase_type,
+                quantity: modalData.quantity,
+                charge_percentage: modalData.charge_percentage,
+                support_number: modalData.support_number
+            });
+        } else {
+            form.resetFields();
+        }
+    }, [modalMode, modalData, form]);
+
 
 
     const onFinish = async (values) => {
@@ -18,18 +33,17 @@ const PurchaseModal = ({ isOpen, modalMode, modalData, closeModal, currentProduc
             support_number: values.support_number,
             state: 10
         }
-        console.log(payload);
         try {
             if (modalMode === "add") {
                 await createProductPurchase(payload);
                 message.success("سند با موفقیت اضافه شد");
-                // refetch()
+                refetch()
             } else {
                 await updateProductPurchase({ productPurchaseId: modalData.id, ...payload });
                 message.success("سند با موفقیت ویرایش شد");
-                // refetch()
+                refetch()
             }
-            // refetch();
+            refetch();
             closeModal();
         } catch (error) {
             message.error("موفقیت آمیز نبود، دوباره امتحان کنید");

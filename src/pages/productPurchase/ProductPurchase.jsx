@@ -6,9 +6,11 @@ import PurchaseModal from "./components/PurchaseModal/PurchaseModal";
 import useModal from "../../hooks/useModal";
 import { PlusOutlined } from "@ant-design/icons";
 import { useState } from "react";
+import { useUnConfirmProductPurchaseById } from "../../QueryServises/productPurchase";
 
 const ProductPurchase = () => {
     const { currentProduct } = useProductContext();
+    const { refetch } = useUnConfirmProductPurchaseById(currentProduct?.id)
     const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
     const [selectedPurchaseId, setSelectedPurchaseId] = useState(null)
 
@@ -24,7 +26,7 @@ const ProductPurchase = () => {
         >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
                 <div className="col-span-1">
-                    <PurchaseProductTable currentProduct={currentProduct} setSelectedPurchaseId={setSelectedPurchaseId} />
+                    <PurchaseProductTable currentProduct={currentProduct} setSelectedPurchaseId={setSelectedPurchaseId} setModal={setModal} />
                 </div>
                 <div className="col-span-1">
                     <RequestOfWarehouse currentProduct={currentProduct} selectedPurchaseId={selectedPurchaseId} />
@@ -37,6 +39,7 @@ const ProductPurchase = () => {
                     modalType={modalType}
                     closeModal={closeModal}
                     setModal={setModal}
+                    refetch={refetch}
                 />
             </div>
 
