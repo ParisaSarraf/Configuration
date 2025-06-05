@@ -1,26 +1,32 @@
 import { Table } from "antd"
 import PurchaseProductCol from "./PurchaseProductCol"
-import { useProductPurchaseById } from "../../../../QueryServises/productPurchase"
+import { useUnConfirmProductPurchaseById } from "../../../../QueryServises/productPurchase"
 
-const PurchaseProductTable = ({ currentProduct }) => {
-
-    const { data: purchaseData, refetch } = useProductPurchaseById(currentProduct?.id)
-
-    console.log(purchaseData);
-
-
+const PurchaseProductTable = ({ currentProduct, setSelectedPurchaseId }) => {
+    const { data: purchaseData, refetch } = useUnConfirmProductPurchaseById(currentProduct?.id)
 
     // console.log(purchaseData);
-    const handleEdit = () => {
 
+    const handleEdit = () => {
     }
 
     const handleDelete = () => {
-
     }
 
+    const rowSelection = {
+        type: 'radio',
+        onChange: (selectedRowKeys, selectedRows) => {
+            setSelectedPurchaseId(selectedRowKeys[0] || null);
+        }
+    };
+
     return (
-        <Table columns={PurchaseProductCol({ handleEdit, handleDelete })} dataSource={purchaseData} />
+        <Table
+            columns={PurchaseProductCol({ handleEdit, handleDelete })}
+            dataSource={purchaseData}
+            rowSelection={rowSelection}
+            rowKey="id"
+        />
     )
 }
 

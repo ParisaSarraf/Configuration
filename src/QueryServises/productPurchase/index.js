@@ -65,6 +65,19 @@ export const useCreateProductPurchase = () => {
 	});
 };
 
+export const useCreateProductPurchaseNumber = () => {
+	const { myAxios } = useMyAxios();
+	return useMutation({
+		mutationFn: (params) => {
+			return myAxios
+				.post(`/product/add-product-purchase-number/`, params)
+				.then((response) => {
+					return response?.data;
+				});
+		},
+	});
+};
+
 export const useDeleteProductPurchase = () => {
 	const { myAxios } = useMyAxios();
 	return useMutation({

@@ -1,8 +1,7 @@
 import { Table } from 'antd';
-import React from 'react';
 import { DocumentCol } from './DocumentCol';
 
-const DocumentTable = ({ refetch, documentData }) => {
+const DocumentTable = ({ documentData }) => {
     const flattenData = (data) => {
         return data.reduce((acc, item) => {
             acc.push(item);

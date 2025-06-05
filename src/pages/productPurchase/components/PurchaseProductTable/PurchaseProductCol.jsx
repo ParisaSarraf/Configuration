@@ -5,31 +5,31 @@ const PurchaseProductCol = ({ handleEdit, handleDelete }) => {
     return [
         {
             title: 'نوع خرید',
-            dataIndex: ['precinct', 'title'],
-            key: 'precinct'
+            dataIndex: 'purchase_type',
+            key: 'purchase_type'
         },
         {
             title: 'تعداد',
-            dataIndex: 'experiment_text',
-            key: 'experiment_text',
+            dataIndex: 'quantity',
+            key: 'quantity',
             render: (text) => text || 'ندارد'
         },
         {
             title: 'درصد مونتاژ',
-            dataIndex: 'user',
-            key: 'user',
+            dataIndex: 'charge_percentage',
+            key: 'charge_percentage',
             render: (text) => text || 'ندارد'
         },
         {
             title: 'تعداد پشتیبانی',
-            dataIndex: 'registration_date',
-            key: 'registration_date',
+            dataIndex: 'support_number',
+            key: 'support_number',
             render: (text) => text || 'ندارد'
         },
         {
             title: 'تعداد کل',
-            dataIndex: 'code',
-            key: 'code',
+            dataIndex: 'total_number',
+            key: 'total_number',
             render: (text) => text || 'ندارد'
         },
         {
