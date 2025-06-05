@@ -72,6 +72,7 @@ const CTransfer = ({
                 <Space direction="vertical">
                     <Button
                         type="primary"
+                        
                         icon={< RightOutlined />}
                         onClick={onAdd}
                         disabled={selectedLeftKeys.length === 0}

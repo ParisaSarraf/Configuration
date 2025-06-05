@@ -71,6 +71,7 @@ const AddProductDocumentListSerialLogModal = ({ isOpen, modalMode, modalData, cl
     return (
         <>
             <Button
+                className="modal-button"
                 icon={<PlusOutlined />}
                 onClick={() => setModal({ mode: "add", data: null, type: 'AddLogEdition' })}
             >

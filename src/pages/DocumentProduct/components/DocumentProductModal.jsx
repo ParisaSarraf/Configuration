@@ -91,6 +91,7 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
     return (
         <>
             <Button
+                className="modal-button"
                 icon={<PlusOutlined />}
                 onClick={() => setModal({ mode: "add", data: null, type: 'AddDocumentProduct' })}
             >

@@ -4,6 +4,7 @@ import RequestOfWarehouse from "./components/RequestOfWarehouse/RequestOfWarehou
 import PurchaseProductTable from "./components/PurchaseProductTable/PurchaseProductTable";
 import PurchaseModal from "./components/PurchaseModal/PurchaseModal";
 import useModal from "../../hooks/useModal";
+import { PlusOutlined } from "@ant-design/icons";
 
 const ProductPurchase = () => {
     const { currentProduct } = useProductContext();
@@ -11,9 +12,12 @@ const ProductPurchase = () => {
 
     return (
         <Card
-            title={`درخواست خرید و درخواست کالا از انبار محصول ${currentProduct?.name}`}
+            title={`درخواست خرید ${currentProduct?.name}`}
             extra={
-                <Button onClick={() => setModal({ mode: 'add', data: null, type: 'purchaseModal' })} />
+                <Button
+                    icon={<PlusOutlined />}
+                    className="modal-button"
+                    onClick={() => setModal({ mode: 'add', data: null, type: 'purchaseModal' })} />
             }
         >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
@@ -24,9 +28,14 @@ const ProductPurchase = () => {
                     <RequestOfWarehouse currentProduct={currentProduct} />
                 </div>
                 <PurchaseModal
-                    isOpen={modalType ? `purchaseModal` : isOpen}
-
-
+                    currentProduct={currentProduct}
+                    isOpen={isOpen}
+                    modalMode={modalMode}
+                    modalData={modalData}
+                    modalType={modalType}
+                    closeModal={closeModal}
+                    setModal={setModal}
+                // refetch={refetch}
                 />
             </div>
 

@@ -29,8 +29,8 @@ const Products = () => {
                 type="primary"
                 onClick={() => setModal({ mode: 'add' })}
                 icon={<PlusOutlined />}
-                className="flex flex-row items-center m-2 px-14"
-                style={{ width: '343px' }}            >
+                className="flex flex-row items-center m-2 px-14 modal-button w-[343px]"
+            >
                 افزودن محصول
             </Button>
 

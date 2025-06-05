@@ -5,10 +5,22 @@ import { useProductPurchaseById } from "../../../../QueryServises/productPurchas
 const PurchaseProductTable = ({ currentProduct }) => {
 
     const { data: purchaseData, refetch } = useProductPurchaseById(currentProduct?.id)
+
+    console.log(purchaseData);
+
+
+
     // console.log(purchaseData);
+    const handleEdit = () => {
+
+    }
+
+    const handleDelete = () => {
+
+    }
 
     return (
-        <Table  />
+        <Table columns={PurchaseProductCol({ handleEdit, handleDelete })} dataSource={purchaseData} />
     )
 }
 
