@@ -1,51 +1,64 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons"
-import { Button, Space, Tooltip } from "antd"
+import { Button, Image, Space, Tooltip } from "antd"
+import { BASEURL } from "../../../Services/axiosInstance"
 
-const ExperienceCol = () => {
+const ExperienceCol = ({ handleDelete, handleEdit }) => {
     return [
         {
             title: 'حوزه',
-            dataIndex: 'domain',
-            key: 'domain'
+            dataIndex: ['precinct', 'title'],
+            key: 'precinct'
         },
         {
             title: 'متن تجربه',
-            dataIndex: 'experienceText',
-            key: 'experienceText'
+            dataIndex: 'experiment_text',
+            key: 'experiment_text',
+            render: (text) => text || 'ندارد'
         },
         {
             title: 'کاربر ثبت کننده',
-            dataIndex: 'createdBy',
-            key: 'createdBy'
+            dataIndex: 'user',
+            key: 'user',
+            render: (text) => text || 'ندارد'
         },
         {
             title: 'تاریخ ثبت',
-            dataIndex: 'createdAt',
-            key: 'createdAt'
+            dataIndex: 'registration_date',
+            key: 'registration_date',
+            render: (text) => text || 'ندارد'
         },
         {
             title: 'کد پروژه',
-            dataIndex: 'projectCode',
-            key: 'projectCode'
+            dataIndex: 'code',
+            key: 'code',
+            render: (text) => text || 'ندارد'
         },
         {
             title: 'فایل پیوست',
-            dataIndex: 'attachment',
-            key: 'attachment',
-            render: (file) => file ? <a href={file.url} target="_blank" rel="noreferrer">{file.name}</a> : 'ندارد'
+            dataIndex: 'file',
+            key: 'file',
+            render: (_, record) =>
+                record.file ? (
+                    <Image
+                        width={70}
+                        height={50}
+                        src={`${BASEURL.replace("/api/v1", "")}${record.file}`}
+                        alt="فایل پیوست"
+                    />
+                ) : (
+                    "فایلی وجود ندارد"
+                ),
         },
         {
             title: 'عملیات',
-            // dataIndex: 'projectCode',
-            // key: 'projectCode'
-            render() {
+            render(_, record) {
                 return (
                     <Space>
                         <Tooltip title="ویرایش">
-                            <Button title="ویرایش" icon={<EditOutlined />} className="text-green-500 , border-green-500" />
+                            <Button title="ویرایش" icon={<EditOutlined />} className="text-green-500 , border-green-500" onClick={() => handleEdit(record)} />
                         </Tooltip>
                         <Tooltip title="حذف">
-                            <Button title="حذف" icon={<DeleteOutlined />} danger />
+                            <Button title="حذف" icon={<DeleteOutlined />} danger onClick={() => handleDelete(record?.id)} />
                         </Tooltip>
                     </Space>
                 )

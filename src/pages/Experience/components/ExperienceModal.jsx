@@ -1,45 +1,61 @@
 import { PlusOutlined } from "@ant-design/icons"
 import { Button, Col, Form, Input, message, Row, Select } from "antd"
 import Modal from "../../../components/Modal";
-// import FileUploader from "../../../components/FileUploader/FileUploader";
+import FileUploader from "../../../components/FileUploader/FileUploader";
 import { useCreateExperience, useUpdateExperience } from "../../../QueryServises/experienceQuery";
 import { usePrecinctProductList } from "../../../QueryServises/precinctQuery";
 import { useEffect } from "react";
+import { BASEURL } from "../../../Services/axiosInstance";
 
 
-const ExperienceModal = ({ isOpen, modalMode, modalData, closeModal, setModal, currentProduct }) => {
+const ExperienceModal = ({ isOpen, modalMode, modalData, closeModal, setModal, currentProduct, refetch }) => {
     const { mutateAsync: createExperience } = useCreateExperience()
     const { mutateAsync: updateExperience } = useUpdateExperience()
     const { data: precinctData } = usePrecinctProductList()
     const [form] = Form.useForm();
 
+
     useEffect(() => {
-        if (modalMode === 'edit', modalData) {
-            form.setFieldValue({
-                precinct_id: modalData?.precinct_id,
-                experience_text: modalData?.experiment_text,
-                // files: modalData?.files (if you're handling file uploads)
-            })
+        if (modalMode === 'edit' && modalData) {
+            form.setFieldsValue({
+                precinct_id: modalData?.precinct?.id,
+                experiment_text: modalData?.experiment_text,
+                file: modalData.file
+                    ? [
+                        {
+                            uid: "-1",
+                            name: "file",
+                            url: BASEURL.replace("/api/v1", "") + modalData.file,
+                        },
+                    ]
+                    : [],
+            });
+        } else {
+            form.resetFields();
         }
-    }, [form, modalMode, modalData])
+    }, [form, modalMode, modalData]);
 
 
     const onFinish = async (values) => {
         const payload = {
             product_id: currentProduct?.id,
             precinct_id: values.precinct_id,
-            experiment_text: values.experience_text,
-            // files: values.files (if you're handling file uploads)
+            experiment_text: values.experiment_text,
+            code: values.code,
+            registration_date: values.registration_date,
+            user: values.user,
+            file: values.file?.[0]?.originFileObj,
         }
         try {
-            if (modalData === 'edit') {
-                updateExperience({ ExperienceId: modalData?.id, ...payload })
+            if (modalMode === 'edit') {
+                await updateExperience({ ExperienceId: modalData?.id, ...payload })
                 message.success("تجربه با موفقیت ویرایش شد.")
             } else {
-                createExperience(payload)
+                await createExperience(payload)
                 message.success("تجربه با موفقیت اضافه شد.")
             }
             closeModal();
+            await refetch()
         } catch (error) {
             console.error("Error submitting form:", error);
             message.error("خطا در ثبت تجربه. لطفاً دوباره تلاش کنید.");
@@ -81,22 +97,19 @@ const ExperienceModal = ({ isOpen, modalMode, modalData, closeModal, setModal, c
                             </Form.Item>
                         </Col>
                         <Col span={24}>
-                            <Form.Item label="متن تجربه" name="experience_text">
+                            <Form.Item label="متن تجربه" name="experiment_text">
                                 <Input.TextArea />
                             </Form.Item>
                         </Col>
 
-                        {/* <Col span={24}>
-                            <Form.Item label="فایل پیوست" name="files">
+                        <Col span={24}>
+                            <Form.Item label="فایل پیوست" name="file">
                                 <FileUploader
                                     listType="picture"
-                                    // Make sure FileUploader properly handles file list
-                                    fileList={form.getFieldValue('files') || []}
-                                    onChange={(files) => form.setFieldsValue({ files })}
                                 />
                             </Form.Item>
-                        </Col> */}
-                        
+                        </Col>
+
                     </Row>
                 </Form>
             </Modal>

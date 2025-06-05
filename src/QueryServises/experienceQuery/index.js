@@ -1,6 +1,24 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMyAxios } from "../../hooks/useMyAxios";
 
+export const useProductExperienceByIdKey = (id) => [
+	"product-experiences-id",
+	id,
+];
+export const useProductExperienceById = (id, queryOptions) => {
+	const { myAxios } = useMyAxios();
+	return useQuery({
+		queryKey: useProductExperienceByIdKey(id),
+		queryFn: () =>
+			id
+				? myAxios
+						.get(`/product/get-product-experiences-by-id/${id}/`)
+						.then((response) => response?.data)
+				: Promise.resolve(null),
+		...queryOptions,
+	});
+};
+
 export const usExperienceListKey = ["list", "experience"];
 export const usExperienceList = (queryOptions) => {
 	const { myAxios } = useMyAxios();
@@ -20,7 +38,11 @@ export const useCreateExperience = () => {
 	return useMutation({
 		mutationFn: (params) => {
 			return myAxios
-				.post(`/product/add-experience/`, params)
+				.post(`/product/add-experience/`, params, {
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				})
 				.then((response) => {
 					return response?.data;
 				});
@@ -33,7 +55,7 @@ export const useDeleteExperience = () => {
 	return useMutation({
 		mutationFn: (params) => {
 			return myAxios
-				.delete(`/Experience/delete-Experience/${params}`)
+				.delete(`/product/delete-experience/${params}/`)
 				.then((response) => {
 					return response?.data;
 				});
@@ -46,7 +68,11 @@ export const useUpdateExperience = () => {
 	return useMutation({
 		mutationFn: ({ ExperienceId, ...params }) => {
 			return myAxios
-				.put(`/experience/update-experience/${ExperienceId}`, params)
+				.put(`/product/update-experience/${ExperienceId}/`, params, {
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				})
 				.then((response) => response?.data);
 		},
 	});
