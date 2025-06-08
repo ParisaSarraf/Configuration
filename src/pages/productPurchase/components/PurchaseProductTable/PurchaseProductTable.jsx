@@ -46,17 +46,17 @@ const PurchaseProductTable = ({ currentProduct, setSelectedPurchaseId, setModal 
             dataSource={purchaseData}
             rowSelection={rowSelection}
             rowKey="id"
-            expandable={{
-                expandedRowRender: (record) => (
-                    <div>
-                        <p>نوع خرید: {record.purchase_type || 'ندارد'}</p>
-                        <p>تعداد: {record.quantity || 'ندارد'}</p>
-                        <p>درصد مونتاژ: {record.charge_percentage || 'ندارد'}</p>
-                        <p>تعداد پشتیبانی: {record.support_number || 'ندارد'}</p>
-                        <p>تعداد کل: {record.total_number || 'ندارد'}</p>
-                    </div>
-                ),
-            }}
+            // expandable={{
+            //     expandedRowRender: (record) => (
+            //         <div>
+            //             <p>نوع خرید: {record.purchase_type || 'ندارد'}</p>
+            //             <p>تعداد: {record.quantity || 'ندارد'}</p>
+            //             <p>درصد مونتاژ: {record.charge_percentage || 'ندارد'}</p>
+            //             <p>تعداد پشتیبانی: {record.support_number || 'ندارد'}</p>
+            //             <p>تعداد کل: {record.total_number || 'ندارد'}</p>
+            //         </div>
+            //     ),
+            // }}
         />
     )
 }

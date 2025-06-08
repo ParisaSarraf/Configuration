@@ -51,6 +51,9 @@
     @apply text-white;
   }
 }
+html, body {
+  height: 100%;
+}
 
 @layer utilities {
   ::-webkit-scrollbar {

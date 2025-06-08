@@ -61,13 +61,13 @@ const Setting = () => {
                     </Button>
                 }>
                 <Tabs
-                    type="line"
+                    type="card"
                     items={items}
                     tabBarStyle={{
                         display: 'flex',
                         width: '100%',
                     }}
-                    className="custom-tabs"
+                // className="custom-tabs"
                 />
             </Card>
         </div>

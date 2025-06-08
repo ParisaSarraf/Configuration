@@ -2,42 +2,34 @@ import { message, Table, Form } from "antd";
 import { useCreateProductPurchaseNumber, useProductPurchaseById } from "../../../../QueryServises/productPurchase";
 import RequestOfWarehouseCol from "./RequestOfWarehouseCol";
 
-const RequestOfWarehouse = ({ selectedPurchaseId, currentProduct }) => {
+const RequestOfWarehouse = ({ selectedPurchaseId }) => {
     const { data: purchaseData, refetch } = useProductPurchaseById(selectedPurchaseId);
     const { mutateAsync: createProductPurchaseNumber } = useCreateProductPurchaseNumber();
     const [form] = Form.useForm();
 
-    const handleSend = async () => {
+    const handleSend = async (productId) => {
         try {
             const values = await form.validateFields();
             const confirmedNumbers = values.confirmed_number || {};
-            const payloads = Object.entries(confirmedNumbers)
-                .map(([key, value]) => ({
-                    product_purchase_id: key,
-                    product_id: currentProduct.id,
-                    confirmed_number: value
-                }))
-                .filter(payload =>
-                    payload.confirmed_number !== undefined &&
-                    payload.confirmed_number !== null &&
-                    payload.confirmed_number !== ""
-                );
 
-            if (payloads.length === 0) {
-                message.warning("هیچ مقدار معتبری برای ارسال وجود ندارد");
-                return;
-            }
+            // فقط مقدار مربوط به محصولی که دکمه آن کلیک شده است را پردازش می‌کنیم
+            if (confirmedNumbers[productId] !== undefined && confirmedNumbers[productId] !== null && confirmedNumbers[productId] !== "") {
+                const payload = {
+                    product_purchase_id: selectedPurchaseId,
+                    product_id: productId,
+                    confirmed_number: confirmedNumbers[productId]
+                };
 
-            for (const payload of payloads) {
                 await createProductPurchaseNumber([payload]);
+                message.success("تعداد مورد تایید با موفقیت ارسال شد");
+                refetch();
+                form.resetFields([['confirmed_number', productId]]);
+            } else {
+                message.warning("لطفا تعداد مورد تایید را وارد کنید");
             }
-            message.success("تعداد مورد تایید با موفقیت ارسال شد");
-            refetch();
-            form.resetFields()
         } catch (error) {
             message.error("خطا در ارسال اطلاعات");
             console.error(error);
-
         }
     };
 

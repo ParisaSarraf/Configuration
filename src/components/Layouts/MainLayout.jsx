@@ -4,12 +4,12 @@ import Products from '../../pages/Products/Products';
 import { useProductContext } from '../../Services/Context/ProductContext';
 
 const MainLayout = () => {
-  const { currentProduct, activeProducts } = useProductContext();
+  const { currentProduct } = useProductContext();
 
   return (
-    <div className="flex flex-col h-full bg-Main">
+    <div className="flex flex-col h-screen bg-Main">
       <CustomHeader />
-      <div className="grid grid-cols-[auto_1fr] h-[calc(100dvh-4rem)]">
+      <div className="grid grid-cols-[auto_1fr] h-[calc(100vh-4rem)]">
         <Products />
         <div className="w-full px-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
           {currentProduct ? (

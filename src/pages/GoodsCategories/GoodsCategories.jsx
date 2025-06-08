@@ -50,7 +50,7 @@ const GoodsCategories = () => {
           display: 'flex',
           width: '100%',
         }}
-        className="custom-tabs"
+        // className="custom-tabs"
       />
     </Card>
   );

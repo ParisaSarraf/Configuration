@@ -20,7 +20,16 @@ const RequestOfWarehouseCol = ({ handleSend }) => {
                 <Form.Item
                     name={["confirmed_number", record.id]}
                     className="mb-0"
-                  
+                    rules={[
+                        {
+                            validator: (_, value) => {
+                                if (value && value < 0) {
+                                    return Promise.reject('تعداد نمی‌تواند منفی باشد');
+                                }
+                                return Promise.resolve();
+                            }
+                        }
+                    ]}
                 >
                     <Input type="number" min={0} />
                 </Form.Item>
@@ -36,7 +45,7 @@ const RequestOfWarehouseCol = ({ handleSend }) => {
                                 title="تایید"
                                 icon={<SendOutlined rotate={180} />}
                                 className="text-orange-500 border-orange-500"
-                                onClick={() => handleSend(record)}
+                                onClick={() => handleSend(record.id)}
                             />
                         </Tooltip>
                     </Space>
