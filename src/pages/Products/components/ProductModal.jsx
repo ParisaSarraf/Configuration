@@ -35,12 +35,14 @@ const ProductModal = ({
 
 
     useEffect(() => {
+        console.log(modalData);
+
         if (modalMode === "edit" && modalData) {
             form.resetFields()
             form.setFieldsValue({
                 persian_title: modalData.persian_title,
                 code: modalData.code,
-                product_number: modalData.product_number,
+                quantity: modalData.quantity,
                 store_code: modalData.store_code,
                 status: modalData.status,
                 weight: modalData.weight,
@@ -52,8 +54,8 @@ const ProductModal = ({
                 internal_diagonal: modalData.internal_diagonal,
                 parent_id: modalData.parent_code,
                 parent_code_id: modalData.parent_code,
-                casing_id: modalData.casing?.id ,
-                genus_id: modalData.genus?.id ,
+                casing_id: modalData.casing?.id,
+                genus_id: modalData.genus?.id,
                 pro_type: modalData.pro_type,
                 description: modalData.description,
                 brand1: modalData.brand1,
@@ -102,7 +104,7 @@ const ProductModal = ({
                     : [],
             code: values.code,
             persian_title: values.persian_title,
-            product_number: values.product_number,
+            quantity: values.quantity,
             alternative_code: values.alternative_code,
             pro_type: values.pro_type,
             store_code: values.store_code,
@@ -246,7 +248,7 @@ const ProductModal = ({
                                         setProductCoding(e.target.value);
                                         if (parentCodeId) {
                                             console.log(parentCodeId);
-                                            
+
                                             form.setFieldsValue({
                                                 final_code: `${parentCodeId}/${e.target.value}`
                                             });
@@ -275,7 +277,9 @@ const ProductModal = ({
                             </Form.Item>
                         </Col>
                         <Col span={8}>
-                            <Form.Item name="product_number">
+                            <Form.Item name="quantity"
+                                rules={[{ required: true, message: "لطفاً تعداد محصول را وارد کنید" }]}
+                            >
                                 <InputNumber
                                     addonBefore="تعداد"
                                     style={{ width: '100%' }}
@@ -338,7 +342,7 @@ const ProductModal = ({
                             <Form.Item name="casing_id">
                                 <TreeSelect
                                     treeData={getTreeSelectOptions(casingData || [])}
-                                    placeholder="جنس"
+                                    placeholder="پوشش"
                                     allowClear
                                     treeIcon={true}
                                     treeLine={true}
