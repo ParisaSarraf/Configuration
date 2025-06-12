@@ -68,6 +68,7 @@ const ProductDocumentTree = ({ currentProduct, setModal }) => {
                 ...node.children.map(child => transformNode(child))
             ];
         }
+
         if (hasEditions) {
             baseNode.children = [
                 ...baseNode.children,
@@ -75,7 +76,7 @@ const ProductDocumentTree = ({ currentProduct, setModal }) => {
                     key: `edition-${edition.id}`,
                     title: (
                         <div className="flex flex-row -mt-2 justify-between items-center w-full h-3">
-                            <span className="mr-8 -mt-4">{edition.edition}</span>
+                            <span className="mr-8 -mt-4">{edition.edition + "-" + baseNode.product_document_id.title}</span>
                             <Space className="-mt-4">
                                 <Button
                                     type="text"

@@ -13,11 +13,9 @@ const ProductDocumentListSerial = ({ currentProduct, serialId, setSerialId, refe
 
     const tableData = ProductDocumentEditionLogsBySerialData?.map(item => ({
         key: item.id,
-        product: item.product_serial.product,
-        edition: item.product_document_edition.edition,
-        survey_date: item.survey_date,
-        status: item.status,
-        serial: item.product_serial.serial
+        mainKey:item.product_document_edition.product_document.document.code +" - "+ item.product_serial.serial,
+        product: item.product_document_edition.product_document.product,
+        document :item.product_document_edition.product_document.document,
     })) || [];
 
     const SerialListOption = serials.map(serial => ({

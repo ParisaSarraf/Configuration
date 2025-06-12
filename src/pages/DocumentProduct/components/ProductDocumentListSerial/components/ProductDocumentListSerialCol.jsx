@@ -10,13 +10,13 @@ const ProductDocumentListSerialCol = ({ handleEditLogEdition, handleDeleteLogEdi
     },
     {
       title: "عنوان سند",
-      dataIndex: "experienceText",
-      key: "experienceText",
+      dataIndex:['document', 'persianTitle'],
+      key: "persianTitle",
     },
     {
       title: "کد کامل سند به همراه سریال محصول",
-      dataIndex: ["product", "code"],
-      key: "code",
+      dataIndex: 'mainKey',
+      key: "mainKey",
     },
     {
       title: "عملیات",

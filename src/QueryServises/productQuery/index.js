@@ -66,7 +66,11 @@ export const useCreateProduct = () => {
 	const { myAxios } = useMyAxios();
 	return useMutation({
 		mutationFn: (params) => {
-			return myAxios.post(`/product/add-product/`, params).then((response) => {
+			return myAxios.post(`/product/add-product/`, params,{
+				headers: {
+					"Content-Type": "multipart/form-data",
+				}
+			}).then((response) => {
 				return response?.data;
 			});
 		},
@@ -91,7 +95,11 @@ export const useUpdateProduct = () => {
 	return useMutation({
 		mutationFn: ({ productId, ...params }) => {
 			return myAxios
-				.put(`/product/update-product/${productId}/`, params)
+				.put(`/product/update-product/${productId}/`, params,{
+					headers: {
+						"Content-Type": "multipart/form-data",
+					}
+				})
 				.then((response) => {
 					return response?.data;
 				});

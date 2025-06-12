@@ -6,6 +6,8 @@ import { useGenusProductList } from "../../../QueryServises/genusQuery";
 import Modal from "../../../components/Modal";
 import { TreeSelect } from "antd";
 import PersonalityModels from "../../../components/PesonalityModels";
+import FileUploader from "@/components/FileUploader/FileUploader.jsx";
+import {BASEURL} from "@/Services/axiosInstance.js";
 
 const ProductModal = ({
     isOpen,
@@ -35,8 +37,6 @@ const ProductModal = ({
 
 
     useEffect(() => {
-        console.log(modalData);
-
         if (modalMode === "edit" && modalData) {
             form.resetFields()
             form.setFieldsValue({
@@ -68,6 +68,15 @@ const ProductModal = ({
                 standard_code: modalData.standard_code,
                 alternative_genus_id: modalData.alternative_genus?.id,
                 final_code: modalData.final_code || (parentCodeId ? parentCodeId : ""),
+                image: modalData.image
+                    ? [
+                        {
+                            uid: "-1",
+                            name: "image",
+                            url: BASEURL.replace("/api/v1", "") + modalData.image,
+                        },
+                    ]
+                    : [],
             });
         } else if (modalMode === "add") {
             form.resetFields();
@@ -124,6 +133,7 @@ const ProductModal = ({
             brand2_desc: values.brand2_desc,
             employer_code: values.employer_code,
             standard_code: values.standard_code,
+            image: values.image?.[0]?.originFileObj
             // final_code: values.final_code,
         };
 
@@ -434,6 +444,14 @@ const ProductModal = ({
                                     placeholder="توضیحات محصول"
                                 />
                             </Form.Item>
+                        </Col>
+                        <Col span={24}>
+                        <Form.Item
+                            label={`بارگذاری عکس محصول`}
+                            name='image'
+                        >
+                            <FileUploader />
+                        </Form.Item>
                         </Col>
                     </Row>
                 </Form>
