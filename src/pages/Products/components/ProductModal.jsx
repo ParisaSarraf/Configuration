@@ -7,7 +7,7 @@ import Modal from "../../../components/Modal";
 import { TreeSelect } from "antd";
 import PersonalityModels from "../../../components/PesonalityModels";
 import FileUploader from "@/components/FileUploader/FileUploader.jsx";
-import {BASEURL} from "@/Services/axiosInstance.js";
+import { BASEURL } from "@/Services/axiosInstance.js";
 
 const ProductModal = ({
     isOpen,
@@ -431,7 +431,7 @@ const ProductModal = ({
                                     options={[
                                         { label: 'فعال', value: 'active' },
                                         { label: 'غیرفعال', value: 'inactive' },
-                                        { label: 'موقت', value: 'temporary' }
+                                        { label: 'موقت', value: 'temp' }
                                     ]}
                                 />
                             </Form.Item>
@@ -446,12 +446,12 @@ const ProductModal = ({
                             </Form.Item>
                         </Col>
                         <Col span={24}>
-                        <Form.Item
-                            label={`بارگذاری عکس محصول`}
-                            name='image'
-                        >
-                            <FileUploader />
-                        </Form.Item>
+                            <Form.Item
+                                label={`بارگذاری عکس محصول`}
+                                name='image'
+                            >
+                                <FileUploader />
+                            </Form.Item>
                         </Col>
                     </Row>
                 </Form>

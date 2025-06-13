@@ -1,8 +1,8 @@
 import React from 'react';
 import { useProductContext } from '../../Services/Context/ProductContext';
-import { Card, Descriptions, Tag, Typography, List, Row, Col, Divider, Space, Image } from 'antd';
+import { Card, Descriptions, Tag, Typography, List, Row, Col, Divider, Space, Image, Skeleton } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
-import {BASEURL} from "@/Services/axiosInstance.js";
+import { BASEURL } from "@/Services/axiosInstance.js";
 
 const { Title, Text } = Typography;
 
@@ -41,23 +41,47 @@ const Introduction = () => {
             <Card className="mb-6" bordered={false}>
                 <Row gutter={16} align="middle">
                     <Col xs={24} md={6}>
-                        {product.image && (
+                        {product.image ? (
                             <Image
                                 width="100%"
-                                style={{ maxHeight: 200, objectFit: 'cover' }}
-
+                                style={{
+                                    maxHeight: 200,
+                                    height: 200,
+                                    objectFit: 'cover',
+                                    width: '100%'
+                                }}
                                 src={`${BASEURL.replace("/api/v1", "")}${product.image}`}
                                 alt="تصویر محصول"
                             />
+                        ) : (
+                            <div style={{
+                                height: 200,
+                                width: '100%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                backgroundColor: '#E2E2E2'
+                            }}>
+                                <Skeleton.Image
+                                // active
+                                // style={{
+                                //     width: '100%',
+                                //     height: '100%'
+                                // }}
+                                />
+                            </div>
                         )}
                     </Col>
                     <Col xs={24} md={18}>
                         <Space direction="vertical" size="small" style={{ width: '100%' }}>
                             <Title level={3}>{product.persian_title}</Title>
                             <Text type="secondary">کد: {product.code}</Text>
+
+                            <Text style={{ whiteSpace: 'pre-line' }}>توضیحات:{(product.description)}</Text>
+
                             <Space size="middle">
                                 <Tag color={product.personality_type === 'standard' ? 'blue' : 'orange'}>
-                                    {product.personality_type === 'standard' ? 'استاندارد' : 'سفارشی'}
+                                    {product.personality_type}
                                 </Tag>
                                 {renderStatusTag(product.status)}
                             </Space>
@@ -71,7 +95,7 @@ const Introduction = () => {
                 className="mb-6"
                 headStyle={{ borderBottom: '1px solid #f0f0f0' }}
             >
-                <Descriptions bordered column={{ xs: 1, sm: 2 }}>
+                <Descriptions bordered column={5}>
                     <Descriptions.Item label="کد انبار">{renderValue(product.store_code)}</Descriptions.Item>
                     <Descriptions.Item label="کد نهایی">{renderValue(product.final_code)}</Descriptions.Item>
                     <Descriptions.Item label="کد کارفرما">{renderValue(product.employer_code)}</Descriptions.Item>
@@ -109,7 +133,7 @@ const Introduction = () => {
             >
                 <Descriptions bordered column={{ xs: 1, sm: 2 }}>
                     <Descriptions.Item label="قیمت">{formatPrice(product.price)}</Descriptions.Item>
-                    <Descriptions.Item label="موجودی">{renderValue(product.quantity)} عدد</Descriptions.Item>
+                    <Descriptions.Item label="تعداد">{renderValue(product.quantity)} عدد</Descriptions.Item>
                 </Descriptions>
             </Card>
 
@@ -119,14 +143,14 @@ const Introduction = () => {
                 headStyle={{ borderBottom: '1px solid #f0f0f0' }}
             >
                 <Descriptions bordered column={{ xs: 1, sm: 2 }}>
-                    <Descriptions.Item label="برند اصلی" span={2}>
+                    <Descriptions.Item label="برند 1" span={2}>
                         <div>
                             <Text strong>{renderValue(product.brand1)}</Text>
                             <Divider type="vertical" />
                             <Text type="secondary">{renderValue(product.brand1_desc)}</Text>
                         </div>
                     </Descriptions.Item>
-                    <Descriptions.Item label="برند ثانویه" span={2}>
+                    <Descriptions.Item label="برند 2" span={2}>
                         <div>
                             <Text strong>{renderValue(product.brand2)}</Text>
                             <Divider type="vertical" />
@@ -148,19 +172,17 @@ const Introduction = () => {
                     <Descriptions.Item label="جنس جایگزین">
                         {product.alternative_genus ? product.alternative_genus.name : '-'}
                     </Descriptions.Item>
-                    <Descriptions.Item label="محفظه">
+                    <Descriptions.Item label="پوشش">
                         {product.casing ? product.casing.name : '-'}
                     </Descriptions.Item>
-                    <Descriptions.Item label="توضیحات" span={2}>
-                        <Text style={{ whiteSpace: 'pre-line' }}>{renderValue(product.description)}</Text>
-                    </Descriptions.Item>
+
                 </Descriptions>
             </Card>
 
             {/* Related Products */}
             {product.children && product.children.length > 0 && (
                 <Card
-                    title="محصولات مرتبط"
+                    title="محصولات زیرمجموعه"
                     headStyle={{ borderBottom: '1px solid #f0f0f0' }}
                 >
                     <List
@@ -168,7 +190,7 @@ const Introduction = () => {
                         renderItem={(child) => (
                             <List.Item className="mb-4">
                                 <Card size="small" style={{ width: '100%' }}>
-                                    <Descriptions bordered column={{ xs: 1, sm: 2 }}>
+                                    <Descriptions column={4}>
                                         <Descriptions.Item label="عنوان">{child.persian_title}</Descriptions.Item>
                                         <Descriptions.Item label="کد محصول">{child.code}</Descriptions.Item>
                                         <Descriptions.Item label="برند">{renderValue(child.brand1)}</Descriptions.Item>
