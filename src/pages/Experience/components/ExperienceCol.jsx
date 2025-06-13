@@ -7,7 +7,8 @@ const ExperienceCol = ({ handleDelete, handleEdit }) => {
         {
             title: 'حوزه',
             dataIndex: ['precinct', 'title'],
-            key: 'precinct'
+            key: 'precinct',
+            render: (_, record) => record.precinct?.title || 'ندارد'
         },
         {
             title: 'متن تجربه',
@@ -18,8 +19,8 @@ const ExperienceCol = ({ handleDelete, handleEdit }) => {
         {
             title: 'کاربر ثبت کننده',
             dataIndex: 'user',
-            key: 'user',
-            render: (text) => text || 'ندارد'
+            key: 'username',
+            render: (user) => user?.username || 'ندارد'
         },
         {
             title: 'تاریخ ثبت',
@@ -37,12 +38,12 @@ const ExperienceCol = ({ handleDelete, handleEdit }) => {
             title: 'فایل پیوست',
             dataIndex: 'file',
             key: 'file',
-            render: (_, record) =>
-                record.file ? (
+            render: (file) =>
+                file ? (
                     <Image
                         width={70}
                         height={50}
-                        src={`${BASEURL.replace("/api/v1", "")}${record.file}`}
+                        src={`${BASEURL.replace("/api/v1", "")}${file}`}
                         alt="فایل پیوست"
                     />
                 ) : (
@@ -51,18 +52,27 @@ const ExperienceCol = ({ handleDelete, handleEdit }) => {
         },
         {
             title: 'عملیات',
-            render(_, record) {
-                return (
-                    <Space>
-                        <Tooltip title="ویرایش">
-                            <Button title="ویرایش" icon={<EditOutlined />} className="text-green-500 , border-green-500" onClick={() => handleEdit(record)} />
-                        </Tooltip>
-                        <Tooltip title="حذف">
-                            <Button title="حذف" icon={<DeleteOutlined />} danger onClick={() => handleDelete(record?.id)} />
-                        </Tooltip>
-                    </Space>
-                )
-            }
+            key: 'actions',
+            render: (_, record) => (
+                <Space>
+                    <Tooltip title="ویرایش">
+                        <Button
+                            title="ویرایش"
+                            icon={<EditOutlined />}
+                            className="text-green-500 border-green-500"
+                            onClick={() => handleEdit(record)}
+                        />
+                    </Tooltip>
+                    <Tooltip title="حذف">
+                        <Button
+                            title="حذف"
+                            icon={<DeleteOutlined />}
+                            danger
+                            onClick={() => handleDelete(record?.id)}
+                        />
+                    </Tooltip>
+                </Space>
+            )
         }
     ]
 }
