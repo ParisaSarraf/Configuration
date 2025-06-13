@@ -43,7 +43,7 @@ const GoodsCategories = () => {
   return (
     <Card className="w-full flex flex-col">
       <Tabs
-        defaultActiveKey="6"
+        defaultActiveKey="1"
         type="card"
         items={items}
         tabBarStyle={{
