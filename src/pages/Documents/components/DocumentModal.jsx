@@ -20,6 +20,7 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
   const { refetch } = useDocumentList();
 
   useEffect(() => {
+
     if (modalMode === "edit" && modalData) {
       form.setFieldsValue({
         parent_id: modalData.parent,

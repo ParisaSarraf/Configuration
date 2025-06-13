@@ -20,6 +20,7 @@ const DocumentTree = ({ setModal }) => {
       id: node.id,
       tag: node.tag,
       code: node.code,
+      log: node.log,
       englishTitle: node.englishTitle,
       isUsable: node.isUsable,
       isReproducible: node.isReproducible,
@@ -95,6 +96,7 @@ const DocumentTree = ({ setModal }) => {
         mode: "edit",
         id: node.id,
         data: node,
+        log: node.log,
         parent: node.parent_id
       });
     }
