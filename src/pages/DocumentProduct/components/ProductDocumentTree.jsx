@@ -1,14 +1,22 @@
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import {DeleteOutlined, EditOutlined, PlusOutlined} from "@ant-design/icons";
 import Tree from "../../../components/Tree";
-import { Button, message, Modal, Space } from "antd";
-import { useDeleteProductDocument, useDeleteProductDocumentEdition, useProductDocumentTreeById } from "../../../QueryServises/productDocumentQuery";
+import {Button, message, Modal, Space} from "antd";
+import {
+    useDeleteProductDocument,
+    useDeleteProductDocumentEdition,
+    useProductDocumentTreeById
+} from "../../../QueryServises/productDocumentQuery";
 
-const ProductDocumentTree = ({ currentProduct, setModal }) => {
+const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
     const selectedProductId = currentProduct?.productData?.id;
-    const { data: productDocument, isLoading, isError, refetch } = useProductDocumentTreeById(selectedProductId, { enabled: !!selectedProductId }
+    const {
+        data: productDocument,
+        isLoading,
+        isError,
+    } = useProductDocumentTreeById(selectedProductId, {enabled: !!selectedProductId}
     );
-    const { mutate: deleteProductDocument } = useDeleteProductDocument();
-    const { mutate: deleteProductDocumentEdition } = useDeleteProductDocumentEdition();
+    const {mutate: deleteProductDocument} = useDeleteProductDocument();
+    const {mutate: deleteProductDocumentEdition} = useDeleteProductDocumentEdition();
 
 
     const handleDeleteEdition = (editionId) => {
@@ -18,14 +26,17 @@ const ProductDocumentTree = ({ currentProduct, setModal }) => {
             okText: "بله ، مطمئنم",
             cancelText: "خیر ، منصرف شدم.",
             onOk() {
-                try {
-                    deleteProductDocumentEdition(editionId)
-                    message.success("نسخه با موفقیت حذف شد");
-                    refetch();
-                } catch (error) {
-                    message.error(error?.detail);
-                    console.error(error);
-                }
+                deleteProductDocumentEdition(editionId, {
+                    onSuccess: () => {
+                        message.success("نسخه با موفقیت حذف شد");
+                        refetch();
+                    },
+                    onError: (error) => {
+                        const errorMessage = error?.response?.data?.detail || "عملیات حذف موفقیت آمیز نبود";
+                        message.error(errorMessage);
+                        console.error(error);
+                    }
+                });
             },
             onCancel() {
                 message.warning("عملیات حذف لغو شد");
@@ -76,11 +87,12 @@ const ProductDocumentTree = ({ currentProduct, setModal }) => {
                     key: `edition-${edition.id}`,
                     title: (
                         <div className="flex flex-row -mt-2 justify-between items-center w-full h-3">
-                            <span className="mr-8 -mt-4">{edition.edition + "-" + baseNode.product_document_id.title}</span>
+                            <span
+                                className="mr-8 -mt-4">{edition.edition + "-" + baseNode.product_document_id.title}</span>
                             <Space className="-mt-4">
                                 <Button
                                     type="text"
-                                    icon={<EditOutlined />}
+                                    icon={<EditOutlined/>}
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         handleEditEdition(edition);
@@ -89,7 +101,7 @@ const ProductDocumentTree = ({ currentProduct, setModal }) => {
                                 />
                                 <Button
                                     type="text"
-                                    icon={<DeleteOutlined />}
+                                    icon={<DeleteOutlined/>}
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         handleDeleteEdition(edition.id);
@@ -128,24 +140,15 @@ const ProductDocumentTree = ({ currentProduct, setModal }) => {
             key: 'edit',
             label: (
                 <div className="w-full flex flex-row items-center gap-2">
-                    <EditOutlined />
+                    <EditOutlined/>
                     <span>ویرایش شاخه</span>
                 </div>
             )
         }, {
-            key: "delete",
-            label: (
-                <div className="w-full flex flex-row items-center gap-2">
-                    <DeleteOutlined />
-                    <span>حذف شاخه</span>
-                </div>
-            ),
-            danger: true
-        }, {
             key: "edition",
             label: (
                 <div className="w-full flex flex-row items-center gap-2">
-                    <PlusOutlined />
+                    <PlusOutlined/>
                     <span>افزودن نسخه</span>
                 </div>
             )
@@ -153,28 +156,7 @@ const ProductDocumentTree = ({ currentProduct, setModal }) => {
     ];
 
     const handleRightClickAction = (actionKey, node) => {
-        const documentProductId = node.id;
-        if (actionKey === 'delete') {
-            Modal.confirm({
-                title: "حذف سند",
-                content: "از حذف این سند مطمئن هستید؟",
-                okText: "بله ، مطمئنم",
-                cancelText: "خیر ، منصرف شدم.",
-                onOk() {
-                    try {
-                        deleteProductDocument(documentProductId);
-                        message.success("سند با موفقیت حذف شد");
-                        refetch();
-                    } catch (error) {
-                        message.error(error?.detail);
-                        console.error(error);
-                    }
-                },
-                onCancel() {
-                    message.warning("عملیات حذف لغو شد");
-                }
-            });
-        } else if (actionKey === 'edit') {
+        if (actionKey === 'edit') {
             setModal({
                 mode: 'edit',
                 data: {

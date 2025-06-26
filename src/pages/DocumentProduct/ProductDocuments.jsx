@@ -1,20 +1,24 @@
-import { Card } from "antd";
+import {Card} from "antd";
 import useModal from "../../hooks/useModal";
-import { useProductContext } from "../../Services/Context/ProductContext";
+import {useProductContext} from "../../Services/Context/ProductContext";
 import DocumentProductModal from "./components/DocumentProductModal";
 import ProductDocumentTree from "./components/ProductDocumentTree";
 import ProductDocumentEditionModal from "./components/ProductDocumentEdition/ProductDocumentEditionModal";
 import ProductDocumentListSerial from "./components/ProductDocumentListSerial/ProductDocumentListSerial";
-import AddProductDocumentListSerialLogModal from "./components/ProductDocumentListSerial/components/AddProductDocumentListSerialLogModal";
-import { useState } from "react";
-import { useProductDocumentEditionLogsBySerialById, useProductDocumentTreeById } from "../../QueryServises/productDocumentQuery";
+import AddProductDocumentListSerialLogModal
+    from "./components/ProductDocumentListSerial/components/AddProductDocumentListSerialLogModal";
+import {useState} from "react";
+import {
+    useProductDocumentEditionLogsBySerialById,
+    useProductDocumentTreeById
+} from "../../QueryServises/productDocumentQuery";
 
 const ProductDocuments = () => {
-    const { currentProduct } = useProductContext();
-    const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
-    const { refetch } = useProductDocumentTreeById(currentProduct?.id)
+    const {currentProduct} = useProductContext();
+    const {isOpen, modalMode, modalData, modalType, setModal, closeModal} = useModal();
+    const {refetch} = useProductDocumentTreeById(currentProduct?.id)
     const [serialId, setSerialId] = useState(null)
-    const { refetch: refetchSerialId } = useProductDocumentEditionLogsBySerialById(serialId)
+    const {refetch: refetchSerialId} = useProductDocumentEditionLogsBySerialById(serialId)
 
 
     return (
@@ -84,7 +88,7 @@ const ProductDocuments = () => {
                     currentProduct={currentProduct}
                     refetch={refetch}
                 />
-            </Card >
+            </Card>
         </>
     );
 };

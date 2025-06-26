@@ -1,22 +1,20 @@
-import { useEffect } from "react";
+import {useEffect} from "react";
 import Modal from "../../../components/Modal";
-import { Button, Col, Form, Input, message, Row, Switch, TreeSelect } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
-import { useDocumentList } from "../../../QueryServises/documentQuery";
-import { useCreateProductDocument, useUpdateProductDocument } from "../../../QueryServises/productDocumentQuery";
-import { useProductById } from "../../../QueryServises/productQuery";
+import {Button, Col, Form, Input, message, Row, Switch, TreeSelect} from "antd";
+import {PlusOutlined} from "@ant-design/icons";
+import {useDocumentList} from "../../../QueryServises/documentQuery";
+import {useCreateProductDocument, useUpdateProductDocument} from "../../../QueryServises/productDocumentQuery";
+import {useProductById} from "../../../QueryServises/productQuery";
 import DatepickerCustom from "../../../components/DatePicker";
 import moment from "moment/moment";
 
-const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setModal, currentProduct }) => {
+const DocumentProductModal = ({isOpen, modalMode, modalData, closeModal, setModal, currentProduct, refetch}) => {
     const [form] = Form.useForm();
-    const { isPending: isCreating, mutateAsync: createProductDocument } = useCreateProductDocument();
-    const { isPending: isUpdating, mutateAsync: updateProductDocument } = useUpdateProductDocument();
-    const { data: documentList } = useDocumentList();
-    // console.log(documentList);
+    const {isPending: isCreating, mutateAsync: createProductDocument} = useCreateProductDocument();
+    const {isPending: isUpdating, mutateAsync: updateProductDocument} = useUpdateProductDocument();
+    const {data: documentList} = useDocumentList();
 
     const selectedProductId = currentProduct?.productData?.id
-    const { refetch } = useProductById(selectedProductId);
 
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
@@ -52,7 +50,7 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
                 message.success("سند با موفقیت اضافه شد");
                 refetch()
             } else {
-                await updateProductDocument({ documentId: modalData.id, ...payload });
+                await updateProductDocument({documentId: modalData.id, ...payload});
                 message.success("سند با موفقیت ویرایش شد");
                 refetch()
             }
@@ -92,8 +90,8 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
         <>
             <Button
                 className="modal-button"
-                icon={<PlusOutlined />}
-                onClick={() => setModal({ mode: "add", data: null, type: 'AddDocumentProduct' })}
+                icon={<PlusOutlined/>}
+                onClick={() => setModal({mode: "add", data: null, type: 'AddDocumentProduct'})}
             >
             </Button>
             <Modal
@@ -115,16 +113,16 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
                             <Form.Item
                                 label="عنوان سند"
                                 name="title"
-                                rules={[{ required: true, message: "لطفاً نام را وارد کنید" }]}
+                                rules={[{required: true, message: "لطفاً نام را وارد کنید"}]}
                             >
-                                <Input />
+                                <Input/>
                             </Form.Item>
                         </Col>
                         <Col span={12}>
                             <Form.Item
                                 label="نوع سند"
                                 name="document_id"
-                            // rules={[{ required: true, message: "لطفاً اسناد را انتخاب کنید" }]}
+                                // rules={[{ required: true, message: "لطفاً اسناد را انتخاب کنید" }]}
                             >
                                 <TreeSelect
                                     treeData={getTreeSelectOptions(documentList || [])}
@@ -142,7 +140,7 @@ const DocumentProductModal = ({ isOpen, modalMode, modalData, closeModal, setMod
                                 label="تاریخ بررسی"
                                 name="survey_date"
                             >
-                                <DatepickerCustom format="YYYY-MM-DD" />
+                                <DatepickerCustom format="YYYY-MM-DD"/>
                             </Form.Item>
                         </Col>
                         <Col span={12}>
