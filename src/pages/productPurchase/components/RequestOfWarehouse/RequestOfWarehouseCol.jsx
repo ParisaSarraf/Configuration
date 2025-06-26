@@ -1,7 +1,7 @@
-import { DeleteOutlined, EditOutlined, SendOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Space, Tooltip } from "antd";
+import {Form, Input} from "antd";
 
-const RequestOfWarehouseCol = ({ handleSend }) => {
+// دیگر پراپ handleSend را دریافت نمی‌کنیم
+const RequestOfWarehouseCol = () => {
     return [
         {
             title: 'عنوان محصول',
@@ -26,32 +26,20 @@ const RequestOfWarehouseCol = ({ handleSend }) => {
                                 if (value && value < 0) {
                                     return Promise.reject('تعداد نمی‌تواند منفی باشد');
                                 }
+                                // اطمینان از اینکه ورودی عدد است (اختیاری)
+                                if (value && !/^\d+$/.test(value)) {
+                                    return Promise.reject('لطفا فقط عدد وارد کنید');
+                                }
                                 return Promise.resolve();
                             }
                         }
                     ]}
                 >
-                    <Input type="number" min={0} />
+                    <Input type="number" min={0} placeholder="تعداد را وارد کنید"/>
                 </Form.Item>
             )
         },
-        {
-            title: 'عملیات',
-            render(_, record) {
-                return (
-                    <Space>
-                        <Tooltip title="تایید">
-                            <Button
-                                title="تایید"
-                                icon={<SendOutlined rotate={180} />}
-                                className="text-orange-500 border-orange-500"
-                                onClick={() => handleSend(record.id)}
-                            />
-                        </Tooltip>
-                    </Space>
-                )
-            }
-        }
+        // ستون عملیات به طور کامل حذف شده است که صحیح است
     ];
 };
 

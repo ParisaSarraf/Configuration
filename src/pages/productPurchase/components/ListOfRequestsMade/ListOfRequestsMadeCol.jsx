@@ -1,8 +1,8 @@
 const ListOfRequestsMadeCol = () => {
     return [
         {
-            title: 'نام محصول',
-            dataIndex: ['product_purchase_numbers', 'persian_title'],
+            title: 'نوع خرید',
+            dataIndex: 'purchase_type',
             key: 'purchase_type'
         },
         {
