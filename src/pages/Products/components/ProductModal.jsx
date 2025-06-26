@@ -1,30 +1,30 @@
-import { Col, Divider, Form, Input, InputNumber, message, Row, Select } from "antd";
-import React, { useEffect, useState } from "react";
-import { useCreateProduct, useFinalCodeProductById, useUpdateProduct } from "../../../QueryServises/productQuery";
-import { useOneCoreSetting } from "../../../QueryServises/settingQuery";
-import { useGenusProductList } from "../../../QueryServises/genusQuery";
+import {Col, Divider, Form, Input, InputNumber, message, Row, Select} from "antd";
+import React, {useEffect, useState} from "react";
+import {useCreateProduct, useFinalCodeProductById, useUpdateProduct} from "../../../QueryServises/productQuery";
+import {useOneCoreSetting} from "../../../QueryServises/settingQuery";
+import {useGenusProductList} from "../../../QueryServises/genusQuery";
 import Modal from "../../../components/Modal";
-import { TreeSelect } from "antd";
+import {TreeSelect} from "antd";
 import PersonalityModels from "../../../components/PesonalityModels";
 import FileUploader from "@/components/FileUploader/FileUploader.jsx";
-import { BASEURL } from "@/Services/axiosInstance.js";
+import {BASEURL} from "@/Services/axiosInstance.js";
 
 const ProductModal = ({
-    isOpen,
-    modalMode,
-    modalData,
-    closeModal,
-    refetch,
-    productData
-}) => {
+                          isOpen,
+                          modalMode,
+                          modalData,
+                          closeModal,
+                          refetch,
+                          productData
+                      }) => {
     const [form] = Form.useForm();
-    const { isPending: isCreating, mutateAsync: createProduct } = useCreateProduct();
-    const { isPending: isUpdating, mutateAsync: updateProduct } = useUpdateProduct();
-    const { data: casingData } = useOneCoreSetting("casing");
-    const { data: genusData } = useGenusProductList();
+    const {isPending: isCreating, mutateAsync: createProduct} = useCreateProduct();
+    const {isPending: isUpdating, mutateAsync: updateProduct} = useUpdateProduct();
+    const {data: casingData} = useOneCoreSetting("casing");
+    const {data: genusData} = useGenusProductList();
     const [selectedParentCodeId, setSelectedParentCodeId] = useState(null);
     const [productCoding, setProductCoding] = useState(null);
-    const { data: parentCodeData } = useFinalCodeProductById(selectedParentCodeId);
+    const {data: parentCodeData} = useFinalCodeProductById(selectedParentCodeId);
     const parentCodeId = parentCodeData?.code || "";
 
     useEffect(() => {
@@ -203,259 +203,253 @@ const ProductModal = ({
             onSubmit={() => form.submit()}
             mode={modalMode}
             loading={isCreating || isUpdating}
-            bodyStyle={{ padding: 0 }}
-            style={{ top: 20 }}
+            className={'scroll-modal'}
         >
-            <div style={{
-                maxHeight: "60vh",
-                overflowY: "auto",
-                padding: "0 24px"
-            }}>
-                <Form form={form} layout="horizontal" onFinish={onFinish}>
-                    <Row gutter={[6, 0]}>
-                        <Col span={8}>
-                            <Form.Item name="parent_id" label="شاخه والد">
-                                <TreeSelect
-                                    treeData={getTreeSelectOptions(productData || [])}
-                                    placeholder="شاخه والد"
-                                    allowClear
-                                    treeIcon={true}
-                                    treeLine={true}
-                                    showSearch
-                                    onChange={(value) => setSelectedParentCodeId(value || null)}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="parent_code_id" label="ارث بری کد">
-                                <TreeSelect
-                                    showSearch
-                                    placeholder="ارث بری کد"
-                                    treeData={getTreeSelectOptions(productData || [])}
-                                    allowClear
-                                    treeIcon={true}
-                                    treeLine={true}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item
-                                name="persian_title"
-                                rules={[{ required: true, message: "لطفاً عنوان فارسی را وارد کنید" }]}
-                            >
-                                <Input addonBefore="عنوان فارسی" />
-                            </Form.Item>
-                        </Col>
 
-                        <Col span={8}>
-                            <Form.Item
-                                name="code"
-                                rules={[{ required: true, message: "لطفاً کد محصول را وارد کنید" }]}
-                            >
-                                <Input
-                                    addonBefore="کد محصول"
-                                    onChange={(e) => {
-                                        setProductCoding(e.target.value);
-                                        if (parentCodeId) {
-                                            console.log(parentCodeId);
+            <Form form={form} layout="horizontal" onFinish={onFinish}>
+                <Row gutter={[6, 0]}>
+                    <Col span={8}>
+                        <Form.Item name="parent_id" label="شاخه والد">
+                            <TreeSelect
+                                treeData={getTreeSelectOptions(productData || [])}
+                                placeholder="شاخه والد"
+                                allowClear
+                                treeIcon={true}
+                                treeLine={true}
+                                showSearch
+                                onChange={(value) => setSelectedParentCodeId(value || null)}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name="parent_code_id" label="ارث بری کد">
+                            <TreeSelect
+                                showSearch
+                                placeholder="ارث بری کد"
+                                treeData={getTreeSelectOptions(productData || [])}
+                                allowClear
+                                treeIcon={true}
+                                treeLine={true}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item
+                            name="persian_title"
+                            rules={[{required: true, message: "لطفاً عنوان فارسی را وارد کنید"}]}
+                        >
+                            <Input addonBefore="عنوان فارسی"/>
+                        </Form.Item>
+                    </Col>
 
-                                            form.setFieldsValue({
-                                                final_code: `${parentCodeId}/${e.target.value}`
-                                            });
-                                        }
-                                    }}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="final_code">
-                                <Input
-                                    addonBefore="کد نهایی"
-                                    disabled
-                                />
-                            </Form.Item>
-                        </Col>
+                    <Col span={8}>
+                        <Form.Item
+                            name="code"
+                            rules={[{required: true, message: "لطفاً کد محصول را وارد کنید"}]}
+                        >
+                            <Input
+                                addonBefore="کد محصول"
+                                onChange={(e) => {
+                                    setProductCoding(e.target.value);
+                                    if (parentCodeId) {
+                                        console.log(parentCodeId);
 
-                        <Col span={8}>
-                            <Form.Item name="brand1">
-                                <Input addonBefore="نام تجاری 1" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="brand1_desc">
-                                <Input addonBefore="شرح نام تجاری1" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="quantity"
-                                rules={[{ required: true, message: "لطفاً تعداد محصول را وارد کنید" }]}
-                            >
-                                <InputNumber
-                                    addonBefore="تعداد"
-                                    style={{ width: '100%' }}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="brand2">
-                                <Input addonBefore="نام تجاری 2" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="brand2_desc">
-                                <Input addonBefore="شرح نام تجاری2" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="employer_code">
-                                <Input addonBefore="کدکارفرما" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="standard_code">
-                                <Input addonBefore="کد استاندارد" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={24}>
-                            <Form.Item>
-                                <PersonalityModels
-                                    showAlongside={true}
-                                    value={modalData}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="genus_id">
-                                <TreeSelect
-                                    treeData={getTreeSelectOptions(genusData || [])}
-                                    placeholder="جنس"
-                                    allowClear
-                                    treeIcon={true}
-                                    treeLine={true}
-                                    showSearch
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="alternative_genus_id">
-                                <TreeSelect
-                                    treeData={getTreeSelectOptions(genusData || [])}
-                                    placeholder="جنس جایگزین"
-                                    allowClear
-                                    treeIcon={true}
-                                    treeLine={true}
-                                    showSearch
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="casing_id">
-                                <TreeSelect
-                                    treeData={getTreeSelectOptions(casingData || [])}
-                                    placeholder="پوشش"
-                                    allowClear
-                                    treeIcon={true}
-                                    treeLine={true}
-                                    showSearch
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="length">
-                                <InputNumber
-                                    addonBefore="طول"
-                                    style={{ width: '100%' }}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="width">
-                                <InputNumber
-                                    addonBefore="عرض"
-                                    style={{ width: '100%' }}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="height">
-                                <InputNumber
-                                    addonBefore="ارتفاع"
-                                    style={{ width: '100%' }}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="internal_diagonal">
-                                <InputNumber
-                                    addonBefore="قطر داخل"
-                                    style={{ width: '100%' }}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="external_diagonal">
-                                <InputNumber
-                                    addonBefore="قطر خارجی"
-                                    style={{ width: '100%' }}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="weight">
-                                <InputNumber
-                                    addonBefore="وزن"
-                                    style={{ width: '100%' }}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="price">
-                                <InputNumber
-                                    addonBefore="قیمت"
-                                    style={{ width: '100%' }}
-                                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '،')}
-                                    parser={(value) => value.replace(/\$\s?|(،*)/g, '')}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="store_code">
-                                <Input addonBefore="کد انبار" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item name="status">
-                                <Select
-                                    placeholder="وضعیت"
-                                    addonBefore="وضعیت"
-                                    options={[
-                                        { label: 'فعال', value: 'active' },
-                                        { label: 'غیرفعال', value: 'inactive' },
-                                        { label: 'موقت', value: 'temp' }
-                                    ]}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={24}>
-                            <Form.Item name="description">
-                                <Input.TextArea
-                                    addonBefore="توضیحات"
-                                    rows={1}
-                                    placeholder="توضیحات محصول"
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={24}>
-                            <Form.Item
-                                label={`بارگذاری عکس محصول`}
-                                name='image'
-                            >
-                                <FileUploader />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                </Form>
-            </div>
+                                        form.setFieldsValue({
+                                            final_code: `${parentCodeId}/${e.target.value}`
+                                        });
+                                    }
+                                }}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name="final_code">
+                            <Input
+                                addonBefore="کد نهایی"
+                                disabled
+                            />
+                        </Form.Item>
+                    </Col>
+
+                    <Col span={8}>
+                        <Form.Item name="brand1">
+                            <Input addonBefore="نام تجاری 1"/>
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name="brand1_desc">
+                            <Input addonBefore="شرح نام تجاری1"/>
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name="quantity"
+                                   rules={[{required: true, message: "لطفاً تعداد محصول را وارد کنید"}]}
+                        >
+                            <InputNumber
+                                addonBefore="تعداد"
+                                style={{width: '100%'}}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name="brand2">
+                            <Input addonBefore="نام تجاری 2"/>
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name="brand2_desc">
+                            <Input addonBefore="شرح نام تجاری2"/>
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name="employer_code">
+                            <Input addonBefore="کدکارفرما"/>
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name="standard_code">
+                            <Input addonBefore="کد استاندارد"/>
+                        </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                        <Form.Item>
+                            <PersonalityModels
+                                showAlongside={true}
+                                value={modalData}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name="genus_id">
+                            <TreeSelect
+                                treeData={getTreeSelectOptions(genusData || [])}
+                                placeholder="جنس"
+                                allowClear
+                                treeIcon={true}
+                                treeLine={true}
+                                showSearch
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name="alternative_genus_id">
+                            <TreeSelect
+                                treeData={getTreeSelectOptions(genusData || [])}
+                                placeholder="جنس جایگزین"
+                                allowClear
+                                treeIcon={true}
+                                treeLine={true}
+                                showSearch
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name="casing_id">
+                            <TreeSelect
+                                treeData={getTreeSelectOptions(casingData || [])}
+                                placeholder="پوشش"
+                                allowClear
+                                treeIcon={true}
+                                treeLine={true}
+                                showSearch
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name="length">
+                            <InputNumber
+                                addonBefore="طول"
+                                style={{width: '100%'}}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name="width">
+                            <InputNumber
+                                addonBefore="عرض"
+                                style={{width: '100%'}}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name="height">
+                            <InputNumber
+                                addonBefore="ارتفاع"
+                                style={{width: '100%'}}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name="internal_diagonal">
+                            <InputNumber
+                                addonBefore="قطر داخل"
+                                style={{width: '100%'}}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name="external_diagonal">
+                            <InputNumber
+                                addonBefore="قطر خارجی"
+                                style={{width: '100%'}}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name="weight">
+                            <InputNumber
+                                addonBefore="وزن"
+                                style={{width: '100%'}}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name="price">
+                            <InputNumber
+                                addonBefore="قیمت"
+                                style={{width: '100%'}}
+                                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '،')}
+                                parser={(value) => value.replace(/\$\s?|(،*)/g, '')}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name="store_code">
+                            <Input addonBefore="کد انبار"/>
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name="status">
+                            <Select
+                                placeholder="وضعیت"
+                                addonBefore="وضعیت"
+                                options={[
+                                    {label: 'فعال', value: 'active'},
+                                    {label: 'غیرفعال', value: 'inactive'},
+                                    {label: 'موقت', value: 'temp'}
+                                ]}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                        <Form.Item name="description">
+                            <Input.TextArea
+                                addonBefore="توضیحات"
+                                rows={1}
+                                placeholder="توضیحات محصول"
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                        <Form.Item
+                            label={`بارگذاری عکس محصول`}
+                            name='image'
+                        >
+                            <FileUploader/>
+                        </Form.Item>
+                    </Col>
+                </Row>
+            </Form>
         </Modal>
     );
 };
