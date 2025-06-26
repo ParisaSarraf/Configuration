@@ -1,16 +1,16 @@
-import { Button, Card, message, Modal, Space } from 'antd'
-import { useProductContext } from '../../../Services/Context/ProductContext';
-import { DeleteOutlined, PlusOutlined, RightOutlined } from '@ant-design/icons';
+import {Button, Card, message, Modal, Space} from 'antd'
+import {useProductContext} from '../../../Services/Context/ProductContext';
+import {DeleteOutlined, PlusOutlined, RightOutlined} from '@ant-design/icons';
 import Tree from '../../../components/Tree';
 import useModal from '../../../hooks/useModal';
 import DescribeTheRequirementModal from './DescribeTheRequirementModal';
 import AcknowledgmentOfRequirement from './AcknowledgmentOfRequirement';
-import { useDeleteProductRequirement, useProductRequirementList } from '../../../QueryServises/productRequirementQuery';
+import {useDeleteProductRequirement, useProductRequirementList} from '../../../QueryServises/productRequirementQuery';
 
-const ProductRequirementTree = ({ currentProduct, selectProduct }) => {
-    const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
-    const { data: requirementList, isLoading, isError, refetch } = useProductRequirementList(currentProduct?.id);
-    const { mutateAsync: deleteProductRequirement } = useDeleteProductRequirement();
+const ProductRequirementTree = ({currentProduct, selectProduct}) => {
+    const {isOpen, modalMode, modalData, modalType, setModal, closeModal} = useModal();
+    const {data: requirementList, isLoading, isError, refetch} = useProductRequirementList(currentProduct?.id);
+    const {mutateAsync: deleteProductRequirement} = useDeleteProductRequirement();
 
 
     const handleDelete = (node) => {
@@ -42,39 +42,36 @@ const ProductRequirementTree = ({ currentProduct, selectProduct }) => {
         const transformNode = (node) => ({
             title: (
                 <div
-                    className="flex flex-row -mt-2 justify-between items-center w-full h-3"
+                    className="flex flex-row -mt-2 justify-between items-center w-full h-5"
                     onDoubleClick={() => {
-                        setModal({ mode: 'view', data: node, type: 'AcknowledgmentOfRequirement' })
+                        setModal({mode: 'view', data: node, type: 'AcknowledgmentOfRequirement'})
                     }}
                 >
-                    <span className="mr-8 -mt-5">{node.persian_title}</span>
+                    <span className="mr-8 -mt-4">{node.persian_title}</span>
                     <Space className="-mt-4">
                         <Button
-                            type="text"
-                            icon={<RightOutlined />}
+                            icon={<RightOutlined/>}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                setModal({ mode: 'add', data: node, type: 'AcknowledgmentOfRequirement' })
+                                setModal({mode: 'add', data: node, type: 'AcknowledgmentOfRequirement'})
                             }}
-                            className="text-yellow-500 hover:text-yellow-700 "
+                            className="text-yellow-500 hover:text-yellow-700 bg-white"
                         />
                         <Button
-                            type="text"
-                            icon={<DeleteOutlined />}
-                            className="text-red-500 hover:text-red-700"
+                            icon={<DeleteOutlined/>}
+                            className="text-red-500 hover:text-red-700 bg-white"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 handleDelete(node)
                             }}
                         />
                         <Button
-                            type="text"
-                            icon={<PlusOutlined />}
+                            icon={<PlusOutlined/>}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                setModal({ mode: 'add', data: null, type: 'DescribeTheRequirementModal' })
+                                setModal({mode: 'add', data: null, type: 'DescribeTheRequirementModal'})
                             }}
-                            className="text-blue-500 hover:text-blue-700"
+                            className="text-blue-500 hover:text-blue-700 bg-white"
                         />
                     </Space>
                 </div>
@@ -99,7 +96,8 @@ const ProductRequirementTree = ({ currentProduct, selectProduct }) => {
     return (
         <Card title={`الزامات محصول ${currentProduct?.name || ''}`} extra={
             <>
-                <Button icon={<PlusOutlined />} onClick={() => setModal({ mode: 'add', data: null, type: "DescribeTheRequirementModal" })} />
+                <Button icon={<PlusOutlined/>}
+                        onClick={() => setModal({mode: 'add', data: null, type: "DescribeTheRequirementModal"})}/>
             </>
         }>
             <Tree
@@ -109,11 +107,11 @@ const ProductRequirementTree = ({ currentProduct, selectProduct }) => {
                 isError={isError}
                 showLine={true}
                 checkable={true}
-                onSelect={(selectedKeys, { node }) => {
+                onSelect={(selectedKeys, {node}) => {
                 }}
                 onDoubleClick={(event, node) => {
 
-                    setModal({ mode: 'add', data: node, type: 'AcknowledgmentOfRequirement' })
+                    setModal({mode: 'add', data: node, type: 'AcknowledgmentOfRequirement'})
                 }}
             />
             {modalType === 'DescribeTheRequirementModal' && (
