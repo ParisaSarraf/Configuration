@@ -13,7 +13,6 @@ const RequestOfWarehouse = ({selectedPurchaseId}) => {
             await form.validateFields();
             const values = form.getFieldsValue();
             const confirmedNumbers = values.confirmed_number || {};
-
             const payloads = Object.entries(confirmedNumbers)
                 .filter(([productId, number]) => number !== undefined && number !== null && number !== "" && Number(number) > 0)
                 .map(([productId, number]) => ({
@@ -21,18 +20,14 @@ const RequestOfWarehouse = ({selectedPurchaseId}) => {
                     product_id: parseInt(productId, 10),
                     confirmed_number: Number(number),
                 }));
-
             if (payloads.length === 0) {
-                message.warning("برای ارسال، باید حداقل برای یک محصول تعداد معتبر (بزرگتر از صفر) وارد کنید.");
+                message.error("برای ارسال، باید حداقل برای یک محصول تعداد معتبر (بزرگتر از صفر) وارد کنید.");
                 return;
             }
-            console.log(payloads);
-
             await createProductPurchaseNumber(payloads);
             message.success("تعدادهای مورد تایید با موفقیت ارسال شدند.");
             refetch();
             form.resetFields();
-
         } catch (errorInfo) {
             console.error("خطا در اعتبارسنجی یا ارسال:", errorInfo);
             if (!errorInfo.errorFields) {
