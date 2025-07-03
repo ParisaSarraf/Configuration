@@ -3,7 +3,8 @@ const ListOfRequestsMadeCol = () => {
         {
             title: 'نوع خرید',
             dataIndex: 'purchase_type',
-            key: 'purchase_type'
+            key: 'purchase_type',
+            render:(text) => text || 'ندارد'
         },
         {
             title: 'تعداد تایید شده',
