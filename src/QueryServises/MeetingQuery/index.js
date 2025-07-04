@@ -7,7 +7,7 @@ export const useGetProductMeetings = (productId, queryOptions) => {
     return useQuery({
         queryKey: useProductMeetingsKey(productId),
         queryFn: () =>
-            myAxios.get(`/api/v1/product/get-product-meetings-by-id/${productId}`)
+            myAxios.get(`/product/get-product-meetings-by-id/${productId}`)
                 .then((response) => {
                     queryOptions?.onSuccess?.(response?.data);
                     return response?.data;
@@ -20,7 +20,11 @@ export const useCreateMeeting = () => {
     const {myAxios} = useMyAxios();
     return useMutation({
         mutationFn: (meetingData) => {
-            return myAxios.post('/api/v1/product/add-meeting/', meetingData)
+            return myAxios.post('/product/add-meeting/', meetingData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                }
+            })
                 .then((response) => response?.data);
         },
     });
@@ -30,7 +34,12 @@ export const useUpdateMeeting = () => {
     const {myAxios} = useMyAxios();
     return useMutation({
         mutationFn: ({meetingId, ...meetingData}) => {
-            return myAxios.put(`/api/v1/product/update-meeting/${meetingId}`, meetingData)
+            return myAxios.put(`/product/update-meeting/${meetingId}`, meetingData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    }
+                })
                 .then((response) => response?.data);
         },
     });
@@ -40,7 +49,7 @@ export const useDeleteMeeting = () => {
     const {myAxios} = useMyAxios();
     return useMutation({
         mutationFn: (meetingId) => {
-            return myAxios.delete(`/api/v1/product/delete-meeting/${meetingId}`)
+            return myAxios.delete(`/product/delete-meeting/${meetingId}`)
                 .then((response) => response?.data);
         },
     });

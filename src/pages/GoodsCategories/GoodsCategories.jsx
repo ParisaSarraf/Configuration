@@ -6,6 +6,8 @@ import ProductDocuments from "../DocumentProduct/ProductDocuments";
 import ProductRequirement from "../ProductRequirement/ProductRequirement";
 import ProductPurchase from "../productPurchase/ProductPurchase";
 import RequestOfWarehouse from "@/pages/RequestOfWarehouse/RequestOfWarehouse.jsx";
+import ProjectControl from "@/pages/ProjectControl/ProjectControl.jsx";
+import Meetings from "@/pages/Meetings/Meetings.jsx";
 
 const GoodsCategories = () => {
     const items = [
@@ -42,6 +44,14 @@ const GoodsCategories = () => {
             label: ` درخواست کالا از انبار `,
             key: '7',
             children: <RequestOfWarehouse/>
+        }, {
+            label: ` کنترل پروژه `,
+            key: '8',
+            children: <ProjectControl/>
+        }, {
+            label: ` صورت جلسات `,
+            key: '9',
+            children: <Meetings/>
         },
     ];
 
