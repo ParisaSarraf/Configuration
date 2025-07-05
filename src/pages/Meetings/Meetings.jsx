@@ -9,13 +9,15 @@ import MinutesRelatedToActivities
 
 const Meetings = () => {
     const {currentProduct} = useProductContext();
-    const {data: meetingData = [], refetch} = useGetProductMeetings(currentProduct?.id);
+    const {data: meetingData, refetch} = useGetProductMeetings(currentProduct?.id);
     const {mutateAsync: deleteMeeting} = useDeleteMeeting()
 
     const {setModal, closeModal, isOpen, modalData, modalMode, modalType} = useModal();
 
-    const meetingsWithActivities = meetingData.filter(item => item.meeting_activities?.length > 0);
-    const independentMeetings = meetingData.filter(item => !item.meeting_activities?.length);
+    const safeMeetingData = meetingData || [];
+
+    const meetingsWithActivities = safeMeetingData.filter(item => item.meeting_activities?.length > 0);
+    const independentMeetings = safeMeetingData.filter(item => !item.meeting_activities?.length);
 
     const items = [
         {
@@ -49,10 +51,7 @@ const Meetings = () => {
                       افزودن صورتجلسه
                   </Button>
               }>
-
-
-            <Tabs items={items} type="card"
-            />
+            <Tabs items={items} type="card"/>
 
             <MeetingsModal
                 isOpen={isOpen}
