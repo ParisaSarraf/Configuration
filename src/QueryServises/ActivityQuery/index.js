@@ -7,7 +7,7 @@ export const useGetProductActivities = (productId, queryOptions) => {
     return useQuery({
         queryKey: useProductActivitiesKey(productId),
         queryFn: () =>
-            myAxios.get(`/api/v1/product/got-product-activity-by-id/${productId}`)
+            myAxios.get(`/product/get-product-activity-by-id/${productId}`)
                 .then((response) => {
                     queryOptions?.onSuccess?.(response?.data);
                     return response?.data;
@@ -20,7 +20,12 @@ export const useCreateActivity = () => {
     const {myAxios} = useMyAxios();
     return useMutation({
         mutationFn: (activityData) => {
-            return myAxios.post('/api/v1/product/add-activity/', activityData)
+            return myAxios.post('/product/add-activity/', activityData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    }
+                })
                 .then((response) => response?.data);
         },
     });
@@ -30,7 +35,12 @@ export const useUpdateActivity = () => {
     const {myAxios} = useMyAxios();
     return useMutation({
         mutationFn: ({activityId, ...activityData}) => {
-            return myAxios.put(`/api/v1/product/update-activity/${activityId}`, activityData)
+            return myAxios.put(`/product/update-activity/${activityId}`, activityData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    }
+                })
                 .then((response) => response?.data);
         },
     });
@@ -40,7 +50,7 @@ export const useDeleteActivity = () => {
     const {myAxios} = useMyAxios();
     return useMutation({
         mutationFn: (activityId) => {
-            return myAxios.delete(`/api/v1/product/delete-activity/${activityId}`)
+            return myAxios.delete(`/product/delete-activity/${activityId}`)
                 .then((response) => response?.data);
         },
     });
@@ -49,19 +59,34 @@ export const useDeleteActivity = () => {
 export const useChangeActivityTrustee = () => {
     const {myAxios} = useMyAxios();
     return useMutation({
-        mutationFn: ({activityId, trusteeData}) => {
-            return myAxios.patch(`/api/v1/product/change-activity-trustee/${activityId}`, trusteeData)
-                .then((response) => response?.data);
+        mutationFn: ({trusteeId, trusteeData}) => {
+            return myAxios.patch(
+                `/product/change-activity-trustee/${trusteeId}`,
+                trusteeData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    }
+                }
+            )
         },
     });
 };
 
 export const useChangePlanTrustee = () => {
     const {myAxios} = useMyAxios();
+
     return useMutation({
         mutationFn: ({planId, trusteeData}) => {
-            return myAxios.patch(`/api/v1/product/change-plan-trustee/${planId}`, trusteeData)
-                .then((response) => response?.data);
+            return myAxios.patch(
+                `/product/change-plan-trustee/${planId}`,
+                trusteeData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    }
+                }
+            )
         },
     });
 };

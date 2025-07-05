@@ -6,8 +6,8 @@ import ProductDocuments from "../DocumentProduct/ProductDocuments";
 import ProductRequirement from "../ProductRequirement/ProductRequirement";
 import ProductPurchase from "../productPurchase/ProductPurchase";
 import RequestOfWarehouse from "@/pages/RequestOfWarehouse/RequestOfWarehouse.jsx";
-import ProjectControl from "@/pages/ProjectControl/ProjectControl.jsx";
 import Meetings from "@/pages/Meetings/Meetings.jsx";
+import Activity from "@/pages/Activity/Activity.jsx";
 
 const GoodsCategories = () => {
     const items = [
@@ -45,20 +45,20 @@ const GoodsCategories = () => {
             key: '7',
             children: <RequestOfWarehouse/>
         }, {
-            label: ` کنترل پروژه `,
-            key: '8',
-            children: <ProjectControl/>
-        }, {
             label: ` صورت جلسات `,
-            key: '9',
+            key: '8',
             children: <Meetings/>
-        },
+        }, {
+            label: ` فعالیت ها `,
+            key: '9',
+            children: <Activity/>
+        }
     ];
 
     return (
         <Card className="w-full flex flex-col">
             <Tabs
-                defaultActiveKey="1"
+                defaultActiveKey="9"
                 type="card"
                 items={items}
                 tabBarStyle={{
