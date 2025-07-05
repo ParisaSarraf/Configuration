@@ -1,9 +1,11 @@
-import {Button, Card, message, Modal, Table} from "antd";
+import {Button, Card, Tabs} from "antd";
 import useModal from "@/hooks/useModal.js";
-import {MeetingsCol} from "@/pages/Meetings/components/MeetingsCol.jsx";
 import MeetingsModal from "@/pages/Meetings/components/MeetingsModal.jsx";
 import {useDeleteMeeting, useGetProductMeetings} from "@/QueryServises/MeetingQuery/index.js";
 import {useProductContext} from "@/Services/Context/ProductContext.jsx";
+import IndependentMinutes from "@/pages/Meetings/components/IndependentMinutes/IndependentMinutes.jsx";
+import MinutesRelatedToActivities
+    from "@/pages/Meetings/components/MinutesRelatedToActivities/MinutesRelatedToActivities.jsx";
 
 const Meetings = () => {
     const {currentProduct} = useProductContext();
@@ -12,37 +14,33 @@ const Meetings = () => {
 
     const {setModal, closeModal, isOpen, modalData, modalMode, modalType} = useModal();
 
-    const handleEdit = (record) => {
-        setModal({mode: 'edit', data: record});
-    };
+    const meetingsWithActivities = meetingData.filter(item => item.meeting_activities?.length > 0);
+    const independentMeetings = meetingData.filter(item => !item.meeting_activities?.length);
 
-    const handleDelete = (id) => {
-        Modal.confirm({
-            title: 'حذف  صورتجلسه',
-            content: 'آیا از حذف این صورتجلسه مطمئن هستید؟',
-            okText: 'بله',
-            cancelText: 'خیر',
-            okType: 'danger',
-            onOk() {
-                return new Promise((resolve, reject) => {
-                    deleteMeeting(id, {
-                        onSuccess: () => {
-                            message.success("صورتجلسه با موفقیت حذف شد");
-                            refetch();
-                            resolve();
-                        },
-                        onError: () => {
-                            message.error("حذف صورتجلسه با خطا مواجه شد");
-                            reject();
-                        },
-                    });
-                });
-            },
-            onCancel() {
-                console.log('حذف لغو شد');
-            },
-        });
-    };
+    const items = [
+        {
+            label: "صورتجلسات مرتبط با فعالیت ها",
+            key: '1',
+            children: <MinutesRelatedToActivities
+                currentProduct={currentProduct}
+                setModal={setModal}
+                meetingData={meetingsWithActivities}
+                deleteMeeting={deleteMeeting}
+                refetch={refetch}
+            />
+        },
+        {
+            label: `صورتجلسات مستقل`,
+            key: '2',
+            children: <IndependentMinutes
+                currentProduct={currentProduct}
+                setModal={setModal}
+                meetingData={independentMeetings}
+                deleteMeeting={deleteMeeting}
+                refetch={refetch}
+            />,
+        }
+    ];
 
     return (
         <Card title='صورت جلسات'
@@ -51,10 +49,9 @@ const Meetings = () => {
                       افزودن صورتجلسه
                   </Button>
               }>
-            <Table
-                columns={MeetingsCol({handleEdit, handleDelete})}
-                dataSource={meetingData}
-                rowKey="id"
+
+
+            <Tabs items={items} type="card"
             />
 
             <MeetingsModal

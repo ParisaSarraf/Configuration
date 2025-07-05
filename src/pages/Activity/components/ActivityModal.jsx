@@ -15,7 +15,6 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
     const {data: usersData = []} = useUserList();
 
     const activityType = Form.useWatch('type', form);
-    console.log(modalData)
     useEffect(() => {
         if (modalMode === 'edit' && modalData) {
             form.setFieldsValue({

@@ -1,4 +1,4 @@
-import {Button, Flex, Tooltip} from "antd";
+import {Button, Flex, Tooltip, Tag} from "antd";
 import {DeleteOutlined, EditOutlined} from "@ant-design/icons";
 
 export const MeetingsCol = ({handleEdit, handleDelete}) => {
@@ -66,5 +66,85 @@ export const MeetingsCol = ({handleEdit, handleDelete}) => {
                 </Flex>
             ),
         },
+    ];
+};
+
+export const MeetingRelatedToActivities = () => {
+    return [
+        {
+            title: 'ردیف',
+            key: 'index',
+            render: (_, __, index) => index + 1,
+        },
+        {
+            title: 'نوع فعالیت',
+            key: 'activityType',
+            render: (record) => record.type || 'نامشخص',
+        },
+        {
+            title: 'توضیحات',
+            key: 'description',
+            render: (record) => record.description || 'بدون توضیح',
+        },
+        {
+            title: 'متولی',
+            key: 'trustee',
+            render: (record) => (
+                <div>
+                    {record.trustee?.name} {record.trustee?.last_name}
+                    <br/>
+                    {record.trustee_description && `(${record.trustee_description})`}
+                </div>
+            ),
+        },
+        {
+            title: 'بازه زمانی',
+            key: 'dateRange',
+            render: (record) => (
+                <div>
+                    از: {record.from_date}
+                    <br/>
+                    تا: {record.to_date}
+                </div>
+            ),
+        },
+        {
+            title: 'وضعیت',
+            key: 'state',
+            render: (record) => (
+                <Tag color={record.state === 30 ? 'green' : 'orange'}>
+                    {record.state === 30 ? 'تکمیل شده' : 'در حال انجام'}
+                </Tag>
+            ),
+        },
+        {
+            title: 'تاریخ‌های مهم',
+            key: 'importantDates',
+            render: (record) => (
+                <div>
+                    <div>تاریخ انجام: {record.done_date}</div>
+                    <div>تاریخ تایید: {record.confirmed_date}</div>
+                </div>
+            ),
+        },
+        {
+            title: 'فایل‌ها',
+            key: 'files',
+            render: (record) => (
+                <Flex vertical gap={4}>
+                    {record.trustee_file && (
+                        <a href={record.trustee_file} target="_blank" rel="noopener noreferrer">
+                            دانلود فایل متولی
+                        </a>
+                    )}
+                    {record.plan_file && (
+                        <a href={record.plan_file} target="_blank" rel="noopener noreferrer">
+                            دانلود فایل طرح
+                        </a>
+                    )}
+                </Flex>
+            ),
+        },
+
     ];
 };
