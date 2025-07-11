@@ -63,6 +63,19 @@ export const useCreateRequestOfWarehouse = () => {
     });
 };
 
+export const useCreateRequestOfWarehouseNumber = () => {
+    const {myAxios} = useMyAxios();
+    return useMutation({
+        mutationFn: (params) => {
+            return myAxios
+                .post(`/product/add-ware-house-request-number/`, params)
+                .then((response) => {
+                    return response?.data;
+                });
+        },
+    });
+};
+
 export const useUpdateRequestOfWarehouse = () => {
     const {myAxios} = useMyAxios();
     return useMutation({

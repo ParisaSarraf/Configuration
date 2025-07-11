@@ -7,7 +7,8 @@ export const ActivityCols = ({handleEdit, handleDelete, handleTrustee, handlePla
                 title: "کد فعالیت",
                 dataIndex: 'meeting',
                 key: 'meeting'
-            }, {
+            },
+            {
                 title: "شرح فعالیت",
                 dataIndex: 'description',
                 key: 'description'

@@ -1,7 +1,89 @@
+import {Button, Card, Tabs} from "antd";
+import useModal from "@/hooks/useModal.js";
+import {PlusOutlined} from "@ant-design/icons";
+import RequestOfWarehouseModal from "@/pages/RequestOfWarehouse/components/RequestOfWarehouseModal.jsx";
+import {useProductContext} from "@/Services/Context/ProductContext.jsx";
+import {useGetSupplyListForWareByIdKey} from "@/QueryServises/RequestOfWarehouse/index.js";
+import {useState} from "react";
+
+import RequestOfWarehousePage
+    from "@/pages/RequestOfWarehouse/components/RequestOfWarehousePage/RequestOfWarehousePage.jsx";
+import RequestWareHouseTable
+    from "@/pages/RequestOfWarehouse/components/RequestWareHouseTable/RequestWareHouseTable.jsx";
+import ListOfRequestOfWareHouseMade
+    from "@/pages/RequestOfWarehouse/components/ListOfRequestOfWareHouseMade/ListOfRequestOfWareHouseMade.jsx";
+
+
 const RequestOfWarehouse = () => {
+    const {currentProduct} = useProductContext();
+    const {setModal, isOpen, closeModal, modalData, modalMode, modalType} = useModal();
+    const {data: RequestOfWarehouseData} = useGetSupplyListForWareByIdKey(currentProduct?.id);
+    const [selectedWareHouseId, setSelectedWareHouseId] = useState(null)
+
+
+    console.log('RequestOfWarehouseData is: ', RequestOfWarehouseData)
+
+
+    const items = [
+        {
+            key: '1',
+            label: 'لیست درخواست خرید کالا از انبار',
+            children:
+                <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
+                        <div className="col-span-1">
+                            <RequestWareHouseTable
+                                currentProduct={currentProduct}
+                                setSelectedWareHouseId={setSelectedWareHouseId}
+                                setModal={setModal}
+                            />
+                        </div>
+                        <div className="col-span-1">
+                            <RequestOfWarehousePage selectedWareHouseId={selectedWareHouseId}/>
+                        </div>
+                    </div>
+                </>
+        },
+        {
+            key: '2',
+            label: 'درخواست های انجام شده',
+            children:
+                <div>
+                    <ListOfRequestOfWareHouseMade currentProduct={currentProduct}/>
+                </div>
+            ,
+
+        }
+    ];
+
     return (
-        <>
-        </>
+        <Card
+            title='درخواست خرید کالا از انبار'
+            extra={
+                <Button
+                    onClick={() => setModal({mode: 'add', data: null, type: 'RequestOfWarehouse'})}
+                    className={'modal-button'}
+                    icon={<PlusOutlined/>}
+                    title={'درخواست خرید کالا از انبار'}
+                />
+            }
+        >
+            <div>
+                <Tabs
+                    items={items}
+                    type="card"
+                />
+
+                <RequestOfWarehouseModal
+                    isOpen={isOpen}
+                    modalMode={modalMode}
+                    modalType={modalType}
+                    modalData={modalData}
+                    closeModal={closeModal}
+                    currentProduct={currentProduct}
+                />
+            </div>
+        </Card>
     )
 
 }

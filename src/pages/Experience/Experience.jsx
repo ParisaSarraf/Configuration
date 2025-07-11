@@ -1,15 +1,15 @@
-import { Card, Table, Button, message, Modal } from 'antd'
-import { useDeleteExperience, useProductExperienceById, usExperienceList } from '../../QueryServises/experienceQuery';
-import { useProductContext } from '../../Services/Context/ProductContext';
+import {Card, Table, Button, message, Modal} from 'antd'
+import {useDeleteExperience, useProductExperienceById, usExperienceList} from '../../QueryServises/experienceQuery';
+import {useProductContext} from '../../Services/Context/ProductContext';
 import ExperienceModal from './components/ExperienceModal';
 import ExperienceCol from './components/ExperienceCol';
 import useModal from '../../hooks/useModal';
 
 const Experience = () => {
-    const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
-    const { currentProduct } = useProductContext();
-    const { data, refetch } = useProductExperienceById(currentProduct?.id)
-    const { mutateAsync: deleteExperience } = useDeleteExperience()
+    const {isOpen, modalMode, modalData, modalType, setModal, closeModal} = useModal();
+    const {currentProduct} = useProductContext();
+    const {data, refetch} = useProductExperienceById(currentProduct?.id)
+    const {mutateAsync: deleteExperience} = useDeleteExperience()
 
     const handleDelete = async (id) => {
         Modal.confirm({
@@ -42,7 +42,7 @@ const Experience = () => {
 
     return (
         <Card
-            title={` اسناد ${currentProduct?.name || ''}`}
+            title={` تجارب و خرابی ${currentProduct?.name || ''}`}
             extra={
                 <>
                     <ExperienceModal
@@ -59,11 +59,11 @@ const Experience = () => {
             }
         >
             <Table
-                columns={ExperienceCol({ handleDelete, handleEdit })}
+                columns={ExperienceCol({handleDelete, handleEdit})}
                 dataSource={data}
-                locale={{ emptyText: 'هیچ داده ای وجود ندارد' }}
+                locale={{emptyText: 'هیچ داده ای وجود ندارد'}}
             />
-        </Card >
+        </Card>
     )
 }
 

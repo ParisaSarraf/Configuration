@@ -1,6 +1,6 @@
 import {Form, Input} from "antd";
 
-const RequestOfWarehouseCol = () => {
+const RequestOfWarehousePageCol = () => {
     return [
         {
             title: 'عنوان محصول',
@@ -40,4 +40,4 @@ const RequestOfWarehouseCol = () => {
     ];
 };
 
-export default RequestOfWarehouseCol;
+export default RequestOfWarehousePageCol;

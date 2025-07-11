@@ -52,7 +52,9 @@ const ProductPurchase = () => {
                 <Button
                     icon={<PlusOutlined/>}
                     className="modal-button"
-                    onClick={() => setModal({mode: 'add', data: null, type: 'purchaseModal'})}/>
+                    onClick={() => setModal({mode: 'add', data: null, type: 'purchaseModal'})}
+                    title='درخواست خرید'
+                />
             }
         >
             <div>

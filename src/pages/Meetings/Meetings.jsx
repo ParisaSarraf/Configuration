@@ -6,6 +6,7 @@ import {useProductContext} from "@/Services/Context/ProductContext.jsx";
 import IndependentMinutes from "@/pages/Meetings/components/IndependentMinutes/IndependentMinutes.jsx";
 import MinutesRelatedToActivities
     from "@/pages/Meetings/components/MinutesRelatedToActivities/MinutesRelatedToActivities.jsx";
+import {PlusOutlined} from "@ant-design/icons";
 
 const Meetings = () => {
     const {currentProduct} = useProductContext();
@@ -47,9 +48,13 @@ const Meetings = () => {
     return (
         <Card title='صورت جلسات'
               extra={
-                  <Button className={'modal-button'} onClick={() => setModal({mode: 'add', data: null})}>
-                      افزودن صورتجلسه
-                  </Button>
+                  <Button
+                      className={'modal-button'}
+                      onClick={() => setModal({mode: 'add', data: null})}
+                      icon={<PlusOutlined/>}
+                      title='صورت جلسات'
+                  />
+
               }>
             <Tabs items={items} type="card"/>
 

@@ -73,9 +73,8 @@ const Activity = () => {
                       className={'modal-button'}
                       onClick={() => setModal({mode: 'add', data: null, type: 'addActivity'})}
                       icon={<PlusOutlined/>}
-                  >
-                      افزودن فعالیت
-                  </Button>
+                      title='افزودن فعالیت'
+                  />
               }>
             <Table
                 size="small"

@@ -96,8 +96,11 @@ const ProductRequirementTree = ({currentProduct, selectProduct}) => {
     return (
         <Card title={`الزامات محصول ${currentProduct?.name || ''}`} extra={
             <>
-                <Button icon={<PlusOutlined/>}
-                        onClick={() => setModal({mode: 'add', data: null, type: "DescribeTheRequirementModal"})}/>
+                <Button
+                    icon={<PlusOutlined/>}
+                    onClick={() => setModal({mode: 'add', data: null, type: "DescribeTheRequirementModal"})}
+                    className={'modal-button'}
+                />
             </>
         }>
             <Tree
