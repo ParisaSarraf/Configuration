@@ -17,7 +17,7 @@ import ListOfRequestOfWareHouseMade
 const RequestOfWarehouse = () => {
     const {currentProduct} = useProductContext();
     const {setModal, isOpen, closeModal, modalData, modalMode, modalType} = useModal();
-    const {data: RequestOfWarehouseData} = useGetSupplyListForWareByIdKey(currentProduct?.id);
+    const {data: RequestOfWarehouseData, refetch} = useGetSupplyListForWareByIdKey(currentProduct?.id);
     const [selectedWareHouseId, setSelectedWareHouseId] = useState(null)
 
 
@@ -81,6 +81,7 @@ const RequestOfWarehouse = () => {
                     modalData={modalData}
                     closeModal={closeModal}
                     currentProduct={currentProduct}
+                    refetch={refetch}
                 />
             </div>
         </Card>

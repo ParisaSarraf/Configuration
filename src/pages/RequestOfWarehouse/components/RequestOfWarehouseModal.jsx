@@ -2,7 +2,7 @@ import Modal from "@/components/Modal/index.jsx";
 import {Col, Form, InputNumber, message, Radio, Row} from "antd"
 import {useCreateRequestOfWarehouse, useUpdateRequestOfWarehouse} from "@/QueryServises/RequestOfWarehouse/index.js";
 
-const RequestOfWarehouseModal = ({isOpen, modalData, modalMode, modalType, closeModal, currentProduct}) => {
+const RequestOfWarehouseModal = ({isOpen, modalData, modalMode, modalType, closeModal, currentProduct, refetch}) => {
     const [form] = Form.useForm();
     const {mutateAsync: createRequestWarehouse} = useCreateRequestOfWarehouse()
     const {mutateAsync: updateRequestWarehouse} = useUpdateRequestOfWarehouse()
@@ -21,11 +21,12 @@ const RequestOfWarehouseModal = ({isOpen, modalData, modalMode, modalType, close
             if (modalMode === 'add') {
                 await createRequestWarehouse(payload)
                 message.success("درخواست خرید کالا از انبار با موفقیت اضافه شد")
+                await refetch()
             } else {
                 await updateRequestWarehouse(payload)
                 message.success("درخواست خرید کالا از انبار با موفقیت ویرایش شد")
+                await refetch()
             }
-            refetch()
             closeModal()
         } catch (error) {
             message.error(error)
