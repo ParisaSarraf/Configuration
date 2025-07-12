@@ -3,7 +3,10 @@ import useModal from "@/hooks/useModal.js";
 import {PlusOutlined} from "@ant-design/icons";
 import RequestOfWarehouseModal from "@/pages/RequestOfWarehouse/components/RequestOfWarehouseModal.jsx";
 import {useProductContext} from "@/Services/Context/ProductContext.jsx";
-import {useGetSupplyListForWareByIdKey} from "@/QueryServises/RequestOfWarehouse/index.js";
+import {
+    useGetSupplyListForWareById,
+    useGetUnConfirmedWareRequestById
+} from "@/QueryServises/RequestOfWarehouse/index.js";
 import {useState} from "react";
 
 import RequestOfWarehousePage
@@ -17,11 +20,9 @@ import ListOfRequestOfWareHouseMade
 const RequestOfWarehouse = () => {
     const {currentProduct} = useProductContext();
     const {setModal, isOpen, closeModal, modalData, modalMode, modalType} = useModal();
-    const {data: RequestOfWarehouseData, refetch} = useGetSupplyListForWareByIdKey(currentProduct?.id);
+    const productId = currentProduct?.id;
+    const {data: requestWareHouseData, refetch} = useGetUnConfirmedWareRequestById(productId)
     const [selectedWareHouseId, setSelectedWareHouseId] = useState(null)
-
-
-    console.log('RequestOfWarehouseData is: ', RequestOfWarehouseData)
 
 
     const items = [
@@ -36,6 +37,7 @@ const RequestOfWarehouse = () => {
                                 currentProduct={currentProduct}
                                 setSelectedWareHouseId={setSelectedWareHouseId}
                                 setModal={setModal}
+                                requestWareHouseData={requestWareHouseData}
                             />
                         </div>
                         <div className="col-span-1">

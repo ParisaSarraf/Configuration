@@ -2,8 +2,8 @@ const ListOfRequestOfWareHouseMadeCol = () => {
     return [
         {
             title: 'نوع خرید',
-            dataIndex: 'purchase_type',
-            key: 'purchase_type',
+            dataIndex: 'request_type',
+            key: 'request_type',
             render: (text) => text || 'ندارد'
         },
         {

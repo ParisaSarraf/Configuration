@@ -1,11 +1,26 @@
 import Modal from "@/components/Modal/index.jsx";
 import {Col, Form, InputNumber, message, Radio, Row} from "antd"
 import {useCreateRequestOfWarehouse, useUpdateRequestOfWarehouse} from "@/QueryServises/RequestOfWarehouse/index.js";
+import {useEffect} from "react";
 
 const RequestOfWarehouseModal = ({isOpen, modalData, modalMode, modalType, closeModal, currentProduct, refetch}) => {
     const [form] = Form.useForm();
     const {mutateAsync: createRequestWarehouse} = useCreateRequestOfWarehouse()
     const {mutateAsync: updateRequestWarehouse} = useUpdateRequestOfWarehouse()
+
+
+    useEffect(() => {
+        if (modalMode === "edit" && modalData) {
+            form.setFieldsValue({
+                request_type: modalData.request_type,
+                quantity: modalData.quantity,
+                support_number: modalData.support_number
+            });
+        } else {
+            form.resetFields();
+        }
+    }, [modalMode, modalData, form]);
+
 
     const onFinish = async (values) => {
         console.log(values)
@@ -21,12 +36,13 @@ const RequestOfWarehouseModal = ({isOpen, modalData, modalMode, modalType, close
             if (modalMode === 'add') {
                 await createRequestWarehouse(payload)
                 message.success("درخواست خرید کالا از انبار با موفقیت اضافه شد")
-                await refetch()
+
             } else {
-                await updateRequestWarehouse(payload)
+                await updateRequestWarehouse({RequestOfWarehouseId:modalData?.id,...payload})
                 message.success("درخواست خرید کالا از انبار با موفقیت ویرایش شد")
-                await refetch()
+
             }
+            await refetch()
             closeModal()
         } catch (error) {
             message.error(error)
@@ -43,7 +59,7 @@ const RequestOfWarehouseModal = ({isOpen, modalData, modalMode, modalType, close
             onClose={closeModal}
             onCancel={closeModal}
             onSubmit={() => form.submit()}
-            size={600}
+            size={500}
         >
             <Form
                 form={form}
@@ -51,13 +67,13 @@ const RequestOfWarehouseModal = ({isOpen, modalData, modalMode, modalType, close
                 onFinish={onFinish}
             >
                 <Row gutter={[16, 16]}>
-                    <Col span={8}>
+                    <Col span={12}>
                         <Form.Item label="تعداد" name="quantity">
                             <InputNumber className="w-full" min={1}/>
                         </Form.Item>
                     </Col>
 
-                    <Col span={8}>
+                    <Col span={12}>
                         <Form.Item label="تعداد پشتیبانی" name='support_number'>
                             <InputNumber className="w-full" min={1}/>
                         </Form.Item>

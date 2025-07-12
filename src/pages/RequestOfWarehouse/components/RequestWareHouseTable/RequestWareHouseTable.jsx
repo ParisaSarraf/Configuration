@@ -1,17 +1,17 @@
 import {message, Modal, Table} from "antd"
 import RequestWareHouseCol from "@/pages/RequestOfWarehouse/components/RequestWareHouseTable/RequestWareHouseCol.jsx";
 import {
-    useDeleteRequestOfWarehouse,
-    useGetUnConfirmedWareRequestByIdKey
+    useDeleteRequestOfWarehouse, useGetUnConfirmedWareRequestById
 } from "@/QueryServises/RequestOfWarehouse/index.js";
 
-const RequestWareHouseTable = ({currentProduct, setSelectedWareHouseId, setModal}) => {
-    const {data: requestWareHouseData, refetch} = useGetUnConfirmedWareRequestByIdKey(currentProduct?.id)
+const RequestWareHouseTable = ({currentProduct, setSelectedWareHouseId, setModal,requestWareHouseData}) => {
+    const { refetch} = useGetUnConfirmedWareRequestById(currentProduct?.id)
+
     const {mutateAsync: deleteRequestWareHouse} = useDeleteRequestOfWarehouse();
 
 
     const handleEdit = (record) => {
-        setModal({mode: 'edit', data: record, type: 'add'})
+        setModal({mode: 'edit', data: record, type: 'RequestOfWarehouse'})
     }
 
     const handleDelete = (id) => {
@@ -24,11 +24,11 @@ const RequestWareHouseTable = ({currentProduct, setSelectedWareHouseId, setModal
                 try {
                     await deleteRequestWareHouse(id)
                     message.success("درخواست خرید با موفقیت حذف شد");
-                    await refetch()
                 } catch (error) {
                     message.error(error?.detail);
                     console.error(error);
                 }
+                await refetch()
             },
             onCancel() {
                 message.warning("عملیات حذف لغو شد");

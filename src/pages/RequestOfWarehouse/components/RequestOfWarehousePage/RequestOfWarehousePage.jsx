@@ -1,14 +1,14 @@
 import {message, Table, Form, Button, Tooltip} from "antd";
 import {SendOutlined} from "@ant-design/icons";
 import {
-    useCreateRequestOfWarehouseNumber,
+    useCreateRequestOfWarehouseNumber, useGetSupplyListForWareById,
     useGetSupplyListForWareByIdKey
 } from "@/QueryServises/RequestOfWarehouse/index.js";
 import RequestOfWarehousePageCol
     from "@/pages/RequestOfWarehouse/components/RequestOfWarehousePage/RequestOfWarehousePageCol.jsx";
 
 const RequestOfWarehousePage = ({selectedWareHouseId}) => {
-    const {data: requestOfWareHouseData, refetch} = useGetSupplyListForWareByIdKey(selectedWareHouseId);
+    const {data: requestOfWareHouseData, refetch} = useGetSupplyListForWareById(selectedWareHouseId);
     const {mutateAsync: createRequestOfWareHouseNumber} = useCreateRequestOfWarehouseNumber();
     const [form] = Form.useForm();
 
@@ -20,7 +20,7 @@ const RequestOfWarehousePage = ({selectedWareHouseId}) => {
             const payloads = Object.entries(confirmedNumbers)
                 .filter(([productId, number]) => number !== undefined && number !== null && number !== "" && Number(number) > 0)
                 .map(([productId, number]) => ({
-                    product_purchase_id: selectedWareHouseId,
+                    ware_house_request_id: selectedWareHouseId,
                     product_id: parseInt(productId, 10),
                     confirmed_number: Number(number),
                 }));

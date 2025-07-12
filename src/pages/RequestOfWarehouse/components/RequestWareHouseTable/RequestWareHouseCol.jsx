@@ -5,8 +5,8 @@ const RequestWareHouseCol = ({handleEdit, handleDelete}) => {
     return [
         {
             title: 'نوع خرید',
-            dataIndex: 'purchase_type',
-            key: 'purchase_type'
+            dataIndex: 'request_type',
+            key: 'request_type'
         },
         {
             title: 'تعداد',
@@ -14,12 +14,12 @@ const RequestWareHouseCol = ({handleEdit, handleDelete}) => {
             key: 'quantity',
             render: (text) => text || 'ندارد'
         },
-        {
-            title: 'درصد مونتاژ',
-            dataIndex: 'charge_percentage',
-            key: 'charge_percentage',
-            render: (text) => text || 'ندارد'
-        },
+        // {
+        //     title: 'درصد مونتاژ',
+        //     dataIndex: 'charge_percentage',
+        //     key: 'charge_percentage',
+        //     render: (text) => text || 'ندارد'
+        // },
         {
             title: 'تعداد پشتیبانی',
             dataIndex: 'support_number',

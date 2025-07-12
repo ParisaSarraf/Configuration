@@ -1,11 +1,12 @@
 import {Table} from "antd";
-import {useGetConfirmedWarehouseRequestByIdKey} from "@/QueryServises/RequestOfWarehouse/index.js";
+import {
+    useGetConfirmedWarehouseRequestById} from "@/QueryServises/RequestOfWarehouse/index.js";
 import ListOfRequestOfWareHouseMadeCol
     from "@/pages/RequestOfWarehouse/components/ListOfRequestOfWareHouseMade/ListOfRequestOfWareHouseMadeCol.jsx";
 
 const ListOfRequestOfWareHouseMade = ({currentProduct}) => {
-    const {data: requestOfWarehouse} = useGetConfirmedWarehouseRequestByIdKey(currentProduct?.id);
-    console.log(requestOfWarehouse);
+    const {data: requestOfWarehouse} = useGetConfirmedWarehouseRequestById(currentProduct?.id);
+    console.log('dfcdv:',requestOfWarehouse);
 
     const expandedRowRender = (record) => {
         const nestedColumns = [
@@ -26,7 +27,7 @@ const ListOfRequestOfWareHouseMade = ({currentProduct}) => {
             }
         ];
 
-        const nestedDataSource = record.product_purchase_numbers.map(item => ({
+        const nestedDataSource = record.warehouse_request_numbers.map(item => ({
             key: item.id,
             product: item.product,
             confirmed_number: item.confirmed_number
