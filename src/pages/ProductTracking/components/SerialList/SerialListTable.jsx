@@ -1,15 +1,19 @@
-import { message, Modal, Table } from 'antd'
-import { SerialListCol } from './SerialListCol'
-import { useDeleteProductSerial, useProductSerialById } from '../../../../QueryServises/productSerialQuery'
+import {message, Modal, Table} from 'antd'
+import {SerialListCol} from './SerialListCol'
+import {useDeleteProductSerial, useProductSerialById} from '../../../../QueryServises/productSerialQuery'
+import {useEffect} from "react";
 
 
-const SerialListTable = ({ setModal, currentProduct, setSelectedRowId, selectedRowId, setSelectedParentId }) => {
-    const { data: productSerial, refetch } = useProductSerialById(currentProduct?.id)
-    const { mutateAsync: deleteProductSerial } = useDeleteProductSerial()
+const SerialListTable = ({setModal, currentProduct, setSelectedRowId, selectedRowId, setSelectedParentId}) => {
+    const {data: productSerial, refetch} = useProductSerialById(currentProduct?.id)
+    const {mutateAsync: deleteProductSerial} = useDeleteProductSerial()
 
+    useEffect(() => {
+        refetch();
+    }, [currentProduct?.id, refetch]);
 
     const handleEditProductSerial = (record) => {
-        setModal({ mode: 'edit', data: record, type: 'ProductSerial' })
+        setModal({mode: 'edit', data: record, type: 'ProductSerial'})
     }
 
     const handleDeleteProductSerial = async (id) => {

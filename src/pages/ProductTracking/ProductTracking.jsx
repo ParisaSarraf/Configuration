@@ -30,6 +30,7 @@ const ProductTracking = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
                 <div className="col-span-1">
                     <SerialList
+                        key={currentProduct?.id}
                         isOpen={isOpen}
                         modalMode={modalMode}
                         modalData={modalData}
@@ -44,9 +45,11 @@ const ProductTracking = () => {
                     />
                 </div>
                 <div className="col-span-2">
-                    <ListOfProductsAttachedToSerialsTransfer selectedRowId={selectedRowId}
-                                                             currentProduct={currentProduct}
-                                                             selectedParentId={selectedParentId}/>
+                    <ListOfProductsAttachedToSerialsTransfer
+                        selectedRowId={selectedRowId}
+                        currentProduct={currentProduct}
+                        selectedParentId={selectedParentId}
+                    />
                 </div>
             </div>
         </Card>

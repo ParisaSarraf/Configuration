@@ -3,11 +3,16 @@ import RequestWareHouseCol from "@/pages/RequestOfWarehouse/components/RequestWa
 import {
     useDeleteRequestOfWarehouse, useGetUnConfirmedWareRequestById
 } from "@/QueryServises/RequestOfWarehouse/index.js";
+import {useEffect} from "react";
 
-const RequestWareHouseTable = ({currentProduct, setSelectedWareHouseId, setModal,requestWareHouseData}) => {
-    const { refetch} = useGetUnConfirmedWareRequestById(currentProduct?.id)
-
+const RequestWareHouseTable = ({currentProduct, setSelectedWareHouseId, setModal, requestWareHouseData}) => {
+    const {refetch} = useGetUnConfirmedWareRequestById(currentProduct?.id)
     const {mutateAsync: deleteRequestWareHouse} = useDeleteRequestOfWarehouse();
+
+
+    useEffect(() => {
+        refetch();
+    }, [currentProduct?.id, refetch]);
 
 
     const handleEdit = (record) => {

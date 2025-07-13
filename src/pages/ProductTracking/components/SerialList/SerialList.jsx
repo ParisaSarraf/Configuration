@@ -1,13 +1,32 @@
 import SerialListTable from './SerialListTable'
 import SerialListModal from './SerialListModal';
-import { useProductSerialById } from '../../../../QueryServises/productSerialQuery';
+import {useProductSerialById} from '../../../../QueryServises/productSerialQuery';
+import {useEffect} from "react";
 
-const SerialList = ({ isOpen, modalMode, modalData, modalType, closeModal, setModal, currentProduct, selectedRowId, setSelectedRowId, setSelectedParentId }) => {
-    const { refetch } = useProductSerialById(currentProduct?.id)
+const SerialList = ({
+                        isOpen,
+                        modalMode,
+                        modalData,
+                        modalType,
+                        closeModal,
+                        setModal,
+                        currentProduct,
+                        selectedRowId,
+                        setSelectedRowId,
+                        setSelectedParentId
+                    }) => {
+    const {refetch} = useProductSerialById(currentProduct?.id)
+
+
+    useEffect(() => {
+        setSelectedRowId(null);
+    }, [currentProduct?.id, setSelectedRowId]);
+
 
     return (
         <>
             <SerialListTable
+                key={currentProduct?.id}
                 currentProduct={currentProduct}
                 isOpen={isOpen}
                 setSelectedRowId={setSelectedRowId}

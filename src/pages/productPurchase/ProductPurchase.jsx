@@ -5,7 +5,7 @@ import PurchaseProductTable from "./components/PurchaseProductTable/PurchaseProd
 import PurchaseModal from "./components/PurchaseModal/PurchaseModal";
 import useModal from "../../hooks/useModal";
 import {PlusOutlined} from "@ant-design/icons";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {useUnConfirmProductPurchaseById} from "../../QueryServises/productPurchase";
 import ListOfRequestsMade from "./components/ListOfRequestsMade/ListOfRequestsMade";
 
@@ -14,6 +14,10 @@ const ProductPurchase = () => {
     const {refetch} = useUnConfirmProductPurchaseById(currentProduct?.id)
     const {isOpen, modalMode, modalData, modalType, setModal, closeModal} = useModal();
     const [selectedPurchaseId, setSelectedPurchaseId] = useState(null)
+
+    useEffect(() => {
+        setSelectedPurchaseId(null);
+    }, [currentProduct?.id]);
 
     const items = [
         {
@@ -24,6 +28,7 @@ const ProductPurchase = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
                         <div className="col-span-1">
                             <PurchaseProductTable
+                                key={currentProduct?.id}
                                 currentProduct={currentProduct}
                                 setSelectedPurchaseId={setSelectedPurchaseId}
                                 setModal={setModal}

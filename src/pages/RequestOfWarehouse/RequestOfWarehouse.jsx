@@ -4,10 +4,9 @@ import {PlusOutlined} from "@ant-design/icons";
 import RequestOfWarehouseModal from "@/pages/RequestOfWarehouse/components/RequestOfWarehouseModal.jsx";
 import {useProductContext} from "@/Services/Context/ProductContext.jsx";
 import {
-    useGetSupplyListForWareById,
     useGetUnConfirmedWareRequestById
 } from "@/QueryServises/RequestOfWarehouse/index.js";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 
 import RequestOfWarehousePage
     from "@/pages/RequestOfWarehouse/components/RequestOfWarehousePage/RequestOfWarehousePage.jsx";
@@ -24,6 +23,10 @@ const RequestOfWarehouse = () => {
     const {data: requestWareHouseData, refetch} = useGetUnConfirmedWareRequestById(productId)
     const [selectedWareHouseId, setSelectedWareHouseId] = useState(null)
 
+    useEffect(() => {
+        setSelectedWareHouseId(null);
+    }, [currentProduct?.id]);
+
 
     const items = [
         {
@@ -34,6 +37,7 @@ const RequestOfWarehouse = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
                         <div className="col-span-1">
                             <RequestWareHouseTable
+                                key={currentProduct?.id}
                                 currentProduct={currentProduct}
                                 setSelectedWareHouseId={setSelectedWareHouseId}
                                 setModal={setModal}
