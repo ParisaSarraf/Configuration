@@ -84,7 +84,7 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
                     {activityType === 'meeting' && (
                         <Col span={12}>
                             <Form.Item label='صورتجلسه' name='meeting_id'>
-                                <Select options={meetingData?.map((meet, index) => {
+                                <Select options={meetingData?.map((meet) => {
                                     return {
                                         value: meet.id,
                                         label: meet.title,

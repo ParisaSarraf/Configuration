@@ -1,31 +1,47 @@
-import { PlusOutlined } from '@ant-design/icons'
-import { Button, Checkbox, Col, Form, Input, message, Row, TreeSelect } from 'antd'
+import {PlusOutlined} from '@ant-design/icons'
+import {Button, Checkbox, Col, Form, Input, message, Row, TreeSelect} from 'antd'
 import Modal from '../../../../../components/Modal'
 import DatepickerCustom from '../../../../../components/DatePicker'
 import FileUploader from '../../../../../components/FileUploader/FileUploader'
-import { useEffect } from 'react'
-import { useAvailableProductEditionList, useCreateProductEditionlog, useUpdateProductEditionlog } from '../../../../../QueryServises/productDocumentEditionLogQuery'
+import {useEffect} from 'react'
+import {
+    useAvailableProductEditionList,
+    useCreateProductEditionlog,
+    useUpdateProductEditionlog
+} from '@/QueryServises/productDocumentEditionLogQuery/index.js'
+import {BASEURL} from "@/Services/axiosInstance.js";
 
-const AddProductDocumentListSerialLogModal = ({ isOpen, modalMode, modalData, closeModal, setModal, serialId, refetchSerialId }) => {
+const AddProductDocumentListSerialLogModal = (
+    {
+        isOpen,
+        modalMode,
+        modalData,
+        closeModal,
+        setModal,
+        serialId,
+        refetchSerialId
+    }) => {
     const [form] = Form.useForm()
-    const { data: documentList, isLoading } = useAvailableProductEditionList(serialId)
-    const { mutateAsync: createProductEditionlog } = useCreateProductEditionlog();
-    const { mutateAsync: updateProductEditionlog } = useUpdateProductEditionlog();
+    const {data: documentList, isLoading} = useAvailableProductEditionList(serialId)
+    const {mutateAsync: createProductEditionlog} = useCreateProductEditionlog();
+    const {mutateAsync: updateProductEditionlog} = useUpdateProductEditionlog();
+
+    console.log(modalData)
 
     useEffect(() => {
         if (serialId) {
-            form.setFieldsValue({ serialId: serialId });
+            form.setFieldsValue({serialId: serialId});
         }
         if (modalMode === 'edit' && modalData) {
             form.setFieldsValue({
-                document_edition_id: modalData.edition,
-                survey_date: modalData.survey_date,
-                file: modalData?.file
+                document_edition_id: modalData?.data?.product_document_edition?.edition,
+                survey_date: modalData?.data.survey_date,
+                file: modalData?.data.file
                     ? [
                         {
                             uid: "-4",
                             name: "file",
-                            url: BASEURL.replace("/api/v1", "") + modalData.file,
+                            url: BASEURL.replace("/api/v1", "") + modalData?.data.file,
                         },
                     ]
                     : [],
@@ -49,7 +65,7 @@ const AddProductDocumentListSerialLogModal = ({ isOpen, modalMode, modalData, cl
                 await createProductEditionlog(payload);
                 message.success("سند با موفقیت اضافه شد");
             } else {
-                await updateProductEditionlog({ EditionLogId: modalData?.key, ...payload });
+                await updateProductEditionlog({EditionLogId: modalData?.key, ...payload});
                 message.success("سند با موفقیت ویرایش شد");
             }
             await refetchSerialId();
@@ -72,8 +88,8 @@ const AddProductDocumentListSerialLogModal = ({ isOpen, modalMode, modalData, cl
         <>
             <Button
                 className="modal-button"
-                icon={<PlusOutlined />}
-                onClick={() => setModal({ mode: "add", data: null, type: 'AddLogEdition' })}
+                icon={<PlusOutlined/>}
+                onClick={() => setModal({mode: "add", data: null, type: 'AddLogEdition'})}
             >
             </Button>
             <Modal
@@ -84,13 +100,13 @@ const AddProductDocumentListSerialLogModal = ({ isOpen, modalMode, modalData, cl
                 onSubmit={() => form.submit()}
                 mode={modalMode}
             >
-                <Form form={form} layout="vertical" onFinish={onFinish} initialValues={{ serialId: serialId }}>
+                <Form form={form} layout="vertical" onFinish={onFinish} initialValues={{serialId: serialId}}>
                     <Row gutter={[16, 16]}>
                         <Col span={24}>
                             <Form.Item
                                 label="نوع سند"
                                 name="document_edition_id"
-                                rules={[{ required: true, message: "لطفاً سند قابل ادیت را انتخاب کنید" }]}
+                                rules={[{required: true, message: "لطفاً سند قابل ادیت را انتخاب کنید"}]}
                             >
                                 <TreeSelect
                                     treeData={treeData}
@@ -107,7 +123,7 @@ const AddProductDocumentListSerialLogModal = ({ isOpen, modalMode, modalData, cl
                                 label="سریال محصول"
                                 name="serialId"
                             >
-                                <Input disabled value={serialId} />
+                                <Input disabled value={serialId}/>
                             </Form.Item>
                         </Col>
 
@@ -116,7 +132,7 @@ const AddProductDocumentListSerialLogModal = ({ isOpen, modalMode, modalData, cl
                                 label="تاریخ تهیه"
                                 name="survey_date"
                             >
-                                <DatepickerCustom format="YYYY-MM-DD" />
+                                <DatepickerCustom/>
                             </Form.Item>
                         </Col>
                         <Col span={24}>
@@ -124,7 +140,7 @@ const AddProductDocumentListSerialLogModal = ({ isOpen, modalMode, modalData, cl
                                 label="بارگذاری فایل"
                                 name="file"
                             >
-                                <FileUploader maxCount={1} />
+                                <FileUploader maxCount={1}/>
                             </Form.Item>
                         </Col>
                         <Col span={8}>
@@ -133,7 +149,7 @@ const AddProductDocumentListSerialLogModal = ({ isOpen, modalMode, modalData, cl
                                 name="is_reportable"
                                 valuePropName="checked"
                             >
-                                <Checkbox />
+                                <Checkbox/>
                             </Form.Item>
                         </Col>
                         <Col span={8}>
@@ -142,7 +158,7 @@ const AddProductDocumentListSerialLogModal = ({ isOpen, modalMode, modalData, cl
                                 name="needs_review"
                                 valuePropName="checked"
                             >
-                                <Checkbox />
+                                <Checkbox/>
                             </Form.Item>
                         </Col>
                         <Col span={8}>
@@ -151,7 +167,7 @@ const AddProductDocumentListSerialLogModal = ({ isOpen, modalMode, modalData, cl
                                 name="needs_approval"
                                 valuePropName="checked"
                             >
-                                <Checkbox />
+                                <Checkbox/>
                             </Form.Item>
                         </Col>
                     </Row>

@@ -36,14 +36,13 @@ const ProductDocumentEditionModal = ({isOpen, modalMode, modalData, closeModal, 
         return null;
     };
 
-
     useEffect(() => {
         if (modalMode === "edition") {
             form.resetFields();
         } else {
             form.setFieldsValue({
                 edition: modalData?.edition,
-                survey_date: modalData?.survey_date ? moment(modalData.survey_date) : null,
+                survey_date: modalData?.survey_date,
                 file_1: modalData?.file_1 ? [{
                     uid: "-1",
                     name: "file_1",
@@ -72,9 +71,7 @@ const ProductDocumentEditionModal = ({isOpen, modalMode, modalData, closeModal, 
         const payload = {
             product_document_id: modalData?.product_document_id?.id,
             edition: values.edition,
-            survey_date: values.survey_date?.format
-                ? values.survey_date.format("YYYY-MM-DD")
-                : null,
+            survey_date: values.survey_date,
             state: 10,
             file_1: values.file_1?.[0]?.originFileObj,
             file_2: values.file_2?.[0]?.originFileObj,

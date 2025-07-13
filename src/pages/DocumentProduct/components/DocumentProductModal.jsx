@@ -14,7 +14,6 @@ const DocumentProductModal = ({isOpen, modalMode, modalData, closeModal, setModa
     const {isPending: isUpdating, mutateAsync: updateProductDocument} = useUpdateProductDocument();
     const {data: documentList} = useDocumentList();
 
-    const selectedProductId = currentProduct?.productData?.id
 
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
@@ -22,7 +21,7 @@ const DocumentProductModal = ({isOpen, modalMode, modalData, closeModal, setModa
                 is_reportable: modalData.is_reportable,
                 title: modalData.title,
                 document_id: modalData.document?.id,
-                survey_date: modalData.survey_date ? moment(modalData.survey_date) : null,
+                survey_date: modalData.survey_date,
             });
 
         } else if (modalMode === "add") {
@@ -40,9 +39,7 @@ const DocumentProductModal = ({isOpen, modalMode, modalData, closeModal, setModa
             document_id: values.document_id,
             title: values.title,
             is_reportable: values.is_reportable || false,
-            survey_date: values.survey_date?.format
-                ? values.survey_date.format("YYYY-MM-DD")
-                : null,
+            survey_date: values.survey_date
         };
         try {
             if (modalMode === "add") {
@@ -81,7 +78,7 @@ const DocumentProductModal = ({isOpen, modalMode, modalData, closeModal, setModa
                 title: title,
                 value: item.id,
                 children: item.children ? getTreeSelectOptions(item.children, modalMode, modalData) : [],
-                disabled: modalMode === "edit" && item.id === modalData?.document?.id // اصلاح این خط
+                disabled: modalMode === "edit" && item.id === modalData?.document?.id
             };
         });
     };
