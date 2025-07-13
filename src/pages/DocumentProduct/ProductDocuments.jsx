@@ -7,7 +7,7 @@ import ProductDocumentEditionModal from "./components/ProductDocumentEdition/Pro
 import ProductDocumentListSerial from "./components/ProductDocumentListSerial/ProductDocumentListSerial";
 import AddProductDocumentListSerialLogModal
     from "./components/ProductDocumentListSerial/components/AddProductDocumentListSerialLogModal";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {
     useProductDocumentEditionLogsBySerialById,
     useProductDocumentTreeById
@@ -20,6 +20,9 @@ const ProductDocuments = () => {
     const [serialId, setSerialId] = useState(null)
     const {refetch: refetchSerialId} = useProductDocumentEditionLogsBySerialById(serialId)
 
+    useEffect(() => {
+        setSerialId(null);
+    }, [currentProduct?.id]);
 
     return (
         <>

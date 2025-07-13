@@ -6,6 +6,7 @@ import {
     useDeleteProductDocumentEdition,
     useProductDocumentTreeById
 } from "../../../QueryServises/productDocumentQuery";
+import {useEffect} from "react";
 
 const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
     const selectedProductId = currentProduct?.productData?.id;
@@ -18,6 +19,11 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
     const {mutate: deleteProductDocument} = useDeleteProductDocument();
     const {mutate: deleteProductDocumentEdition} = useDeleteProductDocumentEdition();
 
+    useEffect(() => {
+        if (selectedProductId) {
+            refetch();
+        }
+    }, [selectedProductId, refetch]);
 
     const handleDeleteEdition = (editionId) => {
         Modal.confirm({
@@ -137,14 +143,6 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
 
     const rightClickMenu = [
         {
-            key: 'edit',
-            label: (
-                <div className="w-full flex flex-row items-center gap-2">
-                    <EditOutlined/>
-                    <span>ویرایش شاخه</span>
-                </div>
-            )
-        }, {
             key: "edition",
             label: (
                 <div className="w-full flex flex-row items-center gap-2">
