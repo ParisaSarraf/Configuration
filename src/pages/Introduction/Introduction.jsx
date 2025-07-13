@@ -77,13 +77,13 @@ const Introduction = () => {
                     <Col xs={24} md={18}>
                         <Space direction="vertical" size="small" style={{width: '100%'}}>
                             <Title level={4}>{product.persian_title} ({product.code})</Title>
-                            <Text style={{whiteSpace: 'pre-line'}}>توضیحات:{(product.description)}</Text>
-                            <Space size="middle">
-                                <Tag color={product.personality_type === 'standard' ? 'blue' : 'orange'}>
-                                    {product.personality_type}
-                                </Tag>
+                            <Space size="small" style={{width: '100%'}}>
                                 {renderStatusTag(product.status)}
-                            </Space>
+                                <Tag color={product.personality_type === 'standard' ? 'blue' : 'orange'}>
+                                    نوع هویت : {product.personality_type}
+                                </Tag>
+                            </Space> <Text style={{whiteSpace: 'pre-line'}}>توضیحات:{(product.description)}</Text>
+
                         </Space>
                     </Col>
                 </Row>
