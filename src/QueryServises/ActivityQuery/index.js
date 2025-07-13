@@ -16,6 +16,26 @@ export const useGetProductActivities = (productId, queryOptions) => {
     });
 };
 
+export const useProductActivitiesTypeKey = (productId, filters) => ["product", "activities", productId, filters];
+export const useGetProductActivitiesType = (productId, filters = {}, queryOptions) => {
+    const {myAxios} = useMyAxios();
+    return useQuery({
+        queryKey: useProductActivitiesTypeKey(productId, filters),
+        queryFn: () =>
+            myAxios.get(`/product/get-product-meetings-by-id/${productId}`, {
+                params: {
+                    internal: filters.internal || undefined,
+                    external: filters.external || undefined
+                }
+            })
+                .then((response) => {
+                    queryOptions?.onSuccess?.(response?.data);
+                    return response?.data;
+                }),
+        ...queryOptions,
+    });
+};
+
 export const useCreateActivity = () => {
     const {myAxios} = useMyAxios();
     return useMutation({
