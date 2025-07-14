@@ -8,6 +8,7 @@ import {TreeSelect} from "antd";
 import PersonalityModels from "../../../components/PesonalityModels";
 import FileUploader from "@/components/FileUploader/FileUploader.jsx";
 import {BASEURL} from "@/Services/axiosInstance.js";
+import {usePersonalityProductList} from "@/QueryServises/personalityQuery/index.js";
 
 const ProductModal = ({
                           isOpen,
@@ -25,6 +26,8 @@ const ProductModal = ({
     const [selectedParentCodeId, setSelectedParentCodeId] = useState(null);
     const [productCoding, setProductCoding] = useState(null);
     const {data: parentCodeData} = useFinalCodeProductById(selectedParentCodeId);
+    const {data: personalityData, isLoading} = usePersonalityProductList();
+
     const parentCodeId = parentCodeData?.code || "";
 
     useEffect(() => {
@@ -311,11 +314,23 @@ const ProductModal = ({
                             <Input addonBefore="کد استاندارد"/>
                         </Form.Item>
                     </Col>
+                    {/*<Col span={24}>*/}
+                    {/*    <Form.Item>*/}
+                    {/*        <PersonalityModels*/}
+                    {/*            showAlongside={true}*/}
+                    {/*            value={modalData}*/}
+                    {/*        />*/}
+                    {/*    </Form.Item>*/}
+                    {/*</Col>*/}
                     <Col span={24}>
-                        <Form.Item>
-                            <PersonalityModels
-                                showAlongside={true}
-                                value={modalData}
+                        <Form.Item name="alternative_genus_id">
+                            <TreeSelect
+                                treeData={getTreeSelectOptions(personalityData || [])}
+                                placeholder="هویت"
+                                allowClear
+                                treeIcon={true}
+                                treeLine={true}
+                                showSearch
                             />
                         </Form.Item>
                     </Col>

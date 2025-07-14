@@ -1,6 +1,6 @@
 import React from 'react';
 import {useProductContext} from '../../Services/Context/ProductContext';
-import {Card, Descriptions, Tag, Typography, List, Row, Col, Divider, Space, Image, Skeleton} from 'antd';
+import {Card, Descriptions, Tag, Typography, List, Row, Col, Divider, Space, Image, Skeleton, Table} from 'antd';
 import {CheckCircleOutlined, CloseCircleOutlined} from '@ant-design/icons';
 import {BASEURL} from "@/Services/axiosInstance.js";
 
@@ -88,122 +88,31 @@ const Introduction = () => {
                     </Col>
                 </Row>
             </Card>
-
-            <Card
-                title="اطلاعات پایه"
-                className="mb-6"
-                headStyle={{borderBottom: '1px solid #f0f0f0'}}
-            >
-                <Descriptions bordered column={5}>
-                    <Descriptions.Item label="کد انبار">{renderValue(product.store_code)}</Descriptions.Item>
-                    <Descriptions.Item label="کد نهایی">{renderValue(product.final_code)}</Descriptions.Item>
-                    <Descriptions.Item label="کد کارفرما">{renderValue(product.employer_code)}</Descriptions.Item>
-                    <Descriptions.Item label="کد استاندارد">{renderValue(product.standard_code)}</Descriptions.Item>
-                </Descriptions>
-            </Card>
-
-            <Card
-                title="مشخصات فیزیکی"
-                className="mb-6"
-                headStyle={{borderBottom: '1px solid #f0f0f0'}}
-            >
-                <Row gutter={16}>
-                    <Col xs={24} md={12}>
-                        <Descriptions bordered column={1}>
-                            <Descriptions.Item label="وزن (گرم)">{renderValue(product.weight)}</Descriptions.Item>
-                            <Descriptions.Item label="طول (سانتی‌متر)">{renderValue(product.length)}</Descriptions.Item>
-                            <Descriptions.Item label="عرض (سانتی‌متر)">{renderValue(product.width)}</Descriptions.Item>
-                        </Descriptions>
-                    </Col>
-                    <Col xs={24} md={12}>
-                        <Descriptions bordered column={1}>
-                            <Descriptions.Item
-                                label="ارتفاع (سانتی‌متر)">{renderValue(product.height)}</Descriptions.Item>
-                            <Descriptions.Item
-                                label="قطر خارجی">{renderValue(product.external_diagonal)}</Descriptions.Item>
-                            <Descriptions.Item
-                                label="قطر داخلی">{renderValue(product.internal_diagonal)}</Descriptions.Item>
-                        </Descriptions>
-                    </Col>
-                </Row>
-            </Card>
-
-            <Card
-                title="اطلاعات مالی"
-                className="mb-6"
-                headStyle={{borderBottom: '1px solid #f0f0f0'}}
-            >
-                <Descriptions bordered column={{xs: 1, sm: 2}}>
-                    <Descriptions.Item label="قیمت">{formatPrice(product.price)}</Descriptions.Item>
-                    <Descriptions.Item label="تعداد">{renderValue(product.quantity)} عدد</Descriptions.Item>
-                </Descriptions>
-            </Card>
-
-            <Card
-                title="اطلاعات برند"
-                className="mb-6"
-                headStyle={{borderBottom: '1px solid #f0f0f0'}}
-            >
-                <Descriptions bordered column={{xs: 1, sm: 2}}>
-                    <Descriptions.Item label="برند 1" span={2}>
-                        <div>
-                            <Text strong>{renderValue(product.brand1)}</Text>
-                            <Divider type="vertical"/>
-                            <Text type="secondary">{renderValue(product.brand1_desc)}</Text>
-                        </div>
-                    </Descriptions.Item>
-                    <Descriptions.Item label="برند 2" span={2}>
-                        <div>
-                            <Text strong>{renderValue(product.brand2)}</Text>
-                            <Divider type="vertical"/>
-                            <Text type="secondary">{renderValue(product.brand2_desc)}</Text>
-                        </div>
-                    </Descriptions.Item>
-                </Descriptions>
-            </Card>
-
-            <Card
-                title="اطلاعات فنی"
-                className="mb-6"
-                headStyle={{borderBottom: '1px solid #f0f0f0'}}
-            >
-                <Descriptions bordered column={{xs: 1, sm: 2}}>
-                    <Descriptions.Item label="جنس اصلی">
-                        {product.genus ? product.genus.name : '-'}
-                    </Descriptions.Item>
-                    <Descriptions.Item label="جنس جایگزین">
-                        {product.alternative_genus ? product.alternative_genus.name : '-'}
-                    </Descriptions.Item>
-                    <Descriptions.Item label="پوشش">
-                        {product.casing ? product.casing.name : '-'}
-                    </Descriptions.Item>
-
-                </Descriptions>
-            </Card>
-
-            {/* Related Products */}
             {product.children && product.children.length > 0 && (
                 <Card
                     title="محصولات زیرمجموعه"
                     headStyle={{borderBottom: '1px solid #f0f0f0'}}
                 >
-                    <List
-                        dataSource={product.children}
-                        renderItem={(child) => (
-                            <List.Item className="mb-4">
-                                <Card size="small" style={{width: '100%'}}>
-                                    <Descriptions column={4}>
-                                        <Descriptions.Item label="عنوان">{child.persian_title}</Descriptions.Item>
-                                        <Descriptions.Item label="کد محصول">{child.code}</Descriptions.Item>
-                                        <Descriptions.Item label="برند">{renderValue(child.brand1)}</Descriptions.Item>
-                                        <Descriptions.Item label="وضعیت">
-                                            {renderStatusTag(child.status)}
-                                        </Descriptions.Item>
-                                    </Descriptions>
-                                </Card>
-                            </List.Item>
-                        )}
+                    <Table dataSource={product.children}
+                        // columns={}
                     />
+                    {/*<List*/}
+                    {/*    dataSource={product.children}*/}
+                    {/*    renderItem={(child) => (*/}
+                    {/*        <List.Item className="mb-4">*/}
+                    {/*            <Card size="small" style={{width: '100%'}}>*/}
+                    {/*                <Descriptions column={4}>*/}
+                    {/*                    <Descriptions.Item label="عنوان">{child.persian_title}</Descriptions.Item>*/}
+                    {/*                    <Descriptions.Item label="کد محصول">{child.code}</Descriptions.Item>*/}
+                    {/*                    <Descriptions.Item label="برند">{renderValue(child.brand1)}</Descriptions.Item>*/}
+                    {/*                    <Descriptions.Item label="وضعیت">*/}
+                    {/*                        {renderStatusTag(child.status)}*/}
+                    {/*                    </Descriptions.Item>*/}
+                    {/*                </Descriptions>*/}
+                    {/*            </Card>*/}
+                    {/*        </List.Item>*/}
+                    {/*    )}*/}
+                    {/*/>*/}
                 </Card>
             )}
         </div>

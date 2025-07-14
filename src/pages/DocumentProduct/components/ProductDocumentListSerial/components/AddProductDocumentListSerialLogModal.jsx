@@ -35,8 +35,8 @@ const AddProductDocumentListSerialLogModal = (
         if (modalMode === 'edit' && modalData) {
             form.setFieldsValue({
                 document_edition_id: modalData?.data?.product_document_edition?.edition,
-                survey_date: modalData?.data.survey_date,
-                file: modalData?.data.file
+                survey_date: modalData?.data?.survey_date,
+                file: modalData?.data?.file
                     ? [
                         {
                             uid: "-4",
