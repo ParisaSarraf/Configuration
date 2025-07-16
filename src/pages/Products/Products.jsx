@@ -16,8 +16,6 @@ const Products = () => {
     const handleTreeChange = (newCheckedKeys) => {
         setCheckedKeys(newCheckedKeys);
     };
-
-
     return (
         <div
             className='rounded-xl mr-2 bg-white mb-2 shadow-lg shadow-purple-6 '

@@ -67,7 +67,7 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
         if (item.children && item.children.length > 0) {
             return (
                 <span className="flex items-center gap-1 mr-1">
-                    <CircleIcon fontSize="s" className="text-red-600"/>
+                    <CircleIcon fontSize="s" className="text-red-600" />
                     <SquareIcon fontSize="s" />
                 </span>
             );
@@ -82,10 +82,10 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
         return productData.map(item => ({
             title: (
                 // <div style={{ display: 'flex', alignItems: 'center'}}>
-                    // {/* {getIconByItem(item)} */}
-                    // <span>
-                        `${item.persian_title} (${item.code})`
-                    // </span>
+                // {/* {getIconByItem(item)} */}
+                // <span>
+                `${item.persian_title} (${item.code})`
+                // </span>
                 // </div>
             ),
             key: `product-${item.id}`,
@@ -152,8 +152,6 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
             }
         }
     }
-
-
     return (
         <div className="p-2">
             <Tree
