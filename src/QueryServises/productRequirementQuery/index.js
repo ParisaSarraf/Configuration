@@ -19,6 +19,24 @@ export const useProductRequirementList = (id, queryOptions) => {
 	});
 };
 
+export const useProductRequirementAcceptorKey = (id) => [
+	"product-requirement-acceptor",
+	id,
+];
+export const useProductRequirementAcceptor = (id, queryOptions) => {
+	const { myAxios } = useMyAxios();
+	return useQuery({
+		queryKey: useProductRequirementAcceptorKey(id),
+		queryFn: () =>
+			id
+				? myAxios
+						.get(`/product/get-product-requirement-acceptor/${id}`)
+						.then((response) => response?.data)
+				: Promise.resolve(null),
+		...queryOptions,
+	});
+};
+
 export const useCreatepRroductRequirement = () => {
 	const { myAxios } = useMyAxios();
 	return useMutation({

@@ -1,9 +1,9 @@
-import {MeetingRelatedToActivities, MeetingsCol} from "@/pages/Meetings/components/MeetingsCol.jsx";
-import {message, Modal, Table, Tag} from "antd";
+import { MeetingRelatedToActivities, MeetingsCol } from "@/pages/Meetings/components/MeetingsCol.jsx";
+import { message, Modal, Table, Tag } from "antd";
 
-const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refetch}) => {
+const MinutesRelatedToActivities = ({ setModal, meetingData, deleteMeeting, refetch }) => {
     const handleEdit = (record) => {
-        setModal({mode: 'edit', data: record});
+        setModal({ mode: 'edit', data: record });
     };
 
     const handleDelete = (id) => {
@@ -37,7 +37,8 @@ const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refet
     const expandedRowRender = (record) => {
         return (
             <Table
-                columns={MeetingRelatedToActivities({handleEdit, handleDelete})}
+                size="small"
+                columns={MeetingRelatedToActivities({ handleEdit, handleDelete })}
                 dataSource={record.meeting_activities || []}
                 rowKey="id"
                 pagination={false}
@@ -47,7 +48,8 @@ const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refet
 
     return (
         <Table
-            columns={MeetingsCol({handleEdit, handleDelete})}
+            size="small"
+            columns={MeetingsCol({ handleEdit, handleDelete })}
             dataSource={meetingData}
             rowKey="id"
             expandable={{

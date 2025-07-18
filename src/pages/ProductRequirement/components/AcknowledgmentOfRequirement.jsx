@@ -1,22 +1,25 @@
-import { Col, Form, Input, message, Row } from 'antd';
+import { Col, Form, Input, message, Row, Select } from 'antd';
 import Modal from '../../../components/Modal'
 import FileUploader from '../../../components/FileUploader/FileUploader';
 import { useCreatepProductRequirementExported, useUpdateProductRequirementExported } from '../../../QueryServises/productRequirementQuery';
+import { useProductList } from '../../../QueryServises/productQuery';
+import { SearchOutlined } from '@ant-design/icons';
 
 const AcknowledgmentOfRequirement = ({ isOpen, modalMode, modalData, closeModal, selectProduct, refetch }) => {
     const [form] = Form.useForm();
 
     const { mutateAsync: createProductRequirementExported } = useCreatepProductRequirementExported();
     const { mutateAsync: updateProductRequirementExported } = useUpdateProductRequirementExported();
+    const { data: productList } = useProductList()
 
     const onFinish = async (values) => {
         const productRequirementId = modalData?.product_requirements[0]?.id
 
         const payload = {
             product_requirement_id: productRequirementId,
-            to_product_id: selectProduct,
+            to_product_id: values.to_product_id,
             pass_comment: values.pass_comment,
-            state: 10,
+            // state: null,
             file_1: values.file_1?.[0]?.originFileObj,
         }
         try {
@@ -57,6 +60,24 @@ const AcknowledgmentOfRequirement = ({ isOpen, modalMode, modalData, closeModal,
         >
             <Form layout='vertical' onFinish={onFinish} form={form}>
                 <Row gutter={[16, 16]}>
+                    <Col span={24}>
+                        <Form.Item label="محصولات" name="to_product_id">
+                            <Select options={productList?.map((item) => {
+                                return (
+                                    {
+                                        value: item.id,
+                                        label: item.persian_title
+                                    }
+                                )
+                            })}
+                                suffixIcon={<SearchOutlined />}
+                                showSearch
+                                filterOption={(input, option) =>
+                                    option.label.toLowerCase().includes(input.toLowerCase())
+                                }
+                            />
+                        </Form.Item>
+                    </Col>
                     <Col span={24}>
                         <Form.Item label="توضیحات" name="pass_comment">
                             <Input.TextArea />

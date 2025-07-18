@@ -1,19 +1,19 @@
-import {Button, Card, Tabs} from "antd";
+import { Button, Card, Tabs } from "antd";
 import useModal from "@/hooks/useModal.js";
 import MeetingsModal from "@/pages/Meetings/components/MeetingsModal.jsx";
-import {useDeleteMeeting, useGetProductMeetings} from "@/QueryServises/MeetingQuery/index.js";
-import {useProductContext} from "@/Services/Context/ProductContext.jsx";
+import { useDeleteMeeting, useGetProductMeetings } from "@/QueryServises/MeetingQuery/index.js";
+import { useProductContext } from "@/Services/Context/ProductContext.jsx";
 import IndependentMinutes from "@/pages/Meetings/components/IndependentMinutes/IndependentMinutes.jsx";
 import MinutesRelatedToActivities
     from "@/pages/Meetings/components/MinutesRelatedToActivities/MinutesRelatedToActivities.jsx";
-import {PlusOutlined} from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 
 const Meetings = () => {
-    const {currentProduct} = useProductContext();
-    const {data: meetingData, refetch} = useGetProductMeetings(currentProduct?.id);
-    const {mutateAsync: deleteMeeting} = useDeleteMeeting()
+    const { currentProduct } = useProductContext();
+    const { data: meetingData, refetch } = useGetProductMeetings(currentProduct?.id);
+    const { mutateAsync: deleteMeeting } = useDeleteMeeting()
 
-    const {setModal, closeModal, isOpen, modalData, modalMode, modalType} = useModal();
+    const { setModal, closeModal, isOpen, modalData, modalMode, modalType } = useModal();
 
     const safeMeetingData = meetingData || [];
 
@@ -22,41 +22,43 @@ const Meetings = () => {
 
     const items = [
         {
-            label: "صورتجلسات مرتبط با فعالیت ها",
+            label: "مصوبات",
             key: '1',
-            children: <MinutesRelatedToActivities
-                currentProduct={currentProduct}
-                setModal={setModal}
-                meetingData={meetingsWithActivities}
-                deleteMeeting={deleteMeeting}
-                refetch={refetch}
-            />
+            children:
+                <MinutesRelatedToActivities
+                    currentProduct={currentProduct}
+                    setModal={setModal}
+                    meetingData={meetingsWithActivities}
+                    deleteMeeting={deleteMeeting}
+                    refetch={refetch}
+                />
         },
         {
-            label: `صورتجلسات مستقل`,
+            label: `صورتجلسات`,
             key: '2',
-            children: <IndependentMinutes
-                currentProduct={currentProduct}
-                setModal={setModal}
-                meetingData={independentMeetings}
-                deleteMeeting={deleteMeeting}
-                refetch={refetch}
-            />,
+            children:
+                <IndependentMinutes
+                    currentProduct={currentProduct}
+                    setModal={setModal}
+                    meetingData={independentMeetings}
+                    deleteMeeting={deleteMeeting}
+                    refetch={refetch}
+                />,
         }
     ];
 
     return (
         <Card title='صورت جلسات'
-              extra={
-                  <Button
-                      className={'modal-button'}
-                      onClick={() => setModal({mode: 'add', data: null})}
-                      icon={<PlusOutlined/>}
-                      title='صورت جلسات'
-                  />
+            extra={
+                <Button
+                    className={'modal-button'}
+                    onClick={() => setModal({ mode: 'add', data: null })}
+                    icon={<PlusOutlined />}
+                    title='صورت جلسات'
+                />
 
-              }>
-            <Tabs items={items} type="card"/>
+            }>
+            <Tabs items={items} type="card" />
 
             <MeetingsModal
                 isOpen={isOpen}

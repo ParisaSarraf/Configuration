@@ -1,9 +1,9 @@
 import { Card } from "antd";
-import { useProductChildren } from "../../../QueryServises/productQuery";
 import Tree from "../../../components/Tree";
+import { useProductRequirementAcceptor } from "../../../QueryServises/productRequirementQuery";
 
-const ListOfProductsAcceptingTheRequirement = ({ currentProduct, setSelectProduct }) => {
-    const { data: productList = [], isLoading } = useProductChildren(currentProduct?.id);
+const ListOfProductsAcceptingTheRequirement = ({ setSelectProduct, selectedProductRequirement }) => {
+    const { data: productList = [], isLoading } = useProductRequirementAcceptor(selectedProductRequirement);
 
     const transformDataToTreeView = (productList) => {
         if (!productList) return [];

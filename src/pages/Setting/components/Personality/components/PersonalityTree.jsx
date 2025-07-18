@@ -1,8 +1,8 @@
 import { message, Modal } from "antd";
-import Tree from "../../../../../components/Tree";
 import { useDeletePersonalityProduct, usePersonalityProductList } from "../../../../../QueryServises/personalityQuery";
+import Tree from '../../../../../components/Tree/index'
 
-const PersonalityTree = ({ setModal }) => {
+const PersonalityTree = ({ setModal, setPersonalityId }) => {
     const {
         data,
         isFetching,
@@ -10,7 +10,6 @@ const PersonalityTree = ({ setModal }) => {
         refetch
     } = usePersonalityProductList();
     const { mutate: deletePersonality, isPending: isDeleting } = useDeletePersonalityProduct();
-
 
 
     const transformDataToTreeFormat = (PersonalityData) => {
@@ -64,7 +63,8 @@ const PersonalityTree = ({ setModal }) => {
                     id: node.id,
                     name: node.name,
                     parentId: node.parentId
-                }
+                },
+                type: 'addPersonality'
             });
         }
     };
@@ -86,6 +86,13 @@ const PersonalityTree = ({ setModal }) => {
             onRightClickAction={handleRightClickAction}
             locale={{
                 emptyText: 'هیچ چرخه عمر محصولی یافت نشد'
+            }}
+            onSelect={(selectedKeys, info) => {
+                if (info.node && info.node.id) {
+                    setPersonalityId(info.node.id);
+                } else {
+                    setPersonalityId(null);
+                }
             }}
         />
     );

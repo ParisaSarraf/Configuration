@@ -1,7 +1,8 @@
-import {Button, Flex, Tooltip, Tag} from "antd";
-import {DeleteOutlined, EditOutlined} from "@ant-design/icons";
+import { Button, Flex, Tooltip, Tag } from "antd";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { BASEURL } from "../../../Services/axiosInstance";
 
-export const MeetingsCol = ({handleEdit, handleDelete}) => {
+export const MeetingsCol = ({ handleEdit, handleDelete }) => {
     return [
         {
             title: 'ردیف',
@@ -23,7 +24,7 @@ export const MeetingsCol = ({handleEdit, handleDelete}) => {
             }
         },
         {
-            title: 'نوع صورتجلسه',
+            title: 'طرف صورتجلسه	',
             dataIndex: 'type',
             key: 'type',
             render: (record) => record.type === 'internal' ? 'داخلی' : 'خارجی',
@@ -51,16 +52,18 @@ export const MeetingsCol = ({handleEdit, handleDelete}) => {
                         <Button
                             onClick={() => handleDelete(record.id)}
                             title="حذف"
-                            icon={<DeleteOutlined/>}
+                            icon={<DeleteOutlined />}
                             danger
+                            size="small"
                         />
                     </Tooltip>
                     <Tooltip title="ویرایش">
                         <Button
-                            icon={<EditOutlined/>}
+                            icon={<EditOutlined />}
                             className="text-green-500 border-green-500"
                             onClick={() => handleEdit(record)}
                             title='ویرایش'
+                            size="small"
                         />
                     </Tooltip>
                 </Flex>
@@ -92,7 +95,7 @@ export const MeetingRelatedToActivities = () => {
             render: (record) => (
                 <div>
                     {record.trustee?.name} {record.trustee?.last_name}
-                    <br/>
+                    <br />
                     {record.trustee_description && `(${record.trustee_description})`}
                 </div>
             ),
@@ -103,7 +106,7 @@ export const MeetingRelatedToActivities = () => {
             render: (record) => (
                 <div>
                     از: {record.from_date}
-                    <br/>
+                    <br />
                     تا: {record.to_date}
                 </div>
             ),
@@ -130,20 +133,51 @@ export const MeetingRelatedToActivities = () => {
         {
             title: 'فایل‌ها',
             key: 'files',
-            render: (record) => (
-                <Flex vertical gap={4}>
-                    {record.trustee_file && (
-                        <a href={record.trustee_file} target="_blank" rel="noopener noreferrer">
-                            دانلود فایل متولی
-                        </a>
-                    )}
-                    {record.plan_file && (
-                        <a href={record.plan_file} target="_blank" rel="noopener noreferrer">
-                            دانلود فایل طرح
-                        </a>
-                    )}
-                </Flex>
-            ),
+            render: (record) => {
+                const base = BASEURL.replace("/api/v1", "");
+                return (
+                    <Flex vertical gap={4}>
+                        {record.trustee_file && (
+                            <Space>
+                                <a
+                                    href={`${base}${record.trustee_file}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{ color: "#1890ff" }}
+                                >
+                                    مشاهده فایل متولی
+                                </a>
+                                <a
+                                    href={`${base}${record.trustee_file}`}
+                                    download
+                                    style={{ color: "#52c41a" }}
+                                >
+                                    دانلود
+                                </a>
+                            </Space>
+                        )}
+                        {record.plan_file && (
+                            <Space>
+                                <a
+                                    href={`${base}${record.plan_file}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{ color: "#1890ff" }}
+                                >
+                                    مشاهده فایل طرح
+                                </a>
+                                <a
+                                    href={`${base}${record.plan_file}`}
+                                    download
+                                    style={{ color: "#52c41a" }}
+                                >
+                                    دانلود
+                                </a>
+                            </Space>
+                        )}
+                    </Flex>
+                );
+            }
         },
 
     ];

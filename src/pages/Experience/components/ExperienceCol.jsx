@@ -1,8 +1,9 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons"
 import { Button, Image, Space, Tooltip } from "antd"
-import { BASEURL } from "../../../Services/axiosInstance"
+import { BASEURL } from "../../../Services/axiosInstance";
 
 const ExperienceCol = ({ handleDelete, handleEdit }) => {
+    console.log(BASEURL);
     return [
         {
             title: 'حوزه',
@@ -29,7 +30,7 @@ const ExperienceCol = ({ handleDelete, handleEdit }) => {
             render: (text) => text || 'ندارد'
         },
         {
-            title: 'کد پروژه',
+            title: 'کد محصول',
             dataIndex: 'code',
             key: 'code',
             render: (text) => text || 'ندارد'
@@ -38,18 +39,46 @@ const ExperienceCol = ({ handleDelete, handleEdit }) => {
             title: 'فایل پیوست',
             dataIndex: 'file',
             key: 'file',
-            render: (file) =>
-                file ? (
-                    <Image
-                        width={70}
-                        height={50}
-                        src={`${BASEURL.replace("/api/v1", "")}${file}`}
-                        alt="فایل پیوست"
-                    />
-                ) : (
-                    "فایلی وجود ندارد"
-                ),
-        },
+            render: (file) => {
+                if (!file) return "فایلی وجود ندارد";
+
+                const url = `${BASEURL.replace("/api/v1", "")}${file}`;
+                const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(file);
+
+                return (
+                    <Space>
+                        {/* نمایش لینک باز کردن */}
+                        <a
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ color: "#1890ff" }}
+                        >
+                            {isImage ? (
+                                <Image
+                                    width={70}
+                                    height={50}
+                                    src={url}
+                                    alt="فایل پیوست"
+                                    preview={false}
+                                />
+                            ) : (
+                                "مشاهده فایل"
+                            )}
+                        </a>
+
+                        <a
+                            href={url}
+                            download
+                            style={{ color: "#52c41a" }}
+                        >
+                            دانلود
+                        </a>
+                    </Space>
+                );
+            }
+        }
+        ,
         {
             title: 'عملیات',
             key: 'actions',

@@ -19,11 +19,13 @@ export const SerialListCol = (handleEditProductSerial, handleDeleteProductSerial
                     icon={<EditOutlined />}
                     className="border border-green-600 text-green-600"
                     onClick={() => handleEditProductSerial(record)}
+                    size="small"
                 />
                 <Button
                     icon={<DeleteOutlined />}
                     danger
                     onClick={() => handleDeleteProductSerial(record.id)}
+                    size="small"
                 />
             </div>
         ),

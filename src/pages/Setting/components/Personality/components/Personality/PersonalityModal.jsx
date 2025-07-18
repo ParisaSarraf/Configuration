@@ -1,8 +1,7 @@
-import React, { useEffect } from "react";
-import { Button, Col, Form, Input, message, Row, Select } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
-import Modal from "../../../../../components/Modal";
-import { useCreatePersonalityProduct, usePersonalityProductList, useUpdatePesonalityProduct } from "../../../../../QueryServises/personalityQuery";
+import { useEffect } from "react";
+import { Col, Form, Input, message, Row, Select, TreeSelect } from "antd";
+import Modal from "../../../../../../components/Modal";
+import { useCreatePersonalityProduct, usePersonalityProductList, useUpdatePesonalityProduct } from "../../../../../../QueryServises/personalityQuery";
 
 const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch }) => {
     const { data: personalityList, isFetching: isFetchingPersonality } = usePersonalityProductList();
@@ -64,60 +63,42 @@ const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
         }
     };
 
-    const getParentOptions = () => {
-        if (!personalityList) return [];
-
-        const flattenPersonalityList = (items) => {
-            let result = [];
-            items.forEach(item => {
-                result.push({
-                    id: item.id,
-                    name: item.name,
-                    parent: item.parent
-                });
-                if (item.children && item.children.length > 0) {
-                    result = result.concat(flattenPersonalityList(item.children));
+    const getTreeSelectOptions = (data, modalMode = null, modalData = null) => {
+        return data.map(item => {
+            const titleFields = [
+                'persian_title',
+                'title',
+                'name',
+                'label',
+                'display_name',
+                'code'
+            ];
+            let title = 'بدون عنوان';
+            for (const field of titleFields) {
+                if (item[field]) {
+                    title = item[field];
+                    if (field !== 'code' && item.code) {
+                        title = `${item.code} - ${title}`;
+                    }
+                    break;
                 }
-            });
-            return result;
-        };
-
-        const allPersonality = flattenPersonalityList(personalityList);
-        return allPersonality
-            .filter(personality => {
-                if (modalMode !== "edit") return true;
-
-                if (personality.id === modalData?.id) return false;
-
-                const isChildOfCurrent = (items, parentId) => {
-                    return items.some(item => {
-                        if (item.id === parentId) return true;
-                        if (item.children && item.children.length > 0) {
-                            return isChildOfCurrent(item.children, parentId);
-                        }
-                        return false;
-                    });
-                };
-
-                return !isChildOfCurrent(personalityList, modalData?.id);
-            })
-            .map(personality => ({
-                label: personality.name,
-                value: personality.id
-            }));
+            }
+            return {
+                title: title,
+                value: item.id,
+                children: item.children ? getTreeSelectOptions(item.children, modalMode, modalData) : [],
+                disabled: modalMode === "edit" && item.id === modalData?.id
+            };
+        });
     };
+
 
     return (
         <>
-            <Button
-                className="modal-button"
-                icon={<PlusOutlined className="text-center" />}
-                onClick={() => setModal({ mode: "add", data: null })}
-                />
             <Modal
                 isOpen={isOpen}
                 title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} هویت`}
-                size={600}
+                size={400}
                 onClose={closeModal}
                 onSubmit={() => form.submit()}
                 mode={modalMode}
@@ -128,8 +109,8 @@ const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
                     layout="vertical"
                     onFinish={onFinishForm}
                 >
-                    <Row gutter={16}>
-                        <Col span={24}>
+                    <Row gutter={[16, 16]}>
+                        <Col span={12}>
                             <Form.Item
                                 name="name"
                                 label="هویت"
@@ -140,23 +121,25 @@ const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
                             >
                                 <Input placeholder="نام هویت" />
                             </Form.Item>
-                            <Col span={24}>
-                                <Form.Item
-                                    name="parent_id"
-                                    label="هویت والد (اختیاری)"
-                                >
-                                    <Select
-                                        placeholder="انتخاب هویت والد"
-                                        loading={isFetchingPersonality}
-                                        allowClear
-                                        options={getParentOptions()}
-                                    />
-                                </Form.Item>
-                            </Col>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                name="parent_id"
+                                label="هویت والد (اختیاری)"
+                            >
+                                <TreeSelect
+                                    treeData={getTreeSelectOptions(personalityList || [])}
+                                    placeholder="هویت جایگزین"
+                                    allowClear
+                                    treeIcon={true}
+                                    treeLine={true}
+                                    showSearch
+                                />
+                            </Form.Item>
                         </Col>
                     </Row>
                 </Form>
-            </Modal>
+            </Modal >
         </>
     );
 };

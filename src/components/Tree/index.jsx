@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Tree as AntTree, Dropdown, Menu, message, TreeSelect } from "antd";
 import { DownOutlined, FolderOutlined, FileOutlined } from '@ant-design/icons';
 
@@ -147,7 +147,7 @@ const Tree = ({
         onCheck={onCheck}
         checkedKeys={checkedKeys}
         {...props}
-        
+
 
       />
       {showRightClickMenu && rightClickNode && (

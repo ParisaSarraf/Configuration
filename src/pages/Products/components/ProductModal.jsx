@@ -1,43 +1,52 @@
-import {Col, Divider, Form, Input, InputNumber, message, Row, Select} from "antd";
-import React, {useEffect, useState} from "react";
-import {useCreateProduct, useFinalCodeProductById, useUpdateProduct} from "../../../QueryServises/productQuery";
-import {useOneCoreSetting} from "../../../QueryServises/settingQuery";
-import {useGenusProductList} from "../../../QueryServises/genusQuery";
+import { Col, Form, Input, InputNumber, message, Row, Select } from "antd";
+import { useEffect, useState } from "react";
+import { useCreateProduct, useFinalCodeProductById, useUpdateProduct } from "../../../QueryServises/productQuery";
+import { useOneCoreSetting } from "../../../QueryServises/settingQuery";
+import { useGenusProductList } from "../../../QueryServises/genusQuery";
 import Modal from "../../../components/Modal";
-import {TreeSelect} from "antd";
-import PersonalityModels from "../../../components/PesonalityModels";
 import FileUploader from "@/components/FileUploader/FileUploader.jsx";
-import {BASEURL} from "@/Services/axiosInstance.js";
-import {usePersonalityProductList} from "@/QueryServises/personalityQuery/index.js";
+import { BASEURL } from "@/Services/axiosInstance.js";
+import { usePersonalityProductList } from "@/QueryServises/personalityQuery/index.js";
+import { SearchOutlined } from "@ant-design/icons";
+import TS from "../../../components/TreeSelect";
+import { useStandardCodePersonalityById } from "../../../QueryServises/StandardCodeQuery";
 
 const ProductModal = ({
-                          isOpen,
-                          modalMode,
-                          modalData,
-                          closeModal,
-                          refetch,
-                          productData
-                      }) => {
+    isOpen,
+    modalMode,
+    modalData,
+    closeModal,
+    refetch,
+    productData
+}) => {
     const [form] = Form.useForm();
-    const {isPending: isCreating, mutateAsync: createProduct} = useCreateProduct();
-    const {isPending: isUpdating, mutateAsync: updateProduct} = useUpdateProduct();
-    const {data: casingData} = useOneCoreSetting("casing");
-    const {data: genusData} = useGenusProductList();
+    const { isPending: isCreating, mutateAsync: createProduct } = useCreateProduct();
+    const { isPending: isUpdating, mutateAsync: updateProduct } = useUpdateProduct();
+    const [selectedPersonalityId, setSelectedPersonalityId] = useState(null);
+    const { data: casingData } = useOneCoreSetting("casing");
+    const { data: genusData } = useGenusProductList();
     const [selectedParentCodeId, setSelectedParentCodeId] = useState(null);
     const [productCoding, setProductCoding] = useState(null);
-    const {data: parentCodeData} = useFinalCodeProductById(selectedParentCodeId);
-    const {data: personalityData, isLoading} = usePersonalityProductList();
+    const { data: parentCodeData } = useFinalCodeProductById(selectedParentCodeId);
+    const { data: personalityData, isLoading } = usePersonalityProductList();
+    const { data: standardCodesResponse } = useStandardCodePersonalityById(selectedPersonalityId);
+    const [productCode, setProductCode] = useState("");
+    const [finalCode, setFinalCode] = useState("");
 
     const parentCodeId = parentCodeData?.code || "";
 
-    useEffect(() => {
-        if (parentCodeId && productCoding) {
-            form.setFieldsValue({
-                final_code: `${parentCodeId}${productCoding}`
-            });
-        }
-    }, [parentCodeId, productCoding, form]);
 
+    useEffect(() => {
+        if (parentCodeId || productCode) {
+            const newFinalCode = `${parentCodeId || ""}${parentCodeId && productCode ? "" : ""}${productCode || ""}`;
+            setFinalCode(newFinalCode);
+            form.setFieldsValue({ final_code: newFinalCode });
+        }
+    }, [parentCodeId, productCode, form]);
+
+    const handleParentChange = (value) => {
+        setSelectedParentCodeId(value);
+    };
 
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
@@ -59,6 +68,7 @@ const ProductModal = ({
                 parent_code_id: modalData.parent_code,
                 casing_id: modalData.casing?.id,
                 genus_id: modalData.genus?.id,
+                alternative_genus_id: modalData.alternative_genus?.id,
                 pro_type: modalData.pro_type,
                 description: modalData.description,
                 brand1: modalData.brand1,
@@ -69,17 +79,16 @@ const ProductModal = ({
                 brand2_desc: modalData.brand2_desc,
                 employer_code: modalData.employer_code,
                 standard_code: modalData.standard_code,
-                alternative_genus_id: modalData.alternative_genus?.id,
                 final_code: modalData.final_code || (parentCodeId ? parentCodeId : ""),
-                image: modalData.image
-                    ? [
-                        {
-                            uid: "-1",
-                            name: "image",
-                            url: BASEURL.replace("/api/v1", "") + modalData.image,
-                        },
-                    ]
-                    : [],
+                // image: modalData.image
+                //     ? [
+                //         {
+                //             uid: "-1",
+                //             name: "image",
+                //             url: BASEURL.replace("/api/v1", "") + modalData.image,
+                //         },
+                //     ]
+                //     : [],
             });
         } else if (modalMode === "add") {
             form.resetFields();
@@ -95,6 +104,9 @@ const ProductModal = ({
                 parent_code_id: modalData.id,
                 final_code: parentCodeId ? parentCodeId + "/" : ""
             });
+        } else {
+            form.resetFields();
+            setFinalCode(null)
         }
     }, [modalMode, modalData, form, parentCodeId]);
 
@@ -135,9 +147,8 @@ const ProductModal = ({
             brand2: values.brand2,
             brand2_desc: values.brand2_desc,
             employer_code: values.employer_code,
-            standard_code: values.standard_code,
-            image: values.image?.[0]?.originFileObj
-            // final_code: values.final_code,
+            standard_code_id: values.standard_code_id,
+            // image: values.image?.[0]?.originFileObj
         };
 
         if (modalMode === "add" || modalMode === "addToParent") {
@@ -148,7 +159,12 @@ const ProductModal = ({
                     refetch();
                 })
                 .catch((error) => {
-                    message.error(error.response?.data?.message || "خطا در افزودن محصول");
+                    if (error.response?.status === 400 &&
+                        error.response?.data?.includes("محصول با این کد وجود دارد")) {
+                        message.error("محصول با این کد وجود دارد");
+                    } else {
+                        message.error(error.response?.data?.message || "خطا در افزودن محصول");
+                    }
                     console.error(error);
                 });
         } else if (modalMode === "edit") {
@@ -166,36 +182,8 @@ const ProductModal = ({
                     console.error(error);
                 });
         }
-    };
+    }
 
-    const getTreeSelectOptions = (data, modalMode = null, modalData = null) => {
-        return data.map(item => {
-            const titleFields = [
-                'persian_title',
-                'title',
-                'name',
-                'label',
-                'display_name',
-                'code'
-            ];
-            let title = 'بدون عنوان';
-            for (const field of titleFields) {
-                if (item[field]) {
-                    title = item[field];
-                    if (field !== 'code' && item.code) {
-                        title = `${item.code} - ${title}`;
-                    }
-                    break;
-                }
-            }
-            return {
-                title: title,
-                value: item.id,
-                children: item.children ? getTreeSelectOptions(item.children, modalMode, modalData) : [],
-                disabled: modalMode === "edit" && item.id === modalData?.id
-            };
-        });
-    };
 
     return (
         <Modal
@@ -213,160 +201,130 @@ const ProductModal = ({
                 <Row gutter={[6, 0]}>
                     <Col span={8}>
                         <Form.Item name="parent_id" label="شاخه والد">
-                            <TreeSelect
-                                treeData={getTreeSelectOptions(productData || [])}
+                            <TS
+                                data={productData}
                                 placeholder="شاخه والد"
-                                allowClear
-                                treeIcon={true}
-                                treeLine={true}
-                                showSearch
-                                onChange={(value) => setSelectedParentCodeId(value || null)}
                             />
                         </Form.Item>
                     </Col>
                     <Col span={8}>
                         <Form.Item name="parent_code_id" label="ارث بری کد">
-                            <TreeSelect
-                                showSearch
-                                placeholder="ارث بری کد"
-                                treeData={getTreeSelectOptions(productData || [])}
-                                allowClear
-                                treeIcon={true}
-                                treeLine={true}
-                            />
+                            <TS data={productData} placeholder="ارث بری کد" onChange={handleParentChange} />
                         </Form.Item>
                     </Col>
                     <Col span={8}>
                         <Form.Item
                             name="persian_title"
-                            rules={[{required: true, message: "لطفاً عنوان فارسی را وارد کنید"}]}
+                            rules={[{ required: true, message: "لطفاً عنوان فارسی را وارد کنید" }]}
                         >
-                            <Input addonBefore="عنوان فارسی"/>
+                            <Input addonBefore="عنوان فارسی" />
                         </Form.Item>
                     </Col>
 
                     <Col span={8}>
-                        <Form.Item
-                            name="code"
-                            rules={[{required: true, message: "لطفاً کد محصول را وارد کنید"}]}
-                        >
+                        <Form.Item name="code" rules={[{ required: true, message: "لطفاً کد محصول را وارد کنید" }]}>
                             <Input
                                 addonBefore="کد محصول"
-                                onChange={(e) => {
-                                    setProductCoding(e.target.value);
-                                    if (parentCodeId) {
-                                        console.log(parentCodeId);
-
-                                        form.setFieldsValue({
-                                            final_code: `${parentCodeId}/${e.target.value}`
-                                        });
-                                    }
-                                }}
+                                value={productCode}
+                                onChange={(e) => setProductCode(e.target.value)}
                             />
                         </Form.Item>
                     </Col>
                     <Col span={8}>
                         <Form.Item name="final_code">
-                            <Input
-                                addonBefore="کد نهایی"
-                                disabled
-                            />
+                            <Input addonBefore="کد نهایی" value={finalCode} disabled />
                         </Form.Item>
                     </Col>
 
                     <Col span={8}>
                         <Form.Item name="brand1">
-                            <Input addonBefore="نام تجاری 1"/>
+                            <Input addonBefore="نام تجاری 1" />
                         </Form.Item>
                     </Col>
                     <Col span={8}>
                         <Form.Item name="brand1_desc">
-                            <Input addonBefore="شرح نام تجاری1"/>
+                            <Input addonBefore="شرح نام تجاری1" />
                         </Form.Item>
                     </Col>
                     <Col span={8}>
                         <Form.Item name="quantity"
-                                   rules={[{required: true, message: "لطفاً تعداد محصول را وارد کنید"}]}
+                            rules={[{ required: true, message: "لطفاً تعداد محصول را وارد کنید" }]}
                         >
                             <InputNumber
                                 addonBefore="تعداد"
-                                style={{width: '100%'}}
+                                style={{ width: '100%' }}
                             />
                         </Form.Item>
                     </Col>
                     <Col span={8}>
                         <Form.Item name="brand2">
-                            <Input addonBefore="نام تجاری 2"/>
+                            <Input addonBefore="نام تجاری 2" />
                         </Form.Item>
                     </Col>
                     <Col span={8}>
                         <Form.Item name="brand2_desc">
-                            <Input addonBefore="شرح نام تجاری2"/>
+                            <Input addonBefore="شرح نام تجاری2" />
                         </Form.Item>
                     </Col>
                     <Col span={8}>
                         <Form.Item name="employer_code">
-                            <Input addonBefore="کدکارفرما"/>
+                            <Input addonBefore="کدکارفرما" />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
-                        <Form.Item name="standard_code">
-                            <Input addonBefore="کد استاندارد"/>
-                        </Form.Item>
-                    </Col>
-                    {/*<Col span={24}>*/}
-                    {/*    <Form.Item>*/}
-                    {/*        <PersonalityModels*/}
-                    {/*            showAlongside={true}*/}
-                    {/*            value={modalData}*/}
-                    {/*        />*/}
-                    {/*    </Form.Item>*/}
-                    {/*</Col>*/}
-                    <Col span={24}>
-                        <Form.Item name="alternative_genus_id">
-                            <TreeSelect
-                                treeData={getTreeSelectOptions(personalityData || [])}
+                    <Col span={12}>
+                        <Form.Item
+                            name="personality_ids"
+                            rules={[{ required: true, message: "لطفاً هویت را انتخاب کنید" }]}
+                        >
+                            <TS
+                                data={personalityData}
                                 placeholder="هویت"
-                                allowClear
-                                treeIcon={true}
-                                treeLine={true}
-                                showSearch
+                                onChange={(value) => {
+                                    setSelectedPersonalityId(value);
+                                }}
                             />
                         </Form.Item>
                     </Col>
+                    <Col span={12}>
+                        <Form.Item name="standard_code_id">
+                            <Select
+                                placeholder="کد استاندارد"
+                                showSearch
+                                options={standardCodesResponse?.personality_codes?.map(item => ({
+                                    value: item.id,
+                                    label: item.name
+                                })) || []}
+                                disabled={standardCodesResponse?.personality_codes.length === 0}
+                                filterOption={(input, option) =>
+                                    option.label.toLowerCase().includes(input.toLowerCase())
+                                }
+                                suffixIcon={<SearchOutlined />}
+                            />
+                        </Form.Item>
+                    </Col>
+
                     <Col span={8}>
                         <Form.Item name="genus_id">
-                            <TreeSelect
-                                treeData={getTreeSelectOptions(genusData || [])}
+                            <TS
+                                data={genusData}
                                 placeholder="جنس"
-                                allowClear
-                                treeIcon={true}
-                                treeLine={true}
-                                showSearch
                             />
                         </Form.Item>
                     </Col>
                     <Col span={8}>
                         <Form.Item name="alternative_genus_id">
-                            <TreeSelect
-                                treeData={getTreeSelectOptions(genusData || [])}
+                            <TS
+                                data={genusData}
                                 placeholder="جنس جایگزین"
-                                allowClear
-                                treeIcon={true}
-                                treeLine={true}
-                                showSearch
                             />
+
                         </Form.Item>
                     </Col>
                     <Col span={8}>
                         <Form.Item name="casing_id">
-                            <TreeSelect
-                                treeData={getTreeSelectOptions(casingData || [])}
+                            <TS
+                                data={casingData}
                                 placeholder="پوشش"
-                                allowClear
-                                treeIcon={true}
-                                treeLine={true}
-                                showSearch
                             />
                         </Form.Item>
                     </Col>
@@ -374,7 +332,7 @@ const ProductModal = ({
                         <Form.Item name="length">
                             <InputNumber
                                 addonBefore="طول"
-                                style={{width: '100%'}}
+                                style={{ width: '100%' }}
                             />
                         </Form.Item>
                     </Col>
@@ -382,7 +340,7 @@ const ProductModal = ({
                         <Form.Item name="width">
                             <InputNumber
                                 addonBefore="عرض"
-                                style={{width: '100%'}}
+                                style={{ width: '100%' }}
                             />
                         </Form.Item>
                     </Col>
@@ -390,7 +348,7 @@ const ProductModal = ({
                         <Form.Item name="height">
                             <InputNumber
                                 addonBefore="ارتفاع"
-                                style={{width: '100%'}}
+                                style={{ width: '100%' }}
                             />
                         </Form.Item>
                     </Col>
@@ -398,7 +356,7 @@ const ProductModal = ({
                         <Form.Item name="internal_diagonal">
                             <InputNumber
                                 addonBefore="قطر داخل"
-                                style={{width: '100%'}}
+                                style={{ width: '100%' }}
                             />
                         </Form.Item>
                     </Col>
@@ -406,7 +364,7 @@ const ProductModal = ({
                         <Form.Item name="external_diagonal">
                             <InputNumber
                                 addonBefore="قطر خارجی"
-                                style={{width: '100%'}}
+                                style={{ width: '100%' }}
                             />
                         </Form.Item>
                     </Col>
@@ -414,7 +372,7 @@ const ProductModal = ({
                         <Form.Item name="weight">
                             <InputNumber
                                 addonBefore="وزن"
-                                style={{width: '100%'}}
+                                style={{ width: '100%' }}
                             />
                         </Form.Item>
                     </Col>
@@ -422,7 +380,7 @@ const ProductModal = ({
                         <Form.Item name="price">
                             <InputNumber
                                 addonBefore="قیمت"
-                                style={{width: '100%'}}
+                                style={{ width: '100%' }}
                                 formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '،')}
                                 parser={(value) => value.replace(/\$\s?|(،*)/g, '')}
                             />
@@ -430,7 +388,7 @@ const ProductModal = ({
                     </Col>
                     <Col span={8}>
                         <Form.Item name="store_code">
-                            <Input addonBefore="کد انبار"/>
+                            <Input addonBefore="کد انبار" />
                         </Form.Item>
                     </Col>
                     <Col span={8}>
@@ -439,9 +397,9 @@ const ProductModal = ({
                                 placeholder="وضعیت"
                                 addonBefore="وضعیت"
                                 options={[
-                                    {label: 'فعال', value: 'active'},
-                                    {label: 'غیرفعال', value: 'inactive'},
-                                    {label: 'موقت', value: 'temp'}
+                                    { label: 'فعال', value: 'active' },
+                                    { label: 'غیرفعال', value: 'inactive' },
+                                    { label: 'موقت', value: 'temp' }
                                 ]}
                             />
                         </Form.Item>
@@ -455,14 +413,14 @@ const ProductModal = ({
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={24}>
+                    {/* <Col span={24}>
                         <Form.Item
                             label={`بارگذاری عکس محصول`}
                             name='image'
                         >
-                            <FileUploader/>
+                            <FileUploader />
                         </Form.Item>
-                    </Col>
+                    </Col> */}
                 </Row>
             </Form>
         </Modal>

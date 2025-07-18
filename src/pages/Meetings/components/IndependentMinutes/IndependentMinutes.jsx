@@ -1,9 +1,9 @@
-import {MeetingRelatedToActivities, MeetingsCol} from "@/pages/Meetings/components/MeetingsCol.jsx";
-import {message, Modal, Table} from "antd";
+import { MeetingRelatedToActivities, MeetingsCol } from "@/pages/Meetings/components/MeetingsCol.jsx";
+import { message, Modal, Table } from "antd";
 
-const IndependentMinutes = ({setModal, meetingData, deleteMeeting, refetch}) => {
+const IndependentMinutes = ({ setModal, meetingData, deleteMeeting, refetch }) => {
     const handleEdit = (record) => {
-        setModal({mode: 'edit', data: record});
+        setModal({ mode: 'edit', data: record });
     };
 
     const handleDelete = (id) => {
@@ -38,7 +38,8 @@ const IndependentMinutes = ({setModal, meetingData, deleteMeeting, refetch}) => 
 
     return (
         <Table
-            columns={MeetingsCol({handleEdit, handleDelete})}
+            size="small"
+            columns={MeetingsCol({ handleEdit, handleDelete })}
             dataSource={meetingData}
             rowKey="id"
         />
