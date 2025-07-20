@@ -4,12 +4,13 @@ import { useCreateProduct, useFinalCodeProductById, useUpdateProduct } from "../
 import { useOneCoreSetting } from "../../../QueryServises/settingQuery";
 import { useGenusProductList } from "../../../QueryServises/genusQuery";
 import Modal from "../../../components/Modal";
-import FileUploader from "@/components/FileUploader/FileUploader.jsx";
-import { BASEURL } from "@/Services/axiosInstance.js";
 import { usePersonalityProductList } from "@/QueryServises/personalityQuery/index.js";
 import { SearchOutlined } from "@ant-design/icons";
 import TS from "../../../components/TreeSelect";
 import { useStandardCodePersonalityById } from "../../../QueryServises/StandardCodeQuery";
+
+
+
 
 const ProductModal = ({
     isOpen,
@@ -34,7 +35,6 @@ const ProductModal = ({
     const [finalCode, setFinalCode] = useState("");
 
     const parentCodeId = parentCodeData?.code || "";
-
 
     useEffect(() => {
         if (parentCodeId || productCode) {
@@ -183,7 +183,6 @@ const ProductModal = ({
                 });
         }
     }
-
 
     return (
         <Modal

@@ -85,16 +85,18 @@ const Tree = ({
     return data.map((item) => ({
       title: item[titleField],
       label: (
-        <div style={{ paddingLeft: `${level * 16}px`, display: 'flex', alignItems: 'center' }}>
-          {item[childrenField]?.length > 0 ? (
-            <FolderOutlined style={{ marginLeft: 8 }} />
-          ) : (
-            <FileOutlined style={{ marginLeft: 8 }} />
-          )}
-          <span style={{ marginRight: 4 }}>
-            {item[titleField]}
-          </span>
+        // <div style={{ paddingLeft: `${level * 16}px`, display: 'flex', alignItems: 'center' }}>
+        //   {item[childrenField]?.length > 0 ? (
+        //     <FolderOutlined style={{ marginLeft: 8 }} />
+        //   ) : (
+        //     <FileOutlined style={{ marginLeft: 8 }} />
+        //   )}
+        //   <span style={{ marginRight: 4 }}>
+        <div>
+          {item[titleField]}
         </div>
+        // </span>
+        // </div>
       ),
       value: item[keyField],
       key: item[keyField],
@@ -117,6 +119,7 @@ const Tree = ({
         placeholder={placeholder}
         treeDefaultExpandAll
         showSearch={showSearch}
+
         allowClear={allowClear}
         style={{ width: '100%' }}
         dropdownStyle={{
@@ -124,6 +127,7 @@ const Tree = ({
           overflow: 'auto',
           padding: '8px 0'
         }}
+        treeIcon={treeIcon}
         className={className}
         treeNodeLabelProp="label"
         treeLine={{
@@ -147,6 +151,7 @@ const Tree = ({
         onCheck={onCheck}
         checkedKeys={checkedKeys}
         {...props}
+
 
 
       />

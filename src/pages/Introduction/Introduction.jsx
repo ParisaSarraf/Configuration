@@ -1,7 +1,8 @@
 import { useProductContext } from '../../Services/Context/ProductContext';
-import { Card, Typography, Row, Col, Space, Image, Skeleton, Table } from 'antd';
+import { Card, Typography, Row, Col, Space, Image, Skeleton, Table, Input } from 'antd';
 import { BASEURL } from "@/Services/axiosInstance.js";
-import ProductCols from './ProductCols/ProductCols';
+import ProductCols from './components/ProductCols';
+import TextArea from 'antd/es/input/TextArea';
 
 const { Title, Text } = Typography;
 
@@ -39,13 +40,27 @@ const Introduction = () => {
         <div style={{ padding: 16 }}>
             <Card className="mb-1">
                 <Row gutter={16} align="middle">
-                    <Col xs={24} md={24}>
+                    <Col span={12}>
+                        <Space direction="vertical" className='w-full'>
+                            <Input.TextArea
+                                rows={5}
+                                size='small'
+                                placeholder='توضیحات محصول'
+                                style={{
+                                    height: 350,
+                                    width: '100%',
+                                    resize: 'none'
+                                }}
+                            />
+                        </Space>
+                    </Col>
+                    <Col span={12}>
                         {product.image ? (
                             <Image
                                 width="100%"
                                 style={{
-                                    maxHeight: 200,
-                                    height: 200,
+                                    maxHeight: 400,
+                                    height: 350,
                                     objectFit: 'contain',
                                     width: '100%',
                                     justifyContent: 'center',
@@ -56,7 +71,7 @@ const Introduction = () => {
                             />
                         ) : (
                             <div style={{
-                                height: 200,
+                                height: 350,
                                 width: '100%',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -66,12 +81,6 @@ const Introduction = () => {
                                 <Skeleton.Image />
                             </div>
                         )}
-                    </Col>
-                    <Col xs={24} md={18}>
-                        <Space direction="vertical" className='mt-4'>
-                            <Title level={4}>{product.persian_title} ({product.code})</Title>
-                            <Text style={{ whiteSpace: 'pre-line' }}>توضیحات:{(product.description)}</Text>
-                        </Space>
                     </Col>
                 </Row>
             </Card>

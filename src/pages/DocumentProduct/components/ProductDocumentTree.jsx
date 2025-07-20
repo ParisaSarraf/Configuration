@@ -134,7 +134,6 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
     const transformNode = (node) => {
         const hasEditions = Array.isArray(node.edition) && node.edition.length > 0;
         const hasProductDocument = node.product_document_id && node.product_document_id.id;
-
         const baseNode = {
             key: `node-${node.id}`,
             title: node.title || 'بدون عنوان',
@@ -319,8 +318,9 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
             data={treeData}
             isLoading={isLoading}
             isError={isError}
+            treeIcon={false}
             showLine={true}
-            checkable={true}
+            checkable={false}
             rightClickMenuItems={rightClickMenu}
             onRightClickAction={handleRightClickAction}
         />
