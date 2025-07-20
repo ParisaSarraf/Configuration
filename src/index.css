@@ -22,7 +22,7 @@
   .dark .ant-menu-dark {
     @apply bg-dark-secondary;
   }
-  
+
   .dark .ant-menu-dark .ant-menu-item-selected {
     @apply bg-dark-accent/20 text-dark-accent;
   }
@@ -38,7 +38,7 @@
   .ant-menu-item {
     @apply transition-colors duration-200;
   }
-  
+
   .ant-switch {
     @apply transition-all duration-200;
   }
@@ -51,6 +51,7 @@
     @apply text-white;
   }
 }
+
 html, body {
   height: 100%;
 }
@@ -62,13 +63,13 @@ html, body {
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-blue-700 dark:bg-dark-secondary; 
-    border-radius: 4px; 
+    @apply bg-blue-700 dark:bg-dark-secondary;
+    border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-blue-700 dark:bg-dark-accent; 
-    border-radius: 4px; 
+    @apply bg-blue-700 dark:bg-dark-accent;
+    border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
@@ -77,8 +78,8 @@ html, body {
 
   /* Firefox */
   html {
-    scrollbar-width: thin; 
-    scrollbar-color: #0171a5 #f1f1f1; 
+    scrollbar-width: thin;
+    scrollbar-color: #0171a5 #f1f1f1;
   }
 
   .dark html {
@@ -86,33 +87,49 @@ html, body {
   }
 }
 
-
-
+/* ---------- Tree Customization ---------- */
 .custom-tree .ant-tree-treenode {
-  padding: 2px; 
+  padding: 2px;
 }
 
 .custom-tree .ant-tree-node-content-wrapper {
-  font-size: px;
+  font-size: 12px; /* اندازه فونت نودها */
 }
 
-.custom-tree .ant-tree-switcher {
-  width: 24px;
-  height: 24px;
+/* حذف آیکون پوشه و فایل */
+.custom-tree .ant-tree-iconEle {
+  display: none !important;
 }
 
+/* هایلایت انتخاب نود */
+.custom-tree .ant-tree-node-content-wrapper.ant-tree-node-selected {
+  background-color: #ebf8ff; /* Tailwind's bg-blue-100 */
+  border-radius: 0.25rem; /* Tailwind's rounded */
+}
+
+/* برای راست‌چین بودن آیکون‌ها و متن در یک خط */
+.ant-tree-title {
+  display: flex;
+  align-items: center;
+  gap: 4px; /* فاصله بین آیکون‌ها و متن */
+}
+
+.ant-tree-switcher,
+.ant-tree-node-content-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+/* ---------- Tabs Customization ---------- */
 .custom-tabs .ant-tabs-nav {
   margin: 0 !important;
-}
-
-.custom-tabs .ant-tabs-nav {
   display: flex;
   width: 100%;
 }
 
 .custom-tabs .ant-tabs-nav-list {
   display: flex;
-  justify-content: space-evenly; 
+  justify-content: space-evenly;
   width: 100%;
 }
 
@@ -120,21 +137,21 @@ html, body {
   bottom: 0;
 }
 
+/* ---------- Form Items ---------- */
 .uniform-form-item .ant-form-item-label {
-  width: 120px; 
+  width: 120px;
   text-align: right;
 }
 
 .uniform-form-item .ant-form-item-control {
-  width: calc(100% - 120px); 
+  width: calc(100% - 120px);
 }
 
 .uniform-form-item {
-  /* margin-bottom: px;  */
-  height: 10px; 
+  height: 10px;
 }
 
-
+/* ---------- Transfer Box ---------- */
 .transfer-container {
   display: flex;
   gap: 20px;
@@ -192,20 +209,10 @@ html, body {
   flex: 1;
 }
 
-/* scroll  in modal*/
+/* ---------- Scroll in Modal ---------- */
 .scroll-modal {
   max-height: 80vh !important;
   overflow-y: auto !important;
   padding: 0 !important;
   z-index: 1000000000000000 !important;
-}
-.ant-tree-title {
-  display: flex;
-  align-items: center;
-}
-
-.ant-tree-switcher,
-.ant-tree-node-content-wrapper {
-  display: flex;
-  align-items: center;
 }

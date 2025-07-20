@@ -1,17 +1,17 @@
-import {PlusOutlined} from "@ant-design/icons"
-import {Button, Col, Form, Input, message, Row, Select} from "antd"
+import { PlusOutlined } from "@ant-design/icons"
+import { Button, Col, Form, Input, message, Row, Select } from "antd"
 import Modal from "../../../components/Modal";
 import FileUploader from "../../../components/FileUploader/FileUploader";
-import {useCreateExperience, useUpdateExperience} from "../../../QueryServises/experienceQuery";
-import {usePrecinctProductList} from "../../../QueryServises/precinctQuery";
-import {useEffect} from "react";
-import {BASEURL} from "../../../Services/axiosInstance";
+import { useCreateExperience, useUpdateExperience } from "../../../QueryServises/experienceQuery";
+import { usePrecinctProductList } from "../../../QueryServises/precinctQuery";
+import { useEffect } from "react";
+import { BASEURL } from "../../../Services/axiosInstance";
 
 
-const ExperienceModal = ({isOpen, modalMode, modalData, closeModal, setModal, currentProduct, refetch}) => {
-    const {mutateAsync: createExperience} = useCreateExperience()
-    const {mutateAsync: updateExperience} = useUpdateExperience()
-    const {data: precinctData} = usePrecinctProductList()
+const ExperienceModal = ({ isOpen, modalMode, modalData, closeModal, setModal, currentProduct, refetch }) => {
+    const { mutateAsync: createExperience } = useCreateExperience()
+    const { mutateAsync: updateExperience } = useUpdateExperience()
+    const { data: precinctData } = usePrecinctProductList()
     const [form] = Form.useForm();
 
 
@@ -48,7 +48,7 @@ const ExperienceModal = ({isOpen, modalMode, modalData, closeModal, setModal, cu
         }
         try {
             if (modalMode === 'edit') {
-                await updateExperience({ExperienceId: modalData?.id, ...payload})
+                await updateExperience({ ExperienceId: modalData?.id, ...payload })
                 message.success("تجربه با موفقیت ویرایش شد.")
             } else {
                 await createExperience(payload)
@@ -67,14 +67,14 @@ const ExperienceModal = ({isOpen, modalMode, modalData, closeModal, setModal, cu
         <>
             <Button
                 className="modal-button"
-                icon={<PlusOutlined/>}
-                onClick={() => setModal({mode: "add", data: null, type: 'add'})}
+                icon={<PlusOutlined />}
+                onClick={() => setModal({ mode: "add", data: null, type: 'add' })}
                 title={'افزودن تجارب و خرابی'}
             />
             <Modal
                 isOpen={isOpen}
                 title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} تجربه`}
-                size={500}
+                size={300}
                 onClose={closeModal}
                 onSubmit={() => form.submit()}
                 mode={modalMode}
@@ -84,7 +84,7 @@ const ExperienceModal = ({isOpen, modalMode, modalData, closeModal, setModal, cu
                     layout="vertical"
                     onFinish={onFinish}
                 >
-                    <Row gutter={[16, 16]}>
+                    <Row gutter={16}>
                         <Col span={24}>
                             <Form.Item label="حوزه" name="precinct_id">
                                 <Select
@@ -97,7 +97,7 @@ const ExperienceModal = ({isOpen, modalMode, modalData, closeModal, setModal, cu
                         </Col>
                         <Col span={24}>
                             <Form.Item label="متن تجربه" name="experiment_text">
-                                <Input.TextArea/>
+                                <Input.TextArea />
                             </Form.Item>
                         </Col>
 

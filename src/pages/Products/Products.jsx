@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Spin } from 'antd';
+import { Button, message, Spin } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useProductList } from "../../QueryServises/productQuery";
 import ProductTree from "./components/ProductTree";
@@ -9,6 +9,7 @@ import useModal from '../../hooks/useModal';
 
 const Products = () => {
     const { data: productData, isLoading, isError, refetch } = useProductList();
+
     const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
     const [checkedKeys, setCheckedKeys] = useState([]);
     const { handleProductSelect } = useProductContext();
@@ -16,6 +17,7 @@ const Products = () => {
     const handleTreeChange = (newCheckedKeys) => {
         setCheckedKeys(newCheckedKeys);
     };
+
     return (
         <div
             className='rounded-xl mr-2 bg-white mb-2 shadow-lg shadow-purple-6 '
@@ -37,7 +39,8 @@ const Products = () => {
                     <Spin />
                 </div>
             ) : isError ? (
-                <div className="p-2 text-red-600">خطا در بارگذاری داده‌ها</div>
+                message?.error(' خطا در بارگذاری داده‌ها')
+                // <div className="p-2 text-red-600">خطا در بارگذاری داده‌ها</div>
             ) : (
                 <ProductTree
                     productData={productData}

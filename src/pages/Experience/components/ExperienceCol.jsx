@@ -41,13 +41,10 @@ const ExperienceCol = ({ handleDelete, handleEdit }) => {
             key: 'file',
             render: (file) => {
                 if (!file) return "فایلی وجود ندارد";
-
                 const url = `${BASEURL.replace("/api/v1", "")}${file}`;
                 const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(file);
-
                 return (
                     <Space>
-                        {/* نمایش لینک باز کردن */}
                         <a
                             href={url}
                             target="_blank"
@@ -66,7 +63,6 @@ const ExperienceCol = ({ handleDelete, handleEdit }) => {
                                 "مشاهده فایل"
                             )}
                         </a>
-
                         <a
                             href={url}
                             download

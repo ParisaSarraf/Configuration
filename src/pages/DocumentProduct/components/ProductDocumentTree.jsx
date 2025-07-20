@@ -145,21 +145,19 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
             survey_date: node.survey_date,
             children: []
         };
-
         if (node.children && node.children.length > 0) {
             baseNode.children = [
                 ...baseNode.children,
                 ...node.children.map(child => transformNode(child))
             ];
         }
-
         if (hasProductDocument) {
             const productDocNode = {
                 key: `product-doc-${node.product_document_id.id}`,
                 title: (
-                    <div className="flex flex-row justify-between items-center w-full">
+                    <div>
                         <span>{node.product_document_id.title || 'بدون عنوان'}</span>
-                        <Space>
+                        {/* <Space>
                             <Button
                                 type="text"
                                 icon={<EditOutlined />}
@@ -178,7 +176,7 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
                                 }}
                                 className="text-red-500 hover:text-red-700"
                             />
-                        </Space>
+                        </Space> */}
                     </div>
                 ),
                 id: node.product_document_id.id,
@@ -190,7 +188,7 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
                 productDocNode.children = node.edition.map(edition => ({
                     key: `edition-${edition.id}`,
                     title: (
-                        <div className="flex flex-row justify-between">
+                        <div >
                             <span>{edition.edition}</span>
                             <Space>
                                 <Button
@@ -227,7 +225,7 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
                 ...node.edition.map(edition => ({
                     key: `edition-${edition.id}`,
                     title: (
-                        <div className="flex flex-row justify-between items-center w-full">
+                        <div >
                             <span>{edition.edition}</span>
                             <Space>
                                 <Button
@@ -249,11 +247,12 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
                                     className="text-red-500 hover:text-red-700"
                                 />
                             </Space>
-                        </div>
+                        </div >
                     ),
                     edition: edition.edition,
                     id: edition.id,
-                    isLeaf: true
+                    isLeaf: true,
+
                 }))
             ];
         }
@@ -314,6 +313,7 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
 
     return (
         <Tree
+            className={'custom-tree'}
             mode="tree"
             data={treeData}
             isLoading={isLoading}
@@ -321,6 +321,7 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
             treeIcon={false}
             showLine={true}
             checkable={false}
+            showIcon={false}
             rightClickMenuItems={rightClickMenu}
             onRightClickAction={handleRightClickAction}
         />
