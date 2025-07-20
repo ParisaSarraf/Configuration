@@ -7,8 +7,9 @@ import {
 } from '@ant-design/icons';
 import { useDeleteProduct } from "../../../QueryServises/productQuery";
 import Tree from "../../../components/Tree";
-import CircleIcon from '@mui/icons-material/Circle';
-import SquareIcon from '@mui/icons-material/Square';
+import StopIcon from '@mui/icons-material/Stop';
+import ChangeHistoryTwoToneIcon from '@mui/icons-material/ChangeHistoryTwoTone';
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 
 
 const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onChange, checkedKeys, onProductClick }) => {
@@ -63,30 +64,16 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
         // }
     ];
 
-    const getIconByItem = (item) => {
-        if (item.children && item.children.length > 0) {
-            return (
-                <span className="flex items-center gap-1 mr-1">
-                    <CircleIcon fontSize="s" className="text-red-600" />
-                    <SquareIcon fontSize="s" />
-                </span>
-            );
-        } else {
-            return <CircleIcon fontSize="small" className="mr-1" />;
-        }
-    };
-
-
     const transformDataToTreeFormat = (productData) => {
         if (!productData) return [];
         return productData.map(item => ({
             title: (
-                // <div style={{ display: 'flex', alignItems: 'center'}}>
-                // {/* {getIconByItem(item)} */}
-                // <span>
-                `${item.persian_title} (${item.code})`
-                // </span>
-                // </div>
+                <div className="flex items-center">
+                    <FiberManualRecordIcon fontSize="small" />
+                    <StopIcon fontSize="small" />
+                    <ChangeHistoryTwoToneIcon fontSize="small" />
+                    <span>{item.persian_title} ({item.code})</span>
+                </div>
             ),
             key: `product-${item.id}`,
             id: item.id,
@@ -155,19 +142,20 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
     return (
         <div className="p-2">
             <Tree
+                // className={'p-2'}
                 data={treeData}
-                className="text-[12px] "
                 isLoading={isLoading || isDeleting}
                 isError={isError || isDeleting}
                 onChange={onChange}
                 checkedKeys={checkedKeys}
-                showLine={true}
                 onNodeClick={onProductClick}
+                showLine={true}
                 checkable={false}
+                showIcon={false}
                 rightClickMenuItems={rightClickMenuItems}
                 onRightClickAction={handleRightClickAction}
             />
-        </div>
+        </div >
     );
 };
 

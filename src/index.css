@@ -86,6 +86,8 @@ html, body {
   }
 }
 
+
+
 .custom-tree .ant-tree-treenode {
   padding: 2px; 
 }
@@ -196,4 +198,14 @@ html, body {
   overflow-y: auto !important;
   padding: 0 !important;
   z-index: 1000000000000000 !important;
+}
+.ant-tree-title {
+  display: flex;
+  align-items: center;
+}
+
+.ant-tree-switcher,
+.ant-tree-node-content-wrapper {
+  display: flex;
+  align-items: center;
 }

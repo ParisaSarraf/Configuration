@@ -9,9 +9,6 @@ import { SearchOutlined } from "@ant-design/icons";
 import TS from "../../../components/TreeSelect";
 import { useStandardCodePersonalityById } from "../../../QueryServises/StandardCodeQuery";
 
-
-
-
 const ProductModal = ({
     isOpen,
     modalMode,
