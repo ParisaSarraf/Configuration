@@ -7,6 +7,7 @@ import {
     useProductDocumentTreeById
 } from "../../../QueryServises/productDocumentQuery";
 import { useEffect } from "react";
+import { checkEditionDuplicate } from "../../../Utils/checkEditionDuplicate";
 
 const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
     const selectedProductId = currentProduct?.productData?.id;
@@ -297,6 +298,11 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
                 type: 'add'
             });
         } else if (actionKey === 'edition') {
+            const isDuplicate = checkEditionDuplicate(treeData, node.edition);
+            if (isDuplicate) {
+                message.error("نسخه‌ای با این نام قبلاً ثبت شده است");
+                return;
+            }
             setModal({
                 mode: 'edition',
                 data: {

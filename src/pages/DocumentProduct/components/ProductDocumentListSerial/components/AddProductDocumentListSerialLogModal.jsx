@@ -26,7 +26,6 @@ const AddProductDocumentListSerialLogModal = (
     const {mutateAsync: createProductEditionlog} = useCreateProductEditionlog();
     const {mutateAsync: updateProductEditionlog} = useUpdateProductEditionlog();
 
-    console.log(modalData)
 
     useEffect(() => {
         if (serialId) {
@@ -50,7 +49,6 @@ const AddProductDocumentListSerialLogModal = (
             form.resetFields()
         }
     }, [form, modalData, modalMode])
-
 
     const onFinish = async (values) => {
         const payload = {

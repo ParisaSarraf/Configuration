@@ -51,6 +51,7 @@ const ProductDocuments = () => {
                                 refetch={refetch}
                                 currentProduct={currentProduct}
                             />
+                            
                         </Card>
                     </div>
                     <div className="col-span-1">
