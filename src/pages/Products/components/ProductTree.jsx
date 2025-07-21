@@ -9,6 +9,7 @@ import { useDeleteProduct } from "../../../QueryServises/productQuery";
 import Tree from "../../../components/Tree";
 import StopIcon from '@mui/icons-material/Stop';
 import ChangeHistoryTwoToneIcon from '@mui/icons-material/ChangeHistoryTwoTone';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 
 
@@ -71,7 +72,10 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
                 <div className="flex items-center">
                     <FiberManualRecordIcon fontSize="small" />
                     <StopIcon fontSize="small" />
-                    <ChangeHistoryTwoToneIcon fontSize="small" />
+                    <PlayArrowIcon fontSize="small" sx={{
+                        rotate: 180,
+                        color: 'red'
+                    }} />
                     <span>{item.persian_title} ({item.code})</span>
                 </div>
             ),

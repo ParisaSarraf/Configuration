@@ -20,34 +20,25 @@ const ProductModal = ({
     const [form] = Form.useForm();
     const { isPending: isCreating, mutateAsync: createProduct } = useCreateProduct();
     const { isPending: isUpdating, mutateAsync: updateProduct } = useUpdateProduct();
+
     const [selectedPersonalityId, setSelectedPersonalityId] = useState(null);
-    const { data: casingData } = useOneCoreSetting("casing");
-    const { data: genusData } = useGenusProductList();
     const [selectedParentCodeId, setSelectedParentCodeId] = useState(null);
-    const [productCoding, setProductCoding] = useState(null);
-    const { data: parentCodeData } = useFinalCodeProductById(selectedParentCodeId);
-    const { data: personalityData, isLoading } = usePersonalityProductList();
-    const { data: standardCodesResponse } = useStandardCodePersonalityById(selectedPersonalityId);
     const [productCode, setProductCode] = useState("");
     const [finalCode, setFinalCode] = useState("");
 
+    const { data: casingData } = useOneCoreSetting("casing");
+    const { data: genusData } = useGenusProductList();
+    const { data: personalityData } = usePersonalityProductList();
+    const { data: parentCodeData } = useFinalCodeProductById(selectedParentCodeId);
+    const { data: standardCodesResponse } = useStandardCodePersonalityById(selectedPersonalityId);
+
     const parentCodeId = parentCodeData?.code || "";
 
-    useEffect(() => {
-        if (parentCodeId || productCode) {
-            const newFinalCode = `${parentCodeId || ""}${parentCodeId && productCode ? "" : ""}${productCode || ""}`;
-            setFinalCode(newFinalCode);
-            form.setFieldsValue({ final_code: newFinalCode });
-        }
-    }, [parentCodeId, productCode, form]);
-
-    const handleParentChange = (value) => {
-        setSelectedParentCodeId(value);
-    };
 
     useEffect(() => {
+        if (!isOpen) return;
+        form.resetFields();
         if (modalMode === "edit" && modalData) {
-            form.resetFields()
             form.setFieldsValue({
                 persian_title: modalData.persian_title,
                 code: modalData.code,
@@ -76,53 +67,45 @@ const ProductModal = ({
                 brand2_desc: modalData.brand2_desc,
                 employer_code: modalData.employer_code,
                 standard_code: modalData.standard_code,
-                final_code: modalData.final_code || (parentCodeId ? parentCodeId : ""),
-                // image: modalData.image
-                //     ? [
-                //         {
-                //             uid: "-1",
-                //             name: "image",
-                //             url: BASEURL.replace("/api/v1", "") + modalData.image,
-                //         },
-                //     ]
-                //     : [],
+                final_code: modalData.final_code || "",
             });
-        } else if (modalMode === "add") {
-            form.resetFields();
-            if (parentCodeId) {
-                form.setFieldsValue({
-                    final_code: parentCodeId + productCoding,
-                });
-            }
-        } else if (modalMode === "addToParent") {
-            form.resetFields();
+            setProductCode(modalData.code || "");
+        }
+        else if (modalMode === "addToParent" && modalData) {
             form.setFieldsValue({
                 parent_id: modalData.id,
                 parent_code_id: modalData.id,
                 final_code: parentCodeId ? parentCodeId + "/" : ""
             });
-        } else {
-            form.resetFields();
-            setFinalCode(null)
         }
-    }, [modalMode, modalData, form, parentCodeId]);
+        else if (modalMode === "add") {
+            form.setFieldsValue({
+                final_code: parentCodeId || ""
+            });
+        }
+    }, [modalMode, modalData, isOpen, form]);
+
+    useEffect(() => {
+        const newFinalCode = `${parentCodeId || ""}${productCode || ""}`;
+        setFinalCode(newFinalCode);
+        form.setFieldsValue({ final_code: newFinalCode });
+    }, [parentCodeId, productCode, form]);
+
+    const handleParentChange = (value) => {
+        setSelectedParentCodeId(value);
+    };
 
     const onFinish = (values) => {
         if (values.personality_ids && !Array.isArray(values.personality_ids)) {
             values.personality_ids = [values.personality_ids];
         }
-
         const payload = {
             parent_id: values.parent_id,
             casing_id: values.casing_id,
             genus_id: values.genus_id,
             alternative_genus_id: values.alternative_genus_id,
             parent_code_id: values.parent_code_id,
-            personality_ids: Array.isArray(values.personality_ids)
-                ? values.personality_ids
-                : values.personality_ids
-                    ? [values.personality_ids]
-                    : [],
+            personality_ids: values.personality_ids || [],
             code: values.code,
             persian_title: values.persian_title,
             quantity: values.quantity,
@@ -145,62 +128,40 @@ const ProductModal = ({
             brand2_desc: values.brand2_desc,
             employer_code: values.employer_code,
             standard_code_id: values.standard_code_id,
-            // image: values.image?.[0]?.originFileObj
         };
 
-        if (modalMode === "add" || modalMode === "addToParent") {
-            createProduct(payload)
-                .then(() => {
-                    message.success("محصول با موفقیت اضافه شد");
-                    closeModal();
-                    refetch();
-                })
-                .catch((error) => {
-                    if (error.response?.status === 400 &&
-                        error.response?.data?.includes("محصول با این کد وجود دارد")) {
-                        message.error("محصول با این کد وجود دارد");
-                    } else {
-                        message.error(error.response?.data?.message || "خطا در افزودن محصول");
-                    }
-                    console.error(error);
-                });
-        } else if (modalMode === "edit") {
-            updateProduct({
-                productId: modalData.id,
-                ...payload
+        const action = (modalMode === "edit")
+            ? updateProduct({ productId: modalData.id, ...payload })
+            : createProduct(payload);
+
+        action
+            .then(() => {
+                message.success(modalMode === "edit" ? "محصول ویرایش شد" : "محصول اضافه شد");
+                closeModal();
+                refetch();
             })
-                .then(() => {
-                    message.success("محصول با موفقیت ویرایش شد");
-                    closeModal();
-                    refetch();
-                })
-                .catch((error) => {
-                    message.error(error.response?.data?.message || "خطا در ویرایش محصول");
-                    console.error(error);
-                });
-        }
-    }
+            .catch((error) => {
+                message.error(error.response?.data?.message || "خطا در عملیات");
+                console.error(error);
+            });
+    };
 
     return (
         <Modal
             isOpen={isOpen}
             title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} محصول`}
-            size={1000}
+            size={900}
             onClose={closeModal}
             onSubmit={() => form.submit()}
             mode={modalMode}
             loading={isCreating || isUpdating}
-            className={'scroll-modal'}
+            className="scroll-modal"
         >
-
-            <Form form={form} layout="horizontal" onFinish={onFinish}>
-                <Row gutter={[6, 0]}>
+            <Form form={form} layout="vertical" onFinish={onFinish}>
+                <Row gutter={16}>
                     <Col span={8}>
                         <Form.Item name="parent_id" label="شاخه والد">
-                            <TS
-                                data={productData}
-                                placeholder="شاخه والد"
-                            />
+                            <TS data={productData} placeholder="شاخه والد" />
                         </Form.Item>
                     </Col>
                     <Col span={8}>
@@ -210,82 +171,80 @@ const ProductModal = ({
                     </Col>
                     <Col span={8}>
                         <Form.Item
+                            label="عنوان فارسی"
                             name="persian_title"
                             rules={[{ required: true, message: "لطفاً عنوان فارسی را وارد کنید" }]}
                         >
-                            <Input addonBefore="عنوان فارسی" />
+                            <Input placeholder="عنوان فارسی" />
                         </Form.Item>
                     </Col>
-
                     <Col span={8}>
-                        <Form.Item name="code" rules={[{ required: true, message: "لطفاً کد محصول را وارد کنید" }]}>
+                        <Form.Item
+                            label="کد محصول"
+                            name="code"
+                            rules={[{ required: true, message: "لطفاً کد محصول را وارد کنید" }]}
+                        >
                             <Input
-                                addonBefore="کد محصول"
+                                placeholder="کد محصول"
                                 value={productCode}
                                 onChange={(e) => setProductCode(e.target.value)}
                             />
                         </Form.Item>
                     </Col>
                     <Col span={8}>
-                        <Form.Item name="final_code">
-                            <Input addonBefore="کد نهایی" value={finalCode} disabled />
+                        <Form.Item label="کد نهایی" name="final_code">
+                            <Input value={finalCode} disabled />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item
+                            label="تعداد"
+                            name="quantity"
+                            rules={[{ required: true, message: "لطفاً تعداد محصول را وارد کنید" }]}
+                        >
+                            <InputNumber style={{ width: "100%" }} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item label="نام تجاری 1" name="brand1">
+                            <Input />
+                        </Form.Item>
+                    </Col>
+                    <Col span={16}>
+                        <Form.Item label="شرح نام تجاری 1" name="brand1_desc">
+                            <Input />
                         </Form.Item>
                     </Col>
 
                     <Col span={8}>
-                        <Form.Item name="brand1">
-                            <Input addonBefore="نام تجاری 1" />
+                        <Form.Item label="نام تجاری 2" name="brand2">
+                            <Input />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
-                        <Form.Item name="brand1_desc">
-                            <Input addonBefore="شرح نام تجاری1" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                        <Form.Item name="quantity"
-                            rules={[{ required: true, message: "لطفاً تعداد محصول را وارد کنید" }]}
-                        >
-                            <InputNumber
-                                addonBefore="تعداد"
-                                style={{ width: '100%' }}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                        <Form.Item name="brand2">
-                            <Input addonBefore="نام تجاری 2" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                        <Form.Item name="brand2_desc">
-                            <Input addonBefore="شرح نام تجاری2" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                        <Form.Item name="employer_code">
-                            <Input addonBefore="کدکارفرما" />
+                    <Col span={16}>
+                        <Form.Item label="شرح نام تجاری 2" name="brand2_desc">
+                            <Input />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
                         <Form.Item
+                            label="هویت"
                             name="personality_ids"
                             rules={[{ required: true, message: "لطفاً هویت را انتخاب کنید" }]}
                         >
                             <TS
                                 data={personalityData}
                                 placeholder="هویت"
-                                onChange={(value) => {
-                                    setSelectedPersonalityId(value);
-                                }}
+                                onChange={(value) => setSelectedPersonalityId(value)}
                             />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item name="standard_code_id">
+                        <Form.Item label="کد استاندارد" name="standard_code_id">
                             <Select
                                 placeholder="کد استاندارد"
                                 showSearch
+                                style={{ width: "100%" }}
                                 options={standardCodesResponse?.personality_codes?.map(item => ({
                                     value: item.id,
                                     label: item.name
@@ -298,129 +257,79 @@ const ProductModal = ({
                             />
                         </Form.Item>
                     </Col>
-
                     <Col span={8}>
-                        <Form.Item name="genus_id">
-                            <TS
-                                data={genusData}
-                                placeholder="جنس"
-                            />
+                        <Form.Item label="کد کارفرما" name="employer_code">
+                            <Input />
                         </Form.Item>
                     </Col>
                     <Col span={8}>
-                        <Form.Item name="alternative_genus_id">
-                            <TS
-                                data={genusData}
-                                placeholder="جنس جایگزین"
-                            />
-
+                        <Form.Item label="کد انبار" name="store_code">
+                            <Input />
                         </Form.Item>
                     </Col>
                     <Col span={8}>
-                        <Form.Item name="casing_id">
-                            <TS
-                                data={casingData}
-                                placeholder="پوشش"
-                            />
+                        <Form.Item label="جنس" name="genus_id">
+                            <TS data={genusData} placeholder="جنس" />
                         </Form.Item>
                     </Col>
                     <Col span={8}>
-                        <Form.Item name="length">
+                        <Form.Item label="جنس جایگزین" name="alternative_genus_id">
+                            <TS data={genusData} placeholder="جنس جایگزین" />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item label="پوشش" name="casing_id">
+                            <TS data={casingData} placeholder="پوشش" />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item label="طول" name="length">
+                            <InputNumber style={{ width: "100%" }} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item label="عرض" name="width">
+                            <InputNumber style={{ width: "100%" }} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item label="ارتفاع" name="height">
+                            <InputNumber style={{ width: "100%" }} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item label="قطر داخل" name="internal_diagonal">
+                            <InputNumber style={{ width: "100%" }} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item label="قطر خارجی" name="external_diagonal">
+                            <InputNumber style={{ width: "100%" }} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item label="وزن" name="weight">
+                            <InputNumber style={{ width: "100%" }} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item label="قیمت" name="price">
                             <InputNumber
-                                addonBefore="طول"
-                                style={{ width: '100%' }}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                        <Form.Item name="width">
-                            <InputNumber
-                                addonBefore="عرض"
-                                style={{ width: '100%' }}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                        <Form.Item name="height">
-                            <InputNumber
-                                addonBefore="ارتفاع"
-                                style={{ width: '100%' }}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                        <Form.Item name="internal_diagonal">
-                            <InputNumber
-                                addonBefore="قطر داخل"
-                                style={{ width: '100%' }}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                        <Form.Item name="external_diagonal">
-                            <InputNumber
-                                addonBefore="قطر خارجی"
-                                style={{ width: '100%' }}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                        <Form.Item name="weight">
-                            <InputNumber
-                                addonBefore="وزن"
-                                style={{ width: '100%' }}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                        <Form.Item name="price">
-                            <InputNumber
-                                addonBefore="قیمت"
-                                style={{ width: '100%' }}
+                                style={{ width: "100%" }}
                                 formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '،')}
                                 parser={(value) => value.replace(/\$\s?|(،*)/g, '')}
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
-                        <Form.Item name="store_code">
-                            <Input addonBefore="کد انبار" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                        <Form.Item name="status">
-                            <Select
-                                placeholder="وضعیت"
-                                addonBefore="وضعیت"
-                                options={[
-                                    { label: 'فعال', value: 'active' },
-                                    { label: 'غیرفعال', value: 'inactive' },
-                                    { label: 'موقت', value: 'temp' }
-                                ]}
-                            />
-                        </Form.Item>
-                    </Col>
                     <Col span={24}>
-                        <Form.Item name="description">
-                            <Input.TextArea
-                                addonBefore="توضیحات"
-                                rows={1}
-                                placeholder="توضیحات محصول"
-                            />
+                        <Form.Item label="توضیحات" name="description">
+                            <Input.TextArea rows={2} placeholder="توضیحات محصول" />
                         </Form.Item>
                     </Col>
-                    {/* <Col span={24}>
-                        <Form.Item
-                            label={`بارگذاری عکس محصول`}
-                            name='image'
-                        >
-                            <FileUploader />
-                        </Form.Item>
-                    </Col> */}
                 </Row>
             </Form>
         </Modal>
-    );
+    )
 };
 
 export default ProductModal;
