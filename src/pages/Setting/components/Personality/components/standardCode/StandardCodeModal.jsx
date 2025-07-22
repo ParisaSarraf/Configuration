@@ -7,9 +7,9 @@ import TS from "../../../../../../components/TreeSelect";
 import FileUploader from "../../../../../../components/FileUploader/FileUploader";
 
 
-const StandardCodeModal = ({ isOpen, modalMode, modalData, closeModal, setModal, standardRefetch }) => {
+const StandardCodeModal = ({ isOpen, modalMode, modalData, closeModal, standardRefetch }) => {
     const [form] = Form.useForm();
-    const { data: personalityList, isFetching: isFetchingPersonality } = usePersonalityProductList();
+    const { data: personalityList } = usePersonalityProductList();
     const { isPending: isCreating, mutateAsync: createStandardCode } = useCreateStandardCode();
     const { isPending: isUpdating, mutateAsync: updateStandardCode } = useUpdateStandardCode();
 
@@ -17,7 +17,7 @@ const StandardCodeModal = ({ isOpen, modalMode, modalData, closeModal, setModal,
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
                 name: modalData.name,
-                personality: modalData.id,
+                personality: modalData?.parentData.name,
                 standard_file: modalData?.data?.standard_file
                     ? [
                         {

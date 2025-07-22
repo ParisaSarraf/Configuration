@@ -25,6 +25,12 @@ const Personality = () => {
 
     const { data: StandardPersonalityCodeList, refetch: standardRefetch } = useStandardCodePersonalityById(PersonalityId)
 
+
+    const TableData = StandardPersonalityCodeList?.personality_codes?.map(item => ({
+        ...item,
+        parentData: StandardPersonalityCodeList
+    }))
+
     const { isPending: isDeleting } = useDeleteCoreSetting();
 
     const handleDelete = (id) => {
@@ -52,7 +58,7 @@ const Personality = () => {
     const handleEdit = (record) => {
         setModal({
             mode: 'edit',
-            data: record,
+            data: { ...record },
             type: 'addStandardCode'
         });
     }
@@ -89,7 +95,8 @@ const Personality = () => {
                 >
                     <Table
                         columns={StandardCodeCol({ handleDelete, handleEdit })}
-                        dataSource={StandardPersonalityCodeList?.personality_codes || []}
+                        // dataSource={StandardPersonalityCodeList?.personality_codes || []}
+                        dataSource={TableData || []}
                         rowKey="id"
                         // loading={!StandardPersonalityCodeList?.personality_codes}
                         locale={

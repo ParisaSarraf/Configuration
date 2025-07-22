@@ -11,6 +11,7 @@ import { useDeleteProduct } from "../../../QueryServises/productQuery";
 import Tree from "../../../components/Tree";
 import StopIcon from '@mui/icons-material/Stop';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
+import { exportToExcel } from "../../../components/ExportExcel/ExportExcel";
 
 
 const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onChange, checkedKeys, onProductClick }) => {
@@ -140,14 +141,10 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
             }
         } else if (actionKey === 'exportExcel') {
             try {
-                // setModal({
-                //     mode: "exportExcel",
-                //     data: node.productData,
-                // });
-                console.log(node.productData);
-
+                exportToExcel(node.productData);
+                message.success("خروجی اکسل دانلود شد");
             } catch (error) {
-                message.error("خطا در دریافت اطلاعات محصول");
+                message.error("خطا در خروجی اکسل");
             }
         }
     }
