@@ -5,12 +5,9 @@ export const StandardCodeCol = ({ handleDelete, handleEdit }) => {
     return [
         {
             title: 'ردیف',
-            dataIndex: 'id',
-            key: 'id',
             width: 100,
-            render: (text) => <span>{text}</span>
+            render: (_, __, index) => <span>{index + 1}</span>
         },
-
         {
             title: ' کد استاندارد',
             dataIndex: 'name',

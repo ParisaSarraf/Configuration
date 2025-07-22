@@ -91,7 +91,7 @@ const Personality = () => {
                         columns={StandardCodeCol({ handleDelete, handleEdit })}
                         dataSource={StandardPersonalityCodeList?.personality_codes || []}
                         rowKey="id"
-                        loading={!StandardPersonalityCodeList?.personality_codes}
+                        // loading={!StandardPersonalityCodeList?.personality_codes}
                         locale={
                             { emptyText: 'هیچ کد استانداردی برای این هویت وجود ندارد' }
                         }
@@ -120,9 +120,6 @@ const Personality = () => {
                     standardRefetch={standardRefetch}
                     modalType={modalType}
                 />
-
-
-
             </div>
         </Spin >
     );
