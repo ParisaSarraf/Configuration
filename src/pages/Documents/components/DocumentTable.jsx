@@ -1,30 +1,29 @@
-import { Table } from 'antd';
+import { ConfigProvider, Table } from 'antd';
 import { DocumentCol } from './DocumentCol';
+import fa_IR from 'antd/locale/fa_IR';
+
 
 const DocumentTable = ({ documentData }) => {
-    const flattenData = (data) => {
-        return data.reduce((acc, item) => {
-            acc.push(item);
-            if (item.children && item.children.length > 0) {
-                acc.push(...flattenData(item.children));
-            }
-            return acc;
-        }, []);
-    };
+    console.log(documentData);
 
 
     return (
         <div>
-            <Table
-                bordered
-                columns={DocumentCol}
-                dataSource={documentData}
-                rowKey="id"
-                expandable={{
-                    childrenColumnName: 'children',
-                    defaultExpandAllRows: true,
-                }}
-            />
+            <ConfigProvider direction="rtl" locale={fa_IR}>
+
+                <Table
+                    bordered
+                    columns={DocumentCol}
+                    dataSource={documentData}
+                    rowKey="id"
+                    pagination={false}
+                    expandable={{
+                        indentSize: 20,
+                        expandIconColumnIndex: 0,
+                        rowExpandable: (record) => record.children && record.children.length > 0
+                    }}
+                />
+            </ConfigProvider>
         </div>
     );
 };

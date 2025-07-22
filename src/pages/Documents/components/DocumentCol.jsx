@@ -1,4 +1,8 @@
+import { CaretUpOutlined, CheckOutlined } from "@ant-design/icons";
 import { Button, Flex, Tooltip } from "antd";
+// CaretUpOutlined
+import DoneIcon from '@mui/icons-material/Done';
+import CloseIcon from '@mui/icons-material/Close';
 
 export const DocumentCol = [
     {
@@ -22,10 +26,10 @@ export const DocumentCol = [
         key: 'tag',
     },
     {
-        title: 'قابل استفاده',
-        dataIndex: 'isUsable',
-        key: 'isUsable',
-        render: (value) => (value ? 'Yes' : 'No'),
+        title: 'لاگ',
+        dataIndex: 'log',
+        key: 'log',
+        render: (value) => (value ? <DoneIcon style={{ color: "green" }} /> : <CloseIcon style={{ color: "red" }} />),
     },
     // {
     //     title: 'عملیات',
