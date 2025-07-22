@@ -4,6 +4,7 @@ import Modal from "../../../../../../components/Modal";
 import { usePersonalityProductList } from "../../../../../../QueryServises/personalityQuery";
 import { useCreateStandardCode, useUpdateStandardCode } from "../../../../../../QueryServises/StandardCodeQuery";
 import TS from "../../../../../../components/TreeSelect";
+import FileUploader from "../../../../../../components/FileUploader/FileUploader";
 
 
 const StandardCodeModal = ({ isOpen, modalMode, modalData, closeModal, setModal, standardRefetch }) => {
@@ -12,13 +13,20 @@ const StandardCodeModal = ({ isOpen, modalMode, modalData, closeModal, setModal,
     const { isPending: isCreating, mutateAsync: createStandardCode } = useCreateStandardCode();
     const { isPending: isUpdating, mutateAsync: updateStandardCode } = useUpdateStandardCode();
 
-
-    console.log(modalData)
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
                 name: modalData.name,
-                personality: modalData.id
+                personality: modalData.id,
+                standard_file: modalData?.data?.standard_file
+                    ? [
+                        {
+                            uid: "-4",
+                            name: "standard_file",
+                            url: BASEURL.replace("/api/v1", "") + modalData?.data.standard_file,
+                        },
+                    ]
+                    : [],
             });
         } else if (modalMode === "add") {
             form.resetFields();
@@ -32,10 +40,9 @@ const StandardCodeModal = ({ isOpen, modalMode, modalData, closeModal, setModal,
         }
         const payload = {
             name: values.name,
-            personality: values.personality
-
+            personality: values.personality,
+            standard_file: values.standard_file?.[0]?.originFileObj,
         };
-        console.log(payload);
 
         if (modalMode === "add") {
             createStandardCode(payload)
@@ -108,6 +115,14 @@ const StandardCodeModal = ({ isOpen, modalMode, modalData, closeModal, setModal,
                                     data={personalityList}
                                     placeholder="هویت"
                                 />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                name="standard_file"
+                                label="فایل ضمیمه"
+                            >
+                                <FileUploader />
                             </Form.Item>
                         </Col>
                     </Row>

@@ -31,7 +31,6 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
     useEffect(() => {
         if (!isOpen) return;
         form.resetFields();
-
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
                 persian_title: modalData.persian_title,
@@ -55,12 +54,11 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
                 description: modalData.description,
                 brand1: modalData.brand1,
                 brand1_desc: modalData.brand1_desc,
-                personality_type: modalData.personality_type,
-                personality_ids: modalData.product_personalities?.map(p => p.personality.id),
+                product_personalities: modalData.product_personalities?.map(p => p.personality.id),
+                standard_code: modalData.standard_code,
                 brand2: modalData.brand2,
                 brand2_desc: modalData.brand2_desc,
                 employer_code: modalData.employer_code,
-                standard_code: modalData.standard_code,
                 final_code: modalData.final_code || "",
             });
             setProductCode(modalData.code || "");
@@ -85,8 +83,8 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
     const handleParentChange = (value) => setSelectedParentCodeId(value);
 
     const onFinish = (values) => {
-        if (values.personality_ids && !Array.isArray(values.personality_ids)) {
-            values.personality_ids = [values.personality_ids];
+        if (values.personality_id && !Array.isArray(values.personality_id)) {
+            values.personality_id = [values.personality_id];
         }
         const payload = {
             parent_id: values.parent_id,
@@ -94,7 +92,8 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
             genus_id: values.genus_id,
             alternative_genus_id: values.alternative_genus_id,
             parent_code_id: values.parent_code_id,
-            personality_ids: values.personality_ids || [],
+            standard_code_id: values.standard_code_id,
+            personality_id: values.personality_id || [],
             code: values.code,
             persian_title: values.persian_title,
             quantity: values.quantity,
@@ -110,13 +109,11 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
             external_diagonal: values.external_diagonal,
             internal_diagonal: values.internal_diagonal,
             description: values.description,
-            personality_type: values.personality_type,
             brand1: values.brand1,
             brand1_desc: values.brand1_desc,
             brand2: values.brand2,
             brand2_desc: values.brand2_desc,
             employer_code: values.employer_code,
-            standard_code_id: values.standard_code_id,
         };
 
         Object.keys(values).forEach((key) => {
@@ -235,7 +232,7 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
                     <Col span={8}>
                         <Form.Item
                             label="هویت"
-                            name="personality_ids"
+                            name="personality_id"
                             rules={[{ required: true, message: "لطفاً هویت را انتخاب کنید" }]}
                         >
                             <TS
