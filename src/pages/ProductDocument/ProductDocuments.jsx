@@ -12,6 +12,7 @@ import {
     useProductDocumentEditionLogsBySerialById,
     useProductDocumentTreeById
 } from "../../QueryServises/productDocumentQuery";
+import EditionDetailViewModal from "./components/ProductDocumentListSerial/components/EditionDetailViewModal";
 
 const ProductDocuments = () => {
     const { currentProduct } = useProductContext();
@@ -43,7 +44,8 @@ const ProductDocuments = () => {
                                     closeModal={closeModal}
                                     setModal={setModal}
                                     refetch={refetch}
-                                />}
+                                />
+                            }
                         >
                             <ProductDocumentTree
                                 setModal={setModal}
@@ -51,7 +53,7 @@ const ProductDocuments = () => {
                                 refetch={refetch}
                                 currentProduct={currentProduct}
                             />
-                            
+
                         </Card>
                     </div>
                     <div className="col-span-1">
@@ -92,6 +94,14 @@ const ProductDocuments = () => {
                     setModal={setModal}
                     currentProduct={currentProduct}
                     refetch={refetch}
+                />
+
+                <EditionDetailViewModal
+                    isOpen={modalType === 'EditionDetailView' && isOpen}
+                    modalMode={modalMode}
+                    modalType={modalType}
+                    modalData={modalData}
+                    closeModal={closeModal}
                 />
             </Card>
         </>

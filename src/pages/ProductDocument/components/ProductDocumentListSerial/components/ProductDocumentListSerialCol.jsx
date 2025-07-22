@@ -1,7 +1,7 @@
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, EyeFilled } from "@ant-design/icons";
 import { Button, Space, Tooltip } from "antd";
 
-const ProductDocumentListSerialCol = ({ handleEditLogEdition, handleDeleteLogEdition }) => {
+const ProductDocumentListSerialCol = ({ handleEditLogEdition, handleDeleteLogEdition, handleShowDetailEdiotnLog }) => {
   return [
     {
       title: "نام محصول",
@@ -10,7 +10,7 @@ const ProductDocumentListSerialCol = ({ handleEditLogEdition, handleDeleteLogEdi
     },
     {
       title: "عنوان سند",
-      dataIndex:['document', 'persianTitle'],
+      dataIndex: ['document', 'persianTitle'],
       key: "persianTitle",
     },
     {
@@ -37,6 +37,14 @@ const ProductDocumentListSerialCol = ({ handleEditLogEdition, handleDeleteLogEdi
                 icon={<DeleteOutlined />}
                 danger
                 onClick={() => handleDeleteLogEdition(record)}
+              />
+            </Tooltip>
+            <Tooltip title="نمایش جزئیات">
+              <Button
+                title="نمایش جزئیات"
+                icon={<EyeFilled />}
+                className="text-sky-500 border-sky-500"
+                onClick={() => handleShowDetailEdiotnLog(record)}
               />
             </Tooltip>
           </Space>
