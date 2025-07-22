@@ -1,4 +1,4 @@
-import { Col, Form, message, Row, Select } from "antd";
+import { Col, Form, Input, message, Row, Select } from "antd";
 import Modal from "../../../../components/Modal";
 import {
     useCreateProductDocumentEdition,
@@ -8,6 +8,7 @@ import {
 import DatepickerCustom from "../../../../components/DatePicker";
 import FileUploader from "../../../../components/FileUploader/FileUploader";
 import { checkEditionDuplicate } from "@/utils/checkEditionDuplicate.js";
+import { useEffect } from "react";
 
 const ProductDocumentEditionModal = ({
     isOpen,
@@ -29,16 +30,25 @@ const ProductDocumentEditionModal = ({
         { enabled: false }
     );
 
+    // console.log(modalData);
+
+    useEffect(() => {
+        if (modalMode === 'edit') {
+
+        }
+    }, [])
+
     const onFinishForm = async (values) => {
         const payload = {
             product_document_id: modalData?.product_document_id?.id,
             edition: values.edition,
-            survey_date: values.survey_date,
-            state: 10,
+            // survey_date: values.survey_date,
+            // state: 10,
             // file_1: values.file_1?.[0]?.originFileObj,
             // file_2: values.file_2?.[0]?.originFileObj,
             // file_3: values.file_3?.[0]?.originFileObj,
             // file_4: values.file_4?.[0]?.originFileObj
+            description: values.description
         };
 
         try {
@@ -74,8 +84,8 @@ const ProductDocumentEditionModal = ({
             loading={isCreating || isUpdating}
         >
             <Form form={form} layout="vertical" onFinish={onFinishForm}>
-                <Row gutter={[16, 16]}>
-                    <Col span={12}>
+                <Row gutter={16}>
+                    <Col span={24}>
                         <Form.Item
                             label="نام نسخه"
                             name="edition"
@@ -110,11 +120,17 @@ const ProductDocumentEditionModal = ({
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={12}>
+                    {/* <Col span={12}>
                         <Form.Item label="تاریخ بررسی" name="survey_date">
                             <DatepickerCustom format="YYYY-MM-DD" />
                         </Form.Item>
+                    </Col> */}
+                    <Col span={24}>
+                        <Form.Item label="توضیح" name="description">
+                            <Input.TextArea />
+                        </Form.Item>
                     </Col>
+
                     {/* {[1, 2, 3, 4].map((num) => (
                         <Col span={6} key={num}>
                             <Form.Item label={`فایل ${num}`} name={`file_${num}`}>
@@ -122,6 +138,7 @@ const ProductDocumentEditionModal = ({
                             </Form.Item>
                         </Col>
                     ))} */}
+
                 </Row>
             </Form>
         </Modal>

@@ -1,8 +1,8 @@
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons"
+import { DeleteOutlined, EditOutlined, EyeFilled } from "@ant-design/icons"
 import { Button, Image, Space, Tooltip } from "antd"
 import { BASEURL } from "../../../Services/axiosInstance";
 
-const ExperienceCol = ({ handleDelete, handleEdit }) => {
+const ExperienceCol = ({ handleDelete, handleEdit, handleShowDetail }) => {
     console.log(BASEURL);
     return [
         {
@@ -21,7 +21,9 @@ const ExperienceCol = ({ handleDelete, handleEdit }) => {
             title: 'کاربر ثبت کننده',
             dataIndex: 'user',
             key: 'username',
-            render: (user) => user?.username || 'ندارد'
+            render: (user) => (
+                user ? `${user.name || ''} ${user.last_name || ''}`.trim() || 'ندارد' : 'ندارد'
+            )
         },
         {
             title: 'تاریخ ثبت',
@@ -94,6 +96,14 @@ const ExperienceCol = ({ handleDelete, handleEdit }) => {
                             icon={<DeleteOutlined />}
                             danger
                             onClick={() => handleDelete(record?.id)}
+                        />
+                    </Tooltip>
+                    <Tooltip title="نمایش جزئیات">
+                        <Button
+                            title="نمایش جزئیات"
+                            icon={<EyeFilled />}
+                            className="text-sky-500 border-sky-500"
+                            onClick={() => handleShowDetail(record)}
                         />
                     </Tooltip>
                 </Space>

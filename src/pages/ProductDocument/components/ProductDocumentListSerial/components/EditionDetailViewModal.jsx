@@ -72,8 +72,8 @@ const EditionDetailViewModal = ({
                         <span className="text-gray-500">تاریخ بررسی:</span>
                         <span>{data?.product_document_edition?.survey_date || "-"}</span>
 
-                        {/* <span className="text-gray-500">وضعیت:</span>
-                        <span>{data?.status || "-"}</span> */}
+                        <span className="text-gray-500">توضیح نسخه:</span>
+                        <span>{data?.description || "-"}</span>
                     </div>
                 </div>
             </div>

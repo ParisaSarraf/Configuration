@@ -74,7 +74,7 @@ const ExperienceModal = ({ isOpen, modalMode, modalData, closeModal, setModal, c
             <Modal
                 isOpen={isOpen}
                 title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} تجربه`}
-                size={300}
+                size={500}
                 onClose={closeModal}
                 onSubmit={() => form.submit()}
                 mode={modalMode}

@@ -1,15 +1,16 @@
-import {Card, Table, Button, message, Modal} from 'antd'
-import {useDeleteExperience, useProductExperienceById, usExperienceList} from '../../QueryServises/experienceQuery';
-import {useProductContext} from '../../Services/Context/ProductContext';
+import { Card, Table, Button, message, Modal } from 'antd'
+import { useDeleteExperience, useProductExperienceById, usExperienceList } from '../../QueryServises/experienceQuery';
+import { useProductContext } from '../../Services/Context/ProductContext';
 import ExperienceModal from './components/ExperienceModal';
 import ExperienceCol from './components/ExperienceCol';
 import useModal from '../../hooks/useModal';
+import ExperienceDetailViewModal from './components/ExperienceDetailViewModal';
 
 const Experience = () => {
-    const {isOpen, modalMode, modalData, modalType, setModal, closeModal} = useModal();
-    const {currentProduct} = useProductContext();
-    const {data, refetch} = useProductExperienceById(currentProduct?.id)
-    const {mutateAsync: deleteExperience} = useDeleteExperience()
+    const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
+    const { currentProduct } = useProductContext();
+    const { data, refetch } = useProductExperienceById(currentProduct?.id)
+    const { mutateAsync: deleteExperience } = useDeleteExperience()
 
     const handleDelete = async (id) => {
         Modal.confirm({
@@ -35,10 +36,13 @@ const Experience = () => {
         setModal({
             mode: 'edit',
             data: record,
-            type: 'add'
+            type: 'addOrEdit'
         })
     }
 
+    const handleShowDetail = (record) => {
+        setModal({ mode: 'view', data: record, type: 'detial' })
+    }
 
     return (
         <Card
@@ -47,7 +51,7 @@ const Experience = () => {
                 <>
                     <ExperienceModal
                         currentProduct={currentProduct}
-                        isOpen={isOpen}
+                        isOpen={modalType === 'addOrEdit' && isOpen}
                         modalMode={modalMode}
                         modalData={modalData}
                         modalType={modalType}
@@ -59,10 +63,19 @@ const Experience = () => {
             }
         >
             <Table
-                columns={ExperienceCol({handleDelete, handleEdit})}
+                columns={ExperienceCol({ handleDelete, handleEdit, handleShowDetail })}
                 dataSource={data}
-                locale={{emptyText: 'هیچ داده ای وجود ندارد'}}
+                locale={{ emptyText: 'هیچ داده ای وجود ندارد' }}
             />
+
+            <ExperienceDetailViewModal
+                isOpen={modalType === 'detial' && isOpen}
+                modalMode={modalMode}
+                modalType={modalType}
+                modalData={modalData}
+                closeModal={closeModal}
+            />
+
         </Card>
     )
 }
