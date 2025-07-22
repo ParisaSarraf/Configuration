@@ -4,12 +4,12 @@ import {
     EditOutlined,
     DeleteOutlined,
     PlusOutlined,
+    CaretUpOutlined,
+    FileExcelOutlined,
 } from '@ant-design/icons';
 import { useDeleteProduct } from "../../../QueryServises/productQuery";
 import Tree from "../../../components/Tree";
 import StopIcon from '@mui/icons-material/Stop';
-import ChangeHistoryTwoToneIcon from '@mui/icons-material/ChangeHistoryTwoTone';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 
 
@@ -45,15 +45,15 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
                 </div>
             )
         },
-        // {
-        //     key: "exportExcel",
-        //     label: (
-        //         <div className="w-full flex flex-row items-center gap-2">
-        //             <FileExcelOutlined />
-        //             <span>خروجی اکسل</span>
-        //         </div>
-        //     )
-        // },
+        {
+            key: "exportExcel",
+            label: (
+                <div className="w-full flex flex-row items-center gap-2">
+                    <FileExcelOutlined />
+                    <span>خروجی اکسل</span>
+                </div>
+            )
+        },
         // {
         //     key: "export",
         //     label: (
@@ -72,10 +72,7 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
                 <div className="flex items-center">
                     <FiberManualRecordIcon fontSize="small" />
                     <StopIcon fontSize="small" />
-                    <PlayArrowIcon fontSize="small" sx={{
-                        rotate: 180,
-                        color: 'red'
-                    }} />
+                    <CaretUpOutlined />
                     <span>{item.persian_title} ({item.code})</span>
                 </div>
             ),
@@ -141,12 +138,22 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
             } catch (error) {
                 message.error("خطا در دریافت اطلاعات محصول");
             }
+        } else if (actionKey === 'exportExcel') {
+            try {
+                // setModal({
+                //     mode: "exportExcel",
+                //     data: node.productData,
+                // });
+                console.log(node.productData);
+
+            } catch (error) {
+                message.error("خطا در دریافت اطلاعات محصول");
+            }
         }
     }
     return (
         <div className="p-2">
             <Tree
-                // className={'p-2'}
                 data={treeData}
                 isLoading={isLoading || isDeleting}
                 isError={isError || isDeleting}
