@@ -12,6 +12,9 @@ import { checkEditionDuplicate } from "../../../Utils/checkEditionDuplicate";
 const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
     const selectedProductId = currentProduct?.productData?.id;
 
+
+    
+    
     const { data: productDocument, isLoading, isError } =
         useProductDocumentTreeById(selectedProductId, { enabled: !!selectedProductId });
 
@@ -57,32 +60,31 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
 
 
     const transformNode = (node) => {
-        const editions = node.product_document_id?.edition || node.edition || [];
-        const hasEditions = Array.isArray(editions) && editions.length > 0;
-        const hasProductDocument = node.product_document_id?.id;
+        const productDoc = node.product_document;
+        const editions = productDoc?.edition || [];
+        const hasEditions = editions.length > 0;
 
         const baseNode = {
             key: `node-${Math.random()}`,
-            title: node.title || 'بدون عنوان',
+            title: productDoc?.document?.code || node.title || "بدون عنوان",
             id: node.id,
             edition: editions,
-            product_document_id: node.product_document_id,
-            is_reportable: node.is_reportable,
-            document: node.document,
-            survey_date: node.survey_date,
+            product_document_id: productDoc,
+            is_reportable: productDoc?.is_reportable,
+            document: productDoc?.document,
+            survey_date: productDoc?.survey_date,
             children: []
         };
 
-        if (node.children?.length > 0) {
-            baseNode.children = node.children.map((child) => transformNode(child));
-        }
-
-        const createEditionNodes = (editions) =>
-            editions.map((edition) => ({
+        if (hasEditions) {
+            const editionNodes = editions.map((edition) => ({
                 key: `edition-${edition.id}`,
                 title: (
                     <div className="flex flex-row justify-between items-center w-full">
-                        <span>{edition.edition}</span>
+                        <span>
+                            {edition.edition}
+                            {edition.description ? ` (${edition.description})` : ""}
+                        </span>
                         <Space>
                             <Button
                                 type="text"
@@ -110,23 +112,16 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
                 isLeaf: true
             }));
 
-        if (hasProductDocument) {
-            const productDocNode = {
-                key: `product-doc-${node.product_document_id.id}`,
-                title: <span>{node.product_document_id.title || "بدون عنوان"}</span>,
-                id: node.product_document_id.id,
-                isLeaf: false,
-                product_document_id: node.product_document_id,
-                children: hasEditions ? createEditionNodes(editions) : []
-            };
-            baseNode.children.push(productDocNode);
-        } else if (hasEditions) {
-            baseNode.children = [...baseNode.children, ...createEditionNodes(editions)];
+            baseNode.children.push(...editionNodes);
+        }
+
+        if (node.children?.length > 0) {
+            const childNodes = node.children.map((child) => transformNode(child));
+            baseNode.children.push(...childNodes);
         }
 
         return baseNode;
     };
-
 
     const transformDataToTreeView = (data) => {
         if (!data) return [];

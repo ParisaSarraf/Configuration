@@ -5,8 +5,6 @@ import {
     useUpdateProductDocumentEdition,
     useProductDocumentTreeById
 } from "@/QueryServises/productDocumentQuery/index.js";
-import DatepickerCustom from "../../../../components/DatePicker";
-import FileUploader from "../../../../components/FileUploader/FileUploader";
 import { checkEditionDuplicate } from "@/utils/checkEditionDuplicate.js";
 import { useEffect } from "react";
 
@@ -30,24 +28,21 @@ const ProductDocumentEditionModal = ({
         { enabled: false }
     );
 
-    // console.log(modalData);
-
     useEffect(() => {
-        if (modalMode === 'edit') {
-
+        if (modalMode === "edit" && modalData) {
+            form.setFieldsValue({
+                edition: modalData?.edition,
+                description: modalData?.description
+            });
+        } else {
+            form.resetFields();
         }
-    }, [])
+    }, [modalMode, modalData, form]);
 
     const onFinishForm = async (values) => {
         const payload = {
-            product_document_id: modalData?.product_document_id?.id,
+            product_document_id: modalData?.product_document_id?.id || currentProduct?.id,
             edition: values.edition,
-            // survey_date: values.survey_date,
-            // state: 10,
-            // file_1: values.file_1?.[0]?.originFileObj,
-            // file_2: values.file_2?.[0]?.originFileObj,
-            // file_3: values.file_3?.[0]?.originFileObj,
-            // file_4: values.file_4?.[0]?.originFileObj
             description: values.description
         };
 
@@ -58,8 +53,7 @@ const ProductDocumentEditionModal = ({
             } else {
                 await updateProductDocumentEdition({
                     documentId: modalData?.id,
-                    ...payload,
-                    product_document_id: modalData.product_document_id
+                    ...payload
                 });
                 message.success("نسخه با موفقیت ویرایش شد");
             }
@@ -93,7 +87,7 @@ const ProductDocumentEditionModal = ({
                                 { required: true, message: "لطفا نام نسخه را انتخاب کنید" },
                                 {
                                     validator: async (_, value) => {
-                                        if (!value) return Promise.resolve();
+                                        if (!value || modalMode === "edit") return Promise.resolve();
                                         const { data: productDocument } =
                                             await refetchDocumentTree();
                                         const isEditionExist = checkEditionDuplicate(
@@ -120,25 +114,11 @@ const ProductDocumentEditionModal = ({
                             />
                         </Form.Item>
                     </Col>
-                    {/* <Col span={12}>
-                        <Form.Item label="تاریخ بررسی" name="survey_date">
-                            <DatepickerCustom format="YYYY-MM-DD" />
-                        </Form.Item>
-                    </Col> */}
                     <Col span={24}>
                         <Form.Item label="توضیح" name="description">
-                            <Input.TextArea />
+                            <Input.TextArea placeholder="توضیحات نسخه را وارد کنید" />
                         </Form.Item>
                     </Col>
-
-                    {/* {[1, 2, 3, 4].map((num) => (
-                        <Col span={6} key={num}>
-                            <Form.Item label={`فایل ${num}`} name={`file_${num}`}>
-                                <FileUploader maxCount={1} />
-                            </Form.Item>
-                        </Col>
-                    ))} */}
-
                 </Row>
             </Form>
         </Modal>
