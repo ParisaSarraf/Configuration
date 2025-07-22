@@ -6,12 +6,13 @@ import {
     PlusOutlined,
     CaretUpOutlined,
     FileExcelOutlined,
+    FileOutlined,
 } from '@ant-design/icons';
 import { useDeleteProduct } from "../../../QueryServises/productQuery";
 import Tree from "../../../components/Tree";
 import StopIcon from '@mui/icons-material/Stop';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
-import { exportToExcel } from "../../../components/ExportExcel/ExportExcel";
+import { exportToExcel } from "../../../Utils/ExportExcel";
 
 
 const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onChange, checkedKeys, onProductClick }) => {
@@ -55,15 +56,15 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
                 </div>
             )
         },
-        // {
-        //     key: "export",
-        //     label: (
-        //         <div className="w-full flex flex-row items-center gap-2">
-        //             <FileOutlined />
-        //             <span>خروجی اسناد</span>
-        //         </div>
-        //     )
-        // }
+        {
+            key: "documentExport",
+            label: (
+                <div className="w-full flex flex-row items-center gap-2">
+                    <FileOutlined />
+                    <span>خروجی اسناد</span>
+                </div>
+            )
+        }
     ];
 
     const transformDataToTreeFormat = (productData) => {
@@ -141,10 +142,17 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
             }
         } else if (actionKey === 'exportExcel') {
             try {
-                exportToExcel(node.productData);
+                exportToExcel(node.productData, 'محصولات.xlsx');
                 message.success("خروجی اکسل دانلود شد");
             } catch (error) {
                 message.error("خطا در خروجی اکسل");
+            }
+        } else if (actionKey === 'documentExport') {
+            try {
+                exportToExcel(node.productData?.product_documents, 'اسناد.xlsx')
+                message.success("خروجی اکسل اسناد  دانلود شد.")
+            } catch (error) {
+                message.error("خطا در خروجی اکسل")
             }
         }
     }
