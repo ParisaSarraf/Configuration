@@ -9,15 +9,9 @@ import { SearchOutlined } from "@ant-design/icons";
 import TS from "../../../components/TreeSelect";
 import { useStandardCodePersonalityById } from "../../../QueryServises/StandardCodeQuery";
 
-const ProductModal = ({
-    isOpen,
-    modalMode,
-    modalData,
-    closeModal,
-    refetch,
-    productData
-}) => {
+const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, productData }) => {
     const [form] = Form.useForm();
+
     const { isPending: isCreating, mutateAsync: createProduct } = useCreateProduct();
     const { isPending: isUpdating, mutateAsync: updateProduct } = useUpdateProduct();
 
@@ -34,10 +28,10 @@ const ProductModal = ({
 
     const parentCodeId = parentCodeData?.code || "";
 
-
     useEffect(() => {
         if (!isOpen) return;
         form.resetFields();
+
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
                 persian_title: modalData.persian_title,
@@ -70,30 +64,25 @@ const ProductModal = ({
                 final_code: modalData.final_code || "",
             });
             setProductCode(modalData.code || "");
-        }
-        else if (modalMode === "addToParent" && modalData) {
+        } else if (modalMode === "addToParent" && modalData) {
+            setSelectedParentCodeId(modalData.id);
             form.setFieldsValue({
                 parent_id: modalData.id,
                 parent_code_id: modalData.id,
-                final_code: parentCodeId ? parentCodeId + "/" : ""
+                final_code: parentCodeId ? `${parentCodeId}/` : ""
             });
+        } else if (modalMode === "add") {
+            form.setFieldsValue({ final_code: parentCodeId || "" });
         }
-        else if (modalMode === "add") {
-            form.setFieldsValue({
-                final_code: parentCodeId || ""
-            });
-        }
-    }, [modalMode, modalData, isOpen, form]);
+    }, [modalMode, modalData, isOpen]);
 
     useEffect(() => {
         const newFinalCode = `${parentCodeId || ""}${productCode || ""}`;
         setFinalCode(newFinalCode);
         form.setFieldsValue({ final_code: newFinalCode });
-    }, [parentCodeId, productCode, form]);
+    }, [parentCodeId, productCode]);
 
-    const handleParentChange = (value) => {
-        setSelectedParentCodeId(value);
-    };
+    const handleParentChange = (value) => setSelectedParentCodeId(value);
 
     const onFinish = (values) => {
         if (values.personality_ids && !Array.isArray(values.personality_ids)) {
@@ -130,9 +119,21 @@ const ProductModal = ({
             standard_code_id: values.standard_code_id,
         };
 
-        const action = (modalMode === "edit")
-            ? updateProduct({ productId: modalData.id, ...payload })
-            : createProduct(payload);
+        Object.keys(values).forEach((key) => {
+            const newVal = values[key];
+            const oldVal = modalData ? modalData[key] : undefined;
+            if (newVal !== oldVal && newVal !== undefined) {
+                payload[key] = newVal;
+            }
+        });
+        if (modalMode === "edit" && values.code === modalData?.code) {
+            delete payload.code;
+        }
+
+        const action =
+            modalMode === "edit"
+                ? updateProduct({ productId: modalData.id, ...payload })
+                : createProduct(payload);
 
         action
             .then(() => {
@@ -150,7 +151,7 @@ const ProductModal = ({
         <Modal
             isOpen={isOpen}
             title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} محصول`}
-            size={900}
+            size={800}
             onClose={closeModal}
             onSubmit={() => form.submit()}
             mode={modalMode}
@@ -169,6 +170,7 @@ const ProductModal = ({
                             <TS data={productData} placeholder="ارث بری کد" onChange={handleParentChange} />
                         </Form.Item>
                     </Col>
+
                     <Col span={8}>
                         <Form.Item
                             label="عنوان فارسی"
@@ -192,17 +194,17 @@ const ProductModal = ({
                         </Form.Item>
                     </Col>
                     <Col span={8}>
-                        <Form.Item label="کد نهایی" name="final_code">
-                            <Input value={finalCode} disabled />
-                        </Form.Item>
-                    </Col>
-                    <Col span={8}>
                         <Form.Item
                             label="تعداد"
                             name="quantity"
                             rules={[{ required: true, message: "لطفاً تعداد محصول را وارد کنید" }]}
                         >
                             <InputNumber style={{ width: "100%" }} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item label="کد نهایی" name="final_code">
+                            <Input value={finalCode} disabled />
                         </Form.Item>
                     </Col>
                     <Col span={8}>
@@ -215,7 +217,6 @@ const ProductModal = ({
                             <Input />
                         </Form.Item>
                     </Col>
-
                     <Col span={8}>
                         <Form.Item label="نام تجاری 2" name="brand2">
                             <Input />
@@ -226,7 +227,12 @@ const ProductModal = ({
                             <Input />
                         </Form.Item>
                     </Col>
-                    <Col span={12}>
+                    <Col span={8}>
+                        <Form.Item label="کد کارفرما" name="employer_code">
+                            <Input />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
                         <Form.Item
                             label="هویت"
                             name="personality_ids"
@@ -239,7 +245,7 @@ const ProductModal = ({
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={12}>
+                    <Col span={8}>
                         <Form.Item label="کد استاندارد" name="standard_code_id">
                             <Select
                                 placeholder="کد استاندارد"
@@ -255,16 +261,6 @@ const ProductModal = ({
                                 }
                                 suffixIcon={<SearchOutlined />}
                             />
-                        </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                        <Form.Item label="کد کارفرما" name="employer_code">
-                            <Input />
-                        </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                        <Form.Item label="کد انبار" name="store_code">
-                            <Input />
                         </Form.Item>
                     </Col>
                     <Col span={8}>
@@ -321,6 +317,24 @@ const ProductModal = ({
                             />
                         </Form.Item>
                     </Col>
+                    <Col span={8}>
+                        <Form.Item label="کد انبار" name="store_code">
+                            <Input />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item label="وضعیت" name="status">
+                            <Select
+                                placeholder="وضعیت"
+                                style={{ width: "100%" }}
+                                options={[
+                                    { label: 'فعال', value: 'active' },
+                                    { label: 'غیرفعال', value: 'inactive' },
+                                    { label: 'موقت', value: 'temp' }
+                                ]}
+                            />
+                        </Form.Item>
+                    </Col>
                     <Col span={24}>
                         <Form.Item label="توضیحات" name="description">
                             <Input.TextArea rows={2} placeholder="توضیحات محصول" />
@@ -329,7 +343,8 @@ const ProductModal = ({
                 </Row>
             </Form>
         </Modal>
-    )
+
+    );
 };
 
 export default ProductModal;
