@@ -54,8 +54,10 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
                 description: modalData.description,
                 brand1: modalData.brand1,
                 brand1_desc: modalData.brand1_desc,
-                product_personalities: modalData.product_personalities?.map(p => p.personality.id),
-                standard_code: modalData.standard_code,
+                personality_id: modalData.product_personalities?.map(
+                    personality => personality?.personality?.id
+                ),
+                standard_code_id: modalData.standard_code?.id,
                 brand2: modalData.brand2,
                 brand2_desc: modalData.brand2_desc,
                 employer_code: modalData.employer_code,
@@ -83,9 +85,7 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
     const handleParentChange = (value) => setSelectedParentCodeId(value);
 
     const onFinish = (values) => {
-        if (values.personality_id && !Array.isArray(values.personality_id)) {
-            values.personality_id = [values.personality_id];
-        }
+
         const payload = {
             parent_id: values.parent_id,
             casing_id: values.casing_id,
@@ -93,7 +93,7 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
             alternative_genus_id: values.alternative_genus_id,
             parent_code_id: values.parent_code_id,
             standard_code_id: values.standard_code_id,
-            personality_id: values.personality_id || [],
+            personality_id: values.personality_id,
             code: values.code,
             persian_title: values.persian_title,
             quantity: values.quantity,
