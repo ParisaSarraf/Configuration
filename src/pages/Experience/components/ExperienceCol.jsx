@@ -88,6 +88,7 @@ const ExperienceCol = ({ handleDelete, handleEdit, handleShowDetail }) => {
                             icon={<EditOutlined />}
                             className="text-green-500 border-green-500"
                             onClick={() => handleEdit(record)}
+                            size="small"
                         />
                     </Tooltip>
                     <Tooltip title="حذف">
@@ -96,6 +97,7 @@ const ExperienceCol = ({ handleDelete, handleEdit, handleShowDetail }) => {
                             icon={<DeleteOutlined />}
                             danger
                             onClick={() => handleDelete(record?.id)}
+                            size="small"
                         />
                     </Tooltip>
                     <Tooltip title="نمایش جزئیات">
@@ -104,6 +106,7 @@ const ExperienceCol = ({ handleDelete, handleEdit, handleShowDetail }) => {
                             icon={<EyeFilled />}
                             className="text-sky-500 border-sky-500"
                             onClick={() => handleShowDetail(record)}
+                            size="small"
                         />
                     </Tooltip>
                 </Space>

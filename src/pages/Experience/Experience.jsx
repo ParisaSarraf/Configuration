@@ -66,6 +66,7 @@ const Experience = () => {
                 columns={ExperienceCol({ handleDelete, handleEdit, handleShowDetail })}
                 dataSource={data}
                 locale={{ emptyText: 'هیچ داده ای وجود ندارد' }}
+                size='small'
             />
 
             <ExperienceDetailViewModal
