@@ -71,13 +71,13 @@ const Meetings = () => {
                 currentProduct={currentProduct}
             />
 
-            <DetailModal
-                isOpen={isOpen}
+            {/* <DetailModal
+                isOpen={modalType === 'detailModal' && isOpen}
                 modalMode={modalMode}
                 modalData={modalData}
                 closeModal={closeModal}
                 modalType={modalType}
-            />
+            /> */}
         </Card>
     );
 };

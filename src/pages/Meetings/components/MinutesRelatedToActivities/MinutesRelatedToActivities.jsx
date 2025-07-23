@@ -3,7 +3,7 @@ import { message, Modal, Table, Tag } from "antd";
 
 const MinutesRelatedToActivities = ({ setModal, meetingData, deleteMeeting, refetch }) => {
     const handleEdit = (record) => {
-        setModal({ mode: 'edit', data: record });
+        setModal({ mode: 'edit', data: record, type: 'AddOrEditModal' });
     };
 
     const handleDelete = (id) => {
@@ -34,6 +34,11 @@ const MinutesRelatedToActivities = ({ setModal, meetingData, deleteMeeting, refe
         });
     };
 
+
+    const handleShowDetail = (record) => {
+        setModal({ mode: 'detail', data: record, type: 'detailModal' });
+    };
+
     const expandedRowRender = (record) => {
         return (
             <Table
@@ -49,7 +54,7 @@ const MinutesRelatedToActivities = ({ setModal, meetingData, deleteMeeting, refe
     return (
         <Table
             size="small"
-            columns={MeetingsCol({ handleEdit, handleDelete })}
+            columns={MeetingsCol({ handleEdit, handleDelete, handleShowDetail })}
             dataSource={meetingData}
             rowKey="id"
             expandable={{

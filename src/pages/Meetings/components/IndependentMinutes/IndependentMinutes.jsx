@@ -3,7 +3,7 @@ import { message, Modal, Table } from "antd";
 
 const IndependentMinutes = ({ setModal, meetingData, deleteMeeting, refetch }) => {
     const handleEdit = (record) => {
-        setModal({ mode: 'edit', data: record });
+        setModal({ mode: 'edit', data: record, type: 'AddOrEditModal' });
     };
 
     const handleDelete = (id) => {
