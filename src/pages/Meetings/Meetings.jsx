@@ -7,6 +7,7 @@ import IndependentMinutes from "@/pages/Meetings/components/IndependentMinutes/I
 import MinutesRelatedToActivities
     from "@/pages/Meetings/components/MinutesRelatedToActivities/MinutesRelatedToActivities.jsx";
 import { PlusOutlined } from "@ant-design/icons";
+import DetailModal from "./components/DetailModal";
 
 const Meetings = () => {
     const { currentProduct } = useProductContext();
@@ -68,6 +69,14 @@ const Meetings = () => {
                 modalType={modalType}
                 refetch={refetch}
                 currentProduct={currentProduct}
+            />
+
+            <DetailModal
+                isOpen={isOpen}
+                modalMode={modalMode}
+                modalData={modalData}
+                closeModal={closeModal}
+                modalType={modalType}
             />
         </Card>
     );

@@ -1,15 +1,15 @@
 import Modal from "@/components/Modal/index.jsx";
-import {Col, Form, Row, Select, Input, message} from "antd";
+import { Col, Form, Row, Select, Input, message } from "antd";
 import DatepickerCustom from "@/components/DatePicker/index.jsx";
 import FileUploader from "@/components/FileUploader/FileUploader.jsx";
-import {useCreateMeeting, useUpdateMeeting} from "@/QueryServises/MeetingQuery/index.js";
-import {useEffect} from "react";
-import {BASEURL} from "@/Services/axiosInstance.js";
+import { useCreateMeeting, useUpdateMeeting } from "@/QueryServises/MeetingQuery/index.js";
+import { useEffect } from "react";
+import { BASEURL } from "@/Services/axiosInstance.js";
 
-const MeetingsModal = ({isOpen, closeModal, modalMode, refetch, currentProduct, modalData}) => {
+const MeetingsModal = ({ isOpen, closeModal, modalMode, refetch, currentProduct, modalData }) => {
     const [form] = Form.useForm();
-    const {mutateAsync: createMeeting} = useCreateMeeting()
-    const {mutateAsync: updateMeeting} = useUpdateMeeting()
+    const { mutateAsync: createMeeting } = useCreateMeeting()
+    const { mutateAsync: updateMeeting } = useUpdateMeeting()
 
 
     useEffect(() => {
@@ -34,7 +34,6 @@ const MeetingsModal = ({isOpen, closeModal, modalMode, refetch, currentProduct, 
     }, [form, modalMode, modalData]);
 
     const onFinish = async (values) => {
-        console.log(values);
         const payload = {
             product_id: currentProduct?.id,
             type: values.type,
@@ -42,16 +41,15 @@ const MeetingsModal = ({isOpen, closeModal, modalMode, refetch, currentProduct, 
             date: values.date,
             file: values.file?.[0]?.originFileObj,
         }
-        console.log(payload)
         try {
             if (modalMode === 'add') {
                 await createMeeting(payload)
                 message.success("صورتجلسه با موفقیت اضافه شد")
             } else {
-                await updateMeeting({meetingId: modalData?.id, ...payload})
+                await updateMeeting({ meetingId: modalData?.id, ...payload })
                 message.success("صورتجلسه با موفقیت ویرایش شد.")
             }
-            refetch()
+            await refetch()
             closeModal()
         } catch (error) {
             console.log(error)
@@ -79,17 +77,17 @@ const MeetingsModal = ({isOpen, closeModal, modalMode, refetch, currentProduct, 
                     </Col>
                     <Col span={24}>
                         <Form.Item label='موضوع' name='title'>
-                            <Input/>
+                            <Input />
                         </Form.Item>
                     </Col>
                     <Col span={24}>
                         <Form.Item label='تاریخ' name='date'>
-                            <DatepickerCustom/>
+                            <DatepickerCustom />
                         </Form.Item>
                     </Col>
                     <Col span={24}>
                         <Form.Item label='فایل ضمیمه' name='file'>
-                            <FileUploader/>
+                            <FileUploader />
                         </Form.Item>
                     </Col>
                 </Row>

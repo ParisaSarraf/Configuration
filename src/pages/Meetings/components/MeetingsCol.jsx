@@ -1,8 +1,8 @@
 import { Button, Flex, Tooltip, Tag } from "antd";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
 import { BASEURL } from "../../../Services/axiosInstance";
 
-export const MeetingsCol = ({ handleEdit, handleDelete }) => {
+export const MeetingsCol = ({ handleEdit, handleDelete, handleShowDetail }) => {
     return [
         {
             title: 'ردیف',
@@ -63,6 +63,15 @@ export const MeetingsCol = ({ handleEdit, handleDelete }) => {
                             className="text-green-500 border-green-500"
                             onClick={() => handleEdit(record)}
                             title='ویرایش'
+                            size="small"
+                        />
+                    </Tooltip>
+                    <Tooltip title="جزئیات">
+                        <Button
+                            icon={<EyeOutlined />}
+                            className="text-sky-500 border-sky-500"
+                            onClick={() => handleShowDetail(record)}
+                            title='نمایش جزئیات '
                             size="small"
                         />
                     </Tooltip>
