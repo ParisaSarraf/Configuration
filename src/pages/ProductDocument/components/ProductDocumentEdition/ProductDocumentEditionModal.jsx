@@ -20,7 +20,6 @@ import FileUploader from "../../../../components/FileUploader/FileUploader";
 import { BASEURL } from "../../../../Services/axiosInstance";
 import { usePatchDocumentEditionLog } from "../../../../QueryServises/productDocumentEditionLogQuery";
 
-
 const ProductDocumentEditionModal = ({
     isOpen,
     modalMode,
@@ -39,7 +38,6 @@ const ProductDocumentEditionModal = ({
         useUpdateProductDocumentEdition();
     const { mutateAsync: updateState, isPending: isPatching } = usePatchDocumentEditionLog();
 
-
     const stateSteps = [
         { value: 10, label: "تهیه نشده" },
         { value: 20, label: "تهیه کننده" },
@@ -48,6 +46,9 @@ const ProductDocumentEditionModal = ({
     ];
 
     const currentStepIndex = stateSteps.findIndex(s => s.value === currentState);
+
+    // اگر در حالت "ویرایش" هستیم و مرحله بالاتر از "تهیه نشده" است، اجازه ویرایش نداریم
+    const isEditable = modalMode === "edition" || currentState === 10;
 
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
@@ -87,6 +88,8 @@ const ProductDocumentEditionModal = ({
     }, [modalMode, modalData, form]);
 
     const onFinishForm = async (values) => {
+        if (!isEditable) return;
+
         const payload = {
             product_document_id: modalData?.product_document_id?.id || currentProduct?.id,
             edition: values.edition,
@@ -133,7 +136,6 @@ const ProductDocumentEditionModal = ({
             setCurrentState(nextState);
             setComment("");
             refetch();
-            // closeModal()
         } catch (error) {
             console.error(error);
             message.error(
@@ -156,8 +158,6 @@ const ProductDocumentEditionModal = ({
             setCurrentState(prevState);
             setComment("");
             refetch();
-            // closeModal()
-
         } catch (error) {
             console.error(error);
             message.error(
@@ -166,18 +166,23 @@ const ProductDocumentEditionModal = ({
         }
     };
 
-
     return (
         <Modal
             isOpen={isOpen}
             title={`${modalMode === "edition" ? "افزودن" : "ویرایش"} نسخه`}
             size={700}
             onClose={closeModal}
-            onSubmit={() => form.submit()}
+            onSubmit={isEditable ? () => form.submit() : undefined}
             mode={modalMode}
             loading={isCreating || isUpdating}
+            
         >
-            <Form form={form} layout="vertical" onFinish={onFinishForm}>
+            <Form
+                form={form}
+                layout="vertical"
+                onFinish={onFinishForm}
+                disabled={!isEditable}
+            >
                 <Row gutter={16}>
                     <Col span={24}>
                         <Form.Item
@@ -185,7 +190,6 @@ const ProductDocumentEditionModal = ({
                             name="edition"
                             rules={[
                                 { required: true, message: "لطفا نام نسخه را انتخاب کنید" },
-
                             ]}
                         >
                             <Select
@@ -194,21 +198,24 @@ const ProductDocumentEditionModal = ({
                                     label: String.fromCharCode(97 + i).toUpperCase()
                                 }))}
                                 placeholder="انتخاب کنید"
-                                disabled={modalMode !== "edition"}
+                                disabled={!isEditable || modalMode !== "edition"}
                             />
                         </Form.Item>
                     </Col>
 
                     <Col span={24}>
                         <Form.Item label="توضیح" name="description">
-                            <Input.TextArea placeholder="توضیحات نسخه را وارد کنید" />
+                            <Input.TextArea
+                                placeholder="توضیحات نسخه را وارد کنید"
+                                disabled={!isEditable}
+                            />
                         </Form.Item>
                     </Col>
 
                     {[1, 2, 3, 4].map((num) => (
                         <Col span={6} key={num}>
                             <Form.Item label={`فایل ${num}`} name={`file_${num}`}>
-                                <FileUploader maxCount={1} />
+                                <FileUploader maxCount={1} disabled={!isEditable} />
                             </Form.Item>
                         </Col>
                     ))}
@@ -233,17 +240,16 @@ const ProductDocumentEditionModal = ({
                                         value={comment}
                                         onChange={(e) => setComment(e.target.value)}
                                         placeholder="توضیح مربوط به این مرحله را وارد کنید"
+                                        disabled={isPatching}
                                     />
                                 </Form.Item>
+
+
                             </Col>
                             <Col span={24} style={{ textAlign: "left", display: "flex", gap: "8px" }}>
                                 <Button
                                     onClick={handlePrevStep}
-                                    disabled={
-                                        !comment ||
-                                        currentStepIndex <= 0 ||
-                                        isPatching
-                                    }
+                                    disabled={!comment || currentStepIndex <= 0 || isPatching}
                                     loading={isPatching}
                                 >
                                     مرحله قبلی
@@ -252,17 +258,13 @@ const ProductDocumentEditionModal = ({
                                 <Button
                                     type="primary"
                                     onClick={handleNextStep}
-                                    disabled={
-                                        !comment ||
-                                        currentStepIndex >= stateSteps.length - 1 ||
-                                        isPatching
-                                    }
+                                    disabled={!comment || currentStepIndex >= stateSteps.length - 1 || isPatching}
                                     loading={isPatching}
                                 >
                                     مرحله بعد
                                 </Button>
-                            </Col>
 
+                            </Col>
                         </>
                     )}
                 </Row>
