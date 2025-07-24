@@ -1,18 +1,18 @@
 import Modal from "@/components/Modal/index.jsx";
-import {Col, Form, message, Row, Select, Input} from "antd";
-import {useCreateActivity, useUpdateActivity} from "@/QueryServises/ActivityQuery/index.js";
-import {useEffect} from "react";
+import { Col, Form, message, Row, Select, Input } from "antd";
+import { useCreateActivity, useUpdateActivity } from "@/QueryServises/ActivityQuery/index.js";
+import { useEffect } from "react";
 import TextArea from "antd/es/input/TextArea.js";
 import DatepickerCustom from "@/components/DatePicker/index.jsx";
-import {useGetProductMeetings} from "@/QueryServises/MeetingQuery/index.js";
-import {useUserList} from "@/QueryServises/userQuery/index.js";
+import { useGetProductMeetings } from "@/QueryServises/MeetingQuery/index.js";
+import { useUserList } from "@/QueryServises/userQuery/index.js";
 
-const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, currentProduct}) => {
+const ActivityModal = ({ isOpen, modalData, modalMode, closeModal, refetch, currentProduct }) => {
     const [form] = Form.useForm();
-    const {mutateAsync: createActivity} = useCreateActivity()
-    const {mutateAsync: updateActivity} = useUpdateActivity()
-    const {data: meetingData = []} = useGetProductMeetings(currentProduct?.id);
-    const {data: usersData = []} = useUserList();
+    const { mutateAsync: createActivity } = useCreateActivity()
+    const { mutateAsync: updateActivity } = useUpdateActivity()
+    const { data: meetingData = [] } = useGetProductMeetings(currentProduct?.id);
+    const { data: usersData = [] } = useUserList();
 
     const activityType = Form.useWatch('type', form);
     useEffect(() => {
@@ -47,7 +47,7 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
                 await createActivity(payload)
                 message.success("فعالیت با موفقیت اضافه شد")
             } else {
-                await updateActivity({activityId: modalData?.id, ...payload})
+                await updateActivity({ activityId: modalData?.id, ...payload })
                 message.success("فعالیت انتخابی با موفقیت ویرایش شد")
             }
             await refetch()
@@ -65,7 +65,7 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
             onClose={closeModal}
             title={modalMode === "add" ? "افزودن فعالیت" : "ویرایش فعالیت"}
             onSubmit={() => form.submit()}
-            size={600}
+            size={500}
         >
             <Form form={form} layout="vertical" onFinish={onFinish}>
                 <Row gutter={[16, 16]}>
@@ -89,14 +89,14 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
                                         value: meet.id,
                                         label: meet.title,
                                     }
-                                })}/>
+                                })} />
                             </Form.Item>
                         </Col>
                     )
                     }
                     <Col span={24}>
                         <Form.Item label='شرح فعالیت' name='description'>
-                            <TextArea/>
+                            <TextArea />
                         </Form.Item>
                     </Col>
                     <Col span={24}>
@@ -106,17 +106,17 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
                                     value: user.id,
                                     label: user.username,
                                 }
-                            })}/>
+                            })} />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
                         <Form.Item label='تاریخ شروع' name='from_date'>
-                            <DatepickerCustom/>
+                            <DatepickerCustom />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
                         <Form.Item label='تاریخ پایان' name='to_date'>
-                            <DatepickerCustom/>
+                            <DatepickerCustom />
                         </Form.Item>
                     </Col>
 

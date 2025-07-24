@@ -66,7 +66,7 @@ export const MeetingsCol = ({ handleEdit, handleDelete, handleShowDetail }) => {
                             size="small"
                         />
                     </Tooltip>
-                    {/* <Tooltip title="جزئیات">
+                    <Tooltip title="جزئیات">
                         <Button
                             icon={<EyeOutlined />}
                             className="text-sky-500 border-sky-500"
@@ -74,7 +74,7 @@ export const MeetingsCol = ({ handleEdit, handleDelete, handleShowDetail }) => {
                             title='نمایش جزئیات '
                             size="small"
                         />
-                    </Tooltip> */}
+                    </Tooltip>
                 </Flex>
             ),
         },

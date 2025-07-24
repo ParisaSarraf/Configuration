@@ -56,7 +56,6 @@ const MeetingsModal = ({ isOpen, closeModal, modalMode, refetch, currentProduct,
             message.error(error.message)
         }
     }
-    
     return (
         <Modal
             isOpen={isOpen}
