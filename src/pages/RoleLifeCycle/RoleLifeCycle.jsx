@@ -26,7 +26,7 @@ const RoleLifeCycle = () => {
                 </Button>
             </div>
             <Card
-                title="مدیریت کاربران و دسترسی اسناد"
+                title="مدیریت کاربران و دسترسی چرخه عمر"
                 extra={
                     <div className="flex flex-row gap-2">
                         <Button

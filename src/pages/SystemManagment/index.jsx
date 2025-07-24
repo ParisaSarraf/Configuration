@@ -18,34 +18,41 @@ function SystemManagment() {
       </div>
 
       <div className="flex flex-col items-center justify-center p-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-5xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-5xl">
           <Button
             ghost
             onClick={() => navigate("/panel/system-managment/user")}
-            className="flex w-full items-center justify-center h-48 bg-white shadow-lg hover:shadow-xl transition-shadow text-blue-500 hover:text-white hover:bg-blue-500 text-lg font-medium  rounded-tl-3xl rounded-br-3xl"
+            className="flex w-full items-center justify-center h-40 bg-white shadow-lg hover:shadow-xl transition-shadow text-blue-500 hover:text-white hover:bg-blue-500 text-lg font-medium  rounded-tl-3xl rounded-br-3xl"
           >
             مدیریت کاربران
           </Button>
           <Button
             ghost
             onClick={() => navigate("/panel/system-managment/roles-permission")}
-            className="flex items-center justify-center h-48 bg-white shadow-lg hover:shadow-xl transition-shadow text-green-500 hover:text-white hover:bg-green-500 text-lg font-medium rounded-sm rounded-tl-3xl rounded-br-3xl"
+            className="flex items-center justify-center h-40 bg-white shadow-lg hover:shadow-xl transition-shadow text-green-500 hover:text-white hover:bg-green-500 text-lg font-medium rounded-sm rounded-tl-3xl rounded-br-3xl"
           >
             مدیریت سمت ها و مجوز ها
           </Button>
           <Button
             ghost
             onClick={() => navigate("/panel/system-managment/roles-life-cycle")}
-            className="flex items-center justify-center h-48 bg-white shadow-lg hover:shadow-xl transition-shadow text-yellow-500 hover:text-white hover:bg-yellow-500 text-lg font-medium rounded-sm rounded-tl-3xl rounded-br-3xl"
+            className="flex items-center justify-center h-40 bg-white shadow-lg hover:shadow-xl transition-shadow text-yellow-500 hover:text-white hover:bg-yellow-500 text-lg font-medium rounded-sm rounded-tl-3xl rounded-br-3xl"
           >
-            مدیریت کاربران و دسترسی اسناد
+            مدیریت سمت ها و دسترسی چرخه عمر
+          </Button>
+          <Button
+            ghost
+            onClick={() => navigate("/panel/system-managment/roles-users-product")}
+            className="flex items-center justify-center h-40 bg-white shadow-lg hover:shadow-xl transition-shadow text-purple-500 hover:text-white hover:bg-purple-500 text-lg font-medium rounded-sm rounded-tl-3xl rounded-br-3xl"
+          >
+            مدیریت کاربران و دسترسی محصول
           </Button>
           <Button
             ghost
             onClick={() => navigate("/panel/system-managment/roles-users")}
-            className="flex items-center justify-center h-48 bg-white shadow-lg hover:shadow-xl transition-shadow text-purple-500 hover:text-white hover:bg-purple-500 text-lg font-medium rounded-sm rounded-tl-3xl rounded-br-3xl"
+            className="flex items-center justify-center h-40 bg-white shadow-lg hover:shadow-xl transition-shadow text-purple-500 hover:text-white hover:bg-purple-500 text-lg font-medium rounded-sm rounded-tl-3xl rounded-br-3xl"
           >
-            مدیریت کاربران و دسترسی محصول
+            مدیریت کاربران و دسترسی عمومی
           </Button>
         </div>
       </div>

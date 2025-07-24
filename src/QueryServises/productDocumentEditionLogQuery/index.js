@@ -88,3 +88,13 @@ export const useUpdateProductEditionlog = () => {
 		},
 	});
 };
+
+export const usePatchDocumentEditionLog = () => {
+	const { myAxios } = useMyAxios();
+	return useMutation({
+		mutationFn: ({ id, ...params }) =>
+			myAxios
+				.patch(`/product/change-product-document-edition-state/${id}`, params)
+				.then((res) => res.data),
+	});
+};

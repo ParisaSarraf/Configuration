@@ -61,6 +61,8 @@ const RoleProductList = ({
         if (roleId && selectedUserId) {
             setSelectedUserAndRoleId([roleId, selectedUserId]);
         }
+        console.log(productIds);
+
         setSelectedProducts(productIds);
     };
 
@@ -154,7 +156,7 @@ const RoleProductList = ({
                     isLoading={usersHasProductFetching}
                     isError={hasProductError}
                     showLine={true}
-                    checkable={false}
+                    checkable={true}
                     onNodeClick={handleClick}
                     onCheck={handleCheck}
                     selectedKeys={selectedNodeKey ? [`access-tree-role-${selectedNodeKey}`] : []}
@@ -169,7 +171,7 @@ const RoleProductList = ({
                     isLoading={usersHasNotProductFetching}
                     isError={hasNotProductError}
                     showLine={true}
-                    checkable={false}
+                    checkable={true}
                     onNodeClick={handleClick}
                     selectedKeys={selectedNodeKey ? [`unaccess-tree-role-${selectedNodeKey}`] : []}
                     checkedKeys={checkedKeys}

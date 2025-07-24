@@ -4,7 +4,6 @@ import { useUserList } from "../../QueryServises/userQuery/index.js";
 import UserModal from "./_components/UserModal.jsx";
 import { useDeleteUser } from "../../QueryServises/userQuery/index.js";
 import useModal from "../../hooks/useModal.js";
-import { RollbackOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
 const Users = () => {
@@ -42,19 +41,25 @@ const Users = () => {
       </div>
 
       <Card title="مدیریت کاربران"
-        extra={<UserModal
-          isOpen={isOpen}
-          modalMode={modalMode}
-          modalData={modalData}
-          closeModal={closeModal}
-          setModal={setModal}
-          refetch={refetch}
-        />}>
+        extra={
+
+          <UserModal
+            isOpen={isOpen}
+            modalMode={modalMode}
+            modalData={modalData}
+            closeModal={closeModal}
+            setModal={setModal}
+            refetch={refetch}
+          />
+        }
+      >
+
         <Table
           columns={columns(handleEditUser, handleDeleteUser)}
           dataSource={isFetching ? [] : data}
           loading={isFetching}
           rowKey="id"
+          size="small"
           scroll={{ x: true }}
           responsive={{
             small: { columnWidth: 100 },

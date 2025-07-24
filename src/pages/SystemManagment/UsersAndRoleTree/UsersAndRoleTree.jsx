@@ -1,147 +1,63 @@
-import { useMemo, useState } from "react";
-import { usePutUsersRole, useUsersRoleList } from "../../../QueryServises/user&role";
-import { Tree, Dropdown, Menu, Modal, Form, message, Button, Select } from "antd";
 import { EditOutlined } from "@ant-design/icons";
+import Tree from "../../../components/Tree";
 
-const { DirectoryTree } = Tree;
 
-const UsersAndRoleTree = () => {
-    const { data: usersAndroles, isLoading, isError, refetch } = useUsersRoleList();
-    const { mutate: updateUserRole, isLoading: isUpdating } = usePutUsersRole();
-    const [selectedNode, setSelectedNode] = useState(null);
-    const [isUserListModalVisible, setIsUserListModalVisible] = useState(false);
-    const [selectedRole, setSelectedRole] = useState(null);
-    const [form] = Form.useForm();
-    const [selectedUsers, setSelectedUsers] = useState([]);
+const UsersAndRoleTree = ({ usersAndroles, isLoading, isError, setModal, modalData, modalMode }) => {
 
-    const transformDataToTreeFormat = (roles) => {
-        return roles?.map((role) => ({
-            title: role.name,
-            key: `role-${role.id}`,
-            children: role.users?.map((user) => ({
-                title: `${user.name} ${user.last_name}`,
-                key: `role-${role.id}-user-${user.id}`,
+    const transformDataToTreeFormat = (data) => {
+        if (!Array.isArray(data)) return [];
+        return data.map(role => ({
+            title: role.name || "بدون عنوان",
+            key: `role-${Math.random()}-${role.id}`,
+            id: role.id,
+            isLeaf: false,
+            userAndRoleData: role,
+            children: (role.users || []).map(user => ({
+                title: `${user.name} ${user.last_name || ''} (${user.username})`,
+                key: `user-${user.id}`,
+                id: user.id,
                 isLeaf: true,
-                userData: user,
-            })) || [],
-        })) || [];
+            }))
+        }));
     };
 
-    const treeData = useMemo(() => transformDataToTreeFormat(usersAndroles), [usersAndroles]);
+    const rightClickMenuItems = [
+        {
+            key: "edit",
+            label: (
+                <div className="w-full flex flex-row items-center gap-2">
+                    <EditOutlined />
+                    <span>ویرایش کاربران مرتبط با سمت</span>
+                </div>
+            )
+        },
+    ];
 
-    const handleEdit = (node) => {
-        if (node.userData) {
-            setSelectedNode(node);
-            form.setFieldsValue({
-                name: node.userData.name,
-                last_name: node.userData.last_name,
+    const handleRightClickAction = (actionKey, node) => {
+        if (actionKey === "edit") {
+            // console.log(node.userAndRoleData);
+            setModal({
+                mode: "edit",
+                id: node.id,
+                data: node.userAndRoleData,
             });
-            setIsEditModalVisible(true);
         }
     };
 
-    const handleShowUserList = (role) => {
-        setSelectedRole(role);
-        setSelectedUsers(role.children.map(user => user.userData.id));
-        setIsUserListModalVisible(true);
-    };
-
-    const handleAddRemoveUsers = async () => {
-        if (!selectedRole) return;
-
-        const roleId = Number(selectedRole.key.split('-')[1]);
-        const payload = {
-            role_id: roleId,
-            users_ids: selectedUsers
-        };
-
-        updateUserRole(payload, {
-            onSuccess: () => {
-                message.success("تغییرات با موفقیت ذخیره شد");
-                refetch();
-                setIsUserListModalVisible(false);
-            },
-            onError: () => {
-                message.error("خطا در ذخیره تغییرات");
-            }
-        });
-    };
-
-    const contextMenu = (node) => {
-        if (node.userData) {
-            return (
-                <Menu>
-                    <Menu.Item key="edit" icon={<EditOutlined />} onClick={() => handleEdit(node)}>
-                        ویرایش
-                    </Menu.Item>
-                </Menu>
-            );
-        }
-        return null;
-    };
-
-    const renderTitle = (node) => (
-        <Dropdown menu={contextMenu(node)} trigger={["contextMenu"]}>
-            <span onDoubleClick={() => !node.isLeaf && handleShowUserList(node)}>
-                {node.title}
-            </span>
-        </Dropdown>
-    );
-
-    const updatedTreeData = useMemo(() => (
-        treeData.map((role) => ({
-            ...role,
-            title: renderTitle(role),
-            children: role.children.map((user) => ({
-                ...user,
-                title: renderTitle(user),
-            })),
-        }))
-    ), [treeData]);
+    const treeData = transformDataToTreeFormat(usersAndroles);
 
     if (isLoading) return <div className="text-center py-8">در حال بارگذاری...</div>;
     if (isError) return <div className="text-center py-8 text-red-500">خطا در دریافت اطلاعات!</div>;
 
     return (
         <div>
-            <DirectoryTree
-                className="custom-tree"
-                treeData={updatedTreeData}
+            <Tree
+                treeData={treeData}
                 showLine
-                blockNode={false}
+                blockNode={true}
+                rightClickMenuItems={rightClickMenuItems}
+                onRightClickAction={handleRightClickAction}
             />
-
-            <Modal
-                title={`لیست کاربران ${selectedRole?.title || ''}`}
-                open={isUserListModalVisible}
-                onCancel={() => setIsUserListModalVisible(false)}
-                footer={[
-                    <Button key="back" onClick={() => setIsUserListModalVisible(false)}>
-                        انصراف
-                    </Button>,
-                    <Button
-                        key="submit"
-                        type="primary"
-                        loading={isUpdating}
-                        onClick={handleAddRemoveUsers}
-                    >
-                        ذخیره تغییرات
-                    </Button>,
-                ]}
-                width={800}
-            >
-                <Select
-                    mode="multiple"
-                    style={{ width: '100%' }}
-                    placeholder="انتخاب کاربران"
-                    value={selectedUsers}
-                    onChange={setSelectedUsers}
-                    options={selectedRole?.children?.map(user => ({
-                        value: user.userData.id,
-                        label: `${user.userData.name} ${user.userData.last_name}`,
-                    })) || []}
-                />
-            </Modal>
         </div>
     );
 };

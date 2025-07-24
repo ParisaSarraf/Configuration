@@ -42,12 +42,12 @@ const ProductRequirementTree = ({ currentProduct, selectProduct, setSelectedProd
         const transformNode = (node) => ({
             title: (
                 <div
-                    className="flex flex-row -mt-2 justify-between items-center w-full h-5"
+                    // className="flex flex-row -mt-2 justify-between items-center w-full h-5"
                     onDoubleClick={() => {
                         setModal({ mode: 'view', data: node, type: 'AcknowledgmentOfRequirement' })
                     }}
                 >
-                    <span className="mr-8 -mt-4">{node.persian_title}</span>
+                    <span className="mr-8">{node.persian_title}</span>
                     <Space className="-mt-4">
                         <Button
                             icon={<RightOutlined />}

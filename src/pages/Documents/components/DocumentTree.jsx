@@ -114,7 +114,8 @@ const DocumentTree = ({ setModal }) => {
       showLine={true}
       checkable={false}
       rightClickMenuItems={rightClickMenuItems}
-      onRightClickAction={handleRightClickAction} />
+      onRightClickAction={handleRightClickAction}
+       />
 
   );
 };

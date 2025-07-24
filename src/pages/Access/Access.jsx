@@ -30,6 +30,8 @@ const Access = () => {
     } = useUnAccessOfUserByIdList(selectedUserId);
 
     const handleAddAccess = async () => {
+        console.log(selectedProducts);
+
         // if (!selectedUserAndRoleId || selectedUserAndRoleId.length !== 2 || selectedProducts.length === 0) {
         //     return message.warning('لطفاً کاربر، سمت و محصولات را انتخاب کنید.');
         // }
@@ -39,6 +41,8 @@ const Access = () => {
             role_id,
             product_ids: selectedProducts
         };
+        console.log(payload);
+
         try {
             await createAccessProducts(payload);
             message.success("محصول به سمت مورد نظر با موفقیت اضافه شد");
@@ -86,7 +90,7 @@ const Access = () => {
                             deleteAccessProducts={deleteAccessProducts}
                         />
                     </div>
-                    
+
                     <div className='flex flex-col justify-center gap-4 px-2'>
                         <button
                             className="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors"

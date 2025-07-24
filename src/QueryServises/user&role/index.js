@@ -39,7 +39,6 @@ export const useCreateUsersRoles = () => {
 
 export const usePutUsersRole = () => {
   const { myAxios } = useMyAxios();
-
   return useMutation({
     mutationFn: ({ roleId }) => {
       return myAxios

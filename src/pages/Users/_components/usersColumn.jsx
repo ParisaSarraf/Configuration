@@ -87,14 +87,18 @@ export const columns = (handleEditUser, handleDeleteUser) => [
     render: (_, record) => (
       <div className="flex gap-2">
         <Button
+          size="small"
           type="text"
           title="ویرایش"
+          className="text-green-600 border-green-600"
           icon={<EditOutlined className="text-green-600" />}
           onClick={() => handleEditUser(record)}
         />
         <Button
+          size="small"
           type="text"
           title="حذف"
+          className="text-red-600 border-red-600"
           icon={<DeleteOutlined className="text-red-600" />}
           onClick={() => handleDeleteUser(record)}
         />

@@ -13,8 +13,8 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
     const selectedProductId = currentProduct?.productData?.id;
 
 
-    
-    
+
+
     const { data: productDocument, isLoading, isError } =
         useProductDocumentTreeById(selectedProductId, { enabled: !!selectedProductId });
 

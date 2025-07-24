@@ -12,6 +12,7 @@ import Setting from "./pages/Setting/Setting";
 import GoodsCategories from "./pages/GoodsCategories/GoodsCategories";
 import RoleLifeCycle from "./pages/RoleLifeCycle/RoleLifeCycle";
 import Access from "./pages/Access/Access";
+import UsersRole from "./pages/SystemManagment/UsersRole";
 
 const router = createBrowserRouter([
   {
@@ -67,10 +68,19 @@ const router = createBrowserRouter([
     errorElement: <NotFound />
   },
   {
-    path: "/panel/system-managment/roles-users",
+    path: "/panel/system-managment/roles-users-product",
     element: (
       <ProtectedRoute>
         <Access />
+      </ProtectedRoute>
+    ),
+    errorElement: <NotFound />
+  },
+  {
+    path: "/panel/system-managment/roles-users",
+    element: (
+      <ProtectedRoute>
+        <UsersRole />
       </ProtectedRoute>
     ),
     errorElement: <NotFound />
