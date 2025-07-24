@@ -39,8 +39,6 @@ const ProductDocumentEditionModal = ({
         useUpdateProductDocumentEdition();
     const { mutateAsync: updateState, isPending: isPatching } = usePatchDocumentEditionLog();
 
-    // console.log(modalData);
-
 
     const stateSteps = [
         { value: 10, label: "تهیه نشده" },
@@ -54,7 +52,7 @@ const ProductDocumentEditionModal = ({
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
-                edition: modalData?.edition_full,
+                edition: modalData?.edition,
                 file_1: modalData.file_1
                     ? [{
                         uid: "-1",
@@ -154,7 +152,7 @@ const ProductDocumentEditionModal = ({
                 state: prevState,
                 comment: comment,
             });
-            message.success(`به مرحxله "${stateSteps.find(s => s.value === prevState).label}" منتقل شد`);
+            message.success(`به مرحله "${stateSteps.find(s => s.value === prevState).label}" منتقل شد`);
             setCurrentState(prevState);
             setComment("");
             refetch();
