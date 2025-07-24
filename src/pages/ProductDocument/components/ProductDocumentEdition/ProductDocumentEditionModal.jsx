@@ -15,7 +15,6 @@ import {
     useUpdateProductDocumentEdition,
     useProductDocumentTreeById
 } from "@/QueryServises/productDocumentQuery/index.js";
-import { checkEditionDuplicate } from "@/utils/checkEditionDuplicate.js";
 import { useEffect, useState } from "react";
 import FileUploader from "../../../../components/FileUploader/FileUploader";
 import { BASEURL } from "../../../../Services/axiosInstance";
@@ -40,10 +39,8 @@ const ProductDocumentEditionModal = ({
         useUpdateProductDocumentEdition();
     const { mutateAsync: updateState, isPending: isPatching } = usePatchDocumentEditionLog();
 
-    const { refetch: refetchDocumentTree } = useProductDocumentTreeById(
-        currentProduct?.id,
-        { enabled: false }
-    );
+    // console.log(modalData);
+
 
     const stateSteps = [
         { value: 10, label: "تهیه نشده" },
@@ -57,7 +54,7 @@ const ProductDocumentEditionModal = ({
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
-                edition: modalData?.edition,
+                edition: modalData?.edition_full,
                 file_1: modalData.file_1
                     ? [{
                         uid: "-1",
@@ -138,7 +135,7 @@ const ProductDocumentEditionModal = ({
             setCurrentState(nextState);
             setComment("");
             refetch();
-            closeModal()
+            // closeModal()
         } catch (error) {
             console.error(error);
             message.error(
@@ -157,11 +154,11 @@ const ProductDocumentEditionModal = ({
                 state: prevState,
                 comment: comment,
             });
-            message.success(`به مرحله "${stateSteps.find(s => s.value === prevState).label}" منتقل شد`);
+            message.success(`به مرحxله "${stateSteps.find(s => s.value === prevState).label}" منتقل شد`);
             setCurrentState(prevState);
             setComment("");
             refetch();
-            closeModal()
+            // closeModal()
 
         } catch (error) {
             console.error(error);
@@ -190,23 +187,7 @@ const ProductDocumentEditionModal = ({
                             name="edition"
                             rules={[
                                 { required: true, message: "لطفا نام نسخه را انتخاب کنید" },
-                                {
-                                    validator: async (_, value) => {
-                                        if (!value || modalMode === "edit") return Promise.resolve();
-                                        const { data: productDocument } =
-                                            await refetchDocumentTree();
-                                        const isEditionExist = checkEditionDuplicate(
-                                            productDocument,
-                                            value,
-                                            modalData?.id
-                                        );
-                                        if (isEditionExist)
-                                            return Promise.reject(
-                                                new Error("این نسخه قبلاً اضافه شده است")
-                                            );
-                                        return Promise.resolve();
-                                    }
-                                }
+
                             ]}
                         >
                             <Select

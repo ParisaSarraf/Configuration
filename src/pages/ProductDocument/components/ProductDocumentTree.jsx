@@ -7,7 +7,6 @@ import {
     useProductDocumentTreeById
 } from "../../../QueryServises/productDocumentQuery";
 import { useEffect } from "react";
-import { checkEditionDuplicate } from "../../../Utils/checkEditionDuplicate";
 
 const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
     const selectedProductId = currentProduct?.productData?.id;
@@ -51,6 +50,8 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
     };
 
     const handleEditEdition = (edition) => {
+        console.log(edition);
+
         setModal({
             mode: "edit",
             data: { ...edition },
@@ -66,7 +67,13 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
 
         const baseNode = {
             key: `node-${Math.random()}`,
-            title: productDoc?.document?.code || node.title || "بدون عنوان",
+            title: (
+                <div>
+                    {productDoc?.document?.code
+                        ? ` ${productDoc.title} - ${productDoc.document.code}`
+                        : node.title}
+                </div>
+            ),
             id: node.id,
             edition: editions,
             product_document_id: productDoc,
@@ -83,7 +90,7 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
                     <div className="flex flex-row justify-between items-center w-full">
                         <span>
                             {edition.edition}
-                            {edition.description ? ` (${edition.description})` : ""}
+                            {/* {edition.description ? ` (${edition.description})` : ""} */}
                         </span>
                         <Space>
                             <Button
@@ -144,11 +151,6 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
 
     const handleRightClickAction = (actionKey, node) => {
         if (actionKey === "edition") {
-            const isDuplicate = checkEditionDuplicate(treeData, node.edition);
-            if (isDuplicate) {
-                message.error("نسخه‌ای با این نام قبلاً ثبت شده است");
-                return;
-            }
             setModal({
                 mode: "edition",
                 data: {

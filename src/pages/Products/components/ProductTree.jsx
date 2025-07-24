@@ -56,15 +56,15 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
                 </div>
             )
         },
-        {
-            key: "documentExport",
-            label: (
-                <div className="w-full flex flex-row items-center gap-2">
-                    <FileOutlined />
-                    <span>خروجی اسناد</span>
-                </div>
-            )
-        }
+        // {
+        //     key: "documentExport",
+        //     label: (
+        //         <div className="w-full flex flex-row items-center gap-2">
+        //             <FileOutlined />
+        //             <span>خروجی اسناد</span>
+        //         </div>
+        //     )
+        // }
     ];
 
     const transformDataToTreeFormat = (productData) => {
@@ -72,10 +72,17 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
         return productData.map(item => ({
             title: (
                 <div className="flex items-center">
-                    <FiberManualRecordIcon fontSize="small" />
-                    <StopIcon fontSize="small" />
-                    <CaretUpOutlined />
-                    <span>{item.persian_title} ({item.code})</span>
+                    <FiberManualRecordIcon
+                        fontSize="small"
+                        color={
+                            item.status === 'active' ? 'success' :
+                                item.status === 'inactive' ? 'error' :
+                                    'warning'
+                        }
+                    />
+                    {/* <StopIcon fontSize="small" />
+                    <CaretUpOutlined /> */}
+                    <span>{item.persian_title} ({item.final_code || item.code})</span>
                 </div>
             ),
             key: `product-${item.id}`,
