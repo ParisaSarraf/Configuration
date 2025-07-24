@@ -12,32 +12,33 @@ import { useProductContext } from "@/Services/Context/ProductContext.jsx";
 import TrusteeModal from "@/pages/Activity/components/TrusteeModal.jsx";
 import PlanModal from "@/pages/Activity/components/PlanModal.jsx";
 import { useState } from "react";
+import DetailModal from "../Meetings/components/DetailModal";
 
 const Activity = () => {
     const { modalMode, setModal, isOpen, modalData, closeModal, modalType } = useModal()
     const { currentProduct } = useProductContext();
-    const [filters, setFilters] = useState({});
+    // const [filters, setFilters] = useState({});
     // const { data: activityData = [], refetch } = useGetProductActivitiesType(currentProduct?.id, filters)
     const { data: activityData = [], refetch } = useGetProductActivities(currentProduct?.id)
 
     const { mutateAsync: deleteActivity } = useDeleteActivity()
 
-    console.log(activityData)
+    // console.log(activityData)
 
-    const options = [
-        { label: 'همه', value: 'all' },
-        { label: 'صورتجلسه داخلی', value: 'internal' },
-        { label: 'صورتجلسه خارجی', value: 'external' },
-    ];
+    // const options = [
+    //     { label: 'همه', value: 'all' },
+    //     { label: 'صورتجلسه داخلی', value: 'internal' },
+    //     { label: 'صورتجلسه خارجی', value: 'external' },
+    // ];
 
-    const handleTypeChange = (e) => {
-        const value = e.target.value;
-        if (value === 'all') {
-            setFilters({});
-        } else {
-            setFilters({ [value]: true });
-        }
-    };
+    // const handleTypeChange = (e) => {
+    //     const value = e.target.value;
+    //     if (value === 'all') {
+    //         setFilters({});
+    //     } else {
+    //         setFilters({ [value]: true });
+    //     }
+    // };
 
     const handleDelete = (id) => {
         Modal.confirm({
@@ -79,16 +80,21 @@ const Activity = () => {
         setModal({ mode: "add", data: record, type: 'addPlan' })
     }
 
-    const expandedRowRender = (record) => {
-        return (
-            <Table
-                columns={ActivityDetail}
-                dataSource={[record]}
-                rowKey="id"
-                pagination={false}
-            />
-        );
-    };
+    const handleDetail = (record) => {
+        setModal({ mode: 'view', data: record, type: 'showDetail' })
+
+    }
+
+    // const expandedRowRender = (record) => {
+    //     return (
+    //         <Table
+    //             columns={ActivityDetail}
+    //             dataSource={[record]}
+    //             rowKey="id"
+    //             pagination={false}
+    //         />
+    //     );
+    // };
 
     return (
         <Card title='فعالیت ها'
@@ -114,11 +120,11 @@ const Activity = () => {
                 <Table
                     size="small"
                     dataSource={activityData}
-                    columns={ActivityCols({ handleEdit, handleDelete, handleTrustee, handlePlan })}
+                    columns={ActivityCols({ handleEdit, handleDelete, handleTrustee, handlePlan, handleDetail })}
                     rowKey="id"
-                    expandable={{
-                        expandedRowRender,
-                    }}
+                // expandable={{
+                //     expandedRowRender,
+                // }}
                 />
             </div>
 
@@ -145,6 +151,15 @@ const Activity = () => {
                 modalMode={modalMode}
                 modalData={modalData}
                 refetch={refetch}
+            />
+
+            <DetailModal
+                isOpen={modalType === 'showDetail' && isOpen}
+                // currentProduct={currentProduct}
+                closeModal={closeModal}
+                modalMode={modalMode}
+                modalData={modalData}
+                // refetch={refetch}
             />
         </Card>
     )

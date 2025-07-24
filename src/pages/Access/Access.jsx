@@ -30,9 +30,9 @@ const Access = () => {
     } = useUnAccessOfUserByIdList(selectedUserId);
 
     const handleAddAccess = async () => {
-        if (!selectedUserAndRoleId || selectedUserAndRoleId.length !== 2 || selectedProducts.length === 0) {
-            return message.warning('لطفاً کاربر، سمت و محصولات را انتخاب کنید.');
-        }
+        // if (!selectedUserAndRoleId || selectedUserAndRoleId.length !== 2 || selectedProducts.length === 0) {
+        //     return message.warning('لطفاً کاربر، سمت و محصولات را انتخاب کنید.');
+        // }
         const [role_id, user_id] = selectedUserAndRoleId;
         const payload = {
             user_id,
