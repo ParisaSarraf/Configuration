@@ -17,6 +17,7 @@ const Tree = ({
   checkable = true,
   className,
   onNodeClick,
+  lodalData,
   showRightClickMenu = true,
   rightClickMenuItems = [
     { key: "edit", label: "ویرایش" },
@@ -151,6 +152,7 @@ const Tree = ({
         onCheck={onCheck}
         checkedKeys={checkedKeys}
         {...props}
+        loadData={lodalData}
 
 
 

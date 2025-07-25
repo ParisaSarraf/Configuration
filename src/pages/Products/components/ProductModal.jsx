@@ -69,7 +69,7 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
             form.setFieldsValue({
                 parent_id: modalData.id,
                 parent_code_id: modalData.id,
-                final_code: parentCodeId ? `${parentCodeId}/` : ""
+                final_code: parentCodeId ? `${parentCodeId}` : ""
             });
         } else if (modalMode === "add") {
             form.setFieldsValue({ final_code: parentCodeId || "" });
@@ -77,7 +77,7 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
     }, [modalMode, modalData, isOpen]);
 
     useEffect(() => {
-        const newFinalCode = `${parentCodeId || ""}${productCode || ""}`;
+        const newFinalCode = `${productCode || ""}${parentCodeId || ""}`;
         setFinalCode(newFinalCode);
         form.setFieldsValue({ final_code: newFinalCode });
     }, [parentCodeId, productCode]);

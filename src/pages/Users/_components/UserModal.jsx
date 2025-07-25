@@ -49,7 +49,7 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
     const payload = {
       username: values.userName,
       password: values.password,
-      is_superuser: false,
+      is_superuser: values.is_superuser,
       name: values.name,
       last_name: values.lastName,
       phone_number: values.PhoneNumber,
@@ -115,7 +115,7 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
           className="flex flex-col space-y-4"
           onFinish={onFinish}
         >
-          <Row gutter={[16, 16]}>
+          <Row gutter={16}>
             <Col span={12}>
               <Form.Item name="signatureImage" label="امضا کاربر">
                 <FileUploader listType="picture-circle" />
@@ -180,21 +180,21 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="isStaff" label="دسترسی به تمام صفحات">
+              <Form.Item name="isStaff" label="مدیرعامل">
                 <Radio.Group buttonStyle="solid">
                   <Radio.Button value={true}>بله</Radio.Button>
                   <Radio.Button value={false}>خیر</Radio.Button>
                 </Radio.Group>
               </Form.Item>
             </Col>
-            {/* <Col span={12}>
-              <Form.Item name="isSuperuser" label="ادمین">
+            <Col span={12}>
+              <Form.Item name="isSuperuser" label="مدیرسیستم">
                 <Radio.Group buttonStyle="solid">
                   <Radio.Button value={true}>بله</Radio.Button>
                   <Radio.Button value={false}>خیر</Radio.Button>
                 </Radio.Group>
               </Form.Item>
-            </Col> */}
+            </Col>
           </Row>
         </Form>
       </Modal >

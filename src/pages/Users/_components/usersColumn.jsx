@@ -37,18 +37,18 @@ export const columns = (handleEditUser, handleDeleteUser) => [
   //   key: "is_superuser",
   //   render: (is_superuser) => (is_superuser ? "بله" : "خیر"),
   // },
-  // {
-  //   title: "سمت",
-  //   dataIndex: "is_superuser",
-  //   key: "is_superuser",
-  //   render: (is_superuser) => (is_superuser ? "بله" : "خیر"),
-  // },
-  //   {
-  //     title: "کارکنان",
-  //     dataIndex: "is_staff",
-  //     key: "is_staff",
-  //     render: (is_staff) => (is_staff ? "بله" : "خیر"),
-  //   },
+  {
+    title: "مدیرسیستم",
+    dataIndex: "is_superuser",
+    key: "is_superuser",
+    render: (is_superuser) => (is_superuser ? "بله" : "خیر"),
+  },
+  {
+    title: "مدیرعامل",
+    dataIndex: "is_staff",
+    key: "is_staff",
+    render: (is_staff) => (is_staff ? "بله" : "خیر"),
+  },
   {
     title: "امضا کاربر",
     dataIndex: "signature_image",

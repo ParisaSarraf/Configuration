@@ -1,18 +1,18 @@
 import Modal from "@/components/Modal/index.jsx";
-import { Col, Form, message, Row, Select, Input } from "antd";
+import { Col, Form, message, Row, Select } from "antd";
 import { useCreateActivity, useUpdateActivity } from "@/QueryServises/ActivityQuery/index.js";
 import { useEffect } from "react";
 import TextArea from "antd/es/input/TextArea.js";
 import DatepickerCustom from "@/components/DatePicker/index.jsx";
 import { useGetProductMeetings } from "@/QueryServises/MeetingQuery/index.js";
-import { useUserList } from "@/QueryServises/userQuery/index.js";
+import { useUserSimple } from "../../../QueryServises/userQuery";
 
 const ActivityModal = ({ isOpen, modalData, modalMode, closeModal, refetch, currentProduct }) => {
     const [form] = Form.useForm();
     const { mutateAsync: createActivity } = useCreateActivity()
     const { mutateAsync: updateActivity } = useUpdateActivity()
     const { data: meetingData = [] } = useGetProductMeetings(currentProduct?.id);
-    const { data: usersData = [] } = useUserList();
+    const { data: usersData = [] } = useUserSimple();
 
     const activityType = Form.useWatch('type', form);
     useEffect(() => {
@@ -23,7 +23,7 @@ const ActivityModal = ({ isOpen, modalData, modalMode, closeModal, refetch, curr
                 description: modalData?.description,
                 from_date: modalData?.from_date,
                 to_date: modalData?.to_date,
-                trustee_id: modalData?.trustee_id,
+                trustee_id: modalData?.trustee?.id,
             });
         } else {
             form.resetFields();
@@ -32,7 +32,6 @@ const ActivityModal = ({ isOpen, modalData, modalMode, closeModal, refetch, curr
 
 
     const onFinish = async (values) => {
-        console.log(values);
         const payload = {
             product_id: currentProduct?.id,
             type: values.type,

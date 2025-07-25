@@ -9,7 +9,6 @@ const ProductRequirement = () => {
     const [selectProduct, setSelectProduct] = useState(null)
     const [selectedProductRequirement, setSelectedProductRequirement] = useState(null);
 
-    console.log(selectedProductRequirement);
 
 
 

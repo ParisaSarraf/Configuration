@@ -1,11 +1,12 @@
 import { Button, Card, message, Modal, Space } from 'antd'
 import { useProductContext } from '../../../Services/Context/ProductContext';
-import { DeleteOutlined, PlusOutlined, RightOutlined } from '@ant-design/icons';
+import Icon, { DeleteOutlined, FileExclamationTwoTone, PlusOutlined, RightOutlined, SmileFilled } from '@ant-design/icons';
 import Tree from '../../../components/Tree';
 import useModal from '../../../hooks/useModal';
 import DescribeTheRequirementModal from './DescribeTheRequirementModal';
 import AcknowledgmentOfRequirement from './AcknowledgmentOfRequirement';
 import { useDeleteProductRequirement, useProductRequirementList } from '../../../QueryServises/productRequirementQuery';
+import { Chip, IconButton, SliderMarkLabel } from '@mui/material';
 
 const ProductRequirementTree = ({ currentProduct, selectProduct, setSelectedProductRequirement }) => {
     const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
@@ -42,38 +43,47 @@ const ProductRequirementTree = ({ currentProduct, selectProduct, setSelectedProd
         const transformNode = (node) => ({
             title: (
                 <div
-                    // className="flex flex-row -mt-2 justify-between items-center w-full h-5"
+                    className="w-full flex"
                     onDoubleClick={() => {
                         setModal({ mode: 'view', data: node, type: 'AcknowledgmentOfRequirement' })
                     }}
                 >
-                    <span className="mr-8">{node.persian_title}</span>
-                    <Space className="-mt-4">
-                        <Button
-                            icon={<RightOutlined />}
+                    <div className='flex justify-start'>
+                        <span >{node.persian_title}</span>
+                    </div>
+                    <div className='flex justify-end'>
+
+                        <Chip
+                            icon={<RightOutlined size={'small'} />}
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setModal({ mode: 'add', data: node, type: 'AcknowledgmentOfRequirement' })
                             }}
-                            className="text-yellow-500 hover:text-yellow-700 bg-white"
+                            size='small'
+                        // className="text-yellow-500 hover:text-yellow-700 "
                         />
-                        <Button
+                        <Chip
                             icon={<DeleteOutlined />}
-                            className="text-red-500 hover:text-red-700 bg-white"
+                            color='primary'
+                            // className="text-red-500 hover:text-red-700 "
                             onClick={(e) => {
                                 e.stopPropagation();
                                 handleDelete(node)
                             }}
+                            size='small'
+
                         />
-                        <Button
+                        <Chip
                             icon={<PlusOutlined />}
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setModal({ mode: 'add', data: null, type: 'DescribeTheRequirementModal' })
                             }}
-                            className="text-blue-500 hover:text-blue-700 bg-white"
+                            // className="text-blue-500 hover:text-blue-700 bg-white"
+                            size='small'
+
                         />
-                    </Space>
+                    </div>
                 </div>
             ),
             english_title: node.english_title,

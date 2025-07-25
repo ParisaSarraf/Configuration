@@ -15,6 +15,20 @@ export const useUserList = (queryOptions) => {
 	});
 };
 
+export const useUserSimpleKey = ["lists", "simple-user"];
+export const useUserSimple = (queryOptions) => {
+	const { myAxios } = useMyAxios();
+	return useQuery({
+		queryKey: useUserSimpleKey,
+		queryFn: () =>
+			myAxios.get(`/user/get-simple-user/`).then((response) => {
+				queryOptions?.onSuccess?.(response?.data);
+				return response?.data;
+			}),
+		...queryOptions,
+	});
+};
+
 export const useCreateUser = () => {
 	const { myAxios } = useMyAxios();
 	return useMutation({

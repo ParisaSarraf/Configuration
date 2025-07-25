@@ -3,8 +3,12 @@ import { Button, Image, Space, Tooltip } from "antd"
 import { BASEURL } from "../../../Services/axiosInstance";
 
 const ExperienceCol = ({ handleDelete, handleEdit, handleShowDetail }) => {
-    console.log(BASEURL);
     return [
+        {
+            title: 'ردیف',
+            key: 'index',
+            render: (_, __, index) => index + 1,
+        },
         {
             title: 'حوزه',
             dataIndex: ['precinct', 'title'],
@@ -55,8 +59,8 @@ const ExperienceCol = ({ handleDelete, handleEdit, handleShowDetail }) => {
                         >
                             {isImage ? (
                                 <Image
-                                    width={70}
-                                    height={50}
+                                    width={50}
+                                    height={30}
                                     src={url}
                                     alt="فایل پیوست"
                                     preview={false}

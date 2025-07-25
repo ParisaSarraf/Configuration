@@ -8,6 +8,7 @@ const MainLayout = () => {
 
   return (
     <div className="flex flex-col h-screen bg-Main">
+      {/* <div className="flex flex-col h-screen bg-[url('./bg.jpg')]"> */}
       <CustomHeader />
       <div className="grid grid-cols-[auto_1fr] h-[calc(100vh-4rem)]">
         <Products />

@@ -66,13 +66,15 @@ export const useCreateProduct = () => {
 	const { myAxios } = useMyAxios();
 	return useMutation({
 		mutationFn: (params) => {
-			return myAxios.post(`/product/add-product/`, params,{
-				headers: {
-					"Content-Type": "multipart/form-data",
-				}
-			}).then((response) => {
-				return response?.data;
-			});
+			return myAxios
+				.post(`/product/add-product/`, params, {
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				})
+				.then((response) => {
+					return response?.data;
+				});
 		},
 	});
 };
@@ -95,14 +97,31 @@ export const useUpdateProduct = () => {
 	return useMutation({
 		mutationFn: ({ productId, ...params }) => {
 			return myAxios
-				.put(`/product/update-product/${productId}/`, params,{
+				.put(`/product/update-product/${productId}/`, params, {
 					headers: {
 						"Content-Type": "multipart/form-data",
-					}
+					},
 				})
 				.then((response) => {
 					return response?.data;
 				});
+		},
+	});
+};
+
+export const useUpdateProductInfo = () => {
+	const { myAxios } = useMyAxios();
+	return useMutation({
+		mutationFn: ({ productId, ProductInfoData }) => {
+			return myAxios.patch(
+				`/product/patch-user-info/${productId}`,
+				ProductInfoData,
+				{
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				}
+			);
 		},
 	});
 };
