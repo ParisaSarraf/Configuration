@@ -1,7 +1,11 @@
-import { Button, Flex, Tooltip, Tag, Divider } from "antd";
+import { Button, Flex, Tooltip, Tag, Divider, Select } from "antd";
 import { DeleteOutlined, EditOutlined, EyeOutlined, FolderAddOutlined, UserAddOutlined } from "@ant-design/icons";
+import { useState } from "react";
 
-export const ActivityCols = ({ handleEdit, handleDelete, handleTrustee, handlePlan, handleDetail }) => {
+export const ActivityCols = ({ handleEdit, handleDelete, handleTrustee, handlePlan, handleDetail, trustees = [],
+    setFilters }) => {
+    const [selectedTrustees, setSelectedTrustees] = useState([]);
+
     return ([
         {
             title: 'ردیف',
@@ -22,14 +26,66 @@ export const ActivityCols = ({ handleEdit, handleDelete, handleTrustee, handlePl
             title: "شرح فعالیت",
             dataIndex: 'description',
             key: 'description'
-            
+
         },
         {
             title: "متولی",
             dataIndex: ['trustee', 'name'],
             key: 'trustee',
-            render: (name, record) => `${name} ${record.trustee?.last_name || ''}`
+            filterDropdown: () => (
+                <div className="p-2">
+                    <Select
+                        className="w-full"
+                        allowClear
+                        mode="multiple"
+                        value={selectedTrustees}
+                        onChange={(value) => {
+                            setSelectedTrustees(value);
+                        }}
+                    >
+                        {trustees.map((t) => (
+                            <Select.Option key={t.id} value={t.id}>
+                                {`${t.name} ${t.last_name || ''}`}
+                            </Select.Option>
+                        ))}
+                    </Select>
+                    <div className="w-full flex flex-row justify-between text-right mt-2">
+                        <Button
+                            type="primary"
+                            size="small"
+                            onClick={() => {
+                                setFilters((prev) => ({
+                                    ...prev,
+                                    trustee_id: selectedTrustees,
+                                }));
+                            }}
+                        >
+                            اعمال
+                        </Button>
+                        <Button
+                            size="small"
+                            onClick={() => {
+                                setSelectedTrustees([]);
+                                setFilters((prev) => ({
+                                    ...prev,
+                                    trustee_id: undefined,
+                                }));
+                            }}
+                        >
+                            ریست
+                        </Button>
+                    </div>
+                </div>
+            ),
+            render: (name, record) =>
+                `${name} ${record.trustee?.last_name || ''}`,
         },
+        // {
+        //     title: "متولی",
+        //     dataIndex: ['trustee', 'name'],
+        //     key: 'trustee',
+        //     render: (name, record) => `${name} ${record.trustee?.last_name || ''}`
+        // },
         // {
         //     title: "تاریخ شروع",
         //     dataIndex: 'from_date',

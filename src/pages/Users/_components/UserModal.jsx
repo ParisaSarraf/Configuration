@@ -49,7 +49,6 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
     const payload = {
       username: values.userName,
       password: values.password,
-      is_superuser: values.is_superuser,
       name: values.name,
       last_name: values.lastName,
       phone_number: values.PhoneNumber,
@@ -62,6 +61,7 @@ const UserModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch
         values.tempImage && values.tempImage.length > 0
           ? values.tempImage[0].originFileObj
           : null,
+      is_superuser: values.isSuperuser,
       is_staff: values.isStaff,
     };
 

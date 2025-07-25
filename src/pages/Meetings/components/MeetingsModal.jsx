@@ -66,7 +66,7 @@ const MeetingsModal = ({ isOpen, closeModal, modalMode, refetch, currentProduct,
             mode={modalMode}
         >
             <Form layout="vertical" onFinish={onFinish} form={form}>
-                <Row gutter={[16, 16]}>
+                <Row gutter={[16]}>
                     <Col span={24}>
                         <Form.Item label='نوع' name='type'>
                             <Select>

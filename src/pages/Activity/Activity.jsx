@@ -13,32 +13,23 @@ import TrusteeModal from "@/pages/Activity/components/TrusteeModal.jsx";
 import PlanModal from "@/pages/Activity/components/PlanModal.jsx";
 import { useState } from "react";
 import DetailModal from "../Meetings/components/DetailModal";
+import { useUserSimple } from "../../QueryServises/userQuery";
 
 const Activity = () => {
     const { modalMode, setModal, isOpen, modalData, closeModal, modalType } = useModal()
     const { currentProduct } = useProductContext();
-    // const [filters, setFilters] = useState({});
-    // const { data: activityData = [], refetch } = useGetProductActivitiesType(currentProduct?.id, filters)
-    const { data: activityData = [], refetch } = useGetProductActivities(currentProduct?.id)
+    const [filters, setFilters] = useState({});
+    const { data: activityData = [], refetch } = useGetProductActivitiesType(
+        currentProduct?.id,
+        filters
+    );
+    // const { data: activityData = [], refetch } = useGetProductActivities(currentProduct?.id)
+    const { data: trustees = [] } = useUserSimple();
+
 
     const { mutateAsync: deleteActivity } = useDeleteActivity()
 
-    // console.log(activityData)
 
-    // const options = [
-    //     { label: 'همه', value: 'all' },
-    //     { label: 'صورتجلسه داخلی', value: 'internal' },
-    //     { label: 'صورتجلسه خارجی', value: 'external' },
-    // ];
-
-    // const handleTypeChange = (e) => {
-    //     const value = e.target.value;
-    //     if (value === 'all') {
-    //         setFilters({});
-    //     } else {
-    //         setFilters({ [value]: true });
-    //     }
-    // };
 
     const handleDelete = (id) => {
         Modal.confirm({
@@ -85,17 +76,6 @@ const Activity = () => {
 
     }
 
-    // const expandedRowRender = (record) => {
-    //     return (
-    //         <Table
-    //             columns={ActivityDetail}
-    //             dataSource={[record]}
-    //             rowKey="id"
-    //             pagination={false}
-    //         />
-    //     );
-    // };
-
     return (
         <Card title='فعالیت ها'
             extra={
@@ -107,24 +87,11 @@ const Activity = () => {
                 />
             }>
             <div className={'flex flex-col gap-4'}>
-                {/* 
-                <Radio.Group
-                    options={options}
-                    onChange={handleTypeChange}
-                    value={filters.internal ? 'internal' : filters.external ? 'external' : 'all'}
-                    optionType="button"
-                    buttonStyle="solid"
-                /> */}
-
-
                 <Table
                     size="small"
                     dataSource={activityData}
-                    columns={ActivityCols({ handleEdit, handleDelete, handleTrustee, handlePlan, handleDetail })}
+                    columns={ActivityCols({ handleEdit, handleDelete, handleTrustee, handlePlan, handleDetail, trustees, setFilters })}
                     rowKey="id"
-                // expandable={{
-                //     expandedRowRender,
-                // }}
                 />
             </div>
 
@@ -159,7 +126,7 @@ const Activity = () => {
                 closeModal={closeModal}
                 modalMode={modalMode}
                 modalData={modalData}
-                // refetch={refetch}
+            // refetch={refetch}
             />
         </Card>
     )
