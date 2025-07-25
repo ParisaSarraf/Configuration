@@ -42,8 +42,9 @@ const CustomHeader = () => {
     return () => clearInterval(interval);
   }, []);
 
-  <style jsx>{`
-      .custom-tooltip .ant-tooltip-inner {
+  <style jsx>
+    {`
+    .custom-tooltip .ant-tooltip-inner {
         background-color: white;
         color: black;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -52,10 +53,10 @@ const CustomHeader = () => {
       .custom-tooltip .ant-tooltip-arrow::before {
         background-color: white;
       }
-    `}</style>
+    `}
+  </style>
 
   const menuItems = [
-
     {
       type: 'divider',
     },
@@ -67,22 +68,12 @@ const CustomHeader = () => {
         navigate("/panel/datas");
       },
     },
-    // {
-    //   key: 'documents',
-    //   label: 'مدیریت اسناد',
-    //   icon: <DockerOutlined />,
-    //   onClick: () => {
-    //     navigate("/panel/document/list");
-    //   },
-    // },
-    {
+    ...(userData?.is_staff ? [{
       key: 'system-managment',
       label: 'مدیریت سیستم',
       icon: <SecurityScanOutlined />,
-      onClick: () => {
-        navigate("/panel/system-managment");
-      },
-    },
+      onClick: () => navigate("/panel/system-managment"),
+    }] : []),
   ]
 
 
@@ -97,11 +88,10 @@ const CustomHeader = () => {
           items: menuItems,
         }}
           trigger={['click']}>
-          {userData?.is_staff && (
-            <div className="flex items-center gap-1 ">
-              <SettingsOutlinedIcon className="text-lg" />
-            </div>
-          )}
+          <div className="flex items-center gap-1 ">
+            <SettingsOutlinedIcon className="text-lg" />
+          </div>
+          {/* )} */}
         </Dropdown>
         <Tooltip
           title={

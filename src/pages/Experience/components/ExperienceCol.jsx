@@ -71,6 +71,7 @@ const ExperienceCol = ({ handleDelete, handleEdit, handleShowDetail }) => {
                         </a>
                         <a
                             href={url}
+                            target="_blank"
                             download
                             style={{ color: "#52c41a" }}
                         >
