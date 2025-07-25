@@ -1,4 +1,4 @@
-import { Button, Flex, Tooltip, Tag } from "antd";
+import { Button, Flex, Tooltip, Tag, Divider } from "antd";
 import { DeleteOutlined, EditOutlined, EyeOutlined, FolderAddOutlined, UserAddOutlined } from "@ant-design/icons";
 
 export const ActivityCols = ({ handleEdit, handleDelete, handleTrustee, handlePlan, handleDetail }) => {
@@ -11,7 +11,12 @@ export const ActivityCols = ({ handleEdit, handleDelete, handleTrustee, handlePl
         {
             title: "کد فعالیت",
             dataIndex: 'meeting',
-            key: 'meeting'
+            key: 'meeting',
+            render(text, record) {
+                return (
+                    <Tag color="blue">{record.meeting?.code || 'بدون کد'}</Tag>
+                )
+            }
         },
         {
             title: "شرح فعالیت",
@@ -66,6 +71,7 @@ export const ActivityCols = ({ handleEdit, handleDelete, handleTrustee, handlePl
                             size="small"
                         />
                     </Tooltip>
+                    {/* <Divider /> */}
                     <Tooltip title="انجام توسط متولی">
                         <Button
                             icon={<UserAddOutlined />}

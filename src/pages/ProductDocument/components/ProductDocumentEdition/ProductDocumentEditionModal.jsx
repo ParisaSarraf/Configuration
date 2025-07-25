@@ -47,7 +47,6 @@ const ProductDocumentEditionModal = ({
 
     const currentStepIndex = stateSteps.findIndex(s => s.value === currentState);
 
-    // اگر در حالت "ویرایش" هستیم و مرحله بالاتر از "تهیه نشده" است، اجازه ویرایش نداریم
     const isEditable = modalMode === "edition" || currentState === 10;
 
     useEffect(() => {

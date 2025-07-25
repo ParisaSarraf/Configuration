@@ -1,97 +1,139 @@
 import Modal from "../../../components/Modal";
-// import { formatDate } from "../../../utils/dateUtils";
+import { Badge, Button } from "antd";
+import { FileOutlined, CalendarOutlined, CopyOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
+
+
+const formatDate = (dateStr) => {
+    if (!dateStr) return "---";
+    return dayjs(dateStr).format("YYYY/MM/DD");
+};
 
 const DetailModal = ({ isOpen, modalMode, modalData, closeModal }) => {
     if (!modalData) return null;
 
-    const renderField = (label, value, isImportant = false) => (
-        <div className={`flex items-start mb-4 ${isImportant ? "font-bold" : ""}`}>
-            <label className="w-1/3 text-gray-600 text-sm mb-1 min-w-[120px]">{label}</label>
-            <div className="w-2/3 text-gray-800 break-words">
-                {value || <span className="text-gray-400">---</span>}
-            </div>
-        </div>
-    );
-
-    const renderSection = (title, children) => (
-        <div className="mb-6 pb-4">
-            <h3 className="text-lg font-semibold text-blue-700 mb-3 border-b pb-2">{title}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
-                {children}
-            </div>
-        </div>
-    );
-
-    const getStateLabel = (state) => {
+    const getStateInfo = (state) => {
         const states = {
-            10: "در انتظار تایید",
-            20: "تایید شده",
-            30: "انجام شده",
-            40: "رد شده",
+            10: { label: "در انتظار تایید", status: "warning" },
+            20: { label: "تایید شده", status: "success" },
+            30: { label: "انجام شده", status: "processing" },
+            40: { label: "رد شده", status: "error" },
         };
-        return states[state] || "نامشخص";
+        return states[state] || { label: "نامشخص", status: "default" };
+    };
+    const PROJECT_TYPES = {
+        'control-project': {
+            label: "در انتظار تایید",
+            status: "warning"
+        },
+        'meeting': {
+            label: "تایید شده",
+            status: "success"
+        },
     };
 
-    const renderFileLink = (file) => (
-        <a
-            href={file}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center text-blue-600 hover:underline"
-        >
-            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-            </svg>
-            مشاهده فایل
-        </a>
+    const getProjectTypeInfo = (type) => {
+        return PROJECT_TYPES[type] || {
+            label: "نامشخص",
+            status: "default"
+        };
+    };
+
+    const renderInfoItem = (label, value, copyable = false) => (
+        <div className="flex justify-between items-start py-1 text-sm border-b border-dashed last:border-none">
+            <span className="text-gray-500">{label}</span>
+            <div className="text-right max-w-[60%]">
+                {value || <span className="text-gray-400">---</span>}
+
+            </div>
+        </div>
     );
+
+    const renderFileButton = (label, url) =>
+        url && (
+            <Button
+                href={url}
+                target="_blank"
+                type="link"
+                icon={<FileOutlined />}
+                className="px-0 text-blue-600"
+            >
+                {label}
+            </Button>
+        );
+
+    const SectionCard = ({ title, children }) => (
+        <div className="border rounded-lg p-4 shadow-sm bg-white">
+            <h4 className="text-base font-semibold text-blue-700 mb-3 border-b pb-2">{title}</h4>
+            <div className="space-y-4">{children}</div>
+        </div>
+    );
+
+    const stateInfo = getStateInfo(modalData.state);
 
     return (
         <Modal
             isOpen={isOpen}
-            title="جزئیات فعالیت‌ها"
-            size={900}
+            title="جزئیات فعالیت"
+            size={1000}
             onClose={closeModal}
             footer={false}
             mode={modalMode}
-            className={'scroll-modal'}
         >
-            <div className="space-y-6">
-                {renderSection("اطلاعات کلی", (
-                    <>
-                        {renderField("نوع فعالیت", modalData.type)}
-                        {renderField("وضعیت", getStateLabel(modalData.state), true)}
-                        {renderField("تاریخ شروع", modalData.from_date)}
-                        {renderField("تاریخ پایان", modalData.to_date)}
-                        {renderField("تعداد نفر-روز", modalData.person_day)}
-                        {renderField("تاریخ تایید", modalData.confirmed_date)}
-                        {renderField("تاریخ انجام", modalData.done_date || "---")}
-                        <div className="col-span-2">
-                            {renderField("توضیحات", modalData.description)}
-                        </div>
-                    </>
-                ))}
+            <div className="grid grid-cols-1 md:grid-cols-3  gap-6 py-4 px-2">
+                <SectionCard title="مشخصات فعالیت">
+                    {renderInfoItem("نوع فعالیت", modalData.type)}
+                    {renderInfoItem("تاریخ شروع", modalData.from_date)}
+                    {renderInfoItem("تاریخ پایان", modalData.to_date)}
+                    {renderInfoItem("تعداد نفر-روز", modalData.person_day)}
+                    {renderInfoItem("تاریخ تایید", formatDate(modalData.confirmed_date))}
+                    {renderInfoItem("تاریخ انجام", formatDate(modalData.done_date))}
+                    <div className="flex justify-between py-1">
+                        <span className="text-gray-500">وضعیت</span>
+                        <Badge status={stateInfo.status} text={stateInfo.label} />
+                    </div>
+                </SectionCard>
 
-                {renderSection("اطلاعات متولی", (
-                    <>
-                        {renderField("نام کامل", `${modalData.trustee.name} ${modalData.trustee.last_name}`)}
-                        {renderField("نام کاربری", modalData.trustee.username)}
-                        {/* {renderField("کد ملی", modalData.trustee.national_code)} */}
-                        {/* {renderField("شماره تماس", modalData.trustee.phone_number)} */}
-                        {/* {renderField("تاریخ ثبت", formatDate(modalData.trustee.registry_date))} */}
-                        <div className="col-span-2">
-                            {renderField("توضیحات مسئول", modalData.trustee_description || "---")}
-                        </div>
-                    </>
-                ))}
+                <SectionCard title="متولی فعالیت">
+                    {renderInfoItem("نام کامل", `${modalData.trustee.name} ${modalData.trustee.last_name}`)}
+                    {renderInfoItem("نام کاربری", modalData.trustee.username)}
+                    {renderInfoItem("تاریخ ثبت", formatDate(modalData.trustee.registry_date))}
+                    {modalData.trustee_description &&
+                        renderInfoItem("توضیحات متولی", modalData.trustee_description)}
+                    {renderFileButton("مشاهده فایل ", modalData.trustee_file)}
+                </SectionCard>
 
-                {renderSection("مستندات", (
-                    <>
-                        {renderField("فایل طرح و برنامه", modalData.plan_file ? renderFileLink(modalData.plan_file) : "---")}
-                        {renderField("توضیحات طرح و برنامه", modalData.plan_description || "---")}
-                        {renderField("فایل متولی", modalData.trustee_file ? renderFileLink(modalData.trustee_file) : "---")}
-                    </>
-                ))}
+                <SectionCard title="طرح  و برنامه">
+                    {renderInfoItem("توضیحات ", modalData.plan_description)}
+                    {renderFileButton("مشاهده فایل ", modalData.plan_file)}
+                </SectionCard>
+
+                {modalData.trustee.signature_image || modalData.trustee.temp_image ? (
+                    <SectionCard title="تصاویر">
+                        <div className="flex gap-4">
+                            {modalData.trustee.signature_image && (
+                                <img
+                                    src={modalData.trustee.signature_image}
+                                    alt="امضا"
+                                    className="max-h-32 border rounded"
+                                />
+                            )}
+                            {modalData.trustee.temp_image && (
+                                <img
+                                    src={modalData.trustee.temp_image}
+                                    alt="موقت"
+                                    className="max-h-32 border rounded"
+                                />
+                            )}
+                        </div>
+                    </SectionCard>
+                ) : null}
+
+                {/* {modalData.description && (
+                    <SectionCard title="توضیحات تکمیلی">
+                        <p className="text-sm text-gray-700 leading-relaxed">{modalData.description}</p>
+                    </SectionCard>
+                )} */}
             </div>
         </Modal>
     );
