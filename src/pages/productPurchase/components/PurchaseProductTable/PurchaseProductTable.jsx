@@ -1,15 +1,15 @@
-import {message, Modal, Table} from "antd"
+import { message, Modal, Table } from "antd"
 import PurchaseProductCol from "./PurchaseProductCol"
-import {useDeleteProductPurchase, useUnConfirmProductPurchaseById} from "@/QueryServises/productPurchase/index.js"
-import {useEffect} from "react";
+import { useDeleteProductPurchase, useUnConfirmProductPurchaseById } from "@/QueryServises/productPurchase/index.js"
+import { useEffect } from "react";
 
-const PurchaseProductTable = ({currentProduct, setSelectedPurchaseId, setModal}) => {
-    const {data: purchaseData, refetch} = useUnConfirmProductPurchaseById(currentProduct?.id)
-    const {mutateAsync: deleteProductPurchase} = useDeleteProductPurchase();
+const PurchaseProductTable = ({ currentProduct, setSelectedPurchaseId, setModal }) => {
+    const { data: purchaseData, refetch } = useUnConfirmProductPurchaseById(currentProduct?.id)
+    const { mutateAsync: deleteProductPurchase } = useDeleteProductPurchase();
 
 
     const handleEdit = (record) => {
-        setModal({mode: 'edit', data: record, type: 'add'})
+        setModal({ mode: 'edit', data: record, type: 'add' })
     }
 
     useEffect(() => {
@@ -47,10 +47,11 @@ const PurchaseProductTable = ({currentProduct, setSelectedPurchaseId, setModal})
 
     return (
         <Table
-            columns={PurchaseProductCol({handleEdit, handleDelete})}
+            columns={PurchaseProductCol({ handleEdit, handleDelete })}
             dataSource={purchaseData}
             rowSelection={rowSelection}
             rowKey="id"
+            size="small"
         />
     )
 }

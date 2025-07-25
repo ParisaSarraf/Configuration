@@ -1,7 +1,7 @@
-import {DeleteOutlined, EditOutlined} from "@ant-design/icons"
-import {Button, Space, Tooltip} from "antd"
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons"
+import { Button, Space, Tooltip } from "antd"
 
-const RequestWareHouseCol = ({handleEdit, handleDelete}) => {
+const RequestWareHouseCol = ({ handleEdit, handleDelete }) => {
     return [
         {
             title: 'نوع خرید',
@@ -38,12 +38,13 @@ const RequestWareHouseCol = ({handleEdit, handleDelete}) => {
                 return (
                     <Space>
                         <Tooltip title="ویرایش">
-                            <Button title="ویرایش" icon={<EditOutlined/>} className="text-green-500 , border-green-500"
-                                    onClick={() => handleEdit(record)}/>
+                            <Button title="ویرایش" icon={<EditOutlined />} className="text-green-500 , border-green-500"
+                                onClick={() => handleEdit(record)}
+                                size="small" />
                         </Tooltip>
                         <Tooltip title="حذف">
-                            <Button title="حذف" icon={<DeleteOutlined/>} danger
-                                    onClick={() => handleDelete(record?.id)}/>
+                            <Button title="حذف" icon={<DeleteOutlined />} danger
+                                onClick={() => handleDelete(record?.id)} size="small" />
                         </Tooltip>
                     </Space>
                 )

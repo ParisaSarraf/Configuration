@@ -43,7 +43,7 @@ export const ActivityCols = ({ handleEdit, handleDelete, handleTrustee, handlePl
                             setSelectedTrustees(value);
                         }}
                     >
-                        {trustees.map((t) => (
+                        {trustees?.map((t) => (
                             <Select.Option key={t.id} value={t.id}>
                                 {`${t.name} ${t.last_name || ''}`}
                             </Select.Option>
@@ -80,17 +80,6 @@ export const ActivityCols = ({ handleEdit, handleDelete, handleTrustee, handlePl
             render: (name, record) =>
                 `${name} ${record.trustee?.last_name || ''}`,
         },
-        // {
-        //     title: "متولی",
-        //     dataIndex: ['trustee', 'name'],
-        //     key: 'trustee',
-        //     render: (name, record) => `${name} ${record.trustee?.last_name || ''}`
-        // },
-        // {
-        //     title: "تاریخ شروع",
-        //     dataIndex: 'from_date',
-        //     key: 'from_date'
-        // }
         , {
             title: "تاریخ پایان",
             dataIndex: 'to_date',
@@ -110,51 +99,64 @@ export const ActivityCols = ({ handleEdit, handleDelete, handleTrustee, handlePl
         }, {
             title: "عملیات",
             key: 'actions',
-            render: (_, record) => (
-                <Flex gap={4}>
-                    <Tooltip title="حذف">
-                        <Button
-                            onClick={() => handleDelete(record.id)}
-                            icon={<DeleteOutlined />}
-                            danger
-                            size="small"
-                        />
-                    </Tooltip>
-                    <Tooltip title="ویرایش">
-                        <Button
-                            icon={<EditOutlined />}
-                            className="text-green-500 border-green-500"
-                            onClick={() => handleEdit(record)}
-                            size="small"
-                        />
-                    </Tooltip>
-                    <Tooltip title="انجام توسط متولی">
-                        <Button
-                            icon={<UserAddOutlined />}
-                            className="text-orange-600 border-orange-600"
-                            onClick={() => handleTrustee(record)}
-                            size="small"
-                        />
-                    </Tooltip>
-                    <Tooltip title="انجام توسط طرح و برنامه">
-                        <Button
-                            icon={<FolderAddOutlined />}
-                            className="text-pink-700 border-pink-700"
-                            onClick={() => handlePlan(record)}
-                            size="small"
-                        />
-                    </Tooltip>
-                    <Tooltip title="جزئیات">
-                        <Button
-                            icon={<EyeOutlined />}
-                            className="text-sky-500 border-sky-500"
-                            onClick={() => handleDetail(record)}
-                            title='نمایش جزئیات '
-                            size="small"
-                        />
-                    </Tooltip>
-                </Flex>
-            ),
+            render: (_, record) => {
+                const isTrusteeDone = !!record.trustee_description || !!record.trustee_file;
+                const isPlanDone = !!record.confirmed_date || !!record.plan_file;
+
+                return (
+                    <Flex gap={4}>
+                        <Tooltip title="حذف">
+                            <Button
+                                onClick={() => handleDelete(record.id)}
+                                icon={<DeleteOutlined />}
+                                danger
+                                size="small"
+                            />
+                        </Tooltip>
+                        <Tooltip title="ویرایش">
+                            <Button
+                                icon={<EditOutlined />}
+                                className="text-green-500 border-green-500"
+                                onClick={() => handleEdit(record)}
+                                size="small"
+                            />
+                        </Tooltip>
+                        <Tooltip title="انجام توسط متولی">
+                            <Button
+                                icon={<UserAddOutlined />}
+                                className={
+                                    isTrusteeDone
+                                        ? "bg-orange-600 text-white border-orange-600"
+                                        : "text-orange-600 border-orange-600"
+                                }
+                                onClick={() => handleTrustee(record)}
+                                size="small"
+                            />
+                        </Tooltip>
+                        <Tooltip title="انجام توسط طرح و برنامه">
+                            <Button
+                                icon={<FolderAddOutlined />}
+                                className={
+                                    isPlanDone
+                                        ? "bg-pink-700 text-white border-pink-700"
+                                        : "text-pink-700 border-pink-700"
+                                }
+                                onClick={() => handlePlan(record)}
+                                size="small"
+                            />
+                        </Tooltip>
+                        <Tooltip title="جزئیات">
+                            <Button
+                                icon={<EyeOutlined />}
+                                className="text-sky-500 border-sky-500"
+                                onClick={() => handleDetail(record)}
+                                size="small"
+                            />
+                        </Tooltip>
+                    </Flex>
+                );
+            }
+
         }]
     )
 };

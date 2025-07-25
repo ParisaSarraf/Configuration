@@ -1,12 +1,11 @@
 import { Button, Card, message, Modal, Space } from 'antd'
 import { useProductContext } from '../../../Services/Context/ProductContext';
-import Icon, { DeleteOutlined, FileExclamationTwoTone, PlusOutlined, RightOutlined, SmileFilled } from '@ant-design/icons';
+import { DeleteOutlined, PlusOutlined, RightOutlined } from '@ant-design/icons';
 import Tree from '../../../components/Tree';
 import useModal from '../../../hooks/useModal';
 import DescribeTheRequirementModal from './DescribeTheRequirementModal';
 import AcknowledgmentOfRequirement from './AcknowledgmentOfRequirement';
 import { useDeleteProductRequirement, useProductRequirementList } from '../../../QueryServises/productRequirementQuery';
-import { Chip, IconButton, SliderMarkLabel } from '@mui/material';
 
 const ProductRequirementTree = ({ currentProduct, selectProduct, setSelectedProductRequirement }) => {
     const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
@@ -43,47 +42,38 @@ const ProductRequirementTree = ({ currentProduct, selectProduct, setSelectedProd
         const transformNode = (node) => ({
             title: (
                 <div
-                    className="w-full flex"
+                    // className="flex flex-row -mt-2 justify-between items-center w-full h-5"
                     onDoubleClick={() => {
                         setModal({ mode: 'view', data: node, type: 'AcknowledgmentOfRequirement' })
                     }}
                 >
-                    <div className='flex justify-start'>
-                        <span >{node.persian_title}</span>
-                    </div>
-                    <div className='flex justify-end'>
-
-                        <Chip
-                            icon={<RightOutlined size={'small'} />}
+                    <span className="mr-8">{node.persian_title}</span>
+                    <Space className="-mt-4">
+                        <Button
+                            icon={<RightOutlined />}
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setModal({ mode: 'add', data: node, type: 'AcknowledgmentOfRequirement' })
                             }}
-                            size='small'
-                        // className="text-yellow-500 hover:text-yellow-700 "
+                            className="text-yellow-500 hover:text-yellow-700 bg-white"
                         />
-                        <Chip
+                        <Button
                             icon={<DeleteOutlined />}
-                            color='primary'
-                            // className="text-red-500 hover:text-red-700 "
+                            className="text-red-500 hover:text-red-700 bg-white"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 handleDelete(node)
                             }}
-                            size='small'
-
                         />
-                        <Chip
+                        <Button
                             icon={<PlusOutlined />}
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setModal({ mode: 'add', data: null, type: 'DescribeTheRequirementModal' })
                             }}
-                            // className="text-blue-500 hover:text-blue-700 bg-white"
-                            size='small'
-
+                            className="text-blue-500 hover:text-blue-700 bg-white"
                         />
-                    </div>
+                    </Space>
                 </div>
             ),
             english_title: node.english_title,
@@ -117,6 +107,7 @@ const ProductRequirementTree = ({ currentProduct, selectProduct, setSelectedProd
         }>
             <Tree
                 mode="tree"
+                className={'custom-tree'}
                 data={treeData}
                 isLoading={isLoading}
                 isError={isError}

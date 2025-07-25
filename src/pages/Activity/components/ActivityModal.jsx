@@ -86,7 +86,7 @@ const ActivityModal = ({ isOpen, modalData, modalMode, closeModal, refetch, curr
                                 <Select options={meetingData?.map((meet) => {
                                     return {
                                         value: meet.id,
-                                        label: meet.title,
+                                        label: `${meet.title}`,
                                     }
                                 })} />
                             </Form.Item>

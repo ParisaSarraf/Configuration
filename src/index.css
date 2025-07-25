@@ -108,16 +108,25 @@ html, body {
 }
 
 /* برای راست‌چین بودن آیکون‌ها و متن در یک خط */
-.ant-tree-title {
+/* .ant-tree-title {
   display: flex;
   align-items: center;
-  gap: 4px; /* فاصله بین آیکون‌ها و متن */
+  gap: 4px;
 }
 
 .ant-tree-switcher,
 .ant-tree-node-content-wrapper {
   display: flex;
   align-items: center;
+} */
+
+
+.custom-tree .ant-tree-title {
+  display: contents;
+}
+
+.custom-tree .ant-tree-node-content-wrapper {
+  display: contents;
 }
 
 /* ---------- Tabs Customization ---------- */

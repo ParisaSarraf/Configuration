@@ -1,13 +1,13 @@
-import {message, Modal, Table} from "antd"
+import { message, Modal, Table } from "antd"
 import RequestWareHouseCol from "@/pages/RequestOfWarehouse/components/RequestWareHouseTable/RequestWareHouseCol.jsx";
 import {
     useDeleteRequestOfWarehouse, useGetUnConfirmedWareRequestById
 } from "@/QueryServises/RequestOfWarehouse/index.js";
-import {useEffect} from "react";
+import { useEffect } from "react";
 
-const RequestWareHouseTable = ({currentProduct, setSelectedWareHouseId, setModal, requestWareHouseData}) => {
-    const {refetch} = useGetUnConfirmedWareRequestById(currentProduct?.id)
-    const {mutateAsync: deleteRequestWareHouse} = useDeleteRequestOfWarehouse();
+const RequestWareHouseTable = ({ currentProduct, setSelectedWareHouseId, setModal, requestWareHouseData }) => {
+    const { refetch } = useGetUnConfirmedWareRequestById(currentProduct?.id)
+    const { mutateAsync: deleteRequestWareHouse } = useDeleteRequestOfWarehouse();
 
 
     useEffect(() => {
@@ -16,7 +16,7 @@ const RequestWareHouseTable = ({currentProduct, setSelectedWareHouseId, setModal
 
 
     const handleEdit = (record) => {
-        setModal({mode: 'edit', data: record, type: 'RequestOfWarehouse'})
+        setModal({ mode: 'edit', data: record, type: 'RequestOfWarehouse' })
     }
 
     const handleDelete = (id) => {
@@ -50,10 +50,11 @@ const RequestWareHouseTable = ({currentProduct, setSelectedWareHouseId, setModal
 
     return (
         <Table
-            columns={RequestWareHouseCol({handleEdit, handleDelete})}
+            columns={RequestWareHouseCol({ handleEdit, handleDelete })}
             dataSource={requestWareHouseData}
             rowSelection={rowSelection}
             rowKey="id"
+            size="small"
         />
     )
 }
