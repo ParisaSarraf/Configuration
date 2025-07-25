@@ -5,6 +5,7 @@ import ExperienceModal from './components/ExperienceModal';
 import ExperienceCol from './components/ExperienceCol';
 import useModal from '../../hooks/useModal';
 import ExperienceDetailViewModal from './components/ExperienceDetailViewModal';
+import { PlusOutlined } from '@ant-design/icons';
 
 const Experience = () => {
     const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
@@ -41,7 +42,7 @@ const Experience = () => {
     }
 
     const handleShowDetail = (record) => {
-        setModal({ mode: 'view', data: record, type: 'detial' })
+        setModal({ mode: 'view', data: record, type: 'detailExperience' })
     }
 
     return (
@@ -70,7 +71,7 @@ const Experience = () => {
             />
 
             <ExperienceDetailViewModal
-                isOpen={modalType === 'detial' && isOpen}
+                isOpen={modalType === 'detailExperience' && isOpen}
                 modalMode={modalMode}
                 modalType={modalType}
                 modalData={modalData}

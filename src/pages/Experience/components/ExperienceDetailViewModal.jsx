@@ -1,4 +1,6 @@
+import { Image, Space } from "antd";
 import Modal from "../../../components/Modal";
+import { BASEURL } from "../../../Services/axiosInstance";
 
 const ExperienceDetailViewModal = ({
     isOpen,
@@ -9,7 +11,8 @@ const ExperienceDetailViewModal = ({
     if (!modalData) return null;
 
     const { precinct, user, experiment_text, file, code, registration_date } = modalData;
-
+    const url = `${BASEURL.replace("/api/v1", "")}${file}`;
+    const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(file);
     return (
         <Modal
             isOpen={isOpen}
@@ -21,7 +24,6 @@ const ExperienceDetailViewModal = ({
         >
             <div className="space-y-4 p-4">
                 <div className="grid grid-cols-2 gap-4">
-                    {/* بخش اول - اطلاعات پایه */}
                     <div className="bg-gray-50 p-4 rounded-lg">
                         <h3 className="font-bold text-lg border-b pb-2 mb-3">اطلاعات پایه</h3>
                         <div className="space-y-3">
@@ -40,7 +42,6 @@ const ExperienceDetailViewModal = ({
                         </div>
                     </div>
 
-                    {/* بخش دوم - اطلاعات کاربر */}
                     <div className="bg-gray-50 p-4 rounded-lg">
                         <h3 className="font-bold text-lg border-b pb-2 mb-3">اطلاعات ثبت کننده</h3>
                         <div className="space-y-3">
@@ -60,7 +61,6 @@ const ExperienceDetailViewModal = ({
                     </div>
                 </div>
 
-                {/* بخش سوم - متن تجربه */}
                 <div className="bg-gray-50 p-4 rounded-lg">
                     <h3 className="font-bold text-lg border-b pb-2 mb-3">متن تجربه</h3>
                     <p className="whitespace-pre-line text-justify">
@@ -68,18 +68,36 @@ const ExperienceDetailViewModal = ({
                     </p>
                 </div>
 
-                {/* بخش چهارم - فایل ضمیمه */}
                 {file && (
                     <div className="bg-gray-50 p-4 rounded-lg">
                         <h3 className="font-bold text-lg border-b pb-2 mb-3">فایل ضمیمه</h3>
-                        <a
-                            href={file}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 underline"
-                        >
-                            مشاهده و دانلود فایل
-                        </a>
+                        <Space>
+                            <a
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ color: "#1890ff" }}
+                            >
+                                {isImage ? (
+                                    <Image
+                                        width={70}
+                                        height={50}
+                                        src={url}
+                                        alt="فایل پیوست"
+                                        preview={false}
+                                    />
+                                ) : (
+                                    "مشاهده فایل"
+                                )}
+                            </a>
+                            <a
+                                href={url}
+                                download
+                                style={{ color: "#52c41a" }}
+                            >
+                                دانلود
+                            </a>
+                        </Space>
                     </div>
                 )}
             </div>
