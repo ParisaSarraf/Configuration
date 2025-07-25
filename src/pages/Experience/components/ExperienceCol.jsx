@@ -53,7 +53,7 @@ const ExperienceCol = ({ handleDelete, handleEdit, handleShowDetail }) => {
                     <Space>
                         <a
                             href={url}
-                            target="_blank"
+                            // target="_blank"
                             rel="noopener noreferrer"
                             style={{ color: "#1890ff" }}
                         >
