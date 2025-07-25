@@ -25,9 +25,13 @@ export const MeetingsCol = ({ handleEdit, handleDelete, handleShowDetail }) => {
         },
         {
             title: 'طرف صورتجلسه',
+            key: 'contractor',
+            render: (_, record) => record.contractor?.name,
+        },
+        {
+            title: 'نوع',
             dataIndex: 'type',
             key: 'type',
-            // render: (record) => record.type === 'internal' ? 'داخلی' : 'خارجی',
         },
         {
             title: 'تاریخ جلسه',

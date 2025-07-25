@@ -109,8 +109,9 @@ const MeetingsModal = ({
                             initialValue={modalMode === 'edit' ? modalData?.type : undefined}
                         >
                             <Select>
-                                <Select.Option value="internal">داخلی</Select.Option>
-                                <Select.Option value="external">خارجی</Select.Option>
+                                <Select.Option value="company">شرکت</Select.Option>
+                                <Select.Option value="contractor">پیکانکار</Select.Option>
+                                <Select.Option value="employer">کارفرما</Select.Option>
                             </Select>
                         </Form.Item>
                     </Col>
