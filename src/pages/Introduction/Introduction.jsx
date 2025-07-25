@@ -1,91 +1,159 @@
 import { useProductContext } from '../../Services/Context/ProductContext';
-import { Card, Typography, Row, Col, Space, Image, Skeleton, Table, Input, ConfigProvider } from 'antd';
+import {
+    Card,
+    Typography,
+    Row,
+    Col,
+    Space,
+    Table,
+    Input,
+    ConfigProvider,
+    Form,
+    Button,
+    message,
+    Image,
+} from 'antd';
 import fa_IR from 'antd/locale/fa_IR';
 import { BASEURL } from "@/Services/axiosInstance.js";
 import ProductCols from './components/ProductCols';
+import { useProductById, useUpdateProductInfo } from '../../QueryServises/productQuery';
+import { useEffect } from 'react';
+import FileUploader from '../../components/FileUploader/FileUploader';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
-const RecursiveTable = ({ dataSource, columns }) => {
-    return (
-        <Table
-            columns={columns}
-            dataSource={dataSource}
-            rowKey="id"
-            pagination={false}
-            expandable={{
-                indentSize: 20,
-                expandIconColumnIndex: 0,
-                rowExpandable: (record) => record.children && record.children.length > 0
-            }}
-        />
-    );
-};
-
+const RecursiveTable = ({ dataSource, columns }) => (
+    <Table
+        columns={columns}
+        dataSource={dataSource}
+        rowKey="id"
+        pagination={false}
+        expandable={{
+            indentSize: 20,
+            expandIconColumnIndex: 0,
+            rowExpandable: (record) => record.children && record.children.length > 0,
+        }}
+    />
+);
 
 const Introduction = () => {
     const { currentProduct } = useProductContext();
     const product = currentProduct?.productData;
+    const { data: productData, refetch } = useProductById(currentProduct?.id)
+    const [form] = Form.useForm();
+    const { mutateAsync: updateProductionInfo } = useUpdateProductInfo();
 
-    if (!product) {
+    useEffect(() => {
+        if (productData) {
+            form.setFieldsValue({
+                user_description: productData.user_description || '',
+                user_image: productData.user_image
+                    ? [
+                        {
+                            uid: "-1",
+                            name: "user_image",
+                            url: BASEURL.replace("/api/v1", "") + productData.user_image,
+                        },
+                    ]
+                    : [],
+            });
+        }
+    }, [productData]);
+
+    if (!productData) {
         return <div className="text-center py-8">محصولی یافت نشد</div>;
     }
+    const onFinish = async (values) => {
+        const formData = new FormData();
+        if (values.user_description) {
+            formData.append('user_description', values.user_description);
+        }
+        const file = values.user_image?.[0]?.originFileObj;
+        if (file) {
+            formData.append('user_image', file);
+        }
+        try {
+            await updateProductionInfo({
+                productId: currentProduct?.id,
+                ProductInfoData: formData,
+            });
+            message.success('ذخیره با موفقیت انجام شد');
+            await refetch()
+            form.resetFields()
+        } catch (error) {
+            message.error("مشکلی در انجام عملیات پیش آمده است");
+            console.error(error);
+        }
+    };
+
 
     return (
         <ConfigProvider direction="rtl" locale={fa_IR}>
             <div style={{ padding: 16 }}>
                 <Card className="mb-1">
-                    <Row gutter={16} align="middle">
+                    <Row gutter={16}>
                         <Col span={24}>
-                            <Title level={4}>{product?.persian_title}</Title>
+                            <Title level={4}>{productData?.persian_title}</Title>
                         </Col>
-                        <Col span={12}>
-                            <Space direction="vertical" className='w-full'>
-                                <Input.TextArea
-                                    rows={5}
-                                    size='small'
-                                    placeholder='توضیحات محصول'
-                                    style={{
-                                        height: 350,
-                                        width: '100%',
-                                        resize: 'none'
-                                    }}
-                                />
-                            </Space>
-                        </Col>
-                        <Col span={12}>
-                            {product.image ? (
-                                <Image
-                                    width="100%"
-                                    style={{
-                                        maxHeight: 400,
-                                        height: 350,
-                                        objectFit: 'contain',
-                                        width: '100%',
-                                        justifyContent: 'center',
-                                        backgroundColor: '#E2E2E2'
-                                    }}
-                                    src={`${BASEURL.replace("/api/v1", "")}${product.image}`}
-                                    alt="تصویر محصول"
-                                />
-                            ) : (
-                                <div style={{
-                                    height: 350,
-                                    width: '100%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    backgroundColor: '#E2E2E2'
-                                }}>
-                                    <Skeleton.Image />
-                                </div>
-                            )}
+                        <Col span={24}>
+                            <Form
+                                onFinish={onFinish}
+                                form={form}
+                                layout="vertical"
+                                className="w-full"
+                            >
+                                <Row gutter={16}>
+                                    <Col span={12}>
+                                        <Form.Item
+                                            name="user_description"
+                                        >
+                                            <Input.TextArea
+                                                rows={5}
+                                                placeholder="توضیحات محصول"
+                                                style={{
+                                                    height: 350,
+                                                    resize: 'none',
+                                                }}
+                                            />
+                                        </Form.Item>
+
+                                        <Form.Item
+                                            name="user_image"
+                                            label="آپلود تصویر جدید"
+                                        >
+                                            <FileUploader maxFiles={1} listType="picture" />
+                                        </Form.Item>
+
+                                        <Form.Item>
+                                            <Button type="primary" htmlType="submit">
+                                                ذخیره تغییرات
+                                            </Button>
+                                        </Form.Item>
+                                    </Col>
+
+                                    <Col span={12}>
+                                        {productData.user_image && (
+                                            <Image
+                                                src={`${BASEURL.replace("/api/v1", "")}${productData.user_image}`}
+                                                alt="تصویر محصول"
+                                                style={{
+                                                    height: 350,
+                                                    width: '100%',
+                                                    objectFit: 'contain',
+                                                    backgroundColor: '#E2E2E2',
+                                                    borderRadius: 4,
+                                                }}
+                                            />
+                                        )}
+                                    </Col>
+                                </Row>
+                            </Form>
                         </Col>
                     </Row>
                 </Card>
 
                 {product.children && product.children.length > 0 && (
-                    <Card title="محصولات زیرمجموعه" >
+                    <Card title="محصولات زیرمجموعه">
                         <RecursiveTable
                             dataSource={product.children}
                             columns={ProductCols()}

@@ -23,7 +23,7 @@ const ExperienceDetailViewModal = ({
             mode={modalMode}
         >
             <div className="space-y-4 p-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                     <div className="bg-gray-50 p-4 rounded-lg">
                         <h3 className="font-bold text-lg border-b pb-2 mb-3">اطلاعات پایه</h3>
                         <div className="space-y-3">
@@ -49,16 +49,49 @@ const ExperienceDetailViewModal = ({
                                 <span className="font-medium text-gray-600">نام و نام خانوادگی:</span>
                                 <p className="mt-1">{`${user?.name || ''} ${user?.last_name || ''}`}</p>
                             </div>
-                            <div>
-                                <span className="font-medium text-gray-600">کد ملی:</span>
-                                <p className="mt-1">{user?.national_code || '---'}</p>
-                            </div>
-                            <div>
-                                <span className="font-medium text-gray-600">شماره تماس:</span>
-                                <p className="mt-1">{user?.phone_number || '---'}</p>
-                            </div>
+
+
                         </div>
                     </div>
+                    {file ? (
+                        <div className="bg-gray-50 p-4 rounded-lg">
+                            <h3 className="font-bold text-lg border-b pb-2 mb-3">فایل ضمیمه</h3>
+                            <Space>
+                                <a
+                                    href={url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{ color: "#1890ff" }}
+                                >
+                                    {isImage ? (
+                                        <Image
+                                            width={70}
+                                            height={50}
+                                            src={url}
+                                            alt="فایل پیوست"
+                                            preview={false}
+                                        />
+                                    ) : (
+                                        "مشاهده فایل"
+                                    )}
+                                </a>
+                                <a
+                                    href={url}
+                                    download
+                                    style={{ color: "#52c41a" }}
+                                >
+                                    دانلود
+                                </a>
+                            </Space>
+                        </div>
+                    )
+                        : (
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                                <h3 className="font-bold text-lg  pb-2 mb-3">
+                                    فایلی وجود ندارد
+                                </h3>
+                            </div>
+                        )}
                 </div>
 
                 <div className="bg-gray-50 p-4 rounded-lg">
@@ -68,38 +101,7 @@ const ExperienceDetailViewModal = ({
                     </p>
                 </div>
 
-                {file && (
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                        <h3 className="font-bold text-lg border-b pb-2 mb-3">فایل ضمیمه</h3>
-                        <Space>
-                            <a
-                                href={url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{ color: "#1890ff" }}
-                            >
-                                {isImage ? (
-                                    <Image
-                                        width={70}
-                                        height={50}
-                                        src={url}
-                                        alt="فایل پیوست"
-                                        preview={false}
-                                    />
-                                ) : (
-                                    "مشاهده فایل"
-                                )}
-                            </a>
-                            <a
-                                href={url}
-                                download
-                                style={{ color: "#52c41a" }}
-                            >
-                                دانلود
-                            </a>
-                        </Space>
-                    </div>
-                )}
+
             </div>
         </Modal>
     )

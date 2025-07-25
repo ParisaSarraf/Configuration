@@ -51,6 +51,7 @@ const FileUploader = ({ value = [], onChange, maxFiles = 1, listType, className 
                 onChange={handleChange}
                 onPreview={handlePreview}
                 beforeUpload={() => false}
+
             >
                 {fileList.length < maxFiles && (
                     <span>
@@ -61,6 +62,7 @@ const FileUploader = ({ value = [], onChange, maxFiles = 1, listType, className 
 
             {previewImage && (
                 <Image
+                    href="_blank"
                     src={previewImage}
                     style={{ display: "none" }}
                     preview={{
