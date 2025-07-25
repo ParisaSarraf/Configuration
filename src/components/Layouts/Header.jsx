@@ -13,7 +13,6 @@ import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined';
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import PersianDate from "persian-date";
-import { AccessTimeOutlined } from "@mui/icons-material";
 import { useMyAxios } from "../../hooks/useMyAxios";
 import { BASEURL } from "../../Services/axiosInstance";
 
@@ -98,7 +97,11 @@ const CustomHeader = () => {
           items: menuItems,
         }}
           trigger={['click']}>
-          <SettingsOutlinedIcon />
+          {userData?.is_staff && (
+            <div className="flex items-center gap-1 ">
+              <SettingsOutlinedIcon className="text-lg" />
+            </div>
+          )}
         </Dropdown>
         <Tooltip
           title={
@@ -142,8 +145,12 @@ const CustomHeader = () => {
               <AccountCircleOutlinedIcon className="text-xl" />
             )}
             {/* </Badge> */}
-            <span className="hidden sm:inline text-sm font-semibold">{userData?.name || 'کاربر'}</span>
-          </Button>
+            <span className="hidden sm:inline text-sm font-semibold text-gray-700 whitespace-nowrap">
+              {userData?.name && userData?.last_name
+                ? `${userData.name} ${userData.last_name}`
+                : 'کاربر'
+              }
+            </span>          </Button>
         </Tooltip >
 
       </div >
