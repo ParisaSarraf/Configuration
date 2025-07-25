@@ -1,7 +1,8 @@
 import Modal from "../../../components/Modal";
-import { Badge, Button } from "antd";
-import { FileOutlined, CalendarOutlined, CopyOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import { Badge, Button, Space, Image } from "antd";
+import { FileOutlined, CopyOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { BASEURL } from "../../../Services/axiosInstance";
 
 
 const formatDate = (dateStr) => {
@@ -21,46 +22,50 @@ const DetailModal = ({ isOpen, modalMode, modalData, closeModal }) => {
         };
         return states[state] || { label: "نامشخص", status: "default" };
     };
-    const PROJECT_TYPES = {
-        'control-project': {
-            label: "در انتظار تایید",
-            status: "warning"
-        },
-        'meeting': {
-            label: "تایید شده",
-            status: "success"
-        },
-    };
-
-    const getProjectTypeInfo = (type) => {
-        return PROJECT_TYPES[type] || {
-            label: "نامشخص",
-            status: "default"
-        };
-    };
 
     const renderInfoItem = (label, value, copyable = false) => (
         <div className="flex justify-between items-start py-1 text-sm border-b border-dashed last:border-none">
             <span className="text-gray-500">{label}</span>
             <div className="text-right max-w-[60%]">
                 {value || <span className="text-gray-400">---</span>}
-
+                {copyable && value && (
+                    <CopyOutlined
+                        onClick={() => navigator.clipboard.writeText(value)}
+                        className="ml-2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                    />
+                )}
             </div>
         </div>
     );
 
-    const renderFileButton = (label, url) =>
-        url && (
-            <Button
-                href={url}
-                target="_blank"
-                type="link"
-                icon={<FileOutlined />}
-                className="px-0 text-blue-600"
-            >
-                {label}
-            </Button>
+    const renderFileButton = (label, filePath) => {
+        if (!filePath) return <div className="text-gray-400">فایلی وجود ندارد</div>;
+        const fullUrl = `${BASEURL.replace("/api/v1", "")}${filePath}`;
+        const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(filePath);
+
+        return (
+            <Space className="flex flex-col">
+                <a href={fullUrl} target="_blank" rel="noopener noreferrer" style={{ color: "#1890ff" }}>
+                    {isImage ? (
+                        <Image
+                            width={90}
+                            height={90}
+                            src={fullUrl}
+                            alt="فایل پیوست"
+                            preview={true}
+                        />
+                    ) : (
+                        <>
+                            <FileOutlined /> مشاهده فایل
+                        </>
+                    )}
+                </a>
+                <a href={fullUrl} download style={{ color: "#52c41a" }} target="_blank" rel="noopener noreferrer">
+                    دانلود
+                </a>
+            </Space>
         );
+    };
 
     const SectionCard = ({ title, children }) => (
         <div className="border rounded-lg p-4 shadow-sm bg-white">
@@ -80,7 +85,7 @@ const DetailModal = ({ isOpen, modalMode, modalData, closeModal }) => {
             footer={false}
             mode={modalMode}
         >
-            <div className="grid grid-cols-1 md:grid-cols-3  gap-6 py-4 px-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4 px-2">
                 <SectionCard title="مشخصات فعالیت">
                     {renderInfoItem("نوع فعالیت", modalData.type)}
                     {renderInfoItem("تاریخ شروع", modalData.from_date)}
@@ -100,40 +105,36 @@ const DetailModal = ({ isOpen, modalMode, modalData, closeModal }) => {
                     {renderInfoItem("تاریخ ثبت", formatDate(modalData.trustee.registry_date))}
                     {modalData.trustee_description &&
                         renderInfoItem("توضیحات متولی", modalData.trustee_description)}
-                    {renderFileButton("مشاهده فایل ", modalData.trustee_file)}
+                    {renderFileButton("فایل متولی", modalData.trustee_file)}
                 </SectionCard>
 
-                <SectionCard title="طرح  و برنامه">
-                    {renderInfoItem("توضیحات ", modalData.plan_description)}
-                    {renderFileButton("مشاهده فایل ", modalData.plan_file)}
+                <SectionCard title="طرح و برنامه">
+                    {renderInfoItem("توضیحات", modalData.plan_description)}
+                    {renderFileButton("فایل طرح و برنامه", modalData.plan_file)}
                 </SectionCard>
 
-                {modalData.trustee.signature_image || modalData.trustee.temp_image ? (
+                {(modalData.trustee.signature_image || modalData.trustee.temp_image) && (
                     <SectionCard title="تصاویر">
                         <div className="flex gap-4">
                             {modalData.trustee.signature_image && (
-                                <img
+                                <Image
                                     src={modalData.trustee.signature_image}
                                     alt="امضا"
-                                    className="max-h-32 border rounded"
+                                    width={120}
+                                    className="rounded border"
                                 />
                             )}
                             {modalData.trustee.temp_image && (
-                                <img
+                                <Image
                                     src={modalData.trustee.temp_image}
-                                    alt="موقت"
-                                    className="max-h-32 border rounded"
+                                    alt="تصویر موقت"
+                                    width={120}
+                                    className="rounded border"
                                 />
                             )}
                         </div>
                     </SectionCard>
-                ) : null}
-
-                {/* {modalData.description && (
-                    <SectionCard title="توضیحات تکمیلی">
-                        <p className="text-sm text-gray-700 leading-relaxed">{modalData.description}</p>
-                    </SectionCard>
-                )} */}
+                )}
             </div>
         </Modal>
     );

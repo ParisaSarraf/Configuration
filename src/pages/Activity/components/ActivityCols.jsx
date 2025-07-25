@@ -71,7 +71,6 @@ export const ActivityCols = ({ handleEdit, handleDelete, handleTrustee, handlePl
                             size="small"
                         />
                     </Tooltip>
-                    {/* <Divider /> */}
                     <Tooltip title="انجام توسط متولی">
                         <Button
                             icon={<UserAddOutlined />}

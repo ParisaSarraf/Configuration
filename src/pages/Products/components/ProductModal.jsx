@@ -77,7 +77,7 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
     }, [modalMode, modalData, isOpen]);
 
     useEffect(() => {
-        const newFinalCode = `${productCode || ""}${parentCodeId || ""}`;
+        const newFinalCode = `${parentCodeId || ""}-${productCode || ""}`;
         setFinalCode(newFinalCode);
         form.setFieldsValue({ final_code: newFinalCode });
     }, [parentCodeId, productCode]);
@@ -85,7 +85,6 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
     const handleParentChange = (value) => setSelectedParentCodeId(value);
 
     const onFinish = (values) => {
-
         const payload = {
             parent_id: values.parent_id,
             casing_id: values.casing_id,
