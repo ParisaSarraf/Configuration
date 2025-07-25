@@ -24,7 +24,7 @@ export const MeetingsCol = ({ handleEdit, handleDelete, handleShowDetail }) => {
             }
         },
         {
-            title: 'طرف صورتجلسه	',
+            title: 'طرف صورتجلسه',
             dataIndex: 'type',
             key: 'type',
             render: (record) => record.type === 'internal' ? 'داخلی' : 'خارجی',
@@ -34,15 +34,15 @@ export const MeetingsCol = ({ handleEdit, handleDelete, handleShowDetail }) => {
             dataIndex: 'date',
             key: 'date',
         },
-        {
-            title: 'فایل ضمیمه',
-            key: 'file',
-            render: (record) => record.file ? (
-                <a href={record.file} target="_blank" rel="noopener noreferrer">دانلود</a>
-            ) : (
-                'بدون فایل'
-            ),
-        },
+        // {
+        //     title: 'فایل ضمیمه',
+        //     key: 'file',
+        //     render: (record) => record.file ? (
+        //         <a href={record.file} target="_blank" rel="noopener noreferrer">دانلود</a>
+        //     ) : (
+        //         'بدون فایل'
+        //     ),
+        // },
         {
             title: 'عملیات',
             key: 'actions',

@@ -1,10 +1,10 @@
 import Modal from "@/components/Modal/index.jsx";
-import {Col, Form, message, Row, Input} from "antd";
+import { Col, Form, message, Row, Input } from "antd";
 import FileUploader from "@/components/FileUploader/FileUploader.jsx";
-import {useChangeActivityTrustee} from "@/QueryServises/ActivityQuery/index.js";
-import {useEffect} from "react";
+import { useChangeActivityTrustee } from "@/QueryServises/ActivityQuery/index.js";
+import { useEffect } from "react";
 
-const TrusteeModal = ({isOpen, closeModal, modalMode, modalData, refetch}) => {
+const TrusteeModal = ({ isOpen, closeModal, modalMode, modalData, refetch }) => {
     const [form] = Form.useForm();
     useEffect(() => {
         if (modalMode === 'add') {
@@ -12,7 +12,7 @@ const TrusteeModal = ({isOpen, closeModal, modalMode, modalData, refetch}) => {
         }
     }, [form, modalMode, modalData]);
 
-    const {mutateAsync: confirmTrustee} = useChangeActivityTrustee()
+    const { mutateAsync: confirmTrustee } = useChangeActivityTrustee()
     const onFinish = async (values) => {
         const formData = new FormData();
         formData.append('trustee_description', values.trustee_description || '');
@@ -46,12 +46,12 @@ const TrusteeModal = ({isOpen, closeModal, modalMode, modalData, refetch}) => {
                 <Row gutter={16}>
                     <Col span={24}>
                         <Form.Item label='توضیح' name='trustee_description'>
-                            <Input/>
+                            <Input.TextArea />
                         </Form.Item>
                     </Col>
                     <Col span={24}>
                         <Form.Item label='فایل ضمیمه' name='trustee_file'>
-                            <FileUploader/>
+                            <FileUploader />
                         </Form.Item>
                     </Col>
                 </Row>

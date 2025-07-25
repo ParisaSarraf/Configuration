@@ -85,14 +85,14 @@ const DetailModal = ({ isOpen, modalMode, modalData, closeModal }) => {
             footer={false}
             mode={modalMode}
         >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4 px-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 py-4 px-2">
                 <SectionCard title="مشخصات فعالیت">
                     {renderInfoItem("نوع فعالیت", modalData.type)}
                     {renderInfoItem("تاریخ شروع", modalData.from_date)}
                     {renderInfoItem("تاریخ پایان", modalData.to_date)}
                     {renderInfoItem("تعداد نفر-روز", modalData.person_day)}
-                    {renderInfoItem("تاریخ تایید", formatDate(modalData.confirmed_date))}
-                    {renderInfoItem("تاریخ انجام", formatDate(modalData.done_date))}
+                    {/* {renderInfoItem("تاریخ تایید", formatDate(modalData.confirmed_date))}
+                    {renderInfoItem("تاریخ انجام", formatDate(modalData.done_date))} */}
                     <div className="flex justify-between py-1">
                         <span className="text-gray-500">وضعیت</span>
                         <Badge status={stateInfo.status} text={stateInfo.label} />
@@ -102,7 +102,7 @@ const DetailModal = ({ isOpen, modalMode, modalData, closeModal }) => {
                 <SectionCard title="متولی فعالیت">
                     {renderInfoItem("نام کامل", `${modalData.trustee.name} ${modalData.trustee.last_name}`)}
                     {renderInfoItem("نام کاربری", modalData.trustee.username)}
-                    {renderInfoItem("تاریخ ثبت", formatDate(modalData.trustee.registry_date))}
+                    {renderInfoItem("تاریخ انجام", formatDate(modalData.done_date))}
                     {modalData.trustee_description &&
                         renderInfoItem("توضیحات متولی", modalData.trustee_description)}
                     {renderFileButton("فایل متولی", modalData.trustee_file)}
@@ -110,6 +110,8 @@ const DetailModal = ({ isOpen, modalMode, modalData, closeModal }) => {
 
                 <SectionCard title="طرح و برنامه">
                     {renderInfoItem("توضیحات", modalData.plan_description)}
+                    {renderInfoItem("تاریخ تایید", formatDate(modalData.confirmed_date))}
+
                     {renderFileButton("فایل طرح و برنامه", modalData.plan_file)}
                 </SectionCard>
 

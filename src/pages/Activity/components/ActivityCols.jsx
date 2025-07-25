@@ -22,6 +22,7 @@ export const ActivityCols = ({ handleEdit, handleDelete, handleTrustee, handlePl
             title: "شرح فعالیت",
             dataIndex: 'description',
             key: 'description'
+            
         },
         {
             title: "متولی",
