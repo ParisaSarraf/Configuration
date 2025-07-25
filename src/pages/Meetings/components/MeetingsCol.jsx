@@ -1,4 +1,4 @@
-import { Button, Flex, Tooltip, Tag } from "antd";
+import { Button, Flex, Tooltip, Tag, Space } from "antd";
 import { DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
 import { BASEURL } from "../../../Services/axiosInstance";
 
@@ -27,22 +27,52 @@ export const MeetingsCol = ({ handleEdit, handleDelete, handleShowDetail }) => {
             title: 'طرف صورتجلسه',
             dataIndex: 'type',
             key: 'type',
-            render: (record) => record.type === 'internal' ? 'داخلی' : 'خارجی',
+            // render: (record) => record.type === 'internal' ? 'داخلی' : 'خارجی',
         },
         {
             title: 'تاریخ جلسه',
             dataIndex: 'date',
             key: 'date',
         },
-        // {
-        //     title: 'فایل ضمیمه',
-        //     key: 'file',
-        //     render: (record) => record.file ? (
-        //         <a href={record.file} target="_blank" rel="noopener noreferrer">دانلود</a>
-        //     ) : (
-        //         'بدون فایل'
-        //     ),
-        // },
+        {
+            title: 'فایل ضمیمه',
+            key: 'file',
+            render: (file) => {
+                if (!file) return "فایلی وجود ندارد";
+                const url = `${BASEURL.replace("/api/v1", "")}${file}`;
+                const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(file);
+                return (
+                    <Space>
+                        <a
+                            href={url}
+                            // target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ color: "#1890ff" }}
+                        >
+                            {isImage ? (
+                                <Image
+                                    width={50}
+                                    height={30}
+                                    src={url}
+                                    alt="فایل پیوست"
+                                    preview={false}
+                                />
+                            ) : (
+                                "مشاهده فایل"
+                            )}
+                        </a>
+                        <a
+                            href={url}
+                            target="_blank"
+                            download
+                            style={{ color: "#52c41a" }}
+                        >
+                            دانلود
+                        </a>
+                    </Space>
+                );
+            }
+        },
         {
             title: 'عملیات',
             key: 'actions',
@@ -66,7 +96,7 @@ export const MeetingsCol = ({ handleEdit, handleDelete, handleShowDetail }) => {
                             size="small"
                         />
                     </Tooltip>
-                    <Tooltip title="جزئیات">
+                    {/* <Tooltip title="جزئیات">
                         <Button
                             icon={<EyeOutlined />}
                             className="text-sky-500 border-sky-500"
@@ -74,7 +104,7 @@ export const MeetingsCol = ({ handleEdit, handleDelete, handleShowDetail }) => {
                             title='نمایش جزئیات '
                             size="small"
                         />
-                    </Tooltip>
+                    </Tooltip> */}
                 </Flex>
             ),
         },

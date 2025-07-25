@@ -31,7 +31,7 @@ export const useDeleteContractorProduct = () => {
 	return useMutation({
 		mutationFn: (params) => {
 			return myAxios
-				.delete(`/product/contractor/${params}`)
+				.delete(`/product/contractor/${params}/`)
 				.then((response) => {
 					return response?.data;
 				});
@@ -44,7 +44,7 @@ export const useUpdateContractorProduct = () => {
 	return useMutation({
 		mutationFn: ({ ContractorId, ...params }) => {
 			return myAxios
-				.put(`/product/contractor/${ContractorId}`, params)
+				.put(`/product/contractor/${ContractorId}/`, params)
 				.then((response) => {
 					return response?.data;
 				});

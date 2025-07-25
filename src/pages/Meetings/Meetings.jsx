@@ -53,7 +53,7 @@ const Meetings = () => {
             extra={
                 <Button
                     className={'modal-button'}
-                    onClick={() => setModal({ mode: 'add', data: null })}
+                    onClick={() => setModal({ mode: 'add', data: null, type: 'addOrEdirMeeting' })}
                     icon={<PlusOutlined />}
                     title='صورت جلسات'
                 />
@@ -62,7 +62,7 @@ const Meetings = () => {
             <Tabs items={items} type="card" />
 
             <MeetingsModal
-                isOpen={isOpen}
+                isOpen={modalType === 'addOrEdirMeeting' && isOpen}
                 modalMode={modalMode}
                 modalData={modalData}
                 closeModal={closeModal}
@@ -71,7 +71,7 @@ const Meetings = () => {
                 currentProduct={currentProduct}
             />
 
-            {/* <DetailModal
+            {/* <DetailMeetingModal
                 isOpen={modalType === 'detailModal' && isOpen}
                 modalMode={modalMode}
                 modalData={modalData}

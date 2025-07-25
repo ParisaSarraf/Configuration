@@ -36,12 +36,13 @@ const IndependentMinutes = ({ setModal, meetingData, deleteMeeting, refetch }) =
     };
 
     const handleShowDetail = (record) => {
-        console.log(record);
+        // console.log(record);
         setModal({ mode: 'detail', data: record, type: 'detailModal' });
     };
 
     return (
         <Table
+            pagination={{ pageSize: 5 }}
             size="small"
             columns={MeetingsCol({ handleEdit, handleDelete, handleShowDetail })}
             dataSource={meetingData}
