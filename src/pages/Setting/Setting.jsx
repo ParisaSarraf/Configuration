@@ -7,6 +7,7 @@ import Precinct from './components/Precinct'
 import LifeCycle from './components/LifeCycle'
 import Documents from '../Documents/Documents'
 import Requirement from '../Requirement/Requirement'
+import Contractor from './components/Contractor'
 
 const Setting = () => {
     const navigate = useNavigate()
@@ -45,6 +46,11 @@ const Setting = () => {
             label: `الزامات `,
             key: '7',
             children: <Requirement />,
+        },
+        {
+            label: `پیمانکاران/کارفرمایان`,
+            key: '8',
+            children: <Contractor />,
         },
 
     ];
