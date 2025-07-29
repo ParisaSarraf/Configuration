@@ -1,11 +1,10 @@
-import { Button, Card, message, Modal, Table, Radio } from "antd";
+import { Button, Card, message, Modal, Table } from "antd";
 import useModal from "@/hooks/useModal.js";
 import { PlusOutlined } from "@ant-design/icons";
-import { ActivityCols, ActivityDetail } from "@/pages/Activity/components/ActivityCols.jsx";
+import { ActivityCols } from "@/pages/Activity/components/ActivityCols.jsx";
 import {
     useDeleteActivity,
     useGetProductActivitiesType,
-    useGetProductActivities
 } from "@/QueryServises/ActivityQuery/index.js";
 import ActivityModal from "@/pages/Activity/components/ActivityModal.jsx";
 import { useProductContext } from "@/Services/Context/ProductContext.jsx";

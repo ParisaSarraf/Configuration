@@ -15,9 +15,9 @@ export default function DatepickerCustom({
     calendarPosition = "bottom",
     disabled = false,
     className,
+    minDate, // اضافه کردن prop جدید برای حداقل تاریخ
+    maxDate, // اضافه کردن prop جدید برای حداکثر تاریخ
 }) {
-    const today = new Date();
-    const maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 365);
     const getDateStringFromDateObject = (date) => {
         const year = date.year.toString();
         let month = date.month.number.toString();
@@ -61,11 +61,10 @@ export default function DatepickerCustom({
                 locale={persian_fa}
                 onlyYearPicker={onlyYearPicker}
                 calendarPosition={calendarPosition}
+                minDate={minDate}
                 maxDate={maxDate}
                 disabled={disabled}
-
             />
-
         </div>
     );
 }

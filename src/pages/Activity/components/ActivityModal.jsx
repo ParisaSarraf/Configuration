@@ -67,7 +67,7 @@ const ActivityModal = ({ isOpen, modalData, modalMode, closeModal, refetch, curr
             size={500}
         >
             <Form form={form} layout="vertical" onFinish={onFinish}>
-                <Row gutter={[16, 16]}>
+                <Row gutter={16}>
                     <Col span={activityType === 'meeting' ? '12' : '24'}>
                         <Form.Item name='type' label='نوع'>
                             <Select>
@@ -109,12 +109,43 @@ const ActivityModal = ({ isOpen, modalData, modalMode, closeModal, refetch, curr
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item label='تاریخ شروع' name='from_date'>
+                        <Form.Item
+                            label='تاریخ شروع'
+                            name='from_date'
+                            rules={[
+                                { required: true, message: 'لطفا تاریخ شروع را وارد کنید' },
+                                ({ getFieldValue }) => ({
+                                    validator(_, value) {
+                                        const toDate = getFieldValue('to_date');
+                                        if (!value || !toDate || new Date(value) <= new Date(toDate)) {
+                                            return Promise.resolve();
+                                        }
+                                        return Promise.reject(new Error('تاریخ شروع باید قبل از تاریخ پایان باشد'));
+                                    },
+                                }),
+                            ]}
+                        >
                             <DatepickerCustom />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item label='تاریخ پایان' name='to_date'>
+                        <Form.Item
+                            label='تاریخ پایان'
+                            name='to_date'
+                            dependencies={['from_date']}
+                            rules={[
+                                { required: true, message: 'لطفا تاریخ پایان را وارد کنید' },
+                                ({ getFieldValue }) => ({
+                                    validator(_, value) {
+                                        const fromDate = getFieldValue('from_date');
+                                        if (!value || !fromDate || new Date(fromDate) <= new Date(value)) {
+                                            return Promise.resolve();
+                                        }
+                                        return Promise.reject(new Error('تاریخ پایان باید بعد از تاریخ شروع باشد'));
+                                    },
+                                }),
+                            ]}
+                        >
                             <DatepickerCustom />
                         </Form.Item>
                     </Col>
