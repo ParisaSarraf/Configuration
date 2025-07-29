@@ -19,7 +19,7 @@ const Meetings = () => {
     const safeMeetingData = meetingData || [];
 
     const meetingsWithActivities = safeMeetingData?.filter(item => item.meeting_activities?.length > 0);
-    const independentMeetings = safeMeetingData?.filter(item => !item.meeting_activities?.length);
+    // const independentMeetings = safeMeetingData?.filter(item => !item.meeting_activities?.length);
 
     const items = [
         {
@@ -41,7 +41,7 @@ const Meetings = () => {
                 <IndependentMinutes
                     currentProduct={currentProduct}
                     setModal={setModal}
-                    meetingData={independentMeetings}
+                    meetingData={meetingData}
                     deleteMeeting={deleteMeeting}
                     refetch={refetch}
                 />,
@@ -71,7 +71,9 @@ const Meetings = () => {
             />
 
             <DetailModal
-                isOpen={modalType === 'detailModal' && isOpen}
+                isOpen={
+                    (modalType === 'meetingsIndependent' || modalType === 'meetingsMinutes') && isOpen
+                }
                 modalMode={modalMode}
                 modalData={modalData}
                 closeModal={closeModal}

@@ -1,8 +1,8 @@
 import Modal from "../../../components/Modal";
-import {Badge, Button, Space, Image} from "antd";
+import {Badge, Space, Image} from "antd";
 import {FileOutlined, CopyOutlined} from "@ant-design/icons";
 import dayjs from "dayjs";
-import {BASEURL} from "../../../Services/axiosInstance";
+import {BASEURL} from "@/Services/axiosInstance.js";
 
 
 const formatDate = (dateStr) => {
@@ -79,109 +79,118 @@ const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
     return (
         <Modal
             isOpen={isOpen}
-            title="جزئیات فعالیت"
+            title="نمایش جزئیات "
             size={1000}
             onClose={closeModal}
             footer={false}
+            className={'scroll-modal'}
             mode={modalMode}
         >
-            {
-                modalType === 'showDetail' ? (
-                    <>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-1 py-4 px-2">
-                            <SectionCard title="مشخصات فعالیت">
-                                {renderInfoItem("نوع فعالیت", modalData.type)}
-                                {renderInfoItem("تاریخ شروع", modalData.from_date)}
-                                {renderInfoItem("تاریخ پایان", modalData.to_date)}
-                                {renderInfoItem("تعداد نفر-روز", modalData.person_day)}
+            {modalType === 'ActivitiesDetail' && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-1 py-2 px-1">
+                    <SectionCard title="مشخصات فعالیت">
+                        {renderInfoItem("نوع فعالیت", modalData.type)}
+                        {renderInfoItem("تاریخ شروع", modalData.from_date)}
+                        {renderInfoItem("تاریخ پایان", modalData.to_date)}
+                        {renderInfoItem("تعداد نفر-روز", modalData.person_day)}
+                        <div className="flex justify-between py-1">
+                            <span className="text-gray-500">وضعیت</span>
+                            <Badge status={stateInfo.status} text={stateInfo.label}/>
+                        </div>
+                    </SectionCard>
 
+                    <SectionCard title="متولی فعالیت">
+                        {renderInfoItem("نام کامل", `${modalData.trustee?.name} ${modalData.trustee?.last_name}`)}
+                        {renderInfoItem("نام کاربری", modalData.trustee?.username)}
+                        {renderInfoItem("تاریخ انجام", formatDate(modalData.done_date))}
+                        {modalData.trustee_description &&
+                            renderInfoItem("توضیحات متولی", modalData.trustee_description)}
+                        {renderFileButton("فایل متولی", modalData.trustee_file)}
+                    </SectionCard>
 
-                                {/* {renderInfoItem("تاریخ تایید", formatDate(modalData.confirmed_date))}
-                                {renderInfoItem("تاریخ انجام", formatDate(modalData.done_date))} */}
+                    <SectionCard title="طرح و برنامه">
+                        {renderInfoItem("توضیحات", modalData.plan_description)}
+                        {renderInfoItem("تاریخ تایید", formatDate(modalData.confirmed_date))}
 
+                        {renderFileButton("فایل طرح و برنامه", modalData.plan_file)}
+                    </SectionCard>
+                    {(modalData.trustee?.signature_image || modalData.trustee?.temp_image) && (
+                        <SectionCard title="تصاویر">
+                            <div className="flex gap-4">
+                                {modalData.trustee?.signature_image && (
+                                    <Image
+                                        src={modalData.trustee?.signature_image}
+                                        alt="امضا"
+                                        width={120}
+                                        className="rounded border"
+                                    />
+                                )}
+                                {modalData.trustee?.temp_image && (
+                                    <Image
+                                        src={modalData.trustee?.temp_image}
+                                        alt="تصویر موقت"
+                                        width={120}
+                                        className="rounded border"
+                                    />
+                                )}
+                            </div>
+                        </SectionCard>
+                    )}
+                </div>
+            )}
+            {modalType === 'meetingsIndependent' && (
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-1 py-2 px-2">
+                    <SectionCard title="مشخصات صورتجلسه">
+                        {renderInfoItem("نوع ", modalData.type)}
+                        {renderInfoItem("طرف ", modalData.contractor)}
+                        {renderInfoItem("شرح ", modalData.title)}
+                        {renderInfoItem("تاریخ", modalData.date)}
+                        {renderFileButton("فایل ", modalData.file)}
 
+                    </SectionCard>
+                </div>
+            )}
+            {modalType === 'meetingsMinutes' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-1 py-2 px-2">
+                    <SectionCard title="مشخصات صورتجلسه">
+                        {renderInfoItem("نوع", modalData.type)}
+                        {renderInfoItem("طرف", modalData.contractor)}
+                        {renderInfoItem("شرح", modalData.title)}
+                        {renderInfoItem("تاریخ", modalData.date)}
+                        {renderFileButton("فایل", modalData.file)}
+                    </SectionCard>
+
+                    {modalData.meeting_activities?.length > 0 && modalData.meeting_activities.map((activity, index) => {
+                        const stateInfo = getStateInfo(activity.state);
+                        return (
+                            <SectionCard key={index} title={'فعالیت ها'}>
+                                {renderInfoItem("نام متولی", `${activity.trustee?.name} ${activity.trustee?.last_name} ${activity.trustee?.username}`)}
+                                {renderInfoItem("توضیحات متولی", activity.trustee_description)}
+                                {renderInfoItem("شرح فعالیت", activity.description)}
+                                {renderInfoItem("تاریخ شروع", activity.from_date)}
+                                {renderInfoItem("تاریخ پایان", activity.to_date)}
+                                {renderInfoItem("تاریخ انجام", formatDate(activity.done_date))}
+                                {renderInfoItem("تعداد نفر-روز", activity.person_day)}
+                                {renderInfoItem("توضیحات طرح و برنامه", activity.plan_description)}
                                 <div className="flex justify-between py-1">
                                     <span className="text-gray-500">وضعیت</span>
                                     <Badge status={stateInfo.status} text={stateInfo.label}/>
                                 </div>
+                                <div className='w-full flex justify-between'>
+                                    <h1>
+                                        فایل متولی
+                                        {renderFileButton("فایل متولی", activity.trustee_file)}
+                                    </h1>
+                                    <h1>
+                                        فایل طرح و برنامه
+                                        {renderFileButton("فایل طرح و برنامه", activity.plan_file)}
+                                    </h1>
+                                </div>
                             </SectionCard>
-
-                            <SectionCard title="متولی فعالیت">
-                                {renderInfoItem("نام کامل", `${modalData.trustee?.name} ${modalData.trustee?.last_name}`)}
-                                {renderInfoItem("نام کاربری", modalData.trustee?.username)}
-                                {renderInfoItem("تاریخ انجام", formatDate(modalData.done_date))}
-                                {modalData.trustee_description &&
-                                    renderInfoItem("توضیحات متولی", modalData.trustee_description)}
-                                {renderFileButton("فایل متولی", modalData.trustee_file)}
-                            </SectionCard>
-
-                            <SectionCard title="طرح و برنامه">
-                                {renderInfoItem("توضیحات", modalData.plan_description)}
-                                {renderInfoItem("تاریخ تایید", formatDate(modalData.confirmed_date))}
-
-                                {renderFileButton("فایل طرح و برنامه", modalData.plan_file)}
-                            </SectionCard>
-
-
-                            {/* <SectionCard title="مشخصات محصول">
-                            {renderInfoItem("کد محصول", modalData.product?.code, true)}
-                            {renderInfoItem("عنوان فارسی", modalData.product?.persian_title)}
-                            {renderInfoItem("مقدار", modalData.product?.quantity)}
-                            {renderInfoItem("کد برند اول", modalData.product?.brand1)}
-                            {renderInfoItem("توضیح کاربر", modalData.product?.user_description)}
-                            {renderInfoItem("کد استاندارد", modalData.product?.standard_code?.toString())}
-                            {renderFileButton("تصویر کاربر", modalData.product?.user_image)}
-                            </SectionCard> */}
-
-
-                            {(modalData.trustee?.signature_image || modalData.trustee?.temp_image) && (
-                                <SectionCard title="تصاویر">
-                                    <div className="flex gap-4">
-                                        {modalData.trustee.signature_image && (
-                                            <Image
-                                                src={modalData.trustee.signature_image}
-                                                alt="امضا"
-                                                width={120}
-                                                className="rounded border"
-                                            />
-                                        )}
-                                        {modalData.trustee.temp_image && (
-                                            <Image
-                                                src={modalData.trustee.temp_image}
-                                                alt="تصویر موقت"
-                                                width={120}
-                                                className="rounded border"
-                                            />
-                                        )}
-                                    </div>
-                                </SectionCard>
-                            )}
-                        </div>
-                    </>
-                ) : (
-                    <>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-1 py-4 px-2">
-                            <SectionCard title="مشخصات صورتجلسه">
-                                {renderInfoItem("نوع صورتجلسه", modalData.type)}
-                                {renderInfoItem("نام ", modalData.title)}
-                                {/*{renderInfoItem("فعالیت های متصل", modalData.to_date)}*/}
-                                {/* {renderInfoItem("تعداد نفر-روز", modalData.person_day)} */}
-                                {/* {renderInfoItem("تاریخ تایید", formatDate(modalData.confirmed_date))}
-                                {renderInfoItem("تاریخ انجام", formatDate(modalData.done_date))} */}
-                                {/* <div className="flex justify-between py-1">
-                                    <span className="text-gray-500">وضعیت</span>
-                                    <Badge status={stateInfo.status} text={stateInfo.label} />
-                                </div> */}
-
-                            </SectionCard>
-                            <SectionCard title={'فایل پیوست شده'}>
-                                {renderFileButton("فایل طرح و برنامه", modalData.plan_file)}
-                            </SectionCard>
-                        </div>
-                    </>
-                )
-            }
-            {/* </div> */}
+                        );
+                    })}
+                </div>
+            )}
         </Modal>
     );
 };

@@ -70,7 +70,7 @@ const Activity = () => {
     }
 
     const handleDetail = (record) => {
-        setModal({mode: 'view', data: record, type: 'showDetail'})
+        setModal({mode: 'view', data: record, type: 'ActivitiesDetail'})
 
     }
 
@@ -129,7 +129,7 @@ const Activity = () => {
             />
 
             <DetailModal
-                isOpen={modalType === 'showDetail' && isOpen}
+                isOpen={modalType === 'ActivitiesDetail' && isOpen}
                 // currentProduct={currentProduct}
                 closeModal={closeModal}
                 modalMode={modalMode}
