@@ -39,7 +39,8 @@ export const IndependentMinutesCols = ({ handleEdit, handleDelete, handleShowDet
             key: 'date',
         },
         {
-            title: 'فایل ضمیمه',
+            title: 'فایل پیوست',
+            dataIndex: 'file',
             key: 'file',
             render: (file) => {
                 if (!file) return "فایلی وجود ندارد";
@@ -49,7 +50,7 @@ export const IndependentMinutesCols = ({ handleEdit, handleDelete, handleShowDet
                     <Space>
                         <a
                             href={url}
-                            // target="_blank"
+                            target="_blank"
                             rel="noopener noreferrer"
                             style={{ color: "#1890ff" }}
                         >
@@ -67,7 +68,7 @@ export const IndependentMinutesCols = ({ handleEdit, handleDelete, handleShowDet
                         </a>
                         <a
                             href={url}
-                            target="_blank"
+                            // target="_blank"
                             download
                             style={{ color: "#52c41a" }}
                         >
