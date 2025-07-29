@@ -1,9 +1,10 @@
-import { MeetingsCol } from "@/pages/Meetings/components/MeetingsCol.jsx";
-import { message, Modal, Table } from "antd";
+import { Button, Col, message, Modal, Row, Table } from "antd";
+import { IndependentMinutesCols } from "./components/IndependentMinutesCols";
+import { PlusOutlined } from "@ant-design/icons";
 
 const IndependentMinutes = ({ setModal, meetingData, deleteMeeting, refetch }) => {
     const handleEdit = (record) => {
-        setModal({ mode: 'edit', data: record, type: 'AddOrEditModal' });
+        setModal({ mode: 'edit', data: record, type: 'addOrEdirMeeting' });
     };
 
     const handleDelete = (id) => {
@@ -36,7 +37,7 @@ const IndependentMinutes = ({ setModal, meetingData, deleteMeeting, refetch }) =
     };
 
     const handleShowDetail = (record) => {
-        // console.log(record);
+        console.log(record);
         setModal({ mode: 'detail', data: record, type: 'detailModal' });
     };
 
@@ -44,7 +45,7 @@ const IndependentMinutes = ({ setModal, meetingData, deleteMeeting, refetch }) =
         <Table
             pagination={{ pageSize: 5 }}
             size="small"
-            columns={MeetingsCol({ handleEdit, handleDelete, handleShowDetail })}
+            columns={IndependentMinutesCols({ handleEdit, handleDelete, handleShowDetail })}
             dataSource={meetingData}
             rowKey="id"
         />

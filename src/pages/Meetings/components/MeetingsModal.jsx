@@ -13,7 +13,7 @@ const MeetingsModal = ({
     modalMode,
     refetch,
     currentProduct,
-    modalData = null // Default to null
+    modalData = null
 }) => {
     const [form] = Form.useForm();
     const { mutateAsync: createMeeting } = useCreateMeeting();
@@ -138,7 +138,7 @@ const MeetingsModal = ({
                             label='فایل ضمیمه'
                             name='file'
                         >
-                            <FileUploader />
+                            <FileUploader maxFiles={1} listType="picture" />
                         </Form.Item>
                     </Col>
                 </Row>

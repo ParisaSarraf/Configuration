@@ -1,5 +1,5 @@
-import { MeetingRelatedToActivities, MeetingsCol } from "@/pages/Meetings/components/MeetingsCol.jsx";
 import { message, Modal, Table, Tag } from "antd";
+import { MeetingRelatedToActivitiesCols } from "./components/MeetingRelatedToActivitiesCols";
 
 const MinutesRelatedToActivities = ({ setModal, meetingData, deleteMeeting, refetch }) => {
     const handleEdit = (record) => {
@@ -39,28 +39,28 @@ const MinutesRelatedToActivities = ({ setModal, meetingData, deleteMeeting, refe
         setModal({ mode: 'detail', data: record, type: 'detailModal' });
     };
 
-    const expandedRowRender = (record) => {
-        return (
-            <Table
-                size="small"
-                columns={MeetingRelatedToActivities({ handleEdit, handleDelete })}
-                dataSource={record.meeting_activities || []}
-                rowKey="id"
-                pagination={false}
-            />
-        );
-    };
+    // const expandedRowRender = (record) => {
+    //     return (
+    //         <Table
+    //             size="small"
+    //             columns={MeetingRelatedToActivities({ handleEdit, handleDelete })}
+    //             dataSource={record.meeting_activities || []}
+    //             rowKey="id"
+    //             pagination={false}
+    //         />
+    //     );
+    // };
 
     return (
         <Table
             size="small"
-            columns={MeetingsCol({ handleEdit, handleDelete, handleShowDetail })}
+            columns={MeetingRelatedToActivitiesCols({ handleEdit, handleDelete, handleShowDetail })}
             dataSource={meetingData}
             rowKey="id"
-            expandable={{
-                expandedRowRender,
-                rowExpandable: (record) => record.meeting_activities?.length > 0
-            }}
+        // expandable={{
+        //     expandedRowRender,
+        //     rowExpandable: (record) => record.meeting_activities?.length > 0
+        // }}
         />
     );
 };

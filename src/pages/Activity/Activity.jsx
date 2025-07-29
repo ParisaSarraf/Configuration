@@ -125,6 +125,7 @@ const Activity = () => {
                 closeModal={closeModal}
                 modalMode={modalMode}
                 modalData={modalData}
+                modalType={modalType}
             // refetch={refetch}
             />
         </Card>

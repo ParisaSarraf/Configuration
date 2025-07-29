@@ -11,15 +11,14 @@ import DetailModal from "./components/DetailModal";
 
 const Meetings = () => {
     const { currentProduct } = useProductContext();
-    const { data: meetingData, refetch } = useGetProductMeetings(currentProduct?.id);
-    const { mutateAsync: deleteMeeting } = useDeleteMeeting()
-
     const { setModal, closeModal, isOpen, modalData, modalMode, modalType } = useModal();
 
+    const { data: meetingData, refetch } = useGetProductMeetings(currentProduct?.id);
+    const { mutateAsync: deleteMeeting } = useDeleteMeeting()
     const safeMeetingData = meetingData || [];
 
-    const meetingsWithActivities = safeMeetingData.filter(item => item.meeting_activities?.length > 0);
-    const independentMeetings = safeMeetingData.filter(item => !item.meeting_activities?.length);
+    const meetingsWithActivities = safeMeetingData?.filter(item => item.meeting_activities?.length > 0);
+    const independentMeetings = safeMeetingData?.filter(item => !item.meeting_activities?.length);
 
     const items = [
         {
@@ -57,7 +56,6 @@ const Meetings = () => {
                     icon={<PlusOutlined />}
                     title='صورت جلسات'
                 />
-
             }>
             <Tabs items={items} type="card" />
 
@@ -71,13 +69,13 @@ const Meetings = () => {
                 currentProduct={currentProduct}
             />
 
-            {/* <DetailMeetingModal
+            <DetailModal
                 isOpen={modalType === 'detailModal' && isOpen}
                 modalMode={modalMode}
                 modalData={modalData}
                 closeModal={closeModal}
                 modalType={modalType}
-            /> */}
+            />
         </Card>
     );
 };
