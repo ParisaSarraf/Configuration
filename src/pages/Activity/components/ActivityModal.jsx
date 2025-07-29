@@ -1,18 +1,20 @@
 import Modal from "@/components/Modal/index.jsx";
-import { Col, Form, message, Row, Select } from "antd";
-import { useCreateActivity, useUpdateActivity } from "@/QueryServises/ActivityQuery/index.js";
-import { useEffect } from "react";
+import {Col, Form, message, Row, Select} from "antd";
+import {useCreateActivity, useUpdateActivity} from "@/QueryServises/ActivityQuery/index.js";
+import {useEffect} from "react";
 import TextArea from "antd/es/input/TextArea.js";
 import DatepickerCustom from "@/components/DatePicker/index.jsx";
-import { useGetProductMeetings } from "@/QueryServises/MeetingQuery/index.js";
-import { useUserSimple } from "../../../QueryServises/userQuery";
+import {useGetProductMeetings} from "@/QueryServises/MeetingQuery/index.js";
+import {useUserSimple} from "../../../QueryServises/userQuery";
 
-const ActivityModal = ({ isOpen, modalData, modalMode, closeModal, refetch, currentProduct }) => {
+const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, currentProduct, modalType}) => {
     const [form] = Form.useForm();
-    const { mutateAsync: createActivity } = useCreateActivity()
-    const { mutateAsync: updateActivity } = useUpdateActivity()
-    const { data: meetingData = [] } = useGetProductMeetings(currentProduct?.id);
-    const { data: usersData = [] } = useUserSimple();
+    const {mutateAsync: createActivity} = useCreateActivity()
+    const {mutateAsync: updateActivity} = useUpdateActivity()
+    const {data: meetingData = []} = useGetProductMeetings(currentProduct?.id);
+    const {data: usersData = []} = useUserSimple();
+
+    console.log(modalData)
 
     const activityType = Form.useWatch('type', form);
     useEffect(() => {
@@ -38,7 +40,7 @@ const ActivityModal = ({ isOpen, modalData, modalMode, closeModal, refetch, curr
             description: values.description,
             from_date: values.from_date,
             to_date: values.to_date,
-            meeting_id: values.meeting_id,
+            meeting_id: modalData ? modalData.id : values.meeting_id,
             trustee_id: values.trustee_id,
         }
         try {
@@ -46,7 +48,7 @@ const ActivityModal = ({ isOpen, modalData, modalMode, closeModal, refetch, curr
                 await createActivity(payload)
                 message.success("فعالیت با موفقیت اضافه شد")
             } else {
-                await updateActivity({ activityId: modalData?.id, ...payload })
+                await updateActivity({activityId: modalData?.id, ...payload})
                 message.success("فعالیت انتخابی با موفقیت ویرایش شد")
             }
             await refetch()
@@ -68,34 +70,39 @@ const ActivityModal = ({ isOpen, modalData, modalMode, closeModal, refetch, curr
         >
             <Form form={form} layout="vertical" onFinish={onFinish}>
                 <Row gutter={16}>
-                    <Col span={activityType === 'meeting' ? '12' : '24'}>
-                        <Form.Item name='type' label='نوع'>
-                            <Select>
-                                <Select.Option value='meeting'>
-                                    صورتجلسه
-                                </Select.Option>
-                                <Select.Option value='control project'>
-                                    کنترل پروژه
-                                </Select.Option>
-                            </Select>
-                        </Form.Item>
-                    </Col>
-                    {activityType === 'meeting' && (
-                        <Col span={12}>
-                            <Form.Item label='صورتجلسه' name='meeting_id'>
-                                <Select options={meetingData?.map((meet) => {
-                                    return {
-                                        value: meet.id,
-                                        label: `${meet.title}`,
-                                    }
-                                })} />
-                            </Form.Item>
-                        </Col>
-                    )
-                    }
+                    {modalType === 'addActivity' && (
+                        <>
+                            <Col span={activityType === 'meeting' ? '12' : '24'}>
+                                <Form.Item name='type' label='نوع'>
+                                    <Select>
+                                        <Select.Option value='meeting'>
+                                            صورتجلسه
+                                        </Select.Option>
+                                        <Select.Option value='control project'>
+                                            کنترل پروژه
+                                        </Select.Option>
+                                    </Select>
+                                </Form.Item>
+                            </Col>
+                            {activityType === 'meeting' && (
+                                <Col span={12}>
+                                    <Form.Item label='صورتجلسه' name='meeting_id'>
+                                        <Select options={meetingData?.map((meet) => {
+                                            return {
+                                                value: meet.id,
+                                                label: `${meet.title}`,
+                                            }
+                                        })}/>
+                                    </Form.Item>
+                                </Col>
+                            )
+                            }
+                        </>
+                    )}
+
                     <Col span={24}>
                         <Form.Item label='شرح فعالیت' name='description'>
-                            <TextArea />
+                            <TextArea/>
                         </Form.Item>
                     </Col>
                     <Col span={24}>
@@ -105,7 +112,7 @@ const ActivityModal = ({ isOpen, modalData, modalMode, closeModal, refetch, curr
                                     value: user.id,
                                     label: user.username,
                                 }
-                            })} />
+                            })}/>
                         </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -113,8 +120,8 @@ const ActivityModal = ({ isOpen, modalData, modalMode, closeModal, refetch, curr
                             label='تاریخ شروع'
                             name='from_date'
                             rules={[
-                                { required: true, message: 'لطفا تاریخ شروع را وارد کنید' },
-                                ({ getFieldValue }) => ({
+                                {required: true, message: 'لطفا تاریخ شروع را وارد کنید'},
+                                ({getFieldValue}) => ({
                                     validator(_, value) {
                                         const toDate = getFieldValue('to_date');
                                         if (!value || !toDate || new Date(value) <= new Date(toDate)) {
@@ -125,7 +132,7 @@ const ActivityModal = ({ isOpen, modalData, modalMode, closeModal, refetch, curr
                                 }),
                             ]}
                         >
-                            <DatepickerCustom />
+                            <DatepickerCustom/>
                         </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -134,8 +141,8 @@ const ActivityModal = ({ isOpen, modalData, modalMode, closeModal, refetch, curr
                             name='to_date'
                             dependencies={['from_date']}
                             rules={[
-                                { required: true, message: 'لطفا تاریخ پایان را وارد کنید' },
-                                ({ getFieldValue }) => ({
+                                {required: true, message: 'لطفا تاریخ پایان را وارد کنید'},
+                                ({getFieldValue}) => ({
                                     validator(_, value) {
                                         const fromDate = getFieldValue('from_date');
                                         if (!value || !fromDate || new Date(fromDate) <= new Date(value)) {
@@ -146,7 +153,7 @@ const ActivityModal = ({ isOpen, modalData, modalMode, closeModal, refetch, curr
                                 }),
                             ]}
                         >
-                            <DatepickerCustom />
+                            <DatepickerCustom/>
                         </Form.Item>
                     </Col>
 

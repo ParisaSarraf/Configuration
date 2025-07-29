@@ -1,8 +1,8 @@
 import Modal from "../../../components/Modal";
-import { Badge, Button, Space, Image } from "antd";
-import { FileOutlined, CopyOutlined } from "@ant-design/icons";
+import {Badge, Button, Space, Image} from "antd";
+import {FileOutlined, CopyOutlined} from "@ant-design/icons";
 import dayjs from "dayjs";
-import { BASEURL } from "../../../Services/axiosInstance";
+import {BASEURL} from "../../../Services/axiosInstance";
 
 
 const formatDate = (dateStr) => {
@@ -10,17 +10,17 @@ const formatDate = (dateStr) => {
     return dayjs(dateStr).format("YYYY/MM/DD");
 };
 
-const DetailModal = ({ isOpen, modalMode, modalData, closeModal, modalType }) => {
+const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
     if (!modalData) return null;
 
     const getStateInfo = (state) => {
         const states = {
-            10: { label: "در انتظار تایید", status: "warning" },
-            20: { label: "تایید شده", status: "success" },
-            30: { label: "انجام شده", status: "processing" },
-            40: { label: "رد شده", status: "error" },
+            10: {label: "در انتظار تایید", status: "warning"},
+            20: {label: "تایید شده", status: "success"},
+            30: {label: "انجام شده", status: "processing"},
+            40: {label: "رد شده", status: "error"},
         };
-        return states[state] || { label: "نامشخص", status: "default" };
+        return states[state] || {label: "نامشخص", status: "default"};
     };
 
     const renderInfoItem = (label, value, copyable = false) => (
@@ -45,7 +45,7 @@ const DetailModal = ({ isOpen, modalMode, modalData, closeModal, modalType }) =>
 
         return (
             <Space className="flex flex-col">
-                <a href={fullUrl} target="_blank" rel="noopener noreferrer" style={{ color: "#1890ff" }}>
+                <a href={fullUrl} target="_blank" rel="noopener noreferrer" style={{color: "#1890ff"}}>
                     {isImage ? (
                         <Image
                             width={90}
@@ -56,18 +56,18 @@ const DetailModal = ({ isOpen, modalMode, modalData, closeModal, modalType }) =>
                         />
                     ) : (
                         <>
-                            <FileOutlined /> مشاهده فایل
+                            <FileOutlined/> مشاهده فایل
                         </>
                     )}
                 </a>
-                <a href={fullUrl} download style={{ color: "#52c41a" }} target="_blank" rel="noopener noreferrer">
+                <a href={fullUrl} download style={{color: "#52c41a"}} target="_blank" rel="noopener noreferrer">
                     دانلود
                 </a>
             </Space>
         );
     };
 
-    const SectionCard = ({ title, children }) => (
+    const SectionCard = ({title, children}) => (
         <div className="border rounded-lg p-4 shadow-sm bg-white">
             <h4 className="text-base font-semibold text-blue-700 mb-3 border-b pb-2">{title}</h4>
             <div className="space-y-4">{children}</div>
@@ -89,7 +89,6 @@ const DetailModal = ({ isOpen, modalMode, modalData, closeModal, modalType }) =>
                 modalType === 'showDetail' ? (
                     <>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-1 py-4 px-2">
-
                             <SectionCard title="مشخصات فعالیت">
                                 {renderInfoItem("نوع فعالیت", modalData.type)}
                                 {renderInfoItem("تاریخ شروع", modalData.from_date)}
@@ -103,7 +102,7 @@ const DetailModal = ({ isOpen, modalMode, modalData, closeModal, modalType }) =>
 
                                 <div className="flex justify-between py-1">
                                     <span className="text-gray-500">وضعیت</span>
-                                    <Badge status={stateInfo.status} text={stateInfo.label} />
+                                    <Badge status={stateInfo.status} text={stateInfo.label}/>
                                 </div>
                             </SectionCard>
 
@@ -165,7 +164,7 @@ const DetailModal = ({ isOpen, modalMode, modalData, closeModal, modalType }) =>
                             <SectionCard title="مشخصات صورتجلسه">
                                 {renderInfoItem("نوع صورتجلسه", modalData.type)}
                                 {renderInfoItem("نام ", modalData.title)}
-                                {renderInfoItem("فعالیت های متصل", modalData.to_date)}
+                                {/*{renderInfoItem("فعالیت های متصل", modalData.to_date)}*/}
                                 {/* {renderInfoItem("تعداد نفر-روز", modalData.person_day)} */}
                                 {/* {renderInfoItem("تاریخ تایید", formatDate(modalData.confirmed_date))}
                                 {renderInfoItem("تاریخ انجام", formatDate(modalData.done_date))} */}
@@ -183,7 +182,7 @@ const DetailModal = ({ isOpen, modalMode, modalData, closeModal, modalType }) =>
                 )
             }
             {/* </div> */}
-        </Modal >
+        </Modal>
     );
 };
 

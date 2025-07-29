@@ -1,8 +1,8 @@
-import { Button, Flex, Tooltip, Space } from "antd";
-import { DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
-import { BASEURL } from "../../../../../Services/axiosInstance";
+import {Button, Flex, Tooltip, Space, Image} from "antd";
+import {DeleteOutlined, EditOutlined, EyeOutlined, PlusOutlined} from "@ant-design/icons";
+import {BASEURL} from "@/Services/axiosInstance.js";
 
-export const IndependentMinutesCols = ({ handleEdit, handleDelete, handleShowDetail }) => {
+export const IndependentMinutesCols = ({handleEdit, handleDelete, handleShowDetail, handleAddActivities}) => {
     return [
         {
             title: 'ردیف',
@@ -52,7 +52,7 @@ export const IndependentMinutesCols = ({ handleEdit, handleDelete, handleShowDet
                             href={url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            style={{ color: "#1890ff" }}
+                            style={{color: "#1890ff"}}
                         >
                             {isImage ? (
                                 <Image
@@ -70,7 +70,7 @@ export const IndependentMinutesCols = ({ handleEdit, handleDelete, handleShowDet
                             href={url}
                             // target="_blank"
                             download
-                            style={{ color: "#52c41a" }}
+                            style={{color: "#52c41a"}}
                         >
                             دانلود
                         </a>
@@ -87,14 +87,14 @@ export const IndependentMinutesCols = ({ handleEdit, handleDelete, handleShowDet
                         <Button
                             onClick={() => handleDelete(record.id)}
                             title="حذف"
-                            icon={<DeleteOutlined />}
+                            icon={<DeleteOutlined/>}
                             danger
                             size="small"
                         />
                     </Tooltip>
                     <Tooltip title="ویرایش">
                         <Button
-                            icon={<EditOutlined />}
+                            icon={<EditOutlined/>}
                             className="text-green-500 border-green-500"
                             onClick={() => handleEdit(record)}
                             title='ویرایش'
@@ -103,10 +103,19 @@ export const IndependentMinutesCols = ({ handleEdit, handleDelete, handleShowDet
                     </Tooltip>
                     <Tooltip title="جزئیات">
                         <Button
-                            icon={<EyeOutlined />}
+                            icon={<EyeOutlined/>}
                             className="text-sky-500 border-sky-500"
                             onClick={() => handleShowDetail(record)}
                             title='نمایش جزئیات '
+                            size="small"
+                        />
+                    </Tooltip>
+                    <Tooltip title="اضافه کردن فعالیت">
+                        <Button
+                            icon={<PlusOutlined/>}
+                            className="text-orange-500 border-orange-500"
+                            onClick={() => handleAddActivities(record)}
+                            title='اضافه کردن فعالیت'
                             size="small"
                         />
                     </Tooltip>
