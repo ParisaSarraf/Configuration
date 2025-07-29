@@ -15,34 +15,34 @@ import {
     useUpdateProductDocumentEdition,
     useProductDocumentTreeById
 } from "@/QueryServises/productDocumentQuery/index.js";
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import FileUploader from "../../../../components/FileUploader/FileUploader";
-import { BASEURL } from "../../../../Services/axiosInstance";
-import { usePatchDocumentEditionLog } from "../../../../QueryServises/productDocumentEditionLogQuery";
+import {BASEURL} from "../../../../Services/axiosInstance";
+import {usePatchDocumentEditionLog} from "../../../../QueryServises/productDocumentEditionLogQuery";
 
 const ProductDocumentEditionModal = ({
-    isOpen,
-    modalMode,
-    modalData,
-    closeModal,
-    refetch,
-    currentProduct
-}) => {
+                                         isOpen,
+                                         modalMode,
+                                         modalData,
+                                         closeModal,
+                                         refetch,
+                                         currentProduct
+                                     }) => {
     const [form] = Form.useForm();
     const [currentState, setCurrentState] = useState(null);
     const [comment, setComment] = useState("");
 
-    const { isPending: isCreating, mutateAsync: createProductDocumentEdition } =
+    const {isPending: isCreating, mutateAsync: createProductDocumentEdition} =
         useCreateProductDocumentEdition();
-    const { isPending: isUpdating, mutateAsync: updateProductDocumentEdition } =
+    const {isPending: isUpdating, mutateAsync: updateProductDocumentEdition} =
         useUpdateProductDocumentEdition();
-    const { mutateAsync: updateState, isPending: isPatching } = usePatchDocumentEditionLog();
+    const {mutateAsync: updateState, isPending: isPatching} = usePatchDocumentEditionLog();
 
     const stateSteps = [
-        { value: 10, label: "تهیه نشده" },
-        { value: 20, label: "تهیه کننده" },
-        { value: 30, label: "تایید" },
-        { value: 40, label: "تصدیق" },
+        {value: 10, label: "تهیه نشده"},
+        {value: 20, label: "تهیه کننده"},
+        {value: 30, label: "تایید"},
+        {value: 40, label: "تصدیق"},
     ];
 
     const currentStepIndex = stateSteps.findIndex(s => s.value === currentState);
@@ -174,7 +174,7 @@ const ProductDocumentEditionModal = ({
             onSubmit={isEditable ? () => form.submit() : undefined}
             mode={modalMode}
             loading={isCreating || isUpdating}
-            
+
         >
             <Form
                 form={form}
@@ -188,11 +188,11 @@ const ProductDocumentEditionModal = ({
                             label="نام نسخه"
                             name="edition"
                             rules={[
-                                { required: true, message: "لطفا نام نسخه را انتخاب کنید" },
+                                {required: true, message: "لطفا نام نسخه را انتخاب کنید"},
                             ]}
                         >
                             <Select
-                                options={Array.from({ length: 26 }, (_, i) => ({
+                                options={Array.from({length: 26}, (_, i) => ({
                                     value: String.fromCharCode(97 + i).toUpperCase(),
                                     label: String.fromCharCode(97 + i).toUpperCase()
                                 }))}
@@ -211,13 +211,26 @@ const ProductDocumentEditionModal = ({
                         </Form.Item>
                     </Col>
 
-                    {[1, 2, 3, 4].map((num) => (
-                        <Col span={6} key={num}>
-                            <Form.Item label={`فایل ${num}`} name={`file_${num}`}>
-                                <FileUploader maxCount={1} disabled={!isEditable} />
-                            </Form.Item>
-                        </Col>
-                    ))}
+                    <Col span={6}>
+                        <Form.Item label={'فایل غیرقابل ویرایش'} name='file_1'>
+                            <FileUploader maxCount={1} disabled={!isEditable}/>
+                        </Form.Item>
+                    </Col>
+                    <Col span={6}>
+                        <Form.Item label={'قابل ویرایش'} name='file_2'>
+                            <FileUploader maxCount={1} disabled={!isEditable}/>
+                        </Form.Item>
+                    </Col>
+                    <Col span={6}>
+                        <Form.Item label={'فایل rar'} name='file_3'>
+                            <FileUploader maxCount={1} disabled={!isEditable}/>
+                        </Form.Item>
+                    </Col>
+                    <Col span={6}>
+                        <Form.Item label={'ارسال به کارفرما/پیمانکار'} name='file_4'>
+                            <FileUploader maxCount={1} disabled={!isEditable}/>
+                        </Form.Item>
+                    </Col>
                 </Row>
 
                 <Row gutter={[16, 16]}>
@@ -245,7 +258,7 @@ const ProductDocumentEditionModal = ({
 
 
                             </Col>
-                            <Col span={24} style={{ textAlign: "left", display: "flex", gap: "8px" }}>
+                            <Col span={24} style={{textAlign: "left", display: "flex", gap: "8px"}}>
                                 <Button
                                     onClick={handlePrevStep}
                                     disabled={!comment || currentStepIndex <= 0 || isPatching}

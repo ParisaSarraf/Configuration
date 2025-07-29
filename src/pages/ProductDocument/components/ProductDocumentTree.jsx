@@ -1,24 +1,22 @@
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import {DeleteOutlined, EditOutlined, EyeOutlined, PlusOutlined} from "@ant-design/icons";
 import Tree from "../../../components/Tree";
-import { Button, message, Modal, Space } from "antd";
+import {Button, message, Modal, Space} from "antd";
 import {
     useDeleteProductDocument,
     useDeleteProductDocumentEdition,
     useProductDocumentTreeById
 } from "../../../QueryServises/productDocumentQuery";
-import { useEffect } from "react";
+import {useEffect} from "react";
 
-const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
+const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
     const selectedProductId = currentProduct?.productData?.id;
 
 
+    const {data: productDocument, isLoading, isError} =
+        useProductDocumentTreeById(selectedProductId, {enabled: !!selectedProductId});
 
-
-    const { data: productDocument, isLoading, isError } =
-        useProductDocumentTreeById(selectedProductId, { enabled: !!selectedProductId });
-
-    const { mutate: deleteProductDocument } = useDeleteProductDocument();
-    const { mutate: deleteProductDocumentEdition } = useDeleteProductDocumentEdition();
+    const {mutate: deleteProductDocument} = useDeleteProductDocument();
+    const {mutate: deleteProductDocumentEdition} = useDeleteProductDocumentEdition();
 
     useEffect(() => {
         if (selectedProductId) refetch();
@@ -51,14 +49,21 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
 
     const handleEditEdition = (edition) => {
         console.log(edition);
-
         setModal({
             mode: "edit",
-            data: { ...edition },
+            data: {...edition},
             type: "edition"
         });
     };
 
+    const handleShowDetailEdition = (edition) => {
+        console.log(edition);
+        setModal({
+            mode: "add",
+            data: {...edition},
+            type: "EditionDetail",
+        })
+    }
 
     const transformNode = (node) => {
         const productDoc = node.product_document;
@@ -94,8 +99,9 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
                         </span>
                         <Space>
                             <Button
+                                size={'small'}
                                 type="text"
-                                icon={<EditOutlined />}
+                                icon={<EditOutlined/>}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     handleEditEdition(edition);
@@ -103,13 +109,24 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
                                 className="text-green-500 hover:text-green-700"
                             />
                             <Button
+                                size={'small'}
                                 type="text"
-                                icon={<DeleteOutlined />}
+                                icon={<DeleteOutlined/>}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     handleDeleteEdition(edition.id);
                                 }}
                                 className="text-red-500 hover:text-red-700"
+                            />
+                            <Button
+                                size={'small'}
+                                type="text"
+                                icon={<EyeOutlined/>}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleShowDetailEdition(edition);
+                                }}
+                                className="text-sky-500 hover:text-sky-700"
                             />
                         </Space>
                     </div>
@@ -142,7 +159,7 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
             key: "edition",
             label: (
                 <div className="w-full flex flex-row items-center gap-2">
-                    <PlusOutlined />
+                    <PlusOutlined/>
                     <span>افزودن نسخه</span>
                 </div>
             )

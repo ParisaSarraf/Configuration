@@ -14,12 +14,18 @@ const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
     if (!modalData) return null;
 
     const getStateInfo = (state) => {
-        const states = {
-            10: {label: "در انتظار تایید", status: "warning"},
-            20: {label: "تایید شده", status: "success"},
-            30: {label: "انجام شده", status: "processing"},
-            40: {label: "رد شده", status: "error"},
-        };
+        const states =
+            modalType === 'EditionDetail' ? {
+                10: {label: "درحال آپلود فایل غیرقابل ویرایش", status: "warning"},
+                20: {label: "درحال آپلود فایل قابل ویرایش", status: "success"},
+                30: {label: "درحال آپلود فایل rar", status: "processing"},
+                40: {label: "درحال ارسال به کارفرما/پیمانکار", status: "error"},
+            } : {
+                10: {label: "در انتظار تایید", status: "warning"},
+                20: {label: "تایید شده", status: "success"},
+                30: {label: "انجام شده", status: "processing"},
+                40: {label: "رد شده", status: "error"},
+            };
         return states[state] || {label: "نامشخص", status: "default"};
     };
 
@@ -189,6 +195,37 @@ const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
                             </SectionCard>
                         );
                     })}
+                </div>
+            )}
+            {modalType === 'EditionDetail' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-1 py-2 px-1">
+                    <SectionCard title="جزئیات نسخه ">
+                        {renderInfoItem("نسخه", modalData.edition)}
+                        {renderInfoItem("تاریخ", modalData.survey_date)}
+                        {renderInfoItem("توضیحات", modalData.description)}
+                        <div className="flex justify-between py-1">
+                            <span className="text-gray-500">وضعیت</span>
+                            <Badge status={stateInfo.status} text={stateInfo.label}/>
+                        </div>
+                    </SectionCard>
+                    <SectionCard title={'فایل های پیوست'}>
+                        <h1>
+                            فایل غیرقابل ویرایش
+                            {renderFileButton("فایل غیرقابل ویرایش", modalData.file_1)}
+                        </h1>
+                        <h1>
+                            فایل قابل ویرایش
+                            {renderFileButton("فایل قابل ویرایش", modalData.file_2)}
+                        </h1>
+                        <h1>
+                            فایل rar
+                            {renderFileButton("فایل rar", modalData.file_3)}
+                        </h1>
+                        <h1>
+                            ارسال به کارفرما/پیمانکار
+                            {renderFileButton("ارسال به کارفرما/پیمانکار", modalData.file_4)}
+                        </h1>
+                    </SectionCard>
                 </div>
             )}
         </Modal>
