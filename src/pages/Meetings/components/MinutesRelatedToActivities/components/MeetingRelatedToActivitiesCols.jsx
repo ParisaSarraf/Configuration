@@ -1,4 +1,4 @@
-import {Button, Flex, Tooltip, Tag, Space} from "antd";
+import {Button, Flex, Tooltip, Tag, Space, Badge} from "antd";
 import {EyeOutlined} from "@ant-design/icons";
 import {BASEURL} from "@/Services/axiosInstance.js";
 
@@ -66,11 +66,23 @@ export const MeetingRelatedToActivitiesCols = ({handleShowDetail}) => {
         {
             title: 'وضعیت',
             key: 'state',
-            render: (record) => (
-                <Tag color={record.state === 30 ? 'green' : 'orange'}>
-                    {record.state === 30 ? 'تکمیل شده' : 'در حال انجام'}
-                </Tag>
-            ),
+            render: (record) => {
+                console.log(record)
+                const getStateInfo = (state) => {
+                    const states = {
+                        10: {label: "در انتظار تایید", status: "warning"},
+                        20: {label: "تایید شده", status: "success"},
+                        30: {label: "انجام شده", status: "processing"},
+                        40: {label: "رد شده", status: "error"},
+                    };
+                    return states[state] || {label: "نامشخص", status: "default"};
+                };
+                const stateInfo = getStateInfo(record.meeting_activities?.[0]?.state);
+
+                return (
+                    <Badge status={stateInfo.status} text={stateInfo.label}/>
+                )
+            },
         },
         // {
         //     title: 'تاریخ‌های مهم',
