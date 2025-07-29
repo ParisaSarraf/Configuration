@@ -7,6 +7,7 @@ import {
     useProductDocumentTreeById
 } from "../../../QueryServises/productDocumentQuery";
 import {useEffect} from "react";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
 const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
     const selectedProductId = currentProduct?.productData?.id;
@@ -57,7 +58,6 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
     };
 
     const handleShowDetailEdition = (edition) => {
-        console.log(edition);
         setModal({
             mode: "add",
             data: {...edition},
@@ -74,6 +74,7 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
             key: `node-${Math.random()}`,
             title: (
                 <div>
+
                     {productDoc?.document?.code
                         ? ` ${productDoc.title} - ${productDoc.document.code}`
                         : node.title}
@@ -94,8 +95,15 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
                 title: (
                     <div className="flex flex-row justify-between items-center w-full">
                         <span>
-                            {edition.edition}
-                            {/* {edition.description ? ` (${edition.description})` : ""} */}
+                             <FiberManualRecordIcon
+                                 fontSize="small"
+                                 // color={
+                                 //     item.status === 'active' ? 'success' :
+                                 //         item.status === 'inactive' ? 'error' :
+                                 //             'warning'
+                                 // }
+                             />
+                            {edition.edition_full}
                         </span>
                         <Space>
                             <Button
