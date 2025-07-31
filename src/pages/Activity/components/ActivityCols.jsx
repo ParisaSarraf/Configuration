@@ -113,8 +113,8 @@ export const ActivityCols = ({
                 key: 'person_day'
             }, {
                 title: "درصد عملکرد",
-                // dataIndex: 'description',
-                // key: 'description'
+                dataIndex: 'performance_index',
+                key: 'description'
             }, {
                 title: "عملیات",
                 key: 'actions',
