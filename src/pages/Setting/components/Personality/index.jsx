@@ -3,15 +3,14 @@ import useModal from '../../../../hooks/useModal';
 import {
     useCoreSettingsList,
     useDeleteCoreSetting
-} from '../../../../QueryServises/settingQuery';
+} from '@/QueryServises/settingQuery/index.js';
 import StandardCodeModal from './components/standardCode/StandardCodeModal';
 import PersonalityModal from './components/Personality/PersonalityModal';
 import PersonalityTree from './components/PersonalityTree';
 import {PlusOutlined} from '@ant-design/icons';
 import {StandardCodeCol} from './components/standardCode/StandardCodeCol';
 import {useState} from 'react';
-import {useDeletePersonalityProduct} from '../../../../QueryServises/personalityQuery';
-import {useDeleteStandardCode, useStandardCodePersonalityById} from '../../../../QueryServises/StandardCodeQuery';
+import {useDeleteStandardCode, useStandardCodePersonalityById} from '@/QueryServises/StandardCodeQuery/index.js';
 
 const Personality = () => {
     const {isOpen, modalMode, modalData, setModal, closeModal, modalType} = useModal();
