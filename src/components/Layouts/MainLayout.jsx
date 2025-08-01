@@ -32,7 +32,7 @@ const MainLayout = () => {
 
                 {/* Main Content */}
                 <div
-                    className=" px-2 overflow-y-auto "
+                    className="flex-1 px-2 overflow-y-auto "
                 >
                     {currentProduct ? (
                         <Outlet context={{product: currentProduct}}/>
