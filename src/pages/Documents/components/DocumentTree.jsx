@@ -15,7 +15,8 @@ const DocumentTree = ({setModal}) => {
         if (!documentData) return [];
 
         const transformNode = (node) => ({
-            title: `${node.persianTitle} (${node.code})   `,
+            // title: `${node.persianTitle} (${node.code})   `,
+            title: node.persianTitle,
             key: `document-${node.id}`,
             id: node.id,
             tag: node.tag,
