@@ -1,15 +1,15 @@
-import { Tag, Typography } from 'antd';
-import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import {Tag, Typography} from 'antd';
+import {CheckCircleOutlined, CloseCircleOutlined} from '@ant-design/icons';
 
-const { Text } = Typography;
+const {Text} = Typography;
 
 const renderStatusTag = (status) => {
     return status === 'active' ? (
-        <Tag icon={<CheckCircleOutlined />} color="green">
+        <Tag icon={<CheckCircleOutlined/>} color="green">
             فعال
         </Tag>
     ) : (
-        <Tag icon={<CloseCircleOutlined />} color="red">
+        <Tag icon={<CloseCircleOutlined/>} color="red">
             غیرفعال
         </Tag>
     );
@@ -23,44 +23,42 @@ const formatPrice = (price) => {
 const ProductCols = () => {
     return [
         {
+            title: 'ردیف',
+            key: 'index',
+            render: (_, __, index) => index + 1,
+        },            // render: (text) => <Text strong>{text}</Text>,
+
+        {
             title: 'عنوان محصول',
             dataIndex: 'persian_title',
             key: 'persian_title',
-            render: (text) => <Text strong>{text}</Text>,
+            render: (text) => <Text>{text}</Text>,
         },
         {
-            title: 'کد محصول',
+            title: 'کد',
             dataIndex: 'code',
             key: 'code',
         },
         {
-            title: 'برند',
-            dataIndex: 'brand1',
-            key: 'brand1',
-            render: (text) => text || '-',
+            title: 'کد تجاری',
+            dataIndex: 'code',
+            key: 'code',
         },
         {
-            title: 'وضعیت',
-            dataIndex: 'status',
-            key: 'status',
-            render: renderStatusTag,
+            title: 'تعداد',
+            dataIndex: 'quantity',
+            key: 'quantity',
         },
         {
-            title: 'قیمت',
-            dataIndex: 'price',
-            key: 'price',
-            render: formatPrice,
+            title: 'کد انبار',
+            dataIndex: 'store_code',
+            key: 'store_code',
         },
         {
-            title: 'نوع هویت',
-            dataIndex: 'personality_type',
-            key: 'personality_type',
-            render: (text) => (
-                <Tag color={text === 'standard' ? 'blue' : 'orange'}>
-                    {text === 'standard' ? 'استاندارد' : 'غیر استاندارد'}
-                </Tag>
-            ),
-        },
+            title: 'موجودی',
+            dataIndex: 'Inventory',
+            key: 'Inventory',
+        }
     ];
 };
 
