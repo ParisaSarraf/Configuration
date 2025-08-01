@@ -106,8 +106,7 @@ const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
                     </SectionCard>
 
                     <SectionCard title="متولی فعالیت">
-                        {renderInfoItem("نام کامل", `${modalData.trustee?.name} ${modalData.trustee?.last_name}`)}
-                        {renderInfoItem("نام کاربری", modalData.trustee?.username)}
+                        {renderInfoItem("نام کامل", modalData.trustee ? `${modalData.trustee.name} ${modalData.trustee.last_name}` : "---")} {renderInfoItem("نام کاربری", modalData.trustee?.username)}
                         {renderInfoItem("تاریخ انجام", formatDate(modalData.done_date))}
                         {modalData.trustee_description &&
                             renderInfoItem("توضیحات متولی", modalData.trustee_description)}
@@ -148,8 +147,11 @@ const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
                 <div className="grid grid-cols-1 md:grid-cols-1 gap-1 py-2 px-2">
                     <SectionCard title="مشخصات صورتجلسه">
                         {renderInfoItem("نوع ", modalData.type)}
-                        {renderInfoItem("طرف ", modalData.contractor)}
-                        {renderInfoItem("شرح ", modalData.title)}
+                        {renderInfoItem("طرف ",
+                            modalData.contractor ?
+                                `${modalData.contractor.name} (${modalData.contractor.is_employer ? 'کارفرما' : 'پیمانکار'})`
+                                : "---"
+                        )} {renderInfoItem("شرح ", modalData.title)}
                         {renderInfoItem("تاریخ", modalData.date)}
                         {renderFileButton("فایل ", modalData.file)}
 
@@ -160,7 +162,7 @@ const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-1 py-2 px-2">
                     <SectionCard title="مشخصات صورتجلسه">
                         {renderInfoItem("نوع", modalData.type)}
-                        {renderInfoItem("طرف", modalData.contractor)}
+                        {renderInfoItem("طرف", modalData.contractor?.name || "---")}
                         {renderInfoItem("شرح", modalData.title)}
                         {renderInfoItem("تاریخ", modalData.date)}
                         {renderFileButton("فایل", modalData.file)}

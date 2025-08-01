@@ -36,6 +36,7 @@ const IndependentMinutes = ({setModal, meetingData, deleteMeeting, refetch}) => 
     };
 
     const handleShowDetail = (record) => {
+        console.log(record)
         setModal({mode: 'detail', data: record, type: 'meetingsIndependent'});
     };
 
