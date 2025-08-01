@@ -119,8 +119,8 @@ export const ActivityCols = ({
                 title: "عملیات",
                 key: 'actions',
                 render: (_, record) => {
-                    const isTrusteeDone = !!record.trustee_description || !!record.trustee_file;
-                    const isPlanDone = !!record.confirmed_date || !!record.plan_file;
+                    const isTrusteeDone = (record.state === 20) || (record.state === 30);
+                    const isPlanDone = record.state === 30;
 
                     return (
                         <Flex gap={4}>

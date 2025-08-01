@@ -197,15 +197,15 @@ const ProductDocumentEditionModal = ({
                     <Popover
                         title="تاریخچه این مرحله"
                         content={
-                            <div style={{maxHeight: 200, overflowY: 'auto', direction: 'rtl'}}>
-                                {logs.map((l) => (
+                            <div style={{maxHeight: 200, overflowY: 'auto', direction: 'rtl', width: 250}}>
+                                {logs?.map((l) => (
                                     <div key={l.id} style={{
                                         marginBottom: 8,
                                         borderBottom: '1px solid #f0f0f0',
                                         paddingBottom: 4,
                                         fontSize: '12px'
                                     }}>
-                                        <div><strong>{l.changed_by?.name} {l.changed_by?.last_name}</strong></div>
+                                        <div>{l.changed_by?.name} {l.changed_by?.last_name}</div>
                                         <div>{new Date(l.changed_at).toLocaleString('fa-IR')}</div>
                                         <div>{l.comment || 'بدون توضیح'}</div>
                                     </div>

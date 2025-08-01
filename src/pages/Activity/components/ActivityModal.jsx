@@ -13,9 +13,7 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
     const {mutateAsync: updateActivity} = useUpdateActivity()
     const {data: meetingData = []} = useGetProductMeetings(currentProduct?.id);
     const {data: usersData = []} = useUserSimple();
-
-    console.log(modalData)
-
+    
     const activityType = Form.useWatch('type', form);
     useEffect(() => {
         if (modalMode === 'edit' && modalData) {
