@@ -1,15 +1,15 @@
 import {useMyAxios} from "@/hooks/useMyAxios";
 import {useQuery} from "@tanstack/react-query";
 
-export const useLogListKey = (id, state, model) => ["lists", "logs", id, state, model];
+export const useLogListKey = (id, model, state) => ["lists", "logs", id, model, state];
 
-export const useLogList = ({id, state, model, ...queryOptions}) => {
+export const useLogList = ({id, model, state, ...queryOptions}) => {
     const {myAxios} = useMyAxios();
 
     return useQuery({
-        queryKey: useLogListKey(id, state, model),
+        queryKey: useLogListKey(id, model, state),
         queryFn: () =>
-            myAxios.get(`/spi/v1/product/get-change-state-logs/${id}/${state}/${model}`)
+            myAxios.get(`/spi/v1/product/get-change-state-logs/${id}/${model}/${state}`)
                 .then((response) => {
                     queryOptions?.onSuccess?.(response?.data);
                     return response?.data;

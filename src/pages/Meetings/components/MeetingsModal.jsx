@@ -1,24 +1,24 @@
 import Modal from "@/components/Modal/index.jsx";
-import { Col, Form, Row, Select, Input, message } from "antd";
+import {Col, Form, Row, Select, Input, message} from "antd";
 import DatepickerCustom from "@/components/DatePicker/index.jsx";
 import FileUploader from "@/components/FileUploader/FileUploader.jsx";
-import { useCreateMeeting, useUpdateMeeting } from "@/QueryServises/MeetingQuery/index.js";
-import { useEffect } from "react";
-import { BASEURL } from "@/Services/axiosInstance.js";
-import { useContractorProductList } from "../../../QueryServises/ProductContractorQuery";
+import {useCreateMeeting, useUpdateMeeting} from "@/QueryServises/MeetingQuery/index.js";
+import {useEffect} from "react";
+import {BASEURL} from "@/Services/axiosInstance.js";
+import {useContractorProductList} from "../../../QueryServises/ProductContractorQuery";
 
 const MeetingsModal = ({
-    isOpen,
-    closeModal,
-    modalMode,
-    refetch,
-    currentProduct,
-    modalData = null
-}) => {
+                           isOpen,
+                           closeModal,
+                           modalMode,
+                           refetch,
+                           currentProduct,
+                           modalData = null
+                       }) => {
     const [form] = Form.useForm();
-    const { mutateAsync: createMeeting } = useCreateMeeting();
-    const { mutateAsync: updateMeeting } = useUpdateMeeting();
-    const { data: contractorData } = useContractorProductList();
+    const {mutateAsync: createMeeting} = useCreateMeeting();
+    const {mutateAsync: updateMeeting} = useUpdateMeeting();
+    const {data: contractorData} = useContractorProductList();
 
     useEffect(() => {
         if (modalMode === 'edit' && modalData) {
@@ -66,7 +66,7 @@ const MeetingsModal = ({
                     message.error("Meeting ID is missing");
                     return;
                 }
-                await updateMeeting({ meetingId: modalData.id, ...payload });
+                await updateMeeting({meetingId: modalData.id, ...payload});
                 message.success("صورتجلسه با موفقیت ویرایش شد.");
             }
             await refetch();
@@ -88,6 +88,20 @@ const MeetingsModal = ({
         >
             <Form layout="vertical" onFinish={onFinish} form={form}>
                 <Row gutter={[16]}>
+
+                    <Col span={12}>
+                        <Form.Item
+                            name='type'
+                            label='نوع'
+                            initialValue={modalMode === 'edit' ? modalData?.type : undefined}
+                        >
+                            <Select>
+                                <Select.Option value="company">شرکت</Select.Option>
+                                <Select.Option value="contractor">پیمانکار</Select.Option>
+                                <Select.Option value="employer">کارفرما</Select.Option>
+                            </Select>
+                        </Form.Item>
+                    </Col>
                     <Col span={12}>
                         <Form.Item
                             label='طرف صورتجلسه'
@@ -102,26 +116,13 @@ const MeetingsModal = ({
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={12}>
-                        <Form.Item
-                            name='type'
-                            label='نوع'
-                            initialValue={modalMode === 'edit' ? modalData?.type : undefined}
-                        >
-                            <Select>
-                                <Select.Option value="company">شرکت</Select.Option>
-                                <Select.Option value="contractor">پیکانکار</Select.Option>
-                                <Select.Option value="employer">کارفرما</Select.Option>
-                            </Select>
-                        </Form.Item>
-                    </Col>
                     <Col span={24}>
                         <Form.Item
                             label='موضوع'
                             name='title'
                             initialValue={modalMode === 'edit' ? modalData?.title : undefined}
                         >
-                            <Input />
+                            <Input/>
                         </Form.Item>
                     </Col>
                     <Col span={24}>
@@ -130,7 +131,7 @@ const MeetingsModal = ({
                             name='date'
                             initialValue={modalMode === 'edit' ? modalData?.date : undefined}
                         >
-                            <DatepickerCustom />
+                            <DatepickerCustom/>
                         </Form.Item>
                     </Col>
                     <Col span={24}>
@@ -138,7 +139,7 @@ const MeetingsModal = ({
                             label='فایل ضمیمه'
                             name='file'
                         >
-                            <FileUploader maxFiles={1} listType="picture" />
+                            <FileUploader maxFiles={1} listType="picture"/>
                         </Form.Item>
                     </Col>
                 </Row>

@@ -11,10 +11,33 @@ export const MeetingRelatedToActivitiesCols = ({handleShowDetail}) => {
             render: (_, __, index) => index + 1,
         },
         {
-            title: 'نوع فعالیت',
-            key: 'activityType',
-            render: (record) => record.type || 'نامشخص',
+            title: 'کد فعالیت',
+            key: 'full_code',
+            render: (_, record) => {
+                const code = record.meeting_activities?.[0]?.full_code || 'بدون کد';
+
+                // const prefix = record.type === 'internal' ? 'MOU-I' : 'MOU-O';
+                // const productCode = record.product?.code;
+                return (
+                    <Tag
+                        color="blue"
+                        style={{
+                            maxWidth: 200,
+                            overflow: "hidden",
+                            whiteSpace: "nowrap",
+                            textOverflow: "ellipsis",
+                        }}
+                    >
+                        {code}
+                    </Tag>
+                );
+            }
         },
+        // {
+        //     title: 'نوع فعالیت',
+        //     key: 'activityType',
+        //     render: (record) => record.type || 'نامشخص',
+        // },
         {
             title: 'توضیحات',
             key: 'description',

@@ -17,10 +17,10 @@ export const IndependentMinutesCols = ({handleEdit, handleDelete, handleShowDeta
         {
             title: 'کد صورتجلسه',
             key: 'meetingCode',
-            render: (_, record, index) => {
-                const prefix = record.type === 'internal' ? 'MOU-I' : 'MOU-O';
-                const productCode = record.product?.code;
-                return `${prefix}-${productCode}-${index + 1}`;
+            render: (_, record) => {
+                // const prefix = record.type === 'internal' ? 'MOU-I' : 'MOU-O';
+                // const productCode = record.product?.code;
+                return `${record.full_code}`;
             }
         },
         {

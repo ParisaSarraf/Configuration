@@ -35,29 +35,33 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
 
     const onFinish = async (values) => {
         const payload = {
-            product_id: currentProduct?.id,
             type: values.type,
             description: values.description,
             from_date: values.from_date,
             to_date: values.to_date,
             meeting_id: modalData ? modalData.id : values.meeting_id,
             trustee_id: values.trustee_id,
+        };
+
+        if (values.type === 'control project') {
+            payload.product_id = currentProduct?.id;
         }
+
         try {
             if (modalMode === 'add') {
-                await createActivity(payload)
-                message.success("فعالیت با موفقیت اضافه شد")
+                await createActivity(payload);
+                message.success("فعالیت با موفقیت اضافه شد");
             } else {
-                await updateActivity({activityId: modalData?.id, ...payload})
-                message.success("فعالیت انتخابی با موفقیت ویرایش شد")
+                await updateActivity({activityId: modalData?.id, ...payload});
+                message.success("فعالیت انتخابی با موفقیت ویرایش شد");
             }
-            await refetch()
-            closeModal()
+            await refetch();
+            closeModal();
         } catch (error) {
-            message.error(error)
-            console.log(error)
+            message.error(error);
+            console.log(error);
         }
-    }
+    };
 
 
     return (

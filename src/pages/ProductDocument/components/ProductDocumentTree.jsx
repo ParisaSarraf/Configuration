@@ -74,7 +74,6 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
             key: `node-${Math.random()}`,
             title: (
                 <div>
-
                     {productDoc?.document?.code
                         ? ` ${productDoc.title} - ${productDoc.document.code}`
                         : node.title}
@@ -94,16 +93,16 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
                 key: `edition-${edition.id}`,
                 title: (
                     <div className="flex flex-row justify-between items-center w-full">
-                        <span>
-                             <FiberManualRecordIcon
-                                 fontSize="small"
-                                 // color={
-                                 //     item.status === 'active' ? 'success' :
-                                 //         item.status === 'inactive' ? 'error' :
-                                 //             'warning'
-                                 // }
-                             />
+                        <span className='w-fuull gap-2'>
                             {edition.edition_full}
+                            <FiberManualRecordIcon
+                                fontSize="small"
+                                // color={
+                                //     item.status === 'active' ? 'success' :
+                                //         item.status === 'inactive' ? 'error' :
+                                //             'warning'
+                                // }
+                            />
                         </span>
                         <Space>
                             <Button

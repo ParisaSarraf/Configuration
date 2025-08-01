@@ -19,6 +19,7 @@ import {useEffect, useState} from "react";
 import FileUploader from "../../../../components/FileUploader/FileUploader";
 import {BASEURL} from "../../../../Services/axiosInstance";
 import {usePatchDocumentEditionLog} from "../../../../QueryServises/productDocumentEditionLogQuery";
+import {useLogList} from "@/QueryServises/LogQuery/index.js";
 
 const ProductDocumentEditionModal = ({
                                          isOpen,
@@ -37,6 +38,7 @@ const ProductDocumentEditionModal = ({
     const {isPending: isUpdating, mutateAsync: updateProductDocumentEdition} =
         useUpdateProductDocumentEdition();
     const {mutateAsync: updateState, isPending: isPatching} = usePatchDocumentEditionLog();
+    // const {data: logList = []} = useLogList(modalData?.id, 'product_document_edition', currentState);
 
     const stateSteps = [
         {value: 10, label: "تهیه نشده"},

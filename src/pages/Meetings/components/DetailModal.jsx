@@ -88,7 +88,7 @@ const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
             title="نمایش جزئیات "
             size={1000}
             onClose={closeModal}
-            footer={false}
+            okTe
             className={'scroll-modal'}
             mode={modalMode}
         >

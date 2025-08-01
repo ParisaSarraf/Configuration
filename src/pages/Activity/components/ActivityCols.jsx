@@ -20,7 +20,7 @@ export const ActivityCols = ({
                 key: 'meeting',
                 render(text, record) {
                     return (
-                        <Tag color="blue">{record.meeting?.code || 'بدون کد'}</Tag>
+                        <Tag color="blue">{record.full_code || 'بدون کد'}</Tag>
                     )
                 }
             },
@@ -108,7 +108,7 @@ export const ActivityCols = ({
                 dataIndex: 'confirmed_date',
                 key: 'confirmed_date'
             }, {
-                title: "نفر روز",
+                title: "نفر ساعت",
                 dataIndex: 'person_day',
                 key: 'person_day'
             }, {
