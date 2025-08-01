@@ -1,5 +1,5 @@
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { Button } from "antd";
+import {DeleteOutlined, EditOutlined} from "@ant-design/icons";
+import {Button} from "antd";
 
 export const SerialListCol = (handleEditProductSerial, handleDeleteProductSerial) => [
     {
@@ -8,21 +8,21 @@ export const SerialListCol = (handleEditProductSerial, handleDeleteProductSerial
     },
     {
         title: 'سریال',
-        dataIndex: 'serial',
-        key: 'serial',
+        dataIndex: 'full_serial',
+        key: 'full_serial',
     },
     {
         title: 'عملیات',
         render: (text, record) => (
             <div className="flex flex-row gap-2 justify-center">
                 <Button
-                    icon={<EditOutlined />}
+                    icon={<EditOutlined/>}
                     className="border border-green-600 text-green-600"
                     onClick={() => handleEditProductSerial(record)}
                     size="small"
                 />
                 <Button
-                    icon={<DeleteOutlined />}
+                    icon={<DeleteOutlined/>}
                     danger
                     onClick={() => handleDeleteProductSerial(record.id)}
                     size="small"

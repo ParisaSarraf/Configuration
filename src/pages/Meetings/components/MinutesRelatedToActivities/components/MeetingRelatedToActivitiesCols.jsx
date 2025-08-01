@@ -11,10 +11,10 @@ export const MeetingRelatedToActivitiesCols = ({handleShowDetail}) => {
             render: (_, __, index) => index + 1,
         },
         {
-            title: 'کد فعالیت',
+            title: 'کد صورتجلسه',
             key: 'full_code',
             render: (_, record) => {
-                const code = record.meeting_activities?.[0]?.full_code || 'بدون کد';
+                // const code = record.meeting_activities?.[0]?.full_code || 'بدون کد';
 
                 // const prefix = record.type === 'internal' ? 'MOU-I' : 'MOU-O';
                 // const productCode = record.product?.code;
@@ -28,7 +28,7 @@ export const MeetingRelatedToActivitiesCols = ({handleShowDetail}) => {
                             textOverflow: "ellipsis",
                         }}
                     >
-                        {code}
+                        {record?.full_code}
                     </Tag>
                 );
             }
@@ -39,10 +39,10 @@ export const MeetingRelatedToActivitiesCols = ({handleShowDetail}) => {
         //     render: (record) => record.type || 'نامشخص',
         // },
         {
-            title: 'توضیحات',
-            key: 'description',
+            title: 'شرح صورتجلسه',
+            key: 'title',
             render: (record) => {
-                const description = record.meeting_activities?.[0]?.description || 'بدون توضیح';
+                const description = record?.title || 'بدون توضیح';
                 return (
                     <Tooltip title={description}>
                         <Tag

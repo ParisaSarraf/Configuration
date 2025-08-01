@@ -23,8 +23,19 @@ const Meetings = () => {
 
     const items = [
         {
-            label: "مصوبات",
+            label: `صورتجلسات`,
             key: '1',
+            children:
+                <IndependentMinutes
+                    currentProduct={currentProduct}
+                    setModal={setModal}
+                    meetingData={meetingData}
+                    deleteMeeting={deleteMeeting}
+                    refetch={refetch}
+                />,
+        }, {
+            label: "مصوبات",
+            key: '2',
             children:
                 <MinutesRelatedToActivities
                     currentProduct={currentProduct}
@@ -34,18 +45,6 @@ const Meetings = () => {
                     refetch={refetch}
                 />
         },
-        {
-            label: `صورتجلسات`,
-            key: '2',
-            children:
-                <IndependentMinutes
-                    currentProduct={currentProduct}
-                    setModal={setModal}
-                    meetingData={meetingData}
-                    deleteMeeting={deleteMeeting}
-                    refetch={refetch}
-                />,
-        }
     ];
 
     return (

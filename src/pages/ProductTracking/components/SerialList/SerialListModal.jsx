@@ -1,15 +1,16 @@
-import { Col, Form, Input, message, Row, Select } from "antd"
+import {Col, Form, Input, message, Row, Select} from "antd"
 import Modal from "../../../../components/Modal"
-import { useCreateProductSerial, useProductSerialById } from "../../../../QueryServises/productSerialQuery"
-import { useUpdateProductSerial } from "../../../../QueryServises/productSerialQuery"
-import { useEffect } from "react"
+import {useCreateProductSerial, useProductSerialById} from "@/QueryServises/productSerialQuery/index.js"
+import {useUpdateProductSerial} from "@/QueryServises/productSerialQuery/index.js"
+import {useEffect} from "react"
 
-const SerialListModal = ({ isOpen, modalMode, modalData, closeModal, setModal, currentProduct, refetch }) => {
-    const { isPending: isCreating, mutateAsync: createProductSerial } = useCreateProductSerial()
-    const { isPending: isUpdating, mutateAsync: updateProductSerial } = useUpdateProductSerial()
+const SerialListModal = ({isOpen, modalMode, modalData, closeModal, setModal, currentProduct, refetch}) => {
+    const {isPending: isCreating, mutateAsync: createProductSerial} = useCreateProductSerial()
+    const {isPending: isUpdating, mutateAsync: updateProductSerial} = useUpdateProductSerial()
     const parentCode = currentProduct?.productData?.parent_code
-    const { data: productSerial } = useProductSerialById(parentCode)
+    const {data: productSerial} = useProductSerialById(parentCode)
     const [form] = Form.useForm()
+    console.log(modalData)
 
     useEffect(() => {
         if (modalMode === 'edit' && modalData) {
@@ -72,7 +73,7 @@ const SerialListModal = ({ isOpen, modalMode, modalData, closeModal, setModal, c
                                 message: "لطفا سریال را وارد کنید"
                             }]}
                         >
-                            <Input placeholder="سریال" />
+                            <Input placeholder="سریال"/>
                         </Form.Item>
                     </Col>
                     <Col span={12}>

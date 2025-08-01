@@ -97,11 +97,13 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
                             {edition.edition_full}
                             <FiberManualRecordIcon
                                 fontSize="small"
-                                // color={
-                                //     item.status === 'active' ? 'success' :
-                                //         item.status === 'inactive' ? 'error' :
-                                //             'warning'
-                                // }
+                                color={
+                                    edition.state === '10' ? 'success' :
+                                        edition.state === '20' ? 'info' :
+                                            edition.state === '30' ? 'action' :
+                                                edition.state === '40' ? 'error' :
+                                                    'warning'
+                                }
                             />
                         </span>
                         <Space>

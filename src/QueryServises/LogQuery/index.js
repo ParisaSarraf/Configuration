@@ -9,7 +9,7 @@ export const useLogList = ({id, model, state, ...queryOptions}) => {
     return useQuery({
         queryKey: useLogListKey(id, model, state),
         queryFn: () =>
-            myAxios.get(`/spi/v1/product/get-change-state-logs/${id}/${model}/${state}`)
+            myAxios.get(`/product/get-change-state-logs/${id}/${state}/${model}`)
                 .then((response) => {
                     queryOptions?.onSuccess?.(response?.data);
                     return response?.data;

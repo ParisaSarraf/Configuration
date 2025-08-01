@@ -7,8 +7,12 @@ import {
     Row,
     Select,
     Steps,
-    Button
+    Button,
+    Modal as AntModal,
+    Descriptions,
+    Avatar
 } from "antd";
+import {UserOutlined, EyeOutlined} from '@ant-design/icons';
 import Modal from "../../../../components/Modal";
 import {
     useCreateProductDocumentEdition,
@@ -32,19 +36,34 @@ const ProductDocumentEditionModal = ({
     const [form] = Form.useForm();
     const [currentState, setCurrentState] = useState(null);
     const [comment, setComment] = useState("");
+    const [detailModalVisible, setDetailModalVisible] = useState(false);
+    const [selectedLog, setSelectedLog] = useState(null);
 
     const {isPending: isCreating, mutateAsync: createProductDocumentEdition} =
         useCreateProductDocumentEdition();
     const {isPending: isUpdating, mutateAsync: updateProductDocumentEdition} =
         useUpdateProductDocumentEdition();
     const {mutateAsync: updateState, isPending: isPatching} = usePatchDocumentEditionLog();
-    // const {data: logList = []} = useLogList(modalData?.id, 'product_document_edition', currentState);
+    const {data: logList = []} = useLogList({
+        id: modalData?.id,
+        model: 'product_document_edition',
+        state: currentState
+    });
+
+    // تابع برای یافتن آخرین لاگ در هر مرحله
+    const getLastLogForState = (stateValue) => {
+        const stateLogs = logList?.filter(log => log.to_state === stateValue);
+        if (stateLogs?.length > 0) {
+            return stateLogs[stateLogs?.length - 1];
+        }
+        return null;
+    };
 
     const stateSteps = [
-        {value: 10, label: "تهیه نشده"},
-        {value: 20, label: "تهیه کننده"},
-        {value: 30, label: "تایید"},
-        {value: 40, label: "تصدیق"},
+        {value: 10, label: "تهیه نشده", log: getLastLogForState(10)},
+        {value: 20, label: "تهیه کننده", log: getLastLogForState(20)},
+        {value: 30, label: "تایید", log: getLastLogForState(30)},
+        {value: 40, label: "تصدیق", log: getLastLogForState(40)},
     ];
 
     const currentStepIndex = stateSteps.findIndex(s => s.value === currentState);
@@ -167,123 +186,195 @@ const ProductDocumentEditionModal = ({
         }
     };
 
-    return (
-        <Modal
-            isOpen={isOpen}
-            title={`${modalMode === "edition" ? "افزودن" : "ویرایش"} نسخه`}
-            size={700}
-            onClose={closeModal}
-            onSubmit={isEditable ? () => form.submit() : undefined}
-            mode={modalMode}
-            loading={isCreating || isUpdating}
+    const showLogDetails = (log) => {
+        setSelectedLog(log);
+        setDetailModalVisible(true);
+    };
 
-        >
-            <Form
-                form={form}
-                layout="vertical"
-                onFinish={onFinishForm}
-                disabled={!isEditable}
-            >
-                <Row gutter={16}>
-                    <Col span={24}>
-                        <Form.Item
-                            label="نام نسخه"
-                            name="edition"
-                            rules={[
-                                {required: true, message: "لطفا نام نسخه را انتخاب کنید"},
-                            ]}
-                        >
-                            <Select
-                                options={Array.from({length: 26}, (_, i) => ({
-                                    value: String.fromCharCode(97 + i).toUpperCase(),
-                                    label: String.fromCharCode(97 + i).toUpperCase()
-                                }))}
-                                placeholder="انتخاب کنید"
-                                disabled={!isEditable || modalMode !== "edition"}
-                            />
-                        </Form.Item>
-                    </Col>
+    const CustomStep = ({title, log}) => {
+        const user = log?.changed_by;
+        const userName = user ? `${user.name} ${user.last_name}` : null;
 
-                    <Col span={24}>
-                        <Form.Item label="توضیح" name="description">
-                            <Input.TextArea
-                                placeholder="توضیحات نسخه را وارد کنید"
-                                disabled={!isEditable}
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col span={6}>
-                        <Form.Item label={'فایل غیرقابل ویرایش'} name='file_1'>
-                            <FileUploader maxCount={1} disabled={!isEditable}/>
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item label={'قابل ویرایش'} name='file_2'>
-                            <FileUploader maxCount={1} disabled={!isEditable}/>
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item label={'فایل rar'} name='file_3'>
-                            <FileUploader maxCount={1} disabled={!isEditable}/>
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item label={'ارسال به کارفرما/پیمانکار'} name='file_4'>
-                            <FileUploader maxCount={1} disabled={!isEditable}/>
-                        </Form.Item>
-                    </Col>
-                </Row>
-
-                <Row gutter={[16, 16]}>
-                    <Col span={24}>
-                        <Steps
+        return (
+            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                <div>{title}</div>
+                {log && (
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            cursor: 'pointer',
+                            fontSize: '12px',
+                            color: '#888'
+                        }}
+                        onClick={() => showLogDetails(log)}
+                    >
+                        <Avatar
                             size="small"
-                            current={currentStepIndex}
-                            items={stateSteps.map((step) => ({
-                                title: step.label
-                            }))}
+                            icon={<UserOutlined/>}
+                            src={user?.signature_image || user?.temp_image}
                         />
-                    </Col>
+                        <span>{userName || 'نامشخص'}</span>
+                        <EyeOutlined style={{fontSize: '10px'}}/>
+                    </div>
+                )}
+            </div>
+        );
+    };
 
-                    {modalMode === "edit" && (
-                        <>
-                            <Col span={24}>
-                                <Form.Item label="توضیح">
-                                    <Input.TextArea
-                                        value={comment}
-                                        onChange={(e) => setComment(e.target.value)}
-                                        placeholder="توضیح مربوط به این مرحله را وارد کنید"
-                                        disabled={isPatching}
-                                    />
-                                </Form.Item>
+    return (
+        <>
+            <Modal
+                isOpen={isOpen}
+                title={`${modalMode === "edition" ? "افزودن" : "ویرایش"} نسخه`}
+                size={700}
+                onClose={closeModal}
+                onSubmit={isEditable ? () => form.submit() : undefined}
+                mode={modalMode}
+                loading={isCreating || isUpdating}
+            >
+                <Form
+                    form={form}
+                    layout="vertical"
+                    onFinish={onFinishForm}
+                    disabled={!isEditable}
+                >
+                    <Row gutter={16}>
+                        <Col span={24}>
+                            <Form.Item
+                                label="نام نسخه"
+                                name="edition"
+                                rules={[
+                                    {required: true, message: "لطفا نام نسخه را انتخاب کنید"},
+                                ]}
+                            >
+                                <Select
+                                    options={Array.from({length: 26}, (_, i) => ({
+                                        value: String.fromCharCode(97 + i).toUpperCase(),
+                                        label: String.fromCharCode(97 + i).toUpperCase()
+                                    }))}
+                                    placeholder="انتخاب کنید"
+                                    disabled={!isEditable || modalMode !== "edition"}
+                                />
+                            </Form.Item>
+                        </Col>
 
+                        <Col span={24}>
+                            <Form.Item label="توضیح" name="description">
+                                <Input.TextArea
+                                    placeholder="توضیحات نسخه را وارد کنید"
+                                    disabled={!isEditable}
+                                />
+                            </Form.Item>
+                        </Col>
 
-                            </Col>
-                            <Col span={24} style={{textAlign: "left", display: "flex", gap: "8px"}}>
-                                <Button
-                                    onClick={handlePrevStep}
-                                    disabled={!comment || currentStepIndex <= 0 || isPatching}
-                                    loading={isPatching}
-                                >
-                                    مرحله قبلی
-                                </Button>
+                        <Col span={6}>
+                            <Form.Item label={'فایل غیرقابل ویرایش'} name='file_1'>
+                                <FileUploader maxCount={1} disabled={!isEditable}/>
+                            </Form.Item>
+                        </Col>
+                        <Col span={6}>
+                            <Form.Item label={'قابل ویرایش'} name='file_2'>
+                                <FileUploader maxCount={1} disabled={!isEditable}/>
+                            </Form.Item>
+                        </Col>
+                        <Col span={6}>
+                            <Form.Item label={'فایل پشتیبان تولید'} name='file_3'>
+                                <FileUploader maxCount={1} disabled={!isEditable}/>
+                            </Form.Item>
+                        </Col>
+                        <Col span={6}>
+                            <Form.Item label={'ارسال به کارفرما/پیمانکار'} name='file_4'>
+                                <FileUploader maxCount={1} disabled={!isEditable}/>
+                            </Form.Item>
+                        </Col>
+                    </Row>
 
-                                <Button
-                                    type="primary"
-                                    onClick={handleNextStep}
-                                    disabled={!comment || currentStepIndex >= stateSteps.length - 1 || isPatching}
-                                    loading={isPatching}
-                                >
-                                    مرحله بعد
-                                </Button>
+                    <Row gutter={[16, 16]}>
+                        <Col span={24}>
+                            <Steps
+                                size="small"
+                                current={currentStepIndex}
+                                items={stateSteps.map((step) => ({
+                                    title: <CustomStep title={step.label} log={step.log}/>
+                                }))}
+                            />
+                        </Col>
 
-                            </Col>
-                        </>
-                    )}
-                </Row>
-            </Form>
-        </Modal>
+                        {modalMode === "edit" && (
+                            <>
+                                <Col span={24}>
+                                    <Form.Item label="توضیح">
+                                        <Input.TextArea
+                                            value={comment}
+                                            onChange={(e) => setComment(e.target.value)}
+                                            placeholder="توضیح مربوط به این مرحله را وارد کنید"
+                                            disabled={isPatching}
+                                        />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={24} style={{textAlign: "left", display: "flex", gap: "8px"}}>
+                                    <Button
+                                        onClick={handlePrevStep}
+                                        disabled={!comment || currentStepIndex <= 0 || isPatching}
+                                        loading={isPatching}
+                                    >
+                                        مرحله قبلی
+                                    </Button>
+
+                                    <Button
+                                        type="primary"
+                                        onClick={handleNextStep}
+                                        disabled={!comment || currentStepIndex >= stateSteps.length - 1 || isPatching}
+                                        loading={isPatching}
+                                    >
+                                        مرحله بعد
+                                    </Button>
+                                </Col>
+                            </>
+                        )}
+                    </Row>
+                </Form>
+            </Modal>
+
+            {/* مودال نمایش جزئیات */}
+            <AntModal
+                title="جزئیات تغییر وضعیت"
+                open={detailModalVisible}
+                onCancel={() => setDetailModalVisible(false)}
+                footer={null}
+            >
+                {selectedLog && (
+                    <Descriptions bordered column={1}>
+                        <Descriptions.Item label="کاربر">
+                            <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                                <Avatar
+                                    size="default"
+                                    icon={<UserOutlined/>}
+                                    src={selectedLog.changed_by?.signature_image || selectedLog.changed_by?.temp_image}
+                                />
+                                <span>
+                                    {selectedLog.changed_by?.name} {selectedLog.changed_by?.last_name}
+                                </span>
+                            </div>
+                        </Descriptions.Item>
+                        <Descriptions.Item label="از مرحله">
+                            {stateSteps.find(s => s.value === selectedLog.from_state)?.label || selectedLog.from_state}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="به مرحله">
+                            {stateSteps.find(s => s.value === selectedLog.to_state)?.label || selectedLog.to_state}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="تاریخ تغییر">
+                            {new Date(selectedLog.changed_at).toLocaleString('fa-IR')}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="توضیحات">
+                            {selectedLog.comment || 'بدون توضیح'}
+                        </Descriptions.Item>
+                    </Descriptions>
+                )}
+            </AntModal>
+        </>
     );
 };
 

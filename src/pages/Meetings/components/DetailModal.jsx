@@ -18,7 +18,7 @@ const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
             modalType === 'EditionDetail' ? {
                 10: {label: "درحال آپلود فایل غیرقابل ویرایش", status: "warning"},
                 20: {label: "درحال آپلود فایل قابل ویرایش", status: "success"},
-                30: {label: "درحال آپلود فایل rar", status: "processing"},
+                30: {label: "درحال آپلود فایل پشتیبان تولید", status: "processing"},
                 40: {label: "درحال ارسال به کارفرما/پیمانکار", status: "error"},
             } : {
                 10: {label: "در انتظار تایید", status: "warning"},
@@ -220,8 +220,8 @@ const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
                             {renderFileButton("فایل قابل ویرایش", modalData.file_2)}
                         </h1>
                         <h1>
-                            فایل rar
-                            {renderFileButton("فایل rar", modalData.file_3)}
+                            فایل پشتیبان تولید
+                            {renderFileButton("فایل پشتیبان تولید", modalData.file_3)}
                         </h1>
                         <h1>
                             ارسال به کارفرما/پیمانکار
