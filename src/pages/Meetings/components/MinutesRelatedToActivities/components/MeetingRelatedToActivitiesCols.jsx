@@ -67,7 +67,7 @@ export const MeetingRelatedToActivitiesCols = ({handleShowDetail}) => {
             title: 'وضعیت',
             key: 'state',
             render: (record) => {
-                console.log(record)
+                // console.log(record)
                 const getStateInfo = (state) => {
                     const states = {
                         10: {label: "در انتظار تایید", status: "warning"},

@@ -1,8 +1,14 @@
-import { DeleteOutlined, EditOutlined, EyeFilled } from "@ant-design/icons"
-import { Button, Image, Space, Tooltip } from "antd"
-import { BASEURL } from "../../../Services/axiosInstance";
+import {DeleteOutlined, EditOutlined, EyeFilled} from "@ant-design/icons"
+import {Button, Image, Select, Space, Tooltip} from "antd"
+import {BASEURL} from "../../../Services/axiosInstance";
+import {useState} from "react";
 
-const ExperienceCol = ({ handleDelete, handleEdit, handleShowDetail }) => {
+const ExperienceCol = ({
+                           handleDelete, handleEdit, handleShowDetail, userData,
+                           setFilter
+                       }) => {
+    const [selectedUsers, setSelectedUsers] = useState([]);
+
     return [
         {
             title: 'ردیف',
@@ -25,6 +31,51 @@ const ExperienceCol = ({ handleDelete, handleEdit, handleShowDetail }) => {
             title: 'کاربر ثبت کننده',
             dataIndex: 'user',
             key: 'username',
+            filterDropdown: () => (
+                <div className="p-2">
+                    <Select
+                        className="w-full"
+                        allowClear
+                        mode="multiple"
+                        value={selectedUsers}
+                        onChange={(value) => {
+                            setSelectedUsers(value);
+                        }}
+                    >
+                        {userData?.map((t) => (
+                            <Select.Option key={t.id} value={t.id}>
+                                {`${t.name} ${t.last_name || ''}`}
+                            </Select.Option>
+                        ))}
+                    </Select>
+                    <div className="w-full flex flex-row justify-between text-right mt-2">
+                        <Button
+                            type="primary"
+                            size="small"
+                            onClick={() => {
+                                setFilter((prev) => ({
+                                    ...prev,
+                                    user_id: selectedUsers,
+                                }));
+                            }}
+                        >
+                            اعمال
+                        </Button>
+                        <Button
+                            size="small"
+                            onClick={() => {
+                                setSelectedUsers([]);
+                                setFilter((prev) => ({
+                                    ...prev,
+                                    user_id: undefined,
+                                }));
+                            }}
+                        >
+                            ریست
+                        </Button>
+                    </div>
+                </div>
+            ),
             render: (user) => (
                 user ? `${user.name || ''} ${user.last_name || ''}`.trim() || 'ندارد' : 'ندارد'
             )
@@ -55,7 +106,7 @@ const ExperienceCol = ({ handleDelete, handleEdit, handleShowDetail }) => {
                             href={url}
                             // target="_blank"
                             rel="noopener noreferrer"
-                            style={{ color: "#1890ff" }}
+                            style={{color: "#1890ff"}}
                         >
                             {isImage ? (
                                 <Image
@@ -73,7 +124,7 @@ const ExperienceCol = ({ handleDelete, handleEdit, handleShowDetail }) => {
                             href={url}
                             target="_blank"
                             download
-                            style={{ color: "#52c41a" }}
+                            style={{color: "#52c41a"}}
                         >
                             دانلود
                         </a>
@@ -90,7 +141,7 @@ const ExperienceCol = ({ handleDelete, handleEdit, handleShowDetail }) => {
                     <Tooltip title="ویرایش">
                         <Button
                             title="ویرایش"
-                            icon={<EditOutlined />}
+                            icon={<EditOutlined/>}
                             className="text-green-500 border-green-500"
                             onClick={() => handleEdit(record)}
                             size="small"
@@ -99,7 +150,7 @@ const ExperienceCol = ({ handleDelete, handleEdit, handleShowDetail }) => {
                     <Tooltip title="حذف">
                         <Button
                             title="حذف"
-                            icon={<DeleteOutlined />}
+                            icon={<DeleteOutlined/>}
                             danger
                             onClick={() => handleDelete(record?.id)}
                             size="small"
@@ -108,7 +159,7 @@ const ExperienceCol = ({ handleDelete, handleEdit, handleShowDetail }) => {
                     <Tooltip title="نمایش جزئیات">
                         <Button
                             title="نمایش جزئیات"
-                            icon={<EyeFilled />}
+                            icon={<EyeFilled/>}
                             className="text-sky-500 border-sky-500"
                             onClick={() => handleShowDetail(record)}
                             size="small"

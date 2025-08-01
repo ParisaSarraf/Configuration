@@ -1,17 +1,28 @@
-import { Card, Table, Button, message, Modal } from 'antd'
-import { useDeleteExperience, useProductExperienceById, usExperienceList } from '../../QueryServises/experienceQuery';
-import { useProductContext } from '../../Services/Context/ProductContext';
+import {Card, Table, message, Modal} from 'antd'
+import {
+    useDeleteExperience,
+    useGetProductExperienceFilterById,
+} from '../../QueryServises/experienceQuery';
+import {useProductContext} from '../../Services/Context/ProductContext';
 import ExperienceModal from './components/ExperienceModal';
 import ExperienceCol from './components/ExperienceCol';
 import useModal from '../../hooks/useModal';
 import ExperienceDetailViewModal from './components/ExperienceDetailViewModal';
-import { PlusOutlined } from '@ant-design/icons';
+import {useUserList} from "@/QueryServises/userQuery/index.js";
+import {useState} from "react";
+
 
 const Experience = () => {
-    const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
-    const { currentProduct } = useProductContext();
-    const { data, refetch } = useProductExperienceById(currentProduct?.id)
-    const { mutateAsync: deleteExperience } = useDeleteExperience()
+    const {isOpen, modalMode, modalData, modalType, setModal, closeModal} = useModal();
+    const {currentProduct} = useProductContext();
+    const [filter, setFilter] = useState({});
+    const {data = [], refetch} = useGetProductExperienceFilterById(
+        currentProduct?.id,
+        filter
+    );
+    const {mutateAsync: deleteExperience} = useDeleteExperience()
+    const {data: userData = []} = useUserList();
+
 
     const handleDelete = async (id) => {
         Modal.confirm({
@@ -42,7 +53,7 @@ const Experience = () => {
     }
 
     const handleShowDetail = (record) => {
-        setModal({ mode: 'view', data: record, type: 'detailExperience' })
+        setModal({mode: 'view', data: record, type: 'detailExperience'})
     }
 
     return (
@@ -64,9 +75,15 @@ const Experience = () => {
             }
         >
             <Table
-                columns={ExperienceCol({ handleDelete, handleEdit, handleShowDetail })}
+                columns={ExperienceCol({
+                    handleDelete,
+                    handleEdit,
+                    handleShowDetail,
+                    userData,
+                    setFilter
+                })}
                 dataSource={data}
-                locale={{ emptyText: 'هیچ داده ای وجود ندارد' }}
+                locale={{emptyText: 'هیچ داده ای وجود ندارد'}}
                 size='small'
             />
 
