@@ -67,7 +67,7 @@ const ProductDocumentEditionModal = ({
         {value: 10, label: "تهیه نشده", log: getLastLogForState(10), logs: getLogsForState(10)},
         {value: 20, label: "تهیه کننده", log: getLastLogForState(20), logs: getLogsForState(20)},
         {value: 30, label: "تایید", log: getLastLogForState(30), logs: getLogsForState(30)},
-        {value: 40, label: "تصدیق", log: getLastLogForState(40), logs: getLogsForState(40)},
+        {value: 40, label: "تصویب", log: getLastLogForState(40), logs: getLogsForState(40)},
     ];
 
     const currentStepIndex = stateSteps.findIndex(s => s.value === currentState);
