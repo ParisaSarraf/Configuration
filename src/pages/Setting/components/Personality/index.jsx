@@ -1,4 +1,4 @@
-import { Button, Card, Modal, Spin, Table } from 'antd';
+import {Button, Card, message, Modal, Spin, Table} from 'antd';
 import useModal from '../../../../hooks/useModal';
 import {
     useCoreSettingsList,
@@ -7,23 +7,23 @@ import {
 import StandardCodeModal from './components/standardCode/StandardCodeModal';
 import PersonalityModal from './components/Personality/PersonalityModal';
 import PersonalityTree from './components/PersonalityTree';
-import { PlusOutlined } from '@ant-design/icons';
-import { StandardCodeCol } from './components/standardCode/StandardCodeCol';
-import { useState } from 'react';
-import { useDeletePersonalityProduct } from '../../../../QueryServises/personalityQuery';
-import { useDeleteStandardCode, useStandardCodePersonalityById } from '../../../../QueryServises/StandardCodeQuery';
+import {PlusOutlined} from '@ant-design/icons';
+import {StandardCodeCol} from './components/standardCode/StandardCodeCol';
+import {useState} from 'react';
+import {useDeletePersonalityProduct} from '../../../../QueryServises/personalityQuery';
+import {useDeleteStandardCode, useStandardCodePersonalityById} from '../../../../QueryServises/StandardCodeQuery';
 
 const Personality = () => {
-    const { isOpen, modalMode, modalData, setModal, closeModal, modalType } = useModal();
+    const {isOpen, modalMode, modalData, setModal, closeModal, modalType} = useModal();
     const {
         data,
         isFetching,
         refetch
     } = useCoreSettingsList();
     const [PersonalityId, setPersonalityId] = useState(null);
-    const { mutateAsync: deleteStandardCode } = useDeleteStandardCode();
+    const {mutateAsync: deleteStandardCode} = useDeleteStandardCode();
 
-    const { data: StandardPersonalityCodeList, refetch: standardRefetch } = useStandardCodePersonalityById(PersonalityId)
+    const {data: StandardPersonalityCodeList, refetch: standardRefetch} = useStandardCodePersonalityById(PersonalityId)
 
 
     const TableData = StandardPersonalityCodeList?.personality_codes?.map(item => ({
@@ -31,7 +31,7 @@ const Personality = () => {
         parentData: StandardPersonalityCodeList
     }))
 
-    const { isPending: isDeleting } = useDeleteCoreSetting();
+    const {isPending: isDeleting} = useDeleteCoreSetting();
 
     const handleDelete = (id) => {
         Modal.confirm({
@@ -45,6 +45,8 @@ const Personality = () => {
                     await deleteStandardCode(id)
                     message.success("کد استاندارد با موفقیت حذف شد");
                     await standardRefetch();
+                    await refetch();
+                    closeModal()
                 } catch (error) {
                     message.error("حذف کد استاندارد با خطا مواجه شد");
                     console.error("Delete error:", error);
@@ -58,15 +60,14 @@ const Personality = () => {
     const handleEdit = (record) => {
         setModal({
             mode: 'edit',
-            data: { ...record },
+            data: {...record},
             type: 'addStandardCode'
         });
     }
 
 
-
     return (
-        <Spin spinning={isFetching && !data} tip="در حال دریافت اطلاعات..." >
+        <Spin spinning={isFetching && !data} tip="در حال دریافت اطلاعات...">
             <div className='w-full flex justify-between gap-2'>
                 <Card
                     className='w-full'
@@ -74,13 +75,13 @@ const Personality = () => {
                     extra={
                         <Button
                             className="modal-button"
-                            icon={<PlusOutlined className="text-center" />}
-                            onClick={() => setModal({ mode: "add", data: null, type: 'addPersonality' })}
+                            icon={<PlusOutlined className="text-center"/>}
+                            onClick={() => setModal({mode: "add", data: null, type: 'addPersonality'})}
                         />
                     }
                     loading={isFetching || isDeleting}
                 >
-                    <PersonalityTree setModal={setModal} setPersonalityId={setPersonalityId} />
+                    <PersonalityTree setModal={setModal} setPersonalityId={setPersonalityId}/>
                 </Card>
                 <Card
                     className='w-full'
@@ -88,19 +89,19 @@ const Personality = () => {
                     extra={
                         <Button
                             className="modal-button"
-                            icon={<PlusOutlined className="text-center" />}
-                            onClick={() => setModal({ mode: "add", data: null, type: 'addStandardCode' })}
+                            icon={<PlusOutlined className="text-center"/>}
+                            onClick={() => setModal({mode: "add", data: null, type: 'addStandardCode'})}
                         />
                     }
                 >
                     <Table
-                        columns={StandardCodeCol({ handleDelete, handleEdit })}
+                        columns={StandardCodeCol({handleDelete, handleEdit})}
                         // dataSource={StandardPersonalityCodeList?.personality_codes || []}
                         dataSource={TableData || []}
                         rowKey="id"
                         // loading={!StandardPersonalityCodeList?.personality_codes}
                         locale={
-                            { emptyText: 'هیچ کد استانداردی برای این هویت وجود ندارد' }
+                            {emptyText: 'هیچ کد استانداردی برای این هویت وجود ندارد'}
                         }
                         size='small'
                     />
@@ -128,7 +129,7 @@ const Personality = () => {
                     modalType={modalType}
                 />
             </div>
-        </Spin >
+        </Spin>
     );
 };
 
