@@ -43,6 +43,9 @@ const Introduction = () => {
     const [form] = Form.useForm();
     const { mutateAsync: updateProductionInfo } = useUpdateProductInfo();
 
+    console.log(product)
+
+
     useEffect(() => {
         if (productData) {
             form.setFieldsValue({

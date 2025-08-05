@@ -6,6 +6,7 @@ import TextArea from "antd/es/input/TextArea.js";
 import DatepickerCustom from "@/components/DatePicker/index.jsx";
 import {useGetProductMeetings} from "@/QueryServises/MeetingQuery/index.js";
 import {useUserSimple} from "../../../QueryServises/userQuery";
+import FileUploader from "@/components/FileUploader/FileUploader.jsx";
 
 const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, currentProduct, modalType}) => {
     const [form] = Form.useForm();
@@ -158,7 +159,6 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
                             <DatepickerCustom/>
                         </Form.Item>
                     </Col>
-
                 </Row>
             </Form>
         </Modal>

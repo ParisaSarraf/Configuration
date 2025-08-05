@@ -1,4 +1,4 @@
-import {Tag, Typography} from 'antd';
+import {Space, Tag, Typography} from 'antd';
 import {CheckCircleOutlined, CloseCircleOutlined} from '@ant-design/icons';
 
 const {Text} = Typography;
@@ -26,7 +26,7 @@ const ProductCols = () => {
             title: 'ردیف',
             key: 'index',
             render: (_, __, index) => index + 1,
-        },            // render: (text) => <Text strong>{text}</Text>,
+        },
 
         {
             title: 'عنوان محصول',
@@ -36,13 +36,18 @@ const ProductCols = () => {
         },
         {
             title: 'کد',
-            dataIndex: 'code',
-            key: 'code',
+            dataIndex: 'final_code',
+            key: 'final_code',
         },
         {
-            title: 'کد تجاری',
-            dataIndex: 'code',
-            key: 'code',
+            title: 'کد استاندارد',
+            dataIndex: 'standard_code',
+            key: 'standard_code',
+            render: (record) => {
+                return (
+                    <Space>{record?.name}</Space>
+                )
+            }
         },
         {
             title: 'تعداد',
