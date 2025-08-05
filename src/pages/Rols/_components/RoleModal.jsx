@@ -32,7 +32,7 @@ const RoleModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
     } else if (modalMode === "edit") {
       try {
         await updateRole({
-          roleId: modalData.id,
+          roleId: modalData?.id,
           name: values.name
         })
         message.success("سمت  با موفقیت ویرایش شد.");

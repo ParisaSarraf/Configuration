@@ -1,4 +1,3 @@
-import React from 'react'
 import Tree from '../../../components/Tree';
 import { useDeleteRole } from '../../../QueryServises/roleQuery';
 import { message } from 'antd';
@@ -19,6 +18,7 @@ const RoleTree = ({ setModal, refetch }) => {
                 console.error(error);
             });
     };
+
 
     const handleEditRole = (record) => {
         setModal({ type: 'role', mode: 'edit', data: record });

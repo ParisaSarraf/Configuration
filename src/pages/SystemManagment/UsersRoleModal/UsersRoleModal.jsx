@@ -1,15 +1,33 @@
-import { Col, Form, message, Modal, Row, Select, Spin } from "antd";
+import { Col, Form, message, Modal, Row, Select, Spin, Table } from "antd";
 import { useRoleList } from "../../../QueryServises/roleQuery";
 import { useCreateUsersRoles, usePutUsersRole } from "../../../QueryServises/user&role";
 import { useUserList } from "../../../QueryServises/userQuery";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+
+const UserColumns = [
+    {
+        title: 'نام کاربری',
+        dataIndex: 'label',
+        key: 'label',
+    },
+    {
+        title: 'نام کاربر',
+        dataIndex: 'name',
+        key: 'name',
+    }, {
+        title: 'نام خانوادگی',
+        dataIndex: 'lastName',
+        key: 'lastName',
+    },
+];
 
 const UsersRoleModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
-    const { isPending: isCreating, mutateAsync: createUserandRole } = useCreateUsersRoles();
-    const { isPending: isUpdating, mutateAsync: updateUserandRole } = usePutUsersRole();
+    const { isPending: isCreating, mutateAsync: createUserAndRole } = useCreateUsersRoles();
+    const { isPending: isUpdating, mutateAsync: updateUserAndRole } = usePutUsersRole();
     const { isFetching: userFetching, data: userData } = useUserList();
     const { isFetching: roleFetching, data: roleData } = useRoleList();
     const [form] = Form.useForm();
+    const [selectedUserIds, setSelectedUserIds] = useState([]);
 
     const selectRoleOptions = roleData?.map(role => ({
         value: role.id,
@@ -18,32 +36,50 @@ const UsersRoleModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) =
 
     const selectUserOptions = userData?.map(user => ({
         value: user.id,
-        label: user.username
+        label: user.username,
+        name: user.name,
+        lastName : user.last_name,
+        key: user.id
     })) || [];
 
     useEffect(() => {
-        console.log(modalData);
         if (modalMode === 'edit' && modalData) {
+            const initialUserIds = modalData?.users?.map(u => u.id) || [];
+            setSelectedUserIds(initialUserIds);
             form.setFieldsValue({
-                roles: modalData?.roles?.map(r => r.id),
-                users: modalData?.users?.map(u => u.id),
+                roles: modalData?.roles || modalData?.name,
+                users: initialUserIds,
             });
         } else {
+            setSelectedUserIds([]);
             form.resetFields();
         }
-    }, [modalMode, modalData]);
+    }, [modalMode, modalData, form]);
+
+    const rowSelection = {
+        selectedRowKeys: selectedUserIds,
+        onChange: (selectedRowKeys) => {
+            setSelectedUserIds(selectedRowKeys);
+            form.setFieldsValue({ users: selectedRowKeys });
+        },
+        type: 'checkbox',
+    };
 
     const onFinish = async (values) => {
         const payload = {
-            users_ids: values.users,
+            users_ids: values.users || selectedUserIds,
             roles_ids: values.roles,
         };
+
         try {
             if (modalMode === "edit") {
-                await updateUserandRole({ id: modalData.id, ...payload });
+                await updateUserAndRole({
+                    roleId: modalData.id,
+                    ...payload
+                });
                 message.success("با موفقیت ویرایش شد.");
             } else {
-                await createUserandRole(payload);
+                await createUserAndRole(payload);
                 message.success("با موفقیت اضافه شد.");
             }
             await refetch();
@@ -63,6 +99,7 @@ const UsersRoleModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) =
             confirmLoading={isCreating || isUpdating}
             okText='ثبت'
             cancelText='لغو'
+            width={800}
         >
             <Form
                 form={form}
@@ -70,7 +107,7 @@ const UsersRoleModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) =
                 layout="vertical"
             >
                 <Row gutter={[16, 16]}>
-                    <Col span={12}>
+                    <Col span={24}>
                         {roleFetching ? (
                             <Spin />
                         ) : (
@@ -87,22 +124,32 @@ const UsersRoleModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) =
                             </Form.Item>
                         )}
                     </Col>
-                    <Col span={12}>
-                        {userFetching ? (
-                            <Spin />
-                        ) : (
-                            <Form.Item
-                                name="users"
-                                label="کاربران"
-                                rules={[{ required: true, message: "لطفاً کاربران را انتخاب کنید" }]}
-                            >
-                                <Select
-                                    mode="multiple"
-                                    options={selectUserOptions}
-                                    placeholder="انتخاب کاربران"
+                    <Col span={24}>
+                        <Form.Item
+                            name="users"
+                            label="کاربران"
+                            rules={[{
+                                required: true,
+                                validator: (_, value) =>
+                                    (value && value.length > 0) ?
+                                        Promise.resolve() :
+                                        Promise.reject(new Error('لطفاً حداقل یک کاربر انتخاب کنید'))
+                            }]}
+                        >
+                            {userFetching ? (
+                                <Spin />
+                            ) : (
+                                <Table
+                                    dataSource={selectUserOptions}
+                                    columns={UserColumns}
+                                    rowSelection={rowSelection}
+                                    rowKey="value"
+                                    pagination={{ pageSize: 5 }}
+                                    size="small"
+                                    bordered
                                 />
-                            </Form.Item>
-                        )}
+                            )}
+                        </Form.Item>
                     </Col>
                 </Row>
             </Form>

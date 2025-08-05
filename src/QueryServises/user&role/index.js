@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useMyAxios } from "../../hooks/useMyAxios";
+import { useMyAxios } from "@/hooks/useMyAxios.js";
 
 export const useUsersRoleListKey = ["lists", "users&roles"];
 export const useUsersRoleList = (queryOptions) => {
@@ -26,6 +26,18 @@ export const useCreateUsersRoles = () => {
   });
 };
 
+export const usePutUsersRole = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: ({ roleId, ...params }) => {
+      return myAxios
+          .put(`/user/update-role-users/${roleId}`, params)
+          .then((response) => response?.data);
+    },
+  });
+};
+
+
 // export const useDeleteRole = () => {
 //   const { myAxios } = useMyAxios();
 //   return useMutation({
@@ -37,26 +49,6 @@ export const useCreateUsersRoles = () => {
 //   });
 // };
 
-export const usePutUsersRole = () => {
-  const { myAxios } = useMyAxios();
-  return useMutation({
-    mutationFn: ({ roleId }) => {
-      return myAxios
-        .put(`/user/update-role-users/${roleId}`, {
-          role_id: roleId,
-        })
-        .then((response) => {
-          return response?.data;
-        });
-    },
-    onSuccess: () => {
-      message.success("نقش کاربر با موفقیت به‌روزرسانی شد!");
-    },
-    onError: () => {
-      message.error("خطا در به‌روزرسانی نقش کاربر!");
-    },
-  });
-};
 
 // export const usePatchRole = () => {
 //   const { myAxios } = useMyAxios();
