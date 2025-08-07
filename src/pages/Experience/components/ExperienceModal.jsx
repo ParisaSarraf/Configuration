@@ -68,7 +68,7 @@ const ExperienceModal = ({ isOpen, modalMode, modalData, closeModal, setModal, c
             <Button
                 className="modal-button"
                 icon={<PlusOutlined />}
-                onClick={() => setModal({ mode: "add", data: null, type: 'add', type: 'addOrEdit' })}
+                onClick={() => setModal({ mode: "add", data: null, type: 'addOrEdit' })}
                 title={'افزودن تجارب و خرابی'}
             />
             <Modal

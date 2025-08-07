@@ -14,12 +14,14 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
     const {mutateAsync: updateActivity} = useUpdateActivity()
     const {data: meetingData = []} = useGetProductMeetings(currentProduct?.id);
     const {data: usersData = []} = useUserSimple();
-    
+
+    console.log(modalData)
+
     const activityType = Form.useWatch('type', form);
     useEffect(() => {
         if (modalMode === 'edit' && modalData) {
             form.setFieldsValue({
-                meeting_id: modalData?.meeting,
+                meeting_id: modalData?.meeting ,
                 type: modalData?.type,
                 description: modalData?.description,
                 from_date: modalData?.from_date,
@@ -38,7 +40,7 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
             description: values.description,
             from_date: values.from_date,
             to_date: values.to_date,
-            meeting_id: modalData ? modalData.id : values.meeting_id,
+            meeting_id: values.meeting_id,
             trustee_id: values.trustee_id,
         };
 
