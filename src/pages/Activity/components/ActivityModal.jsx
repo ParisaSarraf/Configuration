@@ -6,7 +6,6 @@ import TextArea from "antd/es/input/TextArea.js";
 import DatepickerCustom from "@/components/DatePicker/index.jsx";
 import {useGetProductMeetings} from "@/QueryServises/MeetingQuery/index.js";
 import {useUserSimple} from "../../../QueryServises/userQuery";
-import FileUploader from "@/components/FileUploader/FileUploader.jsx";
 
 const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, currentProduct, modalType}) => {
     const [form] = Form.useForm();
@@ -40,7 +39,7 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
             description: values.description,
             from_date: values.from_date,
             to_date: values.to_date,
-            meeting_id: values.meeting_id,
+            meeting_id: modalType === 'addActivitiesMeetings' ? modalData?.id : values.meeting_id,
             trustee_id: values.trustee_id,
         };
 
@@ -75,7 +74,7 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
         >
             <Form form={form} layout="vertical" onFinish={onFinish}>
                 <Row gutter={16}>
-                    {modalType === 'addActivity' && (
+                    {modalType === 'addActivity' &&  (
                         <>
                             <Col span={activityType === 'meeting' ? '12' : '24'}>
                                 <Form.Item name='type' label='نوع'>

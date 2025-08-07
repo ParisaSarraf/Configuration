@@ -67,11 +67,19 @@ export const MeetingRelatedToActivitiesCols = ({handleShowDetail}) => {
                 const trustee = record.meeting_activities?.[0]?.trustee || 'بدون توضیح';
 
                 return (
-                    <div>
+                    <Tag
+                color="blue"
+                style={{
+                    maxWidth: 200,
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                        textOverflow: "ellipsis",
+                }}
+            >
                         {trustee?.name} {trustee?.last_name}
                         <br/>
                         {record.meeting_activities?.trustee_description && `(${record.trustee_description})`}
-                    </div>
+                    </Tag>
                 )
             },
         },

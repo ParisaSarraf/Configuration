@@ -1,4 +1,4 @@
-import {message, Modal, Table, Tag} from "antd";
+import {message, Modal, Table, Tag, Tooltip} from "antd";
 import {MeetingRelatedToActivitiesCols} from "./components/MeetingRelatedToActivitiesCols";
 
 const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refetch}) => {
@@ -42,6 +42,11 @@ const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refet
     const expandedRowRender = (record) => {
         const activityColumns = [
             {
+                title: 'ردیف',
+                key: 'index',
+                render: (_, __, index) => index + 1,
+            },
+            {
                 title: 'کد فعالیت',
                 dataIndex: 'full_code',
                 key: 'full_code',
@@ -59,14 +64,14 @@ const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refet
                     </Tag>
                 )
             },
-            {
-                title: 'نوع',
-                dataIndex: 'type',
-                key: 'type',
-                render: (type) => (
-                    <Tag color="blue">{type || 'نامشخص'}</Tag>
-                )
-            },
+            // {
+            //     title: 'نوع',
+            //     dataIndex: 'type',
+            //     key: 'type',
+            //     render: (type) => (
+            //         <Tag color="blue">{type || 'نامشخص'}</Tag>
+            //     )
+            // },
             // {
             //     title: 'کد',
             //     dataIndex: 'code',
@@ -77,7 +82,24 @@ const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refet
                 title: 'توضیحات',
                 dataIndex: 'description',
                 key: 'description',
-                render: (description) => description || 'بدون توضیحات'
+                render: (description) =>{
+
+                return (
+            <Tooltip title={description}>
+                <Tag
+                    color="blue"
+                    style={{
+                        maxWidth: 200,
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                        textOverflow: "ellipsis",
+                    }}
+                >
+                    {description}
+                </Tag>
+            </Tooltip>
+    );
+                }
             },
             {
                 title: 'تاریخ شروع',
@@ -95,7 +117,9 @@ const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refet
                 key: 'state',
                 render: (state) => {
                     const statusMap = {
-                        10: {color: 'green', text: 'تکمیل شده'},
+                        10: {color: 'green', text: 'ثبت شده'},
+                        20: {color: 'orange', text: 'در مرحله متولی'},
+                        30: {color: 'blue', text: 'در مرحله طرح و برنامه'},
                     };
                     const status = statusMap[state] || {color: 'gray', text: 'نامشخص'};
                     return <Tag color={status.color}>{status.text}</Tag>;

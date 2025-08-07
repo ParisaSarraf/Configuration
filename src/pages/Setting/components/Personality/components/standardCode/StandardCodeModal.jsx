@@ -82,7 +82,7 @@ const StandardCodeModal = ({ isOpen, modalMode, modalData, closeModal, standardR
             <Modal
                 isOpen={isOpen}
                 title={`${modalMode === "edit" ? "ویرایش" : "افزودن"}  کد استاندارد`}
-                size={400}
+                size={700}
                 onClose={closeModal}
                 onSubmit={() => form.submit()}
                 mode={modalMode}
