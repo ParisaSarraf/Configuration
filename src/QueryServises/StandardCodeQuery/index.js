@@ -34,7 +34,11 @@ export const useCreateStandardCode = () => {
 	const { myAxios } = useMyAxios();
 	return useMutation({
 		mutationFn: (params) => {
-			return myAxios.post(`/core/standard-code/`, params).then((response) => {
+			return myAxios.post(`/core/standard-code/`, params,{
+				headers: {
+					"Content-Type": "multipart/form-data",
+				}
+			}).then((response) => {
 				return response?.data;
 			});
 		},
@@ -59,7 +63,11 @@ export const useUpdateStandardCode = () => {
 	return useMutation({
 		mutationFn: ({ StandardCodeId, ...params }) => {
 			return myAxios
-				.put(`/core/standard-code/${StandardCodeId}/`, params)
+				.put(`/core/standard-code/${StandardCodeId}/`, params,{
+					headers: {
+						"Content-Type": "multipart/form-data",
+					}
+				})
 				.then((response) => {
 					return response?.data;
 				});

@@ -1,10 +1,11 @@
 import { useEffect } from "react";
-import { Col, Form, Input, message, Row, TreeSelect } from "antd";
+import { Col, Form, Input, message, Row } from "antd";
 import Modal from "../../../../../../components/Modal";
-import { usePersonalityProductList } from "../../../../../../QueryServises/personalityQuery";
-import { useCreateStandardCode, useUpdateStandardCode } from "../../../../../../QueryServises/StandardCodeQuery";
+import { usePersonalityProductList } from "@/QueryServises/personalityQuery/index.js";
+import { useCreateStandardCode, useUpdateStandardCode } from "@/QueryServises/StandardCodeQuery/index.js";
 import TS from "../../../../../../components/TreeSelect";
 import FileUploader from "../../../../../../components/FileUploader/FileUploader";
+import {BASEURL} from "@/Services/axiosInstance.js";
 
 
 const StandardCodeModal = ({ isOpen, modalMode, modalData, closeModal, standardRefetch }) => {
