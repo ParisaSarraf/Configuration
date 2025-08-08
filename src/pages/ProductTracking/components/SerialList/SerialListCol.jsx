@@ -1,5 +1,6 @@
 import {DeleteOutlined, EditOutlined} from "@ant-design/icons";
 import {Button} from "antd";
+import {georgianDateToJalaliDate} from "@utils/timeTool.js";
 
 export const SerialListCol = (handleEditProductSerial, handleDeleteProductSerial) => [
     {
@@ -10,6 +11,18 @@ export const SerialListCol = (handleEditProductSerial, handleDeleteProductSerial
         title: 'سریال',
         dataIndex: 'full_serial',
         key: 'full_serial',
+    },
+    {
+        title: 'تاریخ',
+        dataIndex: 'date',
+        key: 'date',
+        render: (text, record) => {
+            return (
+                <>
+                    {georgianDateToJalaliDate(record.date)}
+                </>
+            )
+        },
     },
     {
         title: 'عملیات',

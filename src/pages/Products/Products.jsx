@@ -24,7 +24,6 @@ const Products = () => {
                 onClick={() => setModal({mode: 'add'})}
                 icon={<PlusOutlined/>}
                 className="m-1"
-                // block
             >
                 افزودن محصول
             </Button>

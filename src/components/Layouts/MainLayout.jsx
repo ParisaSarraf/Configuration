@@ -27,7 +27,7 @@ const MainLayout = () => {
                     onClick={toggleProductsPanel}
                     className={`bg-white rounded-l-md  ${isProductsCollapsed ? 'left-0' : 'left-[360px]'}`}
                 >
-                    {isProductsCollapsed ? <DoubleRightOutlined/> : <DoubleLeftOutlined/>}
+                    {isProductsCollapsed ? <DoubleLeftOutlined/> : < DoubleRightOutlined/>}
                 </button>
 
                 {/* Main Content */}
