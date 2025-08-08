@@ -1,6 +1,6 @@
 import {DeleteOutlined, EditOutlined} from "@ant-design/icons";
 import {Button} from "antd";
-import {georgianDateToJalaliDate} from "@utils/timeTool.js";
+import {georgianDateToJalaliDate} from "../../../../Utils/timeTool.js";
 
 export const SerialListCol = (handleEditProductSerial, handleDeleteProductSerial) => [
     {
