@@ -99,7 +99,6 @@ const Activity = () => {
                         setFilters
                     })}
                     rowKey="id"
-                    // pagination={{pagesize: 5}}
                 />
             </div>
 

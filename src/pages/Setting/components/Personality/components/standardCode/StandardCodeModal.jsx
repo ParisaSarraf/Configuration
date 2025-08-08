@@ -1,30 +1,31 @@
-import { useEffect } from "react";
-import { Col, Form, Input, message, Row } from "antd";
+import {useEffect} from "react";
+import {Col, Form, Input, message, Row} from "antd";
 import Modal from "../../../../../../components/Modal";
-import { usePersonalityProductList } from "@/QueryServises/personalityQuery/index.js";
-import { useCreateStandardCode, useUpdateStandardCode } from "@/QueryServises/StandardCodeQuery/index.js";
+import {usePersonalityProductList} from "@/QueryServises/personalityQuery/index.js";
+import {useCreateStandardCode, useUpdateStandardCode} from "@/QueryServises/StandardCodeQuery/index.js";
 import TS from "../../../../../../components/TreeSelect";
 import FileUploader from "../../../../../../components/FileUploader/FileUploader";
 import {BASEURL} from "@/Services/axiosInstance.js";
 
 
-const StandardCodeModal = ({ isOpen, modalMode, modalData, closeModal, standardRefetch }) => {
+const StandardCodeModal = ({isOpen, modalMode, modalData, closeModal, standardRefetch}) => {
     const [form] = Form.useForm();
-    const { data: personalityList } = usePersonalityProductList();
-    const { isPending: isCreating, mutateAsync: createStandardCode } = useCreateStandardCode();
-    const { isPending: isUpdating, mutateAsync: updateStandardCode } = useUpdateStandardCode();
+    const {data: personalityList} = usePersonalityProductList();
+    const {isPending: isCreating, mutateAsync: createStandardCode} = useCreateStandardCode();
+    const {isPending: isUpdating, mutateAsync: updateStandardCode} = useUpdateStandardCode();
 
     useEffect(() => {
+        console.log(modalData);
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
                 name: modalData.name,
-                personality: modalData?.parentData.name,
-                standard_file: modalData?.data?.standard_file
+                personality: modalData?.parentData.id,
+                standard_file: modalData?.standard_file
                     ? [
                         {
                             uid: "-4",
                             name: "standard_file",
-                            url: BASEURL.replace("/api/v1", "") + modalData?.data.standard_file,
+                            url: BASEURL.replace("/api/v1", "") + modalData?.standard_file,
                         },
                     ]
                     : [],
@@ -104,7 +105,7 @@ const StandardCodeModal = ({ isOpen, modalMode, modalData, closeModal, standardR
                                     message: "لطفاً کد استاندارد را وارد کنید"
                                 }]}
                             >
-                                <Input placeholder="کد استاندارد" />
+                                <Input placeholder="کد استاندارد"/>
                             </Form.Item>
                         </Col>
                         <Col span={12}>
@@ -123,12 +124,12 @@ const StandardCodeModal = ({ isOpen, modalMode, modalData, closeModal, standardR
                                 name="standard_file"
                                 label="فایل ضمیمه"
                             >
-                                <FileUploader />
+                                <FileUploader/>
                             </Form.Item>
                         </Col>
                     </Row>
                 </Form>
-            </Modal >
+            </Modal>
         </>
     );
 }
