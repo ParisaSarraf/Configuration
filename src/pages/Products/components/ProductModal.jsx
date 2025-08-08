@@ -147,7 +147,7 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
         <Modal
             isOpen={isOpen}
             title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} محصول`}
-            size={800}
+            size={1200}
             onClose={closeModal}
             onSubmit={() => form.submit()}
             mode={modalMode}
@@ -156,18 +156,18 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
         >
             <Form form={form} layout="vertical" onFinish={onFinish}>
                 <Row gutter={16}>
-                    <Col span={8}>
+                    <Col span={4}>
                         <Form.Item name="parent_id" label="شاخه والد">
                             <TS data={productData} placeholder="شاخه والد"/>
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={4}>
                         <Form.Item name="parent_code_id" label="ارث بری کد">
                             <TS data={productData} placeholder="ارث بری کد" onChange={handleParentChange}/>
                         </Form.Item>
                     </Col>
 
-                    <Col span={8}>
+                    <Col span={4}>
                         <Form.Item
                             label="عنوان فارسی"
                             name="persian_title"
@@ -176,7 +176,7 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                             <Input placeholder="عنوان فارسی"/>
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={4}>
                         <Form.Item
                             label="کد محصول"
                             name="code"
@@ -189,7 +189,7 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={4}>
                         <Form.Item
                             label="تعداد"
                             name="quantity"
@@ -198,37 +198,37 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                             <InputNumber style={{width: "100%"}}/>
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={4}>
                         <Form.Item label="کد نهایی" name="final_code">
                             <Input value={finalCode} disabled/>
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={4}>
                         <Form.Item label="نام تجاری 1" name="brand1">
                             <Input/>
                         </Form.Item>
                     </Col>
-                    <Col span={16}>
+                    <Col span={4}>
                         <Form.Item label="شرح نام تجاری 1" name="brand1_desc">
                             <Input/>
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={4}>
                         <Form.Item label="نام تجاری 2" name="brand2">
                             <Input/>
                         </Form.Item>
                     </Col>
-                    <Col span={16}>
+                    <Col span={4}>
                         <Form.Item label="شرح نام تجاری 2" name="brand2_desc">
                             <Input/>
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={4}>
                         <Form.Item label="کد کارفرما" name="employer_code">
                             <Input/>
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={4}>
                         <Form.Item
                             label="هویت"
                             name="personality_id"
@@ -241,7 +241,7 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={4}>
                         <Form.Item label="کد استاندارد" name="standard_code_id">
                             <Select
                                 placeholder="کد استاندارد"
@@ -259,52 +259,52 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={4}>
                         <Form.Item label="جنس" name="genus_id">
                             <TS data={genusData} placeholder="جنس"/>
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={4}>
                         <Form.Item label="جنس جایگزین" name="alternative_genus_id">
                             <TS data={genusData} placeholder="جنس جایگزین"/>
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={4}>
                         <Form.Item label="پوشش" name="casing_id">
                             <TS data={casingData} placeholder="پوشش"/>
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={4}>
                         <Form.Item label="طول" name="length">
                             <InputNumber style={{width: "100%"}}/>
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={4}>
                         <Form.Item label="عرض" name="width">
                             <InputNumber style={{width: "100%"}}/>
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={4}>
                         <Form.Item label="ارتفاع" name="height">
                             <InputNumber style={{width: "100%"}}/>
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={4}>
                         <Form.Item label="قطر داخل" name="internal_diagonal">
                             <InputNumber style={{width: "100%"}}/>
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={4}>
                         <Form.Item label="قطر خارجی" name="external_diagonal">
                             <InputNumber style={{width: "100%"}}/>
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={4}>
                         <Form.Item label="وزن" name="weight">
                             <InputNumber style={{width: "100%"}}/>
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={4}>
                         <Form.Item label="قیمت" name="price">
                             <InputNumber
                                 style={{width: "100%"}}
@@ -313,12 +313,12 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={4}>
                         <Form.Item label="کد انبار" name="store_code">
                             <Input/>
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={4}>
                         <Form.Item label="وضعیت" name="status">
                             <Select
                                 placeholder="وضعیت"
@@ -331,9 +331,9 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={24}>
+                    <Col span={20}>
                         <Form.Item label="توضیحات" name="description">
-                            <Input.TextArea rows={2} placeholder="توضیحات محصول"/>
+                            <Input.TextArea rows={1} placeholder="توضیحات محصول"/>
                         </Form.Item>
                     </Col>
                 </Row>
