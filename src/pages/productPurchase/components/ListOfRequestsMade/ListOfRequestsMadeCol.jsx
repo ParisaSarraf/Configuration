@@ -4,7 +4,11 @@ const ListOfRequestsMadeCol = () => {
             title: 'نوع خرید',
             dataIndex: 'purchase_type',
             key: 'purchase_type',
-            render:(text) => text || 'ندارد'
+            render: (record) => {
+                return (
+                    <>{record === 'assembly' ? 'مونتاژ' : 'ساخت'}</>
+                )
+            }
         },
         {
             title: 'تعداد تایید شده',

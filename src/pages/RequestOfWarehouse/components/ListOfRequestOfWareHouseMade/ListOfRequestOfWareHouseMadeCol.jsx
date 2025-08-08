@@ -4,7 +4,11 @@ const ListOfRequestOfWareHouseMadeCol = () => {
             title: 'نوع خرید',
             dataIndex: 'request_type',
             key: 'request_type',
-            render: (text) => text || 'ندارد'
+            render: (record) => {
+                return (
+                    <>{record === 'assembly' ? 'مونتاژ' : 'ساخت'}</>
+                )
+            }
         },
         {
             title: 'تعداد تایید شده',

@@ -4,7 +4,7 @@ import {
     LoginOutlined,
     SettingOutlined,
     SecurityScanOutlined,
-    CalendarOutlined,
+    CalendarOutlined, UserOutlined,
 } from "@ant-design/icons";
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
@@ -12,8 +12,8 @@ import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined';
 import {useNavigate} from "react-router-dom";
 import {jwtDecode} from "jwt-decode";
 import PersianDate from "persian-date";
-import {useMyAxios} from "../../hooks/useMyAxios";
-import {BASEURL} from "../../Services/axiosInstance";
+import {useMyAxios} from "@/hooks/useMyAxios.js";
+import {BASEURL} from "@/Services/axiosInstance.js";
 
 
 const CustomHeader = () => {
@@ -41,27 +41,13 @@ const CustomHeader = () => {
         return () => clearInterval(interval);
     }, []);
 
-    <style jsx>
-        {`
-            .custom-tooltip .ant-tooltip-inner {
-                background-color: white;
-                color: black;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-                border-radius: 6px;
-            }
-
-            .custom-tooltip .ant-tooltip-arrow::before {
-                background-color: white;
-            }
-        `}
-    </style>
 
     const menuItems = [
         {
             type: 'divider',
         },
         {
-            key: 'datas',
+            key: '1',
             label: 'داده های پایه',
             icon: <SettingOutlined/>,
             onClick: () => {
@@ -69,7 +55,7 @@ const CustomHeader = () => {
             },
         },
         ...(userData?.is_staff ? [{
-            key: 'system-managment',
+            key: '2',
             label: 'مدیریت سیستم',
             icon: <SecurityScanOutlined/>,
             onClick: () => navigate("/panel/system-managment"),
@@ -101,21 +87,31 @@ const CustomHeader = () => {
                                 <CalendarOutlined fontSize="small"/>
                                 <span>تاریخ: {currentTime.format("dddd D MMMM YYYY")}</span>
                             </div>
+
                             <div className="flex items-center gap-2 text-black">
                                 <LoginOutlined fontSize="small"/>
                                 آخرین
                                 ورود: {userData?.last_login ? new PersianDate(userData.last_login).format(' HH:mm MM/DD') : "-"}
                             </div>
-                            <Button icon={<LoginOutlined rotate={90}/>}
-                                    className="flex items-center w-full bg-red-600 text-white" type="text"
-                                    aria-label="Logout" onClick={() => handleLogout()}>
-                                خروج
+                            <Button icon={<UserOutlined/>}
+                                    className="flex items-center w-full text-white bg-purple-500"
+                                    aria-label="change pass"
+                                    onClick={() => navigate("/forget-password")}
+                            >
+                                کارهای من
                             </Button>
                             <Button icon={<SecurityScanOutlined rotate={90}/>} className="flex items-center w-full"
                                     aria-label="change pass" type="primary" onClick={() => navigate("/forget-password")}
                             >
                                 تغییر رمز عبور
                             </Button>
+                            <Button icon={<LoginOutlined rotate={90}/>}
+                                    className="flex items-center w-full bg-red-600 text-white" type="text"
+                                    aria-label="Logout" onClick={() => handleLogout()}>
+                                خروج
+                            </Button>
+
+
                         </div>
                     }
 

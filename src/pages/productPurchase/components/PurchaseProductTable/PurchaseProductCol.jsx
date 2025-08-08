@@ -1,12 +1,17 @@
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons"
-import { Button, Space, Tooltip } from "antd"
+import {DeleteOutlined, EditOutlined} from "@ant-design/icons"
+import {Button, Space, Tooltip} from "antd"
 
-const PurchaseProductCol = ({ handleEdit, handleDelete }) => {
+const PurchaseProductCol = ({handleEdit, handleDelete}) => {
     return [
         {
             title: 'نوع خرید',
             dataIndex: 'purchase_type',
-            key: 'purchase_type'
+            key: 'purchase_type',
+            render: (record) => {
+                return (
+                    <>{record === 'assembly' ? 'مونتاژ' : 'ساخت'}</>
+                )
+            }
         },
         {
             title: 'تعداد',
@@ -38,10 +43,12 @@ const PurchaseProductCol = ({ handleEdit, handleDelete }) => {
                 return (
                     <Space>
                         <Tooltip title="ویرایش">
-                            <Button title="ویرایش" icon={<EditOutlined />} className="text-green-500 , border-green-500" onClick={() => handleEdit(record)} size="small" />
+                            <Button title="ویرایش" icon={<EditOutlined/>} className="text-green-500 , border-green-500"
+                                    onClick={() => handleEdit(record)} size="small"/>
                         </Tooltip>
                         <Tooltip title="حذف">
-                            <Button title="حذف" icon={<DeleteOutlined />} danger onClick={() => handleDelete(record?.id)} size="small" />
+                            <Button title="حذف" icon={<DeleteOutlined/>} danger onClick={() => handleDelete(record?.id)}
+                                    size="small"/>
                         </Tooltip>
                     </Space>
                 )
