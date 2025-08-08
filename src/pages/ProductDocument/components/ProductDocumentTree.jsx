@@ -1,4 +1,11 @@
-import {DeleteOutlined, EditOutlined, EyeOutlined, PlusOutlined} from "@ant-design/icons";
+import {
+    DeleteOutlined,
+    EditOutlined,
+    EyeOutlined,
+    FileDoneOutlined,
+    FileOutlined,
+    PlusOutlined
+} from "@ant-design/icons";
 import Tree from "../../../components/Tree";
 import {Button, message, Modal, Space} from "antd";
 import {
@@ -8,6 +15,7 @@ import {
 } from "../../../QueryServises/productDocumentQuery";
 import {useEffect} from "react";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import {DocumentCheckIcon} from "@heroicons/react/24/outline/index.js";
 
 const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
     const selectedProductId = currentProduct?.productData?.id;
@@ -49,7 +57,6 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
     };
 
     const handleEditEdition = (edition) => {
-        console.log(edition);
         setModal({
             mode: "edit",
             data: {...edition},
@@ -63,6 +70,11 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
             data: {...edition},
             type: "EditionDetail",
         })
+    }
+
+    const handleAutomationFiles = (edition) => {
+        console.log(edition)
+        setModal({mode: 'add', data: edition, type: "AutomationFiles"});
     }
 
     const transformNode = (node) => {
@@ -130,6 +142,16 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
                             <Button
                                 size={'small'}
                                 type="text"
+                                icon={<FileDoneOutlined/>}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleAutomationFiles(edition);
+                                }}
+                                className="text-purple-500 hover:text-purple-700"
+                            />
+                            <Button
+                                size={'small'}
+                                type="text"
                                 icon={<EyeOutlined/>}
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -137,6 +159,7 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
                                 }}
                                 className="text-sky-500 hover:text-sky-700"
                             />
+
                         </Space>
                     </div>
                 ),

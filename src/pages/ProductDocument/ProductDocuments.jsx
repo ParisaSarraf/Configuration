@@ -14,6 +14,7 @@ import {
 } from "../../QueryServises/productDocumentQuery";
 import EditionDetailViewModal from "./components/ProductDocumentListSerial/components/EditionDetailViewModal";
 import DetailModal from "@/pages/Meetings/components/DetailModal.jsx";
+import AutomationFileModal from "@/pages/ProductDocument/components/AutomationFileModal/AutomationFileModal.jsx";
 
 const ProductDocuments = () => {
     const {currentProduct} = useProductContext();
@@ -112,6 +113,14 @@ const ProductDocuments = () => {
                     modalData={modalData}
                     closeModal={closeModal}
                     modalType={modalType}
+                />
+
+                <AutomationFileModal
+                    isOpen={modalType === 'AutomationFiles' && isOpen}
+                    modalData={modalData}
+                    modalMode={modalMode}
+                    modalType={modalType}
+                    closeModal={closeModal}
                 />
             </Card>
         </>

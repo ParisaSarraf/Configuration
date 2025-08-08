@@ -1,10 +1,29 @@
 import {Modal as MDL, Button} from 'antd';
 
 const Modal = ({
-                   isOpen, size = 200, title, onClose = () => {
-    }, onSubmit = () => {
-    }, children, loading, mode = 'add', className
+                   isOpen,
+                   size = 200,
+                   title,
+                   onClose = () => {
+                   },
+                   onSubmit = () => {
+                   },
+                   children,
+                   loading,
+                   footer,
+                   mode = 'add',
+                   className
                }) => {
+
+
+    const modalFooter = footer ? [
+        <Button key="submit" type="primary" loading={loading} onClick={onSubmit}>
+            {mode === 'edit' ? 'ویرایش' : 'تایید'}
+        </Button>,
+        <Button key="back" onClick={onClose}>
+            بستن
+        </Button>,
+    ] : false;
     return (
         <MDL
             open={isOpen}
@@ -15,15 +34,7 @@ const Modal = ({
             className={className}
             onOk={onSubmit}
             onCancel={onClose}
-            footer={[
-                <Button key="submit" type="primary" loading={loading} onClick={onSubmit}>
-                    {mode === 'edit' ? 'ویرایش' : 'تایید'}
-                </Button>,
-                <Button key="back" onClick={onClose}>
-                    بستن
-                </Button>,
-            ]}
-            // footer={false}
+            footer={modalFooter}
             modalRender={(node) => (
                 <>
                     <div
