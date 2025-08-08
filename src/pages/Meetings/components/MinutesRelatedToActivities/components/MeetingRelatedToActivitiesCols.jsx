@@ -17,7 +17,7 @@ export const MeetingRelatedToActivitiesCols = () => {
                 // const productCode = record.product?.code;
                 return (
                     <Tag
-                        color="blue"
+                        color="gold"
                         style={{
                             maxWidth: 200,
                             overflow: "hidden",
@@ -43,7 +43,7 @@ export const MeetingRelatedToActivitiesCols = () => {
                 return (
                     <Tooltip title={description}>
                         <Tag
-                            color="blue"
+                            color="geekblue"
                             style={{
                                 maxWidth: 200,
                                 overflow: "hidden",

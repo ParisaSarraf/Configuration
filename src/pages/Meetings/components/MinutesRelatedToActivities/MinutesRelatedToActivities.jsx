@@ -52,7 +52,7 @@ const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refet
                 key: 'full_code',
                 render: (full_code) => (
                     <Tag
-                        color="blue"
+                        color="cyan"
                         style={{
                             maxWidth: 200,
                             overflow: "hidden",
@@ -70,7 +70,7 @@ const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refet
                 render: (record) => {
                     return (
                         <Tag
-                            color="blue"
+                            color="purple"
                             style={{
                                 maxWidth: 200,
                                 overflow: "hidden",
@@ -138,8 +138,8 @@ const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refet
                 key: 'state',
                 render: (state) => {
                     const statusMap = {
-                        10: {color: 'green', text: 'ثبت شده'},
-                        20: {color: 'orange', text: 'در مرحله متولی'},
+                        10: {color: 'red', text: 'ثبت شده'},
+                        20: {color: 'purple', text: 'در مرحله متولی'},
                         30: {color: 'blue', text: 'در مرحله طرح و برنامه'},
                     };
                     const status = statusMap[state] || {color: 'gray', text: 'نامشخص'};
