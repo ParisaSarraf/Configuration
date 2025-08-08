@@ -15,6 +15,8 @@ import {
 import EditionDetailViewModal from "./components/ProductDocumentListSerial/components/EditionDetailViewModal";
 import DetailModal from "@/pages/Meetings/components/DetailModal.jsx";
 import AutomationFileModal from "@/pages/ProductDocument/components/AutomationFileModal/AutomationFileModal.jsx";
+import ProductDocumentEditionFiles
+    from "@/pages/ProductDocument/components/ProductDocumentEditionFiles/ProductDocumentEditionFiles.jsx";
 
 const ProductDocuments = () => {
     const {currentProduct} = useProductContext();
@@ -122,6 +124,18 @@ const ProductDocuments = () => {
                     modalType={modalType}
                     closeModal={closeModal}
                 />
+
+                <ProductDocumentEditionFiles
+                    isOpen={modalType === 'ProductDocumentEditionsFile' && isOpen}
+                    modalData={modalData}
+                    modalMode={modalMode}
+                    modalType={modalType}
+                    closeModal={closeModal}
+                    currentProduct={currentProduct}
+                    refetch={refetch}
+                />
+
+
             </Card>
         </>
     );

@@ -1,7 +1,7 @@
 import {
     DeleteOutlined,
     EditOutlined,
-    EyeOutlined,
+    EyeOutlined, FileAddOutlined,
     FileDoneOutlined,
     FileOutlined,
     PlusOutlined
@@ -77,6 +77,11 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
         setModal({mode: 'add', data: edition, type: "AutomationFiles"});
     }
 
+    const handleProductDocumentEditionsFile = (edition) => {
+        setModal({mode: 'edit', data: edition, type: "ProductDocumentEditionsFile"});
+        console.log(edition)
+    }
+
     const transformNode = (node) => {
         const productDoc = node.product_document;
         const editions = productDoc?.edition || [];
@@ -127,6 +132,7 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
                                     e.stopPropagation();
                                     handleEditEdition(edition);
                                 }}
+                                title={'ویرایش'}
                                 className="text-green-500 hover:text-green-700"
                             />
                             <Button
@@ -137,7 +143,19 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
                                     e.stopPropagation();
                                     handleDeleteEdition(edition.id);
                                 }}
+                                title={'حذف'}
                                 className="text-red-500 hover:text-red-700"
+                            />
+                            <Button
+                                size={'small'}
+                                type="text"
+                                icon={<FileAddOutlined/>}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleProductDocumentEditionsFile(edition);
+                                }}
+                                title={'افزودن فایل'}
+                                className="text-lime-500 hover:text-lime-700"
                             />
                             <Button
                                 size={'small'}
@@ -147,6 +165,7 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
                                     e.stopPropagation();
                                     handleAutomationFiles(edition);
                                 }}
+                                title={'روال اسناد'}
                                 className="text-purple-500 hover:text-purple-700"
                             />
                             <Button
