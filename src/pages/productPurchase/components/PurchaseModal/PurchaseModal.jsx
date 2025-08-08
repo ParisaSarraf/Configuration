@@ -1,12 +1,12 @@
-import { Col, Form, InputNumber, message, Radio, Row } from "antd"
+import {Col, Form, InputNumber, message, Radio, Row} from "antd"
 import Modal from "../../../../components/Modal"
-import { useCreateProductPurchase, useUpdateProductPurchase } from "../../../../QueryServises/productPurchase";
-import { useEffect } from "react";
+import {useCreateProductPurchase, useUpdateProductPurchase} from "../../../../QueryServises/productPurchase";
+import {useEffect} from "react";
 
-const PurchaseModal = ({ isOpen, modalMode, modalData, closeModal, currentProduct, refetch }) => {
+const PurchaseModal = ({isOpen, modalMode, modalData, closeModal, currentProduct, refetch}) => {
     const [form] = Form.useForm();
-    const { mutateAsync: createProductPurchase } = useCreateProductPurchase();
-    const { mutateAsync: updateProductPurchase } = useUpdateProductPurchase();
+    const {mutateAsync: createProductPurchase} = useCreateProductPurchase();
+    const {mutateAsync: updateProductPurchase} = useUpdateProductPurchase();
 
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
@@ -20,7 +20,6 @@ const PurchaseModal = ({ isOpen, modalMode, modalData, closeModal, currentProduc
             form.resetFields();
         }
     }, [modalMode, modalData, form]);
-
 
 
     const onFinish = async (values) => {
@@ -38,7 +37,7 @@ const PurchaseModal = ({ isOpen, modalMode, modalData, closeModal, currentProduc
                 message.success("سند با موفقیت اضافه شد");
                 refetch()
             } else {
-                await updateProductPurchase({ productPurchaseId: modalData.id, ...payload });
+                await updateProductPurchase({productPurchaseId: modalData.id, ...payload});
                 message.success("سند با موفقیت ویرایش شد");
                 refetch()
             }
@@ -68,7 +67,7 @@ const PurchaseModal = ({ isOpen, modalMode, modalData, closeModal, currentProduc
                     <Row gutter={[16, 16]}>
                         <Col span={8}>
                             <Form.Item label="تعداد" name="quantity">
-                                <InputNumber className="w-full" min={1} />
+                                <InputNumber className="w-full" min={1}/>
                             </Form.Item>
                         </Col>
                         <Col span={8}>
@@ -95,7 +94,7 @@ const PurchaseModal = ({ isOpen, modalMode, modalData, closeModal, currentProduc
                         </Col>
                         <Col span={8}>
                             <Form.Item label="تعداد پشتیبانی" name='support_number'>
-                                <InputNumber className="w-full" min={1} />
+                                <InputNumber className="w-full" min={0}/>
                             </Form.Item>
                         </Col>
                         <Col span={24}>
@@ -108,7 +107,7 @@ const PurchaseModal = ({ isOpen, modalMode, modalData, closeModal, currentProduc
                         </Col>
                     </Row>
                 </Form>
-            </Modal >
+            </Modal>
         </>
     )
 }
