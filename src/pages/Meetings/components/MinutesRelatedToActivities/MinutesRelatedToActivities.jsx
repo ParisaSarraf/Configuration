@@ -63,6 +63,27 @@ const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refet
                     </Tag>
                 )
             },
+            {
+                title: 'متولی',
+                key: 'trustee',
+                render: (record) => {
+                    return (
+                        <Tag
+                            color="blue"
+                            style={{
+                                maxWidth: 200,
+                                overflow: "hidden",
+                                whiteSpace: "nowrap",
+                                textOverflow: "ellipsis",
+                            }}
+                        >
+                            {record?.trustee?.name} {record?.trustee?.last_name}
+                            <br/>
+                            {record.meeting_activities?.trustee_description && `(${record.trustee_description})`}
+                        </Tag>
+                    )
+                },
+            },
             // {
             //     title: 'نوع',
             //     dataIndex: 'type',
