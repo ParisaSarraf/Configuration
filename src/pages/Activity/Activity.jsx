@@ -75,15 +75,16 @@ const Activity = () => {
     }
 
     return (
-        <Card title='فعالیت ها'
-              extra={
-                  <Button
-                      className={'modal-button'}
-                      onClick={() => setModal({mode: 'add', data: null, type: 'addActivity'})}
-                      icon={<PlusOutlined/>}
-                      title='افزودن فعالیت'
-                  />
-              }>
+        <Card
+            title={` فعالیت ها ${currentProduct?.name || ''}`}
+            extra={
+                <Button
+                    className={'modal-button'}
+                    onClick={() => setModal({mode: 'add', data: null, type: 'addActivity'})}
+                    icon={<PlusOutlined/>}
+                    title='افزودن فعالیت'
+                />
+            }>
             <div className={'flex flex-col gap-4'}>
                 <Table
                     size="small"
@@ -98,6 +99,7 @@ const Activity = () => {
                         setFilters
                     })}
                     rowKey="id"
+                    // pagination={{pagesize: 5}}
                 />
             </div>
 

@@ -64,7 +64,7 @@ const RequestOfWarehouse = () => {
 
     return (
         <Card
-            title='درخواست خرید کالا از انبار'
+            title={` درخواست خرید کالا از انبار ${currentProduct?.name || ''}`}
             extra={
                 <Button
                     onClick={() => setModal({mode: 'add', data: null, type: 'RequestOfWarehouse'})}

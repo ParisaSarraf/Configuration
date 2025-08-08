@@ -48,15 +48,16 @@ const Meetings = () => {
     ];
 
     return (
-        <Card title='صورت جلسات'
-              extra={
-                  <Button
-                      className={'modal-button'}
-                      onClick={() => setModal({mode: 'add', data: null, type: 'addOrEdirMeeting'})}
-                      icon={<PlusOutlined/>}
-                      title='صورت جلسات'
-                  />
-              }>
+        <Card
+            title={` صورت جلسات ${currentProduct?.name || ''}`}
+            extra={
+                <Button
+                    className={'modal-button'}
+                    onClick={() => setModal({mode: 'add', data: null, type: 'addOrEdirMeeting'})}
+                    icon={<PlusOutlined/>}
+                    title='صورت جلسات'
+                />
+            }>
             <Tabs items={items} type="card"/>
 
             <MeetingsModal
