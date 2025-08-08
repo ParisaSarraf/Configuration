@@ -1,22 +1,28 @@
-import { Button, Card, message, Typography } from 'antd'
-import { useNavigate } from 'react-router-dom'
-import { useUserList } from '../../QueryServises/userQuery';
+import {Button, Card, message, Typography} from 'antd'
+import {useNavigate} from 'react-router-dom'
+import {useUserList} from '../../QueryServises/userQuery';
 import RoleProductList from './_components/RoleProductList';
 import UsersList from './_components/UsersList';
-import { useState } from 'react';
+import {useState} from 'react';
 import ProductsList from './_components/ProductsList';
-import { ArrowRightOutlined } from '@ant-design/icons';
-import { useCreateAccessProducts, useDeleteAccessProducts, useAccessList, useUnAccessOfUserByIdList, useAccessOfUserByIdList } from '../../QueryServises/accsessQuery';
+import {ArrowRightOutlined} from '@ant-design/icons';
+import {
+    useCreateAccessProducts,
+    useDeleteAccessProducts,
+    useAccessList,
+    useUnAccessOfUserByIdList,
+    useAccessOfUserByIdList
+} from '../../QueryServises/accsessQuery';
 
-const { Text } = Typography;
+const {Text} = Typography;
 
 const Access = () => {
-    const { refetch: userRefetch } = useUserList();
-    const { refetch: accessListRefetch } = useAccessList();
+    const {refetch: userRefetch} = useUserList();
+    const {refetch: accessListRefetch} = useAccessList();
     const navigate = useNavigate();
 
-    const { mutateAsync: createAccessProducts } = useCreateAccessProducts();
-    const { mutateAsync: deleteAccessProducts } = useDeleteAccessProducts();
+    const {mutateAsync: createAccessProducts} = useCreateAccessProducts();
+    const {mutateAsync: deleteAccessProducts} = useDeleteAccessProducts();
     const [selectedUserId, setSelectedUserId] = useState(null);
     const [selectedUserAndRoleId, setSelectedUserAndRoleId] = useState([]);
     const [selectedProducts, setSelectedProducts] = useState([]);
@@ -30,8 +36,6 @@ const Access = () => {
     } = useUnAccessOfUserByIdList(selectedUserId);
 
     const handleAddAccess = async () => {
-        console.log(selectedProducts);
-
         // if (!selectedUserAndRoleId || selectedUserAndRoleId.length !== 2 || selectedProducts.length === 0) {
         //     return message.warning('لطفاً کاربر، سمت و محصولات را انتخاب کنید.');
         // }
@@ -41,8 +45,6 @@ const Access = () => {
             role_id,
             product_ids: selectedProducts
         };
-        console.log(payload);
-
         try {
             await createAccessProducts(payload);
             message.success("محصول به سمت مورد نظر با موفقیت اضافه شد");
@@ -96,7 +98,7 @@ const Access = () => {
                             className="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors"
                             onClick={handleAddAccess}
                         >
-                            <ArrowRightOutlined className="text-lg" />
+                            <ArrowRightOutlined className="text-lg"/>
                         </button>
                     </div>
 

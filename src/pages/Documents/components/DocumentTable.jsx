@@ -1,11 +1,9 @@
-import { ConfigProvider, Table } from 'antd';
-import { DocumentCol } from './DocumentCol';
+import {ConfigProvider, Table} from 'antd';
+import {DocumentCol} from './DocumentCol';
 import fa_IR from 'antd/locale/fa_IR';
 
 
-const DocumentTable = ({ documentData }) => {
-    console.log(documentData);
-
+const DocumentTable = ({documentData}) => {
 
     return (
         <div>

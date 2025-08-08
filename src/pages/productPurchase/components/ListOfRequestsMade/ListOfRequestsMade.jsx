@@ -1,10 +1,9 @@
-import { Table } from "antd";
-import { useConfirmProductPurchaseById } from "@/QueryServises/productPurchase/index.js";
+import {Table} from "antd";
+import {useConfirmProductPurchaseById} from "@/QueryServises/productPurchase/index.js";
 import ListOfRequestsMadeCol from "./ListOfRequestsMadeCol";
 
-const ListOfRequestsMade = ({ currentProduct }) => {
-    const { data: purchaseData } = useConfirmProductPurchaseById(currentProduct?.id);
-    console.log(purchaseData);
+const ListOfRequestsMade = ({currentProduct}) => {
+    const {data: purchaseData} = useConfirmProductPurchaseById(currentProduct?.id);
 
     const expandedRowRender = (record) => {
         const nestedColumns = [

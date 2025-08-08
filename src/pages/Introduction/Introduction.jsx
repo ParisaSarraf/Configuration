@@ -1,4 +1,4 @@
-import { useProductContext } from '../../Services/Context/ProductContext';
+import {useProductContext} from '../../Services/Context/ProductContext';
 import {
     Card,
     Typography,
@@ -14,15 +14,15 @@ import {
     Image,
 } from 'antd';
 import fa_IR from 'antd/locale/fa_IR';
-import { BASEURL } from "@/Services/axiosInstance.js";
+import {BASEURL} from "@/Services/axiosInstance.js";
 import ProductCols from './components/ProductCols';
-import { useProductById, useUpdateProductInfo } from '../../QueryServises/productQuery';
-import { useEffect } from 'react';
+import {useProductById, useUpdateProductInfo} from '../../QueryServises/productQuery';
+import {useEffect} from 'react';
 import FileUploader from '../../components/FileUploader/FileUploader';
 
-const { Title } = Typography;
+const {Title} = Typography;
 
-const RecursiveTable = ({ dataSource, columns }) => (
+const RecursiveTable = ({dataSource, columns}) => (
     <Table
         columns={columns}
         dataSource={dataSource}
@@ -37,13 +37,11 @@ const RecursiveTable = ({ dataSource, columns }) => (
 );
 
 const Introduction = () => {
-    const { currentProduct } = useProductContext();
+    const {currentProduct} = useProductContext();
     const product = currentProduct?.productData;
-    const { data: productData, refetch } = useProductById(currentProduct?.id)
+    const {data: productData, refetch} = useProductById(currentProduct?.id)
     const [form] = Form.useForm();
-    const { mutateAsync: updateProductionInfo } = useUpdateProductInfo();
-
-    console.log(product)
+    const {mutateAsync: updateProductionInfo} = useUpdateProductInfo();
 
 
     useEffect(() => {
@@ -92,7 +90,7 @@ const Introduction = () => {
 
     return (
         <ConfigProvider direction="rtl" locale={fa_IR}>
-            <div style={{ padding: 16 }}>
+            <div style={{padding: 16}}>
                 <Card className="-mb-8">
                     <Row gutter={16}>
                         <Col span={24}>
@@ -124,7 +122,7 @@ const Introduction = () => {
                                             name="user_image"
                                             label="آپلود تصویر جدید"
                                         >
-                                            <FileUploader maxFiles={1} listType="picture" />
+                                            <FileUploader maxFiles={1} listType="picture"/>
                                         </Form.Item>
 
                                     </Col>

@@ -1,12 +1,12 @@
 import {Table} from "antd";
 import {
-    useGetConfirmedWarehouseRequestById} from "@/QueryServises/RequestOfWarehouse/index.js";
+    useGetConfirmedWarehouseRequestById
+} from "@/QueryServises/RequestOfWarehouse/index.js";
 import ListOfRequestOfWareHouseMadeCol
     from "@/pages/RequestOfWarehouse/components/ListOfRequestOfWareHouseMade/ListOfRequestOfWareHouseMadeCol.jsx";
 
 const ListOfRequestOfWareHouseMade = ({currentProduct}) => {
     const {data: requestOfWarehouse} = useGetConfirmedWarehouseRequestById(currentProduct?.id);
-    console.log('dfcdv:',requestOfWarehouse);
 
     const expandedRowRender = (record) => {
         const nestedColumns = [

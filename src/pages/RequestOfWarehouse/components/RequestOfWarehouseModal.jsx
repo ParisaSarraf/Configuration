@@ -23,7 +23,6 @@ const RequestOfWarehouseModal = ({isOpen, modalData, modalMode, modalType, close
 
 
     const onFinish = async (values) => {
-        console.log(values)
         const payload = {
             product_id: currentProduct?.id,
             request_type: values.request_type,
@@ -31,14 +30,13 @@ const RequestOfWarehouseModal = ({isOpen, modalData, modalMode, modalType, close
             support_number: values.support_number,
             state: 10,
         }
-        console.log(payload)
         try {
             if (modalMode === 'add') {
                 await createRequestWarehouse(payload)
                 message.success("درخواست خرید کالا از انبار با موفقیت اضافه شد")
 
             } else {
-                await updateRequestWarehouse({RequestOfWarehouseId:modalData?.id,...payload})
+                await updateRequestWarehouse({RequestOfWarehouseId: modalData?.id, ...payload})
                 message.success("درخواست خرید کالا از انبار با موفقیت ویرایش شد")
 
             }

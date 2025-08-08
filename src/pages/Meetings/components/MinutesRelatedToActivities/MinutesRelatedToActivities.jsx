@@ -35,7 +35,6 @@ const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refet
     };
 
     const handleShowDetail = (record) => {
-        console.log(record)
         setModal({mode: 'detail', data: record, type: 'meetingsMinutes'});
     }
 
@@ -82,23 +81,23 @@ const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refet
                 title: 'توضیحات',
                 dataIndex: 'description',
                 key: 'description',
-                render: (description) =>{
+                render: (description) => {
 
-                return (
-            <Tooltip title={description}>
-                <Tag
-                    color="blue"
-                    style={{
-                        maxWidth: 200,
-                        overflow: "hidden",
-                        whiteSpace: "nowrap",
-                        textOverflow: "ellipsis",
-                    }}
-                >
-                    {description}
-                </Tag>
-            </Tooltip>
-    );
+                    return (
+                        <Tooltip title={description}>
+                            <Tag
+                                color="blue"
+                                style={{
+                                    maxWidth: 200,
+                                    overflow: "hidden",
+                                    whiteSpace: "nowrap",
+                                    textOverflow: "ellipsis",
+                                }}
+                            >
+                                {description}
+                            </Tag>
+                        </Tooltip>
+                    );
                 }
             },
             {
