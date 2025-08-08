@@ -11,6 +11,8 @@ const formatDate = (dateStr) => {
 };
 
 const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
+
+    console.log(modalData)
     if (!modalData) return null;
 
     const getStateInfo = (state) => {
@@ -84,6 +86,7 @@ const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
 
     return (
         <Modal
+            footer={false}
             isOpen={isOpen}
             title="نمایش جزئیات "
             size={1000}
@@ -159,44 +162,44 @@ const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
                 </div>
             )}
             {modalType === 'meetingsMinutes' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-1 py-2 px-2">
-                    <SectionCard title="مشخصات صورتجلسه">
-                        {renderInfoItem("نوع", modalData.type)}
-                        {renderInfoItem("طرف", modalData.contractor?.name || "---")}
-                        {renderInfoItem("شرح", modalData.title)}
-                        {renderInfoItem("تاریخ", modalData.date)}
-                        {renderFileButton("فایل", modalData.file)}
-                    </SectionCard>
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-1 py-2 px-2">
+                    {/*<SectionCard title="مشخصات فعالیت">*/}
+                    {/*    {renderInfoItem("نوع", modalData.type)}*/}
+                    {/*    {renderInfoItem("طرف", modalData.contractor?.name || "---")}*/}
+                    {/*    {renderInfoItem("شرح", modalData.title)}*/}
+                    {/*    {renderInfoItem("تاریخ", modalData.date)}*/}
+                    {/*    {renderFileButton("فایل", modalData.file)}*/}
+                    {/*</SectionCard>*/}
 
-                    {modalData.meeting_activities?.length > 0 && modalData.meeting_activities.map((activity, index) => {
-                        const stateInfo = getStateInfo(activity.state);
-                        return (
-                            <SectionCard key={index} title={'فعالیت ها'}>
-                                {renderInfoItem("نام متولی", `${activity.trustee?.name} ${activity.trustee?.last_name} ${activity.trustee?.username}`)}
-                                {renderInfoItem("توضیحات متولی", activity.trustee_description)}
-                                {renderInfoItem("شرح فعالیت", activity.description)}
-                                {renderInfoItem("تاریخ شروع", activity.from_date)}
-                                {renderInfoItem("تاریخ پایان", activity.to_date)}
-                                {renderInfoItem("تاریخ انجام", formatDate(activity.done_date))}
-                                {renderInfoItem("تعداد نفر-روز", activity.person_day)}
-                                {renderInfoItem("توضیحات طرح و برنامه", activity.plan_description)}
-                                <div className="flex justify-between py-1">
-                                    <span className="text-gray-500">وضعیت</span>
-                                    <Badge status={stateInfo.status} text={stateInfo.label}/>
-                                </div>
-                                <div className='w-full flex justify-between'>
-                                    <h1>
-                                        فایل متولی
-                                        {renderFileButton("فایل متولی", activity.trustee_file)}
-                                    </h1>
-                                    <h1>
-                                        فایل طرح و برنامه
-                                        {renderFileButton("فایل طرح و برنامه", activity.plan_file)}
-                                    </h1>
-                                </div>
-                            </SectionCard>
-                        );
-                    })}
+                    {/*{modalData.meeting_activities?.length > 0 && modalData.meeting_activities.map((activity, index) => {*/}
+                    {/*    const stateInfo = getStateInfo(activity.state);*/}
+                    {/*    return (*/}
+                    <SectionCard title={'فعالیت ها'}>
+                        {renderInfoItem("نام متولی", `${modalData.trustee?.name} ${modalData.trustee?.last_name} ${modalData.trustee?.username}`)}
+                        {renderInfoItem("توضیحات متولی", modalData.trustee_description)}
+                        {renderInfoItem("شرح فعالیت", modalData.description)}
+                        {renderInfoItem("تاریخ شروع", modalData.from_date)}
+                        {renderInfoItem("تاریخ پایان", modalData.to_date)}
+                        {renderInfoItem("تاریخ انجام", formatDate(modalData.done_date))}
+                        {renderInfoItem("تعداد نفر-روز", modalData.person_day)}
+                        {renderInfoItem("توضیحات طرح و برنامه", modalData.plan_description)}
+                        <div className="flex justify-between py-1">
+                            <span className="text-gray-500">وضعیت</span>
+                            <Badge status={stateInfo.status} text={stateInfo.label}/>
+                        </div>
+                        <div className='w-full flex justify-between'>
+                            <h1>
+                                فایل متولی
+                                {renderFileButton("فایل متولی", modalData.trustee_file)}
+                            </h1>
+                            <h1>
+                                فایل طرح و برنامه
+                                {renderFileButton("فایل طرح و برنامه", modalData.plan_file)}
+                            </h1>
+                        </div>
+                    </SectionCard>
+                    {/*    );*/}
+                    {/*})}*/}
                 </div>
             )}
             {modalType === 'EditionDetail' && (

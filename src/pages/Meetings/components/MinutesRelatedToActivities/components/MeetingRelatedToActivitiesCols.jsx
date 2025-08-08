@@ -1,9 +1,7 @@
-import {Button, Flex, Tooltip, Tag, Space, Badge} from "antd";
-import {EyeOutlined} from "@ant-design/icons";
-import {BASEURL} from "@/Services/axiosInstance.js";
+import {Tooltip, Tag, Badge} from "antd";
 
 
-export const MeetingRelatedToActivitiesCols = ({handleShowDetail}) => {
+export const MeetingRelatedToActivitiesCols = () => {
     return [
         {
             title: 'ردیف',
@@ -15,7 +13,6 @@ export const MeetingRelatedToActivitiesCols = ({handleShowDetail}) => {
             key: 'full_code',
             render: (_, record) => {
                 // const code = record.meeting_activities?.[0]?.full_code || 'بدون کد';
-
                 // const prefix = record.type === 'internal' ? 'MOU-I' : 'MOU-O';
                 // const productCode = record.product?.code;
                 return (
@@ -125,74 +122,56 @@ export const MeetingRelatedToActivitiesCols = ({handleShowDetail}) => {
         //         </div>
         //     ),
         // },
-        {
-            title: 'فایل‌ها',
-            key: 'files',
-            render: (record) => {
-                console.log(record)
-                const base = BASEURL.replace("/api/v1", "");
-
-                return (
-                    <Flex vertical gap={4}>
-                        {record?.meeting_activities?.[0]?.trustee_file && (
-                            <Space>
-                                <a
-                                    href={`${base}${record?.meeting_activities?.[0]?.trustee_file}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    style={{color: "#1890ff"}}
-                                >
-                                    مشاهده فایل متولی
-                                </a>
-                                <a
-                                    href={`${base}${record.trustee_file}`}
-                                    download
-                                    style={{color: "#52c41a"}}
-                                >
-                                    دانلود
-                                </a>
-                            </Space>
-                        )}
-                        {record?.meeting_activities?.[0]?.plan_file && (
-                            <Space>
-                                <a
-                                    href={`${base}${record?.meeting_activities?.[0]?.plan_file}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    style={{color: "#1890ff"}}
-                                >
-                                    مشاهده فایل طرح
-                                </a>
-                                <a
-                                    href={`${base}${record.plan_file}`}
-                                    download
-                                    style={{color: "#52c41a"}}
-                                >
-                                    دانلود
-                                </a>
-                            </Space>
-                        )}
-                    </Flex>
-                );
-            },
-        }, {
-            title: 'عملیات',
-            key: 'actions',
-            render: (_, record) => (
-                <Flex gap={4}>
-                    <Tooltip title="جزئیات">
-                        <Button
-                            icon={<EyeOutlined/>}
-                            className="text-sky-500 border-sky-500"
-                            onClick={() => handleShowDetail(record)}
-                            title='نمایش جزئیات '
-                            size="small"
-                        />
-                    </Tooltip>
-
-                </Flex>
-            ),
-        },
-
+        // {
+        //     title: 'فایل‌ها',
+        //     key: 'files',
+        //     render: (record) => {
+        //         console.log(record)
+        //         const base = BASEURL.replace("/api/v1", "");
+        //
+        //         return (
+        //             <Flex vertical gap={4}>
+        //                 {record?.meeting_activities?.[0]?.trustee_file && (
+        //                     <Space>
+        //                         <a
+        //                             href={`${base}${record?.meeting_activities?.[0]?.trustee_file}`}
+        //                             target="_blank"
+        //                             rel="noopener noreferrer"
+        //                             style={{color: "#1890ff"}}
+        //                         >
+        //                             مشاهده فایل متولی
+        //                         </a>
+        //                         <a
+        //                             href={`${base}${record.trustee_file}`}
+        //                             download
+        //                             style={{color: "#52c41a"}}
+        //                         >
+        //                             دانلود
+        //                         </a>
+        //                     </Space>
+        //                 )}
+        //                 {record?.meeting_activities?.[0]?.plan_file && (
+        //                     <Space>
+        //                         <a
+        //                             href={`${base}${record?.meeting_activities?.[0]?.plan_file}`}
+        //                             target="_blank"
+        //                             rel="noopener noreferrer"
+        //                             style={{color: "#1890ff"}}
+        //                         >
+        //                             مشاهده فایل طرح
+        //                         </a>
+        //                         <a
+        //                             href={`${base}${record.plan_file}`}
+        //                             download
+        //                             style={{color: "#52c41a"}}
+        //                         >
+        //                             دانلود
+        //                         </a>
+        //                     </Space>
+        //                 )}
+        //             </Flex>
+        //         );
+        //     },
+        // },
     ];
 };

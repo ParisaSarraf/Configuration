@@ -1,5 +1,6 @@
-import {message, Modal, Table, Tag, Tooltip} from "antd";
+import {Button, Flex, message, Modal, Table, Tag, Tooltip} from "antd";
 import {MeetingRelatedToActivitiesCols} from "./components/MeetingRelatedToActivitiesCols";
+import {EyeOutlined} from "@ant-design/icons";
 
 const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refetch}) => {
     const handleEdit = (record) => {
@@ -144,9 +145,26 @@ const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refet
                     const status = statusMap[state] || {color: 'gray', text: 'نامشخص'};
                     return <Tag color={status.color}>{status.text}</Tag>;
                 }
-            }
-        ];
+            },
+            {
+                title: 'عملیات',
+                key: 'actions',
+                render: (_, record) => (
+                    <Flex gap={4}>
+                        <Tooltip title="جزئیات">
+                            <Button
+                                icon={<EyeOutlined/>}
+                                className="text-sky-500 border-sky-500"
+                                onClick={() => handleShowDetail(record)}
+                                title='نمایش جزئیات '
+                                size="small"
+                            />
+                        </Tooltip>
 
+                    </Flex>
+                ),
+            },
+        ];
         return (
             <Table
                 columns={activityColumns}
