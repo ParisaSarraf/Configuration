@@ -2,13 +2,22 @@ import {message, Table, Form, Button, Tooltip} from "antd";
 import {SendOutlined} from "@ant-design/icons";
 import {
     useCreateRequestOfWarehouseNumber, useGetSupplyListForWareById,
-    useGetSupplyListForWareByIdKey
 } from "@/QueryServises/RequestOfWarehouse/index.js";
 import RequestOfWarehousePageCol
     from "@/pages/RequestOfWarehouse/components/RequestOfWarehousePage/RequestOfWarehousePageCol.jsx";
 
-const RequestOfWarehousePage = ({selectedWareHouseId}) => {
-    const {data: requestOfWareHouseData, refetch} = useGetSupplyListForWareById(selectedWareHouseId);
+const RequestOfWarehousePage = ({selectedWareHouseId, selectedWareHouseType}) => {
+
+    const isArray = Array.isArray(selectedWareHouseType);
+    const hasConstruction = isArray
+        ? selectedWareHouseType.some(item => item.request_type === "construction")
+        : selectedWareHouseType?.request_type === "construction";
+
+    const constructionParam = hasConstruction ?  true : {};
+
+
+
+    const {data: requestOfWareHouseData, refetch} = useGetSupplyListForWareById(selectedWareHouseId, constructionParam);
     const {mutateAsync: createRequestOfWareHouseNumber} = useCreateRequestOfWarehouseNumber();
     const [form] = Form.useForm();
 
@@ -30,7 +39,7 @@ const RequestOfWarehousePage = ({selectedWareHouseId}) => {
             }
             await createRequestOfWareHouseNumber(payloads);
             message.success("تعدادهای مورد تایید با موفقیت ارسال شدند.");
-            refetch();
+            await refetch();
             form.resetFields();
         } catch (errorInfo) {
             console.error("خطا در اعتبارسنجی یا ارسال:", errorInfo);

@@ -37,7 +37,7 @@ const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType}) => {
             }
             await createProductPurchaseNumber(payloads);
             message.success("تعدادهای مورد تایید با موفقیت ارسال شدند.");
-            refetch();
+            await refetch();
             form.resetFields();
         } catch (errorInfo) {
             console.error("خطا در اعتبارسنجی یا ارسال:", errorInfo);

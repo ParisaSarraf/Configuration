@@ -1,19 +1,30 @@
+import {Tag} from "antd";
+
 const ListOfRequestOfWareHouseMadeCol = () => {
     return [
+        {
+            title: 'نام محصول',
+            dataIndex: ['warehouse_request_numbers',0, 'product', 'persian_title'],
+            key: 'persian_title',
+        },
+        {
+            title: 'کد محصول',
+            key: 'code',
+            dataIndex: ['warehouse_request_numbers',0,'product', 'code'],
+        },
         {
             title: 'نوع خرید',
             dataIndex: 'request_type',
             key: 'request_type',
             render: (record) => {
-                return (
-                    <>{record === 'assembly' ? 'مونتاژ' : 'ساخت'}</>
-                )
+                return (<Tag color={record === 'assembly' ? 'blue' : 'gold'}>{record === 'assembly' ? 'مونتاژ' : 'ساخت'}</Tag>)
+
             }
         },
         {
-            title: 'تعداد تایید شده',
-            dataIndex: 'quantity',
-            key: 'quantity',
+            title: 'تعداد',
+            dataIndex: ['warehouse_request_numbers',0, 'confirmed_number'],
+            key: 'confirmed_number',
             render: (text) => text || 'ندارد'
         },
         {
@@ -30,6 +41,16 @@ const ListOfRequestOfWareHouseMadeCol = () => {
         },
         {
             title: 'تعداد کل',
+            dataIndex: 'total_number',
+            key: 'total_number',
+            render: (text) => text || 'ندارد'
+        }, {
+            title: 'تاریخ درخواست',
+            dataIndex: 'total_number',
+            key: 'total_number',
+            render: (text) => text || 'ندارد'
+        }, {
+            title: 'تاریخ تایید',
             dataIndex: 'total_number',
             key: 'total_number',
             render: (text) => text || 'ندارد'

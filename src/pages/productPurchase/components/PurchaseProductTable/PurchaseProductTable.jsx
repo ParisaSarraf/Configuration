@@ -41,7 +41,6 @@ const PurchaseProductTable = ({currentProduct, setSelectedPurchaseId, setModal, 
     const rowSelection = {
         type: 'radio',
         onChange: (selectedRowKeys, selectedRows) => {
-            // console.log(selectedRows)
             setSelectedPurchaseType(selectedRows)
             setSelectedPurchaseId(selectedRowKeys[0] || null);
         }

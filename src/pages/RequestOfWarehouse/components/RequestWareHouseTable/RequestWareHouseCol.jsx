@@ -1,5 +1,6 @@
 import {DeleteOutlined, EditOutlined} from "@ant-design/icons"
-import {Button, Space, Tooltip} from "antd"
+import {Button, Space, Tag, Tooltip} from "antd"
+import {georgianDateToJalaliDate} from "@utils/timeTool.js";
 
 const RequestWareHouseCol = ({handleEdit, handleDelete}) => {
     return [
@@ -9,8 +10,9 @@ const RequestWareHouseCol = ({handleEdit, handleDelete}) => {
             key: 'request_type',
             render: (record) => {
                 return (
-                    <>{record === 'assembly' ? 'مونتاژ' : 'ساخت'}</>
-                )
+                    <Tag color={record === 'assembly' ?'cyan' : 'gold'}>
+                        {record === 'assembly' ? 'مونتاژ' : 'ساخت'}
+                    </Tag>                )
             }
         },
         {
@@ -36,6 +38,16 @@ const RequestWareHouseCol = ({handleEdit, handleDelete}) => {
             dataIndex: 'total_number',
             key: 'total_number',
             render: (text) => text || 'ندارد'
+        },
+        {
+            title: 'تاریخ درخواست',
+            dataIndex: 'total_number',
+            key: 'total_number',
+            render: (text) => {
+                return (
+                    <span>{georgianDateToJalaliDate(text)}</span>
+                )
+            }
         },
         {
             title: 'عملیات',

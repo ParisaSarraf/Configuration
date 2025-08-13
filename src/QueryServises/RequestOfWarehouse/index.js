@@ -18,15 +18,17 @@ export const useGetConfirmedWarehouseRequestById = (id, queryOptions) => {
 };
 
 
-export const useGetSupplyListForWareByIdKey = (id) => ["supply-ware", id];
-export const useGetSupplyListForWareById = (id, queryOptions) => {
+// export const useGetSupplyListForWareByIdKey = (id) => ;
+export const useGetSupplyListForWareById = (id,construction = {}, queryOptions) => {
     const {myAxios} = useMyAxios();
     return useQuery({
-        queryKey: useGetSupplyListForWareByIdKey(id),
+        queryKey: ["supply-ware", id],
         queryFn: () =>
             id
                 ? myAxios
-                    .get(`/product/get-supply-list-for-ware-by-id/${id}`)
+                    .get(`/product/get-supply-list-for-ware-by-id/${id}`,{
+                        params: {construction}
+                    })
                     .then((response) => response?.data)
                 : Promise.resolve(null),
         ...queryOptions,

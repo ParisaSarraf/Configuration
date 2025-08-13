@@ -5,7 +5,14 @@ import {
 } from "@/QueryServises/RequestOfWarehouse/index.js";
 import { useEffect } from "react";
 
-const RequestWareHouseTable = ({ currentProduct, setSelectedWareHouseId, setModal, requestWareHouseData }) => {
+const RequestWareHouseTable = (
+    {
+        currentProduct,
+        setSelectedWareHouseId,
+        setModal,
+        requestWareHouseData ,
+        setSelectedWareHouseType
+    }) => {
     const { refetch } = useGetUnConfirmedWareRequestById(currentProduct?.id)
     const { mutateAsync: deleteRequestWareHouse } = useDeleteRequestOfWarehouse();
 
@@ -44,6 +51,7 @@ const RequestWareHouseTable = ({ currentProduct, setSelectedWareHouseId, setModa
     const rowSelection = {
         type: 'radio',
         onChange: (selectedRowKeys, selectedRows) => {
+            setSelectedWareHouseType(selectedRows)
             setSelectedWareHouseId(selectedRowKeys[0] || null);
         }
     };

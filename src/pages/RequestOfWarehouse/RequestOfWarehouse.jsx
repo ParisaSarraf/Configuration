@@ -22,6 +22,7 @@ const RequestOfWarehouse = () => {
     const productId = currentProduct?.id;
     const {data: requestWareHouseData, refetch} = useGetUnConfirmedWareRequestById(productId)
     const [selectedWareHouseId, setSelectedWareHouseId] = useState(null)
+    const [selectedWareHouseType, setSelectedWareHouseType] = useState(null)
 
     useEffect(() => {
         setSelectedWareHouseId(null);
@@ -37,6 +38,7 @@ const RequestOfWarehouse = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
                         <div className="col-span-1">
                             <RequestWareHouseTable
+                                setSelectedWareHouseType={setSelectedWareHouseType}
                                 key={currentProduct?.id}
                                 currentProduct={currentProduct}
                                 setSelectedWareHouseId={setSelectedWareHouseId}
@@ -45,7 +47,10 @@ const RequestOfWarehouse = () => {
                             />
                         </div>
                         <div className="col-span-1">
-                            <RequestOfWarehousePage selectedWareHouseId={selectedWareHouseId}/>
+                            <RequestOfWarehousePage
+                                selectedWareHouseId={selectedWareHouseId}
+                                selectedWareHouseType={selectedWareHouseType}
+                            />
                         </div>
                     </div>
                 </>
