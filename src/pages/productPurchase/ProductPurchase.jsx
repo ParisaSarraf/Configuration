@@ -14,6 +14,7 @@ const ProductPurchase = () => {
     const {refetch} = useUnConfirmProductPurchaseById(currentProduct?.id)
     const {isOpen, modalMode, modalData, modalType, setModal, closeModal} = useModal();
     const [selectedPurchaseId, setSelectedPurchaseId] = useState(null)
+    const [selectedPurchaseType, setSelectedPurchaseType] = useState(false)
 
     useEffect(() => {
         setSelectedPurchaseId(null);
@@ -32,10 +33,15 @@ const ProductPurchase = () => {
                                 currentProduct={currentProduct}
                                 setSelectedPurchaseId={setSelectedPurchaseId}
                                 setModal={setModal}
+                                setSelectedPurchaseType={setSelectedPurchaseType}
                             />
                         </div>
                         <div className="col-span-1">
-                            <RequestOfWarehouse selectedPurchaseId={selectedPurchaseId}/>
+                            <RequestOfWarehouse
+                                selectedPurchaseId={selectedPurchaseId}
+                                setSelectedPurchaseType={setSelectedPurchaseType}
+                                selectedPurchaseType={selectedPurchaseType}
+                            />
                         </div>
                     </div>
                 </>

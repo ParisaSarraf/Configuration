@@ -3,8 +3,13 @@ import {useCreateProductPurchaseNumber, useProductPurchaseById} from "@/QuerySer
 import RequestOfWarehouseCol from "./RequestOfWarehouseCol";
 import {SendOutlined} from "@ant-design/icons";
 
-const RequestOfWarehouse = ({selectedPurchaseId}) => {
-    const {data: purchaseData, refetch} = useProductPurchaseById(selectedPurchaseId);
+const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType}) => {
+
+    const constructionParam = selectedPurchaseType?.purchase_type === "assembly" && true;
+    console.log(constructionParam)
+
+
+    const {data: purchaseData, refetch} = useProductPurchaseById(selectedPurchaseId, constructionParam);
     const {mutateAsync: createProductPurchaseNumber} = useCreateProductPurchaseNumber();
     const [form] = Form.useForm();
 
