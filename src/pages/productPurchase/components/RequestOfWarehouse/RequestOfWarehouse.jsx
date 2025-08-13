@@ -5,7 +5,6 @@ import {SendOutlined} from "@ant-design/icons";
 
 const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType}) => {
 
-    console.log(selectedPurchaseType);
 
     const isArray = Array.isArray(selectedPurchaseType);
     const hasConstruction = isArray

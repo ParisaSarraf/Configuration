@@ -5,6 +5,7 @@ import ListOfRequestsMadeCol from "./ListOfRequestsMadeCol";
 const ListOfRequestsMade = ({currentProduct}) => {
     const {data: purchaseData} = useConfirmProductPurchaseById(currentProduct?.id);
 
+
     const expandedRowRender = (record) => {
         const nestedColumns = [
             {
@@ -43,7 +44,7 @@ const ListOfRequestsMade = ({currentProduct}) => {
     return (
         <Table
             columns={ListOfRequestsMadeCol()}
-            dataSource={purchaseData}
+            dataSource={purchaseData || []}
             pagination={false}
             rowKey='id'
             expandedRowRender={expandedRowRender}

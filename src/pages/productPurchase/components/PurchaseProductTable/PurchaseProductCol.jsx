@@ -1,5 +1,5 @@
 import {DeleteOutlined, EditOutlined} from "@ant-design/icons"
-import {Button, Space, Tooltip} from "antd"
+import {Button, Space, Tooltip,Tag} from "antd"
 import {georgianDateToJalaliDate} from "@utils/timeTool.js";
 
 const PurchaseProductCol = ({handleEdit, handleDelete}) => {
@@ -10,7 +10,9 @@ const PurchaseProductCol = ({handleEdit, handleDelete}) => {
             key: 'purchase_type',
             render: (record) => {
                 return (
-                    <>{record === 'assembly' ? 'مونتاژ' : 'ساخت'}</>
+                    <Tag color={record === 'assembly' ?'cyan' : 'gold'}>
+                        {record === 'assembly' ? 'مونتاژ' : 'ساخت'}
+                    </Tag>
                 )
             }
         },
