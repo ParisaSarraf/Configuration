@@ -1,7 +1,7 @@
 import {useMutation, useQuery} from "@tanstack/react-query";
 import {useMyAxios} from "@/hooks/useMyAxios.js";
 
-export const useProductPurchaseById = (id, construction = false, queryOptions = {}) => {
+export const useProductPurchaseById = (id, construction = {}, queryOptions = {}) => {
     const {myAxios} = useMyAxios();
     return useQuery({
         queryKey: ["product-purchase", id, construction],

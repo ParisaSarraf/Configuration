@@ -1,5 +1,6 @@
 import {DeleteOutlined, EditOutlined} from "@ant-design/icons"
 import {Button, Space, Tooltip} from "antd"
+import {georgianDateToJalaliDate} from "@utils/timeTool.js";
 
 const PurchaseProductCol = ({handleEdit, handleDelete}) => {
     return [
@@ -36,6 +37,16 @@ const PurchaseProductCol = ({handleEdit, handleDelete}) => {
             dataIndex: 'total_number',
             key: 'total_number',
             render: (text) => text || 'ندارد'
+        },
+        {
+            title: 'تاریخ درخواست',
+            dataIndex: 'total_number',
+            key: 'total_number',
+            render: (text) => {
+                return (
+                    <span>{georgianDateToJalaliDate(text)}</span>
+                )
+            }
         },
         {
             title: 'عملیات',

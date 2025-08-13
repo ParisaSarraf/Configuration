@@ -5,8 +5,15 @@ import {SendOutlined} from "@ant-design/icons";
 
 const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType}) => {
 
-    const constructionParam = selectedPurchaseType?.purchase_type === "assembly" && true;
-    console.log(constructionParam)
+    console.log(selectedPurchaseType);
+
+    const isArray = Array.isArray(selectedPurchaseType);
+    const hasConstruction = isArray
+        ? selectedPurchaseType.some(item => item.purchase_type === "construction")
+        : selectedPurchaseType?.purchase_type === "construction";
+
+    const constructionParam = hasConstruction ?  true : {};
+
 
 
     const {data: purchaseData, refetch} = useProductPurchaseById(selectedPurchaseId, constructionParam);
