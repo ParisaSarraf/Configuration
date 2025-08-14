@@ -4,7 +4,7 @@ import {useCreateProductSerial, useProductSerialById} from "@/QueryServises/prod
 import {useUpdateProductSerial} from "@/QueryServises/productSerialQuery/index.js"
 import {useEffect} from "react"
 import DatepickerCustom from "@/components/DatePicker/index.jsx";
-import {georgianDateToJalaliDate, jalaliDateToGeorgianDate} from "@utils/timeTool.js";
+// import {georgianDateToJalaliDate, jalaliDateToGeorgianDate} from "@utils/timeTool.js";
 
 const SerialListModal = ({isOpen, modalMode, modalData, closeModal, setModal, currentProduct, refetch}) => {
     const {isPending: isCreating, mutateAsync: createProductSerial} = useCreateProductSerial()
@@ -18,7 +18,7 @@ const SerialListModal = ({isOpen, modalMode, modalData, closeModal, setModal, cu
                 serial: modalData?.serial,
                 product_id: modalData?.product_id,
                 parent_id: modalData?.parent_id,
-                date: georgianDateToJalaliDate(modalData?.date),
+                date: modalData?.date,
             })
         } else {
             form.resetFields()
@@ -30,7 +30,7 @@ const SerialListModal = ({isOpen, modalMode, modalData, closeModal, setModal, cu
             product_id: currentProduct?.id,
             parent_id: values.parent_id || null,
             serial: values.serial,
-            date: jalaliDateToGeorgianDate(values?.date),
+            date: values?.date,
         }
 
         try {
