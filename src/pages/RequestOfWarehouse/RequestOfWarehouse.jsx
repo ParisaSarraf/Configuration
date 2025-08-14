@@ -50,6 +50,8 @@ const RequestOfWarehouse = () => {
                             <RequestOfWarehousePage
                                 selectedWareHouseId={selectedWareHouseId}
                                 selectedWareHouseType={selectedWareHouseType}
+                                currentProduct={currentProduct}
+                                refetchUnconfirmed={refetch}
                             />
                         </div>
                     </div>
@@ -60,7 +62,7 @@ const RequestOfWarehouse = () => {
             label: 'درخواست های انجام شده',
             children:
                 <div>
-                    <ListOfRequestOfWareHouseMade currentProduct={currentProduct}/>
+                    <ListOfRequestOfWareHouseMade currentProduct={currentProduct} refetch={refetch}/>
                 </div>
             ,
 

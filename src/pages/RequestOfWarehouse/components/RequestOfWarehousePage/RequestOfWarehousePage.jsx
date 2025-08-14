@@ -1,24 +1,31 @@
 import {message, Table, Form, Button, Tooltip} from "antd";
 import {SendOutlined} from "@ant-design/icons";
 import {
-    useCreateRequestOfWarehouseNumber, useGetSupplyListForWareById,
+    useCreateRequestOfWarehouseNumber,
+    useGetConfirmedWarehouseRequestById,
+    useGetSupplyListForWareById,
+    useGetUnConfirmedWareRequestById,
 } from "@/QueryServises/RequestOfWarehouse/index.js";
 import RequestOfWarehousePageCol
     from "@/pages/RequestOfWarehouse/components/RequestOfWarehousePage/RequestOfWarehousePageCol.jsx";
+import {useConfirmProductPurchaseById} from "@/QueryServises/productPurchase/index.js";
 
-const RequestOfWarehousePage = ({selectedWareHouseId, selectedWareHouseType}) => {
+const RequestOfWarehousePage = ({selectedWareHouseId, selectedWareHouseType, currentProduct, refetchUnconfirmed}) => {
 
     const isArray = Array.isArray(selectedWareHouseType);
     const hasConstruction = isArray
         ? selectedWareHouseType.some(item => item.request_type === "construction")
         : selectedWareHouseType?.request_type === "construction";
 
-    const constructionParam = hasConstruction ?  true : {};
+    const constructionParam = hasConstruction ? true : {};
 
 
-
-    const {data: requestOfWareHouseData, refetch} = useGetSupplyListForWareById(selectedWareHouseId, constructionParam);
+    const {
+        data: requestOfWareHouseData,
+        refetch: refetchWareHouseData
+    } = useGetSupplyListForWareById(selectedWareHouseId, constructionParam);
     const {mutateAsync: createRequestOfWareHouseNumber} = useCreateRequestOfWarehouseNumber();
+    const {refetch: refetchConfirmed} = useGetConfirmedWarehouseRequestById(currentProduct?.id)
     const [form] = Form.useForm();
 
     const handleSend = async () => {
@@ -39,7 +46,9 @@ const RequestOfWarehousePage = ({selectedWareHouseId, selectedWareHouseType}) =>
             }
             await createRequestOfWareHouseNumber(payloads);
             message.success("تعدادهای مورد تایید با موفقیت ارسال شدند.");
-            await refetch();
+            await refetchWareHouseData();
+            await refetchUnconfirmed();
+            await refetchConfirmed();
             form.resetFields();
         } catch (errorInfo) {
             console.error("خطا در اعتبارسنجی یا ارسال:", errorInfo);

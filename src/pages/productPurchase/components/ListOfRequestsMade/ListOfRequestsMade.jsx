@@ -2,7 +2,7 @@ import {Table} from "antd";
 import {useConfirmProductPurchaseById} from "@/QueryServises/productPurchase/index.js";
 import ListOfRequestsMadeCol from "./ListOfRequestsMadeCol";
 
-const ListOfRequestsMade = ({currentProduct}) => {
+const ListOfRequestsMade = ({currentProduct, refetch}) => {
     const {data: purchaseData} = useConfirmProductPurchaseById(currentProduct?.id);
 
 

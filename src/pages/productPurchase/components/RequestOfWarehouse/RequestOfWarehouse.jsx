@@ -1,22 +1,30 @@
 import {message, Table, Form, Button, Tooltip} from "antd";
-import {useCreateProductPurchaseNumber, useProductPurchaseById} from "@/QueryServises/productPurchase/index.js";
+import {
+    useConfirmProductPurchaseById,
+    useCreateProductPurchaseNumber,
+    useProductPurchaseById
+} from "@/QueryServises/productPurchase/index.js";
 import RequestOfWarehouseCol from "./RequestOfWarehouseCol";
 import {SendOutlined} from "@ant-design/icons";
 
-const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType}) => {
+const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType, currentProduct, refetchUnconfirmed}) => {
 
 
     const isArray = Array.isArray(selectedPurchaseType);
     const hasConstruction = isArray
-        ? selectedPurchaseType.some(item => item.purchase_type === "construction")
+        ? selectedPurchaseType?.some(item => item.purchase_type === "construction")
         : selectedPurchaseType?.purchase_type === "construction";
 
-    const constructionParam = hasConstruction ?  true : {};
+    const constructionParam = hasConstruction ? true : {};
 
 
-
-    const {data: purchaseData, refetch} = useProductPurchaseById(selectedPurchaseId, constructionParam);
+    const {
+        data: purchaseData,
+        refetch: refetchPurchaseData
+    } = useProductPurchaseById(selectedPurchaseId, constructionParam);
     const {mutateAsync: createProductPurchaseNumber} = useCreateProductPurchaseNumber();
+    const {refetch: refetchConfirmed} = useConfirmProductPurchaseById(currentProduct?.id)
+
     const [form] = Form.useForm();
 
     const handleSend = async () => {
@@ -37,8 +45,10 @@ const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType}) => {
             }
             await createProductPurchaseNumber(payloads);
             message.success("تعدادهای مورد تایید با موفقیت ارسال شدند.");
-            await refetch();
             form.resetFields();
+            await refetchPurchaseData();
+            await refetchUnconfirmed();
+            await refetchConfirmed();
         } catch (errorInfo) {
             console.error("خطا در اعتبارسنجی یا ارسال:", errorInfo);
             if (!errorInfo.errorFields) {

@@ -41,6 +41,8 @@ const ProductPurchase = () => {
                                 selectedPurchaseId={selectedPurchaseId}
                                 setSelectedPurchaseType={setSelectedPurchaseType}
                                 selectedPurchaseType={selectedPurchaseType}
+                                currentProduct={currentProduct}
+                                refetchUnconfirmed={refetch}
                             />
                         </div>
                     </div>
@@ -50,7 +52,7 @@ const ProductPurchase = () => {
             key: '2',
             label: 'درخواست های انجام شده',
             children:
-                <ListOfRequestsMade currentProduct={currentProduct}/>
+                <ListOfRequestsMade currentProduct={currentProduct} refetch={refetch}/>
             ,
 
         }
