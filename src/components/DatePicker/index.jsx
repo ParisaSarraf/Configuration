@@ -1,39 +1,28 @@
-import DatePicker from "react-multi-date-picker";
+import DatePicker, { DateObject } from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
+import { CalendarOutlined } from "@ant-design/icons";
+
 
 export default function DatepickerCustom({
-    label,
-    value,
-    format = "YYYY-MM-DD",
-    onlyYearPicker = false,
-    onChange,
-    height = "30px",
-    width = "100%",
-    placeholder = "",
-    style = {},
-    calendarPosition = "bottom",
-    disabled = false,
-    className,
-    minDate, // اضافه کردن prop جدید برای حداقل تاریخ
-    maxDate, // اضافه کردن prop جدید برای حداکثر تاریخ
-}) {
-    const getDateStringFromDateObject = (date) => {
-        const year = date.year.toString();
-        let month = date.month.number.toString();
-        let day = date.day.toString();
+                                             value,
+                                             format = "YYYY-MM-DD",
+                                             onlyYearPicker=false,
+                                             onChange,
+                                             height = "30px",
+                                             width = "100%",
+                                             placeholder = "",
+                                             calendarPosition = "bottom",
+                                             disabled = false,
+                                             className,
+                                             minDate = null,
+                                         }) {
 
-        if (month.length === 1) {
-            month = '0' + month;
-        }
-        if (day.length === 1) {
-            day = '0' + day;
-        }
-        return year + '-' + month + '-' + day;
-    };
+    const today = new DateObject({ calendar: persian });
+    const maxDate = new DateObject({ date: today }).add(1, "year");
 
     return (
-        <div style={{ display: "flex", flexDirection: "column" }}>
+        <div className="flex items-center justify-between gap-1 border border-[#d9d9d9] hover:border-[#1677ff] focus:border-[#1677ff] rounded-md">
             <DatePicker
                 placeholder={placeholder}
                 style={{
@@ -42,29 +31,23 @@ export default function DatepickerCustom({
                     textAlign: "center",
                     fontSize: "15px",
                 }}
-                className={`${className}`}
-                value={value || undefined}
-                format={onlyYearPicker ? 'YYYY' : format}
-                mapDays={({ date }) => {
-                    const props = {};
-
-                    if (date.weekDay.index === 6) {
-                        props.className = 'highlight highlight-red';
-                    }
-
-                    return props;
-                }}
-                onChange={(date) => {
-                    onChange(getDateStringFromDateObject(date));
-                }}
+                className={className}
+                value={value}
+                format={onlyYearPicker ? "YYYY" : format}
+                onChange={(date) => onChange(date)}
                 calendar={persian}
                 locale={persian_fa}
                 onlyYearPicker={onlyYearPicker}
                 calendarPosition={calendarPosition}
-                minDate={minDate}
                 maxDate={maxDate}
                 disabled={disabled}
+                minDate = {minDate}
+
             />
+            <div className="ml-2 mt-1 opacity-25">
+                <CalendarOutlined />
+            </div>
         </div>
     );
+
 }

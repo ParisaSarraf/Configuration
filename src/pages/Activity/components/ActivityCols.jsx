@@ -1,5 +1,5 @@
 import {Button, Flex, Tooltip, Tag, Select} from "antd";
-import {DeleteOutlined, EditOutlined, EyeOutlined, FolderAddOutlined, UserAddOutlined} from "@ant-design/icons";
+import {DeleteOutlined, EditOutlined, EyeOutlined, FolderAddOutlined, UserAddOutlined,CheckOutlined} from "@ant-design/icons";
 import {useState} from "react";
 
 export const ActivityCols = ({
@@ -140,30 +140,40 @@ export const ActivityCols = ({
                                     size="small"
                                 />
                             </Tooltip>
+                            {!isTrusteeDone ? (
                             <Tooltip title="انجام توسط متولی">
                                 <Button
                                     icon={<UserAddOutlined/>}
-                                    className={
-                                        isTrusteeDone
-                                            ? "bg-orange-600 text-white border-orange-600"
-                                            : "text-orange-600 border-orange-600"
-                                    }
+                                    className={"text-orange-600 border-orange-600"}
                                     onClick={() => handleTrustee(record)}
                                     size="small"
                                 />
                             </Tooltip>
+                                )  :(
+                                <Button
+                                icon={<CheckOutlined className={'text-orange-600 border-orange-600 '} />}
+                                className={'text-orange-600 border-orange-600 '}
+                                size="small"
+                           />
+
+                )}
+                            {!isPlanDone ? (
                             <Tooltip title="انجام توسط طرح و برنامه">
                                 <Button
                                     icon={<FolderAddOutlined/>}
-                                    className={
-                                        isPlanDone
-                                            ? "bg-pink-700 text-white border-pink-700"
-                                            : "text-pink-700 border-pink-700"
-                                    }
+                                    className={ "text-pink-700 border-pink-700"}
                                     onClick={() => handlePlan(record)}
                                     size="small"
                                 />
                             </Tooltip>
+                                ) :(
+                                <Button
+                                    icon={<CheckOutlined className={'text-pink-700 border-pink-700 '} />}
+                                    className={'text-pink-700 border-pink-700 '}
+                                    size="small"
+                                />
+
+                            )}
                             <Tooltip title="جزئیات">
                                 <Button
                                     icon={<EyeOutlined/>}
@@ -172,6 +182,7 @@ export const ActivityCols = ({
                                     size="small"
                                 />
                             </Tooltip>
+
                         </Flex>
                     );
                 }

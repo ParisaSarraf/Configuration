@@ -74,13 +74,18 @@ const Activity = () => {
 
     }
 
-    const isPastDueWithState10 = (record) => {
-        if (record.state !== 10) return false;
-        if (!record.to_date) return false;
+    const getRowClassName = (record) => {
         const today = new Date();
-        const dueDate = new Date(record.to_date);
+        const dueDate = record.to_date ? new Date(record.to_date) : null;
 
-        return dueDate < today;
+        if (record.state === 10 && dueDate && dueDate < today) {
+            return 'bg-red-100';
+        } else if (record.state === 20) {
+            return 'bg-orange-100';
+        } else if (record.state === 30) {
+            return 'bg-green-100';
+        }
+        return '';
     };
 
     return (
@@ -108,7 +113,7 @@ const Activity = () => {
                         setFilters
                     })}
                     rowKey="id"
-                    rowClassName={(record) => isPastDueWithState10(record) ? 'bg-red-100' : ''}
+                    rowClassName={getRowClassName}
                 />
             </div>
 
@@ -120,7 +125,6 @@ const Activity = () => {
                 modalData={modalData}
                 refetch={refetch}
                 modalType={modalType}
-
             />
             <TrusteeModal
                 isOpen={modalType === 'addTrustee' && isOpen}
