@@ -1,17 +1,20 @@
-import { TreeSelect } from "antd";
+import {TreeSelect} from "antd";
+import {useState} from "react";
 
 const TS = ({
-    data,
-    placeholder = "لطفا انتخاب کنید",
-    allowClear = true,
-    treeIcon = true,
-    treeLine = true,
-    showSearch = true,
-    modalMode,
-    modalData,
-    value,
-    onChange
-}) => {
+                data,
+                placeholder = "لطفا انتخاب کنید",
+                allowClear = true,
+                treeIcon = true,
+                treeLine = true,
+                showSearch = true,
+                modalMode,
+                modalData,
+                value,
+                onChange
+            }) => {
+    const [searchValue, setSearchValue] = useState('');
+
     const getTreeSelectOptions = (items) => {
         return items.map(item => {
             const titleFields = [
@@ -42,6 +45,10 @@ const TS = ({
         });
     };
 
+    const onSearch = (value) => {
+        setSearchValue(value);
+    };
+
     return (
         <TreeSelect
             treeData={getTreeSelectOptions(data || [])}
@@ -50,8 +57,14 @@ const TS = ({
             treeIcon={treeIcon}
             treeLine={treeLine}
             showSearch={showSearch}
+            searchValue={searchValue}
+            onSearch={onSearch}
+
             value={value}
             onChange={onChange}
+            filterTreeNode={(inputValue, treeNode) => {
+                return treeNode.title.toLowerCase().includes(inputValue.toLowerCase());
+            }}
         />
     );
 };
