@@ -85,10 +85,18 @@ const ProductDocumentEditionModal = (
             refetch();
             closeModal();
         } catch (error) {
-            const errorMessage =
-                error.response?.data?.detail ||
-                "عملیات موفقیت آمیز نبود، دوباره امتحان کنید";
-            message.error(errorMessage);
+            if (error.response) {
+                const serverError = error.response.data;
+                const errorMessage =
+                    serverError.message ||
+                    serverError.detail ||
+                    (Array.isArray(serverError) ? serverError.join(', ') : 'خطایی در سرور رخ داده است');
+                message.error(errorMessage);
+            } else if (error.message) {
+                message.error(error.message);
+            } else {
+                message.error('خطای نامشخصی رخ داده است');
+            }
         }
     };
 
