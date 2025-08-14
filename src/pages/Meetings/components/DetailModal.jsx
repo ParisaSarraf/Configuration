@@ -3,7 +3,7 @@ import {Badge, Space, Image} from "antd";
 import {FileOutlined, CopyOutlined} from "@ant-design/icons";
 import dayjs from "dayjs";
 import {BASEURL} from "@/Services/axiosInstance.js";
-import {georgianDateToJalaliDate} from "@utils/timeTool.js";
+import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
 
 
 const formatDate = (dateStr) => {

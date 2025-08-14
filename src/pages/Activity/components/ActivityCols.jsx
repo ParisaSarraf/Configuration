@@ -1,7 +1,7 @@
 import {Button, Flex, Tooltip, Tag, Select} from "antd";
 import {DeleteOutlined, EditOutlined, EyeOutlined, FolderAddOutlined, UserAddOutlined,CheckOutlined} from "@ant-design/icons";
 import {useState} from "react";
-import {georgianDateToJalaliDate} from "@utils/timeTool.js";
+import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
 
 export const ActivityCols = ({
                                  handleEdit, handleDelete, handleTrustee, handlePlan, handleDetail, trustees = [],

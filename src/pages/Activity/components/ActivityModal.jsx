@@ -6,7 +6,7 @@ import TextArea from "antd/es/input/TextArea.js";
 import DatepickerCustom from "@/components/DatePicker/index.jsx";
 import {useGetProductMeetings} from "@/QueryServises/MeetingQuery/index.js";
 import {useUserSimple} from "../../../QueryServises/userQuery";
-import {georgianDateToJalaliDate, jalaliDateToGeorgianDate} from "@utils/timeTool.js";
+import {georgianDateToJalaliDate, jalaliDateToGeorgianDate} from "@utils/timeTool.jsx";
 import Date from "@/components/DatePicker/Date.jsx";
 
 const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, currentProduct, modalType}) => {
