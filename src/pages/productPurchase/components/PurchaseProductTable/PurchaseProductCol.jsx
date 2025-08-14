@@ -42,8 +42,8 @@ const PurchaseProductCol = ({handleEdit, handleDelete}) => {
         },
         {
             title: 'تاریخ درخواست',
-            dataIndex: 'total_number',
-            key: 'total_number',
+            dataIndex: 'date',
+            key: 'date',
             render: (text) => {
                 return (
                     <span>{georgianDateToJalaliDate(text)}</span>
