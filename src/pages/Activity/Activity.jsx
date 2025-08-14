@@ -74,6 +74,15 @@ const Activity = () => {
 
     }
 
+    const isPastDueWithState10 = (record) => {
+        if (record.state !== 10) return false;
+        if (!record.to_date) return false;
+        const today = new Date();
+        const dueDate = new Date(record.to_date);
+
+        return dueDate < today;
+    };
+
     return (
         <Card
             title={` فعالیت ها ${currentProduct?.name || ''}`}
@@ -99,6 +108,7 @@ const Activity = () => {
                         setFilters
                     })}
                     rowKey="id"
+                    rowClassName={(record) => isPastDueWithState10(record) ? 'bg-red-100' : ''}
                 />
             </div>
 
