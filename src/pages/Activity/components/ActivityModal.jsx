@@ -112,7 +112,7 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
                             <Select options={usersData?.map((user, index) => {
                                 return {
                                     value: user.id,
-                                    label: user.username,
+                                    label: `${user.name} ${user.last_name} `,
                                 }
                             })}/>
                         </Form.Item>
