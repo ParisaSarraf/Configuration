@@ -1,6 +1,6 @@
 import {DeleteOutlined, EditOutlined} from "@ant-design/icons"
 import {Button, Space, Tag, Tooltip} from "antd"
-import {georgianDateToJalaliDate} from "@utils/timeTool.js";
+import {georgianDateToJalaliDate} from "../../../../Utils/timeTool.js";
 
 const RequestWareHouseCol = ({handleEdit, handleDelete}) => {
     return [
