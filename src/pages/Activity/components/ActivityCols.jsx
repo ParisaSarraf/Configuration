@@ -1,6 +1,7 @@
 import {Button, Flex, Tooltip, Tag, Select} from "antd";
 import {DeleteOutlined, EditOutlined, EyeOutlined, FolderAddOutlined, UserAddOutlined,CheckOutlined} from "@ant-design/icons";
 import {useState} from "react";
+import {georgianDateToJalaliDate} from "@utils/timeTool.js";
 
 export const ActivityCols = ({
                                  handleEdit, handleDelete, handleTrustee, handlePlan, handleDetail, trustees = [],
@@ -20,7 +21,7 @@ export const ActivityCols = ({
                 key: 'meeting',
                 render(text, record) {
                     return (
-                        <Tag color="blue">{record.full_code || 'بدون کد'}</Tag>
+                        <Tag color="volcano">{record.full_code || 'بدون کد'}</Tag>
                     )
                 }
             },
@@ -32,7 +33,7 @@ export const ActivityCols = ({
                     return (
                         <Tooltip title={description}>
                             <Tag
-                                color="blue"
+                                color="purple"
                                 style={{
                                     maxWidth: 200,
                                     overflow: "hidden",
@@ -102,11 +103,21 @@ export const ActivityCols = ({
             {
                 title: "تاریخ پایان",
                 dataIndex: 'to_date',
-                key: 'to_date'
+                key: 'to_date',
+                render: (record) => {
+                    return (
+                        <>{georgianDateToJalaliDate(record) || 'ندارد'}</>
+                    )
+                }
             }, {
                 title: "تایید انجام",
                 dataIndex: 'confirmed_date',
-                key: 'confirmed_date'
+                key: 'confirmed_date',
+                render: (record) => {
+                    return (
+                        <>{georgianDateToJalaliDate(record) || 'ندارد'}</>
+                    )
+                }
             }, {
                 title: "نفر ساعت",
                 dataIndex: 'person_day',
@@ -149,12 +160,13 @@ export const ActivityCols = ({
                                     size="small"
                                 />
                             </Tooltip>
-                                )  :(
+                                ) : (
                                 <Button
-                                icon={<CheckOutlined className={'text-orange-600 border-orange-600 '} />}
-                                className={'text-orange-600 border-orange-600 '}
-                                size="small"
-                           />
+                                    icon={<CheckOutlined className={'text-orange-600 border-orange-600 '} />}
+                                    className={'text-orange-600 border-orange-600 '}
+                                    size="small"
+                                    type={'text'}
+                                />
 
                 )}
                             {!isPlanDone ? (
@@ -168,6 +180,7 @@ export const ActivityCols = ({
                             </Tooltip>
                                 ) :(
                                 <Button
+                                    type={'text'}
                                     icon={<CheckOutlined className={'text-pink-700 border-pink-700 '} />}
                                     className={'text-pink-700 border-pink-700 '}
                                     size="small"

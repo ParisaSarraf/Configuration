@@ -77,11 +77,10 @@ const Activity = () => {
     const getRowClassName = (record) => {
         const today = new Date();
         const dueDate = record.to_date ? new Date(record.to_date) : null;
-
         if (record.state === 10 && dueDate && dueDate < today) {
             return 'bg-red-100';
         } else if (record.state === 20) {
-            return 'bg-orange-100';
+            return 'bg-yellow-100';
         } else if (record.state === 30) {
             return 'bg-green-100';
         }

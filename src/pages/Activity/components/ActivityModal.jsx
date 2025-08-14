@@ -6,6 +6,8 @@ import TextArea from "antd/es/input/TextArea.js";
 import DatepickerCustom from "@/components/DatePicker/index.jsx";
 import {useGetProductMeetings} from "@/QueryServises/MeetingQuery/index.js";
 import {useUserSimple} from "../../../QueryServises/userQuery";
+import {georgianDateToJalaliDate, jalaliDateToGeorgianDate} from "@utils/timeTool.js";
+import Date from "@/components/DatePicker/Date.jsx";
 
 const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, currentProduct, modalType}) => {
     const [form] = Form.useForm();
@@ -21,8 +23,8 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
                 meeting_id: modalData?.meeting,
                 type: modalData?.type,
                 description: modalData?.description,
-                from_date: modalData?.from_date,
-                to_date: modalData?.to_date,
+                from_date: georgianDateToJalaliDate(modalData?.from_date),
+                to_date: georgianDateToJalaliDate(modalData?.to_date),
                 trustee_id: modalData?.trustee?.id,
             });
         } else {
@@ -35,8 +37,8 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
         const payload = {
             type: values.type,
             description: values.description,
-            from_date: values.from_date,
-            to_date: values.to_date,
+            from_date: jalaliDateToGeorgianDate(values?.from_date),
+            to_date: jalaliDateToGeorgianDate(values?.to_date),
             meeting_id: modalType === 'addActivitiesMeetings' ? modalData?.id : values.meeting_id,
             trustee_id: values.trustee_id,
         };
@@ -118,45 +120,44 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item
-                            label='تاریخ شروع'
-                            name='from_date'
-                            rules={[
-                                {required: true, message: 'لطفا تاریخ شروع را وارد کنید'},
-                                ({getFieldValue}) => ({
-                                    validator(_, value) {
-                                        const toDate = getFieldValue('to_date');
-                                        if (!value || !toDate || new Date(value) <= new Date(toDate)) {
-                                            return Promise.resolve();
-                                        }
-                                        return Promise.reject(new Error('تاریخ شروع باید قبل از تاریخ پایان باشد'));
-                                    },
-                                }),
-                            ]}
-                        >
-                            <DatepickerCustom/>
-                        </Form.Item>
+                        <Date
+                        //     rules={[
+                        //         {required: true, message: 'لطفا تاریخ شروع را وارد کنید'},
+                        // ({getFieldValue}) => ({
+                        //     validator(_, value) {
+                        //     const toDate = getFieldValue('to_date');
+                        //     if (!value || !toDate || new Date(value) <= new Date(toDate)) {
+                        //     return Promise.resolve();
+                        // }
+                        //     return Promise.reject(new Error('تاریخ شروع باید قبل از تاریخ پایان باشد'));
+                        // },
+                        // })]}
+                            stringifyDate={true}
+                            noStyle
+                            isRequired name={'from_date'}  label='تاریخ شروع'/>
                     </Col>
                     <Col span={12}>
-                        <Form.Item
-                            label='تاریخ پایان'
-                            name='to_date'
-                            dependencies={['from_date']}
-                            rules={[
-                                {required: true, message: 'لطفا تاریخ پایان را وارد کنید'},
-                                ({getFieldValue}) => ({
-                                    validator(_, value) {
-                                        const fromDate = getFieldValue('from_date');
-                                        if (!value || !fromDate || new Date(fromDate) <= new Date(value)) {
-                                            return Promise.resolve();
-                                        }
-                                        return Promise.reject(new Error('تاریخ پایان باید بعد از تاریخ شروع باشد'));
-                                    },
-                                }),
-                            ]}
-                        >
-                            <DatepickerCustom/>
-                        </Form.Item>
+
+                            <Date
+                                stringifyDate={true}
+                                noStyle
+                                isRequired
+                                  label='تاریخ پایان'
+                                  name='to_date'
+                                // rules={[
+                                //     {required: true, message: 'لطفا تاریخ پایان را وارد کنید'},
+                                //     ({getFieldValue}) => ({
+                                //         validator(_, value) {
+                                //             const fromDate = getFieldValue('from_date');
+                                //             if (!value || !fromDate || new Date(fromDate) <= new Date(value)) {
+                                //                 return Promise.resolve();
+                                //             }
+                                //             return Promise.reject(new Error('تاریخ پایان باید بعد از تاریخ شروع باشد'));
+                                //         },
+                                //     }),
+                                // ]}
+                            />
+
                     </Col>
                 </Row>
             </Form>

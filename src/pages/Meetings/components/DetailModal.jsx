@@ -3,6 +3,7 @@ import {Badge, Space, Image} from "antd";
 import {FileOutlined, CopyOutlined} from "@ant-design/icons";
 import dayjs from "dayjs";
 import {BASEURL} from "@/Services/axiosInstance.js";
+import {georgianDateToJalaliDate} from "@utils/timeTool.js";
 
 
 const formatDate = (dateStr) => {
@@ -99,8 +100,8 @@ const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-1 py-2 px-1">
                     <SectionCard title="مشخصات فعالیت">
                         {renderInfoItem("نوع فعالیت", modalData.type)}
-                        {renderInfoItem("تاریخ شروع", modalData.from_date)}
-                        {renderInfoItem("تاریخ پایان", modalData.to_date)}
+                        {renderInfoItem("تاریخ شروع", georgianDateToJalaliDate(modalData.from_date))}
+                        {renderInfoItem("تاریخ پایان", georgianDateToJalaliDate(modalData.to_date))}
                         {renderInfoItem("تعداد نفر-روز", modalData.person_day)}
                         <div className="flex justify-between py-1">
                             <span className="text-gray-500">وضعیت</span>
@@ -110,7 +111,7 @@ const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
 
                     <SectionCard title="متولی فعالیت">
                         {renderInfoItem("نام کامل", modalData.trustee ? `${modalData.trustee.name} ${modalData.trustee.last_name}` : "---")} {renderInfoItem("نام کاربری", modalData.trustee?.username)}
-                        {renderInfoItem("تاریخ انجام", formatDate(modalData.done_date))}
+                        {renderInfoItem("تاریخ انجام", georgianDateToJalaliDate(modalData.done_date))}
                         {modalData.trustee_description &&
                             renderInfoItem("توضیحات متولی", modalData.trustee_description)}
                         {renderFileButton("فایل متولی", modalData.trustee_file)}
@@ -118,7 +119,7 @@ const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
 
                     <SectionCard title="طرح و برنامه">
                         {renderInfoItem("توضیحات", modalData.plan_description)}
-                        {renderInfoItem("تاریخ تایید", formatDate(modalData.confirmed_date))}
+                        {renderInfoItem("تاریخ تایید", georgianDateToJalaliDate(modalData.confirmed_date))}
 
                         {renderFileButton("فایل طرح و برنامه", modalData.plan_file)}
                     </SectionCard>
@@ -155,7 +156,7 @@ const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
                                 `${modalData.contractor.name} (${modalData.contractor.is_employer ? 'کارفرما' : 'پیمانکار'})`
                                 : "---"
                         )} {renderInfoItem("شرح ", modalData.title)}
-                        {renderInfoItem("تاریخ", modalData.date)}
+                        {renderInfoItem("تاریخ", georgianDateToJalaliDate(modalData.date))}
                         {renderFileButton("فایل ", modalData.file)}
 
                     </SectionCard>
@@ -178,9 +179,9 @@ const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
                         {renderInfoItem("نام متولی", `${modalData.trustee?.name} ${modalData.trustee?.last_name} ${modalData.trustee?.username}`)}
                         {renderInfoItem("توضیحات متولی", modalData.trustee_description)}
                         {renderInfoItem("شرح فعالیت", modalData.description)}
-                        {renderInfoItem("تاریخ شروع", modalData.from_date)}
-                        {renderInfoItem("تاریخ پایان", modalData.to_date)}
-                        {renderInfoItem("تاریخ انجام", formatDate(modalData.done_date))}
+                        {renderInfoItem("تاریخ شروع", georgianDateToJalaliDate(modalData.from_date))}
+                        {renderInfoItem("تاریخ پایان", georgianDateToJalaliDate(modalData.to_date))}
+                        {renderInfoItem("تاریخ انجام", georgianDateToJalaliDate(modalData.done_date))}
                         {renderInfoItem("تعداد نفر-روز", modalData.person_day)}
                         {renderInfoItem("توضیحات طرح و برنامه", modalData.plan_description)}
                         <div className="flex justify-between py-1">

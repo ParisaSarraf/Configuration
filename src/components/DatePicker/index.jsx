@@ -30,6 +30,8 @@ export default function DatepickerCustom({
                     height,
                     textAlign: "center",
                     fontSize: "15px",
+                    border: "none",
+
                 }}
                 className={className}
                 value={value}
