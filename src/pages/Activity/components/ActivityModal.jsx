@@ -3,7 +3,6 @@ import {Col, Form, message, Row, Select} from "antd";
 import {useCreateActivity, useUpdateActivity} from "@/QueryServises/ActivityQuery/index.js";
 import {useEffect} from "react";
 import TextArea from "antd/es/input/TextArea.js";
-import DatepickerCustom from "@/components/DatePicker/index.jsx";
 import {useGetProductMeetings} from "@/QueryServises/MeetingQuery/index.js";
 import {useUserSimple} from "../../../QueryServises/userQuery";
 import {georgianDateToJalaliDate, jalaliDateToGeorgianDate} from "@utils/timeTool.jsx";

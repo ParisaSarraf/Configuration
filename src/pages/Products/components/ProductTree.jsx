@@ -12,7 +12,7 @@ import { useDeleteProduct } from "../../../QueryServises/productQuery";
 import Tree from "../../../components/Tree";
 import StopIcon from '@mui/icons-material/Stop';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
-import { exportToExcel } from "../../../Utils/ExportExcel";
+import { exportToExcel } from "../../../utils/ExportExcel";
 
 
 const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onChange, checkedKeys, onProductClick }) => {

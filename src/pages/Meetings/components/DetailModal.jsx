@@ -1,15 +1,10 @@
 import Modal from "../../../components/Modal";
 import {Badge, Space, Image} from "antd";
 import {FileOutlined, CopyOutlined} from "@ant-design/icons";
-import dayjs from "dayjs";
 import {BASEURL} from "@/Services/axiosInstance.js";
 import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
 
 
-const formatDate = (dateStr) => {
-    if (!dateStr) return "---";
-    return dayjs(dateStr).format("YYYY/MM/DD");
-};
 
 const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
 
