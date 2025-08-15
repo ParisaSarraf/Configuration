@@ -88,6 +88,8 @@ const ProductDocumentEditionFiles = ({
             onSubmit={() => form.submit()}
             mode={modalMode}
             loading={isUpdating}
+            footer={true}
+
         >
             <Form form={form} layout="vertical" onFinish={onFinishForm}>
                 <Row gutter={16}>
