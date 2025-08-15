@@ -16,14 +16,14 @@ const Modal = ({
                }) => {
 
 
-    const modalFooter = footer ? false : [
+    const modalFooter = footer ?  [
         <Button key="submit" type="primary" loading={loading} onClick={onSubmit}>
             {mode === 'edit' ? 'ویرایش' : 'تایید'}
         </Button>,
         <Button key="back" onClick={onClose}>
             بستن
         </Button>,
-    ];
+    ] : false
     return (
         <MDL
             open={isOpen}

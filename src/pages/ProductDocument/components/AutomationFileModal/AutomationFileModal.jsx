@@ -60,6 +60,10 @@ const AutomationFileModal = ({isOpen, modalData, closeModal, modalMode}) => {
         if (currentStepIndex >= stateSteps?.length - 1) return;
         const nextState = stateSteps[currentStepIndex + 1].value;
 
+
+        console.log(nextState)
+
+
         try {
             await updateState({
                 id: modalData?.id,
@@ -202,7 +206,7 @@ const AutomationFileModal = ({isOpen, modalData, closeModal, modalMode}) => {
     };
 
     return (
-        <Modal size={900} isOpen={isOpen} title={"روال اسناد"} onClose={closeModal} footer={false}>
+        <Modal size={900} isOpen={isOpen} title={"روال اسناد"} onClose={closeModal}>
             <Form>
                 <Row gutter={[16, 16]}>
                     <Col span={24}>{renderFiles()}</Col>
@@ -229,9 +233,15 @@ const AutomationFileModal = ({isOpen, modalData, closeModal, modalMode}) => {
                             </Form.Item>
                         </Col>
                         <Col span={24} className={"w-full flex flex-row justify-end gap-4"}>
-                            <Button onClick={handlePrevStep} disabled={!comment || currentStepIndex <= 0 || isPatching}
-                                    loading={isPatching}>
-                                مرحله قبلی
+                            <Button
+                                onClick={handlePrevStep}
+                                disabled={!comment || currentStepIndex <= 0 || isPatching}
+                                loading={isPatching}
+                            >
+                                {currentState === 20 ? 'برگشت به تهیه نشده' :
+                                    currentState === 30 ? 'برگشت به تهیه کننده' :
+                                    currentState === 40 ? 'برگشت به تایید' :
+                                        'تصویب شده است'}
                             </Button>
                             <Button
                                 type="primary"
@@ -239,7 +249,10 @@ const AutomationFileModal = ({isOpen, modalData, closeModal, modalMode}) => {
                                 disabled={!comment || currentStepIndex >= stateSteps.length - 1 || isPatching}
                                 loading={isPatching}
                             >
-                                مرحله بعد
+                                {currentState === 20 ? 'تایید' :
+                                    currentState === 30 ? 'تصویب' :
+
+                                        'تایید نهایی'}
                             </Button>
                         </Col>
                     </>
