@@ -58,6 +58,8 @@ const RequestOfWarehouseModal = ({isOpen, modalData, modalMode, modalType, close
             onCancel={closeModal}
             onSubmit={() => form.submit()}
             size={500}
+            footer={true
+        }
         >
             <Form
                 form={form}

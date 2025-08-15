@@ -1,5 +1,6 @@
 import {DeleteOutlined, EditOutlined} from "@ant-design/icons"
 import {Button, Space, Tooltip,Tag} from "antd"
+import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
 
 const PurchaseProductCol = ({handleEdit, handleDelete}) => {
     return [
@@ -43,11 +44,12 @@ const PurchaseProductCol = ({handleEdit, handleDelete}) => {
             title: 'تاریخ درخواست',
             dataIndex: 'date',
             key: 'date',
-            // render: (text) => {
-            //     return (
-            //         <span>{georgianDateToJalaliDate(text)}</span>
-            //     )
-            // }
+            render: (record) => {
+                console.log(record)
+                return (
+                    <Tag color={'cyan'}>{georgianDateToJalaliDate(record) || 'ندارد'}</Tag>
+                )
+            }
         },
         {
             title: 'عملیات',

@@ -1,4 +1,4 @@
-import {Table} from "antd";
+import {Table, Tag} from "antd";
 import {
     useGetConfirmedWarehouseRequestById
 } from "@/QueryServises/RequestOfWarehouse/index.js";
@@ -19,6 +19,9 @@ const ListOfRequestOfWareHouseMade = ({currentProduct}) => {
                 title: 'کد محصول',
                 dataIndex: ['product', 'code'],
                 key: 'code',
+                render: (record) => {
+                    return (<Tag color={'orange'}>{record}</Tag>)
+                }
             },
             {
                 title: 'تعداد تایید شده',
@@ -39,6 +42,8 @@ const ListOfRequestOfWareHouseMade = ({currentProduct}) => {
                 dataSource={nestedDataSource}
                 pagination={false}
                 rowKey="key"
+                bordered
+                size={'small'}
             />
         );
     };
@@ -49,6 +54,8 @@ const ListOfRequestOfWareHouseMade = ({currentProduct}) => {
             dataSource={requestOfWarehouse}
             pagination={false}
             rowKey='id'
+            size={'small'}
+            bordered
             expandedRowRender={expandedRowRender}
         />
     );

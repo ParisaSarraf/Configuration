@@ -1,4 +1,5 @@
 import {Select, Space ,Tag} from "antd";
+import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
 
 const ListOfRequestsMadeCol = () => {
     return [
@@ -11,6 +12,10 @@ const ListOfRequestsMadeCol = () => {
             title: 'کد محصول',
             key: 'code',
             dataIndex: ['product_purchase_numbers',0,'product', 'code'],
+            render: (record) =>
+            {
+                return (<Tag color={'purple'}>{record}</Tag>)
+            }
         },
         {
             title: 'نوع خرید',
@@ -42,9 +47,13 @@ const ListOfRequestsMadeCol = () => {
             render: (text) => text || 'ندارد'
         }, {
             title: 'تاریخ درخواست',
-            dataIndex: 'total_number',
-            key: 'total_number',
-            render: (text) => text || 'ندارد'
+            dataIndex: 'date',
+            key: 'date',
+            render: (text) => {
+                return (
+                    <Tag color={'green'}>{georgianDateToJalaliDate(text)}</Tag>
+                )
+            }
         }, {
             title: 'تاریخ تایید',
             dataIndex: 'total_number',

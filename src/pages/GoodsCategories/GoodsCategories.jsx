@@ -8,6 +8,7 @@ import RequestOfWarehouse from "@/pages/RequestOfWarehouse/RequestOfWarehouse.js
 import Meetings from "@/pages/Meetings/Meetings.jsx";
 import Activity from "@/pages/Activity/Activity.jsx";
 import ProductDocuments from "../ProductDocument/ProductDocuments";
+import Reports from "@/pages/Reports/Reports.jsx";
 
 const GoodsCategories = () => {
     const items = [
@@ -52,6 +53,10 @@ const GoodsCategories = () => {
             label: ` فعالیت ها `,
             key: '9',
             children: <Activity />
+        }, {
+            label: `گزارش ها `,
+            key: '10',
+            children: <Reports />
         }
     ];
 

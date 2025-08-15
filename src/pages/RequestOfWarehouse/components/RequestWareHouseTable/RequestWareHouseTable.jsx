@@ -62,6 +62,7 @@ const RequestWareHouseTable = (
             dataSource={requestWareHouseData}
             rowSelection={rowSelection}
             rowKey="id"
+            bordered
             size="small"
         />
     )

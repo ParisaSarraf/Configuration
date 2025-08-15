@@ -77,8 +77,10 @@ const RequestOfWarehousePage = ({selectedWareHouseId, selectedWareHouseType, cur
                 columns={RequestOfWarehousePageCol()}
                 dataSource={requestOfWareHouseData}
                 rowKey="id"
+                size={'small'}
                 scroll={{y: 300}}
                 pagination={false}
+                bordered
             />
         </Form>
     );

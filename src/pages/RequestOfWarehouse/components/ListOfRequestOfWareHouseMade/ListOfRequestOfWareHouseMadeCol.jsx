@@ -11,6 +11,9 @@ const ListOfRequestOfWareHouseMadeCol = () => {
             title: 'کد محصول',
             key: 'code',
             dataIndex: ['warehouse_request_numbers',0,'product', 'code'],
+            render: (record) => {
+                return (<Tag color={'purple'}>{record}</Tag>)
+            }
         },
         {
             title: 'نوع خرید',

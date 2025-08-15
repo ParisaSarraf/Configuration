@@ -1,4 +1,4 @@
-import {Table} from "antd";
+import {Table, Tag} from "antd";
 import {useConfirmProductPurchaseById} from "@/QueryServises/productPurchase/index.js";
 import ListOfRequestsMadeCol from "./ListOfRequestsMadeCol";
 
@@ -17,6 +17,9 @@ const ListOfRequestsMade = ({currentProduct, refetch}) => {
                 title: 'کد محصول',
                 dataIndex: ['product', 'code'],
                 key: 'code',
+                render: (record) => {
+                    return (<Tag color={'orange'}>{record}</Tag>)
+                }
             },
             {
                 title: 'تعداد تایید شده',
@@ -37,6 +40,7 @@ const ListOfRequestsMade = ({currentProduct, refetch}) => {
                 dataSource={nestedDataSource}
                 pagination={false}
                 rowKey="key"
+                size={'small'}
             />
         );
     };
@@ -47,6 +51,7 @@ const ListOfRequestsMade = ({currentProduct, refetch}) => {
             dataSource={purchaseData || []}
             pagination={false}
             rowKey='id'
+            size={'small'}
             expandedRowRender={expandedRowRender}
         />
     );

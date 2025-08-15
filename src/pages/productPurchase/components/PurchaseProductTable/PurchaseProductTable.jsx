@@ -53,6 +53,7 @@ const PurchaseProductTable = ({currentProduct, setSelectedPurchaseId, setModal, 
             rowSelection={rowSelection}
             rowKey="id"
             size="small"
+            bordered
         />
     )
 }

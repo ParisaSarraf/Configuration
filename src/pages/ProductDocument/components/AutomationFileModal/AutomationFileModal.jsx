@@ -39,7 +39,7 @@ const AutomationFileModal = ({isOpen, modalData, closeModal, modalMode}) => {
     };
 
     const stateSteps = [
-        {value: 10, label: "تهیه نشده"},
+        {value: 10, label: "تعریف سند"},
         {value: 20, label: "تهیه کننده"},
         {value: 30, label: "تایید"},
         {value: 40, label: "تصویب"},
@@ -59,10 +59,6 @@ const AutomationFileModal = ({isOpen, modalData, closeModal, modalMode}) => {
     const handleNextStep = async () => {
         if (currentStepIndex >= stateSteps?.length - 1) return;
         const nextState = stateSteps[currentStepIndex + 1].value;
-
-
-        console.log(nextState)
-
 
         try {
             await updateState({
@@ -210,7 +206,6 @@ const AutomationFileModal = ({isOpen, modalData, closeModal, modalMode}) => {
             <Form>
                 <Row gutter={[16, 16]}>
                     <Col span={24}>{renderFiles()}</Col>
-
                     <Col span={24}>
                         <Steps
                             size="small"
@@ -220,10 +215,8 @@ const AutomationFileModal = ({isOpen, modalData, closeModal, modalMode}) => {
                             }))}
                         />
                     </Col>
-
-                    <>
-                        <Col span={24}>
-                            <Form.Item label="توضیح">
+                    <Col span={24}>
+                            <Form.Item label="توضیح" layout={'vertical'}>
                                 <Input.TextArea
                                     value={comment}
                                     onChange={(e) => setComment(e.target.value)}
@@ -231,8 +224,8 @@ const AutomationFileModal = ({isOpen, modalData, closeModal, modalMode}) => {
                                     disabled={isPatching}
                                 />
                             </Form.Item>
-                        </Col>
-                        <Col span={24} className={"w-full flex flex-row justify-end gap-4"}>
+                    </Col>
+                    <Col span={24} className={"w-full flex flex-row justify-end gap-4 mt-6"}>
                             <Button
                                 onClick={handlePrevStep}
                                 disabled={!comment || currentStepIndex <= 0 || isPatching}
@@ -255,7 +248,6 @@ const AutomationFileModal = ({isOpen, modalData, closeModal, modalMode}) => {
                                         'تایید نهایی'}
                             </Button>
                         </Col>
-                    </>
                 </Row>
 
                 <AntModal title="جزئیات تغییر وضعیت" open={detailModalVisible}

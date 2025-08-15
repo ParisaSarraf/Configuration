@@ -1,15 +1,14 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMyAxios } from "@/hooks/useMyAxios.js";
 
-export const useProductActivitiesKey = (productId) => [
-	"product",
-	"activities",
-	productId,
-];
 export const useGetProductActivities = (productId, queryOptions) => {
 	const { myAxios } = useMyAxios();
 	return useQuery({
-		queryKey: useProductActivitiesKey(productId),
+		queryKey: [
+			"product",
+			"activities",
+			productId,
+		],
 		queryFn: () =>
 			myAxios
 				.get(`/product/get-product-activity-by-id/${productId}`)
@@ -21,13 +20,6 @@ export const useGetProductActivities = (productId, queryOptions) => {
 	});
 };
 
-export const useProductActivitiesTypeKey = (productId, filters) => [
-	"product",
-	"activities-filter",
-	productId,
-	filters,
-];
-
 export const useGetProductActivitiesType = (
 	productId,
 	filters = {},
@@ -35,7 +27,12 @@ export const useGetProductActivitiesType = (
 ) => {
 	const { myAxios } = useMyAxios();
 	return useQuery({
-		queryKey: useProductActivitiesTypeKey(productId, filters),
+		queryKey: [
+			"product",
+			"activities-filter",
+			productId,
+			filters,
+		],
 		queryFn: () =>
 			myAxios
 				.get(`/product/get-product-activity-by-id/${productId}`, {

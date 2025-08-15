@@ -76,6 +76,8 @@ const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType, currentPr
                 columns={RequestOfWarehouseCol()}
                 dataSource={purchaseData}
                 rowKey="id"
+                size={'small'}
+                bordered
                 scroll={{y: 300}}
                 pagination={false}
             />
