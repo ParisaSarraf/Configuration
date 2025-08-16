@@ -1,4 +1,4 @@
-import { Card, Tabs } from "antd";
+import {Card, ConfigProvider, Tabs} from "antd";
 import Introduction from "../Introduction/Introduction";
 import ProductTracking from "../ProductTracking/ProductTracking";
 import Experience from "../Experience/Experience";
@@ -15,63 +15,78 @@ const GoodsCategories = () => {
         {
             label: "معرفی و مشخصات",
             key: '1',
-            children: <Introduction />,
+            children: <Introduction/>,
         },
         {
-            label: ` ردیابی محصول`,
+            label: `ردیابی محصول`,
             key: '2',
-            children: <ProductTracking />,
+            children: <ProductTracking/>,
         },
         {
-            label: ` اسناد و لاگ ها`,
+            label: `اسناد و لاگ ها`,
             key: '3',
-            children: <ProductDocuments />,
+            children: <ProductDocuments/>,
         },
         {
-            label: ` الزامات و وابستگی ها`,
+            label: `الزامات و وابستگی ها`,
             key: '4',
-            children: <ProductRequirement />,
+            children: <ProductRequirement/>,
         },
         {
-            label: ` تجارب و خرابی `,
+            label: `تجارب و خرابی`,
             key: '5',
-            children: <Experience />,
+            children: <Experience/>,
         },
         {
-            label: ` خرید `,
+            label: `خرید`,
             key: '6',
-            children: <ProductPurchase />
+            children: <ProductPurchase/>
         }, {
-            label: ` درخواست کالا از انبار `,
+            label: `درخواست کالا از انبار`,
             key: '7',
-            children: <RequestOfWarehouse />
+            children: <RequestOfWarehouse/>
         }, {
-            label: ` صورت جلسات `,
+            label: `صورت جلسات`,
             key: '8',
-            children: <Meetings />
+            children: <Meetings/>
         }, {
-            label: ` فعالیت ها `,
+            label: `فعالیت ها`,
             key: '9',
-            children: <Activity />
+            children: <Activity/>
         }, {
-            label: `گزارش ها `,
+            label: `گزارش ها`,
             key: '10',
-            children: <Reports />
+            children: <Reports/>
         }
     ];
 
     return (
-        <Card className="w-full flex flex-col">
-            <Tabs
-                // defaultActiveKey="2"
-                type="card"
-                items={items}
-                tabBarStyle={{
-                    display: 'flex',
-                    width: '100%',
-                }}
-            />
-        </Card>
+        <ConfigProvider
+            theme={{
+                token: {
+                    colorPrimary: '#1890ff',
+                },
+                components: {
+                    Tabs: {
+                        cardBg: '#f0f2f5'
+                    }
+                }
+            }}
+        >
+            <Card className="w-full flex flex-col" bodyStyle={{padding: 10}}>
+                <Tabs
+                    type="card"
+                    items={items}
+                    tabBarStyle={{
+                        overflowX: 'auto',
+                        flexWrap: 'nowrap',
+                        msOverflowStyle: 'none',
+                        scrollbarWidth: 'none',
+                    }}
+                    className="hide-scrollbar"
+                />
+            </Card>
+        </ConfigProvider>
     );
 };
 

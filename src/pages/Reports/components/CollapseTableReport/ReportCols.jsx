@@ -6,11 +6,13 @@ const ReportCol = () => {
             title: 'نام محصول',
             dataIndex: ['product', 'persian_title'],
             key: 'persian_title',
+            width: 100,
         },
         {
             title: 'کد محصول',
             key: 'code',
             dataIndex: ['product', 'code'],
+            width: 100,
             render: (record) =>
             {
                 return (<Tag color={'purple'}>{record}</Tag>)
@@ -20,6 +22,7 @@ const ReportCol = () => {
             title: 'نام سند',
             dataIndex: ['document', 'persianTitle'],
             key: 'persianTitle',
+            width: 100,
             render: (record) => {
                 return (<Tag color={'gold'}>{record}</Tag>)
             }
@@ -28,6 +31,7 @@ const ReportCol = () => {
             title: 'نام نسخه',
             dataIndex: ['editions',0, 'edition'],
             key: 'edition',
+            width: 100,
             render: (record) => {
                 return (<Tag color={'blue' }>{record}</Tag>)
             }
@@ -35,6 +39,7 @@ const ReportCol = () => {
             title: 'وضعیت نسخه',
             dataIndex: ['editions',0, 'state'],
             key: 'state',
+            width: 100,
             render: (record) => {
                 return (<Tag color={'red' }>{record}</Tag>)
             }
