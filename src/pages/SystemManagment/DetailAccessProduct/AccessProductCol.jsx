@@ -1,52 +1,45 @@
+import {Tag} from "antd";
+
+
 export const AccessProductCol = () => {
     return [
         {
-            title: 'شناسه محصول',
-            dataIndex: ['product', 'id'],
-            key: 'product_id',
-            render: (id) => `PI-${id}` 
+            title: 'نام کاربر',
+            dataIndex: ['user', 'name'],
+            key: 'user_name',
+            render: (name, record) => `${name} ${record.user?.last_name || ''}`
         },
         {
-            title: 'کد محصول',
-            dataIndex: ['product', 'code'],
-            key: 'product_code'
+            title: 'نام کاربری',
+            dataIndex: ['user', 'username'],
+            key: 'username'
         },
         {
-            title: 'عنوان فارسی',
-            dataIndex: ['product', 'persian_title'],
-            key: 'persian_title'
+            title: 'نقش',
+            dataIndex: ['role', 'name'],
+            key: 'role_name'
         },
         {
-            title: 'عنوان سند',
-            dataIndex: 'title',
-            key: 'document_title'
+            title: 'صفحه‌های قابل دسترسی',
+            dataIndex: ['user', 'accessible_pages'],
+            key: 'accessible_pages',
+            render: (pages) => {
+                return (
+                    <Tag color={'purple'}>{pages}</Tag>
+                )
+            }
         },
         {
-            title: 'نوع سند',
-            dataIndex: ['document', 'persianTitle'],
-            key: 'document_type'
+            title: 'تاریخ ثبت',
+            dataIndex: ['user', 'registry_date'],
+            key: 'registry_date',
+            render: (date) => date ? new Date(date).toLocaleDateString('fa-IR') : '---'
         },
         {
-            title: 'کد سند',
-            dataIndex: ['document', 'code'],
-            key: 'document_code'
-        },
-        {
-            title: 'قابل گزارش',
-            dataIndex: 'is_reportable',
-            key: 'is_reportable',
-            render: (isReportable) => isReportable ? 'بله' : 'خیر'
-        },
-        {
-            title: 'تاریخ بررسی',
-            dataIndex: 'survey_date',
-            key: 'survey_date'
-        },
-        {
-            title: 'ویرایش‌ها',
-            dataIndex: 'editions',
-            key: 'editions',
-            render: (editions) => editions?.length || 0
+            title: 'وضعیت',
+            dataIndex: ['user', 'is_superuser'],
+            key: 'status',
+            render: (isSuperuser) => isSuperuser ? 'مدیر سیستم' : 'کاربر عادی'
         }
-    ]
-}
+    ];
+};

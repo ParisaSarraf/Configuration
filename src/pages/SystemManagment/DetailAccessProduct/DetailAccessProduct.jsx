@@ -1,38 +1,32 @@
-import { Button, Card, Select, Table, message, Spin } from 'antd'
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useGetAccessOfProductById } from '../../../QueryServises/productAccessQuery'
-import { useProductList } from '../../../QueryServises/productQuery'
-import { AccessProductCol } from './AccessProductCol'
+import {Button, Card, message, Select, Spin, Table} from 'antd'
+import {useState} from 'react'
+import {useNavigate} from 'react-router-dom'
+import {useGetAccessOfProductById} from '../../../QueryServises/productAccessQuery'
+import {useProductList} from '../../../QueryServises/productQuery'
+import {AccessProductCol} from './AccessProductCol'
 
 const DetailAccessProduct = () => {
     const navigate = useNavigate()
-    const { data: listOfProductData, isLoading: isProductsLoading } = useProductList()
+    const {data: listOfProductData, isLoading: isProductsLoading} = useProductList()
     const [selectedProductId, setSelectedProductId] = useState(null)
 
     const {
-        data: accessData,
+        data: accessData = [],
         isLoading: isAccessLoading,
         isError,
-        refetch
-    } = useGetAccessOfProductById(selectedProductId, {
-        enabled: false
-    })
+    } = useGetAccessOfProductById(selectedProductId)
 
-    console.log(accessData);
-
+    console.log('Access Data:', accessData);
 
     const handleProductChange = (productId) => {
         setSelectedProductId(productId)
-        if (productId) {
-            refetch()
-        }
     }
 
-    
     if (isError) {
         message.error('خطا در دریافت اطلاعات دسترسی محصول')
     }
+
+    const tableData = Array.isArray(accessData) ? accessData : [];
 
     return (
         <div className="min-h-screen bg-Main p-2">
@@ -52,6 +46,7 @@ const DetailAccessProduct = () => {
                 loading={isProductsLoading}
             >
                 <div className='mb-4'>
+                    <h1>انتخاب محصول</h1>
                     <Select
                         title='انتخاب محصول'
                         className='w-full'
@@ -68,9 +63,9 @@ const DetailAccessProduct = () => {
                 <Spin spinning={isAccessLoading}>
                     <Table
                         columns={AccessProductCol()}
-                        dataSource={accessData || []}
+                        dataSource={tableData}
                         loading={isAccessLoading}
-                        rowKey={(record) => record.id}
+                        rowKey={(record) => `${record.user?.id}-${record.role?.id}`}
                         locale={{
                             emptyText: selectedProductId
                                 ? 'هیچ داده‌ای یافت نشد'
