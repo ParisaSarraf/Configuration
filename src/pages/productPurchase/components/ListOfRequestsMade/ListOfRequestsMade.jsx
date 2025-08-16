@@ -1,9 +1,11 @@
-import {Table, Tag} from "antd";
-import {useConfirmProductPurchaseById} from "@/QueryServises/productPurchase/index.js";
+import { Table, Tag } from "antd";
+import { useConfirmProductPurchaseById } from "@/QueryServises/productPurchase/index.js";
 import ListOfRequestsMadeCol from "./ListOfRequestsMadeCol";
+import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
 
-const ListOfRequestsMade = ({currentProduct, refetch}) => {
-    const {data: purchaseData} = useConfirmProductPurchaseById(currentProduct?.id);
+
+const ListOfRequestsMade = ({ currentProduct, refetch }) => {
+    const { data: purchaseData } = useConfirmProductPurchaseById(currentProduct?.id);
 
 
     const expandedRowRender = (record) => {
@@ -25,7 +27,16 @@ const ListOfRequestsMade = ({currentProduct, refetch}) => {
                 title: 'تعداد تایید شده',
                 dataIndex: 'confirmed_number',
                 key: 'confirmed_number',
-            }
+            }, {
+                title: 'تاریخ تایید',
+                dataIndex: 'date',
+                key: 'date',
+                render: (text) => {
+                    return (
+                        <Tag color={'green'}>{georgianDateToJalaliDate(text)}</Tag>
+                    )
+                }
+            },
         ];
 
         const nestedDataSource = record.product_purchase_numbers.map(item => ({

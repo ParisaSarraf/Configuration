@@ -1,19 +1,18 @@
-import {Select, Space ,Tag} from "antd";
-import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
+import { Select, Space, Tag } from "antd";
+import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
 
 const ListOfRequestsMadeCol = () => {
     return [
         {
-        title: 'نام محصول',
-        dataIndex: ['product_purchase_numbers',0, 'product', 'persian_title'],
-        key: 'persian_title',
+            title: 'نام محصول',
+            dataIndex: ['product_purchase_numbers', 0, 'product', 'persian_title'],
+            key: 'persian_title',
         },
         {
             title: 'کد محصول',
             key: 'code',
-            dataIndex: ['product_purchase_numbers',0,'product', 'code'],
-            render: (record) =>
-            {
+            dataIndex: ['product_purchase_numbers', 0, 'product', 'code'],
+            render: (record) => {
                 return (<Tag color={'purple'}>{record}</Tag>)
             }
         },
@@ -27,7 +26,7 @@ const ListOfRequestsMadeCol = () => {
         },
         {
             title: 'تعداد',
-            dataIndex: ['product_purchase_numbers',0, 'confirmed_number'],
+            dataIndex: ['product_purchase_numbers', 0, 'confirmed_number'],
             key: 'confirmed_number',
             render: (text) => text || 'ندارد'
         }, {
@@ -58,7 +57,11 @@ const ListOfRequestsMadeCol = () => {
             title: 'تاریخ تایید',
             dataIndex: 'total_number',
             key: 'total_number',
-            render: (text) => text || 'ندارد'
+            render: (text) => {
+                return (
+                    <Tag color={'green'}>{georgianDateToJalaliDate(text) || 'ندارد'}</Tag>
+                )
+            }
         },
         // {
         //     title: 'عملیات',

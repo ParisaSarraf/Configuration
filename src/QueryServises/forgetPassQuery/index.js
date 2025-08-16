@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useMyAxios } from "../../hooks/useMyAxios";
+import { useMutation } from "@tanstack/react-query";
+import { useMyAxios } from "@/hooks/useMyAxios.js";
 
 export const useChangePassword = () => {
   const { myAxios } = useMyAxios();

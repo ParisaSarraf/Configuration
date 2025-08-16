@@ -1,12 +1,15 @@
-import {Table, Tag} from "antd";
+import { Table, Tag } from "antd";
 import {
     useGetConfirmedWarehouseRequestById
 } from "@/QueryServises/RequestOfWarehouse/index.js";
 import ListOfRequestOfWareHouseMadeCol
     from "@/pages/RequestOfWarehouse/components/ListOfRequestOfWareHouseMade/ListOfRequestOfWareHouseMadeCol.jsx";
+import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
 
-const ListOfRequestOfWareHouseMade = ({currentProduct}) => {
-    const {data: requestOfWarehouse} = useGetConfirmedWarehouseRequestById(currentProduct?.id);
+
+
+const ListOfRequestOfWareHouseMade = ({ currentProduct }) => {
+    const { data: requestOfWarehouse } = useGetConfirmedWarehouseRequestById(currentProduct?.id);
 
     const expandedRowRender = (record) => {
         const nestedColumns = [
@@ -27,7 +30,16 @@ const ListOfRequestOfWareHouseMade = ({currentProduct}) => {
                 title: 'تعداد تایید شده',
                 dataIndex: 'confirmed_number',
                 key: 'confirmed_number',
-            }
+            }, {
+                title: 'تاریخ تایید',
+                dataIndex: 'total_number',
+                key: 'total_number',
+                render: (text) => {
+                    return (
+                        <Tag color={'green'}>{georgianDateToJalaliDate(text) || 'ندارد'}</Tag>
+                    )
+                }
+            },
         ];
 
         const nestedDataSource = record.warehouse_request_numbers.map(item => ({

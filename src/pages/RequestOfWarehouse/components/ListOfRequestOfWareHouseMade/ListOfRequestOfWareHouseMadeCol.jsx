@@ -1,16 +1,17 @@
-import {Tag} from "antd";
+import { Tag } from "antd";
+import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
 
 const ListOfRequestOfWareHouseMadeCol = () => {
     return [
         {
             title: 'نام محصول',
-            dataIndex: ['warehouse_request_numbers',0, 'product', 'persian_title'],
+            dataIndex: ['warehouse_request_numbers', 0, 'product', 'persian_title'],
             key: 'persian_title',
         },
         {
             title: 'کد محصول',
             key: 'code',
-            dataIndex: ['warehouse_request_numbers',0,'product', 'code'],
+            dataIndex: ['warehouse_request_numbers', 0, 'product', 'code'],
             render: (record) => {
                 return (<Tag color={'purple'}>{record}</Tag>)
             }
@@ -26,7 +27,7 @@ const ListOfRequestOfWareHouseMadeCol = () => {
         },
         {
             title: 'تعداد',
-            dataIndex: ['warehouse_request_numbers',0, 'confirmed_number'],
+            dataIndex: ['warehouse_request_numbers', 0, 'confirmed_number'],
             key: 'confirmed_number',
             render: (text) => text || 'ندارد'
         },
@@ -49,14 +50,22 @@ const ListOfRequestOfWareHouseMadeCol = () => {
             render: (text) => text || 'ندارد'
         }, {
             title: 'تاریخ درخواست',
-            dataIndex: 'total_number',
-            key: 'total_number',
-            render: (text) => text || 'ندارد'
+            dataIndex: 'date',
+            key: 'date',
+            render: (text) => {
+                return (
+                    <Tag color={'green'}>{georgianDateToJalaliDate(text) || 'ندارد'}</Tag>
+                )
+            }
         }, {
             title: 'تاریخ تایید',
             dataIndex: 'total_number',
             key: 'total_number',
-            render: (text) => text || 'ندارد'
+            render: (text) => {
+                return (
+                    <Tag color={'green'}>{georgianDateToJalaliDate(text) || 'ندارد'}</Tag>
+                )
+            }
         },
     ]
 }
