@@ -1,7 +1,7 @@
 import Modal from "@/components/Modal/index.jsx";
 import {Avatar, Button, Col, Descriptions, Form, Input, message, Modal as AntModal, Popover, Row, Steps} from "antd";
-import {useState, useEffect} from "react";
-import {EyeOutlined, UserOutlined, FileOutlined} from "@ant-design/icons";
+import {useEffect, useState} from "react";
+import {EyeOutlined, FileOutlined, UserOutlined} from "@ant-design/icons";
 import {usePatchDocumentEditionLog} from "@/QueryServises/productDocumentEditionLogQuery";
 import {useLogList} from "@/QueryServises/LogQuery/index.js";
 import {BASEURL} from "@/Services/axiosInstance.js";
@@ -202,7 +202,7 @@ const AutomationFileModal = ({isOpen, modalData, closeModal, modalMode}) => {
     };
 
     return (
-        <Modal size={900} isOpen={isOpen} title={"روال اسناد"} onClose={closeModal}>
+        <Modal size={900} isOpen={isOpen} title={"روال اسناد"} onClose={closeModal} footer={true}>
             <Form>
                 <Row gutter={[16, 16]}>
                     <Col span={24}>{renderFiles()}</Col>
@@ -216,38 +216,38 @@ const AutomationFileModal = ({isOpen, modalData, closeModal, modalMode}) => {
                         />
                     </Col>
                     <Col span={24}>
-                            <Form.Item label="توضیح" layout={'vertical'}>
-                                <Input.TextArea
-                                    value={comment}
-                                    onChange={(e) => setComment(e.target.value)}
-                                    placeholder="توضیح مربوط به این مرحله را وارد کنید"
-                                    disabled={isPatching}
-                                />
-                            </Form.Item>
+                        <Form.Item label="توضیح" layout={'vertical'}>
+                            <Input.TextArea
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
+                                placeholder="توضیح مربوط به این مرحله را وارد کنید"
+                                disabled={isPatching}
+                            />
+                        </Form.Item>
                     </Col>
                     <Col span={24} className={"w-full flex flex-row justify-end gap-4 mt-6"}>
-                            <Button
-                                onClick={handlePrevStep}
-                                disabled={!comment || currentStepIndex <= 0 || isPatching}
-                                loading={isPatching}
-                            >
-                                {currentState === 20 ? 'برگشت به تهیه نشده' :
-                                    currentState === 30 ? 'برگشت به تهیه کننده' :
+                        <Button
+                            onClick={handlePrevStep}
+                            disabled={!comment || currentStepIndex <= 0 || isPatching}
+                            loading={isPatching}
+                        >
+                            {currentState === 20 ? 'برگشت به تهیه نشده' :
+                                currentState === 30 ? 'برگشت به تهیه کننده' :
                                     currentState === 40 ? 'برگشت به تایید' :
                                         'تصویب شده است'}
-                            </Button>
-                            <Button
-                                type="primary"
-                                onClick={handleNextStep}
-                                disabled={!comment || currentStepIndex >= stateSteps.length - 1 || isPatching}
-                                loading={isPatching}
-                            >
-                                {currentState === 20 ? 'تایید' :
-                                    currentState === 30 ? 'تصویب' :
+                        </Button>
+                        <Button
+                            type="primary"
+                            onClick={handleNextStep}
+                            disabled={!comment || currentStepIndex >= stateSteps.length - 1 || isPatching}
+                            loading={isPatching}
+                        >
+                            {currentState === 20 ? 'تایید' :
+                                currentState === 30 ? 'تصویب' :
 
-                                        'تایید نهایی'}
-                            </Button>
-                        </Col>
+                                    'تایید نهایی'}
+                        </Button>
+                    </Col>
                 </Row>
 
                 <AntModal title="جزئیات تغییر وضعیت" open={detailModalVisible}

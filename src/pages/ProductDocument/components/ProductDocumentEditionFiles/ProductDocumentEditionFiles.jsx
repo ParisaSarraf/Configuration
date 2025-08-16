@@ -1,10 +1,7 @@
 import Modal from "@/components/Modal/index.jsx";
 import {Col, Form, message, Row} from "antd";
 import FileUploader from "@/components/FileUploader/FileUploader.jsx";
-import {
-    useCreateProductDocumentEdition,
-    useUpdateProductDocumentEdition
-} from "@/QueryServises/productDocumentQuery/index.js";
+import {useUpdateProductDocumentEdition} from "@/QueryServises/productDocumentQuery/index.js";
 import {useEffect} from "react";
 import {BASEURL} from "@/Services/axiosInstance.js";
 
@@ -88,7 +85,7 @@ const ProductDocumentEditionFiles = ({
             onSubmit={() => form.submit()}
             mode={modalMode}
             loading={isUpdating}
-            footer={true}
+            footer={false}
 
         >
             <Form form={form} layout="vertical" onFinish={onFinishForm}>

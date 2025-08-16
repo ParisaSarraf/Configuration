@@ -1,4 +1,4 @@
-import {Modal as MDL, Button} from 'antd';
+import {Button, Modal as MDL} from 'antd';
 
 const Modal = ({
                    isOpen,
@@ -16,14 +16,14 @@ const Modal = ({
                }) => {
 
 
-    const modalFooter = footer ?  [
+    const modalFooter = footer ? false : [
         <Button key="submit" type="primary" loading={loading} onClick={onSubmit}>
             {mode === 'edit' ? 'ویرایش' : 'تایید'}
         </Button>,
         <Button key="back" onClick={onClose}>
             بستن
         </Button>,
-    ] : false
+    ]
     return (
         <MDL
             open={isOpen}
