@@ -60,9 +60,14 @@ const ProductCols = () => {
             key: 'store_code',
         },
         {
-            title: 'موجودی',
-            dataIndex: 'Inventory',
-            key: 'Inventory',
+            title: 'جمع خرید',
+            dataIndex: 'sum_purchases',
+            key: 'sum_pursum_purchaseschases',
+        },
+        {
+            title: 'جمع درخواست کالا از انبار',
+            dataIndex: 'sum_ware_house',
+            key: 'sum_ware_house',
         }
     ];
 };

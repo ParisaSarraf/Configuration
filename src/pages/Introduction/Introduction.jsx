@@ -1,22 +1,9 @@
 import {useProductContext} from '../../Services/Context/ProductContext';
-import {
-    Card,
-    Typography,
-    Row,
-    Col,
-    Space,
-    Table,
-    Input,
-    ConfigProvider,
-    Form,
-    Button,
-    message,
-    Image,
-} from 'antd';
+import {Button, Card, Col, ConfigProvider, Form, Image, Input, message, Row, Table, Typography,} from 'antd';
 import fa_IR from 'antd/locale/fa_IR';
 import {BASEURL} from "@/Services/axiosInstance.js";
 import ProductCols from './components/ProductCols';
-import {useProductById, useUpdateProductInfo} from '../../QueryServises/productQuery';
+import {useProductChildren, useUpdateProductInfo} from '../../QueryServises/productQuery';
 import {useEffect} from 'react';
 import FileUploader from '../../components/FileUploader/FileUploader';
 
@@ -38,11 +25,13 @@ const RecursiveTable = ({dataSource, columns}) => (
 
 const Introduction = () => {
     const {currentProduct} = useProductContext();
-    const product = currentProduct?.productData;
-    const {data: productData, refetch} = useProductById(currentProduct?.id)
+    // const product = currentProduct?.productData;
+    const {data: productData, refetch} = useProductChildren(currentProduct?.id)
     const [form] = Form.useForm();
     const {mutateAsync: updateProductionInfo} = useUpdateProductInfo();
 
+
+    console.log(productData)
 
     useEffect(() => {
         if (productData) {
@@ -154,10 +143,10 @@ const Introduction = () => {
                     </Row>
                 </Card>
 
-                {product.children && product.children.length > 0 && (
+                {productData && (
                     <Card title="محصولات زیرمجموعه">
                         <RecursiveTable
-                            dataSource={product.children}
+                            dataSource={productData}
                             columns={ProductCols()}
                         />
                     </Card>
