@@ -13,6 +13,7 @@ import GoodsCategories from "./pages/GoodsCategories/GoodsCategories";
 import RoleLifeCycle from "./pages/RoleLifeCycle/RoleLifeCycle";
 import Access from "./pages/Access/Access";
 import UsersRole from "./pages/SystemManagment/UsersRole";
+import DetailAccessProduct from "./pages/SystemManagment/DetailAccessProduct/DetailAccessProduct";
 
 const router = createBrowserRouter([
   {
@@ -99,6 +100,15 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <RoleLifeCycle />
+      </ProtectedRoute>
+    ),
+    errorElement: <NotFound />
+  },
+  {
+    path: "/panel/system-managment/detail-access-product",
+    element: (
+      <ProtectedRoute>
+        <DetailAccessProduct />
       </ProtectedRoute>
     ),
     errorElement: <NotFound />

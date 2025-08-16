@@ -54,6 +54,13 @@ function SystemManagment() {
           >
             مدیریت کاربران و دسترسی عمومی
           </Button>
+          <Button
+            ghost
+            onClick={() => navigate("/panel/system-managment/detail-access-product")}
+            className="flex items-center justify-center h-40 bg-white shadow-lg hover:shadow-xl transition-shadow text-purple-500 hover:text-white hover:bg-purple-500 text-lg font-medium rounded-sm rounded-tl-3xl rounded-br-3xl"
+          >
+            جزئیات دسترسی کاربران به محصولات
+          </Button>
         </div>
       </div>
     </div>
