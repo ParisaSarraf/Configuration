@@ -18,8 +18,8 @@ const StandardCodeModal = ({isOpen, modalMode, modalData, closeModal, standardRe
         console.log(modalData);
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
-                name: modalData.name,
-                personality: modalData?.parentData.id,
+                name: modalData?.name,
+                personality: modalData?.parentData?.id,
                 standard_file: modalData?.standard_file
                     ? [
                         {

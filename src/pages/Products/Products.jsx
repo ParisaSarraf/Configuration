@@ -27,7 +27,6 @@ const Products = () => {
             >
                 افزودن محصول
             </Button>
-
             <div className="flex-1 overflow-y-auto mr-2">
                 {isLoading ? (
                     <div className="flex justify-center p-4">
@@ -50,7 +49,6 @@ const Products = () => {
                     </Menu>
                 )}
             </div>
-
             <ProductModal
                 productData={productData}
                 isOpen={isOpen}

@@ -57,7 +57,7 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                 personality_id: modalData.product_personalities?.map(
                     personality => personality?.personality?.id
                 ),
-                standard_code_id: modalData.standard_code?.name,
+                standard_code_id: modalData.standard_code?.id,
                 brand2: modalData.brand2,
                 brand2_desc: modalData.brand2_desc,
                 employer_code: modalData.employer_code,

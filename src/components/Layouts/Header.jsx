@@ -93,13 +93,13 @@ const CustomHeader = () => {
                                 آخرین
                                 ورود: {userData?.last_login ? new PersianDate(userData.last_login).format(' HH:mm MM/DD') : "-"}
                             </div>
-                            {/*<Button icon={<UserOutlined/>}*/}
-                            {/*        className="flex items-center w-full text-white bg-purple-500"*/}
-                            {/*        aria-label="change pass"*/}
-                            {/*        onClick={() => navigate("/forget-password")}*/}
-                            {/*>*/}
-                            {/*    کارهای من*/}
-                            {/*</Button>*/}
+                            <Button icon={<UserOutlined/>}
+                                    className="flex items-center w-full text-white bg-purple-500"
+                                    aria-label="change pass"
+                                    onClick={() => navigate("/forget-password")}
+                            >
+                                کارهای من
+                            </Button>
                             <Button icon={<SecurityScanOutlined rotate={90}/>} className="flex items-center w-full"
                                     aria-label="change pass" type="primary" onClick={() => navigate("/forget-password")}
                             >

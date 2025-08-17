@@ -36,8 +36,8 @@ const ProductCols = () => {
         },
         {
             title: 'کد',
-            dataIndex: 'final_code',
-            key: 'final_code',
+            dataIndex: 'code',
+            key: 'code',
         },
         {
             title: 'کد استاندارد',
@@ -45,7 +45,7 @@ const ProductCols = () => {
             key: 'standard_code',
             render: (record) => {
                 return (
-                    <Space>{record?.name}</Space>
+                    <Space>{record}</Space>
                 )
             }
         },
@@ -62,7 +62,7 @@ const ProductCols = () => {
         {
             title: 'جمع خرید',
             dataIndex: 'sum_purchases',
-            key: 'sum_pursum_purchaseschases',
+            key: 'sum_purchases',
         },
         {
             title: 'جمع درخواست کالا از انبار',

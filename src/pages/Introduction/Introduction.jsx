@@ -8,7 +8,6 @@ import {useEffect} from 'react';
 import FileUploader from '../../components/FileUploader/FileUploader';
 
 const {Title} = Typography;
-
 const RecursiveTable = ({dataSource, columns}) => (
     <Table
         columns={columns}
@@ -24,48 +23,43 @@ const RecursiveTable = ({dataSource, columns}) => (
 );
 
 const Introduction = () => {
-    const {currentProduct} = useProductContext();
-    const {data: productData, refetch} = useProductChildren(currentProduct?.id)
     const [form] = Form.useForm();
+
+    const {currentProduct} = useProductContext();
+    const {data: productData} = useProductChildren(currentProduct?.id)
     const {mutateAsync: updateProductionInfo} = useUpdateProductInfo();
 
-
     useEffect(() => {
-        if (productData) {
+        if (currentProduct?.productData) {
             form.setFieldsValue({
-                user_description: productData.user_description || '',
-                user_image: productData.user_image
+                user_description: currentProduct?.productData?.user_description || '',
+                user_image: currentProduct?.productData?.user_image
                     ? [
                         {
                             uid: "-1",
                             name: "user_image",
-                            url: BASEURL.replace("/api/v1", "") + productData.user_image,
+                            url: BASEURL.replace("/api/v1", "") + currentProduct?.productData?.user_image,
                         },
                     ]
                     : [],
             });
         }
-    }, [productData]);
+    }, [currentProduct, form, currentProduct?.productData?.user_image]);
 
-    if (!productData) {
+    if (!currentProduct) {
         return <div className="text-center py-8">محصولی یافت نشد</div>;
     }
+
     const onFinish = async (values) => {
-        const formData = new FormData();
-        if (values.user_description) {
-            formData.append('user_description', values.user_description);
-        }
-        const file = values.user_image?.[0]?.originFileObj;
-        if (file) {
-            formData.append('user_image', file);
+        const payload = {
+            user_description: values.user_description,
+            user_image: values.user_image?.[0]?.originFileObj,
         }
         try {
-            await updateProductionInfo({
-                productId: currentProduct?.id,
-                ProductInfoData: formData,
-            });
+            await updateProductionInfo(
+            {productId: currentProduct?.id,...payload});
             message.success('ذخیره با موفقیت انجام شد');
-            await refetch()
+            // await refetch()
             form.resetFields()
         } catch (error) {
             message.error("مشکلی در انجام عملیات پیش آمده است");
@@ -73,14 +67,13 @@ const Introduction = () => {
         }
     };
 
-
     return (
         <ConfigProvider direction="rtl" locale={fa_IR}>
             <div style={{padding: 16}}>
                 <Card className="-mb-8">
                     <Row gutter={16}>
                         <Col span={24}>
-                            <Title level={4}>{productData?.persian_title}</Title>
+                            <Title level={4}>{currentProduct?.persian_title}</Title>
                         </Col>
                         <Col span={24}>
                             <Form
@@ -114,9 +107,9 @@ const Introduction = () => {
                                     </Col>
 
                                     <Col span={16} className='flex flex-col space-y-16 '>
-                                        {productData.user_image && (
+                                        {currentProduct?.productData?.user_image && (
                                             <Image
-                                                src={`${BASEURL.replace("/api/v1", "")}${productData.user_image}`}
+                                                src={`${BASEURL.replace("/api/v1", "")}${currentProduct?.productData?.user_image}`}
                                                 alt="تصویر محصول"
                                                 style={{
                                                     height: 350,
