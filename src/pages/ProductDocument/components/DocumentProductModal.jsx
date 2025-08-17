@@ -4,9 +4,8 @@ import {Button, Col, Form, Input, message, Row, Switch, TreeSelect} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import {useDocumentList} from "../../../QueryServises/documentQuery";
 import {useCreateProductDocument, useUpdateProductDocument} from "../../../QueryServises/productDocumentQuery";
-import {useProductById} from "../../../QueryServises/productQuery";
-import DatepickerCustom from "../../../components/DatePicker";
-import moment from "moment/moment";
+import Date from "@/components/DatePicker/Date.jsx";
+import {georgianDateToJalaliDate, jalaliDateToGeorgianDate} from "@utils/timeTool.jsx";
 
 const DocumentProductModal = ({isOpen, modalMode, modalData, closeModal, setModal, currentProduct, refetch}) => {
     const [form] = Form.useForm();
@@ -18,10 +17,10 @@ const DocumentProductModal = ({isOpen, modalMode, modalData, closeModal, setModa
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
-                is_reportable: modalData.is_reportable,
-                title: modalData.title,
-                document_id: modalData.document?.id,
-                survey_date: modalData.survey_date,
+                is_reportable: modalData?.is_reportable,
+                title: modalData?.title,
+                document_id: modalData?.document?.id,
+                survey_date: georgianDateToJalaliDate(modalData?.survey_date),
             });
 
         } else if (modalMode === "add") {
@@ -35,11 +34,11 @@ const DocumentProductModal = ({isOpen, modalMode, modalData, closeModal, setModa
 
     const onFinishForm = async (values) => {
         const payload = {
-            product_id: currentProduct.id,
+            product_id: currentProduct?.id,
             document_id: values.document_id,
             title: values.title,
             is_reportable: values.is_reportable || false,
-            survey_date: values.survey_date
+            survey_date: jalaliDateToGeorgianDate(values?.survey_date)
         };
         try {
             if (modalMode === "add") {
@@ -119,7 +118,6 @@ const DocumentProductModal = ({isOpen, modalMode, modalData, closeModal, setModa
                             <Form.Item
                                 label="نوع سند"
                                 name="document_id"
-                                // rules={[{ required: true, message: "لطفاً اسناد را انتخاب کنید" }]}
                             >
                                 <TreeSelect
                                     treeData={getTreeSelectOptions(documentList || [])}
@@ -133,12 +131,13 @@ const DocumentProductModal = ({isOpen, modalMode, modalData, closeModal, setModa
                         </Col>
 
                         <Col span={12}>
-                            <Form.Item
-                                label="تاریخ بررسی"
-                                name="survey_date"
-                            >
-                                <DatepickerCustom format="YYYY-MM-DD"/>
-                            </Form.Item>
+                                <Date
+                                    label="تاریخ بررسی"
+                                      name="survey_date"
+                                    stringifyDate={true}
+                                    noStyle
+                                    isRequired
+                                />
                         </Col>
                         <Col span={12}>
                             <Form.Item
