@@ -1,7 +1,6 @@
 import { PlusOutlined } from '@ant-design/icons'
 import { Button, Checkbox, Col, Form, Input, message, Row, TreeSelect } from 'antd'
 import Modal from '../../../../../components/Modal'
-import DatepickerCustom from '../../../../../components/DatePicker'
 import FileUploader from '../../../../../components/FileUploader/FileUploader'
 import { useEffect } from 'react'
 import {
@@ -10,6 +9,8 @@ import {
     useUpdateProductEditionlog
 } from '@/QueryServises/productDocumentEditionLogQuery/index.js'
 import { BASEURL } from "@/Services/axiosInstance.js";
+import Date from '../../../../../components/DatePicker/Date.jsx'
+import {georgianDateToJalaliDate, jalaliDateToGeorgianDate} from "@utils/timeTool.jsx";
 
 const AddProductDocumentListSerialLogModal = (
     {
@@ -34,7 +35,7 @@ const AddProductDocumentListSerialLogModal = (
         if (modalMode === 'edit' && modalData) {
             form.setFieldsValue({
                 document_edition_id: modalData?.data?.product_document_edition?.edition,
-                survey_date: modalData?.data?.survey_date,
+                survey_date: georgianDateToJalaliDate(modalData?.data?.survey_date),
                 file: modalData?.data?.file
                     ? [
                         {
@@ -54,7 +55,7 @@ const AddProductDocumentListSerialLogModal = (
         const payload = {
             product_document_edition_id: values.document_edition_id,
             product_serial_id: serialId,
-            survey_date: values.survey_date,
+            survey_date: jalaliDateToGeorgianDate(values?.survey_date),
             status: 10,
             file: values.file?.[0]?.originFileObj
         }
@@ -128,12 +129,13 @@ const AddProductDocumentListSerialLogModal = (
                         </Col>
 
                         <Col span={12}>
-                            <Form.Item
-                                label="تاریخ تهیه"
-                                name="survey_date"
-                            >
-                                <DatepickerCustom />
-                            </Form.Item>
+                                <Date
+                                    stringifyDate={true}
+                                    noStyle
+                                    isRequired
+                                    label="تاریخ تهیه"
+                                    name="survey_date"
+                                    />
                         </Col>
                         <Col span={24}>
                             <Form.Item
