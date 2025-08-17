@@ -2,27 +2,21 @@ import {useMyAxios} from "@/hooks/useMyAxios.js";
 import {useQuery} from "@tanstack/react-query";
 
 export const useGetEditionCountReport = (id, filters = {}, queryOptions = {}) => {
-
     const myAxios = useMyAxios();
     return useQuery({
-        queryKey: [
-            "edition-count-report",
-            id,
-            JSON.stringify(filters),
-        ],
-
+        queryKey: ["edition-count-report", id, filters],
         queryFn: () =>
             myAxios
-                .get(`/get-edition-count-report/${id}/`, {
+                .get(`/product/get-edition-count-report/${id}/`, {
                     params: {
-                        states: filters.states.join(','),
-                        with_children: filters.with_children
+                        ...filters,
                     },
                 })
-                .then((response) => response.data),
+                .then((res) => res.data),
         ...queryOptions,
     });
 };
+
 
 export const useGetProductDocumentReport = (id, filters = {}, queryOptions = {}) => {
     const {myAxios} = useMyAxios();

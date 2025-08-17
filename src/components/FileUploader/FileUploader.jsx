@@ -1,8 +1,8 @@
-import { Upload, Button, Image } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
-import { useState, useEffect, useMemo } from "react";
+import {Button, Image, Upload} from "antd";
+import {UploadOutlined} from "@ant-design/icons";
+import {useEffect, useMemo, useState} from "react";
 
-const FileUploader = ({ value = [], onChange, maxFiles = 1 }) => {
+const FileUploader = ({value = [], onChange, maxFiles = 1}) => {
     const [fileList, setFileList] = useState([]);
 
     const normalizedValue = useMemo(() => {
@@ -65,7 +65,7 @@ const FileUploader = ({ value = [], onChange, maxFiles = 1 }) => {
                 beforeUpload={() => false}
             >
                 {fileList.length < maxFiles && (
-                    <Button icon={<UploadOutlined />}>Upload</Button>
+                    <Button icon={<UploadOutlined/>}>آپلود فایل</Button>
                 )}
             </Upload>
             {fileList.map((file, index) => (
@@ -76,8 +76,8 @@ const FileUploader = ({ value = [], onChange, maxFiles = 1 }) => {
                             key={index}
                             src={file.url || file.base64}
                             width={100}
-                            style={{ marginTop: 10 }}
-                            preview={{ src: file.url || file.base64 }}
+                            style={{marginTop: 10}}
+                            preview={{src: file.url || file.base64}}
                         />
                         // </div>
                     )}

@@ -25,13 +25,10 @@ const RecursiveTable = ({dataSource, columns}) => (
 
 const Introduction = () => {
     const {currentProduct} = useProductContext();
-    // const product = currentProduct?.productData;
     const {data: productData, refetch} = useProductChildren(currentProduct?.id)
     const [form] = Form.useForm();
     const {mutateAsync: updateProductionInfo} = useUpdateProductInfo();
 
-
-    console.log(productData)
 
     useEffect(() => {
         if (productData) {
