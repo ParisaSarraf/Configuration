@@ -19,27 +19,27 @@ export const AccessProductCol = () => {
             dataIndex: ['role', 'name'],
             key: 'role_name'
         },
-        {
-            title: 'صفحه‌های قابل دسترسی',
-            dataIndex: ['user', 'accessible_pages'],
-            key: 'accessible_pages',
-            render: (pages) => {
-                return (
-                    <Tag color={'purple'}>{pages}</Tag>
-                )
-            }
-        },
+        // {
+        //     title: 'صفحه‌های قابل دسترسی',
+        //     dataIndex: ['user', 'accessible_pages'],
+        //     key: 'accessible_pages',
+        //     render: (pages) => {
+        //         return (
+        //             <Tag color={'purple'}>{pages}</Tag>
+        //         )
+        //     }
+        // },
         {
             title: 'تاریخ ثبت',
             dataIndex: ['user', 'registry_date'],
             key: 'registry_date',
             render: (date) => date ? new Date(date).toLocaleDateString('fa-IR') : '---'
         },
-        {
-            title: 'وضعیت',
-            dataIndex: ['user', 'is_superuser'],
-            key: 'status',
-            render: (isSuperuser) => isSuperuser ? 'مدیر سیستم' : 'کاربر عادی'
-        }
+        // {
+        //     title: 'وضعیت',
+        //     dataIndex: ['user', 'is_superuser'],
+        //     key: 'status',
+        //     render: (isSuperuser) => isSuperuser ? 'مدیر سیستم' : 'کاربر عادی'
+        // }
     ];
 };

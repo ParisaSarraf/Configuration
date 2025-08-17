@@ -13,9 +13,9 @@ const Reports = () => {
                 <Col xs={24} lg={24}>
                     <DocumentStateList productId={ProductIds}/>
                 </Col>
-                <Col xs={24} lg={24}>
-                    <ReportCharts productId={ProductIds}/>
-                </Col>
+                {/*<Col xs={24} lg={24}>*/}
+                {/*    <ReportCharts productId={ProductIds}/>*/}
+                {/*</Col>*/}
             </Row>
         </div>
     );
