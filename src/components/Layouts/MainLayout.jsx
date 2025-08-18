@@ -21,16 +21,12 @@ const MainLayout = () => {
                     className={`bg-white transition-all duration-300 ease-in-out ${isProductsCollapsed ? 'w-0 overflow-hidden' : 'w-[360px]'}`}>
                     <Products/>
                 </div>
-
-                {/* Collapse Button */}
                 <button
                     onClick={toggleProductsPanel}
                     className={`bg-white rounded-l-md  ${isProductsCollapsed ? 'left-0' : 'left-[360px]'}`}
                 >
                     {isProductsCollapsed ? <DoubleLeftOutlined/> : < DoubleRightOutlined/>}
                 </button>
-
-                {/* Main Content */}
                 <div
                     className="flex-1 px-2 overflow-y-auto "
                 >
