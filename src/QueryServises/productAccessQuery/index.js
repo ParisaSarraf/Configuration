@@ -18,23 +18,17 @@ export const useProductAccsessList = (queryOptions) => {
 export const useGetAccessOfProductById = (id, queryOptions = {}) => {
     const {myAxios} = useMyAxios();
     return useQuery({
-        queryKey: ["get-access-of-proudct-by-id", id],
-        queryFn: async () => {
-            if (!id) return [];
-            try {
-                const response = await myAxios.get(`/user/get-access-of-proudct-by-id/${id}`);
-                if (Array.isArray(response.data)) {
-                    return response.data[0]?.product_access || [];
-                }
-                return response.data?.product_access || [];
-            } catch (error) {
-                console.error('Error fetching product access:', error);
-                throw error;
-            }
-        },
-        ...queryOptions,
-    });
-};
+            queryKey: ["get-access-of-proudct-by-id", id],
+            queryFn: async () =>
+                myAxios.get(`/user/get-access-of-proudct-by-id/${id}`).then((response) => {
+                    queryOptions?.onSuccess?.(response?.data);
+                    return response?.data;
+                }),
+            ...queryOptions,
+        }
+    )
+}
+
 
 // export const useOneProductAccessKey = ["product", productId];
 // export const useOneProductAccess = (productId) => {

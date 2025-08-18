@@ -1,45 +1,32 @@
-import {Tag} from "antd";
+import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
+import {Tag} from 'antd'
 
-
-export const AccessProductCol = () => {
-    return [
-        {
-            title: 'نام کاربر',
-            dataIndex: ['user', 'name'],
-            key: 'user_name',
-            render: (name, record) => `${name} ${record.user?.last_name || ''}`
+export const AccessProductCol = () => [
+    {
+        title: 'نام کاربر',
+        key: 'user_name',
+        render: (_, record) => {
+            return (
+                <Tag color={'orange'}>{record.user?.name || ''} {record.user?.last_name || ''}</Tag>
+            )
         },
-        {
-            title: 'نام کاربری',
-            dataIndex: ['user', 'username'],
-            key: 'username'
+    },
+    {
+        title: 'نقش',
+        key: 'role_name',
+        render: (_, record) => {
+            return (
+                <Tag color={'blue'}>{record.role?.name || 'ندارد'}</Tag>
+            )
         },
-        {
-            title: 'نقش',
-            dataIndex: ['role', 'name'],
-            key: 'role_name'
+    },
+    {
+        title: 'تاریخ ثبت',
+        key: 'registry_date',
+        render: (_, record) => {
+            return (
+                <Tag color={'cyan'}>{georgianDateToJalaliDate(record?.user?.registry_date)}</Tag>
+            )
         },
-        // {
-        //     title: 'صفحه‌های قابل دسترسی',
-        //     dataIndex: ['user', 'accessible_pages'],
-        //     key: 'accessible_pages',
-        //     render: (pages) => {
-        //         return (
-        //             <Tag color={'purple'}>{pages}</Tag>
-        //         )
-        //     }
-        // },
-        {
-            title: 'تاریخ ثبت',
-            dataIndex: ['user', 'registry_date'],
-            key: 'registry_date',
-            render: (date) => date ? new Date(date).toLocaleDateString('fa-IR') : '---'
-        },
-        // {
-        //     title: 'وضعیت',
-        //     dataIndex: ['user', 'is_superuser'],
-        //     key: 'status',
-        //     render: (isSuperuser) => isSuperuser ? 'مدیر سیستم' : 'کاربر عادی'
-        // }
-    ];
-};
+    },
+];

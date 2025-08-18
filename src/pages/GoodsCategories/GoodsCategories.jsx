@@ -9,6 +9,7 @@ import Meetings from "@/pages/Meetings/Meetings.jsx";
 import Activity from "@/pages/Activity/Activity.jsx";
 import ProductDocuments from "../ProductDocument/ProductDocuments";
 import Reports from "@/pages/Reports/Reports.jsx";
+import DetailAccessProduct from "@/pages/SystemManagement/DetailAccessProduct/DetailAccessProduct.jsx";
 
 const GoodsCategories = () => {
     const items = [
@@ -57,6 +58,10 @@ const GoodsCategories = () => {
             label: `گزارش ها`,
             key: '10',
             children: <Reports/>
+        }, {
+            label: 'توزیع نقش ها',
+            key: '11',
+            children: <DetailAccessProduct/>
         }
     ];
 
@@ -82,6 +87,7 @@ const GoodsCategories = () => {
                         flexWrap: 'nowrap',
                         msOverflowStyle: 'none',
                         scrollbarWidth: 'none',
+                        
                     }}
                     className="hide-scrollbar"
                 />

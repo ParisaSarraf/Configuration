@@ -1,81 +1,57 @@
-import {Button, Card, message, Select, Spin, Table} from 'antd'
-import {useState} from 'react'
-import {useNavigate} from 'react-router-dom'
+import {Card, message, Spin, Table} from 'antd'
 import {useGetAccessOfProductById} from '../../../QueryServises/productAccessQuery'
-import {useProductList} from '../../../QueryServises/productQuery'
 import {AccessProductCol} from './AccessProductCol'
+import {useProductContext} from "@/Services/Context/ProductContext.jsx";
 
 const DetailAccessProduct = () => {
-    const navigate = useNavigate()
-    const {data: listOfProductData, isLoading: isProductsLoading} = useProductList()
-    const [selectedProductId, setSelectedProductId] = useState(null)
+    const {currentProduct} = useProductContext();
 
     const {
-        data: accessData = [],
+        data: accessData = {},
         isLoading: isAccessLoading,
         isError,
-    } = useGetAccessOfProductById(selectedProductId)
-
-    console.log('Access Data:', accessData);
-
-    const handleProductChange = (productId) => {
-        setSelectedProductId(productId)
-    }
+    } = useGetAccessOfProductById(currentProduct?.id)
 
     if (isError) {
         message.error('خطا در دریافت اطلاعات دسترسی محصول')
     }
 
-    const tableData = Array.isArray(accessData) ? accessData : [];
+
+    const tableData = accessData?.[0]?.roles
+        ? accessData[0].roles.flatMap((item) =>
+            item.users.map((user) => ({
+                id: user.id,
+                user,
+                role: item.role,
+            }))
+        )
+        : [];
+    console.log(tableData)
+
 
     return (
-        <div className="min-h-screen bg-Main p-2">
-            <div className="my-1 p-2 bg-white shadow-md rounded-lg">
-                <Button
-                    type="primary"
-                    className="bg-blue-500 hover:bg-blue-600 text-white"
-                    onClick={() => navigate("/panel/system-management")}
-                >
-                    بازگشت به صفحه اصلی
-                </Button>
-            </div>
+        <Card
+            title="جزئیات توزیع نقش ها"
+            className='w-full flex flex-col gap-5'
+            loading={isAccessLoading}
+        >
+            <Spin spinning={isAccessLoading}>
+                <Table
+                    columns={AccessProductCol()}
+                    dataSource={tableData}
+                    loading={isAccessLoading}
+                    rowKey={(record) => record.id}
+                    locale={{
+                        emptyText: currentProduct
+                            ? 'هیچ داده‌ای یافت نشد'
+                            : 'لطفاً یک محصول انتخاب کنید'
+                    }}
+                    size="small"
+                />
+            </Spin>
+        </Card>
+    );
+};
 
-            <Card
-                title="جزئیات سمت - محصولات - کاربران"
-                className='w-full flex flex-col gap-5'
-                loading={isProductsLoading}
-            >
-                <div className='mb-4'>
-                    <h1>انتخاب محصول</h1>
-                    <Select
-                        title='انتخاب محصول'
-                        className='w-full'
-                        placeholder="یک محصول انتخاب کنید"
-                        onChange={handleProductChange}
-                        loading={isProductsLoading}
-                        options={listOfProductData?.map((item) => ({
-                            label: `${item.persian_title} (کد: ${item.code})`,
-                            value: item.id
-                        }))}
-                    />
-                </div>
-
-                <Spin spinning={isAccessLoading}>
-                    <Table
-                        columns={AccessProductCol()}
-                        dataSource={tableData}
-                        loading={isAccessLoading}
-                        rowKey={(record) => `${record.user?.id}-${record.role?.id}`}
-                        locale={{
-                            emptyText: selectedProductId
-                                ? 'هیچ داده‌ای یافت نشد'
-                                : 'لطفاً یک محصول انتخاب کنید'
-                        }}
-                    />
-                </Spin>
-            </Card>
-        </div>
-    )
-}
 
 export default DetailAccessProduct

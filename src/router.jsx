@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import {createBrowserRouter} from "react-router-dom";
 import MainLayout from "./components/Layouts/MainLayout";
 import ProtectedRoute from "./components/ProtectedRoute/‎ProtectedRoute‎";
 import SignIn from "./components/SignIn/SignIn";
@@ -18,134 +18,134 @@ import Activity from "./pages/Activity/Activity";
 import MyWork from "@/pages/MyWork/MyWork.jsx";
 
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: (
-        <ProtectedRoute>
-          <MainLayout />
-        </ProtectedRoute>
-    ),
-    errorElement: (
-        <ProtectedRoute>
-          <NotFound />
-        </ProtectedRoute>
-    ),
-    children: [
-      {
-        index: true,
+    {
+        path: "/",
         element: (
             <ProtectedRoute>
-              <GoodsCategories />
+                <MainLayout/>
             </ProtectedRoute>
         ),
-      },
-      {
-        path: "/product/:productId/activities",
+        errorElement: (
+            <ProtectedRoute>
+                <NotFound/>
+            </ProtectedRoute>
+        ),
+        children: [
+            {
+                index: true,
+                element: (
+                    <ProtectedRoute>
+                        <GoodsCategories/>
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: "/product/activities/:productId",
+                element: (
+                    <ProtectedRoute>
+                        <Activity/>
+                    </ProtectedRoute>
+                )
+            }
+        ],
+    },
+    {
+        path: "/sign-in",
+        element: <SignIn/>,
+        errorElement: <NotFound/>
+    },
+    {
+        path: "/forget-password",
+        element: <ForgetPassword/>,
+        errorElement: <NotFound/>
+    },
+    {
+        path: "/panel/system-management",
         element: (
             <ProtectedRoute>
-              <Activity />
+                <Systemmanagement/>
             </ProtectedRoute>
-        )
-      }
-    ],
-  },
-  {
-    path: "/sign-in",
-    element: <SignIn />,
-    errorElement: <NotFound />
-  },
-  {
-    path: "/forget-password",
-    element: <ForgetPassword />,
-    errorElement: <NotFound />
-  },
-  {
-    path: "/panel/system-management",
-    element: (
-        <ProtectedRoute>
-          <Systemmanagement />
-        </ProtectedRoute>
-    ),
-    errorElement: <NotFound />
-  },
-  {
-    path: "/panel/system-management/user",
-    element: (
-        <ProtectedRoute>
-          <Users />
-        </ProtectedRoute>
-    ),
-    errorElement: <NotFound />
-  },
-  {
-    path: "/panel/system-management/roles-users-product",
-    element: (
-        <ProtectedRoute>
-          <Access />
-        </ProtectedRoute>
-    ),
-    errorElement: <NotFound />
-  },
-  {
-    path: "/panel/system-management/roles-users",
-    element: (
-        <ProtectedRoute>
-          <UsersRole />
-        </ProtectedRoute>
-    ),
-    errorElement: <NotFound />
-  },
-  {
-    path: "/panel/system-management/roles-permission",
-    element: (
-        <ProtectedRoute>
-          <Rols />
-        </ProtectedRoute>
-    ),
-    errorElement: <NotFound />
-  },
-  {
-    path: "/panel/system-management/roles-life-cycle",
-    element: (
-        <ProtectedRoute>
-          <RoleLifeCycle />
-        </ProtectedRoute>
-    ),
-    errorElement: <NotFound />
-  },
-  {
-    path: "/panel/system-management/detail-access-product",
-    element: (
-        <ProtectedRoute>
-          <DetailAccessProduct />
-        </ProtectedRoute>
-    ),
-    errorElement: <NotFound />
-  },
-  {
-    path: "/panel/datas",
-    element: (
-        <ProtectedRoute>
-          <Setting />
-        </ProtectedRoute>
-    ),
-    errorElement: <NotFound />
-  },
-  {
-    path: "/panel/document/list",
-    element: (
-        <ProtectedRoute>
-          <Documents />
-        </ProtectedRoute>
-    ),
-  },  {
-    path: "/my-work",
-    element: (
-        <ProtectedRoute>
-          <MyWork />
-        </ProtectedRoute>
-    ),
-  },
+        ),
+        errorElement: <NotFound/>
+    },
+    {
+        path: "/panel/system-management/user",
+        element: (
+            <ProtectedRoute>
+                <Users/>
+            </ProtectedRoute>
+        ),
+        errorElement: <NotFound/>
+    },
+    {
+        path: "/panel/system-management/roles-users-product",
+        element: (
+            <ProtectedRoute>
+                <Access/>
+            </ProtectedRoute>
+        ),
+        errorElement: <NotFound/>
+    },
+    {
+        path: "/panel/system-management/roles-users",
+        element: (
+            <ProtectedRoute>
+                <UsersRole/>
+            </ProtectedRoute>
+        ),
+        errorElement: <NotFound/>
+    },
+    {
+        path: "/panel/system-management/roles-permission",
+        element: (
+            <ProtectedRoute>
+                <Rols/>
+            </ProtectedRoute>
+        ),
+        errorElement: <NotFound/>
+    },
+    {
+        path: "/panel/system-management/roles-life-cycle",
+        element: (
+            <ProtectedRoute>
+                <RoleLifeCycle/>
+            </ProtectedRoute>
+        ),
+        errorElement: <NotFound/>
+    },
+    {
+        path: "/panel/system-management/detail-access-product",
+        element: (
+            <ProtectedRoute>
+                <DetailAccessProduct/>
+            </ProtectedRoute>
+        ),
+        errorElement: <NotFound/>
+    },
+    {
+        path: "/panel/datas",
+        element: (
+            <ProtectedRoute>
+                <Setting/>
+            </ProtectedRoute>
+        ),
+        errorElement: <NotFound/>
+    },
+    {
+        path: "/panel/document/list",
+        element: (
+            <ProtectedRoute>
+                <Documents/>
+            </ProtectedRoute>
+        ),
+    }, {
+        path: "/my-work",
+        element: (
+            <ProtectedRoute>
+                <MyWork/>
+            </ProtectedRoute>
+        ),
+    },
 ]);
 
 export default router;
