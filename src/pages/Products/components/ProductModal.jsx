@@ -67,8 +67,8 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
         } else if (modalMode === "addToParent" && modalData) {
             setSelectedParentCodeId(modalData.id);
             form.setFieldsValue({
-                parent_id: modalData.id,
-                parent_code_id: modalData.id,
+                parent_id: null,
+                parent_code_id: null,
                 final_code: parentCodeId ? `${parentCodeId}` : ""
             });
         } else if (modalMode === "add") {
@@ -86,11 +86,11 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
 
     const onFinish = (values) => {
         const payload = {
-            parent_id: values.parent_id,
+            parent_id: values.parent_id || null,
+            parent_code_id: values.parent_code_id || null,
             casing_id: values.casing_id,
             genus_id: values.genus_id,
             alternative_genus_id: values.alternative_genus_id,
-            parent_code_id: values.parent_code_id,
             standard_code_id: values.standard_code_id,
             personality_id: values.personality_id,
             code: values.code,
@@ -158,12 +158,12 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                 <Row gutter={16}>
                     <Col span={4}>
                         <Form.Item name="parent_id" label="شاخه والد">
-                            <TS data={productData} placeholder="شاخه والد"/>
+                            <TS data={productData} placeholder="شاخه والد" allowClear/>
                         </Form.Item>
                     </Col>
                     <Col span={4}>
                         <Form.Item name="parent_code_id" label="ارث بری کد">
-                            <TS data={productData} placeholder="ارث بری کد" onChange={handleParentChange}/>
+                            <TS data={productData} placeholder="ارث بری کد" onChange={handleParentChange} allowClear/>
                         </Form.Item>
                     </Col>
 

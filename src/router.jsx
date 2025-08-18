@@ -4,7 +4,7 @@ import ProtectedRoute from "./components/ProtectedRoute/‎ProtectedRoute‎";
 import SignIn from "./components/SignIn/SignIn";
 import NotFound from "./pages/NotFound/NotFound";
 import ForgetPassword from "./pages/ForgetPassword/ForgetPassword";
-import Systemmanagement from "./pages/Systemmanagement";
+import SystemManagement from "./pages/Systemmanagement";
 import Documents from "./pages/Documents/Documents";
 import Users from "./pages/Users/Users"
 import Rols from "./pages/Rols/Rols";
@@ -40,7 +40,7 @@ const router = createBrowserRouter([
                 ),
             },
             {
-                path: "/product/activities/:productId",
+                path: "/get-product-activity-by-id/:productId",
                 element: (
                     <ProtectedRoute>
                         <Activity/>
@@ -63,7 +63,7 @@ const router = createBrowserRouter([
         path: "/panel/system-management",
         element: (
             <ProtectedRoute>
-                <Systemmanagement/>
+                <SystemManagement/>
             </ProtectedRoute>
         ),
         errorElement: <NotFound/>

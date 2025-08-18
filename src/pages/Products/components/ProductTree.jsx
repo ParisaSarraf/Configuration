@@ -1,29 +1,21 @@
-import { useMemo } from "react";
-import { message, Modal } from "antd";
-import {
-    EditOutlined,
-    DeleteOutlined,
-    PlusOutlined,
-    CaretUpOutlined,
-    FileExcelOutlined,
-    FileOutlined,
-} from '@ant-design/icons';
-import { useDeleteProduct } from "../../../QueryServises/productQuery";
+import {useMemo} from "react";
+import {message, Modal} from "antd";
+import {DeleteOutlined, EditOutlined, FileExcelOutlined, PlusOutlined,} from '@ant-design/icons';
+import {useDeleteProduct} from "../../../QueryServises/productQuery";
 import Tree from "../../../components/Tree";
-import StopIcon from '@mui/icons-material/Stop';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
-import { exportToExcel } from "../../../utils/ExportExcel";
+import {exportToExcel} from "../../../utils/ExportExcel";
 
 
-const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onChange, checkedKeys, onProductClick }) => {
-    const { mutate: deleteProduct, isLoading: isDeleting } = useDeleteProduct();
+const ProductTree = ({productData, setModal, refetch, isLoading, isError, onChange, selectedKeys, onProductClick}) => {
+    const {mutate: deleteProduct, isLoading: isDeleting} = useDeleteProduct();
 
     const rightClickMenuItems = [
         {
             key: "edit",
             label: (
                 <div className="w-full flex flex-row items-center gap-2">
-                    <EditOutlined />
+                    <EditOutlined/>
                     <span>ویرایش شاخه</span>
                 </div>
             )
@@ -32,7 +24,7 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
             key: "delete",
             label: (
                 <div className="w-full flex flex-row items-center gap-2">
-                    <DeleteOutlined />
+                    <DeleteOutlined/>
                     <span>حذف شاخه</span>
                 </div>
             ),
@@ -42,7 +34,7 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
             key: "addToParent",
             label: (
                 <div className="w-full flex flex-row items-center gap-2">
-                    <PlusOutlined />
+                    <PlusOutlined/>
                     <span>افزودن زیرشاخه</span>
                 </div>
             )
@@ -51,20 +43,11 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
             key: "exportExcel",
             label: (
                 <div className="w-full flex flex-row items-center gap-2">
-                    <FileExcelOutlined />
+                    <FileExcelOutlined/>
                     <span>خروجی اکسل</span>
                 </div>
             )
         },
-        // {
-        //     key: "documentExport",
-        //     label: (
-        //         <div className="w-full flex flex-row items-center gap-2">
-        //             <FileOutlined />
-        //             <span>خروجی اسناد</span>
-        //         </div>
-        //     )
-        // }
     ];
 
     const transformDataToTreeFormat = (productData) => {
@@ -80,8 +63,6 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
                                     'warning'
                         }
                     />
-                    {/* <StopIcon fontSize="small" />
-                    <CaretUpOutlined /> */}
                     <span>{item.persian_title} ({item.final_code || item.code})</span>
                 </div>
             ),
@@ -154,13 +135,6 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
             } catch (error) {
                 message.error("خطا در خروجی اکسل");
             }
-        } else if (actionKey === 'documentExport') {
-            try {
-                exportToExcel(node.productData?.product_documents, 'اسناد.xlsx')
-                message.success("خروجی اکسل اسناد  دانلود شد.")
-            } catch (error) {
-                message.error("خطا در خروجی اکسل")
-            }
         }
     }
     return (
@@ -169,16 +143,15 @@ const ProductTree = ({ productData, setModal, refetch, isLoading, isError, onCha
                 data={treeData}
                 isLoading={isLoading || isDeleting}
                 isError={isError || isDeleting}
-                onChange={onChange}
-                checkedKeys={checkedKeys}
-                onNodeClick={onProductClick}
+                onSelect={(_, {node}) => onProductClick(node.productData)}
+                selectedKeys={selectedKeys}
                 showLine={true}
                 checkable={false}
                 showIcon={false}
                 rightClickMenuItems={rightClickMenuItems}
                 onRightClickAction={handleRightClickAction}
             />
-        </div >
+        </div>
     );
 };
 

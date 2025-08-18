@@ -87,7 +87,7 @@ const GoodsCategories = () => {
                         flexWrap: 'nowrap',
                         msOverflowStyle: 'none',
                         scrollbarWidth: 'none',
-                        
+
                     }}
                     className="hide-scrollbar"
                 />

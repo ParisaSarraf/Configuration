@@ -1,5 +1,5 @@
-import {useState} from 'react';
-import {Button, message, Spin, Menu} from 'antd';
+import {useEffect, useState} from 'react';
+import {Button, Menu, message, Spin} from 'antd';
 import {PlusOutlined} from '@ant-design/icons';
 import {useProductList} from "../../QueryServises/productQuery";
 import ProductTree from "./components/ProductTree";
@@ -10,11 +10,18 @@ import useModal from '../../hooks/useModal';
 const Products = () => {
     const {data: productData, isLoading, isError, refetch} = useProductList();
     const {isOpen, modalMode, modalData, setModal, closeModal} = useModal();
-    const [checkedKeys, setCheckedKeys] = useState([]);
-    const {handleProductSelect} = useProductContext();
+    const [selectedKeys, setSelectedKeys] = useState([]);
+    const {currentProduct, handleProductSelect} = useProductContext();
 
-    const handleTreeChange = (newCheckedKeys) => {
-        setCheckedKeys(newCheckedKeys);
+    useEffect(() => {
+        if (currentProduct) {
+            setSelectedKeys([`product-${currentProduct.id}`]);
+        }
+    }, [currentProduct]);
+
+
+    const handleTreeChange = (newSelectedKeys) => {
+        setSelectedKeys(newSelectedKeys);
     };
 
     return (
@@ -42,7 +49,7 @@ const Products = () => {
                             refetch={refetch}
                             isLoading={isLoading}
                             isError={isError}
-                            checkedKeys={checkedKeys}
+                            selectedKeys={selectedKeys}
                             onChange={handleTreeChange}
                             onProductClick={handleProductSelect}
                         />

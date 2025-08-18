@@ -2,10 +2,12 @@ import {Card, Table} from "antd";
 import {useGetExpertActivity} from "@/QueryServises/PanelQuery/index.js";
 import {MyActivitiesCols} from "@/pages/MyWork/MyActivities/MyActivitiesCols.jsx";
 import {useNavigate} from "react-router-dom";
+import {useProductContext} from "../../../Services/Context/ProductContext";
 
 const MyActivities = () => {
-    const {data : MyActivitiesData} = useGetExpertActivity()
+    const {data: MyActivitiesData} = useGetExpertActivity()
     const navigate = useNavigate();
+    const {handleProductSelect} = useProductContext();
 
     const expandedRowRender = (record) => {
         const isMeeting = !!record.meeting;
@@ -69,28 +71,29 @@ const MyActivities = () => {
         ) : null;
     };
 
-        return (
-            <Card>
-                <Table
-                    expandedRowRender={expandedRowRender}
-                    dataSource={MyActivitiesData || []}
-                    pagination={false}
-                    scroll={{ y: 300 }}
-                    columns={MyActivitiesCols()}
-                    size={"small"}
-                    rowKey={record => record.id}
-                    onRow={(record) => {
-                        const productId = record.product?.id || record.meeting?.product?.id;
-                        return {
-                            onClick: () => {
-                                if (productId) {
-                                    navigate(`/product/${productId}/activities`);
-                                }
+    return (
+        <Card>
+            <Table
+                expandedRowRender={expandedRowRender}
+                dataSource={MyActivitiesData || []}
+                pagination={false}
+                scroll={{y: 300}}
+                columns={MyActivitiesCols()}
+                size={"small"}
+                rowKey={record => record.id}
+                onRow={(record) => {
+                    const product = record.product || record.meeting?.product;
+                    return {
+                        onClick: () => {
+                            if (product) {
+                                handleProductSelect(product);
+                                navigate(`/`);
                             }
-                        };
-                    }}
-                />
-            </Card>
-        )
+                        }
+                    };
+                }}
+            />
+        </Card>
+    )
 }
 export default MyActivities;
