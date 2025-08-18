@@ -13,13 +13,18 @@ import PlanModal from "@/pages/Activity/components/PlanModal.jsx";
 import {useState} from "react";
 import DetailModal from "../Meetings/components/DetailModal";
 import {useUserSimple} from "../../QueryServises/userQuery";
+import { useNavigate, useParams } from "react-router-dom";
+
 
 const Activity = () => {
     const {modalMode, setModal, isOpen, modalData, closeModal, modalType} = useModal()
     const {currentProduct} = useProductContext();
     const [filters, setFilters] = useState({});
+    const navigate = useNavigate();
+    const { productId } = useParams();
+
     const {data: activityData = [], refetch} = useGetProductActivitiesType(
-        currentProduct?.id,
+        productId || currentProduct?.id,
         filters
     );
     // const { data: activityData = [], refetch } = useGetProductActivities(currentProduct?.id)
@@ -113,6 +118,7 @@ const Activity = () => {
                     })}
                     rowKey="id"
                     rowClassName={getRowClassName}
+
                 />
             </div>
 

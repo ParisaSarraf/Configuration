@@ -1,9 +1,9 @@
 import { Button, Card } from "antd";
 import { useNavigate } from "react-router-dom";
 import useModal from "../../hooks/useModal";
-import UsersRoleModal from "../SystemManagment/UsersRoleModal/UsersRoleModal";
+import UsersRoleModal from "../SystemManagement/UsersRoleModal/UsersRoleModal";
 import { PlusOutlined } from "@ant-design/icons";
-import UsersAndRoleTree from "../SystemManagment/UsersAndRoleTree/UsersAndRoleTree";
+import UsersAndRoleTree from "../SystemManagement/UsersAndRoleTree/UsersAndRoleTree";
 import UsersAndRoleTransform from "./_components/UsersAndRoleTransform";
 
 
@@ -27,7 +27,7 @@ const Permissions = () => {
                 <Button
                     type="primary"
                     className="bg-blue-500 hover:bg-blue-600 text-white"
-                    onClick={() => navigate("/panel/system-managment/")}
+                    onClick={() => navigate("/panel/system-management/")}
                 >
                     بازگشت به صفحه قبل
                 </Button>

@@ -58,7 +58,7 @@ const CustomHeader = () => {
             key: '2',
             label: 'مدیریت سیستم',
             icon: <SecurityScanOutlined/>,
-            onClick: () => navigate("/panel/system-managment"),
+            onClick: () => navigate("/panel/system-management"),
         }] : []),
     ]
 
@@ -67,7 +67,10 @@ const CustomHeader = () => {
         <header
             className="bg-white rounded-lg my-2 mx-2 text-black ps-2 flex flex-row items-center justify-between h-12">
             <div className="flex flex-row gap-2 items-center">
-                <p className="hidden md:block">سامانه جامع سیستم مدیریت پروژه </p>
+                <Button
+                    className="hidden md:block bg-blue-500 hover:bg-blue-600 text-white"
+                        onClick={() => navigate("/")}
+                >سامانه جامع سیستم مدیریت پروژه </Button>
             </div>
             <div className="flex flex-row items-center gap-4">
                 <InboxOutlinedIcon/>
@@ -96,7 +99,7 @@ const CustomHeader = () => {
                             <Button icon={<UserOutlined/>}
                                     className="flex items-center w-full text-white bg-purple-500"
                                     aria-label="change pass"
-                                    onClick={() => navigate("/forget-password")}
+                                    onClick={() => navigate("/my-work")}
                             >
                                 کارهای من
                             </Button>

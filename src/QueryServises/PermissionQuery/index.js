@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useMyAxios } from "../../hooks/useMyAxios";
+import { useQuery } from "@tanstack/react-query";
+import { useMyAxios } from "@/hooks/useMyAxios.js";
 
 export const usePermissionListKey = ["lists", "permission"];
 export const usePermissionList = (queryOptions) => {

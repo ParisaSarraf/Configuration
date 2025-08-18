@@ -34,7 +34,7 @@ const DetailAccessProduct = () => {
                 <Button
                     type="primary"
                     className="bg-blue-500 hover:bg-blue-600 text-white"
-                    onClick={() => navigate("/panel/system-managment")}
+                    onClick={() => navigate("/panel/system-management")}
                 >
                     بازگشت به صفحه اصلی
                 </Button>

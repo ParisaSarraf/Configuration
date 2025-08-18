@@ -4,7 +4,7 @@ import ProtectedRoute from "./components/ProtectedRoute/‎ProtectedRoute‎";
 import SignIn from "./components/SignIn/SignIn";
 import NotFound from "./pages/NotFound/NotFound";
 import ForgetPassword from "./pages/ForgetPassword/ForgetPassword";
-import SystemManagment from "./pages/SystemManagment";
+import Systemmanagement from "./pages/Systemmanagement";
 import Documents from "./pages/Documents/Documents";
 import Users from "./pages/Users/Users"
 import Rols from "./pages/Rols/Rols";
@@ -12,32 +12,41 @@ import Setting from "./pages/Setting/Setting";
 import GoodsCategories from "./pages/GoodsCategories/GoodsCategories";
 import RoleLifeCycle from "./pages/RoleLifeCycle/RoleLifeCycle";
 import Access from "./pages/Access/Access";
-import UsersRole from "./pages/SystemManagment/UsersRole";
-import DetailAccessProduct from "./pages/SystemManagment/DetailAccessProduct/DetailAccessProduct";
+import UsersRole from "./pages/Systemmanagement/UsersRole";
+import DetailAccessProduct from "./pages/Systemmanagement/DetailAccessProduct/DetailAccessProduct";
+import Activity from "./pages/Activity/Activity";
+import MyWork from "@/pages/MyWork/MyWork.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: (
-      <ProtectedRoute>
-        <MainLayout />
-      </ProtectedRoute>
+        <ProtectedRoute>
+          <MainLayout />
+        </ProtectedRoute>
     ),
     errorElement: (
-      <ProtectedRoute>
-        <NotFound />
-      </ProtectedRoute>
+        <ProtectedRoute>
+          <NotFound />
+        </ProtectedRoute>
     ),
     children: [
       {
         index: true,
         element: (
-          <ProtectedRoute>
-            <GoodsCategories />
-          </ProtectedRoute>
+            <ProtectedRoute>
+              <GoodsCategories />
+            </ProtectedRoute>
         ),
       },
-
+      {
+        path: "/product/:productId/activities",
+        element: (
+            <ProtectedRoute>
+              <Activity />
+            </ProtectedRoute>
+        )
+      }
     ],
   },
   {
@@ -51,83 +60,90 @@ const router = createBrowserRouter([
     errorElement: <NotFound />
   },
   {
-    path: "/panel/system-managment",
+    path: "/panel/system-management",
     element: (
-      <ProtectedRoute>
-        <SystemManagment />
-      </ProtectedRoute>
+        <ProtectedRoute>
+          <Systemmanagement />
+        </ProtectedRoute>
     ),
     errorElement: <NotFound />
   },
   {
-    path: "/panel/system-managment/user",
+    path: "/panel/system-management/user",
     element: (
-      <ProtectedRoute>
-        <Users />
-      </ProtectedRoute>
+        <ProtectedRoute>
+          <Users />
+        </ProtectedRoute>
     ),
     errorElement: <NotFound />
   },
   {
-    path: "/panel/system-managment/roles-users-product",
+    path: "/panel/system-management/roles-users-product",
     element: (
-      <ProtectedRoute>
-        <Access />
-      </ProtectedRoute>
+        <ProtectedRoute>
+          <Access />
+        </ProtectedRoute>
     ),
     errorElement: <NotFound />
   },
   {
-    path: "/panel/system-managment/roles-users",
+    path: "/panel/system-management/roles-users",
     element: (
-      <ProtectedRoute>
-        <UsersRole />
-      </ProtectedRoute>
+        <ProtectedRoute>
+          <UsersRole />
+        </ProtectedRoute>
     ),
     errorElement: <NotFound />
   },
   {
-    path: "/panel/system-managment/roles-permission",
+    path: "/panel/system-management/roles-permission",
     element: (
-      <ProtectedRoute>
-        <Rols />
-      </ProtectedRoute>
+        <ProtectedRoute>
+          <Rols />
+        </ProtectedRoute>
     ),
     errorElement: <NotFound />
   },
   {
-    path: "/panel/system-managment/roles-life-cycle",
+    path: "/panel/system-management/roles-life-cycle",
     element: (
-      <ProtectedRoute>
-        <RoleLifeCycle />
-      </ProtectedRoute>
+        <ProtectedRoute>
+          <RoleLifeCycle />
+        </ProtectedRoute>
     ),
     errorElement: <NotFound />
   },
   {
-    path: "/panel/system-managment/detail-access-product",
+    path: "/panel/system-management/detail-access-product",
     element: (
-      <ProtectedRoute>
-        <DetailAccessProduct />
-      </ProtectedRoute>
+        <ProtectedRoute>
+          <DetailAccessProduct />
+        </ProtectedRoute>
     ),
     errorElement: <NotFound />
   },
   {
     path: "/panel/datas",
     element: (
-      <ProtectedRoute>
-        <Setting />
-      </ProtectedRoute>
+        <ProtectedRoute>
+          <Setting />
+        </ProtectedRoute>
     ),
     errorElement: <NotFound />
   },
   {
     path: "/panel/document/list",
     element: (
-      <ProtectedRoute>
-        <Documents />
-      </ProtectedRoute>
+        <ProtectedRoute>
+          <Documents />
+        </ProtectedRoute>
+    ),
+  },  {
+    path: "/my-work",
+    element: (
+        <ProtectedRoute>
+          <MyWork />
+        </ProtectedRoute>
     ),
   },
 ]);

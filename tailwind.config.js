@@ -49,6 +49,18 @@ module.exports = {
           "@apply text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 p-4 border border-gray-400 shadow-sm drop-shadow-xl rounded-lg":
             {},
         },
+        ".layout": {
+          "@apply flex flex-col h-screen bg-Main":
+            {},
+        },
+        ".BrandButton": {
+          "@apply bg-blue-500 hover:bg-blue-600 text-white":
+            {},
+        },
+        ".CardItem": {
+          "@apply flex items-center justify-center h-40 bg-white shadow-lg hover:shadow-xl transition-shadow text-purple-500 hover:text-white hover:bg-purple-500 text-lg font-medium rounded-sm rounded-tl-3xl rounded-br-3xl":
+            {},
+        },
       });
     },
   ],

@@ -4,7 +4,7 @@ const ReportCol = () => {
     return [
         {
             title: 'نام محصول',
-            dataIndex: ['product', 'persian_title'],
+            dataIndex: ['product', 'persian_title'] ,
             key: 'persian_title',
             width: 100,
         },
