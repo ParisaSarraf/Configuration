@@ -168,14 +168,14 @@ const AutomationFileModal = ({isOpen, modalData, closeModal, modalMode}) => {
             modalData?.file_3
                 ? {
                     uid: "-3",
-                    name: "فایل پشتیبان تولید",
+                    name: "فایل تصدیق",
                     url: BASEURL.replace("/api/v1", "") + modalData.file_3,
                 }
                 : null,
             modalData?.file_4
                 ? {
                     uid: "-4",
-                    name: "ارسال به کارفرما/پیمانکار",
+                    name: "فایل صحه گذاری",
                     url: BASEURL.replace("/api/v1", "") + modalData.file_4,
                 }
                 : null,

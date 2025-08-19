@@ -13,8 +13,8 @@ const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
             modalType === 'EditionDetail' ? {
                 10: {label: "درحال آپلود فایل غیرقابل ویرایش", status: "warning"},
                 20: {label: "درحال آپلود فایل قابل ویرایش", status: "success"},
-                30: {label: "درحال آپلود فایل پشتیبان تولید", status: "processing"},
-                40: {label: "درحال ارسال به کارفرما/پیمانکار", status: "error"},
+                30: {label: "درحال آپلود فایل تصدیق", status: "processing"},
+                40: {label: "درحال آپلود فایل صحه گذاری ", status: "error"},
             } : {
                 10: {label: "در انتظار تایید", status: "warning"},
                 20: {label: "تایید شده", status: "success"},
@@ -216,12 +216,12 @@ const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
                             {renderFileButton("فایل قابل ویرایش", modalData.file_2)}
                         </h1>
                         <h1>
-                            فایل پشتیبان تولید
-                            {renderFileButton("فایل پشتیبان تولید", modalData.file_3)}
+                            فایل تصدیق
+                            {renderFileButton("فایل تصدیق", modalData.file_3)}
                         </h1>
                         <h1>
-                            ارسال به کارفرما/پیمانکار
-                            {renderFileButton("ارسال به کارفرما/پیمانکار", modalData.file_4)}
+                            فایل صحه گذاری
+                            {renderFileButton("فایل صحه گذاری", modalData.file_4)}
                         </h1>
                     </SectionCard>
                 </div>

@@ -102,12 +102,12 @@ const ProductDocumentEditionFiles = ({
                         </Form.Item>
                     </Col>
                     <Col span={6}>
-                        <Form.Item label={'فایل پشتیبان تولید'} name='file_3'>
+                        <Form.Item label={'فایل تصدیق'} name='file_3'>
                             <FileUploader maxCount={1}/>
                         </Form.Item>
                     </Col>
                     <Col span={6}>
-                        <Form.Item label={'ارسال به کارفرما/پیمانکار'} name='file_4'>
+                        <Form.Item label={'صحه گذاری'} name='file_4'>
                             <FileUploader maxCount={1}/>
                         </Form.Item>
                     </Col>
