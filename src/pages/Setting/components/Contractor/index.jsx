@@ -18,9 +18,9 @@ const Contractor = () => {
             okText: 'بله',
             cancelText: 'خیر',
             okType: 'danger',
-            async onOk() {
+             onOk() {
                 return new Promise((resolve, reject) => {
-                    await deleteContractor(id, {
+                     deleteContractor(id, {
                         onSuccess: () => {
                             message.success("پیمانکار/کارفرما با موفقیت حذف شد");
                             refetch();
