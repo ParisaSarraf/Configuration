@@ -7,7 +7,7 @@ import IndependentMinutes from "@/pages/Meetings/components/IndependentMinutes/I
 import MinutesRelatedToActivities
     from "@/pages/Meetings/components/MinutesRelatedToActivities/MinutesRelatedToActivities.jsx";
 import {PlusOutlined} from "@ant-design/icons";
-import DetailModal from "./components/DetailModal";
+import DetailModal from "../../components/DetailModal/DetailModal.jsx";
 import ActivityModal from "@/pages/Activity/components/ActivityModal.jsx";
 
 const Meetings = () => {

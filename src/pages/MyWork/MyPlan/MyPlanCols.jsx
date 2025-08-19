@@ -1,8 +1,8 @@
 import {Button, Space, Tag, Tooltip} from "antd";
 import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
-import {CheckOutlined, EyeOutlined, UserAddOutlined} from "@ant-design/icons";
+import {CheckOutlined, EyeOutlined, FolderAddOutlined} from "@ant-design/icons";
 
-export const MyActivitiesCols = ({handleShowDetail, handleTrustee}) => {
+export const MyPlanCols = ({handleShowDetail, handlePlan}) => {
     return (
         [{
             title: 'ردیف',
@@ -89,33 +89,30 @@ export const MyActivitiesCols = ({handleShowDetail, handleTrustee}) => {
                 key: 'actions',
                 render: (record) => {
                     // console.log(record);
-                    const isTrustee = record.state === 20
+                    const isPlanDone = record.state === 20
                     return (
                         <Space direction="horizontal">
-                            {isTrustee ? (
-                                <Tooltip title="انجام توسط متولی">
+                            {!isPlanDone ? (
+                                <Tooltip title="انجام توسط طرح و برنامه">
                                     <Button
-                                        icon={<UserAddOutlined/>}
-                                        className={"text-orange-600 border-orange-600"}
+                                        icon={<FolderAddOutlined/>}
+                                        className={"text-pink-700 border-pink-700"}
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            handleTrustee(record);
+                                            handlePlan(record)
                                         }}
                                         size="small"
                                     />
                                 </Tooltip>
                             ) : (
                                 <Button
-                                    icon={<CheckOutlined className={'text-orange-600 border-orange-600 '}/>}
-                                    className={
-                                        'text-orange-600 border-orange-600 '
-                                    }
-                                    size="small"
                                     type={'text'}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                    }}
+                                    icon={<CheckOutlined className={'text-pink-700 border-pink-700 '}/>}
+                                    className={'text-pink-700 border-pink-700 '}
+                                    size="small"
+                                    onClick={(e) => e.stopPropagation()}
                                 />
+
                             )}
                             <Tooltip title="جزئیات">
                                 <Button

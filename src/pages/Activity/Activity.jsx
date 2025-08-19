@@ -2,26 +2,22 @@ import {Button, Card, message, Modal, Table} from "antd";
 import useModal from "@/hooks/useModal.js";
 import {PlusOutlined} from "@ant-design/icons";
 import {ActivityCols} from "@/pages/Activity/components/ActivityCols.jsx";
-import {
-    useDeleteActivity,
-    useGetProductActivitiesType,
-} from "@/QueryServises/ActivityQuery/index.js";
+import {useDeleteActivity, useGetProductActivitiesType,} from "@/QueryServises/ActivityQuery/index.js";
 import ActivityModal from "@/pages/Activity/components/ActivityModal.jsx";
 import {useProductContext} from "@/Services/Context/ProductContext.jsx";
 import TrusteeModal from "@/pages/Activity/components/TrusteeModal.jsx";
 import PlanModal from "@/pages/Activity/components/PlanModal.jsx";
 import {useState} from "react";
-import DetailModal from "../Meetings/components/DetailModal";
+import DetailModal from "../../components/DetailModal/DetailModal.jsx";
 import {useUserSimple} from "../../QueryServises/userQuery";
-import { useNavigate, useParams } from "react-router-dom";
+import {useParams} from "react-router-dom";
 
 
 const Activity = () => {
     const {modalMode, setModal, isOpen, modalData, closeModal, modalType} = useModal()
     const {currentProduct} = useProductContext();
     const [filters, setFilters] = useState({});
-    const navigate = useNavigate();
-    const { productId } = useParams();
+    const {productId} = useParams();
 
     const {data: activityData = [], refetch} = useGetProductActivitiesType(
         productId || currentProduct?.id,

@@ -1,9 +1,8 @@
-import Modal from "../../../components/Modal";
-import {Badge, Space, Image} from "antd";
-import {FileOutlined, CopyOutlined} from "@ant-design/icons";
+import Modal from "../Modal/index.jsx";
+import {Badge, Image, Space} from "antd";
+import {CopyOutlined, FileOutlined} from "@ant-design/icons";
 import {BASEURL} from "@/Services/axiosInstance.js";
 import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
-
 
 
 const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
@@ -92,7 +91,7 @@ const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
             {modalType === 'ActivitiesDetail' && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-1 py-2 px-1">
                     <SectionCard title="مشخصات فعالیت">
-                        {renderInfoItem("نوع فعالیت", modalData.type)}
+                        {renderInfoItem("نوع فعالیت", modalData.type === 'control project' ? 'کنترل پروژه ' : 'صورت جلسه')}
                         {renderInfoItem("تاریخ شروع", georgianDateToJalaliDate(modalData.from_date))}
                         {renderInfoItem("تاریخ پایان", georgianDateToJalaliDate(modalData.to_date))}
                         {renderInfoItem("تعداد نفر-روز", modalData.person_day)}
@@ -143,7 +142,7 @@ const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
             {modalType === 'meetingsIndependent' && (
                 <div className="grid grid-cols-1 md:grid-cols-1 gap-1 py-2 px-2">
                     <SectionCard title="مشخصات صورتجلسه">
-                        {renderInfoItem("نوع ", modalData.type)}
+                        {renderInfoItem("نوع ", modalData.type === 'control project' ? 'کنترل پروژه ' : 'صورت جلسه')}
                         {renderInfoItem("طرف ",
                             modalData.contractor ?
                                 `${modalData.contractor.name} (${modalData.contractor.is_employer ? 'کارفرما' : 'پیمانکار'})`

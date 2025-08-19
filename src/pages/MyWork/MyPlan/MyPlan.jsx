@@ -1,9 +1,13 @@
 import {Card, Table} from "antd";
 import {useGetActivitiesInPlanState} from "@/QueryServises/PanelQuery/index.js";
-import {MyActivitiesCols} from "@/pages/MyWork/MyActivities/MyActivitiesCols.jsx";
+import DetailModal from "@/components/DetailModal/DetailModal.jsx";
+import PlanModal from "@/pages/Activity/components/PlanModal.jsx";
+import {MyPlanCols} from "@/pages/MyWork/MyPlan/MyPlanCols.jsx";
+import useModal from "@/hooks/useModal.js";
 
 const MyPlan = () => {
-    const {data: PlanData} = useGetActivitiesInPlanState();
+    const {setModal, modalMode, modalType, modalData, closeModal, isOpen} = useModal()
+    const {data: PlanData, refetch} = useGetActivitiesInPlanState();
     const expandedRowRender = (record) => {
         const columns = [
             {
@@ -25,7 +29,7 @@ const MyPlan = () => {
                 title: "قیمت",
                 dataIndex: "price",
                 key: "price",
-                render: (price) => price.toLocaleString('fa-IR'),
+                // render: (price) => price.toLocaleString('fa-IR'),
             },
             {
                 title: "توضیحات",
@@ -34,18 +38,38 @@ const MyPlan = () => {
             }
         ];
         const productData = record.product;
-        return <Table columns={columns} dataSource={[productData]} pagination={false} />;
+        return <Table columns={columns} dataSource={[productData]} pagination={false}/>;
     };
-
+    
+    const handleShowDetail = (record) => {
+        setModal({mode: 'view', data: record, type: 'ActivitiesDetail'});
+    }
+    const handlePlan = (record) => {
+        setModal({mode: "add", data: record, type: 'addPlan'})
+    }
     return (
         <Card>
             <Table
                 pagination={false}
-                scroll={{ y: 300 }}
+                scroll={{y: 300}}
                 dataSource={PlanData || []}
-                columns={MyActivitiesCols()}
-                expandable={{ expandedRowRender }}
+                columns={MyPlanCols({handleShowDetail, handlePlan})}
+                expandable={{expandedRowRender}}
                 rowKey="id"
+            />
+            <DetailModal
+                isOpen={modalType === 'ActivitiesDetail' && isOpen}
+                modalType={modalType}
+                modalData={modalData}
+                modalMode={modalMode}
+                closeModal={closeModal}
+            />
+            <PlanModal
+                isOpen={modalType === 'addPlan' && isOpen}
+                closeModal={closeModal}
+                modalMode={modalMode}
+                modalData={modalData}
+                refetch={refetch}
             />
         </Card>
     );

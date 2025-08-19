@@ -3,11 +3,23 @@ import {useGetExpertActivity} from "@/QueryServises/PanelQuery/index.js";
 import {MyActivitiesCols} from "@/pages/MyWork/MyActivities/MyActivitiesCols.jsx";
 import {useNavigate} from "react-router-dom";
 import {useProductContext} from "../../../Services/Context/ProductContext";
+import useModal from "@/hooks/useModal.js";
+import DetailModal from "@/components/DetailModal/DetailModal.jsx";
+import TrusteeModal from "@/pages/Activity/components/TrusteeModal.jsx";
 
 const MyActivities = () => {
-    const {data: MyActivitiesData} = useGetExpertActivity()
+    const {setModal, modalMode, modalType, modalData, closeModal, isOpen} = useModal()
+    const {data: MyActivitiesData, refetch} = useGetExpertActivity()
     const navigate = useNavigate();
     const {handleProductSelect} = useProductContext();
+
+    const handleShowDetail = (record) => {
+        setModal({mode: 'view', data: record, type: 'ActivitiesDetail'});
+    }
+
+    const handleTrustee = (record) => {
+        setModal({mode: "add", data: record, type: 'addTrustee'})
+    }
 
     const expandedRowRender = (record) => {
         const isMeeting = !!record.meeting;
@@ -78,7 +90,7 @@ const MyActivities = () => {
                 dataSource={MyActivitiesData || []}
                 pagination={false}
                 scroll={{y: 300}}
-                columns={MyActivitiesCols()}
+                columns={MyActivitiesCols({handleShowDetail, handleTrustee})}
                 size={"small"}
                 rowKey={record => record.id}
                 onRow={(record) => {
@@ -92,6 +104,21 @@ const MyActivities = () => {
                         }
                     };
                 }}
+            />
+            <DetailModal
+                isOpen={modalType === 'ActivitiesDetail' && isOpen}
+                modalType={modalType}
+                modalData={modalData}
+                modalMode={modalMode}
+                closeModal={closeModal}
+            />
+            <TrusteeModal
+                isOpen={modalType === 'addTrustee' && isOpen}
+                // currentProduct={currentProduct}
+                closeModal={closeModal}
+                modalMode={modalMode}
+                modalData={modalData}
+                refetch={refetch}
             />
         </Card>
     )

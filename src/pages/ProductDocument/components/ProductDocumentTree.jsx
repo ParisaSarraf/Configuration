@@ -103,7 +103,7 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
                 key: `edition-${edition.id}`,
                 title: (
                     <div className="flex flex-row justify-between items-center w-full">
-                        <span className='w-fuull gap-2'>
+                        <span className='w-full gap-2'>
                             {edition.edition_full}
                             <FiberManualRecordIcon
                                 fontSize="small"
@@ -226,7 +226,7 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
 
     return (
         <Tree
-            className="custom-tree"
+            // className="custom-tree"
             mode="tree"
             data={treeData}
             isLoading={isLoading}

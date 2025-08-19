@@ -13,7 +13,7 @@ import {
     useProductDocumentTreeById
 } from "../../QueryServises/productDocumentQuery";
 import EditionDetailViewModal from "./components/ProductDocumentListSerial/components/EditionDetailViewModal";
-import DetailModal from "@/pages/Meetings/components/DetailModal.jsx";
+import DetailModal from "@/components/DetailModal/DetailModal.jsx";
 import AutomationFileModal from "@/pages/ProductDocument/components/AutomationFileModal/AutomationFileModal.jsx";
 import ProductDocumentEditionFiles
     from "@/pages/ProductDocument/components/ProductDocumentEditionFiles/ProductDocumentEditionFiles.jsx";
