@@ -10,6 +10,7 @@ const DetailAccessProduct = () => {
         data: accessData = {},
         isLoading: isAccessLoading,
         isError,
+        isFetching,
     } = useGetAccessOfProductById(currentProduct?.id)
 
     if (isError) {
@@ -39,13 +40,11 @@ const DetailAccessProduct = () => {
             <Spin spinning={isAccessLoading}>
                 <Table
                     columns={AccessProductCol()}
-                    dataSource={tableData}
+                    dataSource={isFetching ? [] : tableData}
                     loading={isAccessLoading}
                     rowKey={(record) => record.id}
                     locale={{
-                        emptyText: currentProduct
-                            ? 'هیچ داده‌ای یافت نشد'
-                            : 'لطفاً یک محصول انتخاب کنید'
+                        emptyText: currentProduct ? 'هیچ داده‌ای یافت نشد' : 'لطفاً یک محصول انتخاب کنید'
                     }}
                     size="small"
                 />
