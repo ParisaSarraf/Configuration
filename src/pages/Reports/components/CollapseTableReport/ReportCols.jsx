@@ -3,12 +3,20 @@ import {Tag} from "antd";
 const ReportCol = () => {
     return [
         {
-            title: 'نام نسخه',
+            title: 'وضعیت نسخه',
             dataIndex: ['editions', 0, 'state_name'],
             key: 'state_name',
             width: 100,
             render: (record) => {
-                return (<Tag color={'red'}>{record}</Tag>)
+                return (<Tag color={'cyan'}>{record}</Tag>)
+            }
+        }, {
+            title: 'نام نسخه',
+            dataIndex: ['editions', 0, 'edition'],
+            key: 'edition',
+            width: 100,
+            render: (record) => {
+                return (<Tag color={'blue'}>{record}</Tag>)
             }
         },
         {
@@ -17,7 +25,7 @@ const ReportCol = () => {
             key: 'persian_title',
             width: 100,
             render: (record) => {
-                return (<Tag color={'cyan'}>{record}</Tag>)
+                return (<Tag color={'orange'}>{record}</Tag>)
             }
         },
         {
@@ -38,15 +46,6 @@ const ReportCol = () => {
                 return (<Tag color={'gold'}>{record}</Tag>)
             }
         },
-        {
-            title: 'نام نسخه',
-            dataIndex: ['editions', 0, 'edition'],
-            key: 'edition',
-            width: 100,
-            render: (record) => {
-                return (<Tag color={'blue'}>{record}</Tag>)
-            }
-        }
 
     ]
 }
