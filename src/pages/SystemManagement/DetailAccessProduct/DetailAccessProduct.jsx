@@ -26,8 +26,6 @@ const DetailAccessProduct = () => {
             }))
         )
         : [];
-    console.log(tableData)
-
 
     return (
         <Card

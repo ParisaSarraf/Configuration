@@ -106,9 +106,7 @@ const ProductTree = ({productData, setModal, refetch, isLoading, isError, onChan
                         });
                     });
                 },
-                onCancel() {
-                    console.log('حذف لغو شد');
-                },
+
             });
         } else if (actionKey === "edit") {
             try {

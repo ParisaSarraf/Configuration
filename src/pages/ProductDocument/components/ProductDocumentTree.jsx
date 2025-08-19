@@ -20,8 +20,6 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
     const {data: productDocument, isLoading, isError} =
         useProductDocumentTreeById(selectedProductId);
 
-    console.log(productDocument);
-
     // const {mutate: deleteProductDocument} = useDeleteProductDocument();
     const {mutate: deleteProductDocumentEdition} = useDeleteProductDocumentEdition();
 
@@ -71,13 +69,11 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
     }
 
     const handleAutomationFiles = (edition) => {
-        console.log(edition)
         setModal({mode: 'add', data: edition, type: "AutomationFiles"});
     }
 
     const handleProductDocumentEditionsFile = (edition) => {
         setModal({mode: 'edit', data: edition, type: "ProductDocumentEditionsFile"});
-        console.log(edition)
     }
 
     const transformNode = (node) => {

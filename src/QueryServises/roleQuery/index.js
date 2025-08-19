@@ -69,11 +69,5 @@ export const usePatchRole = () => {
         return response?.data;
       });
     },
-    onSuccess: (data) => {
-      console.log("Update successful:", data);
-    },
-    onError: (error) => {
-      console.error("Update failed:", error);
-    },
   });
 };

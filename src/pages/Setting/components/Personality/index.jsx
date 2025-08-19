@@ -51,9 +51,6 @@ const Personality = () => {
                     console.error("Delete error:", error);
                 }
             },
-            onCancel() {
-                console.log('حذف لغو شد');
-            },
         });
     };
     const handleEdit = (record) => {

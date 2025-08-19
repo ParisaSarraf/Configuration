@@ -58,7 +58,7 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
             closeModal();
         } catch (error) {
             message.error(error);
-            console.log(error);
+            // console.log(error);
         }
     };
 

@@ -29,14 +29,10 @@ const IndependentMinutes = ({setModal, meetingData, deleteMeeting, refetch}) => 
                     });
                 });
             },
-            onCancel() {
-                console.log('حذف لغو شد');
-            },
         });
     };
 
     const handleShowDetail = (record) => {
-        console.log(record)
         setModal({mode: 'detail', data: record, type: 'meetingsIndependent'});
     };
 

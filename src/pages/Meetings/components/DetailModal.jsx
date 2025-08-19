@@ -7,8 +7,6 @@ import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
 
 
 const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
-
-    console.log(modalData)
     if (!modalData) return null;
 
     const getStateInfo = (state) => {

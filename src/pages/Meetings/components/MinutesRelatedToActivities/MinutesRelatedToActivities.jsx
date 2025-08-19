@@ -29,9 +29,6 @@ const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refet
                     });
                 });
             },
-            onCancel() {
-                console.log('حذف لغو شد');
-            },
         });
     };
 

@@ -24,9 +24,6 @@ const ReportCharts = ({productId}) => {
             with_children: values.with_children,
         });
     };
-
-    console.log(filters)
-
     // if (isLoading) return (
     //      <Card title={'نمودار اسناد'} className={'text-blue-500 '}>
     //          درحال بازنشانی اطلاعات ...

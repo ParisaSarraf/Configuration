@@ -30,7 +30,7 @@ const TrusteeModal = ({ isOpen, closeModal, modalMode, modalData, refetch }) => 
             closeModal()
             await refetch()
         } catch (err) {
-            console.log(err)
+            // console.log(err)
             message.error(err.message)
         }
     }

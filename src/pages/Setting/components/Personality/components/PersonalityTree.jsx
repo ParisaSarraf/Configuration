@@ -52,9 +52,6 @@ const PersonalityTree = ({ setModal, setPersonalityId }) => {
                         });
                     });
                 },
-                onCancel() {
-                    console.log('حذف لغو شد');
-                },
             });
         } else if (actionKey === "edit") {
             setModal({

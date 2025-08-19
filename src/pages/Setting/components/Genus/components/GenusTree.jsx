@@ -51,9 +51,6 @@ const GenusTree = ({ setModal }) => {
                         });
                     });
                 },
-                onCancel() {
-                    console.log('حذف لغو شد');
-                },
             });
         } else if (actionKey === "edit") {
             setModal({

@@ -56,9 +56,6 @@ const Activity = () => {
                     });
                 });
             },
-            onCancel() {
-                console.log('حذف لغو شد');
-            },
         });
     };
 

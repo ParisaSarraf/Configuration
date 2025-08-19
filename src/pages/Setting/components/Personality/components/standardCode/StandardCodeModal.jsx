@@ -15,7 +15,6 @@ const StandardCodeModal = ({isOpen, modalMode, modalData, closeModal, standardRe
     const {isPending: isUpdating, mutateAsync: updateStandardCode} = useUpdateStandardCode();
 
     useEffect(() => {
-        console.log(modalData);
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
                 name: modalData?.name,

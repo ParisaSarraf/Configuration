@@ -61,8 +61,6 @@ const RoleProductList = ({
         if (roleId && selectedUserId) {
             setSelectedUserAndRoleId([roleId, selectedUserId]);
         }
-        console.log(productIds);
-
         setSelectedProducts(productIds);
     };
 

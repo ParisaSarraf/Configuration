@@ -1,7 +1,7 @@
-import { Card, Modal, Table } from "antd"
+import {Card, message, Modal, Table} from "antd"
 import ContractorModal from "./components/ContractorModal"
-import { useProductContext } from "../../../../Services/Context/ProductContext";
-import { useContractorProductList, useDeleteContractorProduct } from "../../../../QueryServises/ProductContractorQuery";
+import { useProductContext } from "@/Services/Context/ProductContext.jsx";
+import { useContractorProductList, useDeleteContractorProduct } from "@/QueryServises/ProductContractorQuery/index.js";
 import useModal from "../../../../hooks/useModal";
 import { ContractorCols } from "./components/ContractorCols";
 
@@ -11,10 +11,6 @@ const Contractor = () => {
     const { currentProduct } = useProductContext();
     const { mutateAsync: deleteContractor } = useDeleteContractorProduct()
 
-
-    console.log(contractorData);
-
-
     const handleDelete = (id) => {
         Modal.confirm({
             title: 'حذف فعالیت',
@@ -22,9 +18,9 @@ const Contractor = () => {
             okText: 'بله',
             cancelText: 'خیر',
             okType: 'danger',
-            onOk() {
+            async onOk() {
                 return new Promise((resolve, reject) => {
-                    deleteContractor(id, {
+                    await deleteContractor(id, {
                         onSuccess: () => {
                             message.success("پیمانکار/کارفرما با موفقیت حذف شد");
                             refetch();
@@ -36,9 +32,6 @@ const Contractor = () => {
                         },
                     });
                 });
-            },
-            onCancel() {
-                console.log('حذف لغو شد');
             },
         });
     }

@@ -45,7 +45,6 @@ const PurchaseProductCol = ({handleEdit, handleDelete}) => {
             dataIndex: 'date',
             key: 'date',
             render: (record) => {
-                console.log(record)
                 return (
                     <Tag color={'cyan'}>{georgianDateToJalaliDate(record) || 'ندارد'}</Tag>
                 )
