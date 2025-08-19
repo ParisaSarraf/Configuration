@@ -4,7 +4,7 @@ import {useQuery} from "@tanstack/react-query";
 export const useGetEditionCountReport = (id, filters = {}, queryOptions = {}) => {
     const myAxios = useMyAxios();
     return useQuery({
-        queryKey: ["edition-count-report", id, filters],
+        queryKey: ["get-edition-count-report", id, filters],
         queryFn: () =>
             myAxios
                 .get(`/product/get-edition-count-report/${id}/`, {

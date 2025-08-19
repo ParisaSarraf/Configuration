@@ -29,3 +29,13 @@ export const getStateBackgroundColor = (state) => {
     };
     return backgroundColors[state] || '#fafafa';
 };
+
+export const flatten = (items) => {
+    return items?.reduce((acc, item) => {
+        acc.push(item);
+        if (Array.isArray(item?.children) && item?.children?.length > 0) {
+            acc = acc.concat(flatten(item?.children));
+        }
+        return acc;
+    }, []);
+};

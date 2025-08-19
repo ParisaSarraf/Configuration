@@ -6,6 +6,12 @@ import {ALL_STATES, getStateBackgroundColor, getStateColor, stateLabels} from "@
 
 export const DocumentStateList = ({productId}) => {
     const [activeKeys, setActiveKeys] = useState([]);
+    const [stateCounts, setStateCounts] = useState({});
+
+    const handleCountChange = (state, count) => {
+        setStateCounts(prev => ({...prev, [state]: count}));
+    };
+
 
     return (
         <Card title={'وضعیت اسناد'}>
@@ -23,18 +29,21 @@ export const DocumentStateList = ({productId}) => {
                     return (
                         <Collapse.Panel
                             key={String(state)}
-                            header={<span>{stateLabels[state]}</span>}
+                            header={`${stateLabels[state]} (${stateCounts[state] || 0})`}
                             style={{
                                 borderRight: `4px solid ${stateColor}`,
                                 borderRadius: '4px',
                                 background: backgroundColor,
                             }}
+
                         >
                             <StateSpecificTable
                                 productId={productId}
                                 state={state}
                                 isActive={isActive}
+                                onCountChange={handleCountChange}
                             />
+
                         </Collapse.Panel>
                     );
                 })}
