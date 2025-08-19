@@ -1,10 +1,10 @@
-export const ALL_STATES = [10, 20, 30, 40];
+export const ALL_STATES = [10, 20, 30];
 
 export const stateLabels = {
-    10: 'تهیه نشده',
-    20: 'تهیه کننده',
-    30: 'تایید',
-    40: 'تصویب',
+    10: 'تهیه ',
+    20: 'تصویب',
+    30: 'تصدیق',
+    // 40: 'تصویب',
 };
 
 export const getStateColor = (state) => {
