@@ -11,11 +11,11 @@ import Setting from "./pages/Setting/Setting";
 import GoodsCategories from "./pages/GoodsCategories/GoodsCategories";
 import RoleLifeCycle from "./pages/RoleLifeCycle/RoleLifeCycle";
 import Access from "./pages/Access/Access";
-import UsersRole from "./pages/Systemmanagement/UsersRole";
 import DetailAccessProduct from "./pages/Systemmanagement/DetailAccessProduct/DetailAccessProduct";
 import Activity from "./pages/Activity/Activity";
 import MyWork from "@/pages/MyWork/MyWork.jsx";
 import SystemManagement from "@/pages/SystemManagement/index.jsx";
+import UsersRole from "@/pages/SystemManagement/UsersRole.jsx";
 
 const router = createBrowserRouter([
     {
