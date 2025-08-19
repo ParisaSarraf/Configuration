@@ -44,7 +44,7 @@ const ProductRequirementTree = ({currentProduct, selectProduct, setSelectedProdu
             key: `req-${node.id}`,
             title: (
                 <div className="flex flex-row justify-between items-center w-full">
-                        <span className='w-fuull gap-2'>
+                        <span className='w-full gap-2'>
                     {req?.full_code
                         ? `${node.persian_title} - ${req.full_code}`
                         : node.persian_title}
@@ -78,7 +78,7 @@ const ProductRequirementTree = ({currentProduct, selectProduct, setSelectedProdu
                                 e.stopPropagation();
                                 setModal({mode: 'add', data: null, type: 'DescribeTheRequirementModal'})
                             }}
-                            className="text-blue-500 hover:text-blue-700"
+                            className="text-orange-500 hover:text-orange-700"
                         />
                     </Space>
                 </div>
@@ -116,13 +116,13 @@ const ProductRequirementTree = ({currentProduct, selectProduct, setSelectedProdu
             </>
         }>
             <Tree
-                mode="tree"
+                mode='tree'
                 className="custom-tree"
                 data={treeRequirementData}
                 isLoading={isLoading}
                 isError={isError}
                 showLine={true}
-                checkable={true}
+                checkable={false}
                 onSelect={(selectedKeys, {node}) => {
                     if (node?.product_requirements?.[0]?.id) {
                         setSelectedProductRequirement(node.product_requirements[0].id);
