@@ -4,7 +4,6 @@ import ProtectedRoute from "./components/ProtectedRoute/‎ProtectedRoute‎";
 import SignIn from "./components/SignIn/SignIn";
 import NotFound from "./pages/NotFound/NotFound";
 import ForgetPassword from "./pages/ForgetPassword/ForgetPassword";
-import SystemManagement from "./pages/Systemmanagement";
 import Documents from "./pages/Documents/Documents";
 import Users from "./pages/Users/Users"
 import Rols from "./pages/Rols/Rols";
@@ -16,6 +15,7 @@ import UsersRole from "./pages/Systemmanagement/UsersRole";
 import DetailAccessProduct from "./pages/Systemmanagement/DetailAccessProduct/DetailAccessProduct";
 import Activity from "./pages/Activity/Activity";
 import MyWork from "@/pages/MyWork/MyWork.jsx";
+import SystemManagement from "@/pages/SystemManagement/index.jsx";
 
 const router = createBrowserRouter([
     {
