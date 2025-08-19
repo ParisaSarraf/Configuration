@@ -1,16 +1,14 @@
 import {
     DeleteOutlined,
     EditOutlined,
-    EyeOutlined, FileAddOutlined,
+    EyeOutlined,
+    FileAddOutlined,
     FileDoneOutlined,
     PlusOutlined
 } from "@ant-design/icons";
 import Tree from "../../../components/Tree";
 import {Button, message, Modal, Space} from "antd";
-import {
-    useDeleteProductDocumentEdition,
-    useProductDocumentTreeById
-} from "../../../QueryServises/productDocumentQuery";
+import {useDeleteProductDocumentEdition, useProductDocumentTreeById} from "../../../QueryServises/productDocumentQuery";
 import {useEffect} from "react";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
@@ -75,6 +73,7 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
     const handleProductDocumentEditionsFile = (edition) => {
         setModal({mode: 'edit', data: edition, type: "ProductDocumentEditionsFile"});
     }
+
 
     const transformNode = (node) => {
         const productDoc = node.product_document;
@@ -195,6 +194,7 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
         return Array.isArray(data) ? data.map(transformNode) : [transformNode(data)];
     };
     const treeData = transformDataToTreeView(productDocument);
+
 
     const rightClickMenu = [
         {

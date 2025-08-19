@@ -1,18 +1,18 @@
-import { Button, Card, message, Modal, Space } from 'antd'
-import { DeleteOutlined, PlusOutlined, RightOutlined } from '@ant-design/icons';
+import {Button, Card, message, Modal, Space} from 'antd'
+import {DeleteOutlined, PlusOutlined, RightOutlined} from '@ant-design/icons';
 import Tree from '../../../components/Tree';
 import useModal from '../../../hooks/useModal';
 import DescribeTheRequirementModal from './DescribeTheRequirementModal';
 import AcknowledgmentOfRequirement from './AcknowledgmentOfRequirement';
-import { useDeleteProductRequirement, useProductRequirementList } from '../../../QueryServises/productRequirementQuery';
+import {useDeleteProductRequirement, useProductRequirementList} from '../../../QueryServises/productRequirementQuery';
 
-const ProductRequirementTree = ({ currentProduct, selectProduct, setSelectedProductRequirement }) => {
-    const { isOpen, modalMode, modalData, modalType, setModal, closeModal } = useModal();
-    const { data: requirementList, isLoading, isError, refetch } = useProductRequirementList(currentProduct?.id);
-    const { mutateAsync: deleteProductRequirement } = useDeleteProductRequirement();
+const ProductRequirementTree = ({currentProduct, selectProduct, setSelectedProductRequirement}) => {
+    const {isOpen, modalMode, modalData, modalType, setModal, closeModal} = useModal();
+    const {data: requirementList, isLoading, isError, refetch} = useProductRequirementList(currentProduct?.id);
+    const {mutateAsync: deleteProductRequirement} = useDeleteProductRequirement();
 
 
-    const handleDelete =  (node) => {
+    const handleDelete = (node) => {
         const NodeId = node?.product_requirements[0]?.id
         Modal.confirm({
             title: "حذف الزام",
@@ -36,89 +36,100 @@ const ProductRequirementTree = ({ currentProduct, selectProduct, setSelectedProd
 
     }
 
-    const transformDataToTreeView = (requirementList) => {
-        if (!requirementList) return [];
-        const transformNode = (node) => ({
+    const transformRequirementNode = (node) => {
+        const req = node.product_requirements;
+        const hasChildren = Array.isArray(node.children) && node.children.length > 0;
+
+        const baseNode = {
+            key: `req-${node.id}`,
             title: (
-                <div
-                    // className="flex flex-row -mt-2 justify-between items-center w-full h-5"
-                    onDoubleClick={() => {
-                        setModal({ mode: 'view', data: node, type: 'AcknowledgmentOfRequirement' })
-                    }}
-                >
-                    <span className="mr-8">{node.persian_title}</span>
-                    <Space className="-mt-4">
+                <div className="flex flex-row justify-between items-center w-full">
+                        <span className='w-fuull gap-2'>
+                    {req?.full_code
+                        ? `${node.persian_title} - ${req.full_code}`
+                        : node.persian_title}
+                </span>
+                    <Space>
                         <Button
-                            icon={<RightOutlined />}
+                            size={'small'}
+                            type={'text'}
+                            icon={<RightOutlined/>}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                setModal({ mode: 'add', data: node, type: 'AcknowledgmentOfRequirement' })
+                                setModal({mode: 'add', data: node, type: 'AcknowledgmentOfRequirement'})
                             }}
-                            className="text-yellow-500 hover:text-yellow-700 bg-white"
+                            className="text-sky-500 hover:text-sky-700"
                         />
                         <Button
-                            icon={<DeleteOutlined />}
-                            className="text-red-500 hover:text-red-700 bg-white"
+                            type={'text'}
+                            size={'small'}
+                            icon={<DeleteOutlined/>}
+                            className="text-red-500 hover:text-red-700"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 handleDelete(node)
                             }}
                         />
                         <Button
-                            icon={<PlusOutlined />}
+                            type={'text'}
+                            size={'small'}
+                            icon={<PlusOutlined/>}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                setModal({ mode: 'add', data: null, type: 'DescribeTheRequirementModal' })
+                                setModal({mode: 'add', data: null, type: 'DescribeTheRequirementModal'})
                             }}
-                            className="text-blue-500 hover:text-blue-700 bg-white"
+                            className="text-blue-500 hover:text-blue-700"
                         />
                     </Space>
                 </div>
             ),
-            english_title: node.english_title,
             id: node.id,
+            requirement: req,
             is_definable: node.is_definable,
-            code: node.code,
-            life_cycle: node.life_cycle,
-            product_requirements: node.product_requirements,
-            children: node.children && node.children.length > 0
-                ? node.children.map(child => transformNode(child))
-                : undefined,
-        });
+            children: []
+        };
 
+        if (hasChildren) {
+            const childNodes = node.children.map((child) => transformRequirementNode(child));
+            baseNode.children.push(...childNodes);
+        }
 
-        const productDoc = Array.isArray(requirementList) ? requirementList : [requirementList];
-        return productDoc.map((document) => transformNode(document));
+        return baseNode;
     };
 
-    const treeData = transformDataToTreeView(requirementList);
+    const transformRequirementDataToTreeView = (data) => {
+        if (!data) return [];
+        return Array.isArray(data) ? data.map(transformRequirementNode) : [transformRequirementNode(data)];
+    };
+
+    const treeRequirementData = transformRequirementDataToTreeView(requirementList);
 
 
     return (
         <Card title={`الزامات محصول ${currentProduct?.name || ''}`} extra={
             <>
                 <Button
-                    icon={<PlusOutlined />}
-                    onClick={() => setModal({ mode: 'add', data: null, type: "DescribeTheRequirementModal" })}
+                    icon={<PlusOutlined/>}
+                    onClick={() => setModal({mode: 'add', data: null, type: "DescribeTheRequirementModal"})}
                     className={'modal-button'}
                 />
             </>
         }>
             <Tree
                 mode="tree"
-                className={'custom-tree'}
-                data={treeData}
+                className="custom-tree"
+                data={treeRequirementData}
                 isLoading={isLoading}
                 isError={isError}
                 showLine={true}
                 checkable={true}
-                onSelect={(selectedKeys, { node }) => {
+                onSelect={(selectedKeys, {node}) => {
                     if (node?.product_requirements?.[0]?.id) {
                         setSelectedProductRequirement(node.product_requirements[0].id);
                     }
                 }}
                 onDoubleClick={(event, node) => {
-                    setModal({ mode: 'add', data: node, type: 'AcknowledgmentOfRequirement' })
+                    setModal({mode: 'add', data: node, type: 'AcknowledgmentOfRequirement'})
                 }}
             />
             {modalType === 'DescribeTheRequirementModal' && (

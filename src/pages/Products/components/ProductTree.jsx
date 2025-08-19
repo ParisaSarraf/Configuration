@@ -4,7 +4,7 @@ import {DeleteOutlined, EditOutlined, FileExcelOutlined, PlusOutlined,} from '@a
 import {useDeleteProduct} from "../../../QueryServises/productQuery";
 import Tree from "../../../components/Tree";
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
-import {exportToExcel} from "../../../utils/ExportExcel";
+import {exportToExcel} from "@utils/ExportExcel.js";
 
 
 const ProductTree = ({productData, setModal, refetch, isLoading, isError, onChange, selectedKeys, onProductClick}) => {
@@ -52,7 +52,7 @@ const ProductTree = ({productData, setModal, refetch, isLoading, isError, onChan
 
     const transformDataToTreeFormat = (productData) => {
         if (!productData) return [];
-        return productData.map(item => ({
+        return productData?.map(item => ({
             title: (
                 <div className="flex items-center">
                     <FiberManualRecordIcon
