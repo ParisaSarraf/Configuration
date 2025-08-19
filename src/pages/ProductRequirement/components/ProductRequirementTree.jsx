@@ -1,5 +1,4 @@
 import { Button, Card, message, Modal, Space } from 'antd'
-import { useProductContext } from '../../../Services/Context/ProductContext';
 import { DeleteOutlined, PlusOutlined, RightOutlined } from '@ant-design/icons';
 import Tree from '../../../components/Tree';
 import useModal from '../../../hooks/useModal';
@@ -13,16 +12,16 @@ const ProductRequirementTree = ({ currentProduct, selectProduct, setSelectedProd
     const { mutateAsync: deleteProductRequirement } = useDeleteProductRequirement();
 
 
-    const handleDelete = (node) => {
+    const handleDelete =  (node) => {
         const NodeId = node?.product_requirements[0]?.id
         Modal.confirm({
             title: "حذف الزام",
             content: "از حذف مطمئن هستید؟",
             okText: "بله ، مطمئنم",
             cancelText: "خیر ، منصرف شدم.",
-            onOk() {
+            async onOk() {
                 try {
-                    deleteProductRequirement(NodeId)
+                    await deleteProductRequirement(NodeId)
                     message.success("نسخه با موفقیت حذف شد");
                     refetch();
                 } catch (error) {
@@ -81,7 +80,7 @@ const ProductRequirementTree = ({ currentProduct, selectProduct, setSelectedProd
             is_definable: node.is_definable,
             code: node.code,
             life_cycle: node.life_cycle,
-            product_requirements: node.product_requirements,  // ✅ اضافه شد
+            product_requirements: node.product_requirements,
             children: node.children && node.children.length > 0
                 ? node.children.map(child => transformNode(child))
                 : undefined,

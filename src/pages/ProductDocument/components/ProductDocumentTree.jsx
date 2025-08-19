@@ -3,28 +3,26 @@ import {
     EditOutlined,
     EyeOutlined, FileAddOutlined,
     FileDoneOutlined,
-    FileOutlined,
     PlusOutlined
 } from "@ant-design/icons";
 import Tree from "../../../components/Tree";
 import {Button, message, Modal, Space} from "antd";
 import {
-    useDeleteProductDocument,
     useDeleteProductDocumentEdition,
     useProductDocumentTreeById
 } from "../../../QueryServises/productDocumentQuery";
 import {useEffect} from "react";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
-import {DocumentCheckIcon} from "@heroicons/react/24/outline/index.js";
 
 const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
-    const selectedProductId = currentProduct?.productData?.id;
-
+    const selectedProductId = currentProduct?.id;
 
     const {data: productDocument, isLoading, isError} =
-        useProductDocumentTreeById(selectedProductId, {enabled: !!selectedProductId});
+        useProductDocumentTreeById(selectedProductId);
 
-    const {mutate: deleteProductDocument} = useDeleteProductDocument();
+    console.log(productDocument);
+
+    // const {mutate: deleteProductDocument} = useDeleteProductDocument();
     const {mutate: deleteProductDocumentEdition} = useDeleteProductDocumentEdition();
 
     useEffect(() => {
@@ -194,15 +192,12 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
             const childNodes = node.children.map((child) => transformNode(child));
             baseNode.children.push(...childNodes);
         }
-
         return baseNode;
     };
-
     const transformDataToTreeView = (data) => {
         if (!data) return [];
         return Array.isArray(data) ? data.map(transformNode) : [transformNode(data)];
     };
-
     const treeData = transformDataToTreeView(productDocument);
 
     const rightClickMenu = [
