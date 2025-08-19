@@ -1,6 +1,7 @@
-export const ALL_STATES = [10, 20, 30];
+export const ALL_STATES = [null, 10, 20, 30];
 
 export const stateLabels = {
+    null: 'همه اسناد',
     10: 'تهیه ',
     20: 'تصویب',
     30: 'تصدیق',

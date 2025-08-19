@@ -3,6 +3,14 @@ import {Tag} from 'antd'
 
 export const AccessProductCol = () => [
     {
+        title: 'نام محصول',
+        key: 'persian_title',
+        render: (_, record) => {
+            return (
+                <Tag color={'purple'}>{record.product?.persian_title || ''}</Tag>
+            )
+        },
+    }, {
         title: 'نام کاربر',
         key: 'user_name',
         render: (_, record) => {

@@ -17,13 +17,16 @@ const DetailAccessProduct = () => {
     }
 
 
-    const tableData = accessData?.[0]?.roles
-        ? accessData[0].roles.flatMap((item) =>
-            item.users.map((user) => ({
-                id: user.id,
-                user,
-                role: item.role,
-            }))
+    const tableData = accessData?.length
+        ? accessData.flatMap((product) =>
+            product.roles.flatMap((item) =>
+                item.users.map((user) => ({
+                    id: user.id,
+                    user,
+                    role: item.role,
+                    product,
+                }))
+            )
         )
         : [];
 
