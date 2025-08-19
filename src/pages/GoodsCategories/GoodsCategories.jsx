@@ -69,7 +69,8 @@ const GoodsCategories = () => {
         <ConfigProvider
             theme={{
                 token: {
-                    colorPrimary: 'rgba(116,189,253,0.38)',
+                    colorPrimary: 'rgba(116,189,253,0.75)',
+                    
                 },
                 components: {
                     Tabs: {
