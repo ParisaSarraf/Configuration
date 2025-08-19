@@ -16,6 +16,9 @@ const ReportCol = () => {
             dataIndex: ['product', 'persian_title'],
             key: 'persian_title',
             width: 100,
+            render: (record) => {
+                return (<Tag color={'cyan'}>{record}</Tag>)
+            }
         },
         {
             title: 'کد محصول',
@@ -42,14 +45,6 @@ const ReportCol = () => {
             width: 100,
             render: (record) => {
                 return (<Tag color={'blue'}>{record}</Tag>)
-            }
-        }, {
-            title: 'وضعیت نسخه',
-            dataIndex: ['editions', 0, 'state'],
-            key: 'state',
-            width: 100,
-            render: (record) => {
-                return (<Tag color={'red'}>{record}</Tag>)
             }
         }
 
