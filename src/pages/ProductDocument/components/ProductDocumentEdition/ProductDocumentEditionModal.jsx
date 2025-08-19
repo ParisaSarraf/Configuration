@@ -1,11 +1,4 @@
-import {
-    Col,
-    Form,
-    Input,
-    message,
-    Row,
-    Select
-} from "antd";
+import {Col, Form, Input, message, Row, Select} from "antd";
 import Modal from "../../../../components/Modal";
 import {
     useCreateProductDocumentEdition,
@@ -116,10 +109,13 @@ const ProductDocumentEditionModal = (
                         <Form.Item label="نام نسخه" name="edition"
                                    rules={[{required: true, message: "لطفا نام نسخه را انتخاب کنید"}]}>
                             <Select
-                                options={Array.from({length: 26}, (_, i) => ({
-                                    value: String.fromCharCode(97 + i).toUpperCase(),
-                                    label: String.fromCharCode(97 + i).toUpperCase()
-                                }))}
+                                options={[
+                                    {value: "0", label: "0"},
+                                    ...Array.from({length: 26}, (_, i) => ({
+                                        value: String.fromCharCode(65 + i),
+                                        label: String.fromCharCode(65 + i)
+                                    }))
+                                ]}
                                 placeholder="انتخاب کنید"
                                 disabled={modalMode !== "edition"}
                             />
