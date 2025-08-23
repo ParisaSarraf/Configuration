@@ -6,7 +6,6 @@ import Tree from "../../../components/Tree";
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import {exportToExcel} from "@utils/ExportExcel.js";
 
-
 const ProductTree = ({productData, setModal, refetch, isLoading, isError, onChange, selectedKeys, onProductClick}) => {
     const {mutate: deleteProduct, isLoading: isDeleting} = useDeleteProduct();
 
@@ -106,7 +105,6 @@ const ProductTree = ({productData, setModal, refetch, isLoading, isError, onChan
                         });
                     });
                 },
-
             });
         } else if (actionKey === "edit") {
             try {

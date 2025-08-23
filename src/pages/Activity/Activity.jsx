@@ -7,11 +7,10 @@ import ActivityModal from "@/pages/Activity/components/ActivityModal.jsx";
 import {useProductContext} from "@/Services/Context/ProductContext.jsx";
 import TrusteeModal from "@/pages/Activity/components/TrusteeModal.jsx";
 import PlanModal from "@/pages/Activity/components/PlanModal.jsx";
-import {useState} from "react";
+import {useCallback, useState} from "react";
 import DetailModal from "../../components/DetailModal/DetailModal.jsx";
 import {useUserSimple} from "../../QueryServises/userQuery";
 import {useParams} from "react-router-dom";
-
 
 const Activity = () => {
     const {modalMode, setModal, isOpen, modalData, closeModal, modalType} = useModal()
@@ -23,14 +22,10 @@ const Activity = () => {
         productId || currentProduct?.id,
         filters
     );
-    // const { data: activityData = [], refetch } = useGetProductActivities(currentProduct?.id)
     const {data: trustees = []} = useUserSimple();
-
-
     const {mutateAsync: deleteActivity} = useDeleteActivity()
 
-
-    const handleDelete = (id) => {
+    const handleDelete = useCallback((id) => {
         Modal.confirm({
             title: 'حذف فعالیت',
             content: 'آیا از حذف این فعالیت مطمئن هستید؟',
@@ -53,24 +48,23 @@ const Activity = () => {
                 });
             },
         });
-    };
+    }, [deleteActivity, refetch]);
 
-    const handleEdit = (record) => {
+    const handleEdit = useCallback((record) => {
         setModal({mode: "edit", data: record, type: 'addActivity'})
-    }
+    }, [setModal]);
 
-    const handleTrustee = (record) => {
+    const handleTrustee = useCallback((record) => {
         setModal({mode: "add", data: record, type: 'addTrustee'})
-    }
+    }, [setModal]);
 
-    const handlePlan = (record) => {
+    const handlePlan = useCallback((record) => {
         setModal({mode: "add", data: record, type: 'addPlan'})
-    }
+    }, [setModal]);
 
-    const handleDetail = (record) => {
+    const handleDetail = useCallback((record) => {
         setModal({mode: 'view', data: record, type: 'ActivitiesDetail'})
-
-    }
+    }, [setModal]);
 
     const getRowClassName = (record) => {
         const today = new Date();
@@ -111,10 +105,8 @@ const Activity = () => {
                     })}
                     rowKey="id"
                     rowClassName={getRowClassName}
-
                 />
             </div>
-
             <ActivityModal
                 isOpen={modalType === 'addActivity' && isOpen}
                 currentProduct={currentProduct}
@@ -140,15 +132,12 @@ const Activity = () => {
                 modalData={modalData}
                 refetch={refetch}
             />
-
             <DetailModal
                 isOpen={modalType === 'ActivitiesDetail' && isOpen}
-                // currentProduct={currentProduct}
                 closeModal={closeModal}
                 modalMode={modalMode}
                 modalData={modalData}
                 modalType={modalType}
-                // refetch={refetch}
             />
         </Card>
     )
