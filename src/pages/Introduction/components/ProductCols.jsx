@@ -1,24 +1,7 @@
-import {Space, Tag, Typography} from 'antd';
-import {CheckCircleOutlined, CloseCircleOutlined} from '@ant-design/icons';
+import {Space, Typography} from 'antd';
 
 const {Text} = Typography;
 
-const renderStatusTag = (status) => {
-    return status === 'active' ? (
-        <Tag icon={<CheckCircleOutlined/>} color="green">
-            فعال
-        </Tag>
-    ) : (
-        <Tag icon={<CloseCircleOutlined/>} color="red">
-            غیرفعال
-        </Tag>
-    );
-};
-
-const formatPrice = (price) => {
-    if (!price) return '-';
-    return new Intl.NumberFormat('fa-IR').format(price) + ' تومان';
-};
 
 const ProductCols = () => {
     return [
