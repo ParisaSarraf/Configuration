@@ -1,115 +1,72 @@
-import {Button, Card, message, Typography} from 'antd'
-import {useNavigate} from 'react-router-dom'
-import {useUserList} from '../../QueryServises/userQuery';
-import RoleProductList from './_components/RoleProductList';
+import {Button, Card, Spin, Typography} from 'antd';
+import {useNavigate} from 'react-router-dom';
 import UsersList from './_components/UsersList';
-import {useState} from 'react';
+import RoleProductList from './_components/RoleProductList';
 import ProductsList from './_components/ProductsList';
+import {useAccessManagement} from "@/pages/Access/useAccessManagement.js";
 import {ArrowRightOutlined} from '@ant-design/icons';
-import {
-    useCreateAccessProducts,
-    useDeleteAccessProducts,
-    useAccessList,
-    useUnAccessOfUserByIdList,
-    useAccessOfUserByIdList
-} from '../../QueryServises/accsessQuery';
 
 const {Text} = Typography;
 
 const Access = () => {
-    const {refetch: userRefetch} = useUserList();
-    const {refetch: accessListRefetch} = useAccessList();
     const navigate = useNavigate();
-
-    const {mutateAsync: createAccessProducts} = useCreateAccessProducts();
-    const {mutateAsync: deleteAccessProducts} = useDeleteAccessProducts();
-    const [selectedUserId, setSelectedUserId] = useState(null);
-    const [selectedUserAndRoleId, setSelectedUserAndRoleId] = useState([]);
-    const [selectedProducts, setSelectedProducts] = useState([]);
-
     const {
-        refetch: refetchAccess
-    } = useAccessOfUserByIdList(selectedUserId);
-
-    const {
-        refetch: refetchUnAccess
-    } = useUnAccessOfUserByIdList(selectedUserId);
-
-    const handleAddAccess = async () => {
-        // if (!selectedUserAndRoleId || selectedUserAndRoleId.length !== 2 || selectedProducts.length === 0) {
-        //     return message.warning('لطفاً کاربر، سمت و محصولات را انتخاب کنید.');
-        // }
-        const [role_id, user_id] = selectedUserAndRoleId;
-        const payload = {
-            user_id,
-            role_id,
-            product_ids: selectedProducts
-        };
-        try {
-            await createAccessProducts(payload);
-            message.success("محصول به سمت مورد نظر با موفقیت اضافه شد");
-            userRefetch();
-            accessListRefetch();
-            refetchAccess();
-            refetchUnAccess();
-        } catch (error) {
-            message.error("مشکلی در اضافه کردن محصول به سمت پیش آمده است.");
-            console.error(error);
-        }
-    };
+        selectedUserId,
+        selectedRoleId,
+        onUserSelect,
+        onRoleSelect,
+        setSelectedProductIds,
+        handleAddAccess,
+        handleDeleteAccess,
+        isCreating
+    } = useAccessManagement();
 
     return (
         <div className="min-h-screen bg-Main p-2">
             <div className="my-1 p-2 bg-white shadow-md rounded-lg">
-                <Button
-                    type="primary"
-                    className="bg-blue-500 hover:bg-blue-600 text-white"
-                    onClick={() => navigate("/panel/system-management")}
-                >
+                <Button type="primary" onClick={() => navigate("/panel/system-management")}>
                     بازگشت به صفحه اصلی
                 </Button>
             </div>
-            <Card className='w-full' title="مدیریت کاربران و دسترسی محصول">
+            <Card title="مدیریت دسترسی کاربران به محصولات">
                 <div className='w-full flex flex-row gap-4 items-stretch'>
+                    {/* Column 1: Users List */}
                     <div className='flex-1 flex flex-col gap-4 border rounded p-4'>
-                        <Text strong className='text-center'>لیست کاربران</Text>
+                        <Text strong className='text-center'>۱. یک کاربر انتخاب کنید</Text>
                         <UsersList
-                            refetch={userRefetch}
                             selectedUserId={selectedUserId}
-                            setSelectedUserId={setSelectedUserId}
+                            onSelectUser={onUserSelect}
                         />
                     </div>
 
                     <div className='flex-1 flex flex-col gap-4 border rounded p-4'>
-                        <Text strong className='text-center'>لیست سمت‌ها</Text>
+                        <Text strong className='text-center'>۲. یک سمت انتخاب کنید</Text>
                         <RoleProductList
-                            accessListRefetch={accessListRefetch}
-                            refetch={userRefetch}
                             selectedUserId={selectedUserId}
-                            setSelectedUserAndRoleId={setSelectedUserAndRoleId}
-                            selectedUserAndRoleId={selectedUserAndRoleId}
-                            setSelectedProducts={setSelectedProducts}
-                            deleteAccessProducts={deleteAccessProducts}
+                            selectedRoleId={selectedRoleId}
+                            onSelectRole={onRoleSelect}
+                            onDeleteAccess={handleDeleteAccess}
                         />
                     </div>
 
-                    <div className='flex flex-col justify-center gap-4 px-2'>
-                        <button
-                            className="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors"
+                    <div className='flex flex-col justify-center items-center gap-4 px-2'>
+                        <Button
+                            type="primary"
+                            shape="circle"
+                            icon={isCreating ? <Spin/> : <ArrowRightOutlined/>}
+                            size="large"
                             onClick={handleAddAccess}
-                        >
-                            <ArrowRightOutlined className="text-lg"/>
-                        </button>
+                            disabled={isCreating}
+                            title="افزودن دسترسی"
+                        />
                     </div>
 
                     <div className='flex-1 flex flex-col gap-4 border rounded p-4'>
-                        <Text strong className='text-center'>لیست محصولات</Text>
+                        <Text strong className='text-center'>۳. محصولات را انتخاب کنید</Text>
                         <ProductsList
-                            accessListRefetch={accessListRefetch}
-                            refetch={userRefetch}
-                            setSelectedUserAndRoleId={setSelectedUserAndRoleId}
-                            selectedUserAndRoleId={selectedUserAndRoleId}
-                            setSelectedProducts={setSelectedProducts}
+                            selectedUserId={selectedUserId}
+                            selectedRoleId={selectedRoleId}
+                            onSelectionChange={setSelectedProductIds}
                         />
                     </div>
                 </div>

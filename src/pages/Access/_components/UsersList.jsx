@@ -1,74 +1,34 @@
-import { useUserList } from '../../../QueryServises/userQuery';
-import { Card, Spin, Empty } from 'antd';
-import { useState } from 'react';
-import Tree from '../../../components/Tree';
+import {useUserList} from '../../../QueryServises/userQuery';
+import {Empty, Spin, Tree} from 'antd';
 
-const UsersList = ({ refetch, selectedUserId, setSelectedUserId }) => {
-    const { data: usersList, isFetching, error } = useUserList();
-    const [expandedKeys, setExpandedKeys] = useState([]);
-    const [autoExpandParent, setAutoExpandParent] = useState(true);
+const UsersList = ({selectedUserId, onSelectUser}) => {
+    const {data: users, isLoading, isError} = useUserList();
 
-    const handleSelectUser = (selectedKeys, { node }) => {
-        setSelectedUserId(node.userId === selectedUserId ? null : node.userId);
+    const handleSelect = (selectedKeys) => {
+        const newUserId = selectedKeys.length > 0 ? Number(selectedKeys[0].replace('user-', '')) : null;
+        onSelectUser(newUserId);
     };
 
-    const onExpand = (expandedKeysValue) => {
-        setExpandedKeys(expandedKeysValue);
-        setAutoExpandParent(false);
-    };
-
-    const transformUsersToTreeData = (users) => {
+    const transformToTreeData = (users) => {
         if (!users) return [];
-
         return users.map(user => ({
             title: `${user.name} ${user.last_name}`,
             key: `user-${user.id}`,
             isLeaf: true,
-            userId: user.id,
-            style: {
-                backgroundColor: user.id === selectedUserId ? '#e6f7ff' : 'transparent',
-            },
-            className: user.id === selectedUserId ? 'selected-user' : ''
         }));
     };
 
-    if (isFetching) {
-        return (
-            <Card>
-                <Spin size="small" />
-            </Card>
-        );
-    }
-
-    if (error) {
-        return (
-            <Card>
-                <div className="text-red-500">خطا در بارگذاری داده‌ها</div>
-            </Card>
-        );
-    }
-
-    if (!usersList || usersList.length === 0) {
-        return (
-            <Card>
-                <Empty description="هیچ کاربری یافت نشد" />
-            </Card>
-        );
-    }
+    if (isLoading) return <Spin/>;
+    if (isError) return <div className="text-red-500">خطا در بارگذاری کاربران</div>;
+    if (!users || users.length === 0) return <Empty description="هیچ کاربری یافت نشد"/>;
 
     return (
-        <Card className='w-full'>
-            <Tree
-                checkable={false}
-                onSelect={handleSelectUser}
-                onExpand={onExpand}
-                expandedKeys={expandedKeys}
-                autoExpandParent={autoExpandParent}
-                treeData={transformUsersToTreeData(usersList)}
-                selectedKeys={selectedUserId ? [`user-${selectedUserId}-${Math.random()}`] : []}
-                className="user-tree"
-            />
-        </Card>
+        <Tree
+            blockNode
+            onSelect={handleSelect}
+            treeData={transformToTreeData(users)}
+            selectedKeys={selectedUserId ? [`user-${selectedUserId}`] : []}
+        />
     );
 };
 

@@ -1,64 +1,52 @@
-import { useState } from "react";
-import { useUnAccessProductsByUserAndRoleId } from "../../../QueryServises/accsessQuery";
-import { Alert, Card, Empty, Spin } from "antd";
-import Tree from "../../../components/Tree";
+import {useEffect, useState} from "react";
+import {useUnAccessProductsByUserAndRoleId} from "../../../QueryServises/accsessQuery";
+import {Alert, Empty, Spin, Tree} from "antd";
 
-const ProductsList = ({ selectedUserAndRoleId, setSelectedProducts }) => {
+const ProductsList = ({selectedUserId, selectedRoleId, onSelectionChange}) => {
     const [checkedKeys, setCheckedKeys] = useState([]);
-    const [expandedKeys, setExpandedKeys] = useState([]);
-    const [autoExpandParent, setAutoExpandParent] = useState(true);
 
-    const userId = selectedUserAndRoleId?.[1];
-    const roleId = selectedUserAndRoleId?.[0];
-
-    const { data, isLoading, error } = useUnAccessProductsByUserAndRoleId(
-        userId && roleId ? {
-            user_id: userId,
-            role_id: roleId
-        } : null
+    const {data: products, isLoading, error} = useUnAccessProductsByUserAndRoleId(
+        selectedUserId && selectedRoleId ? {user_id: selectedUserId, role_id: selectedRoleId} : null,
+        {enabled: !!(selectedUserId && selectedRoleId)}
     );
+
+    useEffect(() => {
+        setCheckedKeys([]);
+        onSelectionChange([]);
+    }, [selectedUserId, selectedRoleId, onSelectionChange]);
+
+    const onCheck = (keys, info) => {
+        const productIds = info.checkedNodes.map(node => node.productId);
+        setCheckedKeys(keys);
+        onSelectionChange(productIds);
+    };
 
     const transformDataToTree = (products) => {
         if (!products) return [];
         return products.map(product => ({
             title: product.persian_title,
-            key: `unaccess-product-role-${roleId}-product-${product.id}`,
+            key: `product-${product.id}`,
             isLeaf: true,
-            ...product
+            productId: product.id,
         }));
     };
 
-    const onExpand = (expandedKeysValue) => {
-        setExpandedKeys(expandedKeysValue);
-        setAutoExpandParent(false);
-    };
+    if (!selectedUserId || !selectedRoleId) {
+        return <Empty description="برای مشاهده محصولات، ابتدا کاربر و سمت را انتخاب کنید."/>;
+    }
 
-    const onCheck = (checkedKeysValue) => {
-        setCheckedKeys(checkedKeysValue);
-        const productIds = checkedKeysValue
-            .filter(key => key.startsWith(`unaccess-product-role-${roleId}-product-`))
-            .map(key => parseInt(key.split('-').pop()));
-        setSelectedProducts(productIds);
-    };
-
-    if (isLoading) return <Spin size="small" />;
-    if (error) return <Alert message={`خطا: ${error.response?.data?.message || error.message}`} type="error" />;
-    if (!data || data.length === 0) return <Empty description="محصولی یافت نشد" />;
+    if (isLoading) return <Spin/>;
+    if (error) return <Alert message="خطا در بارگذاری محصولات" type="error"/>;
+    if (!products || products.length === 0) return <Empty description="محصول جدیدی برای افزودن یافت نشد."/>;
 
     return (
-        <Card>
-            <Tree
-                multiple
-                checkable={true}
-                onExpand={onExpand}
-                isLoading={isLoading}
-                expandedKeys={expandedKeys}
-                autoExpandParent={autoExpandParent}
-                onCheck={onCheck}
-                checkedKeys={checkedKeys}
-                treeData={transformDataToTree(data)}
-            />
-        </Card>
+        <Tree
+            checkable
+            blockNode
+            onCheck={onCheck}
+            checkedKeys={checkedKeys}
+            treeData={transformDataToTree(products)}
+        />
     );
 };
 

@@ -29,9 +29,9 @@ const AutomationFileModal = ({isOpen, modalData, closeModal}) => {
 
     const stateSteps = [
         {value: 10, label: "تعریف سند"},
-        {value: 20, label: "تهیه کننده"},
-        {value: 30, label: "تایید"},
-        {value: 40, label: "تصویب"},
+        {value: 20, label: "تهیه شده"},
+        {value: 30, label: "تایید شده"},
+        {value: 40, label: "تصویب شده"},
     ];
 
     const currentStepIndex = stateSteps?.findIndex((s) => s.value === currentState);
@@ -225,31 +225,37 @@ const AutomationFileModal = ({isOpen, modalData, closeModal}) => {
                     </Col>
 
                     <Col span={24} className={"w-full flex flex-row justify-end gap-4 mt-6"}>
-                        <Button
-                            onClick={handlePrevStep}
-                            disabled={!comment || currentStepIndex <= 0 || isPatching}
-                            loading={isPatching}
-                        >
-                            {currentState === 20
-                                ? "برگشت به تهیه نشده"
-                                : currentState === 30
-                                    ? "برگشت به تهیه کننده"
-                                    : currentState === 40
-                                        ? "برگشت به تایید"
-                                        : "تصویب شده است"}
-                        </Button>
-                        <Button
+                        {currentState === 10 && (
+                            <Button
+                                onClick={handlePrevStep}
+                                disabled={!comment || currentStepIndex <= 0 || isPatching}
+                                loading={isPatching}
+                            >
+                                {
+                                    currentState === 20
+                                        ? "رد تهیه"
+                                        : currentState === 30
+                                            ? "رد تایید"
+                                            : currentState === 40
+                                                ? "رد تصویب"
+                                                : "تصویب شده است"
+                                }
+                            </Button>
+                        )}
+                        {!currentState === 40 && (<Button
                             type="primary"
                             onClick={handleNextStep}
                             disabled={!comment || currentStepIndex >= stateSteps?.length - 1 || isPatching}
                             loading={isPatching}
                         >
-                            {currentState === 20
-                                ? "تایید"
-                                : currentState === 30
-                                    ? "تصویب"
-                                    : "تایید نهایی"}
-                        </Button>
+                            {
+                                currentState === 10 ? "تهیه"
+                                    : currentState === 20
+                                        ? "تایید"
+                                        : currentState === 30
+                                            ? "تصویب"
+                                            : "تایید نهایی"}
+                        </Button>)}
                     </Col>
                 </Row>
             </Form>

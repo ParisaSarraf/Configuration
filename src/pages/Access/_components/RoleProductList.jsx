@@ -1,181 +1,103 @@
-import { Card, message, Spin, Typography } from 'antd';
-import React, { useEffect, useState } from 'react';
-import { useAccessOfUserByIdList, useUnAccessOfUserByIdList } from '../../../QueryServises/accsessQuery';
-import Tree from '../../../components/Tree';
-import { DeleteOutlined } from '@ant-design/icons';
+import {Button, Divider, Empty, Spin, Tree, Typography} from 'antd';
+import {DeleteOutlined} from '@ant-design/icons';
+import {useAccessOfUserByIdList, useUnAccessOfUserByIdList} from '../../../QueryServises/accsessQuery';
 
-const { Text } = Typography;
+const {Text, Title} = Typography;
 
-const RoleProductList = ({
-    selectedUserId,
-    setSelectedUserAndRoleId,
-    accessListRefetch,
-    selectedUserAndRoleId,
-    setSelectedProducts,
-    deleteAccessProducts,
-    userRefetch
-}) => {
+const RoleProductList = ({selectedUserId, selectedRoleId, onSelectRole, onDeleteAccess}) => {
     const {
-        data: usersWithAccess,
-        isFetching: usersHasProductFetching,
-        error: hasProductError,
-        refetch: refetchAccess
+        data: assignedRoles,
+        isLoading: isLoadingAssigned,
+        isError: isErrorAssigned
     } = useAccessOfUserByIdList(selectedUserId, {
-        enabled: !!selectedUserId
+        enabled: !!selectedUserId,
     });
 
     const {
-        data: usersWithoutAccess,
-        isFetching: usersHasNotProductFetching,
-        error: hasNotProductError,
-        refetch: refetchUnAccess
+        data: unassignedRoles,
+        isLoading: isLoadingUnassigned,
+        isError: isErrorUnassigned
     } = useUnAccessOfUserByIdList(selectedUserId, {
-        enabled: !!selectedUserId
+        enabled: !!selectedUserId,
     });
 
-    const [selectedNodeKey, setSelectedNodeKey] = useState(null);
-    const [checkedKeys, setCheckedKeys] = useState([]);
-
-    useEffect(() => {
-        refetchAccess();
-        refetchUnAccess();
-    }, [selectedUserId]);
-
-    const handleCheck = (checkedKeysValue) => {
-        setCheckedKeys(checkedKeysValue);
-
-        const productIds = [];
-        let roleId = null;
-
-        checkedKeysValue.forEach(key => {
-            if (typeof key === 'string' && key.includes('-product-')) {
-                const match = key.match(/role-(\d+).*?-product-(\d+)/);
-                if (match) {
-                    const [, rId, pId] = match;
-                    roleId = parseInt(rId);
-                    productIds.push(parseInt(pId));
-                }
-            }
-        });
-
-        if (roleId && selectedUserId) {
-            setSelectedUserAndRoleId([roleId, selectedUserId]);
-        }
-        setSelectedProducts(productIds);
-    };
-
-    const handleClick = (node) => {
-        const roleId = node.roleId;
-        if (roleId) {
-            if (selectedNodeKey === roleId) {
-                setSelectedNodeKey(null);
-                setSelectedUserAndRoleId([]);
-            } else {
-                setSelectedNodeKey(roleId);
-                setSelectedUserAndRoleId([roleId, selectedUserId]);
-            }
+    const handleSelect = (selectedKeys) => {
+        const newRoleId = selectedKeys.length > 0 ? Number(selectedKeys[0].replace('role-', '')) : null;
+        if (newRoleId === selectedRoleId) {
+            onSelectRole(null);
+        } else {
+            onSelectRole(newRoleId);
         }
     };
 
-    const transformAccessData = (data) => {
-        if (!data) return [];
-        return data.map(role => {
-            const hasAccess = role.access?.length > 0;
-            const children = hasAccess
-                ? role.access.map(accessItem => {
-                    const product = accessItem.product;
-                    const productTitle = product?.persian_title || 'بدون عنوان';
-                    const productId = product?.id;
-                    const accessId = accessItem?.id;
-
-                    return {
-                        title: (
-                            <div className="w-full flex justify-between">
-                                <span>{productTitle}</span>
-                                <DeleteOutlined
-                                    className="text-red-500 hover:text-red-700 cursor-pointer"
-                                    onClick={async (e) => {
-                                        e.stopPropagation();
-                                        try {
-                                            await deleteAccessProducts(accessId);
-                                            message.success("با موفقیت حذف شد");
-                                            // userRefetch();
-                                            accessListRefetch();
-                                            refetchAccess();
-                                            refetchUnAccess();
-                                        } catch (error) {
-                                            message.error("خطا در حذف آیتم");
-                                            console.error("Delete error:", error);
-                                        }
-                                    }}
-                                />
-                            </div>
-                        ),
-                        key: `access-tree-role-${role.id}-product-${productId}`,
-                    };
-                })
-                : [];
-
-            return {
-                title: role.name,
-                key: `access-tree-role-${role.id}`,
-                roleId: role.id,
-                children,
-            };
-        });
-    };
-
-    const transformUnAccessTreeData = (data) => {
+    const transformAssignedData = (data) => {
         if (!data) return [];
         return data.map(role => ({
-            title: role.name,
-            key: `unaccess-tree-role-${role.id}`,
-            roleId: role.id,
+            key: `role-${role.id}`,
+            title: <Text strong>{role.name}</Text>,
+            children: role.access?.map(acc => ({
+                key: `access-${acc.id}`,
+                title: (
+                    <div className="flex justify-between items-center w-full">
+                        <span>{acc.product?.persian_title || 'محصول بدون نام'}</span>
+                        <Button
+                            type="text"
+                            danger
+                            size="small"
+                            icon={<DeleteOutlined/>}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onDeleteAccess(acc.id);
+                            }}
+                        />
+                    </div>
+                ),
+            })),
         }));
     };
 
-    const accessTreeData = transformAccessData(usersWithAccess);
-    const unAccessTreeData = transformUnAccessTreeData(usersWithoutAccess);
+    const transformUnassignedData = (data) => {
+        if (!data) return [];
+        return data.map(role => ({
+            key: `role-${role.id}`,
+            title: role.name,
+            isLeaf: true,
+        }));
+    };
 
-    if (usersHasProductFetching || usersHasNotProductFetching) {
-        return (
-            <Card>
-                <Spin size="small" />
-            </Card>
-        );
+    if (!selectedUserId) {
+        return <Empty description="ابتدا یک کاربر را انتخاب کنید."/>;
     }
 
+    if (isLoadingAssigned || isLoadingUnassigned) return <Spin/>;
+    if (isErrorAssigned || isErrorUnassigned) return <div className="text-red-500">خطا در بارگذاری سمت‌ها</div>;
+
     return (
-        <Card className='w-full'>
-            <div style={{ marginBottom: 16 }}>
-                <Text strong>سمت های کاربر</Text>
+        <div className="flex flex-col h-full">
+            <div>
+                <Title level={5}>سمت‌های اختصاص داده شده</Title>
                 <Tree
-                    data={accessTreeData}
-                    isLoading={usersHasProductFetching}
-                    isError={hasProductError}
-                    showLine={true}
-                    checkable={true}
-                    onNodeClick={handleClick}
-                    onCheck={handleCheck}
-                    selectedKeys={selectedNodeKey ? [`access-tree-role-${selectedNodeKey}`] : []}
-                    checkedKeys={checkedKeys}
+                    blockNode
+                    showLine
+                    treeData={transformAssignedData(assignedRoles)}
+                    onSelect={handleSelect}
+                    selectedKeys={selectedRoleId ? [`role-${selectedRoleId}`] : []}
+                    defaultExpandAll
                 />
             </div>
 
-            <div style={{ marginTop: 24, marginBottom: 16 }}>
-                <Text strong>بقیه سمت ها</Text>
+            <Divider/>
+
+            <div className="flex-grow">
+                <Title level={5}>سمت‌های قابل انتخاب</Title>
                 <Tree
-                    data={unAccessTreeData}
-                    isLoading={usersHasNotProductFetching}
-                    isError={hasNotProductError}
-                    showLine={true}
-                    checkable={true}
-                    onNodeClick={handleClick}
-                    selectedKeys={selectedNodeKey ? [`unaccess-tree-role-${selectedNodeKey}`] : []}
-                    checkedKeys={checkedKeys}
+                    blockNode
+                    treeData={transformUnassignedData(unassignedRoles)}
+                    onSelect={handleSelect}
+                    selectedKeys={selectedRoleId ? [`role-${selectedRoleId}`] : []}
                 />
             </div>
-        </Card>
+        </div>
     );
 };
 

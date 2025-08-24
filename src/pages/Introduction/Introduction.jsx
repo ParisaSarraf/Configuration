@@ -19,6 +19,7 @@ const RecursiveTable = ({dataSource, columns}) => (
             expandIconColumnIndex: 0,
             rowExpandable: (record) => record.children && record.children.length > 0,
         }}
+        bordered
     />
 );
 
@@ -57,7 +58,7 @@ const Introduction = () => {
         }
         try {
             await updateProductionInfo(
-            {productId: currentProduct?.id,...payload});
+                {productId: currentProduct?.id, ...payload});
             message.success('ذخیره با موفقیت انجام شد');
             // await refetch()
             form.resetFields()

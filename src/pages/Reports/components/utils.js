@@ -1,31 +1,30 @@
-export const ALL_STATES = [null, 10, 20, 30];
+export const ALL_STATES = [null, 10, 20, 30, 40];
 
 export const stateLabels = {
     null: 'همه اسناد',
-    10: 'تهیه ',
-    20: 'تصویب',
-    30: 'تصدیق',
-    // 40: 'تصویب',
+    10: 'تهیه نشده ',
+    20: 'تهیه شده',
+    30: 'تایید شده',
+    40: 'تصویب شده',
 };
 
 export const getStateColor = (state) => {
     const colors = {
-        10: '#1890ff',
-        20: '#52c41a',
-        30: '#faad14',
-        40: '#f5222d',
-        50: '#722ed1',
+        10: '#f5222d',
+        20: '#faad14',
+        30: '#52c41a',
+        40: '#722ed1',
+        // 50: '#722ed1',
     };
     return colors[state] || 'gray';
 };
 
 export const getStateBackgroundColor = (state) => {
     const backgroundColors = {
-        10: '#e6f7ff',
-        20: '#f6ffed',
-        30: '#fffbe6',
-        40: '#fff1f0',
-        50: '#f9f0ff',
+        10: '#ffd2d1',
+        20: 'rgb(255,230,170)',
+        30: '#caffe4',
+        40: '#d8bfff',
     };
     return backgroundColors[state] || '#fafafa';
 };
