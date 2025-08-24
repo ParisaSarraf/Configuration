@@ -1,22 +1,22 @@
 import {Spin, Table} from 'antd';
 import {useGetProductDocumentReport} from '@/QueryServises/ReportsQuery/index.js';
-import ReportCols from '@/pages/Reports/components/CollapseTableReport/ReportCols.jsx';
-import {useEffect} from "react";
-import {flatten} from "@/pages/Reports/components/utils.js";
+import ReportCols from './ReportCols.jsx';
 
-const StateSpecificTable = ({productId, state, isActive, onCountChange}) => {
+const StateSpecificTable = ({productId, state, filters = {}}) => {
+    let finalFilters = {...filters};
+    if (state !== null) {
+        finalFilters.states = state;
+    } else {
+        delete finalFilters.states;
+    }
+
     const {data: reportData, isLoading} = useGetProductDocumentReport(
         productId,
-        {states: state, with_children: true},
-        {enabled: !!productId},
-    );
-
-    useEffect(() => {
-        if (reportData && onCountChange) {
-            const count = flatten(reportData).length;
-            onCountChange(state, count);
+        finalFilters,
+        {
+            enabled: !!productId,
         }
-    }, [reportData]);
+    );
 
     if (isLoading) {
         return <div style={{textAlign: 'center', margin: '20px 0'}}><Spin/></div>;
@@ -24,13 +24,13 @@ const StateSpecificTable = ({productId, state, isActive, onCountChange}) => {
 
     return (
         <Table
-            getContainerWidth={window.innerWidth}
             size="small"
-            scroll={{x: 100}}
+            scroll={{x: 'max-content'}}
             columns={ReportCols()}
             dataSource={reportData || []}
             bordered
             rowKey="id"
+            pagination={false}
         />
     );
 };

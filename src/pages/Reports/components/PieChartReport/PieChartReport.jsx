@@ -1,17 +1,14 @@
-import React from 'react';
 import {Card} from "antd";
 import {PieChart} from '@mui/x-charts/PieChart';
 import {useGetEditionsCountReport} from "@/QueryServises/ReportsQuery/index.js";
+import {useMemo} from "react";
 
 const PieChartReport = ({currentProduct, filters = {}}) => {
-
-
     const {data: pieData, isLoading, error} = useGetEditionsCountReport(currentProduct?.id,
         filters);
 
-    const chartData = React.useMemo(() => {
+    const chartData = useMemo(() => {
         if (!pieData) return [];
-
         return pieData.map(item => ({
             id: item.state,
             value: item.count,
@@ -71,9 +68,10 @@ const PieChartReport = ({currentProduct, filters = {}}) => {
 const getStateLabel = (stateCode) => {
     const stateLabels = {
         null: 'همه اسناد',
-        10: 'تهیه ',
-        20: 'تصویب',
-        30: 'تصدیق',
+        10: 'تهیه شده',
+        20: 'تایید شده',
+        30: 'تصدیق شده',
+        40: 'تصویب شده',
     };
 
     return stateLabels[stateCode] || `وضعیت ${stateCode}`;
