@@ -6,6 +6,8 @@ import {useProductContext} from "../../../Services/Context/ProductContext";
 import useModal from "@/hooks/useModal.js";
 import DetailModal from "@/components/DetailModal/DetailModal.jsx";
 import TrusteeModal from "@/pages/Activity/components/TrusteeModal.jsx";
+import DataExporter from "@/components/DataExporter/DataExporter.jsx";
+import {DocumentCol} from "@/pages/Documents/components/DocumentCol.jsx";
 
 const MyActivities = () => {
     const {setModal, modalMode, modalType, modalData, closeModal, isOpen} = useModal()
@@ -85,6 +87,12 @@ const MyActivities = () => {
 
     return (
         <Card>
+             <DataExporter
+                excelData={MyActivitiesData}
+                pdfColumns={MyActivitiesCols}
+                // pdfData={flattenedDocumentData}
+                fileName="لیست_اسناد"
+                />
             <Table
                 expandedRowRender={expandedRowRender}
                 dataSource={MyActivitiesData || []}

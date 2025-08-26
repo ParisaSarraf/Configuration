@@ -84,7 +84,7 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
           }
           break;
         }
-        disabled: modalMode === "edit" && modalData && (item.id === modalData.id || item.id === modalData.parent_code)
+        modalMode === "edit" && modalData && (item.id === modalData.id || item.id === modalData.parent_code)
       }
       return {
         title: title,
@@ -102,9 +102,7 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
         className="modal-button"
         icon={<PlusOutlined className="text-center" />}
         onClick={() => setModal({ mode: "add", data: null })}
-      >
-        <span className="xs:hidden sm:hidden md:inline">افزودن سند</span>
-      </Button>
+      />
       <Modal
         isOpen={isOpen}
         title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} سند`}

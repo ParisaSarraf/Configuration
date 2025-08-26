@@ -98,10 +98,9 @@ export const MeetingRelatedToActivitiesCols = () => {
                 // console.log(record)
                 const getStateInfo = (state) => {
                     const states = {
-                        10: {label: "در انتظار تایید", status: "warning"},
-                        20: {label: "تایید شده", status: "success"},
-                        30: {label: "انجام شده", status: "processing"},
-                        40: {label: "رد شده", status: "error"},
+                        10: {label: "در انتظار اقدام", status: "warning"},
+                        20: {label: "اقدام فعالیت", status: "success"},
+                        30: {label: "تایید فعالیت", status: "processing"},
                     };
                     return states[state] || {label: "نامشخص", status: "default"};
                 };

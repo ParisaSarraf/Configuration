@@ -1,6 +1,7 @@
 import {Button, Flex, message, Modal, Table, Tag, Tooltip} from "antd";
 import {MeetingRelatedToActivitiesCols} from "./components/MeetingRelatedToActivitiesCols";
 import {EyeOutlined} from "@ant-design/icons";
+import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
 
 const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refetch}) => {
     const handleEdit = (record) => {
@@ -122,12 +123,22 @@ const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refet
             {
                 title: 'تاریخ شروع',
                 dataIndex: 'from_date',
-                key: 'from_date'
+                key: 'from_date',
+                render:(record) => {
+                    return (
+                        <>{georgianDateToJalaliDate(record)}</>
+                    )
+                }
             },
             {
                 title: 'تاریخ پایان',
                 dataIndex: 'to_date',
-                key: 'to_date'
+                key: 'to_date',
+                render:(record) => {
+                    return (
+                        <>{georgianDateToJalaliDate(record)}</>
+                    )
+                }
             },
             {
                 title: 'وضعیت',

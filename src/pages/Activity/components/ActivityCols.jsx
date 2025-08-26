@@ -204,38 +204,3 @@ export const ActivityCols = ({
     )
 };
 
-export const ActivityDetail = [
-    // {
-    //     title: "متولی",
-    //     dataIndex: ['trustee', 'name'],
-    //     key: 'trustee',
-    //     render: (name, record) => `${name} ${record.trustee?.last_name || ''}`
-    // },
-    {
-        title: 'توضیحات متولی',
-        dataIndex: 'trustee_description',
-        key: 'trustee_description',
-        render: (text) => text || 'بدون توضیح'
-    },
-    {
-        title: "تاریخ تایید طرح و برنامه",
-        dataIndex: 'confirmed_date',
-        key: 'confirmed_date'
-    },
-    {
-        title: 'فایل متولی',
-        dataIndex: 'trustee_file',
-        key: 'trustee_file',
-        render: (file) => file ? (
-            <a href={file} target="_blank" rel="noopener noreferrer">دانلود</a>
-        ) : 'بدون فایل'
-    },
-    {
-        title: 'فایل طرج و برنامه',
-        dataIndex: 'plan_file',
-        key: 'plan_file',
-        render: (file) => file ? (
-            <a href={file} target="_blank" rel="noopener noreferrer">دانلود</a>
-        ) : 'بدون فایل'
-    }
-];

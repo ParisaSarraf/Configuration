@@ -9,13 +9,23 @@ export const MyActivitiesCols = ({handleShowDetail, handleTrustee}) => {
             key: 'index',
             render: (_, __, index) => index + 1,
         },
+            // {
+            //     title: 'نوع فعالیت',
+            //     dataIndex: 'type',
+            //     key: 'type',
+            //     render: (type) => {
+            //         return (
+            //             <Tag>{type === 'control project' ? 'کنترل پروژه' : 'صورتجلسه'}</Tag>
+            //         )
+            //     },
+            // },
             {
-                title: 'نوع فعالیت',
-                dataIndex: 'type',
-                key: 'type',
+                title: 'کد فعالیت',
+                dataIndex: 'full_code',
+                key: 'full_code',
                 render: (type) => {
                     return (
-                        <Tag>{type === 'control project' ? 'کنترل پروژه' : 'صورتجلسه'}</Tag>
+                        <Tag>{type}</Tag>
                     )
                 },
             },
@@ -32,7 +42,7 @@ export const MyActivitiesCols = ({handleShowDetail, handleTrustee}) => {
                 render: (_, row) => row.product?.code || row.meeting?.product?.code
             },
             {
-                title: 'توضیحات',
+                title: 'شرح فعالیت',
                 dataIndex: 'description',
                 key: 'description',
                 ellipsis: true,
@@ -55,19 +65,9 @@ export const MyActivitiesCols = ({handleShowDetail, handleTrustee}) => {
                 },
             },
             {
-                title: 'کد کامل',
-                dataIndex: 'full_code',
-                key: 'full_code',
-                render: (record) => {
-                    return (
-                        <Tag color="cyan">{record}</Tag>
-                    )
-                },
-            },
-            {
-                title: 'تاریخ شروع',
-                dataIndex: 'from_date',
-                key: 'from_date',
+                title: 'تاریخ تایید',
+                dataIndex: 'done_date',
+                key: 'done_date',
                 render: (record) => {
                     return (
                         <Tag color="green">{georgianDateToJalaliDate(record)}</Tag>

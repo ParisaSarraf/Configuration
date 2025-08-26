@@ -67,12 +67,16 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
         } else if (modalMode === "addToParent" && modalData) {
             setSelectedParentCodeId(modalData.id);
             form.setFieldsValue({
-                parent_id: null,
-                parent_code_id: null,
-                final_code: parentCodeId ? `${parentCodeId}` : ""
+                parent_id: modalData.id,
+                parent_code_id: modalData.id,
+                final_code: parentCodeId ?`${parentCodeId}`: ""
             });
         } else if (modalMode === "add") {
-            form.setFieldsValue({final_code: parentCodeId || ""});
+            form.setFieldsValue({
+                parent_id: null,
+                parent_code_id: null,
+                final_code: parentCodeId || ""
+            })
         }
     }, [modalMode, modalData, isOpen]);
 

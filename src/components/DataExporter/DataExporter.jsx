@@ -31,17 +31,16 @@ const DataExporter = ({excelData, pdfColumns, pdfData, fileName = "export"}) => 
                 icon={<FileExcelOutlined/>}
                 onClick={handleExcelExport}
                 disabled={!excelData || excelData.length === 0}
-            >
-                خروجی اکسل
-            </Button>
+                className={'text-green-500 border-green-500'}
+                title={'گزارش گیری اکسل'}
+            />
             <Button
                 icon={<FilePdfOutlined/>}
                 onClick={handlePdfExport}
                 disabled={!pdfData || pdfData.length === 0}
                 danger
-            >
-                خروجی PDF
-            </Button>
+                title={'گزارش گیری PDF'}
+            />
         </Space>
     );
 };

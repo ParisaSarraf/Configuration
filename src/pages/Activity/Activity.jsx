@@ -11,6 +11,8 @@ import {useCallback, useState} from "react";
 import DetailModal from "../../components/DetailModal/DetailModal.jsx";
 import {useUserSimple} from "../../QueryServises/userQuery";
 import {useParams} from "react-router-dom";
+import DataExporter from "@/components/DataExporter/DataExporter.jsx";
+import {DocumentCol} from "@/pages/Documents/components/DocumentCol.jsx";
 
 const Activity = () => {
     const {modalMode, setModal, isOpen, modalData, closeModal, modalType} = useModal()
@@ -79,16 +81,39 @@ const Activity = () => {
         return '';
     };
 
+    const flattenData = (data) => {
+        if (!data) return [];
+        let flat = [];
+        data.forEach(item => {
+            const { children, ...rest } = item;
+            flat.push(rest);
+            if (children && children.length > 0) {
+                flat = flat.concat(flattenData(children));
+            }
+        });
+        return flat;
+    };
+
+    const flattenedActivityData = flattenData(activityData);
+
     return (
         <Card
             title={` فعالیت ها ${currentProduct?.name || ''}`}
             extra={
+                <div className="flex gap-4">
+                    <DataExporter
+                        excelData={activityData}
+                        pdfColumns={ActivityCols}
+                        pdfData={flattenedActivityData}
+                        fileName="لیست_فعالیت ها"
+                    />
                 <Button
                     className={'modal-button'}
                     onClick={() => setModal({mode: 'add', data: null, type: 'addActivity'})}
                     icon={<PlusOutlined/>}
                     title='افزودن فعالیت'
                 />
+                </div>
             }>
             <div className={'flex flex-col gap-4'}>
                 <Table

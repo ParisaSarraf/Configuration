@@ -70,7 +70,7 @@ const CustomHeader = () => {
                 <Button
                     className="hidden md:block bg-blue-500 hover:bg-blue-600 text-white"
                         onClick={() => navigate("/")}
-                >سامانه جامع سیستم مدیریت پروژه </Button>
+                >مدیریت سیستم و یکپارچه سازی روال ها (مسیر) </Button>
             </div>
             <div className="flex flex-row items-center gap-4">
                 <InboxOutlinedIcon/>
@@ -101,7 +101,7 @@ const CustomHeader = () => {
                                     aria-label="change pass"
                                     onClick={() => navigate("/my-work")}
                             >
-                                کارهای من
+                                کارتابل شخصی
                             </Button>
                             <Button icon={<SecurityScanOutlined rotate={90}/>} className="flex items-center w-full"
                                     aria-label="change pass" type="primary" onClick={() => navigate("/forget-password")}
