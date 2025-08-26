@@ -1,4 +1,4 @@
-import {Button, Flex, Tooltip, Tag, Select} from "antd";
+import {Button, Flex, Tooltip, Tag, Select , Badge} from "antd";
 import {DeleteOutlined, EditOutlined, EyeOutlined, FolderAddOutlined, UserAddOutlined,CheckOutlined} from "@ant-design/icons";
 import {useState} from "react";
 import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
@@ -122,11 +122,33 @@ export const ActivityCols = ({
                 title: "نفر ساعت",
                 dataIndex: 'person_day',
                 key: 'person_day'
-            }, {
+            },
+            {
                 title: "درصد عملکرد",
                 dataIndex: 'performance_index',
                 key: 'description'
-            }, {
+            },
+            {
+                title: "وضعیت",
+                dataIndex: 'state',
+                key: 'state',
+                render: (record) => {
+                    const getStateInfo = (state) => {
+                        const states = {
+                            10: {label: "در انتظار اقدام", status: "warning"},
+                            20: {label: "اقدام فعالیت", status: "success"},
+                            30: {label: "تایید فعالیت", status: "processing"},
+                        };
+                        return states[state] || {label: "نامشخص", status: "default"};
+                    };
+                    const stateInfo = getStateInfo(record);
+
+                    return (
+                        <Badge status={stateInfo.status} text={stateInfo.label}/>
+                    )
+                },
+            },
+            {
                 title: "عملیات",
                 key: 'actions',
                 render: (_, record) => {

@@ -36,11 +36,11 @@ export const MyActivitiesCols = ({handleShowDetail, handleTrustee}) => {
                     return row.product?.persian_title || row.meeting?.product?.persian_title;
                 }
             },
-            {
-                title: "کد محصول",
-                key: "code",
-                render: (_, row) => row.product?.code || row.meeting?.product?.code
-            },
+            // {
+            //     title: "کد محصول",
+            //     key: "code",
+            //     render: (_, row) => row.product?.code || row.meeting?.product?.code
+            // },
             {
                 title: 'شرح فعالیت',
                 dataIndex: 'description',
@@ -65,6 +65,16 @@ export const MyActivitiesCols = ({handleShowDetail, handleTrustee}) => {
                 },
             },
             {
+            title: 'تاریخ پایان',
+            dataIndex: 'to_date',
+            key: 'to_date',
+            render: (record) => {
+                return (
+                    <Tag color="blue">{georgianDateToJalaliDate(record)}</Tag>
+                )
+            },
+        },
+            {
                 title: 'تاریخ تایید',
                 dataIndex: 'done_date',
                 key: 'done_date',
@@ -74,16 +84,7 @@ export const MyActivitiesCols = ({handleShowDetail, handleTrustee}) => {
                     )
                 },
             },
-            {
-                title: 'تاریخ پایان',
-                dataIndex: 'to_date',
-                key: 'to_date',
-                render: (record) => {
-                    return (
-                        <Tag color="blue">{georgianDateToJalaliDate(record)}</Tag>
-                    )
-                },
-            },
+
             {
                 title: 'عملیات',
                 key: 'actions',

@@ -81,32 +81,32 @@ const Activity = () => {
         return '';
     };
 
-    const flattenData = (data) => {
-        if (!data) return [];
-        let flat = [];
-        data.forEach(item => {
-            const { children, ...rest } = item;
-            flat.push(rest);
-            if (children && children.length > 0) {
-                flat = flat.concat(flattenData(children));
-            }
-        });
-        return flat;
-    };
+    // const flattenData = (data) => {
+    //     if (!data) return [];
+    //     let flat = [];
+    //     data.forEach(item => {
+    //         const { children, ...rest } = item;
+    //         flat.push(rest);
+    //         if (children && children.length > 0) {
+    //             flat = flat.concat(flattenData(children));
+    //         }
+    //     });
+    //     return flat;
+    // };
 
-    const flattenedActivityData = flattenData(activityData);
+    // const flattenedActivityData = flattenData(activityData);
 
     return (
         <Card
             title={` فعالیت ها ${currentProduct?.name || ''}`}
             extra={
                 <div className="flex gap-4">
-                    <DataExporter
-                        excelData={activityData}
-                        pdfColumns={ActivityCols}
-                        pdfData={flattenedActivityData}
-                        fileName="لیست_فعالیت ها"
-                    />
+                    {/*<DataExporter*/}
+                    {/*    excelData={activityData}*/}
+                    {/*    pdfColumns={ActivityCols}*/}
+                    {/*    pdfData={flattenedActivityData}*/}
+                    {/*    fileName="لیست_فعالیت ها"*/}
+                    {/*/>*/}
                 <Button
                     className={'modal-button'}
                     onClick={() => setModal({mode: 'add', data: null, type: 'addActivity'})}

@@ -16,10 +16,9 @@ const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
                 30: {label: "درحال آپلود فایل پشتیبان تولید", status: "processing"},
                 40: {label: "درحال ارسال به کارفرما/پیمانکار", status: "error"},
             } : {
-                10: {label: "در انتظار تایید", status: "warning"},
-                20: {label: "تایید شده", status: "success"},
-                30: {label: "انجام شده", status: "processing"},
-                40: {label: "رد شده", status: "error"},
+                10: {label: "در انتظار اقدام", status: "warning"},
+                20: {label: "اقدام فعالیت", status: "success"},
+                30: {label: "تایید فعالیت", status: "processing"},
             };
         return states[state] || {label: "نامشخص", status: "default"};
     };
