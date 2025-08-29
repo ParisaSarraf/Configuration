@@ -1,7 +1,9 @@
-import { Tag } from "antd";
-import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
+import {Button, Space, Tag} from "antd";
+import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
+import {DeleteOutlined, PoweroffOutlined} from "@ant-design/icons";
 
-const ListOfRequestOfWareHouseMadeCol = () => {
+
+const ListOfRequestOfWareHouseMadeCol = (handleDelete) => {
     return [
         {
             title: 'نام محصول',
@@ -21,7 +23,8 @@ const ListOfRequestOfWareHouseMadeCol = () => {
             dataIndex: 'request_type',
             key: 'request_type',
             render: (record) => {
-                return (<Tag color={record === 'assembly' ? 'blue' : 'gold'}>{record === 'assembly' ? 'مونتاژ' : 'ساخت'}</Tag>)
+                return (<Tag
+                    color={record === 'assembly' ? 'blue' : 'gold'}>{record === 'assembly' ? 'مونتاژ' : 'ساخت'}</Tag>)
 
             }
         },
@@ -64,6 +67,28 @@ const ListOfRequestOfWareHouseMadeCol = () => {
             render: (text) => {
                 return (
                     <Tag color={'green'}>{georgianDateToJalaliDate(text) || 'ندارد'}</Tag>
+                )
+            }
+        },
+        {
+            title: 'عملیات',
+            key: 'actions',
+            render: (record) => {
+                return (
+                    <Space>
+                        <Button
+                            title={'حذف'}
+                            danger
+                            onClick={() => handleDelete(record)}
+                            icon={<DeleteOutlined/>}
+                        />
+                        <Button
+                            title={'غیرفعال'}
+                            // danger
+                            // onClick={() => handleDelete(record)}
+                            icon={<PoweroffOutlined/>}
+                        />
+                    </Space>
                 )
             }
         },

@@ -1,15 +1,16 @@
-import { Table, Tag } from "antd";
+import {message, Modal, Table, Tag} from "antd";
 import {
+    useDeleteRequestOfWarehouse,
     useGetConfirmedWarehouseRequestById
 } from "@/QueryServises/RequestOfWarehouse/index.js";
 import ListOfRequestOfWareHouseMadeCol
     from "@/pages/RequestOfWarehouse/components/ListOfRequestOfWareHouseMade/ListOfRequestOfWareHouseMadeCol.jsx";
-import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
+import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
 
 
-
-const ListOfRequestOfWareHouseMade = ({ currentProduct }) => {
-    const { data: requestOfWarehouse } = useGetConfirmedWarehouseRequestById(currentProduct?.id);
+const ListOfRequestOfWareHouseMade = ({currentProduct, refetch}) => {
+    const {data: requestOfWarehouse} = useGetConfirmedWarehouseRequestById(currentProduct?.id);
+    const {mutateAsync: deleteProductPurchaseWarehouse} = useDeleteRequestOfWarehouse();
 
     const expandedRowRender = (record) => {
         const nestedColumns = [
@@ -59,10 +60,30 @@ const ListOfRequestOfWareHouseMade = ({ currentProduct }) => {
             />
         );
     };
+    const handleDelete = (record) => {
+        Modal.confirm({
+            title: 'حذف درخواست خرید کالا از انبار',
+            content: 'آیا از حذف این درخواست خرید کالا از انبار مطمئن هستید؟',
+            okText: 'بله',
+            cancelText: 'خیر',
+            okType: 'danger',
+            async onOk() {
+                try {
+                    await deleteProductPurchaseWarehouse(record?.id);
+                    message.success("درخواست خرید کالا از انبار با موفقیت حذف شد");
+                    await refetch();
+                } catch (error) {
+                    message.error("حذف درخواست خرید کالا از انبار با خطا مواجه شد");
+                    throw error;
+                }
+            },
+        });
+    };
+
 
     return (
         <Table
-            columns={ListOfRequestOfWareHouseMadeCol()}
+            columns={ListOfRequestOfWareHouseMadeCol(handleDelete)}
             dataSource={requestOfWarehouse}
             pagination={false}
             rowKey='id'
