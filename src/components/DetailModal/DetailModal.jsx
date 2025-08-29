@@ -5,8 +5,39 @@ import {BASEURL} from "@/Services/axiosInstance.js";
 import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
 
 
+export const renderFileButton = (label, filePath) => {
+    if (!filePath) return <div className="text-gray-400">فایلی وجود ندارد</div>;
+    const fullUrl = `${BASEURL.replace("/api/v1", "")}${filePath}`;
+    const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(filePath);
+
+    return (
+        <Space className="flex flex-col">
+            <a href={fullUrl} target="_blank" rel="noopener noreferrer" style={{color: "#1890ff"}}>
+                {isImage ? (
+                    <Image
+                        width={90}
+                        height={90}
+                        src={fullUrl}
+                        alt="فایل پیوست"
+                        preview={true}
+                    />
+                ) : (
+                    <>
+                        <FileOutlined/> مشاهده فایل
+                    </>
+                )}
+            </a>
+            <a href={fullUrl} download style={{color: "#52c41a"}} target="_blank" rel="noopener noreferrer">
+                دانلود
+            </a>
+        </Space>
+    );
+};
+
+
 const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
     if (!modalData) return null;
+
 
     const getStateInfo = (state) => {
         const states =
@@ -38,34 +69,6 @@ const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
         </div>
     );
 
-    const renderFileButton = (label, filePath) => {
-        if (!filePath) return <div className="text-gray-400">فایلی وجود ندارد</div>;
-        const fullUrl = `${BASEURL.replace("/api/v1", "")}${filePath}`;
-        const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(filePath);
-
-        return (
-            <Space className="flex flex-col">
-                <a href={fullUrl} target="_blank" rel="noopener noreferrer" style={{color: "#1890ff"}}>
-                    {isImage ? (
-                        <Image
-                            width={90}
-                            height={90}
-                            src={fullUrl}
-                            alt="فایل پیوست"
-                            preview={true}
-                        />
-                    ) : (
-                        <>
-                            <FileOutlined/> مشاهده فایل
-                        </>
-                    )}
-                </a>
-                <a href={fullUrl} download style={{color: "#52c41a"}} target="_blank" rel="noopener noreferrer">
-                    دانلود
-                </a>
-            </Space>
-        );
-    };
 
     const SectionCard = ({title, children}) => (
         <div className="border rounded-lg p-4 shadow-sm bg-white">

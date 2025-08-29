@@ -1,16 +1,15 @@
-import { Form, Layout, message, Modal, Select, Table } from "antd"
-import { useProductSerialById } from "../../../../QueryServises/productSerialQuery"
-import { useProductDocumentEditionLogsBySerialById } from "../../../../QueryServises/productDocumentQuery";
+import {Form, message, Modal, Select, Table} from "antd"
+import {useProductSerialById} from "@/QueryServises/productSerialQuery/index.js"
+import {useProductDocumentEditionLogsBySerialById} from "@/QueryServises/productDocumentQuery/index.js";
 import ProductDocumentListSerialCol from "./components/ProductDocumentListSerialCol";
-import { useDeleteProductEditionlog } from "../../../../QueryServises/productDocumentEditionLogQuery";
-import useModal from "../../../../hooks/useModal";
+import {useDeleteProductEditionlog} from "@/QueryServises/productDocumentEditionLogQuery/index.js";
 
-const ProductDocumentListSerial = ({ currentProduct, serialId, setSerialId, refetchSerialId, setModal }) => {
+const ProductDocumentListSerial = ({currentProduct, serialId, setSerialId, refetchSerialId, setModal}) => {
 
-    const { data: ProductSerialList } = useProductSerialById(currentProduct?.id);
-    const { mutateAsync: deleteProductEditionlog } = useDeleteProductEditionlog();
+    const {data: ProductSerialList} = useProductSerialById(currentProduct?.id);
+    const {mutateAsync: deleteProductEditionlog} = useDeleteProductEditionlog();
 
-    const { data: ProductDocumentEditionLogsBySerialData } = useProductDocumentEditionLogsBySerialById(serialId);
+    const {data: ProductDocumentEditionLogsBySerialData} = useProductDocumentEditionLogsBySerialById(serialId);
     const serials = ProductSerialList?.serials || [];
     const tableData = ProductDocumentEditionLogsBySerialData?.map(item => ({
         key: item.id,
@@ -26,9 +25,8 @@ const ProductDocumentListSerial = ({ currentProduct, serialId, setSerialId, refe
     }));
 
 
-
     const handleEditLogEdition = (record) => {
-        setModal({ mode: 'edit', data: record, type: 'AddLogEdition' })
+        setModal({mode: 'edit', data: record, type: 'AddLogEdition'})
     }
 
     const handleDeleteLogEdition = async (record) => {
@@ -55,7 +53,7 @@ const ProductDocumentListSerial = ({ currentProduct, serialId, setSerialId, refe
 
 
     const handleShowDetailEdiotnLog = async (record) => {
-        setModal({ mode: 'view', data: record, type: 'EditionDetailView' })
+        setModal({mode: 'view', data: record, type: 'EditionDetailView'})
     }
 
     return (
@@ -72,13 +70,17 @@ const ProductDocumentListSerial = ({ currentProduct, serialId, setSerialId, refe
                 title={() => `اسناد log ${currentProduct?.name} و زیرمجموعه ها`}
                 bordered
                 dataSource={tableData}
-                columns={ProductDocumentListSerialCol({ handleDeleteLogEdition, handleEditLogEdition, handleShowDetailEdiotnLog })}
+                columns={ProductDocumentListSerialCol({
+                    handleDeleteLogEdition,
+                    handleEditLogEdition,
+                    handleShowDetailEdiotnLog
+                })}
                 size="small"
                 pagination={
-                    { pageSize: 3 }
+                    {pageSize: 3}
                 }
                 // loading={!ProductDocumentEditionLogsBySerialData}
-                locale={{ emptyText: 'باید یک سریال انتخاب کنید' }}
+                locale={{emptyText: 'باید یک سریال انتخاب کنید'}}
             />
 
 

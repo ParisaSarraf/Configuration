@@ -1,14 +1,14 @@
-import { PlusOutlined } from '@ant-design/icons'
-import { Button, Checkbox, Col, Form, Input, message, Row, TreeSelect } from 'antd'
+import {PlusOutlined} from '@ant-design/icons'
+import {Button, Col, Form, Input, message, Row, TreeSelect} from 'antd'
 import Modal from '../../../../../components/Modal'
 import FileUploader from '../../../../../components/FileUploader/FileUploader'
-import { useEffect } from 'react'
+import {useEffect} from 'react'
 import {
     useAvailableProductEditionList,
     useCreateProductEditionlog,
     useUpdateProductEditionlog
 } from '@/QueryServises/productDocumentEditionLogQuery/index.js'
-import { BASEURL } from "@/Services/axiosInstance.js";
+import {BASEURL} from "@/Services/axiosInstance.js";
 import Date from '../../../../../components/DatePicker/Date.jsx'
 import {georgianDateToJalaliDate, jalaliDateToGeorgianDate} from "@utils/timeTool.jsx";
 
@@ -23,14 +23,14 @@ const AddProductDocumentListSerialLogModal = (
         refetchSerialId
     }) => {
     const [form] = Form.useForm()
-    const { data: documentList, isLoading } = useAvailableProductEditionList(serialId)
-    const { mutateAsync: createProductEditionlog } = useCreateProductEditionlog();
-    const { mutateAsync: updateProductEditionlog } = useUpdateProductEditionlog();
+    const {data: documentList, isLoading} = useAvailableProductEditionList(serialId)
+    const {mutateAsync: createProductEditionlog} = useCreateProductEditionlog();
+    const {mutateAsync: updateProductEditionlog} = useUpdateProductEditionlog();
 
 
     useEffect(() => {
         if (serialId) {
-            form.setFieldsValue({ serialId: serialId });
+            form.setFieldsValue({serialId: serialId});
         }
         if (modalMode === 'edit' && modalData) {
             form.setFieldsValue({
@@ -64,7 +64,7 @@ const AddProductDocumentListSerialLogModal = (
                 await createProductEditionlog(payload);
                 message.success("سند با موفقیت اضافه شد");
             } else {
-                await updateProductEditionlog({ EditionLogId: modalData?.key, ...payload });
+                await updateProductEditionlog({EditionLogId: modalData?.key, ...payload});
                 message.success("سند با موفقیت ویرایش شد");
             }
             await refetchSerialId();
@@ -84,13 +84,12 @@ const AddProductDocumentListSerialLogModal = (
     )
 
 
-
     return (
         <>
             <Button
                 className="modal-button"
-                icon={<PlusOutlined />}
-                onClick={() => setModal({ mode: "add", data: null, type: 'AddLogEdition' })}
+                icon={<PlusOutlined/>}
+                onClick={() => setModal({mode: "add", data: null, type: 'AddLogEdition'})}
             >
             </Button>
             <Modal
@@ -101,13 +100,13 @@ const AddProductDocumentListSerialLogModal = (
                 onSubmit={() => form.submit()}
                 mode={modalMode}
             >
-                <Form form={form} layout="vertical" onFinish={onFinish} initialValues={{ serialId: serialId }}>
+                <Form form={form} layout="vertical" onFinish={onFinish} initialValues={{serialId: serialId}}>
                     <Row gutter={[16, 16]}>
                         <Col span={24}>
                             <Form.Item
                                 label="نوع سند"
                                 name="document_edition_id"
-                                rules={[{ required: true, message: "لطفاً سند قابل ادیت را انتخاب کنید" }]}
+                                rules={[{required: true, message: "لطفاً سند قابل ادیت را انتخاب کنید"}]}
                             >
                                 <TreeSelect
                                     treeData={treeData}
@@ -124,54 +123,28 @@ const AddProductDocumentListSerialLogModal = (
                                 label="سریال محصول"
                                 name="serialId"
                             >
-                                <Input disabled value={serialId} />
+                                <Input disabled value={serialId}/>
                             </Form.Item>
                         </Col>
 
                         <Col span={12}>
-                                <Date
-                                    stringifyDate={true}
-                                    noStyle
-                                    isRequired
-                                    label="تاریخ تهیه"
-                                    name="survey_date"
-                                    />
+                            <Date
+                                stringifyDate={true}
+                                noStyle
+                                isRequired
+                                label="تاریخ تهیه"
+                                name="survey_date"
+                            />
                         </Col>
                         <Col span={24}>
                             <Form.Item
                                 label="بارگذاری فایل"
                                 name="file"
                             >
-                                <FileUploader maxCount={1} />
+                                <FileUploader maxCount={1}/>
                             </Form.Item>
                         </Col>
-                        <Col span={8}>
-                            <Form.Item
-                                label="تهیه"
-                                name="is_reportable"
-                                valuePropName="checked"
-                            >
-                                <Checkbox />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item
-                                label="بازنگری"
-                                name="needs_review"
-                                valuePropName="checked"
-                            >
-                                <Checkbox />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item
-                                label="تصدیق"
-                                name="needs_approval"
-                                valuePropName="checked"
-                            >
-                                <Checkbox />
-                            </Form.Item>
-                        </Col>
+
                     </Row>
                 </Form>
             </Modal>
