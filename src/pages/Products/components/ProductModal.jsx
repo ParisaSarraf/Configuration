@@ -69,7 +69,7 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
             form.setFieldsValue({
                 parent_id: modalData.id,
                 parent_code_id: modalData.id,
-                final_code: parentCodeId ?`${parentCodeId}`: ""
+                final_code: parentCodeId ? `${parentCodeId}` : ""
             });
         } else if (modalMode === "add") {
             form.setFieldsValue({
@@ -233,6 +233,19 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                         </Form.Item>
                     </Col>
                     <Col span={4}>
+                        <Form.Item label="وضعیت" name="status">
+                            <Select
+                                placeholder="وضعیت"
+                                style={{width: "100%"}}
+                                options={[
+                                    {label: 'فعال', value: 'active'},
+                                    {label: 'غیرفعال', value: 'inactive'},
+                                    {label: 'موقت', value: 'temp'}
+                                ]}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={6}>
                         <Form.Item
                             label="هویت"
                             name="personality_id"
@@ -245,7 +258,7 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={4}>
+                    <Col span={6}>
                         <Form.Item label="کد استاندارد" name="standard_code_id">
                             <Select
                                 placeholder="کد استاندارد"
@@ -322,20 +335,8 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                             <Input/>
                         </Form.Item>
                     </Col>
-                    <Col span={4}>
-                        <Form.Item label="وضعیت" name="status">
-                            <Select
-                                placeholder="وضعیت"
-                                style={{width: "100%"}}
-                                options={[
-                                    {label: 'فعال', value: 'active'},
-                                    {label: 'غیرفعال', value: 'inactive'},
-                                    {label: 'موقت', value: 'temp'}
-                                ]}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={20}>
+
+                    <Col span={16}>
                         <Form.Item label="توضیحات" name="description">
                             <Input.TextArea rows={1} placeholder="توضیحات محصول"/>
                         </Form.Item>
