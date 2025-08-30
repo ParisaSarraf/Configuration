@@ -26,7 +26,7 @@ const MyWork = () => {
     return(
         <div className="min-h-screen bg-Main p-2">
                 <Header />
-             <Card title={'کارهای من'}>
+             <Card title={'کارتابل شخصی'}>
                  <Tabs items={items} type={"card"}/>
              </Card>
         </div>
