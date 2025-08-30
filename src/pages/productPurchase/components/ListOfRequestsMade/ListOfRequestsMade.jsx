@@ -1,11 +1,12 @@
-import { Table, Tag } from "antd";
-import { useConfirmProductPurchaseById } from "@/QueryServises/productPurchase/index.js";
+import {message, Modal, Table, Tag} from "antd";
+import {useConfirmProductPurchaseById, useDeleteProductPurchase} from "@/QueryServises/productPurchase/index.js";
 import ListOfRequestsMadeCol from "./ListOfRequestsMadeCol";
-import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
+import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
 
 
-const ListOfRequestsMade = ({ currentProduct, refetch }) => {
-    const { data: purchaseData } = useConfirmProductPurchaseById(currentProduct?.id);
+const ListOfRequestsMade = ({currentProduct, refetch}) => {
+    const {data: purchaseData} = useConfirmProductPurchaseById(currentProduct?.id);
+    const {mutateAsync: deleteProductPurchase} = useDeleteProductPurchase(currentProduct?.id);
 
 
     const expandedRowRender = (record) => {
@@ -56,9 +57,29 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
         );
     };
 
+    const handleDelete = (record) => {
+        Modal.confirm({
+            title: 'حذف درخواست خرید',
+            content: 'آیا از حذف این درخواست خرید مطمئن هستید؟',
+            okText: 'بله',
+            cancelText: 'خیر',
+            okType: 'danger',
+            async onOk() {
+                try {
+                    await deleteProductPurchase(record?.id);
+                    message.success("درخواست خرید با موفقیت حذف شد");
+                    await refetch();
+                } catch (error) {
+                    message.error("حذف درخواست خرید با خطا مواجه شد");
+                    throw error;
+                }
+            },
+        });
+    };
+
     return (
         <Table
-            columns={ListOfRequestsMadeCol()}
+            columns={ListOfRequestsMadeCol(handleDelete)}
             dataSource={purchaseData || []}
             pagination={false}
             rowKey='id'

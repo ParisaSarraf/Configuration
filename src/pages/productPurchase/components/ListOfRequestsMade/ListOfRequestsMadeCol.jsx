@@ -1,7 +1,8 @@
-import { Select, Space, Tag } from "antd";
-import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
+import {Button, Space, Tag} from "antd";
+import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
+import {DeleteOutlined, PoweroffOutlined} from "@ant-design/icons";
 
-const ListOfRequestsMadeCol = () => {
+const ListOfRequestsMadeCol = (handleDelete) => {
     return [
         {
             title: 'نام محصول',
@@ -21,7 +22,8 @@ const ListOfRequestsMadeCol = () => {
             dataIndex: 'purchase_type',
             key: 'purchase_type',
             render: (record) => {
-                return (<Tag color={record === 'assembly' ? 'blue' : 'gold'}>{record === 'assembly' ? 'مونتاژ' : 'ساخت'}</Tag>)
+                return (<Tag
+                    color={record === 'assembly' ? 'blue' : 'gold'}>{record === 'assembly' ? 'مونتاژ' : 'ساخت'}</Tag>)
             }
         },
         {
@@ -63,15 +65,28 @@ const ListOfRequestsMadeCol = () => {
                 )
             }
         },
-        // {
-        //     title: 'عملیات',
-        //     key: 'actions',
-        //     render: () => {
-        //         return (<Space>
-        //             <Select/>
-        //         </Space>)
-        //     }
-        // },
+        {
+            title: 'عملیات',
+            key: 'actions',
+            render: (record) => {
+                return (
+                    <Space>
+                        <Button
+                            title={'حذف'}
+                            danger
+                            onClick={() => handleDelete(record)}
+                            icon={<DeleteOutlined/>}
+                        />
+                        <Button
+                            title={'غیرفعال'}
+                            // danger
+                            // onClick={() => handleDelete(record)}
+                            icon={<PoweroffOutlined/>}
+                        />
+                    </Space>
+                )
+            }
+        },
     ]
 }
 

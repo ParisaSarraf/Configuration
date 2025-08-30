@@ -225,8 +225,7 @@ const AutomationFileModal = ({isOpen, modalData, closeModal}) => {
                     </Col>
 
                     <Col span={24} className={"w-full flex flex-row justify-end gap-4 mt-6"}>
-                        {currentState === 10 && (
-                            <Button
+                        {(<Button
                                 onClick={handlePrevStep}
                                 disabled={!comment || currentStepIndex <= 0 || isPatching}
                                 loading={isPatching}
@@ -242,7 +241,8 @@ const AutomationFileModal = ({isOpen, modalData, closeModal}) => {
                                 }
                             </Button>
                         )}
-                        {!currentState === 40 && (<Button
+
+                        <Button
                             type="primary"
                             onClick={handleNextStep}
                             disabled={!comment || currentStepIndex >= stateSteps?.length - 1 || isPatching}
@@ -255,7 +255,7 @@ const AutomationFileModal = ({isOpen, modalData, closeModal}) => {
                                         : currentState === 30
                                             ? "تصویب"
                                             : "تایید نهایی"}
-                        </Button>)}
+                        </Button>
                     </Col>
                 </Row>
             </Form>

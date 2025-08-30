@@ -1,14 +1,15 @@
 import Modal from "../../../../../components/Modal"
+import {renderFileButton} from "@/components/DetailModal/DetailModal.jsx";
 
 const EditionDetailViewModal = ({
-    isOpen,
-    modalMode,
-    modalData,
-    closeModal,
-}) => {
+                                    isOpen,
+                                    modalMode,
+                                    modalData,
+                                    closeModal,
+                                }) => {
     if (!modalData) return null;
 
-    const { product, document, data } = modalData;
+    const {product, document, data} = modalData;
 
     return (
         <Modal
@@ -74,6 +75,15 @@ const EditionDetailViewModal = ({
 
                         <span className="text-gray-500">توضیح نسخه:</span>
                         <span>{data?.description || "-"}</span>
+                    </div>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4 shadow-sm border">
+                    <h3 className="text-lg font-bold text-gray-700 mb-2">اطلاعات فایل</h3>
+                    <div className="grid grid-cols-2 gap-y-1 text-sm">
+                        <span className="text-gray-500">فایل آپلود شده</span>
+                        <h1>
+                            {renderFileButton("فایل ", data?.file)}
+                        </h1>
                     </div>
                 </div>
             </div>
