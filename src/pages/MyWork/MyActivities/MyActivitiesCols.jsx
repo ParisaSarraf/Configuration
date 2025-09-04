@@ -65,15 +65,15 @@ export const MyActivitiesCols = ({handleShowDetail, handleTrustee}) => {
                 },
             },
             {
-            title: 'تاریخ پایان',
-            dataIndex: 'to_date',
-            key: 'to_date',
-            render: (record) => {
-                return (
-                    <Tag color="blue">{georgianDateToJalaliDate(record)}</Tag>
-                )
+                title: 'تاریخ پایان',
+                dataIndex: 'to_date',
+                key: 'to_date',
+                render: (record) => {
+                    return (
+                        <Tag color="blue">{georgianDateToJalaliDate(record)}</Tag>
+                    )
+                },
             },
-        },
             {
                 title: 'تاریخ تایید',
                 dataIndex: 'done_date',
@@ -89,23 +89,11 @@ export const MyActivitiesCols = ({handleShowDetail, handleTrustee}) => {
                 title: 'عملیات',
                 key: 'actions',
                 render: (record) => {
-                    // console.log(record);
-                    const isTrustee = record.state === 20
+                    // console.log("record", record);
+                    const isTrustee = record?.state === 20
                     return (
                         <Space direction="horizontal">
                             {isTrustee ? (
-                                <Tooltip title="انجام توسط متولی">
-                                    <Button
-                                        icon={<UserAddOutlined/>}
-                                        className={"text-orange-600 border-orange-600"}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleTrustee(record);
-                                        }}
-                                        size="small"
-                                    />
-                                </Tooltip>
-                            ) : (
                                 <Button
                                     icon={<CheckOutlined className={'text-orange-600 border-orange-600 '}/>}
                                     className={
@@ -117,6 +105,19 @@ export const MyActivitiesCols = ({handleShowDetail, handleTrustee}) => {
                                         e.stopPropagation();
                                     }}
                                 />
+                            ) : (
+                                <Tooltip title="انجام توسط متولی">
+                                    <Button
+                                        icon={<UserAddOutlined/>}
+                                        className={"text-orange-600 border-orange-600"}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleTrustee(record);
+                                        }}
+                                        size="small"
+                                    />
+                                </Tooltip>
+
                             )}
                             <Tooltip title="جزئیات">
                                 <Button

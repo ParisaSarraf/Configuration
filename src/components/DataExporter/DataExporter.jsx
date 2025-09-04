@@ -3,11 +3,11 @@ import {FileExcelOutlined, FilePdfOutlined} from '@ant-design/icons';
 import {exportToExcel} from '@utils/ExportExcel.js';
 import {exportToPDF} from "@utils/ExportPDF.js";
 
-const DataExporter = ({excelData, pdfColumns, pdfData, fileName = "export"}) => {
+const DataExporter = ({excelData, excelColumns, pdfColumns, pdfData, fileName = "export"}) => {
 
     const handleExcelExport = () => {
         try {
-            exportToExcel(excelData, `${fileName}.xlsx`);
+            exportToExcel(excelData, excelColumns, `${fileName}.xlsx`);
             message.success("خروجی اکسل با موفقیت دانلود شد");
         } catch (error) {
             message.error("خطا در ایجاد خروجی اکسل");
