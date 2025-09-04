@@ -137,7 +137,7 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
             ),
             id: node.id,
             edition: editions,
-            product_document_id: productDoc?.id,
+            product_document_id: productDoc,
             is_reportable: productDoc?.is_reportable,
             document: productDoc?.document,
             survey_date: productDoc?.survey_date,
