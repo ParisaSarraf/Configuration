@@ -8,7 +8,11 @@ import {
 } from "@ant-design/icons";
 import Tree from "../../../components/Tree";
 import {Button, message, Modal, Space} from "antd";
-import {useDeleteProductDocumentEdition, useProductDocumentTreeById} from "../../../QueryServises/productDocumentQuery";
+import {
+    useDeleteProductDocument,
+    useDeleteProductDocumentEdition,
+    useProductDocumentTreeById
+} from "../../../QueryServises/productDocumentQuery";
 import {useEffect} from "react";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
@@ -18,7 +22,7 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
     const {data: productDocument, isLoading, isError} =
         useProductDocumentTreeById(selectedProductId);
 
-    // const {mutate: deleteProductDocument} = useDeleteProductDocument();
+    const {mutate: deleteProductDocument} = useDeleteProductDocument();
     const {mutate: deleteProductDocumentEdition} = useDeleteProductDocumentEdition();
 
     useEffect(() => {
@@ -74,24 +78,66 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
         setModal({mode: 'edit', data: edition, type: "ProductDocumentEditionsFile"});
     }
 
+    const handleDeleteProductDocument = (productDocumentId) => {
+        Modal.confirm({
+            title: "حذف سند",
+            content: "از حذف این سند مطمئن هستید؟",
+            okText: "بله ، مطمئنم",
+            cancelText: "خیر ، منصرف شدم.",
+            onOk() {
+                deleteProductDocument(productDocumentId, {
+                    onSuccess: () => {
+                        message.success("سند با موفقیت حذف شد");
+                        refetch();
+                    },
+                    onError: (error) => {
+                        const errorMessage =
+                            error?.response?.data?.detail || "عملیات حذف موفقیت آمیز نبود";
+                        message.error(errorMessage);
+                    }
+                });
+            },
+            onCancel() {
+                message.warning("عملیات حذف لغو شد");
+            }
+        });
+    };
 
     const transformNode = (node) => {
         const productDoc = node.product_document;
         const editions = productDoc?.edition || [];
         const hasEditions = editions.length > 0;
+        const hasDocument = productDoc?.id;
 
         const baseNode = {
             key: `node-${Math.random()}`,
             title: (
-                <div>
+                <div className="flex flex-row justify-between items-center w-full">
+                <span>
                     {productDoc?.document?.code
                         ? ` ${productDoc.title} - ${productDoc.document.code}`
                         : node.title}
+                </span>
+                    {hasDocument && (
+                        <Space>
+                            <Button
+                                size={'small'}
+                                type="text"
+                                icon={<DeleteOutlined />}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteProductDocument(productDoc.id);
+                                }}
+                                title={'حذف سند محصول'}
+                                className="text-red-500 hover:text-red-700"
+                            />
+                        </Space>
+                    )}
                 </div>
             ),
             id: node.id,
             edition: editions,
-            product_document_id: productDoc,
+            product_document_id: productDoc?.id,
             is_reportable: productDoc?.is_reportable,
             document: productDoc?.document,
             survey_date: productDoc?.survey_date,
@@ -103,19 +149,19 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
                 key: `edition-${edition.id}`,
                 title: (
                     <div className="flex flex-row justify-between items-center w-full">
-                        <span className='w-full gap-2'>
-                            {edition.edition_full}
-                            <FiberManualRecordIcon
-                                fontSize="small"
-                                color={
-                                    edition.state === '10' ? 'success' :
-                                        edition.state === '20' ? 'info' :
-                                            edition.state === '30' ? 'action' :
-                                                edition.state === '40' ? 'error' :
-                                                    'warning'
-                                }
-                            />
-                        </span>
+                    <span className='w-full gap-2'>
+                        {edition.edition_full}
+                        <FiberManualRecordIcon
+                            fontSize="small"
+                            color={
+                                edition.state === '10' ? 'success' :
+                                    edition.state === '20' ? 'info' :
+                                        edition.state === '30' ? 'action' :
+                                            edition.state === '40' ? 'error' :
+                                                'warning'
+                            }
+                        />
+                    </span>
                         <Space>
                             <Button
                                 size={'small'}
@@ -171,7 +217,6 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
                                 }}
                                 className="text-sky-500 hover:text-sky-700"
                             />
-
                         </Space>
                     </div>
                 ),
@@ -179,7 +224,6 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
                 id: edition.id,
                 isLeaf: true
             }));
-
             baseNode.children.push(...editionNodes);
         }
 
@@ -187,8 +231,10 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
             const childNodes = node.children.map((child) => transformNode(child));
             baseNode.children.push(...childNodes);
         }
+
         return baseNode;
     };
+
     const transformDataToTreeView = (data) => {
         if (!data) return [];
         return Array.isArray(data) ? data.map(transformNode) : [transformNode(data)];
