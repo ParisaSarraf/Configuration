@@ -45,7 +45,7 @@ export const exportToExcel = (data, columns, fileName = "export.xlsx", rtl = tru
     if (rtl) {
         ws["!cols"] = [];
         ws["!rows"] = [];
-        ws['!protect'] = {sheet: true};
+        // ws['!protect'] = {sheet: true};
         ws['!autofilter'] = {ref: XLSX.utils.encode_range(XLSX.utils.decode_range(ws['!ref']))};
 
         if (!ws['!view']) ws['!view'] = {};
