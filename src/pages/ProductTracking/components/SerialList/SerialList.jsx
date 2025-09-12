@@ -1,6 +1,6 @@
 import SerialListTable from './SerialListTable'
 import SerialListModal from './SerialListModal';
-import {useProductSerialById} from '../../../../QueryServises/productSerialQuery';
+import {useProductSerialById} from '@/QueryServises/productSerialQuery/index.js';
 import {useEffect} from "react";
 
 const SerialList = ({
@@ -37,17 +37,15 @@ const SerialList = ({
                 closeModal={closeModal}
                 setModal={setModal}
             />
-            {modalType === 'ProductSerial' && (
-                <SerialListModal
-                    currentProduct={currentProduct}
-                    isOpen={isOpen}
-                    modalMode={modalMode}
-                    modalData={modalData}
-                    closeModal={closeModal}
-                    setModal={setModal}
-                    refetch={refetch}
-                />
-            )}
+            <SerialListModal
+                currentProduct={currentProduct}
+                isOpen={modalType === 'ProductSerial' && isOpen}
+                modalMode={modalMode}
+                modalData={modalData}
+                closeModal={closeModal}
+                setModal={setModal}
+                refetch={refetch}
+            />
         </>
     )
 }

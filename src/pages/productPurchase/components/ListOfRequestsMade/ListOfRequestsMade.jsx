@@ -2,6 +2,7 @@ import {message, Modal, Table, Tag} from "antd";
 import {useConfirmProductPurchaseById, useDeleteProductPurchase} from "@/QueryServises/productPurchase/index.js";
 import ListOfRequestsMadeCol from "./ListOfRequestsMadeCol";
 import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
+import DataExporter from "@/components/DataExporter/DataExporter.jsx";
 
 
 const ListOfRequestsMade = ({currentProduct, refetch}) => {
@@ -78,14 +79,21 @@ const ListOfRequestsMade = ({currentProduct, refetch}) => {
     };
 
     return (
-        <Table
-            columns={ListOfRequestsMadeCol(handleDelete)}
-            dataSource={purchaseData || []}
-            pagination={false}
-            rowKey='id'
-            size={'small'}
-            expandedRowRender={expandedRowRender}
-        />
+        <div className={'w-full flex flex-col'}>
+            <DataExporter
+                excelData={purchaseData}
+                excelColumns={ListOfRequestsMadeCol(handleDelete)}
+                fileName="لیست_درخواست خرید"
+            />
+            <Table
+                columns={ListOfRequestsMadeCol(handleDelete)}
+                dataSource={purchaseData || []}
+                pagination={false}
+                rowKey='id'
+                size={'small'}
+                expandedRowRender={expandedRowRender}
+            />
+        </div>
     );
 };
 

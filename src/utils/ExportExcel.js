@@ -2,7 +2,7 @@ import * as XLSX from "xlsx";
 import {saveAs} from "file-saver";
 
 const transformDataForExport = (data, columns) => {
-    const exportableColumns = columns.filter(col => col.key !== 'actions' && col.key !== 'index');
+    const exportableColumns = columns?.filter(col => col.key !== 'actions' && col.key !== 'index');
 
     const headers = exportableColumns.map(col => col.title);
 

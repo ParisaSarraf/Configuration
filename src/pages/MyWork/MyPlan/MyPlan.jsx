@@ -4,6 +4,7 @@ import DetailModal from "@/components/DetailModal/DetailModal.jsx";
 import PlanModal from "@/pages/Activity/components/PlanModal.jsx";
 import {MyPlanCols} from "@/pages/MyWork/MyPlan/MyPlanCols.jsx";
 import useModal from "@/hooks/useModal.js";
+import DataExporter from "@/components/DataExporter/DataExporter.jsx";
 
 const MyPlan = () => {
     const {setModal, modalMode, modalType, modalData, closeModal, isOpen} = useModal()
@@ -40,7 +41,7 @@ const MyPlan = () => {
         const productData = record.product;
         return <Table columns={columns} dataSource={[productData]} pagination={false}/>;
     };
-    
+
     const handleShowDetail = (record) => {
         setModal({mode: 'view', data: record, type: 'ActivitiesDetail'});
     }
@@ -48,7 +49,13 @@ const MyPlan = () => {
         setModal({mode: "add", data: record, type: 'addPlan'})
     }
     return (
-        <Card>
+        <Card extra={
+            <DataExporter
+                excelData={PlanData}
+                excelColumns={MyPlanCols}
+                fileName="لیست_کارهای_من"
+            />
+        }>
             <Table
                 pagination={false}
                 scroll={{y: 300}}

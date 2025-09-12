@@ -26,18 +26,18 @@ const DataExporter = ({excelData, excelColumns, pdfColumns, pdfData, fileName = 
     };
 
     return (
-        <Space>
+        <Space className="w-full flex flex-row mb-2 justify-end">
             <Button
                 icon={<FileExcelOutlined/>}
                 onClick={handleExcelExport}
-                disabled={!excelData || excelData.length === 0}
+                disabled={!excelData || excelData?.length === 0}
                 className={'text-green-500 border-green-500'}
                 title={'گزارش گیری اکسل'}
             />
             <Button
                 icon={<FilePdfOutlined/>}
                 onClick={handlePdfExport}
-                disabled={!pdfData || pdfData.length === 0}
+                disabled={!pdfData || pdfData?.length === 0}
                 danger
                 title={'گزارش گیری PDF'}
             />

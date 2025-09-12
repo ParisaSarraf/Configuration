@@ -6,6 +6,7 @@ import {
 import ListOfRequestOfWareHouseMadeCol
     from "@/pages/RequestOfWarehouse/components/ListOfRequestOfWareHouseMade/ListOfRequestOfWareHouseMadeCol.jsx";
 import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
+import DataExporter from "@/components/DataExporter/DataExporter.jsx";
 
 
 const ListOfRequestOfWareHouseMade = ({currentProduct, refetch}) => {
@@ -82,15 +83,22 @@ const ListOfRequestOfWareHouseMade = ({currentProduct, refetch}) => {
 
 
     return (
-        <Table
-            columns={ListOfRequestOfWareHouseMadeCol(handleDelete)}
-            dataSource={requestOfWarehouse}
-            pagination={false}
-            rowKey='id'
-            size={'small'}
-            bordered
-            expandedRowRender={expandedRowRender}
-        />
+        <div>
+            <DataExporter
+                excelData={requestOfWarehouse}
+                excelColumns={ListOfRequestOfWareHouseMadeCol(handleDelete)}
+                fileName="لیست درخواست خریداز کالا"
+            />
+            <Table
+                columns={ListOfRequestOfWareHouseMadeCol(handleDelete)}
+                dataSource={requestOfWarehouse}
+                pagination={false}
+                rowKey='id'
+                size={'small'}
+                bordered
+                expandedRowRender={expandedRowRender}
+            />
+        </div>
     );
 };
 

@@ -16,9 +16,10 @@ export const SerialListCol = (handleEditProductSerial, handleDeleteProductSerial
         title: 'تاریخ',
         dataIndex: 'date',
         key: 'date',
-        render: (text, record) => {
+        render: (record) => {
             return (
                 <>{georgianDateToJalaliDate(record) || 'تاریخ ندارد'}</>
+                // <>{record}</>
             )
         },
     },

@@ -7,6 +7,7 @@ import {useProductChildren, useUpdateProductInfo} from '../../QueryServises/prod
 import {BASEURL} from "@/Services/axiosInstance.js";
 import FileUploader from '../../components/FileUploader/FileUploader';
 import ProductCols from './components/ProductCols';
+import DataExporter from "@/components/DataExporter/DataExporter.jsx";
 
 const {Title} = Typography;
 
@@ -148,7 +149,13 @@ const Introduction = () => {
                     </Col>
                     <Col span={24}>
                         {productData && productData.length > 0 && (
-                            <Card title="محصولات زیرمجموعه">
+                            <Card title="محصولات زیرمجموعه" extra={
+                                <DataExporter
+                                    excelData={productData}
+                                    excelColumns={ProductCols()}
+                                    fileName="لیست محصولات زیرمجموعه"
+                                />
+                            }>
                                 <RecursiveTable dataSource={productData} columns={ProductCols()}/>
                             </Card>
                         )}

@@ -1,10 +1,13 @@
 import {Col, Form, Input, message, Row, Select} from "antd"
 import Modal from "../../../../components/Modal"
-import {useCreateProductSerial, useProductSerialById} from "@/QueryServises/productSerialQuery/index.js"
-import {useUpdateProductSerial} from "@/QueryServises/productSerialQuery/index.js"
+import {
+    useCreateProductSerial,
+    useProductSerialById,
+    useUpdateProductSerial
+} from "@/QueryServises/productSerialQuery/index.js"
 import {useEffect} from "react"
-import DatepickerCustom from "@/components/DatePicker/index.jsx";
-// import {georgianDateToJalaliDate, jalaliDateToGeorgianDate} from "@utils/timeTool.jsx";
+import {georgianDateToJalaliDate, jalaliDateToGeorgianDate} from "@utils/timeTool.jsx";
+import Date from "@/components/DatePicker/Date.jsx";
 
 const SerialListModal = ({isOpen, modalMode, modalData, closeModal, setModal, currentProduct, refetch}) => {
     const {isPending: isCreating, mutateAsync: createProductSerial} = useCreateProductSerial()
@@ -18,7 +21,7 @@ const SerialListModal = ({isOpen, modalMode, modalData, closeModal, setModal, cu
                 serial: modalData?.serial,
                 product_id: modalData?.product_id,
                 parent_id: modalData?.parent_id,
-                date: modalData?.date,
+                date: georgianDateToJalaliDate(modalData?.date),
             })
         } else {
             form.resetFields()
@@ -30,7 +33,7 @@ const SerialListModal = ({isOpen, modalMode, modalData, closeModal, setModal, cu
             product_id: currentProduct?.id,
             parent_id: values.parent_id || null,
             serial: values.serial,
-            date: values?.date,
+            date: jalaliDateToGeorgianDate(values?.date),
         }
 
         try {
@@ -94,12 +97,12 @@ const SerialListModal = ({isOpen, modalMode, modalData, closeModal, setModal, cu
                         </Form.Item>
                     </Col>
                     <Col span={24}>
-                        <Form.Item
-                            name="date"
-                            label="تاریخ سریال"
-                        >
-                            <DatepickerCustom/>
-                        </Form.Item>
+
+                        <Date name="date"
+                              label="تاریخ سریال"
+                              stringifyDate
+                              isRequired
+                        />
                     </Col>
                 </Row>
             </Form>
