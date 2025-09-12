@@ -20,13 +20,15 @@ const AddProductDocumentListSerialLogModal = (
         closeModal,
         setModal,
         serialId,
-        refetchSerialId
+        refetchSerialId,
+        serialLabel
     }) => {
     const [form] = Form.useForm()
     const {data: documentList, isLoading} = useAvailableProductEditionList(serialId)
     const {mutateAsync: createProductEditionlog} = useCreateProductEditionlog();
     const {mutateAsync: updateProductEditionlog} = useUpdateProductEditionlog();
 
+    console.log(serialLabel)
 
     useEffect(() => {
         if (serialId) {
@@ -121,12 +123,10 @@ const AddProductDocumentListSerialLogModal = (
                         <Col span={12}>
                             <Form.Item
                                 label="سریال محصول"
-                                name="serialId"
                             >
-                                <Input disabled value={serialId}/>
+                                <Input disabled value={serialLabel}/>
                             </Form.Item>
                         </Col>
-
                         <Col span={12}>
                             <Date
                                 stringifyDate={true}

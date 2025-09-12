@@ -17,7 +17,7 @@ const EditionDetailViewModal = ({
             title="جزئیات نسخه"
             size={700}
             onClose={closeModal}
-            footer={false}
+            footer
             mode={modalMode}
         >
             <div className="space-y-4 text-right p-4">

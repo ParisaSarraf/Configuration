@@ -85,7 +85,8 @@ const Activity = () => {
         <Card
             title={` فعالیت ها ${currentProduct?.name || ''}`}
             extra={
-                <div className="flex gap-4">
+                <div className={'w-full flex flex-row gap-2'}>
+
                     <DataExporter
                         excelData={activityData}
                         excelColumns={ActivityCols({
@@ -99,12 +100,16 @@ const Activity = () => {
                         })}
                         fileName="لیست_فعالیت‌های_من"
                     />
-                    <Button
-                        className={'modal-button'}
-                        onClick={() => setModal({mode: 'add', data: null, type: 'addActivity'})}
-                        icon={<PlusOutlined/>}
-                        title='افزودن فعالیت'
-                    />
+
+                    <div>
+
+                        <Button
+                            className={'modal-button mt-1.5'}
+                            onClick={() => setModal({mode: 'add', data: null, type: 'addActivity'})}
+                            icon={<PlusOutlined/>}
+                            title='افزودن فعالیت'
+                        />
+                    </div>
                 </div>
             }>
             <div className={'flex flex-col gap-4'}>

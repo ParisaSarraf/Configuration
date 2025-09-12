@@ -245,7 +245,7 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={6}>
+                    <Col span={12}>
                         <Form.Item
                             label="هویت"
                             name="personality_id"
@@ -258,7 +258,7 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={6}>
+                    <Col span={12}>
                         <Form.Item label="کد استاندارد" name="standard_code_id">
                             <Select
                                 placeholder="کد استاندارد"
@@ -291,12 +291,12 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                             <TS data={casingData} placeholder="پوشش"/>
                         </Form.Item>
                     </Col>
-                    <Col span={4}>
+                    <Col span={2}>
                         <Form.Item label="طول" name="length">
                             <InputNumber style={{width: "100%"}}/>
                         </Form.Item>
                     </Col>
-                    <Col span={4}>
+                    <Col span={2}>
                         <Form.Item label="عرض" name="width">
                             <InputNumber style={{width: "100%"}}/>
                         </Form.Item>
@@ -336,7 +336,7 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                         </Form.Item>
                     </Col>
 
-                    <Col span={16}>
+                    <Col span={8}>
                         <Form.Item label="توضیحات" name="description">
                             <Input.TextArea rows={1} placeholder="توضیحات محصول"/>
                         </Form.Item>

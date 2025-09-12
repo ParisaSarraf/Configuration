@@ -22,7 +22,8 @@ const ProductDocuments = () => {
     const {currentProduct} = useProductContext();
     const {isOpen, modalMode, modalData, modalType, setModal, closeModal} = useModal();
     const {refetch} = useProductDocumentTreeById(currentProduct?.id)
-    const [serialId, setSerialId] = useState(null)
+    const [serialId, setSerialId] = useState(null);
+    const [serialLabel, setSerialLabel] = useState("");
     const {refetch: refetchSerialId} = useProductDocumentEditionLogsBySerialById(serialId)
 
     useEffect(() => {
@@ -76,6 +77,7 @@ const ProductDocuments = () => {
                                     closeModal={closeModal}
                                     setModal={setModal}
                                     refetchSerialId={refetchSerialId}
+                                    serialLabel={serialLabel}
                                 />
                             }
                         >
@@ -84,6 +86,7 @@ const ProductDocuments = () => {
                                 modalType={modalType}
                                 refetchSerialId={refetchSerialId}
                                 setSerialId={setSerialId}
+                                setSerialLabel={setSerialLabel}
                                 serialId={serialId}
                                 currentProduct={currentProduct}
 

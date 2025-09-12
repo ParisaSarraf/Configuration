@@ -4,7 +4,15 @@ import {useProductDocumentEditionLogsBySerialById} from "@/QueryServises/product
 import ProductDocumentListSerialCol from "./components/ProductDocumentListSerialCol";
 import {useDeleteProductEditionlog} from "@/QueryServises/productDocumentEditionLogQuery/index.js";
 
-const ProductDocumentListSerial = ({currentProduct, serialId, setSerialId, refetchSerialId, setModal}) => {
+const ProductDocumentListSerial = (
+    {
+        currentProduct,
+        serialId,
+        setSerialId,
+        refetchSerialId,
+        setModal,
+        setSerialLabel
+    }) => {
 
     const {data: ProductSerialList} = useProductSerialById(currentProduct?.id);
     const {mutateAsync: deleteProductEditionlog} = useDeleteProductEditionlog();
@@ -62,9 +70,13 @@ const ProductDocumentListSerial = ({currentProduct, serialId, setSerialId, refet
                 <Select
                     className="w-full"
                     options={SerialListOption}
-                    onChange={(e) => setSerialId(e)}
+                    onChange={(value, option) => {
+                        setSerialId(value);
+                        setSerialLabel(option.label);
+                    }}
                     placeholder="انتخاب سریال"
                 />
+
             </Form.Item>
             <Table
                 title={() => `اسناد log ${currentProduct?.name} و زیرمجموعه ها`}
