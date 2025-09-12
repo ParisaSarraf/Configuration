@@ -1,9 +1,6 @@
 import {Button, Card, message, Modal, Spin, Table} from 'antd';
 import useModal from '../../../../hooks/useModal';
-import {
-    useCoreSettingsList,
-    useDeleteCoreSetting
-} from '@/QueryServises/settingQuery/index.js';
+import {useCoreSettingsList, useDeleteCoreSetting} from '@/QueryServises/settingQuery/index.js';
 import StandardCodeModal from './components/standardCode/StandardCodeModal';
 import PersonalityModal from './components/Personality/PersonalityModal';
 import PersonalityTree from './components/PersonalityTree';
@@ -31,6 +28,8 @@ const Personality = () => {
     }))
 
     const {isPending: isDeleting} = useDeleteCoreSetting();
+
+    const [selectedPersonalityLabel, setSelectedPersonalityLabel] = useState('');
 
     const handleDelete = (id) => {
         Modal.confirm({
@@ -61,7 +60,6 @@ const Personality = () => {
         });
     }
 
-
     return (
         <Spin spinning={isFetching && !data} tip="در حال دریافت اطلاعات...">
             <div className='w-full flex justify-between gap-2'>
@@ -77,7 +75,11 @@ const Personality = () => {
                     }
                     loading={isFetching || isDeleting}
                 >
-                    <PersonalityTree setModal={setModal} setPersonalityId={setPersonalityId}/>
+                    <PersonalityTree
+                        setModal={setModal}
+                        setPersonalityId={setPersonalityId}
+                        setSelectedPersonalityLabel={setSelectedPersonalityLabel}
+                    />
                 </Card>
                 <Card
                     className='w-full'
@@ -116,6 +118,8 @@ const Personality = () => {
 
 
                 <StandardCodeModal
+                    PersonalityId={PersonalityId}
+                    selectedPersonalityLabel={selectedPersonalityLabel}
                     isOpen={modalType === 'addStandardCode' && isOpen}
                     modalMode={modalMode}
                     modalData={modalData}

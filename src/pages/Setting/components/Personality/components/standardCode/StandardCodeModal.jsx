@@ -8,7 +8,16 @@ import FileUploader from "../../../../../../components/FileUploader/FileUploader
 import {BASEURL} from "@/Services/axiosInstance.js";
 
 
-const StandardCodeModal = ({isOpen, modalMode, modalData, closeModal, standardRefetch}) => {
+const StandardCodeModal = (
+    {
+        isOpen,
+        modalMode,
+        modalData,
+        closeModal,
+        standardRefetch,
+        selectedPersonalityLabel,
+        PersonalityId
+    }) => {
     const [form] = Form.useForm();
     const {data: personalityList} = usePersonalityProductList();
     const {isPending: isCreating, mutateAsync: createStandardCode} = useCreateStandardCode();
@@ -31,17 +40,21 @@ const StandardCodeModal = ({isOpen, modalMode, modalData, closeModal, standardRe
             });
         } else if (modalMode === "add") {
             form.resetFields();
+            form.setFieldsValue({
+                personality: PersonalityId
+            });
         }
-    }, [modalMode, modalData, form]);
+    }, [modalMode, modalData, form, PersonalityId]);
 
     const onFinishForm = (values) => {
         if (!values.name) {
             message.error("لطفاً نام هویت را وارد کنید");
             return;
         }
+
         const payload = {
             name: values.name,
-            personality: values.personality,
+            personality: modalMode === 'add' ? PersonalityId : values.personality,
             standard_file: values.standard_file?.[0]?.originFileObj,
         };
 
@@ -109,12 +122,13 @@ const StandardCodeModal = ({isOpen, modalMode, modalData, closeModal, standardRe
                         </Col>
                         <Col span={12}>
                             <Form.Item
-                                name="personality"
                                 label="هویت"
+                                name="personality"
                             >
                                 <TS
                                     data={personalityList}
                                     placeholder="هویت"
+                                    disabled={modalMode === 'add'}
                                 />
                             </Form.Item>
                         </Col>
@@ -133,4 +147,4 @@ const StandardCodeModal = ({isOpen, modalMode, modalData, closeModal, standardRe
     );
 }
 
-export default StandardCodeModal
+export default StandardCodeModal;

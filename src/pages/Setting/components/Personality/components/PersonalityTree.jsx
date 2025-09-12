@@ -1,15 +1,15 @@
-import { message, Modal } from "antd";
-import { useDeletePersonalityProduct, usePersonalityProductList } from "../../../../../QueryServises/personalityQuery";
+import {message, Modal} from "antd";
+import {useDeletePersonalityProduct, usePersonalityProductList} from "../../../../../QueryServises/personalityQuery";
 import Tree from '../../../../../components/Tree/index'
 
-const PersonalityTree = ({ setModal, setPersonalityId }) => {
+const PersonalityTree = ({setModal, setPersonalityId, setSelectedPersonalityLabel}) => {
     const {
         data,
         isFetching,
         isError,
         refetch
     } = usePersonalityProductList();
-    const { mutate: deletePersonality, isPending: isDeleting } = useDeletePersonalityProduct();
+    const {mutate: deletePersonality, isPending: isDeleting} = useDeletePersonalityProduct();
 
 
     const transformDataToTreeFormat = (PersonalityData) => {
@@ -77,8 +77,8 @@ const PersonalityTree = ({ setModal, setPersonalityId }) => {
             checkable={false}
             showRightClickMenu={true}
             rightClickMenuItems={[
-                { key: "edit", label: "ویرایش" },
-                { key: "delete", label: "حذف", danger: true },
+                {key: "edit", label: "ویرایش"},
+                {key: "delete", label: "حذف", danger: true},
             ]}
             onRightClickAction={handleRightClickAction}
             locale={{
@@ -87,6 +87,7 @@ const PersonalityTree = ({ setModal, setPersonalityId }) => {
             onSelect={(selectedKeys, info) => {
                 if (info.node && info.node.id) {
                     setPersonalityId(info.node.id);
+                    setSelectedPersonalityLabel(info?.node?.name)
                 } else {
                     setPersonalityId(null);
                 }
