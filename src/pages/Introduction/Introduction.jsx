@@ -10,7 +10,6 @@ import ProductCols from './components/ProductCols';
 import DataExporter from "@/components/DataExporter/DataExporter.jsx";
 
 const {Title} = Typography;
-
 const RecursiveTable = ({dataSource, columns}) => (
     <Table
         columns={columns}
@@ -36,20 +35,20 @@ const Introduction = () => {
     const {mutateAsync: updateProductionInfo} = useUpdateProductInfo();
 
     useEffect(() => {
-        if (currentProduct) {
+        if (productData) {
             form.setFieldsValue({
-                user_description: currentProduct?.user_description || '',
-                user_image: currentProduct?.user_image
+                user_description: productData?.[0]?.user_description,
+                user_image: productData?.[0]?.user_image
                     ? [{
                         uid: "-1",
                         name: "user_image",
-                        url: BASEURL.replace("/api/v1", "") + currentProduct.user_image,
+                        url: BASEURL.replace("/api/v1", "") + productData?.[0].user_image,
                     }]
                     : [],
             });
             setPreviewImage(null);
         }
-    }, [currentProduct, form]);
+    }, [productData, form]);
 
     const handleImageClick = () => {
         if (uploaderRef.current) {
@@ -69,10 +68,9 @@ const Introduction = () => {
 
     const onFinish = async (values) => {
         const payload = {
-            user_image: values.user_image?.[0]?.originFileObj,
-            user_description: values.user_description,
+            user_image: values?.user_image?.[0]?.originFileObj,
+            user_description: values?.user_description,
         }
-        // console.log(payload)
         try {
             await updateProductionInfo({productId: currentProduct?.id, ...payload});
             message.success('ذخیره با موفقیت انجام شد');
@@ -148,7 +146,7 @@ const Introduction = () => {
                         </Card>
                     </Col>
                     <Col span={24}>
-                        {productData && productData.length > 0 && (
+                        {productData && productData?.length > 0 && (
                             <Card title="محصولات زیرمجموعه" extra={
                                 <DataExporter
                                     excelData={productData}
