@@ -129,7 +129,7 @@ const CustomHeader = ({children}) => {
             <div className="flex items-center gap-3">
                 {children}
                 <span className="hidden md:block font-semibold text-slate-700">
-                    مدیریت سیستم و یکپارچه سازی روال ها (مسیر)
+                    مسیر
                 </span>
             </div>
 
