@@ -1,76 +1,86 @@
-import { Button, Card, message, Table } from "antd";
-import { columns } from "./_components/usersColumn.jsx";
-import { useUserList } from "../../QueryServises/userQuery/index.js";
+import {Button, message, Table} from "antd";
+import {columns} from "./_components/usersColumn.jsx";
+import {useDeleteUser, useUserList} from "@/QueryServises/userQuery/index.js";
 import UserModal from "./_components/UserModal.jsx";
-import { useDeleteUser } from "../../QueryServises/userQuery/index.js";
 import useModal from "../../hooks/useModal.js";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
+import {ArrowRightOutlined, PlusOutlined} from "@ant-design/icons";
 
 const Users = () => {
-  const navigate = useNavigate()
-  const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
-  const { isFetching, data, refetch } = useUserList();
-  const { mutateAsync: deleteUser } = useDeleteUser();
+    const navigate = useNavigate();
+    const {isOpen, modalMode, modalData, setModal, closeModal} = useModal();
+    const {isFetching, data, refetch} = useUserList();
+    const {mutateAsync: deleteUser} = useDeleteUser();
 
-  const handleDeleteUser = (record) => {
-    deleteUser(record.id)
-      .then(() => {
-        message.success("کاربر با موفقیت حذف شد");
-        refetch();
-      })
-      .catch((error) => {
-        message.error("موفقیت آمیز نبود، دوباره امتحان کنید");
-        console.error(error);
-      });
-  };
+    const handleDeleteUser = (record) => {
+        deleteUser(record.id)
+            .then(() => {
+                message.success("کاربر با موفقیت حذف شد");
+                refetch();
+            })
+            .catch(() => {
+                message.error("حذف ناموفق بود، دوباره امتحان کنید");
+            });
+    };
 
-  const handleEditUser = (record) => {
-    setModal({ mode: "edit", data: record });
-  };
+    const handleEditUser = (record) => {
+        setModal({mode: "edit", data: record});
+    };
 
-  return (
-    <div className="min-h-screen bg-Main p-2">
-      <div className="my-1 p-2 bg-white shadow-md rounded-lg">
-        <Button
-          type="primary"
-          className="bg-blue-500 hover:bg-blue-600 text-white"
-          onClick={() => navigate("/panel/system-management/")}
-        >
-          بازگشت به صفحه اصلی
-        </Button>
-      </div>
+    return (
+        <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8" dir="rtl">
+            <div className="max-w-7xl mx-auto">
+                <div className="mb-4">
+                    <Button
+                        type="text"
+                        icon={<ArrowRightOutlined/>}
+                        onClick={() => navigate("/panel/system-management/")}
+                        className="flex items-center text-slate-600 hover:!text-sky-700"
+                    >
+                        بازگشت به مدیریت سیستم
+                    </Button>
+                </div>
 
-      <Card title="مدیریت کاربران"
-        extra={
+                <div className="bg-white rounded-xl shadow-lg border border-slate-200">
+                    <div
+                        className="flex flex-col md:flex-row items-start md:items-center justify-between p-6 border-b border-slate-200">
+                        <div>
+                            <h1 className="text-xl font-bold text-slate-800">مدیریت کاربران</h1>
+                            <p className="mt-1 text-sm text-slate-500">
+                                لیست تمام کاربران سیستم را مشاهده کرده و آن‌ها را مدیریت کنید.
+                            </p>
+                        </div>
+                        <Button
+                            type="primary"
+                            icon={<PlusOutlined/>}
+                            onClick={() => setModal({mode: "add", data: null})}
+                            className="mt-4 md:mt-0"
+                        >
+                            افزودن کاربر جدید
+                        </Button>
+                    </div>
 
-          <UserModal
-            isOpen={isOpen}
-            modalMode={modalMode}
-            modalData={modalData}
-            closeModal={closeModal}
-            setModal={setModal}
-            refetch={refetch}
-          />
-        }
-      >
+                    <div className="p-2 md:p-4">
+                        <Table
+                            columns={columns(handleEditUser, handleDeleteUser)}
+                            dataSource={data}
+                            loading={isFetching}
+                            rowKey="id"
+                            scroll={{x: 'max-content'}}
+                        />
+                    </div>
+                </div>
+            </div>
 
-        <Table
-          columns={columns(handleEditUser, handleDeleteUser)}
-          dataSource={isFetching ? [] : data}
-          loading={isFetching}
-          rowKey="id"
-          size="small"
-          scroll={{ x: true }}
-          responsive={{
-            small: { columnWidth: 100 },
-            middle: { columnWidth: 150 },
-            large: { columnWidth: 200 },
-          }}
-        />
-      </Card>
-    </div>
-
-  );
+            <UserModal
+                isOpen={isOpen}
+                modalMode={modalMode}
+                modalData={modalData}
+                closeModal={closeModal}
+                refetch={refetch}
+            />
+        </div>
+    );
 };
 
 export default Users;

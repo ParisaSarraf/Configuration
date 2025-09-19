@@ -1,8 +1,8 @@
-import { EditOutlined } from "@ant-design/icons";
+import {EditOutlined} from "@ant-design/icons";
 import Tree from "../../../components/Tree";
 
 
-const UsersAndRoleTree = ({ usersAndroles, isLoading, isError, setModal, modalData, modalMode }) => {
+const UsersAndRoleTree = ({usersAndroles, isLoading, isError, setModal, modalData, modalMode}) => {
 
     const transformDataToTreeFormat = (data) => {
         if (!Array.isArray(data)) return [];
@@ -26,7 +26,7 @@ const UsersAndRoleTree = ({ usersAndroles, isLoading, isError, setModal, modalDa
             key: "edit",
             label: (
                 <div className="w-full flex flex-row items-center gap-2">
-                    <EditOutlined />
+                    <EditOutlined/>
                     <span>ویرایش کاربران مرتبط با سمت</span>
                 </div>
             )
@@ -35,7 +35,6 @@ const UsersAndRoleTree = ({ usersAndroles, isLoading, isError, setModal, modalDa
 
     const handleRightClickAction = (actionKey, node) => {
         if (actionKey === "edit") {
-            // console.log(node.userAndRoleData);
             setModal({
                 mode: "edit",
                 id: node.id,

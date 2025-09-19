@@ -20,7 +20,7 @@ export const AccessProductCol = (data = []) => [
         sorter: (a, b) => {
             const nameA = `${a.user?.name || ''} ${a.user?.last_name || ''}`;
             const nameB = `${b.user?.name || ''} ${b.user?.last_name || ''}`;
-            return nameA.localeCompare(nameB, 'fa'); // 'fa' for correct Persian sorting
+            return nameA.localeCompare(nameB, 'fa');
         },
         filters: createUniqueFilters(data, record => `${record.user?.name || ''} ${record.user?.last_name || ''}`.trim()),
         onFilter: (value, record) => {
@@ -50,6 +50,6 @@ export const AccessProductCol = (data = []) => [
         sorter: (a, b) => (a.product?.persian_title || '').localeCompare(b.product?.persian_title || '', 'fa'),
         filters: createUniqueFilters(data, record => record.product?.persian_title),
         onFilter: (value, record) => (record.product?.persian_title || '') === value,
-        
+
     }
 ];

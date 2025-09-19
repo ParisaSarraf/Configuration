@@ -1,18 +1,17 @@
-import {Button, Card, Spin, Typography} from 'antd';
+import {Button} from 'antd';
 import {useNavigate} from 'react-router-dom';
-import UsersList from './_components/UsersList';
-import RoleProductList from './_components/RoleProductList';
-import ProductsList from './_components/ProductsList';
+import UserSelectionPanel from './_components/UserSelectionPanel';
+import RoleSelectionPanel from './_components/RoleSelectionPanel';
+import ProductSelectionPanel from './_components/ProductSelectionPanel';
 import {useAccessManagement} from "@/pages/Access/useAccessManagement.js";
 import {ArrowRightOutlined} from '@ant-design/icons';
-
-const {Text} = Typography;
 
 const Access = () => {
     const navigate = useNavigate();
     const {
         selectedUserId,
         selectedRoleId,
+        selectedProductIds,
         onUserSelect,
         onRoleSelect,
         setSelectedProductIds,
@@ -22,55 +21,47 @@ const Access = () => {
     } = useAccessManagement();
 
     return (
-        <div className="min-h-screen bg-Main p-2">
-            <div className="my-1 p-2 bg-white shadow-md rounded-lg">
-                <Button type="primary" onClick={() => navigate("/panel/system-management")}>
-                    بازگشت به صفحه اصلی
+        <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8 flex flex-col" dir="rtl">
+            <header className="max-w-screen-2xl mx-auto w-full mb-8">
+                <Button
+                    type="text"
+                    icon={<ArrowRightOutlined/>}
+                    onClick={() => navigate("/panel/system-management")}
+                    className="flex items-center text-slate-600 hover:!text-sky-700 mb-4"
+                >
+                    بازگشت به مدیریت سیستم
                 </Button>
-            </div>
-            <Card title="مدیریت دسترسی کاربران به محصولات">
-                <div className='w-full flex flex-row gap-4 items-stretch'>
-                    {/* Column 1: Users List */}
-                    <div className='flex-1 flex flex-col gap-4 border rounded p-4'>
-                        <Text strong className='text-center'>۱. یک کاربر انتخاب کنید</Text>
-                        <UsersList
-                            selectedUserId={selectedUserId}
-                            onSelectUser={onUserSelect}
-                        />
-                    </div>
-
-                    <div className='flex-1 flex flex-col gap-4 border rounded p-4'>
-                        <Text strong className='text-center'>۲. یک سمت انتخاب کنید</Text>
-                        <RoleProductList
-                            selectedUserId={selectedUserId}
-                            selectedRoleId={selectedRoleId}
-                            onSelectRole={onRoleSelect}
-                            onDeleteAccess={handleDeleteAccess}
-                        />
-                    </div>
-
-                    <div className='flex flex-col justify-center items-center gap-4 px-2'>
-                        <Button
-                            type="primary"
-                            shape="circle"
-                            icon={isCreating ? <Spin/> : <ArrowRightOutlined/>}
-                            size="large"
-                            onClick={handleAddAccess}
-                            disabled={isCreating}
-                            title="افزودن دسترسی"
-                        />
-                    </div>
-
-                    <div className='flex-1 flex flex-col gap-4 border rounded p-4'>
-                        <Text strong className='text-center'>۳. محصولات را انتخاب کنید</Text>
-                        <ProductsList
-                            selectedUserId={selectedUserId}
-                            selectedRoleId={selectedRoleId}
-                            onSelectionChange={setSelectedProductIds}
-                        />
-                    </div>
+                <div>
+                    <h1 className="text-3xl font-bold text-slate-900">مدیریت دسترسی کاربران به محصولات</h1>
+                    <p className="mt-1 text-base text-slate-600">
+                        فرآیند سه مرحله‌ای تخصیص دسترسی: ابتدا کاربر، سپس سمت و در نهایت محصولات مورد نظر را انتخاب
+                        کنید.
+                    </p>
                 </div>
-            </Card>
+            </header>
+
+            <main className="max-w-screen-2xl mx-auto w-full grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
+                <UserSelectionPanel
+                    selectedUserId={selectedUserId}
+                    onSelectUser={onUserSelect}
+                />
+
+                <RoleSelectionPanel
+                    selectedUserId={selectedUserId}
+                    selectedRoleId={selectedRoleId}
+                    onSelectRole={onRoleSelect}
+                    onDeleteAccess={handleDeleteAccess}
+                />
+
+                <ProductSelectionPanel
+                    selectedUserId={selectedUserId}
+                    selectedRoleId={selectedRoleId}
+                    onSelectionChange={setSelectedProductIds}
+                    onAssign={handleAddAccess}
+                    isAssigning={isCreating}
+                    selectedProductCount={selectedProductIds.length}
+                />
+            </main>
         </div>
     );
 };
