@@ -142,7 +142,11 @@ const Tree = ({
     }
 
     return (
-        <div>
+        <Dropdown
+            menu={{items: rightClickMenuItems, onClick: handleMenuClick}}
+            open={!!rightClickNode}
+            trigger={['contextMenu']}
+        >
             <DirectoryTree
                 onRightClick={showRightClickMenu ? onRightClick : undefined}
                 treeData={treeData}
@@ -156,25 +160,7 @@ const Tree = ({
                 className={className}
 
             />
-            {showRightClickMenu && rightClickNode && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        left: dropdownPosition.x,
-                        top: dropdownPosition.y,
-                        visibility: 'hidden',
-                    }}
-                >
-                    <Dropdown
-                        overlay={menu}
-                        open={!!rightClickNode}
-                        onOpenChange={(open) => !open && setRightClickNode(null)}
-                    >
-                        <span/>
-                    </Dropdown>
-                </div>
-            )}
-        </div>
+        </Dropdown>
     );
 };
 
