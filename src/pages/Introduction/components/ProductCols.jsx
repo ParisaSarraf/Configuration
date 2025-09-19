@@ -1,4 +1,4 @@
-import {Space, Typography} from 'antd';
+import {Typography} from 'antd';
 
 const {Text} = Typography;
 
@@ -24,13 +24,13 @@ const ProductCols = () => {
         },
         {
             title: 'کد استاندارد',
-            dataIndex: 'standard_code',
+            dataIndex: ['standard_code', 'name'],
             key: 'standard_code',
-            render: (record) => {
-                return (
-                    <Space>{record}</Space>
-                )
-            }
+            // render: (record) => {
+            //     return (
+            //         <Space>{record}</Space>
+            //     )
+            // }
         },
         {
             title: 'تعداد',

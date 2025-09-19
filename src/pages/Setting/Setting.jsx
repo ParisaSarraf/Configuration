@@ -30,48 +30,80 @@ const Setting = () => {
             key: '1',
             icon: <TagsOutlined/>,
             children: <Casing/>,
+            colorScheme: {
+                active: 'bg-teal-50 text-teal-700 font-semibold',
+                inactive: 'text-slate-600 hover:bg-teal-50 hover:text-teal-700'
+            }
         },
         {
             label: `هویت`,
             key: '2',
             icon: <UserOutlined/>,
             children: <Personality/>,
+            colorScheme: {
+                active: 'bg-sky-50 text-sky-700 font-semibold',
+                inactive: 'text-slate-600 hover:bg-sky-50 hover:text-sky-700'
+            }
         },
         {
             label: `جنس`,
             key: '3',
             icon: <AppstoreOutlined/>,
             children: <Genus/>,
+            colorScheme: {
+                active: 'bg-violet-50 text-violet-700 font-semibold',
+                inactive: 'text-slate-600 hover:bg-violet-50 hover:text-violet-700'
+            }
         },
         {
             label: `حوزه`,
             key: '4',
             icon: <GlobalOutlined/>,
             children: <Precinct/>,
+            colorScheme: {
+                active: 'bg-emerald-50 text-emerald-700 font-semibold',
+                inactive: 'text-slate-600 hover:bg-emerald-50 hover:text-emerald-700'
+            }
         },
         {
             label: `چرخه عمر`,
             key: '5',
             icon: <SyncOutlined/>,
             children: <LifeCycle/>,
+            colorScheme: {
+                active: 'bg-amber-50 text-amber-700 font-semibold',
+                inactive: 'text-slate-600 hover:bg-amber-50 hover:text-amber-700'
+            }
         },
         {
             label: `اسناد و مدارک`,
             key: '6',
             icon: <FileTextOutlined/>,
             children: <Documents/>,
+            colorScheme: {
+                active: 'bg-rose-50 text-rose-700 font-semibold',
+                inactive: 'text-slate-600 hover:bg-rose-50 hover:text-rose-700'
+            }
         },
         {
             label: `الزامات`,
             key: '7',
             icon: <CheckSquareOutlined/>,
             children: <Requirement/>,
+            colorScheme: {
+                active: 'bg-lime-50 text-lime-700 font-semibold',
+                inactive: 'text-slate-600 hover:bg-lime-50 hover:text-lime-700'
+            }
         },
         {
             label: `پیمانکاران/کارفرمایان`,
             key: '8',
             icon: <TeamOutlined/>,
             children: <Contractor/>,
+            colorScheme: {
+                active: 'bg-cyan-50 text-cyan-700 font-semibold',
+                inactive: 'text-slate-600 hover:bg-cyan-50 hover:text-cyan-700'
+            }
         },
     ];
 
@@ -107,11 +139,11 @@ const Setting = () => {
                                         onClick={() => setActiveKey(item.key)}
                                         className={`w-full flex items-center gap-3 p-3 rounded-lg text-right transition-colors duration-200 ${
                                             activeKey === item.key
-                                                ? 'bg-sky-100 text-sky-700 font-semibold'
-                                                : 'text-slate-600 hover:bg-slate-100'
+                                                ? item.colorScheme.active
+                                                : item.colorScheme.inactive
                                         }`}
                                     >
-                                        {item.icon}
+                                        <span className="text-lg">{item.icon}</span>
                                         <span>{item.label}</span>
                                     </button>
                                 </li>

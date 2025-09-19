@@ -41,6 +41,8 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                 weight: modalData.weight,
                 height: modalData.height,
                 width: modalData.width,
+                warehouse_code: modalData.warehouse_code,
+                warehouse_quantity: modalData.warehouse_quantity,
                 length: modalData.length,
                 price: modalData.price,
                 external_diagonal: modalData.external_diagonal,
@@ -108,6 +110,8 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
             height: values.height,
             width: values.width,
             length: values.length,
+            warehouse_code: values.warehouse_code,
+            warehouse_quantity: values.warehouse_quantity,
             price: values.price,
             external_diagonal: values.external_diagonal,
             internal_diagonal: values.internal_diagonal,
@@ -160,12 +164,12 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
         >
             <Form form={form} layout="vertical" onFinish={onFinish}>
                 <Row gutter={16}>
-                    <Col span={4}>
+                    <Col span={6}>
                         <Form.Item name="parent_id" label="شاخه والد">
                             <TS data={productData} placeholder="شاخه والد" allowClear/>
                         </Form.Item>
                     </Col>
-                    <Col span={4}>
+                    <Col span={6}>
                         <Form.Item name="parent_code_id" label="ارث بری کد">
                             <TS data={productData} placeholder="ارث بری کد" onChange={handleParentChange} allowClear/>
                         </Form.Item>
@@ -245,7 +249,7 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={12}>
+                    <Col span={6}>
                         <Form.Item
                             label="هویت"
                             name="personality_id"
@@ -258,7 +262,7 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={12}>
+                    <Col span={6}>
                         <Form.Item label="کد استاندارد" name="standard_code_id">
                             <Select
                                 placeholder="کد استاندارد"
@@ -291,6 +295,33 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                             <TS data={casingData} placeholder="پوشش"/>
                         </Form.Item>
                     </Col>
+                    <Col span={4}>
+                        <Form.Item label="قیمت" name="price">
+                            <InputNumber
+                                style={{width: "100%"}}
+                                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '،')}
+                                parser={(value) => value.replace(/\$\s?|(،*)/g, '')}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={4}>
+                        <Form.Item label="کد انبار" name="store_code">
+                            <Input/>
+                        </Form.Item>
+                    </Col>
+
+
+                    <Col span={4}>
+                        <Form.Item label="کد کالا" name="warehouse_code">
+                            <Input/>
+                        </Form.Item>
+                    </Col>
+                    <Col span={4}>
+                        <Form.Item label="تعداد انبار" name="warehouse_quantity">
+                            <Input/>
+                        </Form.Item>
+                    </Col>
+
                     <Col span={2}>
                         <Form.Item label="طول" name="length">
                             <InputNumber style={{width: "100%"}}/>
@@ -311,28 +342,14 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                             <InputNumber style={{width: "100%"}}/>
                         </Form.Item>
                     </Col>
-                    <Col span={2}>
+                    <Col span={4}>
                         <Form.Item label="قطر خارجی" name="external_diagonal">
                             <InputNumber style={{width: "100%"}}/>
                         </Form.Item>
                     </Col>
-                    <Col span={2}>
+                    <Col span={4}>
                         <Form.Item label="وزن" name="weight">
                             <InputNumber style={{width: "100%"}}/>
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item label="قیمت" name="price">
-                            <InputNumber
-                                style={{width: "100%"}}
-                                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '،')}
-                                parser={(value) => value.replace(/\$\s?|(،*)/g, '')}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item label="کد انبار" name="store_code">
-                            <Input/>
                         </Form.Item>
                     </Col>
 
