@@ -112,7 +112,7 @@ export const useUpdateProduct = () => {
 export const useUpdateProductInfo = () => {
     const {myAxios} = useMyAxios();
     return useMutation({
-        mutationFn: ({productId, ProductInfoData}) => {
+        mutationFn: ({productId, ...ProductInfoData}) => {
             return myAxios
                 .patch(`/product/patch-user-info/${productId}/`, ProductInfoData, {
                         headers: {
