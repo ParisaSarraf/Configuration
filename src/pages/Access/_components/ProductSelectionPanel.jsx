@@ -1,36 +1,42 @@
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {useUnAccessProductsByUserAndRoleId} from "../../../QueryServises/accsessQuery";
-import {Alert, Button, Checkbox, Empty, List, Spin} from "antd";
+import {Alert, Button, Empty, Spin, Tree} from "antd";
 
-const ProductSelectionPanel = ({
-                                   selectedUserId,
-                                   selectedRoleId,
-                                   onSelectionChange,
-                                   onAssign,
-                                   isAssigning,
-                                   selectedProductCount
-                               }) => {
-    const [checkedProducts, setCheckedProducts] = useState(new Set());
+const transformDataForTree = (products) => {
+    if (!products) return [];
+    return products.map(product => ({
+        key: product.id,
+        title: product.persian_title,
+        children: product.children && product.children.length > 0 ? transformDataForTree(product.children) : [],
+    }));
+};
+
+const ProductSelectionPanel = (
+    {
+        selectedUserId,
+        selectedRoleId,
+        onSelectionChange,
+        onAssign,
+        isAssigning,
+        selectedProductCount
+    }) => {
+    const [checkedKeys, setCheckedKeys] = useState([]);
 
     const {data: products, isLoading, error} = useUnAccessProductsByUserAndRoleId(
         selectedUserId && selectedRoleId ? {user_id: selectedUserId, role_id: selectedRoleId} : null,
         {enabled: !!(selectedUserId && selectedRoleId)}
     );
 
+    const treeData = useMemo(() => transformDataForTree(products), [products]);
+
     useEffect(() => {
-        setCheckedProducts(new Set());
+        setCheckedKeys([]);
         onSelectionChange([]);
     }, [selectedUserId, selectedRoleId, onSelectionChange]);
 
-    const handleCheckChange = (productId, isChecked) => {
-        const newCheckedProducts = new Set(checkedProducts);
-        if (isChecked) {
-            newCheckedProducts.add(productId);
-        } else {
-            newCheckedProducts.delete(productId);
-        }
-        setCheckedProducts(newCheckedProducts);
-        onSelectionChange(Array.from(newCheckedProducts));
+    const handleCheck = (checkedKeysValue) => {
+        setCheckedKeys(checkedKeysValue);
+        onSelectionChange(checkedKeysValue);
     };
 
     if (!selectedUserId || !selectedRoleId) {
@@ -56,24 +62,18 @@ const ProductSelectionPanel = ({
         <div className="bg-white rounded-xl shadow-lg border border-slate-200 flex flex-col h-full">
             {PanelHeader}
             {isLoading ? <div className="flex-1 flex justify-center items-center"><Spin/></div> :
-                !products || products.length === 0 ? <div className="flex-1 flex justify-center items-center"><Empty
+                !treeData || treeData.length === 0 ? <div className="flex-1 flex justify-center items-center"><Empty
                         description="محصول جدیدی برای افزودن یافت نشد."/></div> :
                     <>
-                        <List
-                            className="p-2 flex-1 overflow-y-auto"
-                            dataSource={products}
-                            renderItem={(product) => (
-                                <List.Item className="!p-0">
-                                    <Checkbox
-                                        checked={checkedProducts.has(product.id)}
-                                        onChange={(e) => handleCheckChange(product.id, e.target.checked)}
-                                        className="w-full p-3 rounded-lg hover:bg-slate-50"
-                                    >
-                                        {product.persian_title}
-                                    </Checkbox>
-                                </List.Item>
-                            )}
-                        />
+                        <div className="p-2 flex-1 overflow-y-auto">
+                            <Tree
+                                checkable
+                                onCheck={handleCheck}
+                                checkedKeys={checkedKeys}
+                                treeData={treeData}
+                                defaultExpandAll={true}
+                            />
+                        </div>
                         <div className="p-4 border-t border-slate-200">
                             <Button type="primary" block onClick={onAssign} loading={isAssigning}
                                     disabled={selectedProductCount === 0}>
