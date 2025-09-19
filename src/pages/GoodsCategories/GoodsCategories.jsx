@@ -148,7 +148,7 @@ const GoodsCategories = () => {
     return (
         <div className="w-full flex flex-col rounded-xl overflow-hidden shadow-lg bg-white">
             <div className="bg-gradient-to-r from-blue-50 to-indigo-100 p-5 text-slate-800 border-b border-slate-200">
-                <h1 className="text-2xl font-bold text-slate-700">سیستم مدیریت محصول</h1>
+                <h1 className="text-2xl font-bold text-slate-700">مدیریت سیستم و یکپارچه سازی روال ها </h1>
                 <p className="text-slate-600 mt-1">مدیریت جامع اطلاعات محصولات</p>
             </div>
 
