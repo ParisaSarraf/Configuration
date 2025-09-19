@@ -38,9 +38,9 @@ const ProductCols = () => {
             key: 'quantity',
         },
         {
-            title: 'کد انبار',
-            dataIndex: 'store_code',
-            key: 'store_code',
+            title: 'کد کالا',
+            dataIndex: 'warehouse_code',
+            key: 'warehouse_code',
         },
         {
             title: 'جمع خرید',
