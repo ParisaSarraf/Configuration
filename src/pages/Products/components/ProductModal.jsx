@@ -276,17 +276,17 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={4}>
+                    <Col span={8}>
                         <Form.Item label="جنس" name="genus_id">
                             <TS data={genusData} placeholder="جنس"/>
                         </Form.Item>
                     </Col>
-                    <Col span={4}>
+                    <Col span={8}>
                         <Form.Item label="جنس جایگزین" name="alternative_genus_id">
                             <TS data={genusData} placeholder="جنس جایگزین"/>
                         </Form.Item>
                     </Col>
-                    <Col span={4}>
+                    <Col span={8}>
                         <Form.Item label="پوشش" name="casing_id">
                             <TS data={casingData} placeholder="پوشش"/>
                         </Form.Item>
@@ -301,27 +301,27 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                             <InputNumber style={{width: "100%"}}/>
                         </Form.Item>
                     </Col>
-                    <Col span={4}>
+                    <Col span={2}>
                         <Form.Item label="ارتفاع" name="height">
                             <InputNumber style={{width: "100%"}}/>
                         </Form.Item>
                     </Col>
-                    <Col span={4}>
+                    <Col span={2}>
                         <Form.Item label="قطر داخل" name="internal_diagonal">
                             <InputNumber style={{width: "100%"}}/>
                         </Form.Item>
                     </Col>
-                    <Col span={4}>
+                    <Col span={2}>
                         <Form.Item label="قطر خارجی" name="external_diagonal">
                             <InputNumber style={{width: "100%"}}/>
                         </Form.Item>
                     </Col>
-                    <Col span={4}>
+                    <Col span={2}>
                         <Form.Item label="وزن" name="weight">
                             <InputNumber style={{width: "100%"}}/>
                         </Form.Item>
                     </Col>
-                    <Col span={4}>
+                    <Col span={6}>
                         <Form.Item label="قیمت" name="price">
                             <InputNumber
                                 style={{width: "100%"}}
@@ -330,13 +330,13 @@ const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, produc
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={4}>
+                    <Col span={6}>
                         <Form.Item label="کد انبار" name="store_code">
                             <Input/>
                         </Form.Item>
                     </Col>
 
-                    <Col span={8}>
+                    <Col span={24}>
                         <Form.Item label="توضیحات" name="description">
                             <Input.TextArea rows={1} placeholder="توضیحات محصول"/>
                         </Form.Item>

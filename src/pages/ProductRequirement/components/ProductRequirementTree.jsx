@@ -117,7 +117,7 @@ const ProductRequirementTree = ({currentProduct, selectProduct, setSelectedProdu
         }>
             <Tree
                 mode='tree'
-                className="custom-tree"
+                // className="custom-tree"
                 data={treeRequirementData}
                 isLoading={isLoading}
                 isError={isError}

@@ -68,7 +68,7 @@ const PersonalityTree = ({setModal, setPersonalityId, setSelectedPersonalityLabe
 
     return (
         <Tree
-            className="custom-tree"
+            // className="custom-tree"
             data={transformDataToTreeFormat(data)}
             isLoading={isFetching || isDeleting}
             isError={isError}
