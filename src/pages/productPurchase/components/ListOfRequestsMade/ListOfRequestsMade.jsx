@@ -6,7 +6,7 @@ import DataExporter from "@/components/DataExporter/DataExporter.jsx";
 
 
 const ListOfRequestsMade = ({currentProduct, refetch}) => {
-    const {data: purchaseData} = useConfirmProductPurchaseById(currentProduct?.id);
+    const {data: purchaseData, refetch: purchaseDataRefetch} = useConfirmProductPurchaseById(currentProduct?.id);
     const {mutateAsync: deleteProductPurchase} = useDeleteProductPurchase(currentProduct?.id);
 
 
@@ -69,7 +69,7 @@ const ListOfRequestsMade = ({currentProduct, refetch}) => {
                 try {
                     await deleteProductPurchase(record?.id);
                     message.success("درخواست خرید با موفقیت حذف شد");
-                    await refetch();
+                    await (refetch() && purchaseDataRefetch())
                 } catch (error) {
                     message.error("حذف درخواست خرید با خطا مواجه شد");
                     throw error;
