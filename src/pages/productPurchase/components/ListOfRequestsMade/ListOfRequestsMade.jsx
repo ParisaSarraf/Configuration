@@ -2,7 +2,8 @@ import {message, Modal, Table, Tag} from "antd";
 import {useConfirmProductPurchaseById, useDeleteProductPurchase} from "@/QueryServises/productPurchase/index.js";
 import ListOfRequestsMadeCol from "./ListOfRequestsMadeCol";
 import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
-import DataExporter from "@/components/DataExporter/DataExporter.jsx";
+import {flattenDataForExcel} from "@utils/flattenData.js";
+import {exportToExcel} from "@utils/ExportExcel.js";
 
 
 const ListOfRequestsMade = ({currentProduct, refetch}) => {
@@ -44,7 +45,8 @@ const ListOfRequestsMade = ({currentProduct, refetch}) => {
         const nestedDataSource = record.product_purchase_numbers.map(item => ({
             key: item.id,
             product: item.product,
-            confirmed_number: item.confirmed_number
+            confirmed_number: item.confirmed_number,
+            date: item.date
         }));
 
         return (
@@ -78,18 +80,32 @@ const ListOfRequestsMade = ({currentProduct, refetch}) => {
         });
     };
 
+    const handleHide = (record) => {
+        console.log(record);
+    }
+
+    const handleExcelExportForRow = (record) => {
+        try {
+            const dataToExport = [record];
+            const flatData = flattenDataForExcel(dataToExport);
+            const excelColumns = ListOfRequestsMadeCol({}).filter(col => col.key !== 'actions');
+            const fileName = `درخواست_${record.product.code || record.id}.xlsx`;
+            exportToExcel(flatData, excelColumns, fileName);
+            message.success("خروجی اکسل با موفقیت ایجاد شد.");
+        } catch (error) {
+            message.error("خطا در ایجاد خروجی اکسل.");
+            console.error("Single row export error:", error);
+        }
+    };
+
     return (
         <div className={'w-full flex flex-col'}>
-            <DataExporter
-                excelData={purchaseData}
-                excelColumns={ListOfRequestsMadeCol(handleDelete)}
-                fileName="لیست_درخواست خرید"
-            />
             <Table
-                columns={ListOfRequestsMadeCol(handleDelete)}
+                columns={ListOfRequestsMadeCol({handleDelete, handleHide, handleExcelExportForRow})}
                 dataSource={purchaseData || []}
                 pagination={false}
                 rowKey='id'
+                bordered
                 size={'small'}
                 expandedRowRender={expandedRowRender}
             />

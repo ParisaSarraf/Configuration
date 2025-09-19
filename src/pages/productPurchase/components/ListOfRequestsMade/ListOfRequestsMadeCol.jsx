@@ -1,18 +1,19 @@
 import {Button, Space, Tag} from "antd";
 import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
-import {DeleteOutlined, PoweroffOutlined} from "@ant-design/icons";
+import {DeleteOutlined, FileExcelOutlined, PoweroffOutlined} from "@ant-design/icons";
 
-const ListOfRequestsMadeCol = (handleDelete) => {
+const ListOfRequestsMadeCol = ({handleDelete, handleHide, handleExcelExportForRow}) => {
     return [
         {
             title: 'نام محصول',
-            dataIndex: ['product_purchase_numbers', 0, 'product', 'persian_title'],
+            dataIndex: ['product', 'persian_title'],
             key: 'persian_title',
+
         },
         {
             title: 'کد محصول',
             key: 'code',
-            dataIndex: ['product_purchase_numbers', 0, 'product', 'code'],
+            dataIndex: ['product', 'code'],
             render: (record) => {
                 return (<Tag color={'purple'}>{record}</Tag>)
             }
@@ -27,26 +28,6 @@ const ListOfRequestsMadeCol = (handleDelete) => {
             }
         },
         {
-            title: 'تعداد',
-            dataIndex: ['product_purchase_numbers', 0, 'confirmed_number'],
-            key: 'confirmed_number',
-            render: (text) => text || 'ندارد'
-        }, {
-            title: 'درصد مونتاژ',
-            dataIndex: 'charge_percentage',
-            key: 'charge_percentage',
-            render: (text) => text || 'ندارد'
-        }, {
-            title: 'تعداد پشتیبانی',
-            dataIndex: 'support_number',
-            key: 'support_number',
-            render: (text) => text || 'ندارد'
-        }, {
-            title: 'تعداد کل',
-            dataIndex: 'total_number',
-            key: 'total_number',
-            render: (text) => text || 'ندارد'
-        }, {
             title: 'تاریخ درخواست',
             dataIndex: 'date',
             key: 'date',
@@ -55,7 +36,8 @@ const ListOfRequestsMadeCol = (handleDelete) => {
                     <Tag color={'green'}>{georgianDateToJalaliDate(text)}</Tag>
                 )
             }
-        }, {
+        },
+        {
             title: 'تاریخ تایید',
             dataIndex: 'total_number',
             key: 'total_number',
@@ -66,11 +48,22 @@ const ListOfRequestsMadeCol = (handleDelete) => {
             }
         },
         {
+            title: 'توضیح اکسل',
+            dataIndex: 'export_description',
+            key: 'export_description',
+        },
+        {
             title: 'عملیات',
             key: 'actions',
             render: (record) => {
                 return (
                     <Space>
+                        <Button
+                            title={'خروجی اکسل'}
+                            className={'text-green-500 border-green-500'}
+                            onClick={() => handleExcelExportForRow(record)}
+                            icon={<FileExcelOutlined/>}
+                        />
                         <Button
                             title={'حذف'}
                             danger
@@ -79,8 +72,8 @@ const ListOfRequestsMadeCol = (handleDelete) => {
                         />
                         <Button
                             title={'غیرفعال'}
-                            // danger
-                            // onClick={() => handleDelete(record)}
+                            className={'text-violet-500 border border-violet-500'}
+                            onClick={() => handleHide(record)}
                             icon={<PoweroffOutlined/>}
                         />
                     </Space>
