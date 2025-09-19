@@ -2,12 +2,14 @@ import {Button, message, Space} from 'antd';
 import {FileExcelOutlined, FilePdfOutlined} from '@ant-design/icons';
 import {exportToExcel} from '@utils/ExportExcel.js';
 import {exportToPDF} from "@utils/ExportPDF.js";
+import {flattenDataForExcel} from '@utils/flattenData.js';
 
 const DataExporter = ({excelData, excelColumns, pdfColumns, pdfData, fileName = "export"}) => {
 
     const handleExcelExport = () => {
         try {
-            exportToExcel(excelData, excelColumns, `${fileName}.xlsx`);
+            const flatData = flattenDataForExcel(excelData);
+            exportToExcel(flatData, excelColumns, `${fileName}.xlsx`);
             message.success("خروجی اکسل با موفقیت دانلود شد");
         } catch (error) {
             message.error("خطا در ایجاد خروجی اکسل");
