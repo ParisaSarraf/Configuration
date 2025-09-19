@@ -1,18 +1,23 @@
-import { useEffect } from "react";
-import { Col, Form, Input, message, Row, Select, TreeSelect } from "antd";
+import {useEffect} from "react";
+import {Col, Form, Input, message, Row, TreeSelect} from "antd";
 import Modal from "../../../../../../components/Modal";
-import { useCreatePersonalityProduct, usePersonalityProductList, useUpdatePesonalityProduct } from "../../../../../../QueryServises/personalityQuery";
+import {
+    useCreatePersonalityProduct,
+    usePersonalityProductList,
+    useUpdatePesonalityProduct
+} from "../../../../../../QueryServises/personalityQuery";
 
-const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch }) => {
-    const { data: personalityList, isFetching: isFetchingPersonality } = usePersonalityProductList();
+const PersonalityModal = ({isOpen, modalMode, modalData, closeModal, setModal, refetch}) => {
+    const {data: personalityList, isFetching: isFetchingPersonality} = usePersonalityProductList();
     const [form] = Form.useForm();
-    const { isPending: isCreating, mutateAsync: createPersonality } = useCreatePersonalityProduct();
-    const { isPending: isUpdating, mutateAsync: updatePersonality } = useUpdatePesonalityProduct();
+    const {isPending: isCreating, mutateAsync: createPersonality} = useCreatePersonalityProduct();
+    const {isPending: isUpdating, mutateAsync: updatePersonality} = useUpdatePesonalityProduct();
 
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
                 name: modalData.name,
+                personality: modalData.personality,
                 type: modalData.type || "personality"
             });
         } else if (modalMode === "add") {
@@ -28,7 +33,8 @@ const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
 
         const payload = {
             name: values.name,
-            ...(values.parent_id !== undefined && { parent_id: values.parent_id })
+            warehouse_code: values.warehouse_code,
+            ...(values.parent_id !== undefined && {parent_id: values.parent_id})
         };
 
         if (modalMode === "add") {
@@ -119,7 +125,15 @@ const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
                                     message: "لطفاً نام هویت را وارد کنید"
                                 }]}
                             >
-                                <Input placeholder="نام هویت" />
+                                <Input placeholder="نام هویت"/>
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                name="warehouse_code"
+                                label="کد انبار"
+                            >
+                                <Input/>
                             </Form.Item>
                         </Col>
                         <Col span={12}>
@@ -139,7 +153,7 @@ const PersonalityModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
                         </Col>
                     </Row>
                 </Form>
-            </Modal >
+            </Modal>
         </>
     );
 };

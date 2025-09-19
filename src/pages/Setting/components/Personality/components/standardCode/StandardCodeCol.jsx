@@ -1,8 +1,8 @@
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import {DeleteOutlined, EditOutlined} from "@ant-design/icons";
 import {Button, Image, Space} from "antd";
 import {BASEURL} from "@/Services/axiosInstance.js";
 
-export const StandardCodeCol = ({ handleDelete, handleEdit }) => {
+export const StandardCodeCol = ({handleDelete, handleEdit}) => {
     return [
         {
             title: 'ردیف',
@@ -13,6 +13,13 @@ export const StandardCodeCol = ({ handleDelete, handleEdit }) => {
             title: ' کد استاندارد',
             dataIndex: 'name',
             key: 'name',
+            width: 200,
+            render: (text) => <span>{text}</span>
+        },
+        {
+            title: ' کد طبقه بندی',
+            dataIndex: 'warehouse_code',
+            key: 'warehouse_code',
             width: 200,
             render: (text) => <span>{text}</span>
         },
@@ -64,17 +71,17 @@ export const StandardCodeCol = ({ handleDelete, handleEdit }) => {
                 <Space size="middle" className="flex flex-row gap-2 justify-center">
                     <Button
                         onClick={() => handleEdit(record)}
-                        icon={<EditOutlined />}
+                        icon={<EditOutlined/>}
                         className="text-green-600 border-green-600"
                         size="small"
                     />
                     <Button
                         danger
                         onClick={() => handleDelete(record?.id)}
-                        icon={<DeleteOutlined />}
+                        icon={<DeleteOutlined/>}
                         size="small"
                     />
-                </Space >
+                </Space>
             )
         }
     ];

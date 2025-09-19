@@ -94,10 +94,8 @@ const Personality = () => {
                 >
                     <Table
                         columns={StandardCodeCol({handleDelete, handleEdit})}
-                        // dataSource={StandardPersonalityCodeList?.personality_codes || []}
                         dataSource={TableData || []}
                         rowKey="id"
-                        // loading={!StandardPersonalityCodeList?.personality_codes}
                         locale={
                             {emptyText: 'هیچ کد استانداردی برای این هویت وجود ندارد'}
                         }

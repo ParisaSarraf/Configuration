@@ -28,6 +28,7 @@ const StandardCodeModal = (
             form.setFieldsValue({
                 name: modalData?.name,
                 personality: modalData?.parentData?.id,
+                warehouse_code: modalData?.warehouse_code,
                 standard_file: modalData?.standard_file
                     ? [
                         {
@@ -55,6 +56,7 @@ const StandardCodeModal = (
         const payload = {
             name: values.name,
             personality: modalMode === 'add' ? PersonalityId : values.personality,
+            warehouse_code: values.warehouse_code,
             standard_file: values.standard_file?.[0]?.originFileObj,
         };
 
@@ -130,6 +132,14 @@ const StandardCodeModal = (
                                     placeholder="هویت"
                                     disabled={modalMode === 'add'}
                                 />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                label="کد انبار"
+                                name="warehouse_code"
+                            >
+                                <Input/>
                             </Form.Item>
                         </Col>
                         <Col span={12}>
