@@ -20,15 +20,12 @@ const Personality = () => {
     const {mutateAsync: deleteStandardCode} = useDeleteStandardCode();
 
     const {data: StandardPersonalityCodeList, refetch: standardRefetch} = useStandardCodePersonalityById(PersonalityId)
-
-
     const TableData = StandardPersonalityCodeList?.personality_codes?.map(item => ({
         ...item,
         parentData: StandardPersonalityCodeList
     }))
 
     const {isPending: isDeleting} = useDeleteCoreSetting();
-
     const [selectedPersonalityLabel, setSelectedPersonalityLabel] = useState('');
 
     const handleDelete = (id) => {
@@ -52,6 +49,7 @@ const Personality = () => {
             },
         });
     };
+
     const handleEdit = (record) => {
         setModal({
             mode: 'edit',

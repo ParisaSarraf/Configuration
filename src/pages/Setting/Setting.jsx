@@ -56,6 +56,15 @@ const Setting = () => {
             }
         },
         {
+            label: `چرخه عمر`,
+            key: '5',
+            icon: <SyncOutlined/>,
+            children: <LifeCycle/>,
+            colorScheme: {
+                active: 'bg-amber-50 text-amber-700 font-semibold',
+                inactive: 'text-slate-600 hover:bg-amber-50 hover:text-amber-700'
+            }
+        },   {
             label: `حوزه`,
             key: '4',
             icon: <GlobalOutlined/>,
@@ -65,16 +74,7 @@ const Setting = () => {
                 inactive: 'text-slate-600 hover:bg-emerald-50 hover:text-emerald-700'
             }
         },
-        {
-            label: `چرخه عمر`,
-            key: '5',
-            icon: <SyncOutlined/>,
-            children: <LifeCycle/>,
-            colorScheme: {
-                active: 'bg-amber-50 text-amber-700 font-semibold',
-                inactive: 'text-slate-600 hover:bg-amber-50 hover:text-amber-700'
-            }
-        },
+
         {
             label: `اسناد و مدارک`,
             key: '6',

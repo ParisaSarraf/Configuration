@@ -1,4 +1,5 @@
 import { Button, Flex } from "antd";
+import {EditOutlined , DeleteOutlined} from "@ant-design/icons";
 
 export const LifeCycleCol = ({ handleDelete, handleEdit }) => [
     {
@@ -16,8 +17,8 @@ export const LifeCycleCol = ({ handleDelete, handleEdit }) => [
         key: 'actions',
         render: (_, record) => (
             <Flex gap="small">
-                <Button type="link" onClick={() => handleEdit(record)}>ویرایش</Button>
-                <Button type="link" danger onClick={() => handleDelete(record.id)}>حذف</Button>
+                <Button size={'small'} onClick={() => handleEdit(record)} icon={<EditOutlined/>} className={'text-green-600 border border-green-600'}/>
+                <Button size={'small'} danger onClick={() => handleDelete(record.id)} icon={<DeleteOutlined />} />
             </Flex>
         )
     }

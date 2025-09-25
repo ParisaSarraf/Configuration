@@ -58,6 +58,7 @@ const LifeCycle = () => {
                     columns={LifeCycleCol({ handleDelete, handleEdit })}
                     dataSource={lifeCycleList}
                     rowKey="id"
+                    size={'small'}
                     loading={isFetching}
                     scroll={{ x: true }}
                     pagination={{

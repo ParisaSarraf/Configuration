@@ -1,9 +1,8 @@
-import React from 'react'
 import Tree from '../../../components/Tree';
 import {useRoleList} from '../../../QueryServises/roleQuery';
 
 const RolePermissionsTree = () => {
-    const {isFetching, data: roleData, refetch} = useRoleList();
+    const {isFetching, data: roleData} = useRoleList();
 
     return (
         <Tree

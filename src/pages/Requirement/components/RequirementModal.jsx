@@ -145,12 +145,12 @@ const RequirementModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
 
                         <Col span={12}>
                             <Form.Item
-                                label="چرخه حیات"
+                                label="چرخه عمر"
                                 name="life_cycle_id"
                             >
                                 <TreeSelect
                                     treeData={getTreeSelectOptions(lifeCycleList || [])}
-                                    placeholder="چرخه حیات"
+                                    placeholder="چرخه عمر"
                                     allowClear
                                     treeIcon={true}
                                     treeLine={true}

@@ -5,10 +5,10 @@ import {
     useCreatePersonalityProduct,
     usePersonalityProductList,
     useUpdatePesonalityProduct
-} from "../../../../../../QueryServises/personalityQuery";
+} from "@/QueryServises/personalityQuery/index.js";
 
-const PersonalityModal = ({isOpen, modalMode, modalData, closeModal, setModal, refetch}) => {
-    const {data: personalityList, isFetching: isFetchingPersonality} = usePersonalityProductList();
+const PersonalityModal = ({isOpen, modalMode, modalData, closeModal, refetch}) => {
+    const {data: personalityList} = usePersonalityProductList();
     const [form] = Form.useForm();
     const {isPending: isCreating, mutateAsync: createPersonality} = useCreatePersonalityProduct();
     const {isPending: isUpdating, mutateAsync: updatePersonality} = useUpdatePesonalityProduct();
@@ -136,7 +136,7 @@ const PersonalityModal = ({isOpen, modalMode, modalData, closeModal, setModal, r
                                 <Input/>
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col span={24}>
                             <Form.Item
                                 name="parent_id"
                                 label="هویت والد (اختیاری)"

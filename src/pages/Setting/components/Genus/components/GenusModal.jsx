@@ -1,14 +1,18 @@
-import React, { useEffect } from "react";
+import React, {useEffect, useState} from "react";
 import { Button, Col, Form, Input, message, Row, Select } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import Modal from "../../../../../components/Modal";
 import { useCreateGenusProduct, useUpdateGenusProduct, useGenusProductList } from "../../../../../QueryServises/genusQuery";
+import TS from "@/components/TreeSelect/index.jsx";
 
 const GenusModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch }) => {
     const [form] = Form.useForm();
     const { data: genusList, isFetching: isFetchingGenus } = useGenusProductList();
     const { isPending: isCreating, mutateAsync: createGenus } = useCreateGenusProduct();
     const { isPending: isUpdating, mutateAsync: updateGenus } = useUpdateGenusProduct();
+
+    const [selectedGenusId, setSelectedGenusId] = useState(null);
+
 
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
@@ -60,50 +64,6 @@ const GenusModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetc
         }
     };
 
-    const getParentOptions = () => {
-        if (!genusList) return [];
-
-        const flattenGenusList = (items) => {
-            let result = [];
-            items.forEach(item => {
-                result.push({
-                    id: item.id,
-                    name: item.name,
-                    parent: item.parent
-                });
-                if (item.children && item.children.length > 0) {
-                    result = result.concat(flattenGenusList(item.children));
-                }
-            });
-            return result;
-        };
-
-        const allGenus = flattenGenusList(genusList);
-
-        return allGenus
-            .filter(genus => {
-                if (modalMode !== "edit") return true;
-
-                if (genus.id === modalData?.id) return false;
-
-                const isChildOfCurrent = (items, parentId) => {
-                    return items.some(item => {
-                        if (item.id === parentId) return true;
-                        if (item.children && item.children.length > 0) {
-                            return isChildOfCurrent(item.children, parentId);
-                        }
-                        return false;
-                    });
-                };
-
-                return !isChildOfCurrent(genusList, modalData?.id);
-            })
-            .map(genus => ({
-                label: genus.name,
-                value: genus.id
-            }));
-    };
-
     return (
         <>
             <Button
@@ -126,7 +86,7 @@ const GenusModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetc
                     onFinish={onFinishForm}
                 >
                     <Row gutter={16}>
-                        <Col span={24}>
+                        <Col span={12}>
                             <Form.Item
                                 name="name"
                                 label="نام جنس"
@@ -135,16 +95,15 @@ const GenusModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetc
                                 <Input placeholder="نام جنس" />
                             </Form.Item>
                         </Col>
-                        <Col span={24}>
+                        <Col span={12}>
                             <Form.Item
                                 name="parent_id"
                                 label="جنس والد (اختیاری)"
                             >
-                                <Select
-                                    placeholder="انتخاب جنس والد"
-                                    loading={isFetchingGenus}
-                                    allowClear
-                                    options={getParentOptions()}
+                                <TS
+                                    data={genusList}
+                                    placeholder="جنس والد (اختیاری)"
+                                    onChange={(value) => setSelectedGenusId(value)}
                                 />
                             </Form.Item>
                         </Col>

@@ -59,6 +59,8 @@ const Casing = () => {
                 columns={CasingColumns({ handleDelete, handleEdit })}
                 dataSource={casingData}
                 rowKey="id"
+                bordered
+                size={'small'}
                 loading={isFetching}
                 scroll={{ x: true }}
                 pagination={{

@@ -1,7 +1,7 @@
 import { Card, Spin } from 'antd';
 import useModal from '../../../../hooks/useModal';
 import GenusModal from './components/GenusModal';
-import { useDeleteGenusProduct, useGenusProductList } from '../../../../QueryServises/genusQuery';
+import { useDeleteGenusProduct, useGenusProductList } from '@/QueryServises/genusQuery/index.js';
 import GenusTree from './components/GenusTree';
 
 const Genus = () => {
@@ -9,7 +9,6 @@ const Genus = () => {
     const {
         data,
         isFetching,
-        isError,
         refetch
     } = useGenusProductList();
 

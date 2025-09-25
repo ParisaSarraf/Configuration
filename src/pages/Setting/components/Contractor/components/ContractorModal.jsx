@@ -1,13 +1,12 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import Modal from '../../../../../components/Modal'
-import { Button, Form, Input, message } from 'antd'
+import {Button, Form, Input, message, Switch} from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
-import { useCreateContractorProduct, useUpdateContractorProduct } from '../../../../../QueryServises/ProductContractorQuery'
+import { useCreateContractorProduct, useUpdateContractorProduct } from '@/QueryServises/ProductContractorQuery/index.js'
 
-const ContractorModal = ({ isOpen, modalMode, modalData, closeModal, setModal, currentProduct, refetch }) => {
+const ContractorModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch }) => {
     const { mutateAsync: createContractor } = useCreateContractorProduct()
     const { mutateAsync: updateContractor } = useUpdateContractorProduct()
-
 
     const [form] = Form.useForm()
 
@@ -15,16 +14,17 @@ const ContractorModal = ({ isOpen, modalMode, modalData, closeModal, setModal, c
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
                 name: modalData.name,
+                is_employer: modalData.is_employer,
             });
         } else {
             form.resetFields();
         }
     }, [modalMode, modalData, form]);
 
-
     const onFinish = async (values) => {
         const payload = {
-            name: values.name
+            name: values.name,
+            is_employer: values.is_employer
         }
         try {
             if (modalMode === 'add') {
@@ -52,16 +52,29 @@ const ContractorModal = ({ isOpen, modalMode, modalData, closeModal, setModal, c
             </Button>
             <Modal
                 isOpen={isOpen}
-                title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} پیمانکار/کارفرما`}
+                title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} پیمانکار / کارفرما `}
                 size={600}
                 onClose={closeModal}
                 onSubmit={() => form.submit()}
                 mode={modalMode}
             >
-                <Form onFinish={onFinish} form={form}>
-                    <Form.Item name='name'>
+                <Form onFinish={onFinish} form={form} layout={'vertical'}>
+                    <div className={'w-full grid grid-cols-2 gap-10'}>
+                    <Form.Item name='name' label={'نام'}>
                         <Input />
                     </Form.Item>
+                    <Form.Item
+                        name='is_employer'
+                        valuePropName="checked"
+                        label={'کارفرما'}
+                    >
+                        <Switch
+                            checkedChildren="بله"
+                            unCheckedChildren="خیر"
+                            className="bg-gray-300"
+                        />
+                    </Form.Item>
+                    </div>
                 </Form>
 
             </Modal>
