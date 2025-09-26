@@ -21,6 +21,7 @@ const ProductSelectionPanel = ({
                                    selectedProductCount
                                }) => {
     const [checkedKeys, setCheckedKeys] = useState({checked: [], halfChecked: []});
+    const [previouslySelectedKeys, setPreviouslySelectedKeys] = useState(new Set());
 
     const {data: products, isLoading, error} = useUnAccessProductsByUserAndRoleId(
         selectedUserId && selectedRoleId ? {user_id: selectedUserId, role_id: selectedRoleId} : null,
@@ -48,6 +49,7 @@ const ProductSelectionPanel = ({
 
     useEffect(() => {
         setCheckedKeys({checked: [], halfChecked: []});
+        setPreviouslySelectedKeys(new Set());
         onSelectionChange([]);
     }, [selectedUserId, selectedRoleId, onSelectionChange]);
 
@@ -56,15 +58,18 @@ const ProductSelectionPanel = ({
             const accessibleKeys = getAccessibleKeys(treeData);
             if (accessibleKeys.length > 0) {
                 setCheckedKeys({checked: accessibleKeys, halfChecked: []});
-                onSelectionChange(accessibleKeys);
+                setPreviouslySelectedKeys(new Set(accessibleKeys));
+                onSelectionChange([]);
             }
         }
     }, [treeData, onSelectionChange]);
 
     const handleCheck = (checkedKeysValue, {checkedNodes, halfCheckedKeys}) => {
         const onlyCheckedKeys = checkedKeysValue.checked || checkedKeysValue;
+        const newSelectedKeys = onlyCheckedKeys.filter(key => !previouslySelectedKeys.has(key));
+
         setCheckedKeys({checked: onlyCheckedKeys, halfChecked: halfCheckedKeys || []});
-        onSelectionChange(onlyCheckedKeys);
+        onSelectionChange(newSelectedKeys);
     };
 
     const renderTitle = (nodeData) => {
@@ -72,9 +77,14 @@ const ProductSelectionPanel = ({
         return (
             <span className={hasAccess ? "text-sky-600 font-semibold" : "text-gray-800"}>
                 {nodeData.title}
+                {hasAccess && <span className="text-xs text-sky-500 mr-2">(قبلاً انتخاب شده)</span>}
             </span>
         );
     };
+
+    const newProductCount = useMemo(() => {
+        return checkedKeys.checked ? checkedKeys.checked.filter(key => !previouslySelectedKeys.has(key)).length : 0;
+    }, [checkedKeys.checked, previouslySelectedKeys]);
 
     if (!selectedUserId || !selectedRoleId) {
         return (
@@ -128,9 +138,20 @@ const ProductSelectionPanel = ({
                             </div>
                         </div>
                         <div className="p-4 border-t border-slate-200">
-                            <Button type="primary" block onClick={onAssign} loading={isAssigning}
-                                    disabled={selectedProductCount === 0}>
-                                {`تخصیص ${selectedProductCount} محصول`}
+                            <div className="mb-2 text-sm text-gray-600">
+                                {previouslySelectedKeys.size > 0 && (
+                                    <p>تعداد محصولات قبلاً انتخاب شده: {previouslySelectedKeys.size}</p>
+                                )}
+                                <p>تعداد محصولات جدید برای تخصیص: {newProductCount}</p>
+                            </div>
+                            <Button
+                                type="primary"
+                                block
+                                onClick={onAssign}
+                                loading={isAssigning}
+                                disabled={newProductCount === 0}
+                            >
+                                {`تخصیص ${newProductCount} محصول جدید`}
                             </Button>
                         </div>
                     </>
