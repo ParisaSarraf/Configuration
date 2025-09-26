@@ -18,6 +18,8 @@ const RoleSelectionPanel = ({selectedUserId, selectedRoleId, onSelectRole, onDel
         onSelectRole(roleId === selectedRoleId ? null : roleId);
     };
 
+    console.log(assignedRoles);
+
     if (!selectedUserId) {
         return (
             <div className="bg-white rounded-xl shadow-lg border border-slate-200 flex flex-col h-full">
@@ -32,7 +34,8 @@ const RoleSelectionPanel = ({selectedUserId, selectedRoleId, onSelectRole, onDel
     if (isLoadingAssigned || isLoadingUnassigned) {
         return <div
             className="bg-white rounded-xl shadow-lg border border-slate-200 flex justify-center items-center h-full">
-            <Spin/></div>;
+            <Spin/>
+        </div>;
     }
 
     return (

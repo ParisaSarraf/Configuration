@@ -7,20 +7,20 @@ const transformDataForTree = (products) => {
     return products.map(product => ({
         key: product.id,
         title: product.persian_title,
+        has_access: product.has_access,
         children: product.children && product.children.length > 0 ? transformDataForTree(product.children) : [],
     }));
 };
 
-const ProductSelectionPanel = (
-    {
-        selectedUserId,
-        selectedRoleId,
-        onSelectionChange,
-        onAssign,
-        isAssigning,
-        selectedProductCount
-    }) => {
-    const [checkedKeys, setCheckedKeys] = useState([]);
+const ProductSelectionPanel = ({
+                                   selectedUserId,
+                                   selectedRoleId,
+                                   onSelectionChange,
+                                   onAssign,
+                                   isAssigning,
+                                   selectedProductCount
+                               }) => {
+    const [checkedKeys, setCheckedKeys] = useState({checked: [], halfChecked: []});
 
     const {data: products, isLoading, error} = useUnAccessProductsByUserAndRoleId(
         selectedUserId && selectedRoleId ? {user_id: selectedUserId, role_id: selectedRoleId} : null,
@@ -29,14 +29,51 @@ const ProductSelectionPanel = (
 
     const treeData = useMemo(() => transformDataForTree(products), [products]);
 
+    const getAccessibleKeys = (data) => {
+        let accessibleKeys = [];
+        const traverse = (items) => {
+            items.forEach(item => {
+                if (item.has_access) {
+                    accessibleKeys.push(item.key);
+                }
+                if (item.children && item.children.length > 0) {
+                    traverse(item.children);
+                }
+            });
+        };
+
+        traverse(data);
+        return accessibleKeys;
+    };
+
     useEffect(() => {
-        setCheckedKeys([]);
+        setCheckedKeys({checked: [], halfChecked: []});
         onSelectionChange([]);
     }, [selectedUserId, selectedRoleId, onSelectionChange]);
 
-    const handleCheck = (checkedKeysValue) => {
-        setCheckedKeys(checkedKeysValue);
-        onSelectionChange(checkedKeysValue);
+    useEffect(() => {
+        if (treeData && treeData.length > 0) {
+            const accessibleKeys = getAccessibleKeys(treeData);
+            if (accessibleKeys.length > 0) {
+                setCheckedKeys({checked: accessibleKeys, halfChecked: []});
+                onSelectionChange(accessibleKeys);
+            }
+        }
+    }, [treeData, onSelectionChange]);
+
+    const handleCheck = (checkedKeysValue, {checkedNodes, halfCheckedKeys}) => {
+        const onlyCheckedKeys = checkedKeysValue.checked || checkedKeysValue;
+        setCheckedKeys({checked: onlyCheckedKeys, halfChecked: halfCheckedKeys || []});
+        onSelectionChange(onlyCheckedKeys);
+    };
+
+    const renderTitle = (nodeData) => {
+        const hasAccess = nodeData.has_access;
+        return (
+            <span className={hasAccess ? "text-sky-600 font-semibold" : "text-gray-800"}>
+                {nodeData.title}
+            </span>
+        );
     };
 
     if (!selectedUserId || !selectedRoleId) {
@@ -66,13 +103,29 @@ const ProductSelectionPanel = (
                         description="محصول جدیدی برای افزودن یافت نشد."/></div> :
                     <>
                         <div className="p-2 flex-1 overflow-y-auto">
-                            <Tree
-                                checkable
-                                onCheck={handleCheck}
-                                checkedKeys={checkedKeys}
-                                treeData={treeData}
-                                defaultExpandAll={true}
-                            />
+                            <div className="
+                                [&_.ant-tree-checkbox-checked_.ant-tree-checkbox-inner]:bg-sky-500
+                                [&_.ant-tree-checkbox-checked_.ant-tree-checkbox-inner]:border-sky-500
+                                [&_.ant-tree-checkbox-checked]:border-sky-500
+                                [&_.ant-tree-checkbox-checked::after]:border-sky-500
+                                [&_.ant-tree-checkbox:not(.ant-tree-checkbox-checked)_]:border-gray-300
+                                [&_.ant-tree-checkbox:not(.ant-tree-checkbox-checked)_.ant-tree-checkbox-inner]:bg-gray-100
+                                [&_.ant-tree-checkbox:not(.ant-tree-checkbox-checked)_.ant-tree-checkbox-inner]:border-gray-300
+                                [&_.ant-tree-checkbox-wrapper:hover_.ant-tree-checkbox-inner]:border-sky-400
+                                [&_.ant-tree-checkbox:hover_.ant-tree-checkbox-inner]:border-sky-400
+                                [&_.ant-tree-checkbox-wrapper:hover_.ant-tree-checkbox:not(.ant-tree-checkbox-checked)_.ant-tree-checkbox-inner]:bg-sky-50
+                                [&_.ant-tree-checkbox:hover:not(.ant-tree-checkbox-checked)_.ant-tree-checkbox-inner]:bg-sky-50
+                            ">
+                                <Tree
+                                    checkable
+                                    checkStrictly
+                                    onCheck={handleCheck}
+                                    checkedKeys={checkedKeys}
+                                    treeData={treeData}
+                                    defaultExpandAll={false}
+                                    titleRender={renderTitle}
+                                />
+                            </div>
                         </div>
                         <div className="p-4 border-t border-slate-200">
                             <Button type="primary" block onClick={onAssign} loading={isAssigning}
