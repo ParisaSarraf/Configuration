@@ -142,25 +142,27 @@ const Tree = ({
     }
 
     return (
-        <Dropdown
-            menu={{items: rightClickMenuItems, onClick: handleMenuClick}}
-            open={!!rightClickNode}
-            trigger={['contextMenu']}
-        >
-            <DirectoryTree
-                onRightClick={showRightClickMenu ? onRightClick : undefined}
-                treeData={treeData}
-                showLine={showLine}
-                checkable={checkable}
-                onSelect={handleSelect}
-                onCheck={onCheck}
-                checkedKeys={checkedKeys}
-                {...props}
-                loadData={lodalData}
-                className={className}
+        <div>
+            <Dropdown
+                menu={{items: rightClickMenuItems, onClick: handleMenuClick}}
+                open={!!rightClickNode}
+                trigger={['contextMenu']}
+            >
+                <DirectoryTree
+                    onRightClick={showRightClickMenu ? onRightClick : undefined}
+                    treeData={treeData}
+                    showLine={showLine}
+                    checkable={checkable}
+                    onSelect={handleSelect}
+                    onCheck={onCheck}
+                    checkedKeys={checkedKeys}
+                    {...props}
+                    loadData={lodalData}
+                    className={className}
 
-            />
-        </Dropdown>
+                />
+            </Dropdown>
+        </div>
     );
 };
 

@@ -136,6 +136,8 @@ const ProductTree = ({productData, setModal, refetch, isLoading, isError, onChan
     return (
         <div className="p-2">
             <Tree
+                className="custom-product-tree"
+
                 data={treeData}
                 isLoading={isLoading || isDeleting}
                 isError={isError || isDeleting}

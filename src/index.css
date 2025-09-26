@@ -264,3 +264,8 @@ html, body {
     font-size: 2rem;
     margin-bottom: 12px;
 }
+
+/* این کلاس را به کامپوننت Tree پاس می‌دهیم */
+.custom-product-tree .ant-tree-indent-unit {
+    width: 3px !important; /* از مقدار کمتر برای تست استفاده کنید و !important را برای اولویت‌دهی اضافه کنید */
+}

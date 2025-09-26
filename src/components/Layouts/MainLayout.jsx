@@ -28,7 +28,7 @@ const MainLayout = () => {
                     w-72
                     ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}
                     lg:translate-x-0
-                    ${isSidebarOpen ? 'lg:w-80' : 'lg:w-0'}
+                    ${isSidebarOpen ? 'lg:w-96' : 'lg:w-0'}
                 `}
             >
                 <div className="flex-1 overflow-hidden">
