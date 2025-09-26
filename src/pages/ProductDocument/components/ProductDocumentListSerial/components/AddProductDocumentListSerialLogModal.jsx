@@ -27,9 +27,7 @@ const AddProductDocumentListSerialLogModal = (
     const {data: documentList, isLoading} = useAvailableProductEditionList(serialId)
     const {mutateAsync: createProductEditionlog} = useCreateProductEditionlog();
     const {mutateAsync: updateProductEditionlog} = useUpdateProductEditionlog();
-
-    console.log(serialLabel)
-
+    
     useEffect(() => {
         if (serialId) {
             form.setFieldsValue({serialId: serialId});

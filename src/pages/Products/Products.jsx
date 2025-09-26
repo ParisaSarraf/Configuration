@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import {Button} from 'antd';
+import {Button, Spin} from 'antd';
 import {PlusOutlined, ReloadOutlined} from '@ant-design/icons';
 import {useProductList} from "../../QueryServises/productQuery";
 import ProductTree from "./components/ProductTree";
@@ -8,13 +8,9 @@ import {useProductContext} from '../../Services/Context/ProductContext';
 import useModal from '../../hooks/useModal';
 
 const ProductListSkeleton = () => (
-    <div className="space-y-3 mt-4 animate-pulse">
-        {[...Array(5)].map((_, i) => (
-            <div key={i} className="flex items-center space-x-3 space-x-reverse">
-                <div className="h-5 w-5 bg-slate-200 rounded-md"></div>
-                <div className="h-4 bg-slate-200 rounded-md w-3/4"></div>
-            </div>
-        ))}
+    <div className="flex flex-col items-center justify-center h-full text-center text-slate-500">
+        <p className="mb-4">درحال بارگذاری محصولات</p>
+        <Spin/>
     </div>
 );
 

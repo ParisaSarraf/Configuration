@@ -12,14 +12,15 @@ const transformDataForTree = (products) => {
     }));
 };
 
-const ProductSelectionPanel = ({
-                                   selectedUserId,
-                                   selectedRoleId,
-                                   onSelectionChange,
-                                   onAssign,
-                                   isAssigning,
-                                   selectedProductCount
-                               }) => {
+const ProductSelectionPanel = (
+    {
+        selectedUserId,
+        selectedRoleId,
+        onSelectionChange,
+        onAssign,
+        isAssigning,
+        selectedProductCount
+    }) => {
     const [checkedKeys, setCheckedKeys] = useState({checked: [], halfChecked: []});
     const [previouslySelectedKeys, setPreviouslySelectedKeys] = useState(new Set());
 
