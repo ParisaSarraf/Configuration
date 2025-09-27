@@ -3,9 +3,12 @@ import Header from "@/components/Layouts/Header.jsx";
 import MyActivities from "@/pages/MyWork/MyActivities/MyActivities.jsx";
 import MyDocuments from "@/pages/MyWork/MyDocuments/MyDocuments.jsx";
 import MyPlan from "@/pages/MyWork/MyPlan/MyPlan.jsx";
-import {CheckCircleOutlined, FileDoneOutlined, HistoryOutlined} from "@ant-design/icons";
+import {ArrowRightOutlined, CheckCircleOutlined, FileDoneOutlined, HistoryOutlined} from "@ant-design/icons";
+import {Button} from "antd";
+import {useNavigate} from "react-router-dom";
 
 const MyWork = () => {
+    const navigate = useNavigate();
     const items = [
         {
             label: "فعالیت های من",
@@ -42,6 +45,14 @@ const MyWork = () => {
             <div className="p-4 sm:p-6 lg:p-8 max-w-screen-2xl mx-auto">
                 <header className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
                     <div>
+                        <Button
+                        type="text"
+                        icon={<ArrowRightOutlined/>}
+                        onClick={() => navigate("/")}
+                        className="flex items-center text-slate-600 hover:!text-sky-700 mb-4"
+                    >
+                        بازگشت به صفحه اصلی
+                    </Button>
                         <h1 className="text-3xl font-bold text-slate-900">کارتابل شخصی</h1>
                         <p className="mt-2 text-base text-slate-600">
                             فعالیت‌ها، اسناد و کارهای خود را در اینجا مدیریت کنید.
