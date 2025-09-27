@@ -1,4 +1,4 @@
-import {Card, message, Modal, Table} from "antd"
+import {Card, message, Modal, Table, Tabs} from "antd"
 import ContractorModal from "./components/ContractorModal"
 import { useProductContext } from "@/Services/Context/ProductContext.jsx";
 import { useContractorProductList, useDeleteContractorProduct } from "@/QueryServises/ProductContractorQuery/index.js";
@@ -18,9 +18,9 @@ const Contractor = () => {
             okText: 'بله',
             cancelText: 'خیر',
             okType: 'danger',
-             onOk() {
+            onOk() {
                 return new Promise((resolve, reject) => {
-                     deleteContractor(id, {
+                    deleteContractor(id, {
                         onSuccess: () => {
                             message.success("پیمانکار/کارفرما با موفقیت حذف شد");
                             refetch();
@@ -39,22 +39,51 @@ const Contractor = () => {
     const handleEdit = (record) => {
         setModal({ mode: 'edit', data: record })
     }
+
+
+    const employersData = contractorData?.filter(item => item.is_employer === true) || [];
+    const contractorsData = contractorData?.filter(item => item.is_employer === false) || [];
+
+    const tabItems = [
+        {
+            key: 'employers',
+            label: 'کارفرمایان',
+            children: (
+                <Table
+                    dataSource={employersData}
+                    columns={ContractorCols({ handleDelete, handleEdit })}
+                    size="small"
+                />
+            )
+        },
+        {
+            key: 'contractors',
+            label: 'پیمانکاران',
+            children: (
+                <Table
+                    dataSource={contractorsData}
+                    columns={ContractorCols({ handleDelete, handleEdit })}
+                    size="small"
+                />
+            )
+        }
+    ];
+
     return (
         <Card title='کارفرمایان/پیمانکاران'
-            extra={
-                <ContractorModal
-                    currentProduct={currentProduct}
-                    isOpen={isOpen}
-                    modalMode={modalMode}
-                    modalData={modalData}
-                    closeModal={closeModal}
-                    setModal={setModal}
-                    refetch={refetch}
-                />
-            }
+              extra={
+                  <ContractorModal
+                      currentProduct={currentProduct}
+                      isOpen={isOpen}
+                      modalMode={modalMode}
+                      modalData={modalData}
+                      closeModal={closeModal}
+                      setModal={setModal}
+                      refetch={refetch}
+                  />
+              }
         >
-            <Table
-                dataSource={contractorData} columns={ContractorCols({ handleDelete, handleEdit })} size="small" />
+            <Tabs items={tabItems} />
         </Card>
     )
 }
