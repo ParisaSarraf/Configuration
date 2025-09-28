@@ -13,16 +13,14 @@ const DocumentProductModal = ({isOpen, modalMode, modalData, closeModal, setModa
     const {isPending: isUpdating, mutateAsync: updateProductDocument} = useUpdateProductDocument();
     const {data: documentList} = useDocumentList();
 
-
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
                 is_reportable: modalData?.is_reportable,
                 title: modalData?.title,
-                document_id: modalData?.document?.id,
+                document_id: modalData?.document?.code,
                 survey_date: georgianDateToJalaliDate(modalData?.survey_date),
             });
-
         } else if (modalMode === "add") {
             form.resetFields()
             form.setFieldsValue({

@@ -103,6 +103,14 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
         });
     };
 
+    const handleEditDocumentProduct = (productDoc) => {
+        setModal({
+            mode: "edit",
+            data: productDoc,
+            type: "AddDocumentProduct",
+        })
+    }
+
     const transformNode = (node) => {
         const productDoc = node.product_document;
         const editions = productDoc?.edition || [];
@@ -130,6 +138,17 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
                                 }}
                                 title={'حذف سند محصول'}
                                 className="text-red-500 hover:text-red-700"
+                            />
+                            <Button
+                                size={'small'}
+                                type="text"
+                                icon={<EditOutlined />}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEditDocumentProduct(productDoc);
+                                }}
+                                title={'حذف سند محصول'}
+                                className="text-green-500 hover:text-green-700"
                             />
                         </Space>
                     )}
