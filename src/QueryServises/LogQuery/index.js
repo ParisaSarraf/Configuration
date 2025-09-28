@@ -14,6 +14,7 @@ export const useLogList = ({id, model, state, ...queryOptions}) => {
                     queryOptions?.onSuccess?.(response?.data);
                     return response?.data;
                 }),
+        enabled: !!(id && model && state),
         ...queryOptions,
     });
 };
