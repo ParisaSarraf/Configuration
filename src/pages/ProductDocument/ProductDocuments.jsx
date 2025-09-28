@@ -17,6 +17,7 @@ import DetailModal from "@/components/DetailModal/DetailModal.jsx";
 import AutomationFileModal from "@/pages/ProductDocument/components/AutomationFileModal/AutomationFileModal.jsx";
 import ProductDocumentEditionFiles
     from "@/pages/ProductDocument/components/ProductDocumentEditionFiles/ProductDocumentEditionFiles.jsx";
+import CombineFiles from "@/pages/ProductDocument/components/CombineFiles/CombineFiles.jsx";
 
 const ProductDocuments = () => {
     const {currentProduct} = useProductContext();
@@ -122,7 +123,15 @@ const ProductDocuments = () => {
                     modalType={modalType}
                 />
 
-                <AutomationFileModal
+                {/*<AutomationFileModal*/}
+                {/*    isOpen={modalType === 'AutomationFiles' && isOpen}*/}
+                {/*    modalData={modalData}*/}
+                {/*    modalMode={modalMode}*/}
+                {/*    modalType={modalType}*/}
+                {/*    closeModal={closeModal}*/}
+                {/*/>*/}
+
+                <CombineFiles
                     isOpen={modalType === 'AutomationFiles' && isOpen}
                     modalData={modalData}
                     modalMode={modalMode}
