@@ -1,5 +1,5 @@
 import {useMutation, useQuery} from "@tanstack/react-query";
-import {useMyAxios} from "../../hooks/useMyAxios";
+import {useMyAxios} from "@/hooks/useMyAxios.js";
 
 export const useProductKey = ["lists", "product"];
 export const useProductList = (queryOptions) => {
@@ -110,18 +110,37 @@ export const useUpdateProduct = () => {
 };
 
 export const useUpdateProductInfo = () => {
-    const {myAxios} = useMyAxios();
+    const { myAxios } = useMyAxios();
     return useMutation({
-        mutationFn: ({productId, ...ProductInfoData}) => {
+        mutationFn: ({ productId, ...ProductInfoData }) => {
+            const formData = new FormData();
+            Object.keys(ProductInfoData).forEach(key => {
+                const value = ProductInfoData[key];
+                if (value === null) {
+                    formData.append(key, 'null');
+                } else if (value instanceof File) {
+                    formData.append(key, value);
+                } else {
+                    formData.append(key, value ?? '');
+                }
+            });
+            for (let [key, value] of formData.entries()) {
+                console.log(key, value);
+            }
             return myAxios
-                .patch(`/product/patch-user-info/${productId}/`, ProductInfoData, {
-                        headers: {
-                            "Content-Type": "multipart/form-data",
-                        },
-                    }
-                ).then((response) => {
+                .patch(`/product/patch-user-info/${productId}/`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                })
+                .then((response) => {
+                    console.log('Response:', response.data);
                     return response?.data;
                 })
+                .catch((error) => {
+                    console.error('API Error:', error.response?.data);
+                    throw error;
+                });
         },
     });
 };
