@@ -2,7 +2,6 @@ import {
     DeleteOutlined,
     EditOutlined,
     EyeOutlined,
-    FileAddOutlined,
     FileDoneOutlined,
     PlusOutlined
 } from "@ant-design/icons";
@@ -72,10 +71,6 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
 
     const handleAutomationFiles = (edition) => {
         setModal({mode: 'add', data: edition, type: "AutomationFiles"});
-    }
-
-    const handleProductDocumentEditionsFile = (edition) => {
-        setModal({mode: 'edit', data: edition, type: "ProductDocumentEditionsFile"});
     }
 
     const handleDeleteProductDocument = (productDocumentId) => {
@@ -203,17 +198,6 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
                                 }}
                                 title={'حذف'}
                                 className="text-red-500 hover:text-red-700"
-                            />
-                            <Button
-                                size={'small'}
-                                type="text"
-                                icon={<FileAddOutlined/>}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleProductDocumentEditionsFile(edition);
-                                }}
-                                title={'افزودن فایل'}
-                                className="text-lime-500 hover:text-lime-700"
                             />
                             <Button
                                 size={'small'}

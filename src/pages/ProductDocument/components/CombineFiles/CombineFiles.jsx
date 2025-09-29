@@ -45,7 +45,7 @@ const CombineFiles = (
     }, [modalData]);
 
     useEffect(() => {
-        if (modalMode === "edit" && modalData) {
+        if (modalData) {
             form.setFieldsValue({
                 edition: modalData?.edition,
                 file_1: modalData.file_1 ? [{
@@ -95,6 +95,7 @@ const CombineFiles = (
             refetch();
             closeModal();
         } catch (error) {
+            console.log(error)
             const errorMessage =
                 error.response?.data?.detail ||
                 "عملیات موفقیت آمیز نبود، دوباره امتحان کنید";
@@ -174,26 +175,6 @@ const CombineFiles = (
         );
     };
 
-
-    const renderFooter = () => {
-        if (modalMode !== "edit") return null;
-        return (
-            <div className="flex justify-end gap-2">
-                <Button onClick={closeModal}>
-                    انصراف
-                </Button>
-                <Button
-                    type="primary"
-                    onClick={() => form.submit()}
-                    loading={isUpdating}
-                    disabled={isUpdating}
-                >
-                    {isUpdating ? "در حال ذخیره..." : "ذخیره فایل‌ها"}
-                </Button>
-            </div>
-        );
-    };
-
     return (
         <Modal
             isOpen={isOpen}
@@ -202,12 +183,11 @@ const CombineFiles = (
             onClose={closeModal}
             onSubmit={() => form.submit()}
             mode={modalMode}
+            footer
             loading={isUpdating || isPatching}
-            // footer={renderFooter()} // استفاده از footer سفارشی
         >
             <Form form={form} layout="vertical" onFinish={onFinishForm}>
-                {/* بخش اول: آپلود فایل‌ها */}
-                <Card title="مدیریت فایل‌ها" style={{marginBottom: 16}}>
+               <Card title="مدیریت فایل‌ها" style={{marginBottom: 16}}>
                     <Row gutter={16}>
                         <Col span={6}>
                             <Form.Item label={'فایل غیرقابل ویرایش'} name='file_1'>
@@ -230,10 +210,23 @@ const CombineFiles = (
                             </Form.Item>
                         </Col>
                     </Row>
-                    {renderFooter()}
+
+                        <div className="flex justify-end gap-2 mt-4 pt-4 border-t">
+                            <Button onClick={closeModal}>
+                                انصراف
+                            </Button>
+                            <Button
+                                type="primary"
+                                onClick={() => form.submit()}
+                                loading={isUpdating}
+                                disabled={isUpdating}
+                            >
+                                {isUpdating ? "در حال ذخیره..." : "ذخیره فایل‌ها"}
+                            </Button>
+                        </div>
+
                 </Card>
 
-                {/* بخش دوم: نمایش فایل‌ها و روال */}
                 <Card title="روال اسناد">
                     <Row gutter={[16, 16]}>
                         <Col span={24}>{renderFiles()}</Col>
