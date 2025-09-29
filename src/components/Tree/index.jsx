@@ -17,7 +17,7 @@ const Tree = ({
                   checkable = true,
                   className,
                   onNodeClick,
-                  lodalData,
+                  loadData,
                   showRightClickMenu = true,
                   rightClickMenuItems = [
                       {key: "edit", label: "ویرایش"},
@@ -38,6 +38,7 @@ const Tree = ({
               }) => {
     const [rightClickNode, setRightClickNode] = useState(null);
     const [dropdownPosition, setDropdownPosition] = useState({x: 0, y: 0});
+    const [expandedKeys, setExpandedKeys] = useState([]); // اضافه کردن state برای expanded keys
 
     const handleSelect = (selectedKeys, info) => {
         onSelect(selectedKeys, info);
@@ -48,6 +49,10 @@ const Tree = ({
 
     const onCheck = (checkedKeys, info) => {
         onChange && onChange(checkedKeys);
+    };
+
+    const onExpand = (expandedKeysValue) => {
+        setExpandedKeys(expandedKeysValue);
     };
 
     const onRightClick = ({event, node}) => {
@@ -73,6 +78,13 @@ const Tree = ({
         setRightClickNode(null);
     };
 
+    const handleCloseContextMenu = (e) => {
+        if (!e.target.closest('.ant-tree-node-content-wrapper') &&
+            !e.target.closest('.ant-tree-switcher')) {
+            setRightClickNode(null);
+        }
+    };
+
     const menu = (
         <Menu onClick={handleMenuClick}>
             {rightClickMenuItems.map((item) => (
@@ -87,18 +99,9 @@ const Tree = ({
         return data.map((item) => ({
             title: item[titleField],
             label: (
-                // <div style={{ paddingLeft: `${level * 16}px`, display: 'flex', alignItems: 'center' }}>
-                //   {item[childrenField]?.length > 0 ? (
-                //     <FolderOutlined style={{ marginLeft: 8 }} />
-                //   ) : (
-                //     <FileOutlined style={{ marginLeft: 8 }} />
-                //   )}
-                //   <span style={{ marginRight: 4 }}>
                 <div>
                     {item[titleField]}
                 </div>
-                // </span>
-                // </div>
             ),
             value: item[keyField],
             key: item[keyField],
@@ -128,7 +131,6 @@ const Tree = ({
                     overflow: 'auto',
                     padding: '8px 0'
                 }}
-                treeIcon={treeIcon}
                 className={className}
                 treeNodeLabelProp="label"
                 treeLine={{
@@ -142,25 +144,33 @@ const Tree = ({
     }
 
     return (
-        <div>
+        <div onClick={handleCloseContextMenu} style={{width: '100%', height: '100%'}}>
             <Dropdown
-                menu={{items: rightClickMenuItems, onClick: handleMenuClick}}
+                overlay={menu}
                 open={!!rightClickNode}
                 trigger={['contextMenu']}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setRightClickNode(null);
+                    }
+                }}
             >
-                <DirectoryTree
-                    onRightClick={showRightClickMenu ? onRightClick : undefined}
-                    treeData={treeData}
-                    showLine={showLine}
-                    checkable={checkable}
-                    onSelect={handleSelect}
-                    onCheck={onCheck}
-                    checkedKeys={checkedKeys}
-                    {...props}
-                    loadData={lodalData}
-                    className={className}
-
-                />
+                <div style={{width: '100%', height: '100%'}}>
+                    <DirectoryTree
+                        onRightClick={showRightClickMenu ? onRightClick : undefined}
+                        treeData={treeData}
+                        showLine={showLine}
+                        checkable={checkable}
+                        onSelect={handleSelect}
+                        onCheck={onCheck}
+                        onExpand={onExpand}
+                        expandedKeys={expandedKeys}
+                        checkedKeys={checkedKeys}
+                        {...props}
+                        loadData={loadData}
+                        className={className}
+                    />
+                </div>
             </Dropdown>
         </div>
     );
