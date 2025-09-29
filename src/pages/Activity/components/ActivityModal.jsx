@@ -138,7 +138,6 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
                             isRequired name={'from_date'}  label='تاریخ شروع'/>
                     </Col>
                     <Col span={12}>
-
                             <Date
                                 stringifyDate={true}
                                 noStyle

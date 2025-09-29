@@ -1,11 +1,13 @@
 import Modal from "@/components/Modal/index.jsx";
 import {Col, Form, Row, Select, Input, message} from "antd";
-import DatepickerCustom from "@/components/DatePicker/index.jsx";
 import FileUploader from "@/components/FileUploader/FileUploader.jsx";
 import {useCreateMeeting, useUpdateMeeting} from "@/QueryServises/MeetingQuery/index.js";
 import {useEffect} from "react";
 import {BASEURL} from "@/Services/axiosInstance.js";
 import {useContractorProductList} from "../../../QueryServises/ProductContractorQuery";
+import Date from "@/components/DatePicker/Date.jsx";
+import {georgianDateToJalaliDate, jalaliDateToGeorgianDate} from "@utils/timeTool.jsx";
+
 
 const MeetingsModal = ({
                            isOpen,
@@ -26,7 +28,7 @@ const MeetingsModal = ({
                 type: modalData?.type || '',
                 title: modalData?.title || '',
                 contractor_id: modalData?.contractor_id || undefined,
-                date: modalData?.date || null,
+                date: georgianDateToJalaliDate(modalData?.date),
                 file: modalData?.file
                     ? [
                         {
@@ -47,13 +49,12 @@ const MeetingsModal = ({
             message.error("Product information is missing");
             return;
         }
-
         const payload = {
             product_id: currentProduct.id,
             contractor_id: values.contractor_id,
             type: values.type,
             title: values.title,
-            date: values.date,
+            date: jalaliDateToGeorgianDate(values.date),
             file: values.file?.[0]?.originFileObj,
         };
 
@@ -127,13 +128,13 @@ const MeetingsModal = ({
                         </Form.Item>
                     </Col>
                     <Col span={24}>
-                        <Form.Item
+                        <Date
+                            stringifyDate={true}
+                            noStyle
+                            isRequired
                             label='تاریخ'
                             name='date'
-                            initialValue={modalMode === 'edit' ? modalData?.date : undefined}
-                        >
-                            <DatepickerCustom/>
-                        </Form.Item>
+                       />
                     </Col>
                     <Col span={24}>
                         <Form.Item
