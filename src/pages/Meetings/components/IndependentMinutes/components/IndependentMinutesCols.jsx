@@ -1,6 +1,7 @@
-import {Button, Flex, Tooltip, Space, Image} from "antd";
+import {Button, Flex, Tooltip, Space, Image ,Tag} from "antd";
 import {DeleteOutlined, EditOutlined, EyeOutlined, PlusOutlined} from "@ant-design/icons";
 import {BASEURL} from "@/Services/axiosInstance.js";
+import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
 
 export const IndependentMinutesCols = ({handleEdit, handleDelete, handleShowDetail, handleAddActivities}) => {
     return [
@@ -26,17 +27,37 @@ export const IndependentMinutesCols = ({handleEdit, handleDelete, handleShowDeta
         {
             title: 'طرف صورتجلسه',
             key: 'contractor',
-            render: (_, record) => record.contractor?.name,
+            render: (_, record) => {
+                if (record.type === 'company') {
+                    return 'گروه مهندسی صادق یکتا';
+                }
+                return record.contractor?.name;
+            },
         },
         {
             title: 'نوع',
             dataIndex: 'type',
             key: 'type',
+            render: (type) => {
+                if (type === 'company') {
+                    return <Tag color="blue">شرکت</Tag>;
+                } else if (type === 'employer') {
+                    return <Tag color="green">کارفرما</Tag>;
+                } else if (type === 'contractor') {
+                    return <Tag color="orange">پیمانکار</Tag>;
+                }
+                return <Tag>{type}</Tag>;
+            }
         },
         {
             title: 'تاریخ جلسه',
             dataIndex: 'date',
             key: 'date',
+            render: (date) => {
+                return (
+                    georgianDateToJalaliDate(date)
+                )
+            }
         },
         {
             title: 'فایل پیوست',

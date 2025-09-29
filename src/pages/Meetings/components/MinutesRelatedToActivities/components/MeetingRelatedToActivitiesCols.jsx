@@ -107,7 +107,7 @@ export const MeetingRelatedToActivitiesCols = () => {
                 const stateInfo = getStateInfo(record.meeting_activities?.[0]?.state);
 
                 return (
-                    <Badge status={stateInfo.status} text={stateInfo.label}/>
+                    <Badge status={stateInfo.status} className={'animate-pulse'} text={stateInfo.label}/>
                 )
             },
         },

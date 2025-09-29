@@ -109,6 +109,7 @@ const MeetingsModal = ({
                             initialValue={modalMode === 'edit' ? modalData?.contractor_id : undefined}
                         >
                             <Select
+                                allowClear={true}
                                 options={contractorData?.map(item => ({
                                     label: item.name,
                                     value: item.id
