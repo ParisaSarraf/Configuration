@@ -28,8 +28,6 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
 
     const parentCodeId = parentCodeData?.code || "";
 
-    console.log(modalData);
-
 
     useEffect(() => {
         if (!isOpen) return;

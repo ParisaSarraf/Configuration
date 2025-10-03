@@ -1,0 +1,23 @@
+import { useQuery } from "@tanstack/react-query";
+import { useMyAxios } from "@/hooks/useMyAxios.js";
+
+export const useExportExcelProductPurchase = (id, queryOptions) => {
+    const { myAxios } = useMyAxios();
+    return useQuery({
+        queryKey: ["confirmed-product", id],
+        queryFn: () =>
+            id
+                ? myAxios
+                    .get(`/product/get-confirmed-product-purchases-list-csv-by-id/${id}`, {
+                        responseType: 'blob'
+                    })
+                    .then((response) => {
+                        const blob = new Blob([response.data], { type: 'text/csv;charset=utf-8;' });
+                        return window.URL.createObjectURL(blob);
+                    })
+
+                : Promise.resolve(null),
+        ...queryOptions,
+        enabled: !!id,
+    });
+};
