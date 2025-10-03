@@ -3,7 +3,7 @@ import { useConfirmProductPurchaseById, useDeleteProductPurchase } from "@/Query
 import ListOfRequestsMadeCol from "./ListOfRequestsMadeCol";
 import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
 import { useExportExcelProductPurchase } from "../../../../QueryServises/ExcelExporterQuery";
-import { useState, useEffect } from "react"; 
+import { useState, useEffect } from "react";
 
 const ListOfRequestsMade = ({ currentProduct, refetch }) => {
     const { data: purchaseData, refetch: purchaseDataRefetch } = useConfirmProductPurchaseById(currentProduct?.id);
@@ -11,11 +11,11 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
     const [exportExcelData, setExportExcelData] = useState(null);
     const { data: exportExcel } = useExportExcelProductPurchase(exportExcelData);
 
-useEffect(() => {
-    if (exportExcel && exportExcelData) {
-        handleDownload(exportExcel, `purchase_list_${exportExcelData}.csv`);
-    }
-}, [exportExcel, exportExcelData]);
+    useEffect(() => {
+        if (exportExcel && exportExcelData) {
+            handleDownload(exportExcel, `purchase_list_${exportExcelData}.csv`);
+        }
+    }, [exportExcel, exportExcelData]);
 
 
     const expandedRowRender = (record) => {
@@ -91,25 +91,25 @@ useEffect(() => {
         console.log(record);
     }
 
-const handleDownload = (blobUrl, fileName) => {
-    try {
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(() => {
-            window.URL.revokeObjectURL(blobUrl);
-        }, 100);
+    const handleDownload = (blobUrl, fileName) => {
+        try {
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => {
+                window.URL.revokeObjectURL(blobUrl);
+            }, 100);
 
-        message.success("فایل با موفقیت دانلود شد");
-        setExportExcelData(null);
-    } catch (error) {
-        message.error("دانلود فایل با خطا مواجه شد");
-        console.error('Download error:', error);
-    }
-};
+            message.success("فایل با موفقیت دانلود شد");
+            setExportExcelData(null);
+        } catch (error) {
+            message.error("دانلود فایل با خطا مواجه شد");
+            console.error('Download error:', error);
+        }
+    };
 
 
     const handleExcelExportForRow = async (record) => {

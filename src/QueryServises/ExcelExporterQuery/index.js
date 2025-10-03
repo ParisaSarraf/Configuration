@@ -15,7 +15,6 @@ export const useExportExcelProductPurchase = (id, queryOptions) => {
                         const blob = new Blob([response.data], { type: 'text/csv;charset=utf-8;' });
                         return window.URL.createObjectURL(blob);
                     })
-
                 : Promise.resolve(null),
         ...queryOptions,
         enabled: !!id,
