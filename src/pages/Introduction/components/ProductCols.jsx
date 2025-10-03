@@ -1,6 +1,6 @@
-import {Typography} from 'antd';
+import { Typography } from 'antd';
 
-const {Text} = Typography;
+const { Text } = Typography;
 
 
 const ProductCols = () => {
@@ -26,11 +26,6 @@ const ProductCols = () => {
             title: 'کد استاندارد',
             dataIndex: ['standard_code', 'name'],
             key: 'standard_code',
-            // render: (record) => {
-            //     return (
-            //         <Space>{record}</Space>
-            //     )
-            // }
         },
         {
             title: 'تعداد',
@@ -39,6 +34,11 @@ const ProductCols = () => {
         },
         {
             title: 'کد کالا',
+            dataIndex: 'warehouse_code',
+            key: 'warehouse_code',
+        },
+        {
+            title: 'موجودی انبار',
             dataIndex: 'warehouse_code',
             key: 'warehouse_code',
         },

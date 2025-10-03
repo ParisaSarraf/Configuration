@@ -1,18 +1,19 @@
-import {TreeSelect} from "antd";
-import {useState} from "react";
+import { TreeSelect } from "antd";
+import { useState } from "react";
 
 const TS = ({
-                data,
-                placeholder = "لطفا انتخاب کنید",
-                allowClear = true,
-                treeIcon = true,
-                treeLine = true,
-                showSearch = true,
-                modalMode,
-                modalData,
-                value,
-                onChange
-            }) => {
+    data,
+    placeholder = "لطفا انتخاب کنید",
+    allowClear = true,
+    treeIcon = true,
+    treeLine = true,
+    showSearch = true,
+    modalMode,
+    modalData,
+    value,
+    labelInValue = false,
+    onChange
+}) => {
     const [searchValue, setSearchValue] = useState('');
 
     const getTreeSelectOptions = (items) => {
@@ -55,6 +56,7 @@ const TS = ({
             placeholder={placeholder}
             allowClear={allowClear}
             treeIcon={treeIcon}
+            labelInValue={labelInValue}
             treeLine={treeLine}
             showSearch={showSearch}
             searchValue={searchValue}
