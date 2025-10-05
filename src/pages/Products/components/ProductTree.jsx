@@ -9,12 +9,16 @@ import {exportToExcel} from "@utils/ExportExcel.js";
 const ProductTree = ({productData, setModal, refetch, isLoading, isError, onChange, selectedKeys, onProductClick}) => {
     const {mutate: deleteProduct, isLoading: isDeleting} = useDeleteProduct();
 
+    const primaryTextColor = 'text-white';
+    const neonColor = 'text-Neon-Primary';
+    const secondaryTextColor = 'text-dark-text-secondary';
+
     const rightClickMenuItems = [
         {
             key: "edit",
             label: (
-                <div className="w-full flex flex-row items-center gap-2">
-                    <EditOutlined/>
+                <div className={`w-full flex flex-row items-center gap-2 ${secondaryTextColor}`}>
+                    <EditOutlined className={neonColor}/>
                     <span>ویرایش شاخه</span>
                 </div>
             )
@@ -22,8 +26,8 @@ const ProductTree = ({productData, setModal, refetch, isLoading, isError, onChan
         {
             key: "delete",
             label: (
-                <div className="w-full flex flex-row items-center gap-2">
-                    <DeleteOutlined/>
+                <div className="w-full flex flex-row items-center gap-2 text-red-500">
+                    <DeleteOutlined className="text-red-500"/>
                     <span>حذف شاخه</span>
                 </div>
             ),
@@ -32,8 +36,8 @@ const ProductTree = ({productData, setModal, refetch, isLoading, isError, onChan
         {
             key: "addToParent",
             label: (
-                <div className="w-full flex flex-row items-center gap-2">
-                    <PlusOutlined/>
+                <div className={`w-full flex flex-row items-center gap-2 ${secondaryTextColor}`}>
+                    <PlusOutlined className={neonColor}/>
                     <span>افزودن زیرشاخه</span>
                 </div>
             )
@@ -41,8 +45,8 @@ const ProductTree = ({productData, setModal, refetch, isLoading, isError, onChan
         {
             key: "exportExcel",
             label: (
-                <div className="w-full flex flex-row items-center gap-2">
-                    <FileExcelOutlined/>
+                <div className={`w-full flex flex-row items-center gap-2 ${secondaryTextColor}`}>
+                    <FileExcelOutlined className={neonColor}/>
                     <span>خروجی اکسل</span>
                 </div>
             )
@@ -61,8 +65,9 @@ const ProductTree = ({productData, setModal, refetch, isLoading, isError, onChan
                                 item.status === 'inactive' ? 'error' :
                                     'warning'
                         }
+                        className="text-xs ml-1"
                     />
-                    <span>{item.persian_title} ({item.final_code || item.code})</span>
+                    <span className={primaryTextColor}>{item.persian_title} ({item.final_code || item.code})</span>
                 </div>
             ),
             key: `product-${item.id}`,
@@ -134,10 +139,9 @@ const ProductTree = ({productData, setModal, refetch, isLoading, isError, onChan
         }
     }
     return (
-        <div className="p-2">
+        <div>
             <Tree
-                className="custom-product-tree"
-
+                // className="custom-product-tree"
                 data={treeData}
                 isLoading={isLoading || isDeleting}
                 isError={isError || isDeleting}

@@ -15,148 +15,123 @@ import {
     CheckSquareOutlined,
     FileTextOutlined,
     GlobalOutlined,
+    SettingOutlined,
     SyncOutlined,
     TagsOutlined,
     TeamOutlined,
-    UserOutlined
+    UserOutlined,
 } from '@ant-design/icons';
 
 const Setting = () => {
     const navigate = useNavigate();
+    const [activeKey, setActiveKey] = useState('1');
+    const [isRadialMenuOpen, setIsRadialMenuOpen] = useState(false);
+
+    const neonColor = 'text-Neon-Primary';
+    const primaryTextColor = 'text-white';
+    const secondaryTextColor = 'text-white';
+
+    const RADIAL_DISTANCE = 100;
+
+    const calculateRadialPosition = (index, totalItems, distance) => {
+        const startAngle = 60;
+        const endAngle = -150;
+        const angle = startAngle + (index / (totalItems - 1)) * (endAngle - startAngle);
+
+        const radians = angle * (Math.PI / 260);
+
+        const x = distance * Math.cos(radians);
+        const y = distance * Math.sin(radians);
+
+        return {
+            transform: `translate(${x}px, ${-y}px)`,
+        };
+    };
+
 
     const settingItems = [
-        {
-            label: "پوشش",
-            key: '1',
-            icon: <TagsOutlined/>,
-            children: <Casing/>,
-            colorScheme: {
-                active: 'bg-teal-50 text-teal-700 font-semibold',
-                inactive: 'text-slate-600 hover:bg-teal-50 hover:text-teal-700'
-            }
-        },
-        {
-            label: `هویت`,
-            key: '2',
-            icon: <UserOutlined/>,
-            children: <Personality/>,
-            colorScheme: {
-                active: 'bg-sky-50 text-sky-700 font-semibold',
-                inactive: 'text-slate-600 hover:bg-sky-50 hover:text-sky-700'
-            }
-        },
-        {
-            label: `جنس`,
-            key: '3',
-            icon: <AppstoreOutlined/>,
-            children: <Genus/>,
-            colorScheme: {
-                active: 'bg-violet-50 text-violet-700 font-semibold',
-                inactive: 'text-slate-600 hover:bg-violet-50 hover:text-violet-700'
-            }
-        },
-        {
-            label: `چرخه عمر`,
-            key: '5',
-            icon: <SyncOutlined/>,
-            children: <LifeCycle/>,
-            colorScheme: {
-                active: 'bg-amber-50 text-amber-700 font-semibold',
-                inactive: 'text-slate-600 hover:bg-amber-50 hover:text-amber-700'
-            }
-        },   {
-            label: `حوزه`,
-            key: '4',
-            icon: <GlobalOutlined/>,
-            children: <Precinct/>,
-            colorScheme: {
-                active: 'bg-emerald-50 text-emerald-700 font-semibold',
-                inactive: 'text-slate-600 hover:bg-emerald-50 hover:text-emerald-700'
-            }
-        },
-
-        {
-            label: `اسناد و مدارک`,
-            key: '6',
-            icon: <FileTextOutlined/>,
-            children: <Documents/>,
-            colorScheme: {
-                active: 'bg-rose-50 text-rose-700 font-semibold',
-                inactive: 'text-slate-600 hover:bg-rose-50 hover:text-rose-700'
-            }
-        },
-        {
-            label: `الزامات`,
-            key: '7',
-            icon: <CheckSquareOutlined/>,
-            children: <Requirement/>,
-            colorScheme: {
-                active: 'bg-lime-50 text-lime-700 font-semibold',
-                inactive: 'text-slate-600 hover:bg-lime-50 hover:text-lime-700'
-            }
-        },
-        {
-            label: `پیمانکاران/کارفرمایان`,
-            key: '8',
-            icon: <TeamOutlined/>,
-            children: <Contractor/>,
-            colorScheme: {
-                active: 'bg-cyan-50 text-cyan-700 font-semibold',
-                inactive: 'text-slate-600 hover:bg-cyan-50 hover:text-cyan-700'
-            }
-        },
+        {label: "پوشش", key: '1', icon: <TagsOutlined/>, children: <Casing/>, color: 'text-rose-400'},
+        {label: `هویت`, key: '2', icon: <UserOutlined/>, children: <Personality/>, color: 'text-sky-400'},
+        {label: `جنس`, key: '3', icon: <AppstoreOutlined/>, children: <Genus/>, color: 'text-violet-400'},
+        {label: `حوزه`, key: '4', icon: <GlobalOutlined/>, children: <Precinct/>, color: 'text-emerald-400'},
+        {label: `چرخه عمر`, key: '5', icon: <SyncOutlined/>, children: <LifeCycle/>, color: 'text-amber-400'},
+        {label: `اسناد`, key: '6', icon: <FileTextOutlined/>, children: <Documents/>, color: 'text-pink-400'},
+        {label: `الزامات`, key: '7', icon: <CheckSquareOutlined/>, children: <Requirement/>, color: 'text-lime-400'},
+        {label: `پیمانکاران`, key: '8', icon: <TeamOutlined/>, children: <Contractor/>, color: 'text-cyan-400'},
     ];
 
-    const [activeKey, setActiveKey] = useState(settingItems[0].key);
     const activeComponent = settingItems.find(item => item.key === activeKey)?.children;
 
+    const handleItemClick = (key) => {
+        setActiveKey(key);
+        setIsRadialMenuOpen(false);
+    };
+
     return (
-        <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8" dir="rtl">
-            <div className="max-w-screen-2xl mx-auto">
+        <div className="min-h-screen bg-dark-primary p-4 sm:p-6 lg:p-8" dir="rtl">
+            <div className="max-w-screen-3xl mx-auto">
                 <header className="mb-8">
                     <Button
                         type="text"
-                        icon={<ArrowRightOutlined/>}
+                        icon={<ArrowRightOutlined className={neonColor}/>}
                         onClick={() => navigate("/")}
-                        className="flex items-center text-slate-600 hover:!text-sky-700 mb-4"
+                        className={`flex items-center ${secondaryTextColor} hover:!text-Neon-Primary mb-4`}
                     >
                         بازگشت به صفحه اصلی
                     </Button>
                     <div>
-                        <h1 className="text-3xl font-bold text-slate-900">تنظیمات داده‌های پایه</h1>
-                        <p className="mt-2 text-base text-slate-600">
-                            در این بخش می‌توانید اطلاعات پایه‌ای و تنظیمات کلی سیستم را مدیریت کنید.
-                        </p>
+                        <h1 className={`p-4 text-3xl font-bold ${primaryTextColor}`}>تنظیمات</h1>
+
                     </div>
                 </header>
 
-                <main className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-8">
-                    <div className="md:col-span-1 bg-white rounded-xl shadow-lg border border-slate-200 p-4 h-fit">
-                        <ul className="space-y-1">
-                            {settingItems.map(item => (
-                                <li key={item.key}>
-                                    <button
-                                        onClick={() => setActiveKey(item.key)}
-                                        className={`w-full flex items-center gap-3 p-3 rounded-lg text-right transition-colors duration-200 ${
-                                            activeKey === item.key
-                                                ? item.colorScheme.active
-                                                : item.colorScheme.inactive
-                                        }`}
-                                    >
-                                        <span className="text-lg">{item.icon}</span>
-                                        <span>{item.label}</span>
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                <main className="relative">
 
                     <div
-                        className="md:col-span-3 lg:col-span-4 bg-white rounded-xl shadow-lg border border-slate-200 min-h-[60vh]">
+                        className="AeroBox rounded-2xl min-h-[60vh] border-b-0"
+                    >
                         <div className="p-6">
                             {activeComponent}
                         </div>
                     </div>
+
+                    <div className="fixed top-20 left-8 z-50">
+                        {settingItems.map((item, index) => {
+                            const totalItems = settingItems.length;
+                            const position = calculateRadialPosition(index, totalItems, RADIAL_DISTANCE);
+
+                            return (
+                                <button
+                                    key={item.key}
+                                    onClick={() => handleItemClick(item.key)}
+                                    className={`
+                                        absolute w-12 h-12 rounded-full AeroBox flex items-center justify-center text-xl 
+                                        transition-all duration-300 shadow-xl 
+                                        ${item.color} ${activeKey === item.key ? 'bg-Neon-Primary/30 border-Neon-Primary' : 'border-transparent'}
+                                        ${isRadialMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-0 pointer-events-none'}
+                                    `}
+                                    style={{
+                                        top: '0px',
+                                        left: '0px',
+                                        transform: isRadialMenuOpen ? position.transform : 'translate(0, 0)',
+                                        transitionDelay: `${index * 0.05}s`,
+                                    }}
+                                    title={item.label}
+                                >
+                                    {item.icon}
+                                </button>
+                            );
+                        })}
+
+                        <button
+                            onClick={() => setIsRadialMenuOpen(!isRadialMenuOpen)}
+                            className="relative w-14 h-14 rounded-full NeonButton flex items-center justify-center text-2xl z-50 shadow-2xl hover:scale-105"
+                            title="تنظیمات"
+                        >
+                            <SettingOutlined/>
+                        </button>
+                    </div>
+
                 </main>
             </div>
         </div>

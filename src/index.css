@@ -19,12 +19,14 @@
 }
 
 @layer components {
+    /* --- تنظیمات عمومی Ant Design در Dark Mode --- */
     .dark .ant-menu-dark {
-        @apply bg-dark-secondary;
+        @apply bg-dark-primary;
     }
 
     .dark .ant-menu-dark .ant-menu-item-selected {
-        @apply bg-dark-accent/20 text-dark-accent;
+        @apply bg-dark-secondary/40 text-dark-accent;
+        border-right: 3px solid theme('colors.Neon.Primary');
     }
 
     .dark .ant-switch-checked {
@@ -35,20 +37,18 @@
         @apply bg-dark-primary border-b border-dark-secondary;
     }
 
+    /* متن زیرمنوها: سفید خالص */
+    .dark .ant-menu-submenu-title,
+    .dark .ant-menu-submenu .ant-menu-submenu-inline .ant-menu-submenu-open {
+        @apply text-white;
+    }
+
     .ant-menu-item {
         @apply transition-colors duration-200;
     }
 
     .ant-switch {
         @apply transition-all duration-200;
-    }
-
-    .dark .ant-menu-submenu-title {
-        @apply text-white;
-    }
-
-    .dark .ant-menu-submenu .ant-menu-submenu-inline .ant-menu-submenu-open {
-        @apply text-white;
     }
 }
 
@@ -57,58 +57,53 @@ html, body {
 }
 
 @layer utilities {
+    /* --- Scrollbar Hiding Customization --- */
+    /* WebKit (Chrome, Safari) */
     ::-webkit-scrollbar {
-        width: 2px;
-        height: 8px;
+        width: 0px;
+        height: 0px;
     }
 
     ::-webkit-scrollbar-track {
-        @apply bg-blue-700 dark:bg-dark-secondary;
-        border-radius: 4px;
+        background: transparent;
     }
 
     ::-webkit-scrollbar-thumb {
-        @apply bg-blue-700 dark:bg-dark-accent;
-        border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-        @apply bg-blue-700 dark:bg-dark-accent/80;
+        background: transparent;
     }
 
     /* Firefox */
     html {
-        scrollbar-width: thin;
-        scrollbar-color: #0171a5 #f1f1f1;
+        scrollbar-width: none;
     }
 
     .dark html {
-        scrollbar-color: #666 #333;
+        scrollbar-color: theme('colors.Neon.Primary') theme('colors.dark.secondary');
     }
 }
 
-/* ---------- Tree Customization ---------- */
+/* ---------- Tree Customization (متن سفید) ---------- */
 .custom-tree .ant-tree-treenode:hover:focus {
     padding: 1px;
-    color: black;
+    color: theme('colors.Neon.Primary');
 }
 
 .custom-tree .ant-tree-node-content-wrapper.ant-tree-node-selected {
-    color: black !important;
+    color: theme('colors.dark.text.primary') !important; /* از کلاس تعریف شده (که باید سفید باشد) استفاده می‌کنیم */
 }
 
 .custom-tree .ant-tree-node-content-wrapper.ant-tree-node-selected:hover {
-    color: black !important;
+    color: theme('colors.dark.text.primary') !important;
 }
 
 .custom-tree .ant-tree-node-content-wrapper {
     font-size: 14px;
-    color: #444;
+    color: theme('colors.dark.text.primary'); /* متن معمولی سفید */
 }
 
 .custom-tree .ant-tree-node-content-wrapper:hover {
     font-size: 12px;
-    color: #444;
+    color: theme('colors.dark.text.primary');
 }
 
 .custom-tree .ant-tree-iconEle {
@@ -116,23 +111,9 @@ html, body {
 }
 
 .custom-tree .ant-tree-node-content-wrapper.ant-tree-node-selected {
-    background-color: #ebf8ff; /* Tailwind's bg-blue-100 */
-    border-radius: 0.25rem; /* Tailwind's rounded */
+    background-color: theme('colors.dark.accent') !important;
+    border-radius: 0.25rem;
 }
-
-/*برای راست‌چین بودن آیکون‌ها و متن در یک خط*/
-/*.ant-tree-title {*/
-/*    display: flex;*/
-/*    align-items: flex-end;*/
-/*    gap: 4px;*/
-/*}*/
-
-/*.ant-tree-switcher,*/
-/*.ant-tree-node-content-wrapper {*/
-/*    display: flex;*/
-/*    align-items: center;*/
-/*}*/
-
 
 .custom-tree .ant-tree-title {
     display: contents;
@@ -157,12 +138,14 @@ html, body {
 
 .custom-tabs .ant-tabs-ink-bar {
     bottom: 0;
+    background-color: theme('colors.Neon.Primary') !important;
 }
 
 /* ---------- Form Items ---------- */
 .uniform-form-item .ant-form-item-label {
     width: 120px;
     text-align: right;
+    color: theme('colors.dark.text.primary') !important; /* لیبل سفید */
 }
 
 .uniform-form-item .ant-form-item-control {
@@ -173,18 +156,20 @@ html, body {
     height: 10px;
 }
 
-/* ---------- Transfer Box ---------- */
+/* ---------- Transfer Box (متن سفید) ---------- */
 .transfer-container {
     display: flex;
     gap: 20px;
     padding: 20px;
 }
 
-.transfer-box {
-    border: 1px solid #ddd;
+.dark .transfer-box {
+    border: 1px solid theme('colors.dark.secondary');
+    background-color: theme('colors.dark.secondary');
     border-radius: 8px;
     padding: 15px;
     width: 200px;
+    color: theme('colors.dark.text.primary'); /* متن سفید */
 }
 
 .transfer-box h3 {
@@ -197,26 +182,26 @@ html, body {
     padding: 0;
     height: 300px;
     overflow-y: auto;
-    border: 1px solid #eee;
+    border: 1px solid theme('colors.dark.secondary');
     border-radius: 4px;
 }
 
-.transfer-box li {
+.dark .transfer-box li {
     padding: 8px;
     cursor: pointer;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid theme('colors.dark.secondary');
 }
 
-.transfer-box li.selected {
-    background-color: #e6f7ff;
+.dark .transfer-box li.selected {
+    background-color: theme('colors.dark.accent') !important;
 }
 
 .transfer-box button {
     width: 100%;
     margin-top: 10px;
     padding: 8px;
-    background: #1890ff;
-    color: white;
+    background: theme('colors.Neon.Primary') !important;
+    color: theme('colors.dark.primary') !important;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -231,7 +216,6 @@ html, body {
     flex: 1;
 }
 
-/* ---------- Scroll in Modal ---------- */
 .scroll-modal {
     max-height: 80vh !important;
     overflow-y: auto !important;
@@ -242,8 +226,8 @@ html, body {
 .image-container {
     width: 100%;
     height: 350px;
-    background-color: #f5f5f5;
-    border: 1px dashed #d9d9d9;
+    background-color: theme('colors.dark.secondary');
+    border: 1px dashed theme('colors.dark.accent');
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -258,6 +242,7 @@ html, body {
     align-items: center;
     text-align: center;
     font-size: 1.2rem;
+    color: theme('colors.dark.text.primary'); /* متن سفید */
 }
 
 .ant-image-mask-info .anticon {
@@ -265,7 +250,60 @@ html, body {
     margin-bottom: 12px;
 }
 
-/* این کلاس را به کامپوننت Tree پاس می‌دهیم */
 .custom-product-tree .ant-tree-indent-unit {
-    width: 3px !important; /* از مقدار کمتر برای تست استفاده کنید و !important را برای اولویت‌دهی اضافه کنید */
+    width: 3px !important;
+}
+
+
+/* ---------- Tree Customization (تنظیم متن به سفید خالص) ---------- */
+
+/* تنظیم رنگ متن معمولی به سفید */
+.custom-tree .ant-tree-node-content-wrapper {
+    font-size: 14px;
+    color: theme('colors.dark.text.primary') !important; /* تضمین رنگ سفید */
+}
+
+/* حذف رنگ‌های پیش‌فرض از حالت هاور/فوکوس */
+.custom-tree .ant-tree-treenode:hover:focus {
+    padding: 1px;
+    color: theme('colors.Neon.Primary') !important; /* آیکون و متن اصلی رنگ نئونی می‌گیرند */
+}
+
+.custom-tree .ant-tree-node-content-wrapper.ant-tree-node-selected {
+    color: theme('colors.dark.text.primary') !important; /* متن آیتم انتخاب شده سفید */
+}
+
+.custom-tree .ant-tree-node-content-wrapper.ant-tree-node-selected:hover {
+    color: theme('colors.dark.text.primary') !important;
+}
+
+
+/* --- کلاس‌های شفافیت برای Tree (تضمین متن سفید) --- */
+
+@layer components {
+    .custom-tree-transparent.ant-tree {
+        background-color: transparent !important;
+        color: theme('colors.dark.text.primary') !important; /* متن سفید */
+    }
+
+    /* *تضمین شفافیت برای تمامی گره‌ها* */
+    .custom-tree-transparent .ant-tree-list {
+        background-color: transparent !important;
+    }
+
+    /* متن آیتم‌ها در حالت شفاف */
+    .custom-tree-transparent .ant-tree-node-content-wrapper {
+        color: theme('colors.dark.text.primary') !important;
+    }
+
+    /* افکت Hover شیشه‌ای دستی (برای زیبایی) */
+    .custom-tree-transparent .ant-tree-node-content-wrapper:hover {
+        background-color: rgba(195, 123, 245, 0.1) !important;
+        border-radius: 4px;
+    }
+
+    /* آیتم انتخاب شده */
+    .custom-tree-transparent .ant-tree-node-content-wrapper.ant-tree-node-selected {
+        background-color: theme('colors.dark.accent') !important;
+    }
 }

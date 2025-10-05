@@ -12,6 +12,10 @@ const Users = () => {
     const {isFetching, data, refetch} = useUserList();
     const {mutateAsync: deleteUser} = useDeleteUser();
 
+    const primaryTextColor = 'text-white';
+    const secondaryTextColor = 'text-dark-text-secondary';
+    const neonColor = 'text-Neon-Primary';
+
     const handleDeleteUser = (record) => {
         deleteUser(record.id)
             .then(() => {
@@ -28,25 +32,26 @@ const Users = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8" dir="rtl">
+        <div className="min-h-screen bg-dark-primary p-4 sm:p-6 lg:p-8" dir="rtl">
             <div className="max-w-7xl mx-auto">
                 <div className="mb-4">
                     <Button
                         type="text"
-                        icon={<ArrowRightOutlined/>}
+                        icon={<ArrowRightOutlined className={neonColor}/>}
                         onClick={() => navigate("/panel/system-management/")}
-                        className="flex items-center text-slate-600 hover:!text-sky-700"
+                        className={`flex items-center ${secondaryTextColor} hover:!text-Neon-Primary`}
                     >
                         بازگشت به مدیریت سیستم
                     </Button>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-lg border border-slate-200">
+                <div className="AeroBox rounded-2xl border border-Neon-Primary/20 shadow-2xl">
                     <div
-                        className="flex flex-col md:flex-row items-start md:items-center justify-between p-6 border-b border-slate-200">
+                        className="flex flex-col md:flex-row items-start md:items-center justify-between p-6 border-b border-dark-secondary/50"
+                    >
                         <div>
-                            <h1 className="text-xl font-bold text-slate-800">مدیریت کاربران</h1>
-                            <p className="mt-1 text-sm text-slate-500">
+                            <h1 className={`text-xl font-bold ${primaryTextColor}`}>مدیریت کاربران</h1>
+                            <p className={`mt-1 text-sm ${secondaryTextColor}`}>
                                 لیست تمام کاربران سیستم را مشاهده کرده و آن‌ها را مدیریت کنید.
                             </p>
                         </div>
@@ -54,7 +59,7 @@ const Users = () => {
                             type="primary"
                             icon={<PlusOutlined/>}
                             onClick={() => setModal({mode: "add", data: null})}
-                            className="mt-4 md:mt-0"
+                            className="NeonButton mt-4 md:mt-0"
                         >
                             افزودن کاربر جدید
                         </Button>
@@ -67,6 +72,7 @@ const Users = () => {
                             loading={isFetching}
                             rowKey="id"
                             scroll={{x: 'max-content'}}
+                            className="custom-aero-table"
                         />
                     </div>
                 </div>

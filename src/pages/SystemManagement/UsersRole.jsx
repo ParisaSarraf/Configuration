@@ -6,39 +6,47 @@ import useModal from '../../hooks/useModal';
 import UsersAndRoleTree from './UsersAndRoleTree/UsersAndRoleTree';
 import {useUsersRoleList} from '../../QueryServises/user&role';
 
+
 const UsersRole = () => {
     const navigate = useNavigate();
     const {setModal, closeModal, modalData, modalType, modalMode, isOpen} = useModal();
     const {data: usersAndroles, isLoading, isError, refetch} = useUsersRoleList();
 
+    const primaryTextColor = 'text-white';
+    const secondaryTextColor = 'text-white';
+    const neonColor = 'text-Neon-Primary';
+
     return (
-        <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8" dir="rtl">
+        <div className="min-h-screen bg-dark-primary p-4 sm:p-6 lg:p-8" dir="rtl">
             <div className="max-w-7xl mx-auto">
                 <div className="mb-4">
                     <Button
                         type="text"
-                        icon={<ArrowRightOutlined/>}
+                        icon={<ArrowRightOutlined className={neonColor}/>}
                         onClick={() => navigate("/panel/system-management/")}
-                        className="flex items-center text-slate-600 hover:!text-sky-700"
+                        className={`flex items-center ${secondaryTextColor} hover:!text-Neon-Primary`}
                     >
                         بازگشت به مدیریت سیستم
                     </Button>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-lg border border-slate-200">
+                <div className="AeroBox rounded-2xl border border-Neon-Primary/20 shadow-2xl">
                     <div
-                        className="flex flex-col md:flex-row items-start md:items-center justify-between p-6 border-b border-slate-200">
-                        <div>
-                            <h1 className="text-xl font-bold text-slate-800">مدیریت کاربران و دسترسی عمومی</h1>
-                            <p className="mt-1 text-sm text-slate-500">
+                        className="flex flex-col md:flex-row items-start md:items-center justify-between p-6 border-b border-dark-secondary/50"
+                    >
+                        <div className={'w-full flex flex-col'}>
+                            <span className={`text-xl font-bold ${primaryTextColor} !mb-0`}>
+                                مدیریت کاربران و دسترسی عمومی
+                            </span>
+                            <span className={`mt-1 text-sm ${secondaryTextColor}`}>
                                 در این بخش می‌توانید سمت‌ها را تعریف کرده و کاربران را به آن‌ها تخصیص دهید.
-                            </p>
+                            </span>
                         </div>
                         <Button
                             type="primary"
                             icon={<PlusOutlined/>}
                             onClick={() => setModal({mode: "add", data: null})}
-                            className="mt-4 md:mt-0"
+                            className="NeonButton mt-4 md:mt-0"
                         >
                             افزودن سمت
                         </Button>

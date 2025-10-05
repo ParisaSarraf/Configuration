@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {Avatar, Divider, Dropdown} from "antd";
+import {Avatar, Divider} from "antd";
 import {
     AppstoreOutlined,
     CalendarOutlined,
@@ -9,16 +9,34 @@ import {
     SettingOutlined,
     UserOutlined
 } from "@ant-design/icons";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom"
 import {jwtDecode} from "jwt-decode";
 import PersianDate from "persian-date";
 import {useMyAxios} from "@/hooks/useMyAxios.js";
 import {BASEURL} from "@/Services/axiosInstance.js";
 
-const CustomHeader = ({children}) => {
+const calculateRadialPosition = (index, totalItems, distance) => {
+    const startAngle = 130;
+    const endAngle = 180;
+
+    const angle = startAngle + (index / (totalItems - 1)) * (endAngle - startAngle);
+
+    const radians = angle * (Math.PI / 90);
+
+    const x = distance * Math.cos(radians);
+    const y = distance * Math.sin(radians);
+
+    return {
+        left: `${x}px`,
+        top: `${-y}px`,
+    };
+};
+
+const CustomHeader = () => {
     const {handleLogout} = useMyAxios();
     const [currentTime, setCurrentTime] = useState(new PersianDate());
     const [userData, setUserData] = useState({});
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -38,128 +56,132 @@ const CustomHeader = ({children}) => {
 
     const userFullName = userData?.name && userData?.last_name ? `${userData.name} ${userData.last_name}` : 'کاربر مهمان';
 
-    const menuItems = [
-        {
-            key: 'profile',
-            label: (
-                <div className="flex flex-col items-start px-2 pt-2">
-                    <span className="font-semibold text-base text-slate-800">{userFullName}</span>
-                    <span className="text-xs text-slate-500">{userData?.is_staff ? 'مدیر سیستم' : 'کاربر'}</span>
-                </div>
-            ),
-            disabled: true,
-        },
-        {
-            type: 'divider',
-        },
+    const primaryTextColor = 'text-dark-text-primary';
+    const secondaryTextColor = 'text-dark-text-secondary';
+    const neonColor = 'text-Neon-Primary';
+    const RADIAL_DISTANCE = 100;
+
+    const allActions = [
         {
             key: 'cartable',
-            label: <span className={'text-sky-600'}>کارتابل شخصی</span>,
-            icon: <UserOutlined className={'text-sky-700'}/>,
+            icon: <UserOutlined/>,
             onClick: () => navigate("/my-work"),
-            className: '!rounded-md !my-1 !p-2 transition-colors bg-sky-100 text-sky-700 hover:!bg-sky-100'
+            tooltip: 'کارتابل شخصی',
+            color: 'text-rose-400'
         },
         {
             key: 'change-password',
-            label: <span className={'text-violet-600'}>تغییر رمز عبور</span>,
-            icon: <SecurityScanOutlined className={'text-violet-700'}/>,
+            icon: <SecurityScanOutlined/>,
             onClick: () => navigate("/forget-password"),
-            className: '!rounded-md !my-1 !p-2 transition-colors bg-violet-50 text-violet-700 hover:!bg-violet-100'
+            tooltip: 'تغییر رمز عبور',
+            color: 'text-sky-400'
         },
         {
-            key: 'settings',
-            label: 'تنظیمات',
+            key: 'base-data',
+            icon: <AppstoreOutlined/>,
+            onClick: () => navigate("/panel/datas"),
+            tooltip: 'داده‌های پایه',
+            color: 'text-violet-400'
+        },
+        ...(userData?.is_staff ? [{
+            key: 'system-management',
             icon: <SettingOutlined/>,
-            className: '!rounded-md !my-1 !p-2 transition-colors bg-slate-50 text-slate-700 hover:!bg-slate-100',
-            children: [
-                {
-                    key: 'base-data',
-                    label: 'داده‌های پایه',
-                    icon: <AppstoreOutlined/>,
-                    onClick: () => navigate("/panel/datas"),
-                },
-                ...(userData?.is_staff ? [{
-                    key: 'system-management',
-                    label: 'مدیریت سیستم',
-                    icon: <SecurityScanOutlined/>,
-                    onClick: () => navigate("/panel/system-management"),
-                }] : []),
-            ]
-        },
-        {
-            type: 'divider',
-        },
+            onClick: () => navigate("/panel/system-management"),
+            tooltip: 'مدیریت سیستم',
+            color: 'text-emerald-400'
+        }] : []),
         {
             key: 'logout',
-            label: <span className={'text-red-500'}> خروج از حساب کاربری</span>,
-            icon: <LogoutOutlined className={'text-red-500'}/>,
+            icon: <LogoutOutlined/>,
             onClick: handleLogout,
-            className: '!rounded-md !my-1 !p-2 transition-colors bg-red-50 text-red-700 hover:!bg-red-100'
+            color: 'text-red-500',
+            tooltip: 'خروج از حساب'
         },
     ];
-
-    const customDropdownFooter = (
-        <div className="grid grid-cols-2 gap-2 p-2">
-            <div className="flex flex-col items-start bg-slate-50 hover:bg-slate-100 p-2 rounded-md transition-colors">
-                 <span className="text-xs text-slate-400 flex items-center gap-1 mb-1">
-                     <CalendarOutlined/>
-                     تاریخ امروز
-                 </span>
-                <span className="text-xs font-semibold text-slate-600">
-                    {currentTime.format("D MMMM YYYY")}
-                </span>
-            </div>
-            <div className="flex flex-col items-start bg-slate-50 hover:bg-slate-100 p-2 rounded-md transition-colors">
-                <span className="text-xs text-slate-400 flex items-center gap-1 mb-1">
-                    <LoginOutlined/>
-                    آخرین ورود
-                </span>
-                <span className="text-xs font-semibold text-slate-600">
-                    {userData?.last_login ? new PersianDate(userData.last_login).format('HH:mm') : "-"}
-                </span>
-            </div>
-        </div>
-    );
 
     const imageUrl = userData?.temp_image ? `${BASEURL.replace("/api/v1", "")}${userData.temp_image}` : null;
 
     return (
-        <header
-            className="bg-white rounded-lg my-2 mx-2 flex items-center justify-between h-14 shadow-sm border border-gray-100 px-4">
-            <div className="flex items-center gap-3">
-                {children}
-                <span className="hidden md:block font-semibold text-slate-700">
-                    مسیر
-                </span>
+        <div className="fixed top-4 left-4 z-50">
+            <div className="relative">
+                {allActions.map((item, index) => {
+                    const totalItems = allActions.length;
+                    const {left, top} = calculateRadialPosition(index, totalItems, RADIAL_DISTANCE);
+
+                    return (
+                        <div
+                            key={item.key}
+                            className={`
+                                absolute transition-all duration-300 
+                                ${isMenuOpen ? 'opacity-100 scale-100 z-40' : 'opacity-0 scale-0 z-30 pointer-events-none'}
+                            `}
+                            style={{
+                                left: isMenuOpen ? left : '0px',
+                                top: isMenuOpen ? top : '0px',
+                                transitionDelay: `${index * 0.05}s`
+                            }}
+                        >
+                            <button
+                                onClick={item.onClick}
+                                className={`
+                                    w-10 h-10 rounded-full AeroBox flex items-center justify-center text-xl 
+                                    ${item.color || neonColor} 
+                                    hover:bg-Neon-Primary/30 hover:shadow-lg transition-colors
+                                `}
+                                aria-label={item.tooltip}
+                                title={item.tooltip}
+                            >
+                                {item.icon}
+                            </button>
+                        </div>
+                    );
+                })}
+
+                <button
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    className="flex items-center justify-center cursor-pointer p-0 w-14 h-14 rounded-full AeroBox border-Neon-Primary/70 hover:scale-105 transition-transform duration-300 relative z-50"
+                    aria-label="User menu"
+                >
+                    <Avatar
+                        src={imageUrl}
+                        icon={<UserOutlined/>}
+                        className={`bg-dark-secondary/30 text-Neon-Primary`}
+                        size="large"
+                    />
+                </button>
             </div>
 
-            <div className="flex items-center gap-4">
-                <Dropdown
-                    menu={{items: menuItems}}
-                    trigger={['click']}
-                    placement="bottomLeft"
-                    arrow
-                    dropdownRender={(menu) => (
-                        <div className="bg-white rounded-lg shadow-2xl mt-2  border border-slate-50">
-                            {menu}
-                            <Divider style={{margin: '0'}}/>
-                            {customDropdownFooter}
-                        </div>
-                    )}
+            {isMenuOpen && (
+                <div
+                    className="absolute top-2 left-44 p-3 AeroBox min-w-max rounded-xl z-50 pointer-events-none"
+                    style={{
+                        transformOrigin: 'top right',
+                        transition: 'opacity 0.3s',
+                    }}
                 >
-                    <button className="flex items-center gap-2 cursor-pointer" aria-label="User menu">
-                        <Avatar
-                            src={imageUrl}
-                            icon={<UserOutlined/>}
-                            className="border-2 border-slate-200 bg-slate-100 text-slate-500"
-                        />
-                        <span className="hidden sm:inline text-sm font-semibold text-gray-700">
-                            {userFullName}
-                        </span>
-                    </button>
-                </Dropdown>
-            </div>
-        </header>
+                    <div className="p-1 pointer-events-auto">
+                        <div className="flex flex-col items-start pb-2">
+                            <span className={`font-bold ${primaryTextColor}`}>{userFullName}</span>
+                            <span
+                                className={`text-xs ${secondaryTextColor}`}>{userData?.is_staff ? 'مدیر سیستم' : 'کاربر'}</span>
+                        </div>
+
+                        <Divider style={{margin: '4px 0', backgroundColor: 'rgba(195, 123, 245, 0.15)'}}/>
+
+                        <div className="flex flex-col items-start space-y-1 pt-1">
+                            <span className={`text-xs ${secondaryTextColor} flex items-center gap-1`}>
+                                <CalendarOutlined
+                                    className={neonColor}/> تاریخ امروز: {currentTime.format("D MMMM YYYY")}
+                            </span>
+                            <span className={`text-xs ${secondaryTextColor} flex items-center gap-1`}>
+                                <LoginOutlined
+                                    className={neonColor}/> آخرین ورود: {userData?.last_login ? new PersianDate(userData.last_login).format('HH:mm') : "-"}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 };
 

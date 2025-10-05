@@ -26,7 +26,8 @@ const Tree = ({
                   onRightClickAction,
                   onSelect = () => {
                   },
-                  loadingComponent = <div className="text-center py-8">در حال بارگذاری...</div>,
+                  loadingComponent = <div className="text-center py-8 text-dark-text-secondary">در حال
+                      بارگذاری...</div>,
                   errorComponent = (
                       <div className="text-center py-8 text-red-500">خطا در دریافت اطلاعات!</div>
                   ),
@@ -38,7 +39,11 @@ const Tree = ({
               }) => {
     const [rightClickNode, setRightClickNode] = useState(null);
     const [dropdownPosition, setDropdownPosition] = useState({x: 0, y: 0});
-    const [expandedKeys, setExpandedKeys] = useState([]); // اضافه کردن state برای expanded keys
+    const [expandedKeys, setExpandedKeys] = useState([]);
+
+    const errorColor = '#FF6B6B';
+    const textColor = '#F4F4F9';
+    const neonColorHex = '#C37BF5';
 
     const handleSelect = (selectedKeys, info) => {
         onSelect(selectedKeys, info);
@@ -86,9 +91,25 @@ const Tree = ({
     };
 
     const menu = (
-        <Menu onClick={handleMenuClick}>
+        <Menu
+            onClick={handleMenuClick}
+            className="AeroBox p-1 border-none !shadow-2xl"
+            style={{
+                backgroundColor: 'rgba(78,48,156,0.9)',
+                border: '1px solid rgba(195, 123, 245, 0.2)',
+                backdropFilter: 'blur(8px)',
+                color: textColor
+            }}
+        >
             {rightClickMenuItems.map((item) => (
-                <Menu.Item key={item.key}>{item.label}</Menu.Item>
+                <Menu.Item
+                    key={item.key}
+                    danger={item.danger}
+                    className="hover:!bg-Neon-Primary/20 text-white"
+                    style={{color: item.danger ? errorColor : textColor}}
+                >
+                    {item.label}
+                </Menu.Item>
             ))}
         </Menu>
     );
@@ -96,10 +117,10 @@ const Tree = ({
     const transformData = (data, level = 0) => {
         if (!data) return [];
 
-        return data.map((item) => ({
+        return data?.map((item) => ({
             title: item[titleField],
             label: (
-                <div>
+                <div className="text-white">
                     {item[titleField]}
                 </div>
             ),
@@ -129,14 +150,17 @@ const Tree = ({
                 dropdownStyle={{
                     maxHeight: 400,
                     overflow: 'auto',
-                    padding: '8px 0'
+                    padding: '8px 0',
+                    backgroundColor: 'rgba(27, 23, 37, 0.9)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(195, 123, 245, 0.3)',
                 }}
-                className={className}
+                className={`w-full custom-select-transparent text-white placeholder-white ${className}`}
                 treeNodeLabelProp="label"
                 treeLine={{
                     showLeafIcon: false
                 }}
-                switcherIcon={<DownOutlined/>}
+                switcherIcon={<DownOutlined className="text-Neon-Primary"/>}
                 onChange={(value) => onChange && onChange(value)}
                 {...props}
             />
@@ -168,7 +192,8 @@ const Tree = ({
                         checkedKeys={checkedKeys}
                         {...props}
                         loadData={loadData}
-                        className={className}
+                        className={`bg-transparent text-white custom-tree-transparent ${className}`}
+                        style={{backgroundColor: 'transparent'}}
                     />
                 </div>
             </Dropdown>

@@ -7,32 +7,34 @@ import {ArrowRightOutlined, CheckCircleOutlined, FileDoneOutlined, HistoryOutlin
 import {Button} from "antd";
 import {useNavigate} from "react-router-dom";
 
+
 const MyWork = () => {
     const navigate = useNavigate();
+
+    const neonColor = 'text-Neon-Primary';
+    const secondaryTextColor = 'text-dark-text-secondary';
+
     const items = [
         {
-            label: "فعالیت های من",
+            label: "فعالیت‌های من",
             key: '1',
             icon: <HistoryOutlined/>,
             children: <MyActivities/>,
-            activeClass: 'bg-sky-200 text-sky-800 shadow-md',
-            inactiveClass: 'text-sky-700 hover:bg-sky-100'
+            color: 'text-rose-400',
         },
         {
-            label: "اسناد باقیمانده من",
+            label: "اسناد باقیمانده",
             key: '2',
             icon: <FileDoneOutlined/>,
             children: <MyDocuments/>,
-            activeClass: 'bg-emerald-200 text-emerald-800 shadow-md',
-            inactiveClass: 'text-emerald-700 hover:bg-emerald-100'
+            color: 'text-sky-400',
         },
         {
             label: "کارهای من",
             key: '3',
             icon: <CheckCircleOutlined/>,
             children: <MyPlan/>,
-            activeClass: 'bg-violet-200 text-violet-800 shadow-md',
-            inactiveClass: 'text-violet-700 hover:bg-violet-100'
+            color: 'text-lime-400',
         }
     ];
 
@@ -40,44 +42,59 @@ const MyWork = () => {
     const activeComponent = items.find(item => item.key === activeKey)?.children;
 
     return (
-        <div className="min-h-screen bg-slate-50" dir="rtl">
+        <div className="min-h-screen bg-dark-primary" dir="rtl">
             <Header/>
-            <div className="p-4 sm:p-6 lg:p-8 max-w-screen-2xl mx-auto">
-                <header className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-                    <div>
-                        <Button
+
+            <div className="p-4 sm:p-6 lg:p-8 max-w-screen-2xl mx-auto relative">
+
+                <header className="flex flex-col mb-8">
+                    <Button
                         type="text"
-                        icon={<ArrowRightOutlined/>}
+                        icon={<ArrowRightOutlined className={neonColor}/>}
                         onClick={() => navigate("/")}
-                        className="flex items-center text-slate-600 hover:!text-sky-700 mb-4"
+                        className={`flex items-center ${secondaryTextColor} hover:!text-Neon-Primary mb-4`}
                     >
                         بازگشت به صفحه اصلی
                     </Button>
-                        <h1 className="text-3xl font-bold text-slate-900">کارتابل شخصی</h1>
-                        <p className="mt-2 text-base text-slate-600">
-                            فعالیت‌ها، اسناد و کارهای خود را در اینجا مدیریت کنید.
-                        </p>
-                    </div>
 
-                    <div className="bg-slate-100 p-1 flex items-center gap-1 rounded-xl border border-slate-200">
+                </header>
+
+                <div className="fixed top-4 right-16 left-16 z-50 flex justify-center pointer-events-none">
+                    <div
+                        className="flex items-center gap-4 AeroBox p-2 rounded-full pointer-events-auto shadow-2xl border-Neon-Primary/20">
+
                         {items.map(item => (
                             <button
                                 key={item.key}
                                 onClick={() => setActiveKey(item.key)}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${
-                                    activeKey === item.key
-                                        ? item.activeClass
-                                        : item.inactiveClass
-                                }`}
+                                title={item.label}
+                                className={`
+                                    flex items-center justify-center 
+                                    w-14 h-14 rounded-full text-xl 
+                                    transition-all duration-300 relative
+                                    ${activeKey === item.key
+                                    ? `bg-Neon-Primary/40 ${item.color} shadow-lg scale-105 border border-Neon-Primary`
+                                    : `bg-dark-secondary/50 ${secondaryTextColor} hover:bg-dark-secondary/80`
+                                }
+                                `}
                             >
-                                {item.icon}
-                                <span>{item.label}</span>
+                                <span
+                                    className={activeKey === item.key ? item.color : secondaryTextColor}>{item.icon}</span>
+
+                                {activeKey === item.key && (
+                                    <span
+                                        className={`absolute bottom-[-20px] text-xs font-semibold whitespace-nowrap px-2 py-0.5 rounded ${neonColor} bg-dark-secondary/80`}
+                                        style={{textShadow: '0 0 5px rgba(195, 123, 245, 0.4)'}}
+                                    >
+                                        {item.label}
+                                    </span>
+                                )}
                             </button>
                         ))}
                     </div>
-                </header>
+                </div>
 
-                <main className="bg-white rounded-xl shadow-lg border border-slate-200 min-h-[60vh] p-6">
+                <main className="AeroBox rounded-2xl border border-Neon-Primary/20 min-h-[60vh] p-6">
                     {activeComponent}
                 </main>
             </div>

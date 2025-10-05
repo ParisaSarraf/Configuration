@@ -8,16 +8,16 @@ import {useProductContext} from '../../Services/Context/ProductContext';
 import useModal from '../../hooks/useModal';
 
 const ProductListSkeleton = () => (
-    <div className="flex flex-col items-center justify-center h-full text-center text-slate-500">
+    <div className="flex flex-col items-center justify-center h-full text-center text-dark-text-secondary">
         <p className="mb-4">درحال بارگذاری محصولات</p>
-        <Spin/>
+        <Spin className="text-Neon-Primary"/>
     </div>
 );
 
 const ErrorDisplay = ({onRetry}) => (
-    <div className="flex flex-col items-center justify-center h-full text-center text-slate-500">
+    <div className="flex flex-col items-center justify-center h-full text-center text-red-400">
         <p className="mb-4">خطا در بارگذاری محصولات</p>
-        <Button icon={<ReloadOutlined/>} onClick={onRetry}>
+        <Button className="NeonButton" icon={<ReloadOutlined/>} onClick={onRetry}>
             تلاش مجدد
         </Button>
     </div>
@@ -62,20 +62,21 @@ const Products = () => {
     };
 
     return (
-        <div className="h-full flex flex-col bg-white p-4">
-            <div className="flex justify-between items-center pb-4 border-b border-slate-200">
-                <h2 className="text-lg font-semibold text-slate-800">محصولات</h2>
+        <div className="h-full flex flex-col ">
+            <div className="flex justify-between items-center border-b border-dark-secondary/50">
+                <h2 className="text-lg font-semibold text-white">محصولات</h2>
                 <Button
                     type="primary"
                     shape="round"
                     onClick={() => setModal({mode: 'add'})}
                     icon={<PlusOutlined/>}
+                    // className="NeonButton"
                 >
                     افزودن
                 </Button>
             </div>
 
-            <div className="flex-1 overflow-y-auto mt-4 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto mt-4">
                 {renderContent()}
             </div>
 
