@@ -20,6 +20,7 @@ import {
     TeamOutlined,
     UserOutlined
 } from '@ant-design/icons';
+import ReasonsEditing from './components/ReasonsEditing/ReasonsEditing';
 
 const Setting = () => {
     const navigate = useNavigate();
@@ -103,6 +104,16 @@ const Setting = () => {
             colorScheme: {
                 active: 'bg-cyan-50 text-cyan-700 font-semibold',
                 inactive: 'text-slate-600 hover:bg-cyan-50 hover:text-cyan-700'
+            }
+        },
+        {
+            label: `دلایل ویرایش نسخه`,
+            key: '9',
+            icon: <TeamOutlined/>,
+            children: <ReasonsEditing/>,
+            colorScheme: {
+                active: 'bg-cyan-50 text-stone-700 font-semibold',
+                inactive: 'text-stone-600 hover:bg-stone-50 hover:text-stone-700'
             }
         },
     ];
