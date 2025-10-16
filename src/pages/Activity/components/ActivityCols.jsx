@@ -1,13 +1,33 @@
-import {Button, Flex, Tooltip, Tag, Select , Badge} from "antd";
-import {DeleteOutlined, EditOutlined, EyeOutlined, FolderAddOutlined, UserAddOutlined,CheckOutlined} from "@ant-design/icons";
+import {Badge, Button, Flex, Select, Tag, Tooltip} from "antd";
+import {
+    CheckOutlined,
+    DeleteOutlined,
+    EditOutlined,
+    EyeOutlined,
+    FolderAddOutlined,
+    UserAddOutlined
+} from "@ant-design/icons";
 import {useState} from "react";
 import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
 
-export const ActivityCols = ({
-                                 handleEdit, handleDelete, handleTrustee, handlePlan, handleDetail, trustees = [],
-                                 setFilters
-                             }) => {
+export const ActivityCols = (
+    {
+        handleEdit, handleDelete, handleTrustee, handlePlan, handleDetail, trustees = [],
+        setFilters
+    }) => {
     const [selectedTrustees, setSelectedTrustees] = useState([]);
+
+    const referralOptions = [
+        {value: 'For action', label: 'جهت اقدام'},
+        {value: 'For information', label: 'جهت اطلاع'},
+        {value: 'For follow-up', label: 'جهت همکاری'},
+        {value: 'For immediate action', label: 'جهت اقدام فوری'},
+    ];
+
+    const referralMap = referralOptions.reduce((acc, option) => {
+        acc[option.value] = option.label;
+        return acc;
+    }, {});
 
     return ([
             {
@@ -101,6 +121,14 @@ export const ActivityCols = ({
                     `${name} ${record.trustee?.last_name || ''}`,
             },
             {
+                title: "جهت",
+                dataIndex: "referral_order",
+                key: "referral_order",
+                render: (text, record) => {
+                    return referralMap[text] || text || '---';
+                }
+            },
+            {
                 title: "تاریخ پایان",
                 dataIndex: 'to_date',
                 key: 'to_date',
@@ -174,36 +202,36 @@ export const ActivityCols = ({
                                 />
                             </Tooltip>
                             {!isTrusteeDone ? (
-                            <Tooltip title="انجام توسط متولی">
+                                <Tooltip title="انجام توسط متولی">
+                                    <Button
+                                        icon={<UserAddOutlined/>}
+                                        className={"text-orange-600 border-orange-600"}
+                                        onClick={() => handleTrustee(record)}
+                                        size="small"
+                                    />
+                                </Tooltip>
+                            ) : (
                                 <Button
-                                    icon={<UserAddOutlined/>}
-                                    className={"text-orange-600 border-orange-600"}
-                                    onClick={() => handleTrustee(record)}
-                                    size="small"
-                                />
-                            </Tooltip>
-                                ) : (
-                                <Button
-                                    icon={<CheckOutlined className={'text-orange-600 border-orange-600 '} />}
+                                    icon={<CheckOutlined className={'text-orange-600 border-orange-600 '}/>}
                                     className={'text-orange-600 border-orange-600 '}
                                     size="small"
                                     type={'text'}
                                 />
 
-                )}
+                            )}
                             {!isPlanDone ? (
-                            <Tooltip title="انجام توسط طرح و برنامه">
-                                <Button
-                                    icon={<FolderAddOutlined/>}
-                                    className={ "text-pink-700 border-pink-700"}
-                                    onClick={() => handlePlan(record)}
-                                    size="small"
-                                />
-                            </Tooltip>
-                                ) :(
+                                <Tooltip title="انجام توسط طرح و برنامه">
+                                    <Button
+                                        icon={<FolderAddOutlined/>}
+                                        className={"text-pink-700 border-pink-700"}
+                                        onClick={() => handlePlan(record)}
+                                        size="small"
+                                    />
+                                </Tooltip>
+                            ) : (
                                 <Button
                                     type={'text'}
-                                    icon={<CheckOutlined className={'text-pink-700 border-pink-700 '} />}
+                                    icon={<CheckOutlined className={'text-pink-700 border-pink-700 '}/>}
                                     className={'text-pink-700 border-pink-700 '}
                                     size="small"
                                 />

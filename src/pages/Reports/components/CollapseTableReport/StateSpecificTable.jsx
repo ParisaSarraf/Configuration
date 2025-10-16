@@ -22,6 +22,9 @@ const StateSpecificTable = ({productId, state, filters = {}}) => {
         return <div style={{textAlign: 'center', margin: '20px 0'}}><Spin/></div>;
     }
 
+
+    console.log(reportData)
+
     return (
         <Table
             size="small"

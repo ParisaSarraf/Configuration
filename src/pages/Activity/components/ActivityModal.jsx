@@ -25,6 +25,7 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
                 from_date: georgianDateToJalaliDate(modalData?.from_date),
                 to_date: georgianDateToJalaliDate(modalData?.to_date),
                 trustee_id: modalData?.trustee?.id,
+                referral_order: modalData?.referral_order,
             });
         } else {
             form.resetFields();
@@ -40,6 +41,7 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
             to_date: jalaliDateToGeorgianDate(values?.to_date),
             meeting_id: modalType === 'addActivitiesMeetings' ? modalData?.id : values.meeting_id,
             trustee_id: values.trustee_id,
+            referral_order: values?.referral_order,
         };
 
         if (values.type === 'control project') {
@@ -93,11 +95,11 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
                                         <Select
 
                                             options={meetingData?.map((meet) => {
-                                            return {
-                                                value: meet.id,
-                                                label: `${meet.title}`,
-                                            }
-                                        })}/>
+                                                return {
+                                                    value: meet.id,
+                                                    label: `${meet.title}`,
+                                                }
+                                            })}/>
                                     </Form.Item>
                                 </Col>
                             )
@@ -110,7 +112,7 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
                             <TextArea/>
                         </Form.Item>
                     </Col>
-                    <Col span={24}>
+                    <Col span={12}>
                         <Form.Item label={'متولی انجام'} name='trustee_id'>
                             <Select options={usersData?.map((user, index) => {
                                 return {
@@ -121,42 +123,54 @@ const ActivityModal = ({isOpen, modalData, modalMode, closeModal, refetch, curre
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Date
-                        //     rules={[
-                        //         {required: true, message: 'لطفا تاریخ شروع را وارد کنید'},
-                        // ({getFieldValue}) => ({
-                        //     validator(_, value) {
-                        //     const toDate = getFieldValue('to_date');
-                        //     if (!value || !toDate || new Date(value) <= new Date(toDate)) {
-                        //     return Promise.resolve();
-                        // }
-                        //     return Promise.reject(new Error('تاریخ شروع باید قبل از تاریخ پایان باشد'));
-                        // },
-                        // })]}
-                            stringifyDate={true}
-                            noStyle
-                            isRequired name={'from_date'}  label='تاریخ شروع'/>
+                        <Form.Item label={"جهت "} name={'referral_order'}>
+                            <Select options={[
+                                {value: 'For action', label: 'جهت اقدام'},
+                                {value: 'For information', label: 'جهت اطلاع'},
+                                {value: 'For follow-up', label: 'جهت همکاری'},
+                                {
+                                    value: 'For immediate action', label: 'جهت اقدام فوری'
+                                },
+                            ]}/>
+                        </Form.Item>
                     </Col>
                     <Col span={12}>
-                            <Date
-                                stringifyDate={true}
-                                noStyle
-                                isRequired
-                                  label='تاریخ پایان'
-                                  name='to_date'
-                                // rules={[
-                                //     {required: true, message: 'لطفا تاریخ پایان را وارد کنید'},
-                                //     ({getFieldValue}) => ({
-                                //         validator(_, value) {
-                                //             const fromDate = getFieldValue('from_date');
-                                //             if (!value || !fromDate || new Date(fromDate) <= new Date(value)) {
-                                //                 return Promise.resolve();
-                                //             }
-                                //             return Promise.reject(new Error('تاریخ پایان باید بعد از تاریخ شروع باشد'));
-                                //         },
-                                //     }),
-                                // ]}
-                            />
+                        <Date
+                            //     rules={[
+                            //         {required: true, message: 'لطفا تاریخ شروع را وارد کنید'},
+                            // ({getFieldValue}) => ({
+                            //     validator(_, value) {
+                            //     const toDate = getFieldValue('to_date');
+                            //     if (!value || !toDate || new Date(value) <= new Date(toDate)) {
+                            //     return Promise.resolve();
+                            // }
+                            //     return Promise.reject(new Error('تاریخ شروع باید قبل از تاریخ پایان باشد'));
+                            // },
+                            // })]}
+                            stringifyDate={true}
+                            noStyle
+                            isRequired name={'from_date'} label='تاریخ شروع'/>
+                    </Col>
+                    <Col span={12}>
+                        <Date
+                            stringifyDate={true}
+                            noStyle
+                            isRequired
+                            label='تاریخ پایان'
+                            name='to_date'
+                            // rules={[
+                            //     {required: true, message: 'لطفا تاریخ پایان را وارد کنید'},
+                            //     ({getFieldValue}) => ({
+                            //         validator(_, value) {
+                            //             const fromDate = getFieldValue('from_date');
+                            //             if (!value || !fromDate || new Date(fromDate) <= new Date(value)) {
+                            //                 return Promise.resolve();
+                            //             }
+                            //             return Promise.reject(new Error('تاریخ پایان باید بعد از تاریخ شروع باشد'));
+                            //         },
+                            //     }),
+                            // ]}
+                        />
 
                     </Col>
                 </Row>
