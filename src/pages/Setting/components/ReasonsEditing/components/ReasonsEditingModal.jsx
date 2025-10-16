@@ -21,6 +21,8 @@ const ReasonsEditingModal = (
             form.setFieldsValue({
                 name: modalData?.name
             })
+        } else {
+            form.resetFields()
         }
     }, [modalData, modalMode, form])
 
