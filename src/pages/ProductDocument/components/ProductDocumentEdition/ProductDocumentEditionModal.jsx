@@ -5,6 +5,7 @@ import {
     useUpdateProductDocumentEdition
 } from "@/QueryServises/productDocumentQuery/index.js";
 import {useEffect} from "react";
+import {useReasonsEditingList} from "@/QueryServises/ReasonsEditingQuery/index.js";
 
 const ProductDocumentEditionModal = (
     {
@@ -17,6 +18,7 @@ const ProductDocumentEditionModal = (
     }) => {
     const [form] = Form.useForm();
 
+    const {data: ReasonsEditingData} = useReasonsEditingList()
     const {isPending: isCreating, mutateAsync: createProductDocumentEdition} =
         useCreateProductDocumentEdition();
     const {isPending: isUpdating, mutateAsync: updateProductDocumentEdition} =
@@ -26,27 +28,8 @@ const ProductDocumentEditionModal = (
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
                 edition: modalData?.edition,
-                // file_1: modalData.file_1 ? [{
-                //     uid: "-1",
-                //     name: "file_1",
-                //     url: BASEURL.replace("/api/v1", "") + modalData.file_1,
-                // }] : [],
-                // file_2: modalData.file_2 ? [{
-                //     uid: "-1",
-                //     name: "file_2",
-                //     url: BASEURL.replace("/api/v1", "") + modalData.file_2,
-                // }] : [],
-                // file_3: modalData.file_3 ? [{
-                //     uid: "-1",
-                //     name: "file_3",
-                //     url: BASEURL.replace("/api/v1", "") + modalData.file_3,
-                // }] : [],
-                // file_4: modalData.file_4 ? [{
-                //     uid: "-1",
-                //     name: "file_4",
-                //     url: BASEURL.replace("/api/v1", "") + modalData.file_4,
-                // }] : [],
                 description: modalData?.description,
+                reasons_editing_id: modalData?.reasons_editing_id,
             });
         } else {
             form.resetFields();
@@ -57,11 +40,9 @@ const ProductDocumentEditionModal = (
         const payload = {
             product_document_id: modalData?.product_document_id?.id || currentProduct?.id,
             edition: values.edition,
-            // file_1: values.file_1?.[0]?.originFileObj,
-            // file_2: values.file_2?.[0]?.originFileObj,
-            // file_3: values.file_3?.[0]?.originFileObj,
-            // file_4: values.file_4?.[0]?.originFileObj,
-            description: values.description
+            description: values.description,
+            reasons_editing_id: values.reasons_editing_id,
+
         };
 
         try {
@@ -119,6 +100,16 @@ const ProductDocumentEditionModal = (
                                 placeholder="انتخاب کنید"
                                 disabled={modalMode !== "edition"}
                             />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                        <Form.Item label="دلایل ویرایش نسخه" name="reasons_editing_id">
+                            <Select options={ReasonsEditingData?.map((reasonEdit) => {
+                                return {
+                                    value: reasonEdit.id,
+                                    label: `${reasonEdit.name}`,
+                                }
+                            })}/>
                         </Form.Item>
                     </Col>
                     <Col span={24}>

@@ -201,6 +201,7 @@ const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-1 py-2 px-1">
                     <SectionCard title="جزئیات نسخه ">
                         {renderInfoItem("نسخه", modalData.edition)}
+                        {renderInfoItem("دلایل ویرایش نسخه", modalData.reasons_editing)}
                         {/*{renderInfoItem("تاریخ", modalData.survey_date)}*/}
                         {renderInfoItem("توضیحات", modalData.description)}
                         <div className="flex justify-between py-1">
