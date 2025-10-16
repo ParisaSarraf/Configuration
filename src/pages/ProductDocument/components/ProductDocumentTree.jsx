@@ -1,10 +1,4 @@
-import {
-    DeleteOutlined,
-    EditOutlined,
-    EyeOutlined,
-    FileDoneOutlined,
-    PlusOutlined
-} from "@ant-design/icons";
+import {DeleteOutlined, EditOutlined, EyeOutlined, FileDoneOutlined, PlusOutlined} from "@ant-design/icons";
 import Tree from "../../../components/Tree";
 import {Button, message, Modal, Space} from "antd";
 import {
@@ -126,7 +120,7 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
                             <Button
                                 size={'small'}
                                 type="text"
-                                icon={<DeleteOutlined />}
+                                icon={<DeleteOutlined/>}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     handleDeleteProductDocument(productDoc.id);
@@ -137,7 +131,7 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
                             <Button
                                 size={'small'}
                                 type="text"
-                                icon={<EditOutlined />}
+                                icon={<EditOutlined/>}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     handleEditDocumentProduct(productDoc);
@@ -168,10 +162,10 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
                         <FiberManualRecordIcon
                             fontSize="small"
                             color={
-                                edition.state === '10' ? 'success' :
-                                    edition.state === '20' ? 'info' :
-                                        edition.state === '30' ? 'action' :
-                                            edition.state === '40' ? 'error' :
+                                edition?.state === 10 ? 'success' :
+                                    edition?.state === 20 ? 'info' :
+                                        edition?.state === 30 ? 'action' :
+                                            edition?.state === 40 ? 'error' :
                                                 'warning'
                             }
                         />

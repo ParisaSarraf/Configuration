@@ -1,13 +1,13 @@
 import Modal from "@/components/Modal/index.jsx";
-import { Avatar, Button, Card, Col, Form, Input, message, Popover, Row, Steps, Table } from "antd";
+import {Avatar, Button, Card, Col, Form, Input, message, Popover, Row, Steps, Table} from "antd";
 import FileUploader from "@/components/FileUploader/FileUploader.jsx";
-import { FileOutlined, UserOutlined } from "@ant-design/icons";
-import { useUpdateProductDocumentEdition } from "@/QueryServises/productDocumentQuery/index.js";
-import { usePatchDocumentEditionLog } from "@/QueryServises/productDocumentEditionLogQuery";
-import { useEffect, useState } from "react";
-import { BASEURL } from "@/Services/axiosInstance.js";
-import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
-import { useAllLogs } from "@/hooks/useAllLogs.js";
+import {FileOutlined, UserOutlined} from "@ant-design/icons";
+import {useUpdateProductDocumentEdition} from "@/QueryServises/productDocumentQuery/index.js";
+import {usePatchDocumentEditionLog} from "@/QueryServises/productDocumentEditionLogQuery";
+import {useEffect, useState} from "react";
+import {BASEURL} from "@/Services/axiosInstance.js";
+import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
+import {useAllLogs} from "@/hooks/useAllLogs.js";
 
 const CombineFiles = (
     {
@@ -22,21 +22,22 @@ const CombineFiles = (
     const [currentState, setCurrentState] = useState(null);
     const [comment, setComment] = useState("");
 
-    const { isPending: isUpdating, mutateAsync: updateProductDocumentEdition } =
+    const {isPending: isUpdating, mutateAsync: updateProductDocumentEdition} =
         useUpdateProductDocumentEdition();
 
-    const { mutateAsync: updateState, isPending: isPatching } = usePatchDocumentEditionLog();
+    const {mutateAsync: updateState, isPending: isPatching} = usePatchDocumentEditionLog();
 
-    const { data: logList = [] } = useAllLogs(modalData?.id);
+    const {data: logList = []} = useAllLogs(modalData?.id);
 
     const stateSteps = [
-        { value: 10, label: "تعریف سند" },
-        { value: 20, label: "تهیه شده" },
-        { value: 30, label: "تایید شده" },
-        { value: 40, label: "تصویب شده" },
+        {value: 10, label: "تعریف سند"},
+        {value: 20, label: "تهیه شده"},
+        {value: 30, label: "تایید شده"},
+        {value: 40, label: "تصویب شده"},
     ];
 
     const currentStepIndex = stateSteps?.findIndex((s) => s.value === currentState);
+
 
     useEffect(() => {
         if (modalData?.state) {
@@ -146,16 +147,16 @@ const CombineFiles = (
 
         const files = [
             modalData?.file_1
-                ? { uid: "-1", name: "فایل غیرقابل ویرایش", url: BASEURL.replace("/api/v1", "") + modalData.file_1 }
+                ? {uid: "-1", name: "فایل غیرقابل ویرایش", url: BASEURL.replace("/api/v1", "") + modalData.file_1}
                 : null,
             modalData?.file_2
-                ? { uid: "-2", name: "قابل ویرایش", url: BASEURL.replace("/api/v1", "") + modalData.file_2 }
+                ? {uid: "-2", name: "قابل ویرایش", url: BASEURL.replace("/api/v1", "") + modalData.file_2}
                 : null,
             modalData?.file_3
-                ? { uid: "-3", name: "فایل پشتیبان تولید", url: BASEURL.replace("/api/v1", "") + modalData.file_3 }
+                ? {uid: "-3", name: "فایل پشتیبان تولید", url: BASEURL.replace("/api/v1", "") + modalData.file_3}
                 : null,
             modalData?.file_4
-                ? { uid: "-4", name: "ارسال به کارفرما/پیمانکار", url: BASEURL.replace("/api/v1", "") + modalData.file_4 }
+                ? {uid: "-4", name: "ارسال به کارفرما/پیمانکار", url: BASEURL.replace("/api/v1", "") + modalData.file_4}
                 : null,
         ].filter(Boolean);
 
@@ -166,8 +167,8 @@ const CombineFiles = (
                 {files.map((file) => (
                     <Col key={file.uid}>
                         <a href={file.url} target="_blank" rel="noopener noreferrer"
-                            style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                            <FileOutlined /> {file.name}
+                           style={{display: "flex", alignItems: "center", gap: 4}}>
+                            <FileOutlined/> {file.name}
                         </a>
                     </Col>
                 ))}
@@ -178,7 +179,7 @@ const CombineFiles = (
     return (
         <Modal
             isOpen={isOpen}
-            title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} فایل و روال اسناد`}
+            title={`${modalMode === "edit" ? "ویرایش روال اسناد و فایل های" : "افزودن روال اسناد و فایل های "} ${currentProduct.name}`}
             size={1000}
             onClose={closeModal}
             onSubmit={() => form.submit()}
@@ -188,26 +189,26 @@ const CombineFiles = (
             loading={isUpdating || isPatching}
         >
             <Form form={form} layout="vertical" onFinish={onFinishForm}>
-                <Card title="مدیریت فایل‌ها" style={{ marginBottom: 16 }}>
+                <Card title="مدیریت فایل‌ها" style={{marginBottom: 16}}>
                     <Row gutter={16}>
                         <Col span={6}>
                             <Form.Item label={'فایل غیرقابل ویرایش'} name='file_1'>
-                                <FileUploader maxCount={1} />
+                                <FileUploader maxCount={1}/>
                             </Form.Item>
                         </Col>
                         <Col span={6}>
                             <Form.Item label={'قابل ویرایش'} name='file_2'>
-                                <FileUploader maxCount={1} />
+                                <FileUploader maxCount={1}/>
                             </Form.Item>
                         </Col>
                         <Col span={6}>
                             <Form.Item label={'فایل پشتیبان تولید'} name='file_3'>
-                                <FileUploader maxCount={1} />
+                                <FileUploader maxCount={1}/>
                             </Form.Item>
                         </Col>
                         <Col span={6}>
                             <Form.Item label={'ارسال به کارفرما/پیمانکار'} name='file_4'>
-                                <FileUploader maxCount={1} />
+                                <FileUploader maxCount={1}/>
                             </Form.Item>
                         </Col>
                     </Row>
@@ -241,7 +242,11 @@ const CombineFiles = (
 
                                     return {
                                         title: (
-                                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                            <div style={{
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                alignItems: "center"
+                                            }}>
                                                 <span>{step.label}</span>
 
                                                 {lastLog && (
@@ -250,7 +255,8 @@ const CombineFiles = (
                                                         placement="bottom"
                                                         title={`تاریخچه (${step.label})`}
                                                         content={
-                                                            <div style={{ maxHeight: 300, overflowY: "auto", width: 650 }}>
+                                                            <div
+                                                                style={{maxHeight: 300, overflowY: "auto", width: 650}}>
                                                                 <Table
                                                                     dataSource={stepLogs}
                                                                     rowKey="id"
@@ -266,7 +272,7 @@ const CombineFiles = (
                                                                                 }}>
                                                                                     <Avatar
                                                                                         size="small"
-                                                                                        icon={<UserOutlined />}
+                                                                                        icon={<UserOutlined/>}
                                                                                         src={record.changed_by?.signature_image || record.changed_by?.temp_image}
                                                                                     />
                                                                                     <span>
@@ -310,7 +316,7 @@ const CombineFiles = (
                                                             </div>
                                                         }
                                                     >
-                                                        <Button type="link" size="small" style={{ marginTop: 4 }}>
+                                                        <Button type="link" size="small" style={{marginTop: 4}}>
                                                             👤 {lastLog.changed_by?.name} {lastLog.changed_by?.last_name}
                                                         </Button>
                                                     </Popover>

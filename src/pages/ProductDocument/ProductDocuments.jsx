@@ -125,6 +125,7 @@ const ProductDocuments = () => {
                     modalType={modalType}
                     closeModal={closeModal}
                     refetch={refetch}
+                    currentProduct={currentProduct}
                 />
 
             </Card>
