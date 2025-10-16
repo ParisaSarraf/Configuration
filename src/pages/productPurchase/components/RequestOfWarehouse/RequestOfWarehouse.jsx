@@ -1,4 +1,5 @@
-import {message, Table, Form, Button, Tooltip} from "antd";
+import {Button, Col, Form, message, Row, Table, Tooltip} from "antd";
+import {useState} from "react"; // 👈 افزودن useState
 import {
     useConfirmProductPurchaseById,
     useCreateProductPurchaseNumber,
@@ -6,9 +7,14 @@ import {
 } from "@/QueryServises/productPurchase/index.js";
 import RequestOfWarehouseCol from "./RequestOfWarehouseCol";
 import {SendOutlined} from "@ant-design/icons";
+import {usePersonalityProductList} from "@/QueryServises/personalityQuery/index.js";
+import TS from "@/components/TreeSelect/index.jsx";
 
 const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType, currentProduct, refetchUnconfirmed}) => {
 
+
+    const [selectedPersonalityFilters, setSelectedPersonalityFilters] = useState([]);
+    const [form] = Form.useForm();
 
     const isArray = Array.isArray(selectedPurchaseType);
     const hasConstruction = isArray
@@ -17,15 +23,28 @@ const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType, currentPr
 
     const constructionParam = hasConstruction ? true : {};
 
+    const personalityIdsParam = selectedPersonalityFilters
+        .map(item => item.value)
+        .join(',');
 
     const {
         data: purchaseData,
         refetch: refetchPurchaseData
-    } = useProductPurchaseById(selectedPurchaseId, constructionParam);
+    } = useProductPurchaseById(selectedPurchaseId, constructionParam, personalityIdsParam);
+
+
     const {mutateAsync: createProductPurchaseNumber} = useCreateProductPurchaseNumber();
     const {refetch: refetchConfirmed} = useConfirmProductPurchaseById(currentProduct?.id)
+    const {data: personalityData} = usePersonalityProductList()
 
-    const [form] = Form.useForm();
+    const handlePersonalityChange = (value) => {
+        setSelectedPersonalityFilters(value);
+    };
+
+    const handleFilter = () => {
+        refetchPurchaseData();
+    }
+
 
     const handleSend = async () => {
         try {
@@ -59,28 +78,46 @@ const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType, currentPr
 
     return (
         <Form form={form} initialValues={{confirmed_number: {}}}>
-            <Table
-                footer={() => (
-                    <div style={{textAlign: 'left'}}>
-                        <Tooltip title="تایید نهایی و ارسال همه موارد">
-                            <Button
-                                type="primary"
-                                icon={<SendOutlined/>}
-                                onClick={handleSend}
-                            >
-                                تایید نهایی
-                            </Button>
-                        </Tooltip>
+            <Row gutter={[16, 16]}>
+                <Col span={24}>
+                    <div className={'w-full flex flex-row gap-2'}>
+                        <div className={'w-full flex flex-col'}>
+                            <TS
+                                labelInValue
+                                data={personalityData}
+                                placeholder="هویت ها"
+                                treeCheckable={true}
+                                value={selectedPersonalityFilters}
+                                onChange={handlePersonalityChange}
+                            />
+                        </div>
                     </div>
-                )}
-                columns={RequestOfWarehouseCol()}
-                dataSource={purchaseData}
-                rowKey="id"
-                size={'small'}
-                bordered
-                scroll={{y: 300}}
-                pagination={false}
-            />
+                </Col>
+                <Col span={24}>
+                    <Table
+                        footer={() => (
+                            <div style={{textAlign: 'left'}}>
+                                <Tooltip title="تایید نهایی و ارسال همه موارد">
+                                    <Button
+                                        type="primary"
+                                        icon={<SendOutlined/>}
+                                        onClick={handleSend}
+                                    >
+                                        تایید نهایی
+                                    </Button>
+                                </Tooltip>
+                            </div>
+                        )}
+                        columns={RequestOfWarehouseCol()}
+                        dataSource={purchaseData}
+                        rowKey="id"
+                        size={'small'}
+                        bordered
+                        scroll={{y: 300}}
+                        pagination={false}
+                    />
+                </Col>
+            </Row>
         </Form>
     );
 };

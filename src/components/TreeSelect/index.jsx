@@ -1,19 +1,19 @@
-import { TreeSelect } from "antd";
-import { useState } from "react";
+import {TreeSelect} from "antd";
+import {useState} from "react";
 
 const TS = ({
-    data,
-    placeholder = "لطفا انتخاب کنید",
-    allowClear = true,
-    treeIcon = true,
-    treeLine = true,
-    showSearch = true,
-    modalMode,
-    modalData,
-    value,
-    labelInValue = false,
-    onChange
-}) => {
+                data,
+                placeholder = "لطفا انتخاب کنید",
+                allowClear = true,
+                treeIcon = true,
+                treeLine = true,
+                showSearch = true,
+                modalMode,
+                modalData,
+                value,
+                labelInValue = false,
+                onChange,
+            }) => {
     const [searchValue, setSearchValue] = useState('');
 
     const getTreeSelectOptions = (items) => {
@@ -27,6 +27,7 @@ const TS = ({
                 'code'
             ];
             let title = 'بدون عنوان';
+
             for (const field of titleFields) {
                 if (item[field]) {
                     title = item[field];
@@ -59,14 +60,17 @@ const TS = ({
             labelInValue={labelInValue}
             treeLine={treeLine}
             showSearch={showSearch}
+            treeCheckable={true}
             searchValue={searchValue}
             onSearch={onSearch}
-
-            value={value}
-            onChange={onChange}
             filterTreeNode={(inputValue, treeNode) => {
                 return treeNode.title.toLowerCase().includes(inputValue.toLowerCase());
             }}
+
+            value={value}
+            onChange={onChange}
+            maxTagCount="responsive"
+            style={{width: '100%'}}
         />
     );
 };

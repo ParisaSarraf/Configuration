@@ -1,15 +1,19 @@
 import {useMutation, useQuery} from "@tanstack/react-query";
 import {useMyAxios} from "@/hooks/useMyAxios.js";
 
-export const useProductPurchaseById = (id, construction = {}, queryOptions = {}) => {
+
+export const useProductPurchaseById = (id, construction = {}, personalityIds = [], queryOptions = {}) => {
     const {myAxios} = useMyAxios();
     return useQuery({
-        queryKey: ["product-purchase", id, construction],
+        queryKey: ["product-purchase", id, construction, personalityIds],
         queryFn: () =>
             id
                 ? myAxios
                     .get(`/product/get-list-purchases-by-id/${id}`, {
-                        params: {construction}
+                        params: {
+                            construction,
+                            ...(personalityIds && {personality_ids: personalityIds})
+                        }
                     })
                     .then((response) => response?.data)
                 : Promise.resolve(null),

@@ -125,6 +125,7 @@ const Activity = () => {
                         trustees,
                         setFilters
                     })}
+                    bordered
                     rowKey="id"
                     rowClassName={getRowClassName}
                 />
