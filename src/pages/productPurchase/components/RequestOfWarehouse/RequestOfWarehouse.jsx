@@ -41,10 +41,6 @@ const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType, currentPr
         setSelectedPersonalityFilters(value);
     };
 
-    const handleFilter = () => {
-        refetchPurchaseData();
-    }
-
 
     const handleSend = async () => {
         try {
