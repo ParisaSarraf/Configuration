@@ -1,25 +1,41 @@
-import { Card } from 'antd';
-import DataExporter from "@/components/DataExporter/DataExporter.jsx";
+import {Card} from 'antd';
 import RecursiveTable from './RecursiveTable';
-import ProductCols from '../components/ProductCols'; // مسیر را متناسب با پروژه خود تنظیم کنید
+import ProductCols from '../components/ProductCols';
+import {useEffect, useState} from "react";
+import {useExportExcelProductIntroduction,} from "@/QueryServises/ExcelExporterQuery/index.js";
+import {handleDownload} from "@utils/HandleDownload.js";
 
-const SubProductsTable = ({ productData }) => {
+const SubProductsTable = ({productData, currentProduct}) => {
+    const [exportExcelData, setExportExcelData] = useState(null);
+    const {data: exportExcel} = useExportExcelProductIntroduction(exportExcelData);
+
+    useEffect(() => {
+        if (exportExcel && exportExcelData) {
+            handleDownload(exportExcel, `_محصولات زیر مجموعه${exportExcelData}.csv`);
+        }
+    }, [exportExcel, exportExcelData, handleDownload])
+
     if (!productData || productData.length === 0) {
         return null;
     }
 
+    const handleExcelExportForRow = async (record) => {
+        setExportExcelData(record);
+    };
+
     return (
         <Card
             title="محصولات زیرمجموعه"
-            extra={
-                <DataExporter
-                    excelData={productData}
-                    excelColumns={ProductCols()}
-                    fileName="لیست محصولات زیرمجموعه"
-                />
-            }
+            // extra={
+            //     <Button
+            //         title={'خروجی اکسل'}
+            //         className={'text-green-500 border-green-500'}
+            //         onClick={() => handleExcelExportForRow(currentProduct?.id)}
+            //         icon={<FileExcelOutlined/>}
+            //     />
+            // }
         >
-            <RecursiveTable dataSource={productData} columns={ProductCols()} />
+            <RecursiveTable dataSource={productData} columns={ProductCols()}/>
         </Card>
     );
 };

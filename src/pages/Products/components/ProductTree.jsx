@@ -1,13 +1,28 @@
-import {useMemo} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {message, Modal} from "antd";
 import {DeleteOutlined, EditOutlined, FileExcelOutlined, PlusOutlined,} from '@ant-design/icons';
 import {useDeleteProduct} from "../../../QueryServises/productQuery";
 import Tree from "../../../components/Tree";
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
-import {exportToExcel} from "@utils/ExportExcel.js";
+import {useExportExcelProductChildrenBom,} from "@/QueryServises/ExcelExporterQuery/index.js";
+import {handleDownload} from "@utils/HandleDownload.js";
 
 const ProductTree = ({productData, setModal, refetch, isLoading, isError, onChange, selectedKeys, onProductClick}) => {
     const {mutate: deleteProduct, isLoading: isDeleting} = useDeleteProduct();
+    const [exportProductId, setExportProductId] = useState(null);
+    const {data: exportExcelData, isFetching: isExporting} = useExportExcelProductChildrenBom(exportProductId);
+
+
+    useEffect(() => {
+        if (exportExcelData && exportProductId) {
+            handleDownload(
+                exportExcelData,
+                `زیرمجموعه_محصول_${exportProductId}.csv`,
+                setExportProductId
+            );
+        }
+    }, [exportExcelData, exportProductId]);
+
 
     const rightClickMenuItems = [
         {
@@ -126,8 +141,8 @@ const ProductTree = ({productData, setModal, refetch, isLoading, isError, onChan
             }
         } else if (actionKey === 'exportExcel') {
             try {
-                exportToExcel(node.productData, 'محصولات.xlsx');
-                message.success("خروجی اکسل دانلود شد");
+                setExportProductId(node?.productData?.id);
+                message.loading({content: 'درحال آماده‌سازی فایل اکسل...', key: 'exporting'});
             } catch (error) {
                 message.error("خطا در خروجی اکسل");
             }
@@ -139,7 +154,7 @@ const ProductTree = ({productData, setModal, refetch, isLoading, isError, onChan
                 className="custom-product-tree"
 
                 data={treeData}
-                isLoading={isLoading || isDeleting}
+                isLoading={isLoading || isDeleting || isExporting}
                 isError={isError || isDeleting}
                 onSelect={(_, {node}) => onProductClick(node.productData)}
                 selectedKeys={selectedKeys}

@@ -1,18 +1,18 @@
-import { useState } from 'react';
-import { ConfigProvider, Row, Col, message, Spin } from 'antd';
+import {useState} from 'react';
+import {Col, ConfigProvider, message, Row} from 'antd';
 import fa_IR from 'antd/locale/fa_IR';
-import { useProductContext } from '../../Services/Context/ProductContext';
-import { useProductChildren, useUpdateProductInfo } from '../../QueryServises/productQuery';
+import {useProductContext} from '../../Services/Context/ProductContext';
+import {useProductChildren, useUpdateProductInfo} from '../../QueryServises/productQuery';
 import ProductInfoForm from './components/ProductInfoForm';
 import SubProductsTable from './components/SubProductsTable';
 
 const Introduction = () => {
     const [isDeleting, setIsDeleting] = useState(false);
-    const { currentProduct } = useProductContext();
-    const { data: productData, refetch } = useProductChildren(currentProduct?.id, {
+    const {currentProduct} = useProductContext();
+    const {data: productData, refetch} = useProductChildren(currentProduct?.id, {
         enabled: !!currentProduct?.id,
     });
-    const { mutateAsync: updateProductionInfo, isLoading: isUpdating } = useUpdateProductInfo();
+    const {mutateAsync: updateProductionInfo, isLoading: isUpdating} = useUpdateProductInfo();
 
     const onFinish = async (values) => {
         console.log('Form values:', values);
@@ -70,21 +70,21 @@ const Introduction = () => {
     return (
         <ConfigProvider direction="rtl" locale={fa_IR}>
             {/*<Spin spinning={isDeleting || isUpdating} tip={isDeleting ? "در حال حذف تصویر..." : "در حال ذخیره..."}>*/}
-                <div style={{ padding: 16 }}>
-                    <Row gutter={[16, 16]}>
-                        <Col span={24}>
-                            <ProductInfoForm
-                                product={productData?.[0] || currentProduct}
-                                onFinish={onFinish}
-                                onDeleteImage={handleDeleteImage}
-                                isSubmitting={isUpdating}
-                            />
-                        </Col>
-                        <Col span={24}>
-                            <SubProductsTable productData={productData} />
-                        </Col>
-                    </Row>
-                </div>
+            <div style={{padding: 16}}>
+                <Row gutter={[16, 16]}>
+                    <Col span={24}>
+                        <ProductInfoForm
+                            product={productData?.[0] || currentProduct}
+                            onFinish={onFinish}
+                            onDeleteImage={handleDeleteImage}
+                            isSubmitting={isUpdating}
+                        />
+                    </Col>
+                    <Col span={24}>
+                        <SubProductsTable productData={productData} currentProduct={currentProduct}/>
+                    </Col>
+                </Row>
+            </div>
             {/*</Spin>*/}
         </ConfigProvider>
     );

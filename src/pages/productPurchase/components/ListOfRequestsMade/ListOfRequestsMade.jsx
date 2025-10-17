@@ -1,22 +1,22 @@
-import { message, Modal, Table, Tag } from "antd";
-import { useConfirmProductPurchaseById, useDeleteProductPurchase } from "@/QueryServises/productPurchase/index.js";
+import {message, Modal, Table, Tag} from "antd";
+import {useConfirmProductPurchaseById, useDeleteProductPurchase} from "@/QueryServises/productPurchase/index.js";
 import ListOfRequestsMadeCol from "./ListOfRequestsMadeCol";
-import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
-import { useExportExcelProductPurchase } from "../../../../QueryServises/ExcelExporterQuery";
-import { useState, useEffect } from "react";
+import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
+import {useExportExcelProductPurchase} from "../../../../QueryServises/ExcelExporterQuery";
+import {useEffect, useState} from "react";
+import {handleDownload} from "@utils/HandleDownload.js";
 
-const ListOfRequestsMade = ({ currentProduct, refetch }) => {
-    const { data: purchaseData, refetch: purchaseDataRefetch } = useConfirmProductPurchaseById(currentProduct?.id);
-    const { mutateAsync: deleteProductPurchase } = useDeleteProductPurchase(currentProduct?.id);
+const ListOfRequestsMade = ({currentProduct, refetch}) => {
+    const {data: purchaseData, refetch: purchaseDataRefetch} = useConfirmProductPurchaseById(currentProduct?.id);
+    const {mutateAsync: deleteProductPurchase} = useDeleteProductPurchase(currentProduct?.id);
     const [exportExcelData, setExportExcelData] = useState(null);
-    const { data: exportExcel } = useExportExcelProductPurchase(exportExcelData);
+    const {data: exportExcel} = useExportExcelProductPurchase(exportExcelData);
 
     useEffect(() => {
         if (exportExcel && exportExcelData) {
             handleDownload(exportExcel, `purchase_list_${exportExcelData}.csv`);
         }
     }, [exportExcel, exportExcelData]);
-
 
     const expandedRowRender = (record) => {
         const nestedColumns = [
@@ -91,27 +91,6 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
         console.log(record);
     }
 
-    const handleDownload = (blobUrl, fileName) => {
-        try {
-            const link = document.createElement('a');
-            link.href = blobUrl;
-            link.download = fileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            setTimeout(() => {
-                window.URL.revokeObjectURL(blobUrl);
-            }, 100);
-
-            message.success("فایل با موفقیت دانلود شد");
-            setExportExcelData(null);
-        } catch (error) {
-            message.error("دانلود فایل با خطا مواجه شد");
-            console.error('Download error:', error);
-        }
-    };
-
-
     const handleExcelExportForRow = async (record) => {
         setExportExcelData(record?.id);
     };
@@ -119,7 +98,7 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
     return (
         <div className={'w-full flex flex-col'}>
             <Table
-                columns={ListOfRequestsMadeCol({ handleDelete, handleHide, handleExcelExportForRow })}
+                columns={ListOfRequestsMadeCol({handleDelete, handleHide, handleExcelExportForRow})}
                 dataSource={purchaseData || []}
                 pagination={false}
                 rowKey='id'
