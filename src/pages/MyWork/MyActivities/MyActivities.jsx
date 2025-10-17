@@ -6,7 +6,6 @@ import {useProductContext} from "@/Services/Context/ProductContext.jsx";
 import useModal from "@/hooks/useModal.js";
 import DetailModal from "@/components/DetailModal/DetailModal.jsx";
 import TrusteeModal from "@/pages/Activity/components/TrusteeModal.jsx";
-import DataExporter from "@/components/DataExporter/DataExporter.jsx";
 
 const MyActivities = () => {
     const {setModal, modalMode, modalType, modalData, closeModal, isOpen} = useModal()
@@ -26,13 +25,14 @@ const MyActivities = () => {
 
     return (
         <Card
-            extra={
-                <DataExporter
-                    excelData={MyActivitiesData}
-                    excelColumns={columns}
-                    fileName="لیست_فعالیت‌های_من"
-                />
-            }>
+            // extra={
+            //     <DataExporter
+            //         excelData={MyActivitiesData}
+            //         excelColumns={columns}
+            //         fileName="لیست_فعالیت‌های_من"
+            //     />
+            // }
+        >
 
             <Table
                 dataSource={MyActivitiesData || []}
