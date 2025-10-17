@@ -14,13 +14,16 @@ import {
     ArrowRightOutlined,
     CheckSquareOutlined,
     FileTextOutlined,
+    FormOutlined,
     GlobalOutlined,
     SyncOutlined,
     TagsOutlined,
     TeamOutlined,
+    ToolOutlined,
     UserOutlined
 } from '@ant-design/icons';
 import ReasonsEditing from './components/ReasonsEditing/ReasonsEditing';
+import SystemEngineer from "@/pages/SystemEngineer/SystemEngineer.jsx";
 
 const Setting = () => {
     const navigate = useNavigate();
@@ -65,7 +68,7 @@ const Setting = () => {
                 active: 'bg-amber-50 text-amber-700 font-semibold',
                 inactive: 'text-slate-600 hover:bg-amber-50 hover:text-amber-700'
             }
-        },   {
+        }, {
             label: `حوزه`,
             key: '4',
             icon: <GlobalOutlined/>,
@@ -109,11 +112,21 @@ const Setting = () => {
         {
             label: `دلایل ویرایش نسخه`,
             key: '9',
-            icon: <TeamOutlined/>,
+            icon: <FormOutlined/>,
             children: <ReasonsEditing/>,
             colorScheme: {
                 active: 'bg-cyan-50 text-stone-700 font-semibold',
-                inactive: 'text-stone-600 hover:bg-stone-50 hover:text-stone-700'
+                inactive: 'text-slate-600 hover:bg-stone-50 hover:text-stone-700'
+            }
+        },
+        {
+            label: `مهندسی سیستم`,
+            key: '10',
+            icon: <ToolOutlined/>,
+            children: <SystemEngineer/>,
+            colorScheme: {
+                active: 'bg-pink-50 text-pink-700 font-semibold',
+                inactive: 'text-slate-600 hover:bg-pink-50 hover:text-pink-700'
             }
         },
     ];
