@@ -39,8 +39,8 @@ const ProductCols = () => {
         },
         {
             title: 'موجودی انبار',
-            dataIndex: 'warehouse_code',
-            key: 'warehouse_code',
+            // dataIndex: 'warehouse_code',
+            // key: 'warehouse_code',
         },
         {
             title: 'جمع خرید',

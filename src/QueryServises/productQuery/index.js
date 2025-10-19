@@ -75,6 +75,19 @@ export const useDeleteProduct = () => {
   });
 };
 
+export const useDeleteProductImage = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: (params) => {
+      return myAxios
+        .patch(`/product/delete-product-image/${params}/`)
+        .then((response) => {
+          return response?.data;
+        });
+    },
+  });
+};
+
 const createFormData = (data) => {
   const formData = new FormData();
   Object.keys(data).forEach((key) => {
@@ -147,9 +160,6 @@ export const useUpdateProductInfo = () => {
           formData.append(key, value ?? "");
         }
       });
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value);
-      }
       return myAxios
         .patch(`/product/patch-user-info/${productId}/`, formData, {
           headers: {
@@ -157,7 +167,6 @@ export const useUpdateProductInfo = () => {
           },
         })
         .then((response) => {
-          console.log("Response:", response.data);
           return response?.data;
         })
         .catch((error) => {

@@ -267,5 +267,5 @@ html, body {
 
 /* این کلاس را به کامپوننت Tree پاس می‌دهیم */
 .custom-product-tree .ant-tree-indent-unit {
-    width: 3px !important; /* از مقدار کمتر برای تست استفاده کنید و !important را برای اولویت‌دهی اضافه کنید */
+    width: 8px !important; /* از مقدار کمتر برای تست استفاده کنید و !important را برای اولویت‌دهی اضافه کنید */
 }

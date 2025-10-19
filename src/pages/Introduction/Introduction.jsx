@@ -2,7 +2,7 @@ import {useState} from 'react';
 import {Col, ConfigProvider, message, Row} from 'antd';
 import fa_IR from 'antd/locale/fa_IR';
 import {useProductContext} from '../../Services/Context/ProductContext';
-import {useProductChildren, useUpdateProductInfo} from '../../QueryServises/productQuery';
+import {useDeleteProductImage, useProductChildren, useUpdateProductInfo} from '../../QueryServises/productQuery';
 import ProductInfoForm from './components/ProductInfoForm';
 import SubProductsTable from './components/SubProductsTable';
 
@@ -13,9 +13,9 @@ const Introduction = () => {
         enabled: !!currentProduct?.id,
     });
     const {mutateAsync: updateProductionInfo, isLoading: isUpdating} = useUpdateProductInfo();
+    const {mutateAsync: deleteProductionImage} = useDeleteProductImage();
 
     const onFinish = async (values) => {
-        console.log('Form values:', values);
         const payload = {
             user_description: values.user_description || '',
         };
@@ -26,7 +26,6 @@ const Introduction = () => {
         } else if (values.user_image?.[0]) {
             payload.user_image = values.user_image[0];
         }
-        console.log('Payload:', payload);
         try {
             await updateProductionInfo({
                 productId: currentProduct?.id,
@@ -42,18 +41,7 @@ const Introduction = () => {
     const handleDeleteImage = async () => {
         setIsDeleting(true);
         try {
-            const ProductInfoData = {
-                user_image: null,
-                user_description: productData?.[0]?.user_description || ''
-            };
-
-            console.log('Delete payload:', ProductInfoData);
-            console.log('Product ID:', currentProduct?.id);
-
-            await updateProductionInfo({
-                productId: currentProduct?.id,
-                ...ProductInfoData,
-            });
+            await deleteProductionImage(currentProduct?.id);
             message.success('تصویر با موفقیت حذف شد');
             await refetch();
         } catch (error) {
