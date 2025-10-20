@@ -103,6 +103,35 @@ const Activity = () => {
     setModal({ mode: "add", data: record, type: "AddSubActivity" });
   };
 
+  const columns = ActivityCols({
+    handleEdit,
+    handleDelete,
+    handleTrustee,
+    handlePlan,
+    handleDetail,
+    handleAddSubActivity,
+    trustees,
+    setFilters,
+  });
+
+  const getRootActivities = useCallback((activities) => {
+    return activities.filter((item) => !item.parent);
+  }, []);
+
+  const rootActivities = getRootActivities(activityData);
+
+  const expandedRowRender = useCallback(
+    (record) => (
+      <Table
+        columns={columns}
+        dataSource={record?.children}
+        rowKey="id"
+        size="middle"
+        pagination={false}
+      />
+    ),
+    [columns]
+  );
   return (
     <Card
       title={` فعالیت ها ${currentProduct?.name || ""}`}
@@ -139,18 +168,14 @@ const Activity = () => {
       <div className={"flex flex-col gap-4"}>
         <Table
           size="small"
-          dataSource={activityData}
-          columns={ActivityCols({
-            handleEdit,
-            handleDelete,
-            handleTrustee,
-            handlePlan,
-            handleDetail,
-            handleAddSubActivity,
-            trustees,
-            setFilters,
-          })}
+          dataSource={rootActivities}
+          columns={columns}
           bordered
+          expandable={{
+            expandedRowRender,
+            rowExpandable: (record) =>
+              record.children && record.children.length > 0,
+          }}
           rowKey="id"
           rowClassName={getRowClassName}
         />

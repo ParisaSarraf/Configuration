@@ -29,9 +29,11 @@ const ActivityModal = ({
   const { data: meetingData = [] } = useGetProductMeetings(currentProduct?.id);
   const { data: usersData = [] } = useUserSimple();
 
+  console.log(modalData);
+
   const activityType = Form.useWatch("type", form);
-  useEffect(() => {
-    if (modalMode === "edit" && modalData) {
+ useEffect(() => {
+    if ((modalMode === "edit" || modalMode === "view") && modalData) {
       form.setFieldsValue({
         meeting_id: modalData?.meeting,
         type: modalData?.type,
@@ -41,31 +43,40 @@ const ActivityModal = ({
         trustee_id: modalData?.trustee?.id,
         referral_order: modalData?.referral_order,
       });
-    } else {
+    } 
+    else if (modalMode === "add") {
       form.resetFields();
     }
   }, [form, modalMode, modalData]);
+
   const onFinish = async (values) => {
-    const payload = {
-      parent_id: modalType === "AddSubActivity" && modalData?.id,
-      type: modalType === "AddSubActivity" ? modalData?.type : values.type,
-      description: values.description,
-      from_date: jalaliDateToGeorgianDate(values?.from_date),
-      to_date: jalaliDateToGeorgianDate(values?.to_date),
-      meeting_id:
-        modalType === "addActivitiesMeetings"
-          ? modalData?.id
-          : values.meeting_id,
-      trustee_id: values.trustee_id,
-      referral_order: values?.referral_order,
-    };
-
-    if (values.type === "control project") {
-      payload.product_id = currentProduct?.id;
-      payload.parent_id = modalType === "AddSubActivity" && modalData?.id;
-    }
-
     try {
+      const payload = {
+        type: values.type || modalData?.type,
+        description: values.description,
+        from_date: jalaliDateToGeorgianDate(values?.from_date),
+        to_date: jalaliDateToGeorgianDate(values?.to_date),
+        meeting_id:
+          modalType === "addActivitiesMeetings"
+            ? modalData?.id
+            : values.meeting_id,
+        trustee_id: values.trustee_id,
+        referral_order: values?.referral_order,
+      };
+
+      if (modalType === "AddSubActivity" && modalData?.id) {
+        payload.parent_id = modalData.id;
+        payload.meeting_id = modalData?.meeting;
+      }
+
+      if (modalType === "AddSubActivity" && modalData?.type === "control project") {
+        payload.product_id = currentProduct?.id;
+      }
+
+      if (values.type === "control project") {
+        payload.product_id = currentProduct?.id;
+      }
+
       if (modalMode === "add") {
         await createActivity(payload);
         message.success("فعالیت با موفقیت اضافه شد");
@@ -73,11 +84,14 @@ const ActivityModal = ({
         await updateActivity({ activityId: modalData?.id, ...payload });
         message.success("فعالیت انتخابی با موفقیت ویرایش شد");
       }
+
       await refetch();
       closeModal();
     } catch (error) {
-      message.error(error);
-      // console.log(error);
+      const errorMessage =
+        error?.response?.data?.message || error?.message || "خطایی رخ داده است";
+      message.error(errorMessage);
+      console.error("Activity operation error:", error);
     }
   };
 
