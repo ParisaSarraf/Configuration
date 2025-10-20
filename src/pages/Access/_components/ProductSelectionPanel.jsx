@@ -1,5 +1,6 @@
 import {useEffect, useMemo, useState} from "react";
 import {useUnAccessProductsByUserAndRoleId} from "../../../QueryServises/accsessQuery";
+import {DeleteOutlined} from '@ant-design/icons';
 import {Alert, Button, Empty, Spin, Tree} from "antd";
 
 const transformDataForTree = (products) => {
@@ -8,6 +9,7 @@ const transformDataForTree = (products) => {
         key: product.id,
         title: product.persian_title,
         has_access: product.has_access,
+        access_id: product.access_id,
         children: product.children && product.children.length > 0 ? transformDataForTree(product.children) : [],
     }));
 };
@@ -19,7 +21,8 @@ const ProductSelectionPanel = (
         onSelectionChange,
         onAssign,
         isAssigning,
-        selectedProductCount
+        selectedProductCount,
+        onDeleteAccess
     }) => {
     const [checkedKeys, setCheckedKeys] = useState({checked: [], halfChecked: []});
     const [previouslySelectedKeys, setPreviouslySelectedKeys] = useState(new Set());
@@ -57,11 +60,13 @@ const ProductSelectionPanel = (
     useEffect(() => {
         if (treeData && treeData.length > 0) {
             const accessibleKeys = getAccessibleKeys(treeData);
-            if (accessibleKeys.length > 0) {
-                setCheckedKeys({checked: accessibleKeys, halfChecked: []});
-                setPreviouslySelectedKeys(new Set(accessibleKeys));
-                onSelectionChange([]);
-            }
+            setCheckedKeys({checked: accessibleKeys, halfChecked: []});
+            setPreviouslySelectedKeys(new Set(accessibleKeys));
+            onSelectionChange([]);
+        } else {
+            setCheckedKeys({checked: [], halfChecked: []});
+            setPreviouslySelectedKeys(new Set());
+            onSelectionChange([]);
         }
     }, [treeData, onSelectionChange]);
 
@@ -75,11 +80,33 @@ const ProductSelectionPanel = (
 
     const renderTitle = (nodeData) => {
         const hasAccess = nodeData.has_access;
+        const accessId = nodeData.access_id;
+
         return (
-            <span className={hasAccess ? "text-sky-600 font-semibold" : "text-gray-800"}>
-                {nodeData.title}
-                {hasAccess && <span className="text-xs text-sky-500 mr-2">(قبلاً انتخاب شده)</span>}
-            </span>
+            <div className="w-full flex flex-row gap-4 justify-between items-center">
+                <div>
+ <span className={hasAccess ? "text-sky-600 font-semibold" : "text-gray-800"}>
+{nodeData.title}
+     {hasAccess && <span className="text-xs text-sky-500 mr-2">(قبلاً انتخاب شده)</span>}
+ </span>
+                </div>
+                {hasAccess && (
+                    <div>
+                        <Button
+                            size="small"
+                            icon={<DeleteOutlined/>}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (onDeleteAccess && accessId) {
+                                    onDeleteAccess(accessId);
+                                }
+                            }}
+                            danger
+                            className="border-none"
+                        />
+                    </div>
+                )}
+            </div>
         );
     };
 
@@ -115,18 +142,17 @@ const ProductSelectionPanel = (
                     <>
                         <div className="p-2 flex-1 overflow-y-auto">
                             <div className="
-                                [&_.ant-tree-checkbox-checked_.ant-tree-checkbox-inner]:bg-sky-500
-                                [&_.ant-tree-checkbox-checked_.ant-tree-checkbox-inner]:border-sky-500
-                                [&_.ant-tree-checkbox-checked]:border-sky-500
+                             [&_.ant-tree-checkbox-checked_.ant-tree-checkbox-inner]:bg-sky-500
+                              [&_.ant-tree-checkbox-checked_.ant-tree-checkbox-inner]:border-sky-500
+                               [&_.ant-tree-checkbox-checked]:border-sky-500
                                 [&_.ant-tree-checkbox-checked::after]:border-sky-500
-                                [&_.ant-tree-checkbox:not(.ant-tree-checkbox-checked)_]:border-gray-300
-                                [&_.ant-tree-checkbox:not(.ant-tree-checkbox-checked)_.ant-tree-checkbox-inner]:bg-gray-100
-                                [&_.ant-tree-checkbox:not(.ant-tree-checkbox-checked)_.ant-tree-checkbox-inner]:border-gray-300
-                                [&_.ant-tree-checkbox-wrapper:hover_.ant-tree-checkbox-inner]:border-sky-400
-                                [&_.ant-tree-checkbox:hover_.ant-tree-checkbox-inner]:border-sky-400
-                                [&_.ant-tree-checkbox-wrapper:hover_.ant-tree-checkbox:not(.ant-tree-checkbox-checked)_.ant-tree-checkbox-inner]:bg-sky-50
-                                [&_.ant-tree-checkbox:hover:not(.ant-tree-checkbox-checked)_.ant-tree-checkbox-inner]:bg-sky-50
-                            ">
+                                 [&_.ant-tree-checkbox:not(.ant-tree-checkbox-checked)_]:border-gray-300
+                                  [&_.ant-tree-checkbox:not(.ant-tree-checkbox-checked)_.ant-tree-checkbox-inner]:bg-gray-100
+                                   [&_.ant-tree-checkbox:not(.ant-tree-checkbox-checked)_.ant-tree-checkbox-inner]:border-gray-300
+                                    [&_.ant-tree-checkbox-wrapper:hover_.ant-tree-checkbox-inner]:border-sky-400
+                                     [&_.ant-tree-checkbox:hover_.ant-tree-checkbox-inner]:border-sky-400
+                                      [&_.ant-tree-checkbox-wrapper:hover_.ant-tree-checkbox:not(.ant-tree-checkbox-checked)_.ant-tree-checkbox-inner]:bg-sky-50
+                                       [&_.ant-tree-checkbox:hover:not(.ant-tree-checkbox-checked)_.ant-tree-checkbox-inner]:bg-sky-50">
                                 <Tree
                                     checkable
                                     checkStrictly

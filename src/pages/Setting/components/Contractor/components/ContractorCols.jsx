@@ -1,11 +1,15 @@
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { Button, Flex } from "antd";
+import {DeleteOutlined, EditOutlined} from "@ant-design/icons";
+import {Button, Flex} from "antd";
 
-export const ContractorCols = ({ handleDelete, handleEdit }) => [
+export const ContractorCols = ({handleDelete, handleEdit}) => [
     {
         title: 'نام',
         dataIndex: 'name',
         key: 'name',
+    }, {
+        title: 'کد',
+        dataIndex: 'code',
+        key: 'code',
     },
     {
         title: 'عملیات',
@@ -15,11 +19,11 @@ export const ContractorCols = ({ handleDelete, handleEdit }) => [
                 <Button
                     onClick={() => handleEdit(record)}
                     className="text-green-500 border-green-500"
-                    icon={<EditOutlined />}
-                    size="small" />
+                    icon={<EditOutlined/>}
+                    size="small"/>
                 <Button
                     danger
-                    onClick={() => handleDelete(record.id)} icon={<DeleteOutlined />}
+                    onClick={() => handleDelete(record.id)} icon={<DeleteOutlined/>}
                     className="text-red-500 border-red-500"
                     size="small"
                 />

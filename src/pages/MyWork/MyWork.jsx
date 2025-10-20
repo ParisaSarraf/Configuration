@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { jwtDecode } from "jwt-decode";
 import Header from "@/components/Layouts/Header.jsx";
 import MyActivities from "@/pages/MyWork/MyActivities/MyActivities.jsx";
 import MyDocuments from "@/pages/MyWork/MyDocuments/MyDocuments.jsx";
@@ -16,9 +17,40 @@ import Waiting from "@/pages/MyWork/Waiting/Waiting.jsx";
 
 const MyWork = () => {
   const navigate = useNavigate();
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    const getUsernameFromToken = () => {
+      try {
+        const accessToken = localStorage.getItem('accessToken');
+
+        if (!accessToken) {
+          console.warn("No access token found");
+          setUserName("کاربر");
+          return;
+        }
+
+        const decodedToken = jwtDecode(accessToken);
+        const name = decodedToken?.name ||
+          decodedToken?.username ||
+          decodedToken?.fullName ||
+          decodedToken?.sub ||
+          "کاربر";
+
+        setUserName(name);
+
+      } catch (error) {
+        console.error("Error decoding token:", error);
+        setUserName("کاربر");
+      }
+    };
+
+    getUsernameFromToken();
+  }, []);
+
   const items = [
     {
-      label: "فعالیت های من",
+      label: "فعالیت های باقیمانده",
       key: "1",
       icon: <HistoryOutlined />,
       children: <MyActivities />,
@@ -72,12 +104,12 @@ const MyWork = () => {
             </Button>
             <div className="w-full flex flex-row justify-between items-center">
               <h1 className="text-3xl font-bold text-slate-900">
-                کارتابل شخصی
+                کارتابل {userName}
               </h1>
-              <p className="text-xl font-medium text-slate-800">
-                {`درصد عملکرد : `}
-                <span className="font-bold text-blue-600">۸۵٪</span>
-              </p>
+              {/* <p className="text-xl font-medium text-slate-800"> */}
+              {/* {`درصد عملکرد : `} */}
+              {/* <span className="font-bold text-blue-600">۸۵٪</span> */}
+              {/* </p> */}
             </div>
             <p className="mt-2 text-base text-slate-600">
               فعالیت‌ها، اسناد و کارهای خود را در اینجا مدیریت کنید.
@@ -89,9 +121,8 @@ const MyWork = () => {
               <button
                 key={item.key}
                 onClick={() => setActiveKey(item.key)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${
-                  activeKey === item.key ? item.activeClass : item.inactiveClass
-                }`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${activeKey === item.key ? item.activeClass : item.inactiveClass
+                  }`}
               >
                 {item.icon}
                 <span>{item.label}</span>
@@ -101,7 +132,7 @@ const MyWork = () => {
         </header>
 
         <main className="bg-white rounded-xl shadow-lg border border-slate-200 min-h-[60vh] p-6">
-          <div >{activeComponent}</div>
+          <div>{activeComponent}</div>
         </main>
       </div>
     </div>

@@ -1,15 +1,15 @@
 import {Card, message, Modal, Table, Tabs} from "antd"
 import ContractorModal from "./components/ContractorModal"
-import { useProductContext } from "@/Services/Context/ProductContext.jsx";
-import { useContractorProductList, useDeleteContractorProduct } from "@/QueryServises/ProductContractorQuery/index.js";
+import {useProductContext} from "@/Services/Context/ProductContext.jsx";
+import {useContractorProductList, useDeleteContractorProduct} from "@/QueryServises/ProductContractorQuery/index.js";
 import useModal from "../../../../hooks/useModal";
-import { ContractorCols } from "./components/ContractorCols";
+import {ContractorCols} from "./components/ContractorCols";
 
 const Contractor = () => {
-    const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
-    const { data: contractorData, refetch } = useContractorProductList()
-    const { currentProduct } = useProductContext();
-    const { mutateAsync: deleteContractor } = useDeleteContractorProduct()
+    const {isOpen, modalMode, modalData, setModal, closeModal} = useModal();
+    const {data: contractorData, refetch} = useContractorProductList()
+    const {currentProduct} = useProductContext();
+    const {mutateAsync: deleteContractor} = useDeleteContractorProduct()
 
     const handleDelete = (id) => {
         Modal.confirm({
@@ -37,7 +37,7 @@ const Contractor = () => {
     }
 
     const handleEdit = (record) => {
-        setModal({ mode: 'edit', data: record })
+        setModal({mode: 'edit', data: record})
     }
 
 
@@ -51,8 +51,9 @@ const Contractor = () => {
             children: (
                 <Table
                     dataSource={employersData}
-                    columns={ContractorCols({ handleDelete, handleEdit })}
+                    columns={ContractorCols({handleDelete, handleEdit})}
                     size="small"
+                    bordered
                 />
             )
         },
@@ -61,8 +62,9 @@ const Contractor = () => {
             label: 'پیمانکاران',
             children: (
                 <Table
+                    bordered
                     dataSource={contractorsData}
-                    columns={ContractorCols({ handleDelete, handleEdit })}
+                    columns={ContractorCols({handleDelete, handleEdit})}
                     size="small"
                 />
             )
@@ -83,7 +85,7 @@ const Contractor = () => {
                   />
               }
         >
-            <Tabs items={tabItems} />
+            <Tabs items={tabItems}/>
         </Card>
     )
 }

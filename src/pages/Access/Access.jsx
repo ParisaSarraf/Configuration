@@ -18,6 +18,7 @@ const Access = () => {
         handleAddAccess,
         handleDeleteAccess,
         isCreating
+
     } = useAccessManagement();
 
     return (
@@ -60,6 +61,7 @@ const Access = () => {
                     onAssign={handleAddAccess}
                     isAssigning={isCreating}
                     selectedProductCount={selectedProductIds.length}
+                    onDeleteAccess={handleDeleteAccess}
                 />
             </main>
         </div>

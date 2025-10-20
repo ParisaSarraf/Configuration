@@ -1,12 +1,12 @@
-import { useEffect } from 'react'
+import {useEffect} from 'react'
 import Modal from '../../../../../components/Modal'
 import {Button, Form, Input, message, Switch} from 'antd'
-import { PlusOutlined } from '@ant-design/icons'
-import { useCreateContractorProduct, useUpdateContractorProduct } from '@/QueryServises/ProductContractorQuery/index.js'
+import {PlusOutlined} from '@ant-design/icons'
+import {useCreateContractorProduct, useUpdateContractorProduct} from '@/QueryServises/ProductContractorQuery/index.js'
 
-const ContractorModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch }) => {
-    const { mutateAsync: createContractor } = useCreateContractorProduct()
-    const { mutateAsync: updateContractor } = useUpdateContractorProduct()
+const ContractorModal = ({isOpen, modalMode, modalData, closeModal, setModal, refetch}) => {
+    const {mutateAsync: createContractor} = useCreateContractorProduct()
+    const {mutateAsync: updateContractor} = useUpdateContractorProduct()
 
     const [form] = Form.useForm()
 
@@ -15,6 +15,7 @@ const ContractorModal = ({ isOpen, modalMode, modalData, closeModal, setModal, r
             form.setFieldsValue({
                 name: modalData.name,
                 is_employer: modalData.is_employer,
+                code: modalData.code,
             });
         } else {
             form.resetFields();
@@ -24,13 +25,14 @@ const ContractorModal = ({ isOpen, modalMode, modalData, closeModal, setModal, r
     const onFinish = async (values) => {
         const payload = {
             name: values.name,
-            is_employer: values.is_employer
+            is_employer: values.is_employer,
+            code: values.code,
         }
         try {
             if (modalMode === 'add') {
                 await createContractor(payload)
             } else {
-                await updateContractor({ ContractorId: modalData?.id, ...payload })
+                await updateContractor({ContractorId: modalData?.id, ...payload})
             }
             message.success('با موفقیت اضافه شد')
             closeModal()
@@ -45,8 +47,8 @@ const ContractorModal = ({ isOpen, modalMode, modalData, closeModal, setModal, r
         <>
             <Button
                 className="modal-button"
-                icon={<PlusOutlined className="text-center" />}
-                onClick={() => setModal({ mode: "add", data: null })}
+                icon={<PlusOutlined className="text-center"/>}
+                onClick={() => setModal({mode: "add", data: null})}
             >
                 <span className="xs:hidden sm:hidden md:inline">افزودن پیمانکار/کارفرما</span>
             </Button>
@@ -59,21 +61,24 @@ const ContractorModal = ({ isOpen, modalMode, modalData, closeModal, setModal, r
                 mode={modalMode}
             >
                 <Form onFinish={onFinish} form={form} layout={'vertical'}>
-                    <div className={'w-full grid grid-cols-2 gap-10'}>
-                    <Form.Item name='name' label={'نام'}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        name='is_employer'
-                        valuePropName="checked"
-                        label={'کارفرما'}
-                    >
-                        <Switch
-                            checkedChildren="بله"
-                            unCheckedChildren="خیر"
-                            className="bg-gray-300"
-                        />
-                    </Form.Item>
+                    <div className={'w-full grid grid-cols-3 gap-10'}>
+                        <Form.Item name='name' label={'نام'}>
+                            <Input/>
+                        </Form.Item>
+                        <Form.Item name='code' label={'کد'}>
+                            <Input/>
+                        </Form.Item>
+                        <Form.Item
+                            name='is_employer'
+                            valuePropName="checked"
+                            label={'کارفرما'}
+                        >
+                            <Switch
+                                checkedChildren="بله"
+                                unCheckedChildren="خیر"
+                                className="bg-gray-300"
+                            />
+                        </Form.Item>
                     </div>
                 </Form>
 

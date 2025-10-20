@@ -1,22 +1,22 @@
-import {DeleteOutlined, EditOutlined, EyeOutlined, FileDoneOutlined, PlusOutlined} from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, EyeOutlined, FileDoneOutlined, PlusOutlined } from "@ant-design/icons";
 import Tree from "../../../components/Tree";
-import {Button, message, Modal, Space} from "antd";
+import { Button, message, Modal, Space } from "antd";
 import {
     useDeleteProductDocument,
     useDeleteProductDocumentEdition,
     useProductDocumentTreeById
 } from "../../../QueryServises/productDocumentQuery";
-import {useEffect} from "react";
+import { useEffect } from "react";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
-const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
+const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
     const selectedProductId = currentProduct?.id;
 
-    const {data: productDocument, isLoading, isError} =
+    const { data: productDocument, isLoading, isError } =
         useProductDocumentTreeById(selectedProductId);
 
-    const {mutate: deleteProductDocument} = useDeleteProductDocument();
-    const {mutate: deleteProductDocumentEdition} = useDeleteProductDocumentEdition();
+    const { mutate: deleteProductDocument } = useDeleteProductDocument();
+    const { mutate: deleteProductDocumentEdition } = useDeleteProductDocumentEdition();
 
     useEffect(() => {
         if (selectedProductId) refetch();
@@ -50,7 +50,7 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
     const handleEditEdition = (edition) => {
         setModal({
             mode: "edit",
-            data: {...edition},
+            data: { ...edition },
             type: "edition"
         });
     };
@@ -58,13 +58,13 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
     const handleShowDetailEdition = (edition) => {
         setModal({
             mode: "add",
-            data: {...edition},
+            data: { ...edition },
             type: "EditionDetail",
         })
     }
 
     const handleAutomationFiles = (edition) => {
-        setModal({mode: 'add', data: edition, type: "AutomationFiles"});
+        setModal({ mode: 'add', data: edition, type: "AutomationFiles" });
     }
 
     const handleDeleteProductDocument = (productDocumentId) => {
@@ -110,17 +110,17 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
             key: `node-${Math.random()}`,
             title: (
                 <div className="flex flex-row justify-between items-center w-full">
-                <span>
-                    {productDoc?.document?.code
-                        ? ` ${productDoc.title} - ${productDoc.document.code}`
-                        : node.title}
-                </span>
+                    <span>
+                        {productDoc?.document?.code
+                            ? ` ${productDoc.title} - ${productDoc.document.code}`
+                            : node.title}
+                    </span>
                     {hasDocument && (
                         <Space>
                             <Button
                                 size={'small'}
                                 type="text"
-                                icon={<DeleteOutlined/>}
+                                icon={<DeleteOutlined />}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     handleDeleteProductDocument(productDoc.id);
@@ -131,7 +131,7 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
                             <Button
                                 size={'small'}
                                 type="text"
-                                icon={<EditOutlined/>}
+                                icon={<EditOutlined />}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     handleEditDocumentProduct(productDoc);
@@ -157,24 +157,25 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
                 key: `edition-${edition.id}`,
                 title: (
                     <div className="flex flex-row justify-between items-center w-full">
-                    <span className='w-full gap-2'>
-                        {edition.edition_full}
-                        <FiberManualRecordIcon
-                            fontSize="small"
-                            color={
-                                edition?.state === 10 ? 'success' :
-                                    edition?.state === 20 ? 'info' :
-                                        edition?.state === 30 ? 'action' :
-                                            edition?.state === 40 ? 'error' :
-                                                'warning'
-                            }
-                        />
-                    </span>
+                        <span className='w-full gap-2'>
+                            {edition.edition_full} -
+                            <FiberManualRecordIcon
+                                fontSize="small"
+                                className={
+                                    edition?.state === 10 ? 'text-[#f5222d]' :
+                                        edition?.state === 20 ? 'text-[#faad14]' :
+                                            edition?.state === 30 ? 'text-[#52c41a]' :
+                                                edition?.state === 40 ? 'text-[#722ed1]' :
+                                                    'text-[#faad14]'
+                                }
+                            />
+                            {edition.reasons_editing}
+                        </span>
                         <Space>
                             <Button
                                 size={'small'}
                                 type="text"
-                                icon={<EditOutlined/>}
+                                icon={<EditOutlined />}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     handleEditEdition(edition);
@@ -185,7 +186,7 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
                             <Button
                                 size={'small'}
                                 type="text"
-                                icon={<DeleteOutlined/>}
+                                icon={<DeleteOutlined />}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     handleDeleteEdition(edition.id);
@@ -196,7 +197,7 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
                             <Button
                                 size={'small'}
                                 type="text"
-                                icon={<FileDoneOutlined/>}
+                                icon={<FileDoneOutlined />}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     handleAutomationFiles(edition);
@@ -207,7 +208,7 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
                             <Button
                                 size={'small'}
                                 type="text"
-                                icon={<EyeOutlined/>}
+                                icon={<EyeOutlined />}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     handleShowDetailEdition(edition);
@@ -244,7 +245,7 @@ const ProductDocumentTree = ({currentProduct, setModal, refetch}) => {
             key: "edition",
             label: (
                 <div className="w-full flex flex-row items-center gap-2">
-                    <PlusOutlined/>
+                    <PlusOutlined />
                     <span>افزودن نسخه</span>
                 </div>
             )
