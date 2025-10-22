@@ -4,5 +4,4 @@ export const ProductDocumentListSerialCol = [
         dataIndex: 'persian_title',
         key: "persian_title",
     },
-
 ];

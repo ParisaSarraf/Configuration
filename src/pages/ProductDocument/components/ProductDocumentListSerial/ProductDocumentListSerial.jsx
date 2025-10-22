@@ -93,14 +93,14 @@ const EditionsAndLogsTable = ({ editions, onEdit, onDelete, onView }) => {
         render: (_, record) =>
           record.logData ? (
             <Space>
-              {/* <Tooltip title="ویرایش ">
-                <Button
-                  size="small"
-                  icon={<EditOutlined />}
-                  className="text-green-500 border-green-500"
-                  onClick={() => onEdit(record.logData)}
-                />
-              </Tooltip> */}
+              {/* <Tooltip title="ویرایش ">*/}
+              {/*  <Button*/}
+              {/*    size="small"*/}
+              {/*    icon={<EditOutlined />}*/}
+              {/*    className="text-green-500 border-green-500"*/}
+              {/*    onClick={() => onEdit(record)}*/}
+              {/*  />*/}
+              {/*</Tooltip>*/}
               <Tooltip title="حذف ">
                 <Button
                   size="small"
