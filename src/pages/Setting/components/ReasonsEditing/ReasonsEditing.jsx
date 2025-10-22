@@ -62,7 +62,12 @@ const ReasonsEditing = () => {
                     dataSource={data}
                     size={'small'}
                     bordered
-                    pagination={{pageSizeOptions: [10, 20, 30]}}
+                    pagination={{
+                        defaultPageSize: 5,
+                        pageSizeOptions: [10, 20, 45,100],
+                        size: "small",
+                        showSizeChanger: true,
+                    }}
                 />
             </Card>
 

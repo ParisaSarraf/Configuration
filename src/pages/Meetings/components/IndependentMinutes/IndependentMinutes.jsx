@@ -42,11 +42,16 @@ const IndependentMinutes = ({setModal, meetingData, deleteMeeting, refetch}) => 
 
     return (
         <Table
-            pagination={{pageSize: 5}}
             size="small"
             columns={IndependentMinutesCols({handleEdit, handleDelete, handleShowDetail, handleAddActivities})}
             dataSource={meetingData}
             rowKey="id"
+            pagination={{
+                defaultPageSize: 5,
+                pageSizeOptions: [10, 20, 45,100],
+                size: "small",
+                showSizeChanger: true,
+            }}
         />
     );
 };

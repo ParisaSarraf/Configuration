@@ -108,8 +108,12 @@ const RequestOfWarehousePage = ({selectedWareHouseId, selectedWareHouseType, cur
                         rowKey="id"
                         size={'small'}
                         scroll={{y: 300}}
-                        pagination={false}
-                        bordered
+                        pagination={{
+                            defaultPageSize: 5,
+                            pageSizeOptions: [10, 20, 45,100],
+                            size: "small",
+                            showSizeChanger: true,
+                        }}                        bordered
                     />
                 </Col>
             </Row>

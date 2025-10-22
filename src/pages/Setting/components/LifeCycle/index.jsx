@@ -62,7 +62,10 @@ const LifeCycle = () => {
                     loading={isFetching}
                     scroll={{ x: true }}
                     pagination={{
-                        pageSize: 10,
+                        defaultPageSize: 5,
+                        pageSizeOptions: [10, 20, 45,100],
+                        size: "small",
+                        showSizeChanger: true,
                     }}
                     locale={{
                         emptyText: 'هیچ چرخه عمر محصولی یافت نشد'

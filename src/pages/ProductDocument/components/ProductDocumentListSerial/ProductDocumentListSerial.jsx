@@ -128,7 +128,12 @@ const EditionsAndLogsTable = ({ editions, onEdit, onDelete, onView }) => {
     <Table
       columns={mergedColumns}
       dataSource={processedData}
-      pagination={false}
+      pagination={{
+          defaultPageSize: 5,
+          pageSizeOptions: [10, 20, 45,100],
+          size: "small",
+          showSizeChanger: true,
+      }}
       size="small"
       bordered
       scroll={{ x: "max-content" }}
@@ -174,7 +179,12 @@ const DocumentsTable = ({ documents, onEdit, onDelete, onView }) => {
     <Table
       columns={documentColumns}
       dataSource={documentData}
-      pagination={false}
+      pagination={{
+          defaultPageSize: 5,
+          pageSizeOptions: [10, 20, 45,100],
+          size: "small",
+          showSizeChanger: true,
+      }}
       size="small"
       expandable={{
         expandedRowRender: renderEditionsAndLogs,
@@ -299,7 +309,12 @@ const ProductDocumentListSerial = ({
         dataSource={tableData}
         columns={ProductDocumentListSerialCol}
         size="small"
-        pagination={{ pageSize: 3 }}
+        pagination={{
+            defaultPageSize: 5,
+            pageSizeOptions: [10, 20, 45,100],
+            size: "small",
+            showSizeChanger: true,
+        }}
         expandable={{
           expandedRowRender,
           rowExpandable: (record) =>

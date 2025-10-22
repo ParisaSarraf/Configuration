@@ -21,10 +21,6 @@ const StateSpecificTable = ({productId, state, filters = {}}) => {
     if (isLoading) {
         return <div style={{textAlign: 'center', margin: '20px 0'}}><Spin/></div>;
     }
-
-
-    console.log(reportData)
-
     return (
         <Table
             size="small"
@@ -33,7 +29,12 @@ const StateSpecificTable = ({productId, state, filters = {}}) => {
             dataSource={reportData || []}
             bordered
             rowKey="id"
-            pagination={false}
+            pagination={{
+                defaultPageSize: 5,
+                pageSizeOptions: [10, 20, 45,100],
+                size: "small",
+                showSizeChanger: true,
+            }}
         />
     );
 };

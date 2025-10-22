@@ -44,10 +44,17 @@ const SystemEngineer = () => {
                           ثبت تعریف جدید
                       </Button>
                   }>
-                <Table dataSource={systemData || []}
+                <Table
+                    dataSource={systemData || []}
                        size={'small'}
                        bordered
                        columns={SystemEngineerCols({handleDelete, handleEdit})}
+                       pagination={{
+                           defaultPageSize: 5,
+                           pageSizeOptions: [10, 20, 45,100],
+                           size: "small",
+                           showSizeChanger: true,
+                       }}
                 />
 
                 <SystemEngineerModal

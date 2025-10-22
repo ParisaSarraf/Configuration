@@ -1,8 +1,11 @@
-import {Button, Card, message, Modal, Table} from "antd";
+import {Button, Card, message, Modal, Table, Segmented} from "antd"; // Segmented اضافه شد
 import useModal from "@/hooks/useModal.js";
 import {PlusOutlined} from "@ant-design/icons";
 import {ActivityCols} from "@/pages/Activity/components/ActivityCols.jsx";
-import {useDeleteActivity, useGetProductActivitiesType,} from "@/QueryServises/ActivityQuery/index.js";
+import {
+    useDeleteActivity,
+    useGetProductActivitiesType,
+} from "@/QueryServises/ActivityQuery/index.js";
 import ActivityModal from "@/pages/Activity/components/ActivityModal.jsx";
 import {useProductContext} from "@/Services/Context/ProductContext.jsx";
 import TrusteeModal from "@/pages/Activity/components/TrusteeModal.jsx";
@@ -12,6 +15,25 @@ import DetailModal from "../../components/DetailModal/DetailModal.jsx";
 import {useUserSimple} from "../../QueryServises/userQuery";
 import {useParams} from "react-router-dom";
 import DataExporter from "@/components/DataExporter/DataExporter.jsx";
+
+const stateOptions = [
+    {
+        label: "همه فعالیت ها",
+        value: undefined,
+    },
+    {
+        label: "در دست متولی",
+        value: 10,
+    },
+    {
+        label: "در دست طرح و برنامه",
+        value: 20,
+    },
+    {
+        label: "تکمیل شده",
+        value: 30,
+    },
+];
 
 const Activity = () => {
     const {modalMode, setModal, isOpen, modalData, closeModal, modalType} =
@@ -111,22 +133,43 @@ const Activity = () => {
         setFilters,
     });
 
-    const getRootActivities = useCallback((activities) => {
+    const buildTree = (activities) => {
         if (!activities || activities.length === 0) {
             return [];
         }
-        const allChildIds = new Set(
-            activities?.flatMap(activity =>
-                activity?.children ? activity?.children.map(child => child.id) : []
-            )
-        );
-        return activities?.filter((item) => {
-            return !item.parent && !allChildIds.has(item.id);
+
+        const map = new Map();
+        const roots = [];
+        activities.forEach(activity => {
+            map.set(activity.id, { ...activity, children: [] });
         });
-    }, []);
-    const rootActivities = getRootActivities(activityData);
 
+        map.forEach(node => {
+            if (node.parent) {
+                const parentNode = map.get(node.parent);
+                if (parentNode) {
+                    parentNode.children.push(node);
+                } else {
+                    roots.push(node);
+                }
+            } else {
+                roots.push(node);
+            }
+        });
 
+        const cleanEmptyChildren = (node) => {
+            if (node.children.length === 0) {
+                node.children = null;
+            } else {
+                node.children.forEach(cleanEmptyChildren);
+            }
+        };
+
+        roots.forEach(cleanEmptyChildren);
+
+        return roots;
+    };
+    const rootActivities = buildTree(activityData);
     return (
         <Card
             title={` فعالیت ها ${currentProduct?.name || ""}`}
@@ -161,17 +204,35 @@ const Activity = () => {
             }
         >
             <div className={"flex flex-col gap-4"}>
+
+                <div className="flex justify-start mb-4">
+                    <Segmented
+                        options={stateOptions}
+                        value={filters.states}
+                        onChange={(value) => {
+                            setFilters(prevFilters => ({
+                                ...prevFilters,
+                                states: value,
+                            }));
+                        }}
+                    />
+                </div>
                 <Table
                     size="small"
-                    dataSource={rootActivities}
+                    dataSource={activityData}
                     columns={columns}
                     bordered
                     rowKey="id"
                     rowClassName={getRowClassName}
-                    pagination={false}
+                    pagination={{
+                        defaultPageSize: 5,
+                        pageSizeOptions: [10, 20, 45,100],
+                        size: "small",
+                        showSizeChanger: true,
+                    }}
                 />
-
             </div>
+
             <ActivityModal
                 isOpen={
                     modalType === "addActivity" ||

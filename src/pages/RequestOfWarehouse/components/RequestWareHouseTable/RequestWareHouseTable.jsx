@@ -64,6 +64,12 @@ const RequestWareHouseTable = (
             rowKey="id"
             bordered
             size="small"
+            pagination={{
+                defaultPageSize: 5,
+                pageSizeOptions: [10, 20, 45,100],
+                size: "small",
+                showSizeChanger: true,
+            }}
         />
     )
 }

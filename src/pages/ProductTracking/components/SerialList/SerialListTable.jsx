@@ -41,6 +41,12 @@ const SerialListTable = ({setModal, currentProduct, setSelectedRowId, selectedRo
             columns={columns}
             dataSource={productSerial?.serials}
             rowKey="id"
+            pagination={{
+                defaultPageSize: 5,
+                pageSizeOptions: [10, 20, 45,100],
+                size: "small",
+                showSizeChanger: true,
+            }}
             rowSelection={{
                 type: 'radio',
                 selectedRowKeys: selectedRowId ? [selectedRowId] : [],

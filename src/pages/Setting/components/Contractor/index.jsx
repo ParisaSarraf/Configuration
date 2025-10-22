@@ -54,6 +54,12 @@ const Contractor = () => {
                     columns={ContractorCols({handleDelete, handleEdit})}
                     size="small"
                     bordered
+                    pagination={{
+                        defaultPageSize: 5,
+                        pageSizeOptions: [10, 20, 45,100],
+                        size: "small",
+                        showSizeChanger: true,
+                    }}
                 />
             )
         },
@@ -66,6 +72,12 @@ const Contractor = () => {
                     dataSource={contractorsData}
                     columns={ContractorCols({handleDelete, handleEdit})}
                     size="small"
+                    pagination={{
+                        defaultPageSize: 5,
+                        pageSizeOptions: [10, 20, 45,100],
+                        size: "small",
+                        showSizeChanger: true,
+                    }}
                 />
             )
         }

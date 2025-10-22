@@ -60,9 +60,14 @@ const ListOfRequestsMade = ({currentProduct, refetch}) => {
             <Table
                 columns={nestedColumns}
                 dataSource={nestedDataSource}
-                pagination={false}
                 rowKey="key"
                 size={'small'}
+                pagination={{
+                    defaultPageSize: 5,
+                    pageSizeOptions: [10, 20, 45,100],
+                    size: "small",
+                    showSizeChanger: true,
+                }}
             />
         );
     };
@@ -100,7 +105,12 @@ const ListOfRequestsMade = ({currentProduct, refetch}) => {
             <Table
                 columns={ListOfRequestsMadeCol({handleDelete, handleHide, handleExcelExportForRow})}
                 dataSource={purchaseData || []}
-                pagination={false}
+                pagination={{
+                    defaultPageSize: 5,
+                    pageSizeOptions: [10, 20, 45,100],
+                    size: "small",
+                    showSizeChanger: true,
+                }}
                 rowKey='id'
                 bordered
                 size={'small'}

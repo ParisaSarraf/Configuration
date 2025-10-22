@@ -98,6 +98,12 @@ const Personality = () => {
                             {emptyText: 'هیچ کد استانداردی برای این هویت وجود ندارد'}
                         }
                         size='small'
+                        pagination={{
+                            defaultPageSize: 5,
+                            pageSizeOptions: [10, 20, 45,100],
+                            size: "small",
+                            showSizeChanger: true,
+                        }}
                     />
                 </Card>
 

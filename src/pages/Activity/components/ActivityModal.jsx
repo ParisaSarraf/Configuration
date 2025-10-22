@@ -29,8 +29,6 @@ const ActivityModal = ({
   const { data: meetingData = [] } = useGetProductMeetings(currentProduct?.id);
   const { data: usersData = [] } = useUserSimple();
 
-  console.log(modalData);
-
   const activityType = Form.useWatch("type", form);
  useEffect(() => {
     if ((modalMode === "edit" || modalMode === "view") && modalData) {

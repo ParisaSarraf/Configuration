@@ -85,6 +85,12 @@ const Waiting = () => {
                 dataSource={data || []}
                 loading={isFetching}
                 columns={cols}
+                pagination={{
+                    defaultPageSize: 5,
+                    pageSizeOptions: [10, 20, 45,100],
+                    size: "small",
+                    showSizeChanger: true,
+                }}
                 size={'small'}
                 scroll={{x: 800}}
                 rowKey="id"

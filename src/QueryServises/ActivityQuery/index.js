@@ -37,6 +37,7 @@ export const useGetProductActivitiesType = (
 			myAxios
 				.get(`/product/get-product-activity-by-id/${productId}`, {
 					params: {
+						states : filters.states,
 						internal: filters.internal || undefined,
 						external: filters.external || undefined,
 						...(filters.trustee_id?.length > 0 && {

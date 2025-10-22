@@ -14,7 +14,12 @@ const DocumentTable = ({documentData}) => {
                     columns={DocumentCol}
                     dataSource={documentData}
                     rowKey="id"
-                    pagination={false}
+                    pagination={{
+                        defaultPageSize: 5,
+                        pageSizeOptions: [10, 20, 45,100],
+                        size: "small",
+                        showSizeChanger: true,
+                    }}
                     expandable={{
                         indentSize: 20,
                         expandIconColumnIndex: 0,

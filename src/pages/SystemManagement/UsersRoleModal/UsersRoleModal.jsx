@@ -144,7 +144,12 @@ const UsersRoleModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) =
                                     columns={UserColumns}
                                     rowSelection={rowSelection}
                                     rowKey="value"
-                                    pagination={{ pageSize: 5 }}
+                                    pagination={{
+                                        defaultPageSize: 5,
+                                        pageSizeOptions: [10, 20, 45,100],
+                                        size: "small",
+                                        showSizeChanger: true,
+                                    }}
                                     size="small"
                                     bordered
                                 />

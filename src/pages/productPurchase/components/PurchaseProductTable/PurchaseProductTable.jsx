@@ -54,6 +54,12 @@ const PurchaseProductTable = ({currentProduct, setSelectedPurchaseId, setModal, 
             rowKey="id"
             size="small"
             bordered
+            pagination={{
+                defaultPageSize: 5,
+                pageSizeOptions: [10, 20, 45,100],
+                size: "small",
+                showSizeChanger: true,
+            }}
         />
     )
 }

@@ -23,8 +23,10 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
     const { data: casingData } = useOneCoreSetting("casing");
     const { data: genusData } = useGenusProductList();
     const { data: personalityData } = usePersonalityProductList();
-    const { data: parentCodeData } = useFinalCodeProductById(selectedParentCodeId);
+    const { data: parentCodeData } = useFinalCodeProductById(selectedParentCodeId?.value);
     const { data: standardCodesResponse } = useStandardCodePersonalityById(selectedPersonalityId?.value);
+
+    console.log(selectedParentCodeId)
 
     const parentCodeId = parentCodeData?.code || "";
 

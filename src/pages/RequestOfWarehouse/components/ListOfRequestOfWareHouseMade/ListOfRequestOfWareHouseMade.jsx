@@ -54,10 +54,15 @@ const ListOfRequestOfWareHouseMade = ({currentProduct, refetch}) => {
             <Table
                 columns={nestedColumns}
                 dataSource={nestedDataSource}
-                pagination={false}
                 rowKey="key"
                 bordered
                 size={'small'}
+                pagination={{
+                    defaultPageSize: 5,
+                    pageSizeOptions: [10, 20, 45,100],
+                    size: "small",
+                    showSizeChanger: true,
+                }}
             />
         );
     };
@@ -92,7 +97,12 @@ const ListOfRequestOfWareHouseMade = ({currentProduct, refetch}) => {
             <Table
                 columns={ListOfRequestOfWareHouseMadeCol(handleDelete)}
                 dataSource={requestOfWarehouse}
-                pagination={false}
+                pagination={{
+                    defaultPageSize: 5,
+                    pageSizeOptions: [10, 20, 45,100],
+                    size: "small",
+                    showSizeChanger: true,
+                }}
                 rowKey='id'
                 size={'small'}
                 bordered

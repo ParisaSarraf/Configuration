@@ -58,6 +58,12 @@ const DetailAccessProduct = () => {
                     //     emptyText: currentProduct ? 'هیچ داده‌ای یافت نشد' : 'لطفاً یک محصول انتخاب کنید'
                     // }}
                     size="small"
+                    pagination={{
+                        defaultPageSize: 5,
+                        pageSizeOptions: [10, 20, 45,100],
+                        size: "small",
+                        showSizeChanger: true,
+                    }}
                     locale={persianTableLocale}
 
                 />

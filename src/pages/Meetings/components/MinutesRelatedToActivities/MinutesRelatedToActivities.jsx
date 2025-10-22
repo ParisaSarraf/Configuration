@@ -178,8 +178,12 @@ const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refet
                 columns={activityColumns}
                 dataSource={record.meeting_activities}
                 rowKey="id"
-                pagination={false}
-            />
+                pagination={{
+                    defaultPageSize: 5,
+                    pageSizeOptions: [10, 20, 45,100],
+                    size: "small",
+                    showSizeChanger: true,
+                }}            />
         );
     }
 
@@ -189,6 +193,12 @@ const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refet
             columns={MeetingRelatedToActivitiesCols({handleEdit, handleDelete, handleShowDetail})}
             dataSource={meetingData}
             rowKey="id"
+            pagination={{
+                defaultPageSize: 5,
+                pageSizeOptions: [10, 20, 45,100],
+                size: "small",
+                showSizeChanger: true,
+            }}
             expandable={{
                 expandedRowRender,
                 rowExpandable: (record) => record.meeting_activities && record.meeting_activities.length > 0

@@ -44,6 +44,12 @@ const MyDocuments = () => {
                                     dataSource={items}
                                     bordered
                                     rowKey="id"
+                                    pagination={{
+                                        defaultPageSize: 5,
+                                        pageSizeOptions: [10, 20, 45,100],
+                                        size: "small",
+                                        showSizeChanger: true,
+                                    }}
                                 />
                             ) : (
                                 <p>هیچ داده ای برای این مرحله وجود ندارد</p>

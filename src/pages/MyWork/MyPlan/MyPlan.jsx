@@ -39,7 +39,14 @@ const MyPlan = () => {
             }
         ];
         const productData = record.product;
-        return <Table columns={columns} dataSource={[productData]} pagination={false}/>;
+        return <Table columns={columns} dataSource={[productData]}
+         pagination={{
+            defaultPageSize: 5,
+            pageSizeOptions: [10, 20, 45,100],
+            size: "small",
+            showSizeChanger: true,
+        }}
+        />;
     };
 
     const handleShowDetail = (record) => {
