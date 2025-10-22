@@ -229,7 +229,7 @@ const ProductDocumentListSerial = ({
 
   const handleShowDetailEdiotnLog = useCallback(
     (logRecord) => {
-      setModal({ mode: "view", data: logRecord, type: "EditionDetailView" });
+      setModal({ mode: "view", data: {logRecord, ProductDocumentData:ProductDocumentData}, type: "EditionDetailView" });
     },
     [setModal]
   );
