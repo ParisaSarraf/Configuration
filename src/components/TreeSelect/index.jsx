@@ -13,6 +13,7 @@ const TS = ({
                 value,
                 labelInValue = false,
                 onChange,
+                treeCheckable = false,
             }) => {
     const [searchValue, setSearchValue] = useState('');
 
@@ -60,13 +61,12 @@ const TS = ({
             labelInValue={labelInValue}
             treeLine={treeLine}
             showSearch={showSearch}
-            treeCheckable={true}
+            treeCheckable={treeCheckable}
             searchValue={searchValue}
             onSearch={onSearch}
             filterTreeNode={(inputValue, treeNode) => {
                 return treeNode.title.toLowerCase().includes(inputValue.toLowerCase());
             }}
-
             value={value}
             onChange={onChange}
             maxTagCount="responsive"

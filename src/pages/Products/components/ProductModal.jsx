@@ -101,56 +101,67 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
 
     const handleParentChange = (value) => setSelectedParentCodeId(value);
 
+    // ProductModal.jsx
+
     const onFinish = (values) => {
+
+        const multiSelectFields = ['personality_id'];
+
         const payload = {
-            parent_id: values.parent_id?.value || null,
-            parent_code_id: values.parent_code_id?.value || null,
-            casing_id: values.casing_id?.value || null,
-            genus_id: values.genus_id?.value || null,
-            alternative_genus_id: values.alternative_genus_id?.value || null,
-            standard_code_id: values.standard_code_id?.value || null,
-            personality_id: values.personality_id?.value || null,
-            code: values.code,
             persian_title: values.persian_title,
+            code: values.code,
             quantity: values.quantity,
-            alternative_code: values.alternative_code,
-            pro_type: values.pro_type,
             store_code: values.store_code,
             status: values.status,
             weight: values.weight,
             height: values.height,
             width: values.width,
-            length: values.length,
             warehouse_code: values.warehouse_code,
             warehouse_quantity: values.warehouse_quantity,
+            length: values.length,
             price: values.price,
             external_diagonal: values.external_diagonal,
             internal_diagonal: values.internal_diagonal,
+            pro_type: values.pro_type,
             description: values.description,
             brand1: values.brand1,
             brand1_desc: values.brand1_desc,
             brand2: values.brand2,
             brand2_desc: values.brand2_desc,
             employer_code: values.employer_code,
+            final_code: finalCode,
+
+            parent_id: values.parent_id?.value || null,
+            parent_code_id: values.parent_code_id?.value || null,
+            casing_id: values.casing_id?.value || null,
+            genus_id: values.genus_id?.value || null,
+            alternative_genus_id: values.alternative_genus_id?.value || null,
+            standard_code_id: values.standard_code_id?.value || null,
+
+            personality_id: values.personality_id?.map(item => item.value) || null,
         };
 
 
-
-        Object.keys(values).forEach((key) => {
-            const newVal = values[key];
-            const oldVal = modalData ? modalData[key] : undefined;
-            if (newVal !== oldVal && newVal !== undefined) {
-                payload[key] = newVal;
+        const finalPayload = {};
+        if (modalMode === "edit") {
+            Object.keys(payload).forEach((key) => {
+                const newVal = payload[key];
+                const oldVal = modalData ? modalData[key] : undefined;
+                if (JSON.stringify(newVal) !== JSON.stringify(oldVal) && newVal !== undefined) {
+                    finalPayload[key] = newVal;
+                }
+            });
+            if (values.code === modalData?.code) {
+                delete finalPayload.code;
             }
-        });
-        if (modalMode === "edit" && values.code === modalData?.code) {
-            delete payload.code;
         }
+
+        const actionPayload = modalMode === "edit" ? finalPayload : payload;
 
         const action =
             modalMode === "edit"
-                ? updateProduct({ productId: modalData.id, ...payload })
-                : createProduct(payload);
+                ? updateProduct({ productId: modalData.id, ...actionPayload })
+                : createProduct(actionPayload);
 
         action
             .then(() => {
@@ -163,7 +174,6 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
                 console.error(error);
             });
     };
-
     return (
         <Modal
             isOpen={isOpen}
@@ -270,6 +280,7 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
                         >
                             <TS
                                 labelInValue
+                                treeCheckable={true}
                                 data={personalityData}
                                 placeholder="هویت"
                                 onChange={(value) => setSelectedPersonalityId(value)}
@@ -298,17 +309,17 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
                     </Col>
                     <Col span={8}>
                         <Form.Item label="جنس" name="genus_id">
-                            <TS labelInValue data={genusData} placeholder="جنس" />
+                            <TS labelInValue data={genusData} placeholder="جنس" treeCheckable={true}/>
                         </Form.Item>
                     </Col>
                     <Col span={8}>
                         <Form.Item label="جنس جایگزین" name="alternative_genus_id">
-                            <TS labelInValue data={genusData} placeholder="جنس جایگزین" />
+                            <TS labelInValue data={genusData} placeholder="جنس جایگزین" treeCheckable={true}/>
                         </Form.Item>
                     </Col>
                     <Col span={8}>
                         <Form.Item label="پوشش" name="casing_id">
-                            <TS labelInValue data={casingData} placeholder="پوشش" />
+                            <TS labelInValue data={casingData} placeholder="پوشش" treeCheckable={true}/>
                         </Form.Item>
                     </Col>
                     <Col span={4}>
