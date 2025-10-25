@@ -148,6 +148,12 @@ const ProductTree = ({productData, setModal, refetch, isLoading, isError, onChan
             }
         }
     }
+
+    // Prevent expansion on title click
+    const handleTitleClick = (e) => {
+        e.stopPropagation();
+    };
+
     return (
         <div className="p-2">
             <Tree
@@ -160,8 +166,11 @@ const ProductTree = ({productData, setModal, refetch, isLoading, isError, onChan
                 showLine={true}
                 checkable={false}
                 showIcon={false}
+                // defaultExpand
                 rightClickMenuItems={rightClickMenuItems}
                 onRightClickAction={handleRightClickAction}
+                // Pass title click handler to prevent expansion
+                titleProps={{ onClick: handleTitleClick }}
             />
         </div>
     );
