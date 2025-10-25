@@ -38,11 +38,12 @@ const MyActivities = () => {
                 dataSource={MyActivitiesData || []}
                 pagination={{
                     defaultPageSize: 5,
-                    pageSizeOptions: [10, 20, 45,100],
+                    pageSizeOptions: [10, 20, 45, 100],
                     size: "small",
                     showSizeChanger: true,
                 }}
                 scroll={{y: 300}}
+                // bordered
                 columns={columns}
                 size={"small"}
                 rowKey={record => record.id}

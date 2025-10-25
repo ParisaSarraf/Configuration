@@ -68,7 +68,7 @@ const PurchaseModal = ({isOpen, modalMode, modalData, closeModal, currentProduct
                     <Row gutter={[16, 16]}>
                         <Col span={8}>
                             <Form.Item label="تعداد" name="quantity">
-                                <InputNumber className="w-full" min={1}/>
+                                <InputNumber className="w-full" min={0}/>
                             </Form.Item>
                         </Col>
                         <Col span={8}>

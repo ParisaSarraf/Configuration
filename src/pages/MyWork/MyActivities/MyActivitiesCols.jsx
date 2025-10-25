@@ -20,6 +20,15 @@ export const MyActivitiesCols = ({handleShowDetail, handleTrustee}) => {
             //     },
             // },
             {
+                title: 'مسئول',
+                key: 'trustee',
+                render: (text, record) => {
+                    const trusteeName = record.trustee?.name || '';
+                    const trusteeLastName = record.trustee?.last_name || '';
+                    return `${trusteeName} ${trusteeLastName}`.trim() || '---';
+                },
+            },
+            {
                 title: 'کد فعالیت',
                 dataIndex: 'full_code',
                 key: 'full_code',

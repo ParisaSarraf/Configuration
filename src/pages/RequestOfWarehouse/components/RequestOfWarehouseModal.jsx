@@ -68,13 +68,13 @@ const RequestOfWarehouseModal = ({isOpen, modalData, modalMode, modalType, close
                 <Row gutter={[16, 16]}>
                     <Col span={12}>
                         <Form.Item label="تعداد" name="quantity">
-                            <InputNumber className="w-full" min={1}/>
+                            <InputNumber className="w-full" min={0}/>
                         </Form.Item>
                     </Col>
 
                     <Col span={12}>
                         <Form.Item label="تعداد پشتیبانی" name='support_number'>
-                            <InputNumber className="w-full" min={1}/>
+                            <InputNumber className="w-full" min={0}/>
                         </Form.Item>
                     </Col>
 

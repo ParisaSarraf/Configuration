@@ -5,7 +5,21 @@ import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
 const Waiting = () => {
     const {data, isFetching} = useGetExpertActivityInPlanState();
 
-    const cols = [
+    const cols = [{
+        title: 'ردیف',
+        key: 'index',
+        render: (_, __, index) => index + 1,
+    },
+        // {
+        //     title: 'نوع فعالیت',
+        //     dataIndex: 'type',
+        //     key: 'type',
+        //     render: (type) => {
+        //         return (
+        //             <Tag>{type === 'control project' ? 'کنترل پروژه' : 'صورتجلسه'}</Tag>
+        //         )
+        //     },
+        // },
         {
             title: 'مسئول',
             key: 'trustee',
@@ -16,48 +30,32 @@ const Waiting = () => {
             },
         },
         {
-            title: 'عنوان فعالیت/محصول',
-            key: 'title',
-            render: (text, record) => record.product?.persian_title || record.meeting?.title || '---',
-        },
-        {
-            title: 'کد ',
+            title: 'کد فعالیت',
             dataIndex: 'full_code',
             key: 'full_code',
-            width: 150,
             render: (type) => {
                 return (
-                    <Tag color={'processing'}>{type}</Tag>
+                    <Tag>{type}</Tag>
                 )
             },
         },
         {
-            title: 'از تاریخ',
-            dataIndex: 'from_date',
-            key: 'from_date',
-            width: 100,
-            render: (type) => {
-                return (
-                    <Tag color={'orange'}>{georgianDateToJalaliDate(type)}</Tag>
-                )
-            },
+            title: "نام محصول",
+            key: "persian_title",
+            render: (_, row) => {
+                return row.product?.persian_title || row.meeting?.product?.persian_title;
+            }
         },
+        // {
+        //     title: "کد محصول",
+        //     key: "code",
+        //     render: (_, row) => row.product?.code || row.meeting?.product?.code
+        // },
         {
-            title: 'تا تاریخ',
-            dataIndex: 'to_date',
-            key: 'to_date',
-            width: 100,
-            render: (type) => {
-                return (
-                    <Tag color={"lime"}>{georgianDateToJalaliDate(type)}</Tag>
-                )
-            },
-        },
-
-        {
-            title: 'شرح',
+            title: 'شرح فعالیت',
             dataIndex: 'description',
             key: 'description',
+            ellipsis: true,
             render: (description) => {
                 return (
                     <Tooltip title={description}>
@@ -75,9 +73,28 @@ const Waiting = () => {
                     </Tooltip>
                 );
             },
-
         },
-    ];
+        {
+            title: 'تاریخ پایان',
+            dataIndex: 'to_date',
+            key: 'to_date',
+            render: (record) => {
+                return (
+                    <Tag color="blue">{georgianDateToJalaliDate(record)}</Tag>
+                )
+            },
+        },
+        {
+            title: 'تاریخ تایید',
+            dataIndex: 'done_date',
+            key: 'done_date',
+            render: (record) => {
+                return (
+                    <Tag color="green">{georgianDateToJalaliDate(record)}</Tag>
+                )
+            },
+        },
+    ]
 
     return (
         <Card title="فعالیت‌های منتظر تایید/اقدام">
@@ -87,7 +104,7 @@ const Waiting = () => {
                 columns={cols}
                 pagination={{
                     defaultPageSize: 5,
-                    pageSizeOptions: [10, 20, 45,100],
+                    pageSizeOptions: [10, 20, 45, 100],
                     size: "small",
                     showSizeChanger: true,
                 }}
