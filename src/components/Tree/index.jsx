@@ -2,13 +2,11 @@ import { useState, useMemo, useCallback } from "react";
 import { Dropdown, message, Tree as AntTree, TreeSelect } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 
-const { DirectoryTree } = AntTree;
-
 const Tree = ({
   data,
   isLoading,
   isError,
-  onChange, // checkable و mode="select"
+  onChange, // برای checkable و mode="select"
   checkedKeys,
   titleField = "title",
   keyField = "key",
@@ -114,12 +112,9 @@ const Tree = ({
       return dataList.map((item) => ({
         title: item[titleField],
         value: item[keyField],
-
         key: item[keyField],
         label: item[titleField],
-
         ...item,
-
         children: item[childrenField]
           ? transform(item[childrenField])
           : undefined,
@@ -167,7 +162,8 @@ const Tree = ({
       }}
     >
       <div style={{ width: "100%", height: "100%" }}>
-        <DirectoryTree
+        <AntTree
+          expandAction="switcher"
           onRightClick={showRightClickMenu ? handleRightClick : undefined}
           treeData={treeData}
           showLine={showLine}
