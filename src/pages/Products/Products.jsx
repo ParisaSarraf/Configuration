@@ -25,7 +25,7 @@ const ErrorDisplay = ({onRetry}) => (
 
 
 const Products = () => {
-    const {data: productData, isLoading, isError, refetch} = useProductList();
+    const {data: productData, isFetching, isError, refetch} = useProductList();
     const {isOpen, modalMode, modalData, setModal, closeModal} = useModal();
     const [selectedKeys, setSelectedKeys] = useState([]);
     const {currentProduct, handleProductSelect} = useProductContext();
@@ -41,9 +41,7 @@ const Products = () => {
     };
 
     const renderContent = () => {
-        if (isLoading) {
-            return <ProductListSkeleton/>;
-        }
+
         if (isError) {
             return <ErrorDisplay onRetry={refetch}/>;
         }
@@ -52,7 +50,7 @@ const Products = () => {
                 productData={productData}
                 setModal={setModal}
                 refetch={refetch}
-                isLoading={isLoading}
+                isLoading={isFetching}
                 isError={isError}
                 selectedKeys={selectedKeys}
                 onChange={handleTreeChange}
@@ -76,7 +74,14 @@ const Products = () => {
             </div>
 
             <div className="flex-1 overflow-y-auto mt-4 custom-scrollbar">
-                {renderContent()}
+                {
+                    isFetching ? (
+                        <ProductListSkeleton/>
+                    ) : (
+                        renderContent()
+                    )
+                }
+
             </div>
 
             <ProductModal

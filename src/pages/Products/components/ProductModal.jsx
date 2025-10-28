@@ -1,34 +1,34 @@
-import { Col, Form, Input, InputNumber, message, Row, Select } from "antd";
-import { useEffect, useState } from "react";
-import { useCreateProduct, useFinalCodeProductById, useUpdateProduct } from "../../../QueryServises/productQuery";
-import { useOneCoreSetting } from "../../../QueryServises/settingQuery";
-import { useGenusProductList } from "../../../QueryServises/genusQuery";
+import {Col, Form, Input, InputNumber, message, Row, Select} from "antd";
+import {useEffect, useState} from "react";
+import {useCreateProduct, useFinalCodeProductById, useUpdateProduct} from "../../../QueryServises/productQuery";
+import {useOneCoreSetting} from "../../../QueryServises/settingQuery";
+import {useGenusProductList} from "../../../QueryServises/genusQuery";
 import Modal from "../../../components/Modal";
-import { usePersonalityProductList } from "@/QueryServises/personalityQuery/index.js";
-import { SearchOutlined } from "@ant-design/icons";
+import {usePersonalityProductList} from "@/QueryServises/personalityQuery/index.js";
+import {SearchOutlined} from "@ant-design/icons";
 import TS from "../../../components/TreeSelect";
-import { useStandardCodePersonalityById } from "../../../QueryServises/StandardCodeQuery";
+import {useStandardCodePersonalityById} from "../../../QueryServises/StandardCodeQuery";
 
-const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, productData }) => {
+const ProductModal = ({isOpen, modalMode, modalData, closeModal, refetch, productData}) => {
     const [form] = Form.useForm();
 
-    const { isPending: isCreating, mutateAsync: createProduct } = useCreateProduct();
-    const { isPending: isUpdating, mutateAsync: updateProduct } = useUpdateProduct();
+    const {isPending: isCreating, mutateAsync: createProduct} = useCreateProduct();
+    const {isPending: isUpdating, mutateAsync: updateProduct} = useUpdateProduct();
 
     const [selectedPersonalityId, setSelectedPersonalityId] = useState(null);
     const [selectedParentCodeId, setSelectedParentCodeId] = useState(null);
     const [productCode, setProductCode] = useState("");
     const [finalCode, setFinalCode] = useState("");
 
-    const { data: casingData } = useOneCoreSetting("casing");
-    const { data: genusData } = useGenusProductList();
-    const { data: personalityData } = usePersonalityProductList();
-    const { data: parentCodeData } = useFinalCodeProductById(selectedParentCodeId?.value);
-    const { data: standardCodesResponse } = useStandardCodePersonalityById(selectedPersonalityId?.value);
-
-    console.log(selectedParentCodeId)
+    const {data: casingData} = useOneCoreSetting("casing");
+    const {data: genusData} = useGenusProductList();
+    const {data: personalityData} = usePersonalityProductList();
+    const {data: parentCodeData} = useFinalCodeProductById(selectedParentCodeId?.value);
+    const {data: standardCodesResponse} = useStandardCodePersonalityById(selectedPersonalityId?.value);
 
     const parentCodeId = parentCodeData?.code || "";
+
+    console.log(modalData)
 
 
     useEffect(() => {
@@ -53,13 +53,13 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
                 parent_id: modalData.parent_code,
                 parent_code_id: modalData.parent_code,
                 casing_id: modalData.casing
-                    ? { value: modalData.casing.id, label: modalData.casing.name }
+                    ? {value: modalData.casing.id, label: modalData.casing.name}
                     : null,
                 genus_id: modalData.genus?.id
-                    ? { value: modalData.genus.id, label: modalData.genus.name }
+                    ? {value: modalData.genus.id, label: modalData.genus.name}
                     : null,
                 alternative_genus_id: modalData.alternative_genus?.id
-                    ? { value: modalData.alternative_genus.id, label: modalData.alternative_genus.name }
+                    ? {value: modalData.alternative_genus.id, label: modalData.alternative_genus.name}
                     : null,
                 pro_type: modalData.pro_type,
                 description: modalData.description,
@@ -69,7 +69,7 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
                     personality => personality?.personality?.id
                 ),
                 standard_code_id: modalData.standard_code?.id
-                    ? { value: modalData.standard_code.id, label: modalData.standard_code.name }
+                    ? {value: modalData.standard_code.id, label: modalData.standard_code.name}
                     : null,
                 brand2: modalData.brand2,
                 brand2_desc: modalData.brand2_desc,
@@ -78,12 +78,16 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
             });
             setProductCode(modalData.code || "");
         } else if (modalMode === "addToParent" && modalData) {
-            setSelectedParentCodeId(modalData.id);
+            const parentLabelInValueObject = {
+                value: modalData.id,
+                label: modalData.persian_title || modalData.code
+            };
+            setSelectedParentCodeId(parentLabelInValueObject);
             form.setFieldsValue({
-                parent_id: modalData.id,
-                parent_code_id: modalData.id,
-                final_code: parentCodeId ? `${parentCodeId}` : ""
+                parent_id: parentLabelInValueObject,
+                parent_code_id: parentLabelInValueObject,
             });
+
         } else if (modalMode === "add") {
             form.setFieldsValue({
                 parent_id: null,
@@ -96,16 +100,13 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
     useEffect(() => {
         const newFinalCode = `${parentCodeId || ""}-${productCode || ""}`;
         setFinalCode(newFinalCode);
-        form.setFieldsValue({ final_code: newFinalCode });
+        form.setFieldsValue({final_code: newFinalCode});
     }, [parentCodeId, productCode]);
 
     const handleParentChange = (value) => setSelectedParentCodeId(value);
 
-    // ProductModal.jsx
 
     const onFinish = (values) => {
-
-        const multiSelectFields = ['personality_id'];
 
         const payload = {
             persian_title: values.persian_title,
@@ -131,14 +132,16 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
             employer_code: values.employer_code,
             final_code: finalCode,
 
-            parent_id: values.parent_id?.value || null,
-            parent_code_id: values.parent_code_id?.value || null,
-            casing_id: values.casing_id?.value || null,
-            genus_id: values.genus_id?.value || null,
-            alternative_genus_id: values.alternative_genus_id?.value || null,
-            standard_code_id: values.standard_code_id?.value || null,
+            parent_id: values.parent_id?.value,
+            parent_code_id: values.parent_code_id?.value,
+            standard_code_id: values.standard_code_id?.value,
 
-            personality_id: values.personality_id?.map(item => item.value) || null,
+            casing_id: values.casing_id?.value,
+            genus_id: values.genus_id?.value,
+
+            alternative_genus_id: values.alternative_genus_id?.value,
+
+            personality_id: values.personality_id?.value,
         };
 
 
@@ -160,7 +163,7 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
 
         const action =
             modalMode === "edit"
-                ? updateProduct({ productId: modalData.id, ...actionPayload })
+                ? updateProduct({productId: modalData.id, ...actionPayload})
                 : createProduct(actionPayload);
 
         action
@@ -189,12 +192,13 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
                 <Row gutter={16}>
                     <Col span={6}>
                         <Form.Item name="parent_id" label="شاخه والد">
-                            <TS labelInValue data={productData} placeholder="شاخه والد" allowClear />
+                            <TS labelInValue data={productData} placeholder="شاخه والد" allowClear/>
                         </Form.Item>
                     </Col>
                     <Col span={6}>
                         <Form.Item name="parent_code_id" label="ارث بری کد">
-                            <TS labelInValue data={productData} placeholder="ارث بری کد" onChange={handleParentChange} allowClear />
+                            <TS labelInValue data={productData} placeholder="ارث بری کد" onChange={handleParentChange}
+                                allowClear/>
                         </Form.Item>
                     </Col>
 
@@ -202,16 +206,16 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
                         <Form.Item
                             label="عنوان فارسی"
                             name="persian_title"
-                            rules={[{ required: true, message: "لطفاً عنوان فارسی را وارد کنید" }]}
+                            rules={[{required: true, message: "لطفاً عنوان فارسی را وارد کنید"}]}
                         >
-                            <Input placeholder="عنوان فارسی" />
+                            <Input placeholder="عنوان فارسی"/>
                         </Form.Item>
                     </Col>
                     <Col span={4}>
                         <Form.Item
                             label="کد محصول"
                             name="code"
-                            rules={[{ required: true, message: "لطفاً کد محصول را وارد کنید" }]}
+                            rules={[{required: true, message: "لطفاً کد محصول را وارد کنید"}]}
                         >
                             <Input
                                 placeholder="کد محصول"
@@ -224,50 +228,50 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
                         <Form.Item
                             label="تعداد"
                             name="quantity"
-                            rules={[{ required: true, message: "لطفاً تعداد محصول را وارد کنید" }]}
+                            rules={[{required: true, message: "لطفاً تعداد محصول را وارد کنید"}]}
                         >
-                            <InputNumber style={{ width: "100%" }} />
+                            <InputNumber style={{width: "100%"}}/>
                         </Form.Item>
                     </Col>
                     <Col span={4}>
                         <Form.Item label="کد نهایی" name="final_code">
-                            <Input value={finalCode} disabled />
+                            <Input value={finalCode} disabled/>
                         </Form.Item>
                     </Col>
                     <Col span={4}>
                         <Form.Item label="نام تجاری 1" name="brand1">
-                            <Input />
+                            <Input/>
                         </Form.Item>
                     </Col>
                     <Col span={4}>
                         <Form.Item label="شرح نام تجاری 1" name="brand1_desc">
-                            <Input />
+                            <Input/>
                         </Form.Item>
                     </Col>
                     <Col span={4}>
                         <Form.Item label="نام تجاری 2" name="brand2">
-                            <Input />
+                            <Input/>
                         </Form.Item>
                     </Col>
                     <Col span={4}>
                         <Form.Item label="شرح نام تجاری 2" name="brand2_desc">
-                            <Input />
+                            <Input/>
                         </Form.Item>
                     </Col>
                     <Col span={4}>
                         <Form.Item label="کد کارفرما" name="employer_code">
-                            <Input />
+                            <Input/>
                         </Form.Item>
                     </Col>
                     <Col span={4}>
                         <Form.Item label="وضعیت" name="status">
                             <Select
                                 placeholder="وضعیت"
-                                style={{ width: "100%" }}
+                                style={{width: "100%"}}
                                 options={[
-                                    { label: 'فعال', value: 'active' },
-                                    { label: 'غیرفعال', value: 'inactive' },
-                                    { label: 'موقت', value: 'temp' }
+                                    {label: 'فعال', value: 'active'},
+                                    {label: 'غیرفعال', value: 'inactive'},
+                                    {label: 'موقت', value: 'temp'}
                                 ]}
                             />
                         </Form.Item>
@@ -276,11 +280,10 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
                         <Form.Item
                             label="هویت"
                             name="personality_id"
-                            rules={[{ required: true, message: "لطفاً هویت را انتخاب کنید" }]}
+                            rules={[{required: true, message: "لطفاً هویت را انتخاب کنید"}]}
                         >
                             <TS
                                 labelInValue
-                                treeCheckable={true}
                                 data={personalityData}
                                 placeholder="هویت"
                                 onChange={(value) => setSelectedPersonalityId(value)}
@@ -294,7 +297,7 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
                                 labelInValue
                                 placeholder="کد استاندارد"
                                 showSearch
-                                style={{ width: "100%" }}
+                                style={{width: "100%"}}
                                 options={standardCodesResponse?.personality_codes?.map(item => ({
                                     value: item.id,
                                     label: item.name
@@ -303,29 +306,29 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
                                 filterOption={(input, option) =>
                                     option.label.toLowerCase().includes(input.toLowerCase())
                                 }
-                                suffixIcon={<SearchOutlined />}
+                                suffixIcon={<SearchOutlined/>}
                             />
                         </Form.Item>
                     </Col>
                     <Col span={8}>
                         <Form.Item label="جنس" name="genus_id">
-                            <TS labelInValue data={genusData} placeholder="جنس" treeCheckable={true}/>
+                            <TS labelInValue data={genusData} placeholder="جنس"/>
                         </Form.Item>
                     </Col>
                     <Col span={8}>
                         <Form.Item label="جنس جایگزین" name="alternative_genus_id">
-                            <TS labelInValue data={genusData} placeholder="جنس جایگزین" treeCheckable={true}/>
+                            <TS labelInValue data={genusData} placeholder="جنس جایگزین"/>
                         </Form.Item>
                     </Col>
                     <Col span={8}>
                         <Form.Item label="پوشش" name="casing_id">
-                            <TS labelInValue data={casingData} placeholder="پوشش" treeCheckable={true}/>
+                            <TS labelInValue data={casingData} placeholder="پوشش"/>
                         </Form.Item>
                     </Col>
                     <Col span={4}>
                         <Form.Item label="قیمت" name="price">
                             <InputNumber
-                                style={{ width: "100%" }}
+                                style={{width: "100%"}}
                                 formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '،')}
                                 parser={(value) => value.replace(/\$\s?|(،*)/g, '')}
                             />
@@ -333,56 +336,56 @@ const ProductModal = ({ isOpen, modalMode, modalData, closeModal, refetch, produ
                     </Col>
                     <Col span={4}>
                         <Form.Item label="کد انبار" name="store_code">
-                            <Input />
+                            <Input/>
                         </Form.Item>
                     </Col>
 
 
                     <Col span={4}>
                         <Form.Item label="کد کالا" name="warehouse_code">
-                            <Input />
+                            <Input/>
                         </Form.Item>
                     </Col>
                     <Col span={4}>
                         <Form.Item label="تعداد انبار" name="warehouse_quantity">
-                            <Input />
+                            <Input/>
                         </Form.Item>
                     </Col>
 
                     <Col span={2}>
                         <Form.Item label="طول" name="length">
-                            <InputNumber style={{ width: "100%" }} />
+                            <InputNumber style={{width: "100%"}}/>
                         </Form.Item>
                     </Col>
                     <Col span={2}>
                         <Form.Item label="عرض" name="width">
-                            <InputNumber style={{ width: "100%" }} />
+                            <InputNumber style={{width: "100%"}}/>
                         </Form.Item>
                     </Col>
                     <Col span={2}>
                         <Form.Item label="ارتفاع" name="height">
-                            <InputNumber style={{ width: "100%" }} />
+                            <InputNumber style={{width: "100%"}}/>
                         </Form.Item>
                     </Col>
                     <Col span={2}>
                         <Form.Item label="قطر داخل" name="internal_diagonal">
-                            <InputNumber style={{ width: "100%" }} />
+                            <InputNumber style={{width: "100%"}}/>
                         </Form.Item>
                     </Col>
                     <Col span={4}>
                         <Form.Item label="قطر خارجی" name="external_diagonal">
-                            <InputNumber style={{ width: "100%" }} />
+                            <InputNumber style={{width: "100%"}}/>
                         </Form.Item>
                     </Col>
                     <Col span={4}>
                         <Form.Item label="وزن" name="weight">
-                            <InputNumber style={{ width: "100%" }} />
+                            <InputNumber style={{width: "100%"}}/>
                         </Form.Item>
                     </Col>
 
                     <Col span={24}>
                         <Form.Item label="توضیحات" name="description">
-                            <Input.TextArea rows={1} placeholder="توضیحات محصول" />
+                            <Input.TextArea rows={1} placeholder="توضیحات محصول"/>
                         </Form.Item>
                     </Col>
                 </Row>

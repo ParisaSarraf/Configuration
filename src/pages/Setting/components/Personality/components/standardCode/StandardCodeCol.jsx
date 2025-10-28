@@ -18,7 +18,7 @@ export const StandardCodeCol = ({handleDelete, handleEdit}) => {
         },
         {
             title: ' کد طبقه بندی',
-            dataIndex: 'warehouse_code',
+            dataIndex: 'full_ware_house_code',
             key: 'warehouse_code',
             width: 200,
             render: (text) => <span>{text}</span>
