@@ -39,7 +39,7 @@ export function SignIn() {
       <div className="w-full lg:w-3/5 mt-24">
         <div className="text-center">
           <Title level={2} className="font-bold mb-4">
-            ورود{" "}
+            ورود
           </Title>
           <Paragraph className="text-gray-600 text-lg">
             لطفا رمز عبور و نام کاربری خود را وارد کنید
@@ -96,10 +96,11 @@ export function SignIn() {
         </Form>
       </div>
 
-      <div className="w-2/5 h-full hidden lg:block">
+      <div className="w-2/5 h-full hidden lg:block p-5">
         <img
-          src="assets/img/pattern.webp"
-          className="h-full w-full object-cover rounded-3xl"
+          // src="assets/img/pattern.webp"
+          src="banner.jpg"
+          className="h-screen w-full object-cover rounded-3xl"
           alt="Background pattern"
         />
       </div>
