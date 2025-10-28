@@ -69,7 +69,7 @@ const SerialListModal = ({isOpen, modalMode, modalData, closeModal, setModal, cu
         >
             <Form form={form} layout="vertical" onFinish={onFinish}>
                 <Row gutter={16}>
-                    <Col span={12}>
+                    <Col span={8}>
                         <Form.Item
                             name="serial"
                             label="سریال"
@@ -81,7 +81,7 @@ const SerialListModal = ({isOpen, modalMode, modalData, closeModal, setModal, cu
                             <Input placeholder="سریال"/>
                         </Form.Item>
                     </Col>
-                    <Col span={12}>
+                    <Col span={8}>
                         <Form.Item
                             name="parent_id"
                             label="سریال های شاخه والد"
@@ -96,7 +96,7 @@ const SerialListModal = ({isOpen, modalMode, modalData, closeModal, setModal, cu
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={24}>
+                    <Col span={8}>
 
                         <Date name="date"
                               label="تاریخ سریال"
