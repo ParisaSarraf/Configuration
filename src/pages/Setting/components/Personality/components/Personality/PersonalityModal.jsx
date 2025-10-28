@@ -13,12 +13,16 @@ const PersonalityModal = ({isOpen, modalMode, modalData, closeModal, refetch}) =
     const {isPending: isCreating, mutateAsync: createPersonality} = useCreatePersonalityProduct();
     const {isPending: isUpdating, mutateAsync: updatePersonality} = useUpdatePesonalityProduct();
 
+    console.log(modalData);
+    
+
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
                 name: modalData.name,
                 personality: modalData.personality,
-                type: modalData.type || "personality"
+                type: modalData.type || "personality",
+                warehouse_code : modalData.warehouse_code
             });
         } else if (modalMode === "add") {
             form.resetFields();
