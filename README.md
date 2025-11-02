@@ -1,8 +1,6 @@
-# React + Vite
+# 🧩 Configuration Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The **Configuration Management System (CMS)** helps manage and control all components of a product throughout its lifecycle.  
+It represents products in a **hierarchical tree structure**, allowing each node (product, sub-product, or component) to store and manage related data such as **documents**, **requirements**, and **lessons learned**.  
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The system supports **role-based access control**, **document linking**, and a **unique coding structure** for parent–child relationships — providing full traceability and consistency across projects.
