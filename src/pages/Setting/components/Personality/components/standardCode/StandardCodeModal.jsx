@@ -29,6 +29,7 @@ const StandardCodeModal = (
                 name: modalData?.name,
                 personality: modalData?.parentData?.id,
                 warehouse_code: modalData?.warehouse_code,
+                description: modalData?.description,
                 standard_file: modalData?.standard_file
                     ? [
                         {
@@ -57,6 +58,7 @@ const StandardCodeModal = (
             name: values.name,
             personality: modalMode === 'add' ? PersonalityId : values.personality,
             warehouse_code: values.warehouse_code,
+            description: values.description,
             standard_file: values.standard_file?.[0]?.originFileObj,
         };
 
@@ -110,7 +112,7 @@ const StandardCodeModal = (
                     onFinish={onFinishForm}
                 >
                     <Row gutter={[16, 16]}>
-                        <Col span={12}>
+                        <Col span={8}>
                             <Form.Item
                                 name="name"
                                 label="کد استاندارد"
@@ -122,7 +124,7 @@ const StandardCodeModal = (
                                 <Input placeholder="کد استاندارد"/>
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col span={8}>
                             <Form.Item
                                 label="هویت"
                                 name="personality"
@@ -134,10 +136,18 @@ const StandardCodeModal = (
                                 />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col span={8}>
                             <Form.Item
                                 label="کد انبار"
                                 name="warehouse_code"
+                            >
+                                <Input/>
+                            </Form.Item>
+                        </Col>
+                        <Col span={24}>
+                            <Form.Item
+                                name="description"
+                                label="توضیحات"
                             >
                                 <Input/>
                             </Form.Item>

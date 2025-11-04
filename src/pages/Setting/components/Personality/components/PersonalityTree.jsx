@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import { message, Modal } from "antd";
+import { message, Modal, Table, Button, Space, Input } from "antd";
+import { EditOutlined, DeleteOutlined, FolderOutlined, FolderOpenOutlined } from "@ant-design/icons";
 import {
   useDeletePersonalityProduct,
   usePersonalityProductList,
 } from "../../../../../QueryServises/personalityQuery";
-import Tree from "../../../../../components/Tree/index";
 
 const LOCAL_STORAGE_KEY = 'pesonalityTreeExpandedKeys';
 
-const PersonalityTree = ({
+const PersonalityTable = ({
   setModal,
   setPersonalityId,
   setSelectedPersonalityLabel,
@@ -17,13 +17,13 @@ const PersonalityTree = ({
   const { mutate: deletePersonality, isPending: isDeleting } =
     useDeletePersonalityProduct();
 
-  const [expandedKeys, setExpandedKeys] = useState([]);
+  const [expandedRowKeys, setExpandedRowKeys] = useState([]);
 
   useEffect(() => {
     try {
       const storedKeys = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (storedKeys) {
-        setExpandedKeys(JSON.parse(storedKeys));
+        setExpandedRowKeys(JSON.parse(storedKeys));
       }
     } catch (error) {
       console.error("Failed to load expanded keys from localStorage", error);
@@ -32,114 +32,165 @@ const PersonalityTree = ({
 
   const handleExpand = (keys) => {
     try {
-      setExpandedKeys(keys);
+      setExpandedRowKeys(keys);
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(keys));
     } catch (error) {
       console.error("Failed to save expanded keys to localStorage", error);
     }
   };
 
-  const transformDataToTreeFormat = (PersonalityData) => {
-    if (!PersonalityData || PersonalityData.length === 0) return [];
 
-    return PersonalityData.map((item) => ({
-      title: (
-        <>
-          <span>{item.name}</span>
-          {item.warehouse_code && (
-            <span style={{ fontSize: "0.9em", direction: "ltr" }}>
-              ({item.warehouse_code})
-            </span>
-          )}
-        </>
-      ),
-      key: `personality-${item.id}`,
-      id: item.id,
-      name: item.name,
-      parentId: item.parent,
-      warehouse_code: item.warehouse_code,
 
-      children:
-        item.children && item.children.length > 0
-          ? transformDataToTreeFormat(item.children)
-          : undefined,
-      isLeaf: !item.children || item.children.length === 0,
-    }));
-  };
-
-  const handleRightClickAction = (actionKey, node) => {
-    const personalityId = node.id;
-
-    if (actionKey === "delete") {
-      Modal.confirm({
-        title: "حذف هویت",
-        content: "آیا از حذف این هویت مطمئن هستید؟",
-        okText: "بله",
-        cancelText: "خیر",
-        okType: "danger",
-        onOk() {
-          return new Promise((resolve, reject) => {
-            deletePersonality(personalityId, {
-              onSuccess: () => {
-                message.success("هویت با موفقیت حذف شد");
-                refetch();
-                resolve();
-              },
-              onError: (err) => {
-                console.error("Error deleting personality:", err);
-                message.error("حذف هویت با خطا مواجه شد");
-                reject();
-              },
-            });
+  const handleDelete = (personalityId, name) => {
+    Modal.confirm({
+      title: "حذف هویت",
+      content: `آیا از حذف هویت "${name}" مطمئن هستید؟`,
+      okText: "بله",
+      cancelText: "خیر",
+      okType: "danger",
+      onOk() {
+        return new Promise((resolve, reject) => {
+          deletePersonality(personalityId, {
+            onSuccess: () => {
+              message.success("هویت با موفقیت حذف شد");
+              refetch();
+              resolve();
+            },
+            onError: (err) => {
+              console.error("Error deleting personality:", err);
+              message.error("حذف هویت با خطا مواجه شد");
+              reject();
+            },
           });
-        },
-      });
-    } else if (actionKey === "edit") {
-      setModal({
-        mode: "edit",
-        data: {
-          id: node.id,
-          name: node.name,
-          parentId: node.parentId,
-          warehouse_code: node.warehouse_code,
-        },
-        type: "addPersonality",
-      });
-    }
+        });
+      },
+    });
   };
 
-  const handleSelect = (selectedKeys, info) => {
-    if (info.node && info.node.id) {
-      setPersonalityId(info.node.id);
-      setSelectedPersonalityLabel(info?.node?.name);
+  const handleEdit = (record) => {
+    setModal({
+      mode: "edit",
+      data: {
+        id: record.id,
+        name: record.name,
+        parentId: record.parentId,
+        warehouse_code: record.warehouse_code,
+      },
+      type: "addPersonality",
+    });
+  };
+
+  const handleSelect = (record) => {
+    if (record && record.id) {
+      setPersonalityId(record.id);
+      setSelectedPersonalityLabel(record.name);
     } else {
       setPersonalityId(null);
       setSelectedPersonalityLabel(null);
     }
   };
 
+  const toggleExpand = (key, hasChildren) => {
+    if (!hasChildren) return;
+
+    const newExpandedKeys = expandedRowKeys.includes(key)
+      ? expandedRowKeys.filter(k => k !== key)
+      : [...expandedRowKeys, key];
+
+    handleExpand(newExpandedKeys);
+  };
+
+
+
+
+  const columns = [
+    {
+      title: "نام هویت",
+      dataIndex: "name",
+      key: "name",
+      render: (text, record) => (
+        <div
+          style={{
+            paddingRight: `${record.level * 20}px`,
+            display: 'flex',
+            alignItems: 'center',
+            cursor: 'pointer'
+          }}
+          onClick={() => handleSelect(record)}
+        >
+          {record.hasChildren && (
+            <Button
+              type="text"
+              size="small"
+              icon={expandedRowKeys.includes(record.key) ? <FolderOpenOutlined /> : <FolderOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleExpand(record.key, record.hasChildren);
+              }}
+              style={{ marginLeft: '8px' }}
+            />
+          )}
+          {!record.hasChildren && (
+            <span style={{ width: '24px', display: 'inline-block', marginLeft: '8px' }}></span>
+          )}
+          <span>{text}</span>
+        
+        </div>
+      ),
+    },
+    {
+      title: "کد انبار",
+      dataIndex: "warehouse_code",
+      key: "warehouse_code",
+      width: 120,
+      render: (text) => (
+        <span >
+          {text}
+        </span>
+      ),
+    },
+    {
+      title: "عملیات",
+      key: "actions",
+      width: 120,
+      render: (_, record) => (
+        <Space>
+          <Button
+            type="link"
+            icon={<EditOutlined />}
+            onClick={() => handleEdit(record)}
+            title="ویرایش"
+          />
+          <Button
+            type="link"
+            danger
+            icon={<DeleteOutlined />}
+            onClick={() => handleDelete(record.id, record.name)}
+            title="حذف"
+            loading={isDeleting}
+          />
+        </Space>
+      ),
+    },
+  ];
+
   return (
-    <Tree
-      data={transformDataToTreeFormat(data)}
-      isLoading={isFetching || isDeleting}
-      isError={isError}
-      showLine
-      blockNode
-      checkable={false}
-      showRightClickMenu={true}
-      rightClickMenuItems={[
-        { key: "edit", label: "ویرایش" },
-        { key: "delete", label: "حذف", danger: true },
-      ]}
-      onRightClickAction={handleRightClickAction}
-      locale={{
-        emptyText: "هیچ هویتی یافت نشد",
-      }}
-      onSelect={handleSelect}
-      expandedKeys={expandedKeys}
-      onExpand={handleExpand}
-    />
+    <div>
+
+      <Table
+        columns={columns}
+        dataSource={data}
+        loading={isFetching || isDeleting}
+        pagination={false}
+        size="small"
+        rowKey="id"
+        locale={{
+          emptyText: "هیچ هویتی یافت نشد",
+        }}
+        bordered
+      />
+    </div>
   );
 };
 
-export default PersonalityTree;
+export default PersonalityTable;
