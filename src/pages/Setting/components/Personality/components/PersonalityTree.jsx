@@ -1,9 +1,12 @@
+import { useEffect, useState } from "react";
 import { message, Modal } from "antd";
 import {
   useDeletePersonalityProduct,
   usePersonalityProductList,
 } from "../../../../../QueryServises/personalityQuery";
 import Tree from "../../../../../components/Tree/index";
+
+const LOCAL_STORAGE_KEY = 'pesonalityTreeExpandedKeys';
 
 const PersonalityTree = ({
   setModal,
@@ -14,6 +17,28 @@ const PersonalityTree = ({
   const { mutate: deletePersonality, isPending: isDeleting } =
     useDeletePersonalityProduct();
 
+  const [expandedKeys, setExpandedKeys] = useState([]);
+
+  useEffect(() => {
+    try {
+      const storedKeys = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (storedKeys) {
+        setExpandedKeys(JSON.parse(storedKeys));
+      }
+    } catch (error) {
+      console.error("Failed to load expanded keys from localStorage", error);
+    }
+  }, []);
+
+  const handleExpand = (keys) => {
+    try {
+      setExpandedKeys(keys);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(keys));
+    } catch (error) {
+      console.error("Failed to save expanded keys to localStorage", error);
+    }
+  };
+
   const transformDataToTreeFormat = (PersonalityData) => {
     if (!PersonalityData || PersonalityData.length === 0) return [];
 
@@ -22,7 +47,7 @@ const PersonalityTree = ({
         <>
           <span>{item.name}</span>
           {item.warehouse_code && (
-            <span style={{ fontSize: "0.9em", direction: "ltr"}}>
+            <span style={{ fontSize: "0.9em", direction: "ltr" }}>
               ({item.warehouse_code})
             </span>
           )}
@@ -111,8 +136,8 @@ const PersonalityTree = ({
         emptyText: "هیچ هویتی یافت نشد",
       }}
       onSelect={handleSelect}
-      autoExpandParent
-      defaultExpandAll
+      expandedKeys={expandedKeys}
+      onExpand={handleExpand}
     />
   );
 };

@@ -1,6 +1,6 @@
-import {Button, Card, message, Modal, Table, Segmented} from "antd"; // Segmented اضافه شد
+import {Button, Card, message, Modal, Table, Segmented} from "antd";
 import useModal from "@/hooks/useModal.js";
-import {PlusOutlined} from "@ant-design/icons";
+import {FileExcelOutlined, PlusOutlined} from "@ant-design/icons";
 import {ActivityCols} from "@/pages/Activity/components/ActivityCols.jsx";
 import {
     useDeleteActivity,
@@ -14,7 +14,8 @@ import {useCallback, useState} from "react";
 import DetailModal from "../../components/DetailModal/DetailModal.jsx";
 import {useUserSimple} from "../../QueryServises/userQuery";
 import {useParams} from "react-router-dom";
-import DataExporter from "@/components/DataExporter/DataExporter.jsx";
+import { useExportExcelActivity } from "../../QueryServises/ExcelExporterQuery/index.js";
+import {handleDownload} from "@utils/HandleDownload.js"; // اضافه شد
 
 const stateOptions = [
     {
@@ -41,6 +42,11 @@ const Activity = () => {
     const {currentProduct} = useProductContext();
     const [filters, setFilters] = useState({});
     const {productId} = useParams();
+    
+    // اصلاح: اضافه کردن refetch برای export hook
+    const {data: exportExcel, isLoading: isExporting, refetch: exportRefetch} = useExportExcelActivity(currentProduct?.id, {
+        enabled: false
+    });
 
     const {data: activityData = [], refetch} = useGetProductActivitiesType(
         productId || currentProduct?.id,
@@ -122,6 +128,25 @@ const Activity = () => {
         setModal({mode: "add", data: record, type: "AddSubActivity"});
     };
 
+    // اصلاح: استفاده از exportRefetch به جای refetch
+    const handleExcelExport = async () => {
+        if (!currentProduct?.id) {
+            message.error("برای خروجی اکسل، محصول باید انتخاب شده باشد");
+            return;
+        }
+        try {
+            const result = await exportRefetch();
+            
+            if (result.data) {
+                handleDownload(result.data, `_فعالیت‌های_${currentProduct.name || currentProduct.id}.csv`);
+                message.success("خروجی اکسل با موفقیت دانلود شد");
+            }
+        } catch (error) {
+            console.error('Error in Excel export:', error);
+            message.error("خطا در دریافت خروجی اکسل");
+        }
+    };
+
     const columns = ActivityCols({
         handleEdit,
         handleDelete,
@@ -133,61 +158,17 @@ const Activity = () => {
         setFilters,
     });
 
-    const buildTree = (activities) => {
-        if (!activities || activities.length === 0) {
-            return [];
-        }
-
-        const map = new Map();
-        const roots = [];
-        activities.forEach(activity => {
-            map.set(activity.id, { ...activity, children: [] });
-        });
-
-        map.forEach(node => {
-            if (node.parent) {
-                const parentNode = map.get(node.parent);
-                if (parentNode) {
-                    parentNode.children.push(node);
-                } else {
-                    roots.push(node);
-                }
-            } else {
-                roots.push(node);
-            }
-        });
-
-        const cleanEmptyChildren = (node) => {
-            if (node.children.length === 0) {
-                node.children = null;
-            } else {
-                node.children.forEach(cleanEmptyChildren);
-            }
-        };
-
-        roots.forEach(cleanEmptyChildren);
-
-        return roots;
-    };
-    const rootActivities = buildTree(activityData);
     return (
         <Card
             title={` فعالیت ها ${currentProduct?.name || ""}`}
             extra={
                 <div className={"w-full flex flex-row gap-2"}>
-                    <DataExporter
-                        excelData={activityData}
-                        excelColumns={ActivityCols({
-                            handleEdit,
-                            handleDelete,
-                            handleTrustee,
-                            handlePlan,
-                            handleDetail,
-                            handleAddSubActivity,
-                            trustees,
-                            setFilters,
-                        })}
-                        fileName="لیست_فعالیت‌های_من"
+                    <Button
+                        title={'خروجی اکسل'}
+                        className={'text-green-500 border-green-500 mt-2'}
+                        onClick={handleExcelExport}
+                        icon={<FileExcelOutlined />}
+                        loading={isExporting}
                     />
 
                     <div>

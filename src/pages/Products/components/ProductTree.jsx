@@ -200,7 +200,6 @@ const ProductTree = ({
         blockNode 
         rightClickMenuItems={rightClickMenuItems}
         onRightClickAction={handleRightClickAction}
-        
         expandedKeys={expandedKeys}
         onExpand={handleExpand}
       />
