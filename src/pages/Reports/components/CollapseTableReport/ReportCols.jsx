@@ -46,10 +46,11 @@ const ReportCol = () => {
             render: (record) => {
                 return (<Tag color={'red'}>{record}</Tag>)
             }
-        }, {
-            title: 'تهیه کننده',
-            dataIndex: ['editions', 0, 'prepare'],
-        }
+        },
+        //  {
+        //     title: 'تهیه کننده',
+        //     dataIndex: ['editions', 0, 'prepare'],
+        // }
     ]
 }
 
