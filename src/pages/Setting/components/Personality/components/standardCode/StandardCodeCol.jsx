@@ -24,6 +24,13 @@ export const StandardCodeCol = ({handleDelete, handleEdit}) => {
             render: (text) => <span>{text}</span>
         },
         {
+            title: 'توضیحات',
+            dataIndex: 'description',
+            key: 'description',
+            width: 200,
+            render: (text) => <span>{text}</span>
+        },
+        {
             title: 'فایل پیوست',
             dataIndex: 'standard_file',
             key: 'standard_file',
