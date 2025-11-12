@@ -178,6 +178,11 @@ const PersonalityTable = ({
     <div>
 
       <Table
+        rowSelection={
+          {
+            type: 'radio',
+          }
+        }
         columns={columns}
         dataSource={data}
         loading={isFetching || isDeleting}
