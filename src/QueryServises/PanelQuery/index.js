@@ -43,6 +43,20 @@ export const useGetDocumentWorkflowTasks = (queryOptions) => {
 };
 
 
+export const useGetActivityUserPerformance = (queryOptions) => {
+    const {myAxios} = useMyAxios();
+    return useQuery({
+        queryKey: ['get-activity-user-performance'],
+        queryFn: () =>
+            myAxios.get(`/get-activity-user-performance/`).then((response) => {
+                queryOptions?.onSuccess?.(response?.data);
+                return response?.data;
+            }),
+        ...queryOptions,
+    });
+};
+
+
 export const useGetExpertActivityInPlanState = (queryOptions) => {
     const {myAxios} = useMyAxios();
     return useQuery({

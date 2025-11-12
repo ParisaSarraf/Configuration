@@ -14,10 +14,12 @@ import {
 import { Button } from "antd";
 import { useNavigate } from "react-router-dom";
 import Waiting from "@/pages/MyWork/Waiting/Waiting.jsx";
+import { useGetActivityUserPerformance } from "../../QueryServises/PanelQuery";
 
 const MyWork = () => {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
+  const {data: performanceData} = useGetActivityUserPerformance();
 
   useEffect(() => {
     const getUsernameFromToken = () => {
@@ -102,18 +104,18 @@ const MyWork = () => {
             >
               بازگشت به صفحه اصلی
             </Button>
-            <div className="w-full flex flex-row justify-between items-center">
-              <h1 className="text-3xl font-bold text-slate-900">
-                کارتابل {userName}
+            <div className="w-full flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                کارتابل <span className="text-sky-600">{userName}</span>
               </h1>
-              {/* <p className="text-xl font-medium text-slate-800"> */}
-              {/* {`درصد عملکرد : `} */}
-              {/* <span className="font-bold text-blue-600">۸۵٪</span> */}
-              {/* </p> */}
+              <div className="flex items-center gap-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl px-5 py-3 shadow-sm border border-blue-100">
+                <span className="text-lg font-semibold text-slate-700">درصد عملکرد:</span>
+                <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                  {performanceData?.percentage || "۰"}٪
+                </span>
+              </div>
             </div>
-            <p className="mt-2 text-base text-slate-600">
-              فعالیت‌ها، اسناد و کارهای خود را در اینجا مدیریت کنید.
-            </p>
+      
           </div>
 
           <div className="bg-slate-100 p-1 flex items-center gap-1 rounded-xl border border-slate-200">
