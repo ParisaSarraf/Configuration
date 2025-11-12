@@ -14,6 +14,8 @@ const CTransfer = ({
     showSelectAll = true,
     onAdd,
     onDelete,
+    Leftloading = false,
+    Rightloading = false,
     style,
     className
 }) => {
@@ -49,6 +51,7 @@ const CTransfer = ({
                     <List
                         itemLayout="horizontal"
                         dataSource={rightDataSource}
+                        loading={Rightloading}
                         rowKey="key"
                         renderItem={(item) => (
                             <List.Item
@@ -72,7 +75,6 @@ const CTransfer = ({
                 <Space direction="vertical">
                     <Button
                         type="primary"
-                        
                         icon={< RightOutlined />}
                         onClick={onAdd}
                         disabled={selectedLeftKeys.length === 0}
@@ -89,6 +91,7 @@ const CTransfer = ({
                 <Card title={leftTitle} style={{ flex: 1, height: '100%' }}>
                     <List
                         itemLayout="horizontal"
+                        loading={Leftloading}
                         dataSource={leftDataSource}
                         rowKey="key"
                         renderItem={(item) => (

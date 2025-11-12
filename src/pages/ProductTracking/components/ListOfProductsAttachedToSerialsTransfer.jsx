@@ -8,12 +8,12 @@ import {
 import { Modal as Md, message } from "antd";
 
 const ListOfProductsAttachedToSerialsTransfer = ({ selectedRowId, selectedParentId }) => {
-    const { data: productSerialChildren, refetch: refetchChildren } = useProductSerialChildrenById(
+    const { data: productSerialChildren, refetch: refetchChildren  , isLoading : Rightloading} = useProductSerialChildrenById(
         selectedRowId,
         { enabled: !!selectedRowId }
     );
 
-    const { data: productSerialUnlinked, refetch: refetchUnlinked } = useProductSerialUnlinkedById(
+    const { data: productSerialUnlinked, refetch: refetchUnlinked , isLoading : Leftloading} = useProductSerialUnlinkedById(
         selectedRowId,
         { enabled: !!selectedRowId }
     );
@@ -110,6 +110,8 @@ const ListOfProductsAttachedToSerialsTransfer = ({ selectedRowId, selectedParent
             <CTransfer
                 leftDataSource={leftData}
                 rightDataSource={rightData}
+                Leftloading={Leftloading}
+                Rightloading={Rightloading}
                 selectedLeftKeys={selectedLeftKeys}
                 selectedRightKeys={selectedRightKeys}
                 onSelectLeftChange={setSelectedLeftKeys}
