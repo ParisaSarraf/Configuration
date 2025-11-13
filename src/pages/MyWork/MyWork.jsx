@@ -19,12 +19,12 @@ import { useGetActivityUserPerformance } from "../../QueryServises/PanelQuery";
 const MyWork = () => {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
-  const {data: performanceData} = useGetActivityUserPerformance();
+  const { data: performanceData } = useGetActivityUserPerformance();
 
   useEffect(() => {
     const getUsernameFromToken = () => {
       try {
-        const accessToken = localStorage.getItem('accessToken');
+        const accessToken = localStorage.getItem("accessToken");
 
         if (!accessToken) {
           console.warn("No access token found");
@@ -33,14 +33,14 @@ const MyWork = () => {
         }
 
         const decodedToken = jwtDecode(accessToken);
-        const name = decodedToken?.name ||
+        const name =
+          decodedToken?.name ||
           decodedToken?.username ||
           decodedToken?.fullName ||
           decodedToken?.sub ||
           "کاربر";
 
         setUserName(name);
-
       } catch (error) {
         console.error("Error decoding token:", error);
         setUserName("کاربر");
@@ -109,13 +109,14 @@ const MyWork = () => {
                 کارتابل <span className="text-sky-600">{userName}</span>
               </h1>
               <div className="flex items-center gap-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl px-5 py-3 shadow-sm border border-blue-100">
-                <span className="text-lg font-semibold text-slate-700">درصد عملکرد:</span>
+                <span className="text-lg font-semibold text-slate-700">
+                  درصد عملکرد:
+                </span>
                 <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
                   {performanceData?.percentage || "۰"}٪
                 </span>
               </div>
             </div>
-      
           </div>
 
           <div className="bg-slate-100 p-1 flex items-center gap-1 rounded-xl border border-slate-200">
@@ -123,8 +124,9 @@ const MyWork = () => {
               <button
                 key={item.key}
                 onClick={() => setActiveKey(item.key)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${activeKey === item.key ? item.activeClass : item.inactiveClass
-                  }`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${
+                  activeKey === item.key ? item.activeClass : item.inactiveClass
+                }`}
               >
                 {item.icon}
                 <span>{item.label}</span>
@@ -133,7 +135,7 @@ const MyWork = () => {
           </div>
         </header>
 
-        <main className="bg-white rounded-xl shadow-lg border border-slate-200 min-h-[60vh] p-6">
+        <main className="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
           <div>{activeComponent}</div>
         </main>
       </div>
