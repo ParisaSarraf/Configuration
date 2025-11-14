@@ -18,6 +18,7 @@ const CombineFiles = (
         refetch,
         currentProduct
     }) => {
+
     const [form] = Form.useForm();
     const [currentState, setCurrentState] = useState(null);
     const [comment, setComment] = useState("");

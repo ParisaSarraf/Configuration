@@ -24,7 +24,7 @@ export const StandardCodeCol = ({handleDelete, handleEdit}) => {
             render: (text) => <span>{text}</span>
         },
         {
-            title: 'توضیحات',
+            title: 'نام',
             dataIndex: 'description',
             key: 'description',
             width: 200,

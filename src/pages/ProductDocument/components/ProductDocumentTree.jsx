@@ -277,6 +277,7 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
             isError={isError}
             treeIcon={false}
             showLine
+            blockNode={true}
             checkable={false}
             showIcon={false}
             rightClickMenuItems={rightClickMenu}

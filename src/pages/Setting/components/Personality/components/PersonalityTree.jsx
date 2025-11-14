@@ -5,9 +5,7 @@ import {
   useDeletePersonalityProduct,
   usePersonalityProductList,
 } from "../../../../../QueryServises/personalityQuery";
-
 const LOCAL_STORAGE_KEY = 'pesonalityTreeExpandedKeys';
-
 const PersonalityTable = ({
   setModal,
   setPersonalityId,
@@ -16,11 +14,9 @@ const PersonalityTable = ({
   const { data, isFetching, refetch } = usePersonalityProductList();
   const { mutate: deletePersonality, isPending: isDeleting } =
     useDeletePersonalityProduct();
-
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const [selectRow, setSecletdRow] = useState(false)
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-
   useEffect(() => {
     try {
       const storedKeys = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -31,7 +27,6 @@ const PersonalityTable = ({
       console.error("Failed to load expanded keys from localStorage", error);
     }
   }, []);
-
   const handleExpand = (keys) => {
     try {
       setExpandedRowKeys(keys);
@@ -40,7 +35,6 @@ const PersonalityTable = ({
       console.error("Failed to save expanded keys to localStorage", error);
     }
   };
-
   const handleDelete = (personalityId, name) => {
     Modal.confirm({
       title: "حذف هویت",
@@ -66,7 +60,6 @@ const PersonalityTable = ({
       },
     });
   };
-
   const handleEdit = (record) => {
     setModal({
       mode: "edit",
@@ -79,7 +72,6 @@ const PersonalityTable = ({
       type: "addPersonality",
     });
   };
-
   const handleSelect = (record) => {
     if (record && record.id) {
       setPersonalityId(record.id);
@@ -93,14 +85,11 @@ const PersonalityTable = ({
       setSelectedRowKeys([]);
     }
   };
-
   const toggleExpand = (key, hasChildren) => {
     if (!hasChildren) return;
-
     const newExpandedKeys = expandedRowKeys.includes(key)
       ? expandedRowKeys.filter(k => k !== key)
       : [...expandedRowKeys, key];
-
     handleExpand(newExpandedKeys);
   };
 
@@ -134,7 +123,6 @@ const PersonalityTable = ({
             <span style={{ width: '24px', display: 'inline-block', marginLeft: '8px' }}></span>
           )}
           <span>{text}</span>
-
         </div>
       ),
     },
@@ -156,17 +144,18 @@ const PersonalityTable = ({
       render: (_, record) => (
         <Space>
           <Button
-            type="link"
+            className="text-green-600 border-green-600"
             icon={<EditOutlined />}
             onClick={(e) => {
               e.stopPropagation();
               handleEdit(record);
             }}
+            size="small"
             title="ویرایش"
           />
           <Button
-            type="link"
             danger
+            size="small"
             icon={<DeleteOutlined />}
             onClick={(e) => {
               e.stopPropagation();
@@ -179,10 +168,8 @@ const PersonalityTable = ({
       ),
     },
   ];
-
   return (
     <div>
-
       <Table
         rowSelection={{
           type: 'radio',

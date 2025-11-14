@@ -104,6 +104,7 @@ const Personality = () => {
             columns={StandardCodeCol({ handleDelete, handleEdit })}
             dataSource={TableData || []}
             rowKey="id"
+            bordered
             locale={{ emptyText: "هیچ کد استانداردی برای این هویت وجود ندارد" }}
             size="small"
             pagination={{
