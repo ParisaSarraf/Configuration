@@ -6,7 +6,7 @@ import { FileExcelOutlined } from '@ant-design/icons';
 import { useExportExcelProductTable } from '../../../QueryServises/ExcelExporterQuery';
 
 const SubProductsTable = ({ productData, currentProduct }) => {
-    const { data: exportExcel, isLoading: isExporting, refetch } = useExportExcelProductTable(currentProduct?.id, {
+    const { isLoading: isExporting, refetch } = useExportExcelProductTable(currentProduct?.id, {
         enabled: false
     });
 

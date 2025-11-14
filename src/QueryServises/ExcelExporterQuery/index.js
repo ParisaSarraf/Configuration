@@ -42,7 +42,6 @@ export const useExportExcelProductTable = (id, queryOptions) => {
     });
 };
 
-
 export const useExportExcelActivity = (id, queryOptions) => {
     const {myAxios} = useMyAxios();
     return useQuery({
