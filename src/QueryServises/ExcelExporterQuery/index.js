@@ -42,6 +42,25 @@ export const useExportExcelProductTable = (id, queryOptions) => {
     });
 };
 
+
+export const useExportExcelMyActivity = (queryOptions) => {
+    const {myAxios} = useMyAxios();
+    return useQuery({
+        queryKey: ["my-activities"],
+        queryFn: () =>
+            myAxios
+                .get(`/core/get-expert-activity-csv/`, {
+                    responseType: 'blob'
+                })
+                .then((response) => {
+                    const blob = new Blob([response.data], {type: 'text/csv;charset=utf-8;'});
+                    return window.URL.createObjectURL(blob);
+                }),
+        ...queryOptions,
+        enabled: true,
+    });
+};
+
 export const useExportExcelActivity = (id, queryOptions) => {
     const {myAxios} = useMyAxios();
     return useQuery({

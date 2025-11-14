@@ -48,7 +48,7 @@ export const useGetActivityUserPerformance = (queryOptions) => {
     return useQuery({
         queryKey: ['get-activity-user-performance'],
         queryFn: () =>
-            myAxios.get(`/get-activity-user-performance/`).then((response) => {
+            myAxios.get(`/core/get-activity-user-performance/`).then((response) => {
                 queryOptions?.onSuccess?.(response?.data);
                 return response?.data;
             }),

@@ -113,7 +113,9 @@ const MyWork = () => {
                   درصد عملکرد:
                 </span>
                 <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-                  {performanceData?.percentage || "۰"}٪
+                  {performanceData?.avg_performance != null
+                    ? performanceData?.avg_performance
+                    : "۰"}٪
                 </span>
               </div>
             </div>
@@ -124,9 +126,8 @@ const MyWork = () => {
               <button
                 key={item.key}
                 onClick={() => setActiveKey(item.key)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${
-                  activeKey === item.key ? item.activeClass : item.inactiveClass
-                }`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${activeKey === item.key ? item.activeClass : item.inactiveClass
+                  }`}
               >
                 {item.icon}
                 <span>{item.label}</span>
