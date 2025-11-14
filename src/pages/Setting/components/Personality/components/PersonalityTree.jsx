@@ -13,11 +13,13 @@ const PersonalityTable = ({
   setPersonalityId,
   setSelectedPersonalityLabel,
 }) => {
-  const { data, isFetching, isError, refetch } = usePersonalityProductList();
+  const { data, isFetching, refetch } = usePersonalityProductList();
   const { mutate: deletePersonality, isPending: isDeleting } =
     useDeletePersonalityProduct();
 
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
+  const [selectRow, setSecletdRow] = useState(false)
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
   useEffect(() => {
     try {
@@ -38,8 +40,6 @@ const PersonalityTable = ({
       console.error("Failed to save expanded keys to localStorage", error);
     }
   };
-
-
 
   const handleDelete = (personalityId, name) => {
     Modal.confirm({
@@ -84,9 +84,13 @@ const PersonalityTable = ({
     if (record && record.id) {
       setPersonalityId(record.id);
       setSelectedPersonalityLabel(record.name);
+      setSecletdRow(true);
+      setSelectedRowKeys([record.id]);
     } else {
       setPersonalityId(null);
       setSelectedPersonalityLabel(null);
+      setSecletdRow(false);
+      setSelectedRowKeys([]);
     }
   };
 
@@ -99,9 +103,6 @@ const PersonalityTable = ({
 
     handleExpand(newExpandedKeys);
   };
-
-
-
 
   const columns = [
     {
@@ -116,7 +117,6 @@ const PersonalityTable = ({
             alignItems: 'center',
             cursor: 'pointer'
           }}
-          onClick={() => handleSelect(record)}
         >
           {record.hasChildren && (
             <Button
@@ -134,7 +134,7 @@ const PersonalityTable = ({
             <span style={{ width: '24px', display: 'inline-block', marginLeft: '8px' }}></span>
           )}
           <span>{text}</span>
-        
+
         </div>
       ),
     },
@@ -158,14 +158,20 @@ const PersonalityTable = ({
           <Button
             type="link"
             icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEdit(record);
+            }}
             title="ویرایش"
           />
           <Button
             type="link"
             danger
             icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record.id, record.name)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(record.id, record.name);
+            }}
             title="حذف"
             loading={isDeleting}
           />
@@ -178,11 +184,19 @@ const PersonalityTable = ({
     <div>
 
       <Table
-        rowSelection={
-          {
-            type: 'radio',
-          }
-        }
+        rowSelection={{
+          type: 'radio',
+          selectedRowKeys,
+          onChange: (keys, rows) => {
+            const record = rows[0];
+            if (record) handleSelect(record);
+          },
+        }}
+        onRow={(record) => ({
+          onClick: () => {
+            handleSelect(record);
+          },
+        })}
         columns={columns}
         dataSource={data}
         loading={isFetching || isDeleting}
