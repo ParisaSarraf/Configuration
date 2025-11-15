@@ -43,7 +43,7 @@ const PieChartReport = ({ currentProduct, filters = {} }) => {
           <PieChart
             series={[
               {
-                data: chartData,
+                data: [...chartData].sort((a, b) => a.value - b.value),
                 innerRadius: 30,
                 outerRadius: 100,
                 paddingAngle: 5,
