@@ -13,7 +13,7 @@ const ProductRequirementTree = ({currentProduct, selectProduct, setSelectedProdu
 
 
     const handleDelete = (node) => {
-        const NodeId = node?.product_requirements[0]?.id
+        const NodeId = node?.product_requirements?.id;
         Modal.confirm({
             title: "حذف الزام",
             content: "از حذف مطمئن هستید؟",
@@ -23,7 +23,7 @@ const ProductRequirementTree = ({currentProduct, selectProduct, setSelectedProdu
                 try {
                     await deleteProductRequirement(NodeId)
                     message.success("نسخه با موفقیت حذف شد");
-                    refetch();
+                    await refetch();
                 } catch (error) {
                     message.error(error?.detail);
                     console.error(error);
@@ -117,6 +117,7 @@ const ProductRequirementTree = ({currentProduct, selectProduct, setSelectedProdu
         }>
             <Tree
                 mode='tree'
+                blockNode={true}
                 // className="custom-tree"
                 data={treeRequirementData}
                 isLoading={isLoading}
