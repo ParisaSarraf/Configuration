@@ -89,7 +89,7 @@ const Personality = () => {
         </Card>
         <Card
           className="w-full"
-          title="کد های استاندارد هویت"
+          title={`کد های استاندارد هویت - ${selectedPersonalityLabel}`}
           extra={
             <Button
               className="modal-button"
