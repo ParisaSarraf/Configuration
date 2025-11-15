@@ -3,7 +3,7 @@ import {MeetingRelatedToActivitiesCols} from "./components/MeetingRelatedToActiv
 import {EyeOutlined} from "@ant-design/icons";
 import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
 
-const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refetch}) => {
+const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refetch, loading}) => {
     const handleEdit = (record) => {
         setModal({mode: 'edit', data: record, type: 'AddOrEditModal'});
     };
@@ -192,6 +192,7 @@ const MinutesRelatedToActivities = ({setModal, meetingData, deleteMeeting, refet
             size="small"
             columns={MeetingRelatedToActivitiesCols({handleEdit, handleDelete, handleShowDetail})}
             dataSource={meetingData}
+            loading={loading}
             rowKey="id"
             pagination={{
                 defaultPageSize: 5,

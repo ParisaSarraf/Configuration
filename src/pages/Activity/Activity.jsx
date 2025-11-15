@@ -15,7 +15,7 @@ import DetailModal from "../../components/DetailModal/DetailModal.jsx";
 import {useUserSimple} from "../../QueryServises/userQuery";
 import {useParams} from "react-router-dom";
 import { useExportExcelActivity } from "../../QueryServises/ExcelExporterQuery/index.js";
-import {handleDownload} from "@utils/HandleDownload.js"; // اضافه شد
+import {handleDownload} from "@utils/HandleDownload.js";
 
 const stateOptions = [
     {
@@ -43,12 +43,11 @@ const Activity = () => {
     const [filters, setFilters] = useState({});
     const {productId} = useParams();
     
-    // اصلاح: اضافه کردن refetch برای export hook
     const {data: exportExcel, isLoading: isExporting, refetch: exportRefetch} = useExportExcelActivity(currentProduct?.id, {
         enabled: false
     });
 
-    const {data: activityData = [], refetch} = useGetProductActivitiesType(
+    const {data: activityData = [], refetch , isLoading} = useGetProductActivitiesType(
         productId || currentProduct?.id,
         filters
     );
@@ -128,7 +127,6 @@ const Activity = () => {
         setModal({mode: "add", data: record, type: "AddSubActivity"});
     };
 
-    // اصلاح: استفاده از exportRefetch به جای refetch
     const handleExcelExport = async () => {
         if (!currentProduct?.id) {
             message.error("برای خروجی اکسل، محصول باید انتخاب شده باشد");
@@ -204,6 +202,7 @@ const Activity = () => {
                     columns={columns}
                     bordered
                     rowKey="id"
+                    loading={isLoading}
                     rowClassName={getRowClassName}
                     pagination={{
                         defaultPageSize: 5,
