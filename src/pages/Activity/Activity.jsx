@@ -1,21 +1,21 @@
-import {Button, Card, message, Modal, Table, Segmented} from "antd";
+import { Button, Card, message, Modal, Table, Segmented } from "antd";
 import useModal from "@/hooks/useModal.js";
-import {FileExcelOutlined, PlusOutlined} from "@ant-design/icons";
-import {ActivityCols} from "@/pages/Activity/components/ActivityCols.jsx";
+import { FileExcelOutlined, PlusOutlined } from "@ant-design/icons";
+import { ActivityCols } from "@/pages/Activity/components/ActivityCols.jsx";
 import {
     useDeleteActivity,
     useGetProductActivitiesType,
 } from "@/QueryServises/ActivityQuery/index.js";
 import ActivityModal from "@/pages/Activity/components/ActivityModal.jsx";
-import {useProductContext} from "@/Services/Context/ProductContext.jsx";
+import { useProductContext } from "@/Services/Context/ProductContext.jsx";
 import TrusteeModal from "@/pages/Activity/components/TrusteeModal.jsx";
 import PlanModal from "@/pages/Activity/components/PlanModal.jsx";
-import {useCallback, useState} from "react";
+import { useCallback, useState } from "react";
 import DetailModal from "../../components/DetailModal/DetailModal.jsx";
-import {useUserSimple} from "../../QueryServises/userQuery";
-import {useParams} from "react-router-dom";
+import { useUserSimple } from "../../QueryServises/userQuery";
+import { useParams } from "react-router-dom";
 import { useExportExcelActivity } from "../../QueryServises/ExcelExporterQuery/index.js";
-import {handleDownload} from "@utils/HandleDownload.js";
+import { handleDownload } from "@utils/HandleDownload.js";
 
 const stateOptions = [
     {
@@ -37,22 +37,22 @@ const stateOptions = [
 ];
 
 const Activity = () => {
-    const {modalMode, setModal, isOpen, modalData, closeModal, modalType} =
+    const { modalMode, setModal, isOpen, modalData, closeModal, modalType } =
         useModal();
-    const {currentProduct} = useProductContext();
+    const { currentProduct } = useProductContext();
     const [filters, setFilters] = useState({});
-    const {productId} = useParams();
-    
-    const {data: exportExcel, isLoading: isExporting, refetch: exportRefetch} = useExportExcelActivity(currentProduct?.id, {
+    const { productId } = useParams();
+
+    const { isLoading: isExporting, refetch: exportRefetch } = useExportExcelActivity(currentProduct?.id, {
         enabled: false
     });
 
-    const {data: activityData = [], refetch , isLoading} = useGetProductActivitiesType(
+    const { data: activityData = [], refetch, isLoading } = useGetProductActivitiesType(
         productId || currentProduct?.id,
         filters
     );
-    const {data: trustees = []} = useUserSimple();
-    const {mutateAsync: deleteActivity} = useDeleteActivity();
+    const { data: trustees = [] } = useUserSimple();
+    const { mutateAsync: deleteActivity } = useDeleteActivity();
 
     const handleDelete = useCallback(
         (id) => {
@@ -84,28 +84,28 @@ const Activity = () => {
 
     const handleEdit = useCallback(
         (record) => {
-            setModal({mode: "edit", data: record, type: "addActivity"});
+            setModal({ mode: "edit", data: record, type: "addActivity" });
         },
         [setModal]
     );
 
     const handleTrustee = useCallback(
         (record) => {
-            setModal({mode: "add", data: record, type: "addTrustee"});
+            setModal({ mode: "add", data: record, type: "addTrustee" });
         },
         [setModal]
     );
 
     const handlePlan = useCallback(
         (record) => {
-            setModal({mode: "add", data: record, type: "addPlan"});
+            setModal({ mode: "add", data: record, type: "addPlan" });
         },
         [setModal]
     );
 
     const handleDetail = useCallback(
         (record) => {
-            setModal({mode: "view", data: record, type: "ActivitiesDetail"});
+            setModal({ mode: "view", data: record, type: "ActivitiesDetail" });
         },
         [setModal]
     );
@@ -124,7 +124,7 @@ const Activity = () => {
     };
 
     const handleAddSubActivity = (record) => {
-        setModal({mode: "add", data: record, type: "AddSubActivity"});
+        setModal({ mode: "add", data: record, type: "AddSubActivity" });
     };
 
     const handleExcelExport = async () => {
@@ -134,7 +134,7 @@ const Activity = () => {
         }
         try {
             const result = await exportRefetch();
-            
+
             if (result.data) {
                 handleDownload(result.data, `_فعالیت‌های_${currentProduct.name || currentProduct.id}.csv`);
                 message.success("خروجی اکسل با موفقیت دانلود شد");
@@ -173,9 +173,9 @@ const Activity = () => {
                         <Button
                             className={"modal-button mt-1.5"}
                             onClick={() =>
-                                setModal({mode: "add", data: null, type: "addActivity"})
+                                setModal({ mode: "add", data: null, type: "addActivity" })
                             }
-                            icon={<PlusOutlined/>}
+                            icon={<PlusOutlined />}
                             title="افزودن فعالیت"
                         />
                     </div>
@@ -206,7 +206,7 @@ const Activity = () => {
                     rowClassName={getRowClassName}
                     pagination={{
                         defaultPageSize: 5,
-                        pageSizeOptions: [10, 20, 45,100],
+                        pageSizeOptions: [10, 20, 45, 100],
                         size: "small",
                         showSizeChanger: true,
                     }}

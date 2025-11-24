@@ -21,8 +21,6 @@ const MyWork = () => {
   const [userName, setUserName] = useState("");
   const { data: performanceData } = useGetActivityUserPerformance();
 
-  console.log(performanceData)
-
   useEffect(() => {
     const getUsernameFromToken = () => {
       try {
