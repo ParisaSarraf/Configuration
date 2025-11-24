@@ -23,25 +23,40 @@ export const useGetProductDocumentReport = (id, filters = {}, queryOptions = {})
 };
 
 
-export const useGetProductDocumentReportCsv = (id, queryOptions = {}) => {
+export const useGetProductDocumentReportCsv = (id, states, queryOptions = {}) => {
+    console.log(`states in Hook : ${states}`)
     const { myAxios } = useMyAxios();
     return useQuery({
-        queryKey: ["confirmed-children", id],
-        queryFn: () =>
-            id
-                ? myAxios
-                    .get(`/product/get-product-document-report-csv/${id}/`, {
-                        responseType: 'blob'
-                    })
-                    .then((response) => {
-                        const blob = new Blob([response.data], { type: 'text/csv;charset=utf-8;' });
-                        return window.URL.createObjectURL(blob);
-                    })
-                : Promise.resolve(null),
-        ...queryOptions,
+        queryKey: ["product-document-report-csv", id, states],
+        queryFn: async () => {
+            if (!id) return null;
+            const response = await myAxios.get(
+                `/product/get-product-document-report-csv/${id}/`,
+                {
+                    responseType: "blob",
+                    params: { states }
+                }
+            );
+            const disposition = response.headers["content-disposition"];
+            let fileName = "download.csv";
+
+            if (disposition) {
+                const match = disposition.match(/filename="(.+)"/);
+                if (match) fileName = match[1];
+            }
+            const blob = new Blob([response.data], {
+                type: "text/csv;charset=utf-8;"
+            });
+            return {
+                url: window.URL.createObjectURL(blob),
+                fileName
+            };
+        },
         enabled: !!id,
+        ...queryOptions,
     });
 };
+
 
 
 

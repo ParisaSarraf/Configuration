@@ -5,14 +5,22 @@ import StateSpecificTable from "./StateSpecificTable.jsx";
 import { ALL_STATES, getStateBackgroundColor, getStateColor, stateLabels } from "@/pages/Reports/components/utils.js";
 import StateCountFetcher from "@/pages/Reports/components/StateCountFetcher.jsx";
 import { handleDownload } from "../../../../utils/HandleDownload.js";
-import { useGetProductDocumentReport, useGetProductDocumentReportCsv } from "../../../../QueryServises/ReportsQuery/index.js";
+import { useGetProductDocumentReportCsv } from "../../../../QueryServises/ReportsQuery/index.js";
 
 export const DocumentStateList = ({ productId, filters = {} }) => {
-        const { isLoading: isExporting, refetch } = useGetProductDocumentReportCsv(productId, {
-        enabled: false
-    });
+
     const [activeKeys, setActiveKeys] = useState([]);
     const [stateCounts, setStateCounts] = useState({});
+    const [states, setStates] = useState(null)
+    const {
+        isLoading: isExporting,
+        refetch
+    } = useGetProductDocumentReportCsv(
+        productId,
+        states,
+        activeKeys,
+        { enabled: false }
+    );
 
     const [loadingStates, setLoadingStates] = useState({});
 
@@ -21,27 +29,26 @@ export const DocumentStateList = ({ productId, filters = {} }) => {
             acc[String(state)] = true;
             return acc;
         }, {});
+
         setLoadingStates(initialLoadingStates);
         setStateCounts({});
     }, [filters, productId]);
 
     const handleCountChange = useCallback((state, count) => {
+        console.log(`state in useCall: ${state} `)
+        setStates(state)
         setStateCounts(prev => ({ ...prev, [String(state)]: count }));
         setLoadingStates(prev => ({ ...prev, [String(state)]: false }));
     }, []);
 
     const handleExcelExport = async () => {
-        // if (!currentProduct?.id) {
-        //     console.error('Product ID is required for export');
-        //     return;
-        // }
         try {
             const result = await refetch();
             if (result.data) {
-                handleDownload(result.data, `_اسناد${productId}.csv`);
+                handleDownload(result.data.url, result.data.fileName);
             }
         } catch (error) {
-            console.error('Error in Excel export:', error);
+            console.error("Error in Excel export:", error);
         }
     };
 
@@ -62,7 +69,6 @@ export const DocumentStateList = ({ productId, filters = {} }) => {
                 activeKey={activeKeys}
                 onChange={(keys) => setActiveKeys(keys)}
                 expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
-
             >
                 {ALL_STATES?.map(state => {
                     const stateColor = getStateColor(state);
@@ -74,8 +80,8 @@ export const DocumentStateList = ({ productId, filters = {} }) => {
                         <Collapse.Panel
                             extra={
                                 <Button
-                                    title={'خروجی اکسل'}
-                                    className={'text-green-500 border-green-500'}
+                                    title="خروجی اکسل"
+                                    className="text-green-500 border-green-500"
                                     onClick={handleExcelExport}
                                     icon={<FileExcelOutlined />}
                                     loading={isExporting}

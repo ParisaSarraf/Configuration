@@ -64,7 +64,7 @@ const EditionDetailViewModal = ({
                     <InfoRow label="فایل لاگ">
                         {renderFileButton("فایل بررسی", specificLog?.file)}
                     </InfoRow>
-                    <InfoRow label="فایل ۱">
+                    {/* <InfoRow label="فایل ۱">
                         {renderFileButton("فایل ۱", editionData?.file_1)}
                     </InfoRow>
                     <InfoRow label="فایل ۲">
@@ -75,7 +75,7 @@ const EditionDetailViewModal = ({
                     </InfoRow>
                     <InfoRow label="فایل ۴">
                         {renderFileButton("فایل ۴", editionData?.file_4)}
-                    </InfoRow>
+                    </InfoRow> */}
                 </div>
             </div>
         </Modal>

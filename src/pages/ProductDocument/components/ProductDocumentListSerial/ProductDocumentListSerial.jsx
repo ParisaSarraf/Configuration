@@ -209,7 +209,7 @@ const ProductDocumentListSerial = ({
         () =>
             serials.map((serial) => ({
                 value: serial.id,
-                label: serial.serial || `سریال ${serial.id} `,
+                label: serial.full_serial || `سریال ${serial.id} `,
             })),
         [serials]
     );

@@ -6,10 +6,12 @@ import {
     useDeleteProductDocumentEdition,
     useProductDocumentTreeById
 } from "../../../QueryServises/productDocumentQuery";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
+const LOCAL_STORAGE_KEY = 'productDocumentTreeExpandedKeys';
 const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
+    const [expandedKeys, setExpandedKeys] = useState([]);
     const selectedProductId = currentProduct?.id;
 
     const { data: productDocument, isLoading, isError } =
@@ -17,6 +19,25 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
 
     const { mutate: deleteProductDocument } = useDeleteProductDocument();
     const { mutate: deleteProductDocumentEdition } = useDeleteProductDocumentEdition();
+    useEffect(() => {
+        try {
+            const storedKeys = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (storedKeys) {
+                setExpandedKeys(JSON.parse(storedKeys));
+            }
+        } catch (error) {
+            console.error("Failed to load expanded keys from localStorage", error);
+        }
+    }, []);
+
+    const handleExpand = (keys) => {
+        try {
+            setExpandedKeys(keys);
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(keys));
+        } catch (error) {
+            console.error("Failed to save expanded keys to localStorage", error);
+        }
+    };
 
     useEffect(() => {
         if (selectedProductId) refetch();
@@ -107,7 +128,7 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
         const hasDocument = productDoc?.id;
 
         const baseNode = {
-            key: `node-${Math.random()}`,
+            key: `node-${node.id || productDoc.id}`, 
             title: (
                 <div className="flex flex-row justify-between items-center w-full">
                     <span>
@@ -136,13 +157,14 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
                                     e.stopPropagation();
                                     handleEditDocumentProduct(productDoc);
                                 }}
-                                title={'حذف سند محصول'}
+                                title={'ویرایش سند محصول'}
                                 className="text-green-500 hover:text-green-700"
                             />
                         </Space>
                     )}
                 </div>
             ),
+            value: `node-${node.id || productDoc.id}`, 
             id: node.id,
             edition: editions,
             product_document_id: productDoc,
@@ -154,7 +176,8 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
 
         if (hasEditions) {
             const editionNodes = editions.map((edition) => ({
-                key: `edition-${edition.id}`,
+                key: `edition-${edition.id}`, 
+                value: `edition-${edition.id}`,
                 title: (
                     <div className="flex flex-row justify-between items-center w-full">
                         <span className='w-full gap-2'>
@@ -233,12 +256,14 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
         return baseNode;
     };
 
+
     const transformDataToTreeView = (data) => {
         if (!data) return [];
         return Array.isArray(data) ? data.map(transformNode) : [transformNode(data)];
     };
-    const treeData = transformDataToTreeView(productDocument);
-
+const treeData = useMemo(() => {
+    return transformDataToTreeView(productDocument);
+}, [productDocument])
 
     const rightClickMenu = [
         {
@@ -270,18 +295,20 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
 
     return (
         <Tree
-            // className="custom-tree"
-            mode="tree"
+            className="custom-product-tree"
+            // mode="tree"
             data={treeData}
             isLoading={isLoading}
             isError={isError}
-            treeIcon={false}
-            showLine
-            blockNode={true}
+            showLine={true}
             checkable={false}
             showIcon={false}
+            blockNode
             rightClickMenuItems={rightClickMenu}
             onRightClickAction={handleRightClickAction}
+            expandedKeys={expandedKeys}
+            onExpand={handleExpand}
+
         />
     );
 };
