@@ -21,6 +21,8 @@ const MyWork = () => {
   const [userName, setUserName] = useState("");
   const { data: performanceData } = useGetActivityUserPerformance();
 
+  console.log(performanceData)
+
   useEffect(() => {
     const getUsernameFromToken = () => {
       try {
@@ -113,9 +115,7 @@ const MyWork = () => {
                   درصد عملکرد:
                 </span>
                 <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-                  {performanceData?.avg_performance != null
-                    ? performanceData?.avg_performance
-                    : "۰"}٪
+                  {performanceData?.[0]?.avg_performance}٪
                 </span>
               </div>
             </div>

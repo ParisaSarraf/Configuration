@@ -2,6 +2,7 @@ import { Card } from "antd";
 import { PieChart } from "@mui/x-charts/PieChart";
 import { useGetEditionsCountReport } from "@/QueryServises/ReportsQuery/index.js";
 import { useMemo } from "react";
+import { getStateColor } from "../utils";
 
 const PieChartReport = ({ currentProduct, filters = {} }) => {
   const {
@@ -16,17 +17,9 @@ const PieChartReport = ({ currentProduct, filters = {} }) => {
       id: item.state,
       value: item.count,
       label: getStateLabel(item.state),
+      color: getStateColor(item.state), 
     }));
   }, [pieData]);
-
-  const colors = [
-    {
-      10: "#f5222d",
-      20: "#faad14",
-      30: "#52c41a",
-      40: "#722ed1",
-    },
-  ];
 
   if (error) {
     return <Card>خطا در بارگذاری داده‌ها</Card>;
@@ -38,7 +31,7 @@ const PieChartReport = ({ currentProduct, filters = {} }) => {
       loading={isLoading}
       style={{ height: "500px" }}
     >
-      {chartData.length > 0 ? (
+      {chartData?.length > 0 ? (
         <div style={{ width: "100%", height: "400px" }}>
           <PieChart
             series={[
@@ -52,7 +45,7 @@ const PieChartReport = ({ currentProduct, filters = {} }) => {
                 endAngle: 270,
                 cx: 150,
                 cy: 150,
-                colors: colors,
+                colorAccessor: (dataItem, index) => dataItem.color || getStateColor(dataItem.id),
               },
             ]}
             width={400}
@@ -78,7 +71,6 @@ const PieChartReport = ({ currentProduct, filters = {} }) => {
 
 const getStateLabel = (stateCode) => {
   const stateLabels = {
-    null: "همه اسناد",
     10: "تهیه نشده ",
     20: "تهیه شده",
     30: "تایید شده",
