@@ -97,7 +97,7 @@ const PermissionManager = ({selectedRoleId, refetch}) => {
                             onChange={setTargetKeys}
                             render={item => item.title}
                             titles={['لیست دسترسی‌ها', 'دسترسی‌های انتخاب شده']}
-                            listStyle={{width: '100%', height: 'calc(60vh - 120px)'}}
+                            listStyle={{width: '48%', height: 'calc(60vh - 120px)'}}
                             locale={{itemUnit: 'مورد', itemsUnit: 'موارد', searchPlaceholder: 'جستجو'}}
                             className="[&_.ant-transfer-operation]:rotate-180"
                             showSearch

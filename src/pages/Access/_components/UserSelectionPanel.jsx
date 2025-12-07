@@ -41,9 +41,9 @@ const UserSelectionPanel = ({selectedUserId, onSelectUser}) => {
                             >
                                 <List.Item.Meta
                                     avatar={<Avatar icon={<UserOutlined/>}
-                                                    src={user.temp_image /* Assuming image URL */}/>}
+                                                    src={user.temp_image }/>}
                                     title={<span
-                                        className="font-medium text-slate-700">{`${user.name} ${user.last_name}`}</span>}
+                                        className="font-medium text-slate-700">{`${user.name} ${user.last_name} (${user.username})`}</span>}
                                 />
                             </List.Item>
                         )}

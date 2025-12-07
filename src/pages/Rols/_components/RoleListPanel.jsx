@@ -10,7 +10,7 @@ const RoleListPanel = ({selectedRoleId, onRoleSelect, setModal, refetch}) => {
         deleteRole(roleId)
             .then(() => {
                 message.success("سمت با موفقیت حذف شد");
-                onRoleSelect(null); // Reset selection after delete
+                onRoleSelect(null); 
                 refetch();
             })
             .catch(() => message.error("حذف ناموفق بود، دوباره امتحان کنید"));
