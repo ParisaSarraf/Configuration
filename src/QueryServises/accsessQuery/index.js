@@ -29,6 +29,21 @@ export const useAccessOfUserByIdList = (id, queryOptions) => {
   });
 };
 
+export const useAccessOfUserByProductIdKey = (id) => ["access-user", id];
+export const useAccessOfUserByProductIdList = (id, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: useAccessOfUserByProductIdKey(id),
+    queryFn: () =>
+      id
+        ? myAxios
+            .get(`/user/get-user-access-by-proudct-id/${id}`)
+            .then((response) => response?.data)
+        : Promise.resolve(null),
+    ...queryOptions,
+  });
+};
+
 export const useUnAccessOfUserByIdKey = (id) => ["unaccess-user", id];
 export const useUnAccessOfUserByIdList = (id, queryOptions) => {
   const { myAxios } = useMyAxios();
