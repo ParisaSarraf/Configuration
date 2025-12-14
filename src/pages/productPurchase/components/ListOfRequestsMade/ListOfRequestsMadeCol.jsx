@@ -49,8 +49,8 @@ const ListOfRequestsMadeCol = ({handleDelete, handleHide, handleExcelExportForRo
         },
         {
             title: 'توضیح اکسل',
-            dataIndex: 'export_description',
-            key: 'export_description',
+            dataIndex: 'excel_description',
+            key: 'excel_description',
         },
         {
             title: 'عملیات',
