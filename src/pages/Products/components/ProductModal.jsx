@@ -45,7 +45,7 @@ const ProductModal = ({
 
   const parentCodeId = parentCodeData?.code || "";
 
-  console.log(selectedPersonalityId);
+  console.log(personalityData);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -76,9 +76,9 @@ const ProductModal = ({
           : null,
         alternative_genus_id: modalData.alternative_genus?.id
           ? {
-              value: modalData.alternative_genus.id,
-              label: modalData.alternative_genus.name,
-            }
+            value: modalData.alternative_genus.id,
+            label: modalData.alternative_genus.name,
+          }
           : null,
         pro_type: modalData.pro_type,
         description: modalData.description,
@@ -89,9 +89,9 @@ const ProductModal = ({
         ),
         standard_code_id: modalData.standard_code?.id
           ? {
-              value: modalData.standard_code.id,
-              label: modalData.standard_code.name,
-            }
+            value: modalData.standard_code.id,
+            label: modalData.standard_code.name,
+          }
           : null,
         brand2: modalData.brand2,
         brand2_desc: modalData.brand2_desc,
@@ -315,20 +315,6 @@ const ProductModal = ({
               />
             </Form.Item>
           </Col>
-          {/* <Col span={6}>
-                        <Form.Item
-                            label="هویت"
-                            name="personality_id"
-                            rules={[{required: true, message: "لطفاً هویت را انتخاب کنید"}]}
-                        >
-                            <TS
-                                labelInValue
-                                data={personalityData}
-                                placeholder="هویت"
-                                onChange={(value) => setSelectedPersonalityId(value)}
-                            />
-                        </Form.Item>
-                    </Col> */}
           <Col span={6}>
             <Form.Item
               label="هویت"
@@ -358,7 +344,7 @@ const ProductModal = ({
 
                   if (selectedItem) {
                     form.setFieldsValue({
-                      persian_title: selectedItem.name,
+                      persian_title: selectedItem.personality_codes?.[0]?.description,
                       store_code: selectedItem.warehouse_code,
                     });
                   }
@@ -378,7 +364,7 @@ const ProductModal = ({
                 options={
                   standardCodesResponse?.personality_codes?.map((item) => ({
                     value: item.id,
-                    label: item.name,
+                    label: item.description,
                   })) || []
                 }
                 disabled={standardCodesResponse?.personality_codes.length === 0}
@@ -389,7 +375,7 @@ const ProductModal = ({
               />
             </Form.Item>
           </Col>
-           <Col span={6}>
+          <Col span={6}>
             <Form.Item label="کد انبار" name="store_code">
               <Input />
             </Form.Item>
@@ -420,7 +406,7 @@ const ProductModal = ({
               />
             </Form.Item>
           </Col>
-         
+
 
           <Col span={4}>
             <Form.Item label="تعداد انبار" name="warehouse_quantity">
