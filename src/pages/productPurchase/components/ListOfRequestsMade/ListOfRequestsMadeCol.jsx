@@ -70,12 +70,12 @@ const ListOfRequestsMadeCol = ({handleDelete, handleHide, handleExcelExportForRo
                             onClick={() => handleDelete(record)}
                             icon={<DeleteOutlined/>}
                         />
-                        {/* <Button
+                        <Button
                             title={'غیرفعال'}
                             className={'text-violet-500 border border-violet-500'}
                             onClick={() => handleHide(record)}
                             icon={<PoweroffOutlined/>}
-                        /> */}
+                        />
                     </Space>
                 )
             }

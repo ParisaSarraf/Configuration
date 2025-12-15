@@ -9,7 +9,6 @@ const ExportPurchaseExcelModal = ({
   isOpen,
   modalMode,
   modalData,
-  modalType,
   closeModal,
   refetch,
   onExportSuccess,
@@ -73,7 +72,7 @@ const ExportPurchaseExcelModal = ({
           text: "ذخیره",
           onClick: handleSubmit,
           type: "primary",
-          loading: isUpdating,
+          loading: isUpdating || isUpdatingWarehouse,
         },
       ]}
     >

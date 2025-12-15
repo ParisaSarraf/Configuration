@@ -2,7 +2,7 @@ import { Button, Space, Tag } from "antd";
 import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
 import { DeleteOutlined, FileExcelOutlined, PoweroffOutlined } from "@ant-design/icons";
 
-const ListOfRequestOfWareHouseMadeCol = ({handleDelete,handleExcelExportForRow}) => {
+const ListOfRequestOfWareHouseMadeCol = ({handleDelete,handleExcelExportForRow, handleHide}) => {
   return [
     {
       title: "نام محصول",
@@ -101,8 +101,9 @@ const ListOfRequestOfWareHouseMadeCol = ({handleDelete,handleExcelExportForRow})
             />
             <Button
               title={"غیرفعال"}
-              // danger
-              // onClick={() => handleDelete(record)}
+              className={"text-red-500 border-red-500"}
+              onClick={() => handleHide(record)}
+              // loading={isUpdating}
               icon={<PoweroffOutlined />}
             />
           </Space>

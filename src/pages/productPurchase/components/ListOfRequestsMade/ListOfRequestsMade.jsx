@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { handleDownload } from "@utils/HandleDownload.js";
 import ExportPurchaseExcelModal from "../../../../components/exportPurchaseExcelModal/exportPurchaseExcelModal";
 import useModal from "../../../../hooks/useModal";
+import { useUpdateProductPurchase } from "../../../../QueryServises/productPurchase";
 
 const ListOfRequestsMade = ({ currentProduct, refetch }) => {
   const { isOpen, modalMode, modalData, modalType, setModal, closeModal } =
@@ -19,10 +20,12 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
   const { mutateAsync: deleteProductPurchase } = useDeleteProductPurchase(
     currentProduct?.id
   );
+  const { mutateAsync: updateProductPurchase, isLoading: isUpdating } =
+    useUpdateProductPurchase();
   const [exportExcelData, setExportExcelData] = useState(null);
   const { data: exportExcel, refetch: refetchExport } =
     useExportExcelProductPurchase(exportExcelData, {
-      enabled: false, 
+      enabled: false,
     });
 
   useEffect(() => {
@@ -116,7 +119,27 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
   };
 
   const handleHide = (record) => {
-    console.log(record);
+    Modal.confirm({
+      title: "مخفی شدن درخواست خرید",
+      content: "آیا از مخفی شدن این درخواست خرید مطمئن هستید؟",
+      okText: "بله",
+      cancelText: "خیر",
+      okType: "danger",
+      loading: isUpdating,
+      async onOk() {
+        try {
+          await updateProductPurchase({
+            productPurchaseId: record?.id,
+            hide: true,
+          });
+          message.success("درخواست خرید با موفقیت مخفی شد");
+          await (refetch() && purchaseDataRefetch());
+        } catch (error) {
+          message.error("مخفی شدن درخواست خرید با خطا مواجه شد");
+          throw error;
+        }
+      },
+    });
   };
 
   const handleExcelExportForRow = async (record) => {

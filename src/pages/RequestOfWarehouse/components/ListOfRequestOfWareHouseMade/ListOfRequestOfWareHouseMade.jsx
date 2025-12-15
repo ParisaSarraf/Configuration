@@ -8,13 +8,16 @@ import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
 import ExportPurchaseExcelModal from "../../../../components/exportPurchaseExcelModal/exportPurchaseExcelModal";
 import useModal from "../../../../hooks/useModal";
 import { useState } from "react";
+import { useUpdateRequestOfWarehouse } from "../../../../QueryServises/RequestOfWarehouse";
 
 const ListOfRequestOfWareHouseMade = ({ currentProduct, refetch }) => {
   const { isOpen, modalMode, modalData, modalType, setModal, closeModal } =
     useModal();
-      const [exportExcelData, setExportExcelData] = useState(null);
-    
-  const { data: requestOfWarehouse } = useGetConfirmedWarehouseRequestById(
+  const { mutateAsync: updateWarehouse, isLoading: isUpdatingWarehouse } =
+    useUpdateRequestOfWarehouse();
+  const [exportExcelData, setExportExcelData] = useState(null);
+
+  const { data: requestOfWarehouse , refetch: refetchRequestOfWarehouse } = useGetConfirmedWarehouseRequestById(
     currentProduct?.id
   );
   const { mutateAsync: deleteProductPurchaseWarehouse } =
@@ -96,6 +99,30 @@ const ListOfRequestOfWareHouseMade = ({ currentProduct, refetch }) => {
     });
   };
 
+  const handleHide = (record) => {
+    Modal.confirm({
+      title: "مخفی شدن درخواست خرید",
+      content: "آیا از مخفی شدن این درخواست خرید مطمئن هستید؟",
+      okText: "بله",
+      cancelText: "خیر",
+      okType: "danger",
+      loading: isUpdatingWarehouse,
+      async onOk() {
+        try {
+          await updateWarehouse({
+            RequestOfWarehouseId: record?.id,
+            hide: true,
+          });
+          message.success("درخواست خرید کالا از انبار با موفقیت مخفی شد");
+          await refetchRequestOfWarehouse() && refetch();
+        } catch (error) {
+          message.error("مخفی شدن درخواست خرید کالا از انبار با خطا مواجه شد");
+          throw error;
+        }
+      },
+    });
+  };
+
   const handleExportAfterDescription = (id) => {
     setExportExcelData(id);
   };
@@ -113,6 +140,7 @@ const ListOfRequestOfWareHouseMade = ({ currentProduct, refetch }) => {
       <Table
         columns={ListOfRequestOfWareHouseMadeCol({
           handleDelete,
+          handleHide,
           handleExcelExportForRow,
         })}
         dataSource={requestOfWarehouse}
