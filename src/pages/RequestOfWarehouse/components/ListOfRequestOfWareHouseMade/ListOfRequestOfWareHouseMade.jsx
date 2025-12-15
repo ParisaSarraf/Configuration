@@ -79,6 +79,8 @@ const ListOfRequestOfWareHouseMade = ({ currentProduct, refetch }) => {
       />
     );
   };
+
+  
   const handleDelete = (record) => {
     Modal.confirm({
       title: "حذف درخواست خرید کالا از انبار",
