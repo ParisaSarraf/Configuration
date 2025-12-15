@@ -1,115 +1,144 @@
-import {message, Modal, Table, Tag} from "antd";
+import { message, Modal, Table, Tag } from "antd";
 import {
-    useDeleteRequestOfWarehouse,
-    useGetConfirmedWarehouseRequestById
+  useDeleteRequestOfWarehouse,
+  useGetConfirmedWarehouseRequestById,
 } from "@/QueryServises/RequestOfWarehouse/index.js";
-import ListOfRequestOfWareHouseMadeCol
-    from "@/pages/RequestOfWarehouse/components/ListOfRequestOfWareHouseMade/ListOfRequestOfWareHouseMadeCol.jsx";
-import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
-import DataExporter from "@/components/DataExporter/DataExporter.jsx";
+import ListOfRequestOfWareHouseMadeCol from "@/pages/RequestOfWarehouse/components/ListOfRequestOfWareHouseMade/ListOfRequestOfWareHouseMadeCol.jsx";
+import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
+import ExportPurchaseExcelModal from "../../../../components/exportPurchaseExcelModal/exportPurchaseExcelModal";
+import useModal from "../../../../hooks/useModal";
+import { useState } from "react";
 
+const ListOfRequestOfWareHouseMade = ({ currentProduct, refetch }) => {
+  const { isOpen, modalMode, modalData, modalType, setModal, closeModal } =
+    useModal();
+      const [exportExcelData, setExportExcelData] = useState(null);
+    
+  const { data: requestOfWarehouse } = useGetConfirmedWarehouseRequestById(
+    currentProduct?.id
+  );
+  const { mutateAsync: deleteProductPurchaseWarehouse } =
+    useDeleteRequestOfWarehouse();
 
-const ListOfRequestOfWareHouseMade = ({currentProduct, refetch}) => {
-    const {data: requestOfWarehouse} = useGetConfirmedWarehouseRequestById(currentProduct?.id);
-    const {mutateAsync: deleteProductPurchaseWarehouse} = useDeleteRequestOfWarehouse();
+  const expandedRowRender = (record) => {
+    const nestedColumns = [
+      {
+        title: "نام محصول",
+        dataIndex: ["product", "persian_title"],
+        key: "persian_title",
+      },
+      {
+        title: "کد محصول",
+        dataIndex: ["product", "code"],
+        key: "code",
+        render: (record) => {
+          return <Tag color={"orange"}>{record}</Tag>;
+        },
+      },
+      {
+        title: "تعداد تایید شده",
+        dataIndex: "confirmed_number",
+        key: "confirmed_number",
+      },
+      {
+        title: "تاریخ تایید",
+        dataIndex: "total_number",
+        key: "total_number",
+        render: (text) => {
+          return (
+            <Tag color={"green"}>
+              {georgianDateToJalaliDate(text) || "ندارد"}
+            </Tag>
+          );
+        },
+      },
+    ];
 
-    const expandedRowRender = (record) => {
-        const nestedColumns = [
-            {
-                title: 'نام محصول',
-                dataIndex: ['product', 'persian_title'],
-                key: 'persian_title',
-            },
-            {
-                title: 'کد محصول',
-                dataIndex: ['product', 'code'],
-                key: 'code',
-                render: (record) => {
-                    return (<Tag color={'orange'}>{record}</Tag>)
-                }
-            },
-            {
-                title: 'تعداد تایید شده',
-                dataIndex: 'confirmed_number',
-                key: 'confirmed_number',
-            }, {
-                title: 'تاریخ تایید',
-                dataIndex: 'total_number',
-                key: 'total_number',
-                render: (text) => {
-                    return (
-                        <Tag color={'green'}>{georgianDateToJalaliDate(text) || 'ندارد'}</Tag>
-                    )
-                }
-            },
-        ];
-
-        const nestedDataSource = record.warehouse_request_numbers.map(item => ({
-            key: item.id,
-            product: item.product,
-            confirmed_number: item.confirmed_number
-        }));
-
-        return (
-            <Table
-                columns={nestedColumns}
-                dataSource={nestedDataSource}
-                rowKey="key"
-                bordered
-                size={'small'}
-                pagination={{
-                    defaultPageSize: 5,
-                    pageSizeOptions: [10, 20, 45,100],
-                    size: "small",
-                    showSizeChanger: true,
-                }}
-            />
-        );
-    };
-    const handleDelete = (record) => {
-        Modal.confirm({
-            title: 'حذف درخواست خرید کالا از انبار',
-            content: 'آیا از حذف این درخواست خرید کالا از انبار مطمئن هستید؟',
-            okText: 'بله',
-            cancelText: 'خیر',
-            okType: 'danger',
-            async onOk() {
-                try {
-                    await deleteProductPurchaseWarehouse(record?.id);
-                    message.success("درخواست خرید کالا از انبار با موفقیت حذف شد");
-                    await refetch();
-                } catch (error) {
-                    message.error("حذف درخواست خرید کالا از انبار با خطا مواجه شد");
-                    throw error;
-                }
-            },
-        });
-    };
-
+    const nestedDataSource = record.warehouse_request_numbers.map((item) => ({
+      key: item.id,
+      product: item.product,
+      confirmed_number: item.confirmed_number,
+    }));
 
     return (
-        <div>
-            <DataExporter
-                excelData={requestOfWarehouse}
-                excelColumns={ListOfRequestOfWareHouseMadeCol(handleDelete)}
-                fileName="لیست درخواست خریداز کالا"
-            />
-            <Table
-                columns={ListOfRequestOfWareHouseMadeCol(handleDelete)}
-                dataSource={requestOfWarehouse}
-                pagination={{
-                    defaultPageSize: 5,
-                    pageSizeOptions: [10, 20, 45,100],
-                    size: "small",
-                    showSizeChanger: true,
-                }}
-                rowKey='id'
-                size={'small'}
-                bordered
-                expandedRowRender={expandedRowRender}
-            />
-        </div>
+      <Table
+        columns={nestedColumns}
+        dataSource={nestedDataSource}
+        rowKey="key"
+        bordered
+        size={"small"}
+        pagination={{
+          defaultPageSize: 5,
+          pageSizeOptions: [10, 20, 45, 100],
+          size: "small",
+          showSizeChanger: true,
+        }}
+      />
     );
+  };
+  const handleDelete = (record) => {
+    Modal.confirm({
+      title: "حذف درخواست خرید کالا از انبار",
+      content: "آیا از حذف این درخواست خرید کالا از انبار مطمئن هستید؟",
+      okText: "بله",
+      cancelText: "خیر",
+      okType: "danger",
+      async onOk() {
+        try {
+          await deleteProductPurchaseWarehouse(record?.id);
+          message.success("درخواست خرید کالا از انبار با موفقیت حذف شد");
+          await refetch();
+        } catch (error) {
+          message.error("حذف درخواست خرید کالا از انبار با خطا مواجه شد");
+          throw error;
+        }
+      },
+    });
+  };
+
+  const handleExportAfterDescription = (id) => {
+    setExportExcelData(id);
+  };
+
+  const handleExcelExportForRow = async (record) => {
+    setModal({
+      mode: "exportExcelWareHouse",
+      data: record?.id,
+      type: "exportExcelModal",
+    });
+  };
+
+  return (
+    <div>
+      <Table
+        columns={ListOfRequestOfWareHouseMadeCol({
+          handleDelete,
+          handleExcelExportForRow,
+        })}
+        dataSource={requestOfWarehouse}
+        pagination={{
+          defaultPageSize: 5,
+          pageSizeOptions: [10, 20, 45, 100],
+          size: "small",
+          showSizeChanger: true,
+        }}
+        rowKey="id"
+        size={"small"}
+        bordered
+        expandedRowRender={expandedRowRender}
+      />
+
+      <ExportPurchaseExcelModal
+        isOpen={modalType === "exportExcelModal" && isOpen}
+        modalData={modalData}
+        modalMode={modalMode}
+        modalType={modalType}
+        closeModal={closeModal}
+        onExportSuccess={handleExportAfterDescription}
+        refetch={refetch}
+      />
+    </div>
+  );
 };
 
 export default ListOfRequestOfWareHouseMade;

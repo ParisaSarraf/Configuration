@@ -1,8 +1,8 @@
 import { Button, Space, Tag } from "antd";
 import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
-import { DeleteOutlined, PoweroffOutlined } from "@ant-design/icons";
+import { DeleteOutlined, FileExcelOutlined, PoweroffOutlined } from "@ant-design/icons";
 
-const ListOfRequestOfWareHouseMadeCol = (handleDelete) => {
+const ListOfRequestOfWareHouseMadeCol = ({handleDelete,handleExcelExportForRow}) => {
   return [
     {
       title: "نام محصول",
@@ -75,12 +75,10 @@ const ListOfRequestOfWareHouseMadeCol = (handleDelete) => {
     },
     {
       title: "توضیح اکسل",
-      dataIndex: "total_number",
-      key: "total_number",
+      dataIndex: "excel_description",
+      key: "excel_description",
       render: (text) => {
-        return (
-          <Tag color={"green"}>{georgianDateToJalaliDate(text) || "ندارد"}</Tag>
-        );
+        return <Tag color={"green"}>{text || "ندارد"}</Tag>;
       },
     },
     {
@@ -89,6 +87,12 @@ const ListOfRequestOfWareHouseMadeCol = (handleDelete) => {
       render: (record) => {
         return (
           <Space>
+            <Button
+              title={"خروجی اکسل"}
+              className={"text-green-500 border-green-500"}
+              onClick={() => handleExcelExportForRow(record)}
+              icon={<FileExcelOutlined />}
+            />
             <Button
               title={"حذف"}
               danger
