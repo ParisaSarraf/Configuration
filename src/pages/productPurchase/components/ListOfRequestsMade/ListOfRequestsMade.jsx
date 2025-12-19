@@ -8,9 +8,9 @@ import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
 import { useExportExcelProductPurchase } from "../../../../QueryServises/ExcelExporterQuery";
 import { useEffect, useState } from "react";
 import { handleDownload } from "@utils/HandleDownload.js";
-import { ExportPurchaseExcelModal } from "../../../../components/exportPurchaseExcelModal/exportPurchaseExcelModal";
 import useModal from "../../../../hooks/useModal";
 import { useUpdateProductPurchase } from "../../../../QueryServises/productPurchase";
+import ExportPurchaseExcelModal from "../../../../components/exportPurchaseExcelModal";
 
 const ListOfRequestsMade = ({ currentProduct, refetch }) => {
   const { isOpen, modalMode, modalData, modalType, setModal, closeModal } =
