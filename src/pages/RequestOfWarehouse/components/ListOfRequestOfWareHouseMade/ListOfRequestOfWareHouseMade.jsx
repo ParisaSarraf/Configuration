@@ -4,11 +4,9 @@ import {
   useGetConfirmedWarehouseRequestById,
 } from "@/QueryServises/RequestOfWarehouse/index.js";
 
-
-
 import ListOfRequestOfWareHouseMadeCol from "@/pages/RequestOfWarehouse/components/ListOfRequestOfWareHouseMade/ListOfRequestOfWareHouseMadeCol.jsx";
 import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
-import ExportPurchaseExcelModal from "../../../../components/exportPurchaseExcelModal/exportPurchaseExcelModal";
+import { ExportPurchaseExcelModal } from "../../../../components/exportPurchaseExcelModal/exportPurchaseExcelModal";
 import useModal from "../../../../hooks/useModal";
 import { useState } from "react";
 import { useUpdateRequestOfWarehouse } from "../../../../QueryServises/RequestOfWarehouse";
@@ -20,9 +18,8 @@ const ListOfRequestOfWareHouseMade = ({ currentProduct, refetch }) => {
     useUpdateRequestOfWarehouse();
   const [exportExcelData, setExportExcelData] = useState(null);
 
-  const { data: requestOfWarehouse , refetch: refetchRequestOfWarehouse } = useGetConfirmedWarehouseRequestById(
-    currentProduct?.id
-  );
+  const { data: requestOfWarehouse, refetch: refetchRequestOfWarehouse } =
+    useGetConfirmedWarehouseRequestById(currentProduct?.id);
   const { mutateAsync: deleteProductPurchaseWarehouse } =
     useDeleteRequestOfWarehouse();
 
@@ -83,7 +80,6 @@ const ListOfRequestOfWareHouseMade = ({ currentProduct, refetch }) => {
     );
   };
 
-  
   const handleDelete = (record) => {
     Modal.confirm({
       title: "حذف درخواست خرید کالا از انبار",
@@ -119,7 +115,7 @@ const ListOfRequestOfWareHouseMade = ({ currentProduct, refetch }) => {
             hide: true,
           });
           message.success("درخواست خرید کالا از انبار با موفقیت مخفی شد");
-          await refetchRequestOfWarehouse() && refetch();
+          (await refetchRequestOfWarehouse()) && refetch();
         } catch (error) {
           message.error("مخفی شدن درخواست خرید کالا از انبار با خطا مواجه شد");
           throw error;
