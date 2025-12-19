@@ -45,7 +45,6 @@ const ProductModal = ({
 
   const parentCodeId = parentCodeData?.code || "";
 
-  console.log(personalityData);
 
   useEffect(() => {
     if (!isOpen) return;

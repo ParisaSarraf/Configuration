@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
-import { Dropdown, message, Tree as AntTree, TreeSelect } from "antd";
+import { Dropdown, message, Tree as AntTree, TreeSelect, Spin } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 
 const Tree = ({
@@ -15,7 +15,7 @@ const Tree = ({
   checkable = true,
   className,
   onNodeClick,
-  loadData,
+  loadData, // تابع جدید برای لود کردن داده‌های فرزندان
   showRightClickMenu = true,
   rightClickMenuItems = [
     { key: "edit", label: "ویرایش" },
@@ -31,17 +31,16 @@ const Tree = ({
   showSearch = true,
   allowClear = true,
   placeholder = "لطفا انتخاب کنید",
-
   expandedKeys: controlledExpandedKeys,
   defaultExpandedKeys,
   onExpand,
   ...props
 }) => {
   const [rightClickNode, setRightClickNode] = useState(null);
-
   const [internalExpandedKeys, setInternalExpandedKeys] = useState(
     defaultExpandedKeys || []
   );
+  
   const isExpandedControlled = controlledExpandedKeys !== undefined;
   const currentExpandedKeys = isExpandedControlled
     ? controlledExpandedKeys
@@ -57,6 +56,23 @@ const Tree = ({
       }
     },
     [isExpandedControlled, onExpand]
+  );
+
+  const handleLoadData = useCallback(
+    async (node) => {
+      if (loadData) {
+        try {
+          // اضافه کردن آیکون لودینگ
+          node.isLoading = true;
+          await loadData(node);
+          node.isLoading = false;
+        } catch (error) {
+          console.error("Error loading node children:", error);
+          node.isLoading = false;
+        }
+      }
+    },
+    [loadData]
   );
 
   const handleSelect = useCallback(
@@ -117,7 +133,8 @@ const Tree = ({
         ...item,
         children: item[childrenField]
           ? transform(item[childrenField])
-          : undefined,
+          : (item.hasChildren ? [] : undefined), 
+        isLeaf: !item.hasChildren, 
       }));
     };
     return data ? transform(data) : [];
@@ -173,7 +190,7 @@ const Tree = ({
           onExpand={handleExpand}
           expandedKeys={currentExpandedKeys}
           checkedKeys={checkedKeys}
-          loadData={loadData}
+          loadData={loadData ? handleLoadData : undefined}
           className={className}
           {...props}
         />
