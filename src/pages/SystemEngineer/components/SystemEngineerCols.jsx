@@ -1,5 +1,6 @@
 import {DeleteOutlined, EditOutlined} from "@ant-design/icons"
 import {Button, Space} from "antd"
+import { georgianDateTimeToJalaliDateTime } from "../../../utils/timeTool"
 
 const SystemEngineerCols = ({handleDelete, handleEdit}) => {
     return [
@@ -10,6 +11,22 @@ const SystemEngineerCols = ({handleDelete, handleEdit}) => {
             title: 'شرح فعالیت',
             dataIndex: 'title',
             key: 'title'
+        },
+        {
+            title: 'تاریخ و ساعت ثبت',
+            dataIndex: 'register_date_time',
+            key: 'register_date_time',
+            render: (text) => {
+                return (
+                    <span>{georgianDateTimeToJalaliDateTime(text) || "ندارد"}</span>
+                )
+            }   
+
+        },
+        {
+            title: 'کاربر ثبت کننده',
+            dataIndex: 'user',
+            key: 'user'
         },
         {
             title: 'توضیحات',

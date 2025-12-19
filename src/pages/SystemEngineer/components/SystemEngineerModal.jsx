@@ -27,30 +27,33 @@ const SystemEngineerModal = ({isOpen, modalMode, closeModal, modalData, refetch}
     }, [form, modalData, modalMode])
 
 
-    const onFinish = async (values) => {
-        const precinctIdValue = Array.isArray(values.precinct_id) && values.precinct_id.length > 0
-            ? values.precinct_id[0]
-            : null;
-        const payload = {
-            precinct_id: precinctIdValue,
-            title: values.title,
-            description: values.description
-        }
-        try {
-            if (modalMode === 'add') {
-                await createSystem(payload)
-                message.success("تعریف جدید اضافه شد.")
-            } else {
-                await updateSystem({SystemEngineerId: modalData?.id, ...payload})
-                message.success("با موفقیت وبرایش شد.")
-            }
-            refetch()
-            closeModal()
-        } catch (error) {
-            message.error("مشکلی پیش آمده است.")
-            console.error(error);
-        }
+   const onFinish = async (values) => {
+  const precinctIdValue = values.precinct_id
+    ? values.precinct_id.value 
+    : null;
+
+  const payload = {
+    precinct_id: precinctIdValue,
+    title: values.title,
+    description: values.description,
+  };
+
+  try {
+    if (modalMode === 'add') {
+      await createSystem(payload);
+      message.success('تعریف جدید اضافه شد.');
+    } else {
+      await updateSystem({ SystemEngineerId: modalData?.id, ...payload });
+      message.success('با موفقیت ویرایش شد.');
     }
+    refetch();
+    closeModal();
+  } catch (error) {
+    message.error('مشکلی پیش آمده است.');
+    console.error(error);
+  }
+};
+
 
     return (
         <Modal
@@ -66,7 +69,7 @@ const SystemEngineerModal = ({isOpen, modalMode, closeModal, modalData, refetch}
                 <Row gutter={[16, 16]}>
                     <Col span={12}>
                         <Form.Item name={'precinct_id'} label={"حوزه"}>
-                            <TS data={precinctData} allowClear={true}/>
+                            <TS data={precinctData} allowClear={true} labelInValue={true}/>
                         </Form.Item>
                     </Col>
                     <Col span={12}>
