@@ -5,7 +5,9 @@ import {
     SafetyCertificateOutlined,
     SolutionOutlined,
     TeamOutlined,
-    UserOutlined
+    UsergroupAddOutlined,
+    UserOutlined,
+    UserSwitchOutlined
 } from "@ant-design/icons";
 
 const managementItems = [
@@ -38,6 +40,12 @@ const managementItems = [
         label: "دسترسی عمومی کاربران",
         description: "تنظیم دسترسی‌های کلی و عمومی برای گروه‌های کاربری.",
         icon: <TeamOutlined className="text-2xl text-rose-600"/>
+    },
+    {
+        path: "/panel/system-management/users-performance",
+        label: "عملکرد کاربران",
+        description: "نمایش و ارزیابی عملکرد کاربران در سیستم.",
+        icon: <UsergroupAddOutlined className="text-2xl text-brown-600"/>
     },
 ];
 

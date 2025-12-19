@@ -16,6 +16,7 @@ import MyWork from "@/pages/MyWork/MyWork.jsx";
 import SystemManagement from "@/pages/SystemManagement/index.jsx";
 import UsersRole from "@/pages/SystemManagement/UsersRole.jsx";
 import DetailAccessProduct from "@/pages/SystemManagement/DetailAccessProduct/DetailAccessProduct.jsx";
+import UsersPerformance from "./pages/SystemManagement/UsersPerformance/UsersPerformance";
 
 const router = createBrowserRouter([
     {
@@ -118,6 +119,15 @@ const router = createBrowserRouter([
         element: (
             <ProtectedRoute>
                 <DetailAccessProduct/>
+            </ProtectedRoute>
+        ),
+        errorElement: <NotFound/>
+    },
+    {
+        path: "/panel/system-management/users-performance",
+        element: (
+            <ProtectedRoute>
+                <UsersPerformance/>
             </ProtectedRoute>
         ),
         errorElement: <NotFound/>
