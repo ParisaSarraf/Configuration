@@ -45,7 +45,6 @@ const ProductModal = ({
 
   const parentCodeId = parentCodeData?.code || "";
 
-
   useEffect(() => {
     if (!isOpen) return;
     form.resetFields();
@@ -75,9 +74,9 @@ const ProductModal = ({
           : null,
         alternative_genus_id: modalData.alternative_genus?.id
           ? {
-            value: modalData.alternative_genus.id,
-            label: modalData.alternative_genus.name,
-          }
+              value: modalData.alternative_genus.id,
+              label: modalData.alternative_genus.name,
+            }
           : null,
         pro_type: modalData.pro_type,
         description: modalData.description,
@@ -88,9 +87,9 @@ const ProductModal = ({
         ),
         standard_code_id: modalData.standard_code?.id
           ? {
-            value: modalData.standard_code.id,
-            label: modalData.standard_code.name,
-          }
+              value: modalData.standard_code.id,
+              label: modalData.standard_code.name,
+            }
           : null,
         brand2: modalData.brand2,
         brand2_desc: modalData.brand2_desc,
@@ -343,7 +342,8 @@ const ProductModal = ({
 
                   if (selectedItem) {
                     form.setFieldsValue({
-                      persian_title: selectedItem.personality_codes?.[0]?.description,
+                      // persian_title:
+                      //   selectedItem.personality_codes?.[0]?.description,
                       store_code: selectedItem.warehouse_code,
                     });
                   }
@@ -363,10 +363,27 @@ const ProductModal = ({
                 options={
                   standardCodesResponse?.personality_codes?.map((item) => ({
                     value: item.id,
-                    label: item.description,
+                    label: item.name,
+                    description: item.description,
                   })) || []
                 }
-                disabled={standardCodesResponse?.personality_codes.length === 0}
+                disabled={!standardCodesResponse?.personality_codes?.length}
+                onChange={(selected) => {
+                  if (selected) {
+                    const selectedOption =
+                      standardCodesResponse?.personality_codes?.find(
+                        (item) => item.id === selected.value
+                      );
+
+                    if (selectedOption) {
+                      form.setFieldsValue({
+                        persian_title: selectedOption.description,
+                      });
+                    }
+                  } else {
+                    form.setFieldsValue({ persian_title: "" });
+                  }
+                }}
                 filterOption={(input, option) =>
                   option.label.toLowerCase().includes(input.toLowerCase())
                 }
@@ -405,7 +422,6 @@ const ProductModal = ({
               />
             </Form.Item>
           </Col>
-
 
           <Col span={4}>
             <Form.Item label="تعداد انبار" name="warehouse_quantity">
