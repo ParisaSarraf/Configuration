@@ -1,9 +1,9 @@
 import { Form, message } from "antd";
-import Modal from "../Modal";
+import Modal from "../components/Modal";
 import TextArea from "antd/es/input/TextArea";
-import { useUpdateProductPurchase } from "../../QueryServises/productPurchase";
+import { useUpdateProductPurchase } from "../QueryServises/productPurchase";
 import { useEffect } from "react";
-import { useUpdateRequestOfWarehouse } from "../../QueryServises/RequestOfWarehouse";
+import { useUpdateRequestOfWarehouse } from "../QueryServises/RequestOfWarehouse";
 
 const ExportPurchaseExcelModal = ({
   isOpen,
