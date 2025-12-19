@@ -3,12 +3,12 @@ import Modal from "../Modal";
 import TextArea from "antd/es/input/TextArea";
 import { useUpdateProductPurchase } from "../../QueryServises/productPurchase";
 import { useEffect } from "react";
+import { useUpdateRequestOfWarehouse } from "../../QueryServises/RequestOfWarehouse";
 
 const ExportPurchaseExcelModal = ({
   isOpen,
   modalMode,
   modalData,
-  modalType,
   closeModal,
   refetch,
   onExportSuccess,
@@ -16,6 +16,8 @@ const ExportPurchaseExcelModal = ({
   const [form] = Form.useForm();
   const { mutateAsync: updateProductPurchase, isLoading: isUpdating } =
     useUpdateProductPurchase();
+  const { mutateAsync: updateWarehouse, isLoading: isUpdatingWarehouse } =
+    useUpdateRequestOfWarehouse();
 
   useEffect(() => {
     if (isOpen) {
@@ -25,11 +27,17 @@ const ExportPurchaseExcelModal = ({
 
   const onFinish = async (values) => {
     try {
-      await updateProductPurchase({
-        productPurchaseId: modalData,
-        excel_description: values.excel_description,
-      });
-
+      if (modalMode === "exportExcelWareHouse") {
+        await updateWarehouse({
+          RequestOfWarehouseId: modalData,
+          excel_description: values.excel_description,
+        });
+      } else {
+        await updateProductPurchase({
+          productPurchaseId: modalData,
+          excel_description: values.excel_description,
+        });
+      }
       message.success("دلیل خروجی اکسل با موفقیت ثبت شد");
       if (onExportSuccess) {
         onExportSuccess(modalData);
@@ -64,7 +72,7 @@ const ExportPurchaseExcelModal = ({
           text: "ذخیره",
           onClick: handleSubmit,
           type: "primary",
-          loading: isUpdating,
+          loading: isUpdating || isUpdatingWarehouse,
         },
       ]}
     >
