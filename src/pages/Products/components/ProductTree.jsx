@@ -7,10 +7,10 @@ import {
   PlusOutlined,
 } from '@ant-design/icons';
 import { useDeleteProduct } from "../../../QueryServises/productQuery";
-import Tree from "../../../components/Tree"; 
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import { useExportExcelProductChildrenBom } from "@/QueryServises/ExcelExporterQuery/index.js";
 import { handleDownload } from "@utils/HandleDownload.js";
+import ProductTreeEtc from "../../../components/Tree/ProductTree";
 
 const LOCAL_STORAGE_KEY = 'productTreeExpandedKeys';
 
@@ -187,7 +187,7 @@ const ProductTree = ({
 
   return (
     <div className="p-2">
-      <Tree
+      <ProductTreeEtc
         className="custom-product-tree"
         data={treeData}
         isLoading={isLoading || isDeleting || isExporting}
