@@ -1,6 +1,9 @@
 import axios from "axios";
 
-export const BASEURL = "http:///10.250.87.36:8000//api/v1";
+export const BASEURL = import.meta.env.VITE_APP_BASE_URL;
+
+// export const BASEURL = "http://10.250.87.36:8000/api/v1";
+// export const BASEURL = "http://10.250.87.36:8000/api/v1";
 // export const BASEURL = "http://localhost:8000/api/v1";
 
 // http://10.115.97.112:5173/
