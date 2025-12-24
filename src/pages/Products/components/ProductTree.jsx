@@ -6,7 +6,7 @@ import {
   FileExcelOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
-import { useDeleteProduct } from "../../../QueryServises/productQuery";
+import { useChildProductById, useDeleteProduct } from "../../../QueryServises/productQuery";
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import { useExportExcelProductChildrenBom } from "@/QueryServises/ExcelExporterQuery/index.js";
 import { handleDownload } from "@utils/HandleDownload.js";
@@ -27,6 +27,8 @@ const ProductTree = ({
   const { mutate: deleteProduct, isLoading: isDeleting } = useDeleteProduct();
   const [exportProductId, setExportProductId] = useState(null);
   const { data: exportExcelData, isFetching: isExporting } = useExportExcelProductChildrenBom(exportProductId);
+  const {data : childData , isLoading: isChildLoading , isError: isChildError} = useChildProductById();
+
 
   const [expandedKeys, setExpandedKeys] = useState([]);
 
@@ -124,7 +126,7 @@ const ProductTree = ({
       children: item.children && item.children.length > 0
         ? transformDataToTreeFormat(item.children)
         : undefined,
-      isLeaf: !item.children || item.children.length === 0
+      isLeaf: !item.children  || item.children.length === 0
     }));
   };
 

@@ -15,11 +15,11 @@ export const useProductList = (queryOptions) => {
   });
 };
 
-export const useRootProductByIdKey = ["root", "product"];
-export const useRootProductById = (queryOptions) => {
+export const useRootProductKey = ["root", "product"];
+export const useRootProduct = (queryOptions) => {
   const { myAxios } = useMyAxios();
   return useQuery({
-    queryKey: useRootProductByIdKey,
+    queryKey: useRootProductKey,
     queryFn: () =>
       myAxios.get(`/product/get-root-products/`).then((response) => {
         queryOptions?.onSuccess?.(response?.data);

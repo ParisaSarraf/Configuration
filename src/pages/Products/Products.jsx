@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react';
 import {Button, Spin} from 'antd';
 import {PlusOutlined, ReloadOutlined} from '@ant-design/icons';
-import {useProductList} from "../../QueryServises/productQuery";
+import {useProductList, useRootProduct} from "../../QueryServises/productQuery";
 import ProductTree from "./components/ProductTree";
 import ProductModal from "./components/ProductModal";
 import {useProductContext} from '../../Services/Context/ProductContext';
@@ -25,7 +25,8 @@ const ErrorDisplay = ({onRetry}) => (
 
 
 const Products = () => {
-    const {data: productData, isFetching, isError, refetch} = useProductList();
+    // const {data: productData, isFetching, isError, refetch} = useProductList();
+    const {data: productData, isFetching, isError, refetch} = useRootProduct();
     const {isOpen, modalMode, modalData, setModal, closeModal} = useModal();
     const [selectedKeys, setSelectedKeys] = useState([]);
     const {currentProduct, handleProductSelect} = useProductContext();
@@ -41,7 +42,6 @@ const Products = () => {
     };
 
     const renderContent = () => {
-
         if (isError) {
             return <ErrorDisplay onRetry={refetch}/>;
         }
