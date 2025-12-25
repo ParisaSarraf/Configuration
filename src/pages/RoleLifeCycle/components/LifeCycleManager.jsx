@@ -93,7 +93,7 @@ const LifeCycleManager = ({ selectedRoleId, refetch }) => {
       <div className="p-4 border-b border-slate-200 flex items-center gap-2">
         <SafetyCertificateOutlined className="text-slate-500" />
         <h2 className="text-base font-semibold text-slate-800">
-          چرخه عمرهای سمت:{" "}
+          چرخه عمرهای سمت:
           <span className="text-sky-600">{selectedRoleName}</span>
         </h2>
       </div>

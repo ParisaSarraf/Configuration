@@ -26,42 +26,42 @@ const LifeCycleModal = ({
       form.setFieldsValue({
         title: modalData.title,
         tag: modalData.tag,
+        order: modalData.order,
       });
     } else if (modalMode === "add") {
       form.resetFields();
     }
   }, [modalMode, modalData, form]);
 
-  const onFinishForm = async(values) => {
+  const onFinishForm = async (values) => {
     const payload = {
       title: values.title,
       tag: values.tag,
+      order: values.order,
     };
     try {
-         if (modalMode === "add") {
-      await createLifeCycle(payload);
-      message.success("چرخه عمر محصول با موفقیت اضافه شد");
-      closeModal();
-      refetch();
-    } else {
-      await updateLifeCycle({
-        lifeCycleId: modalData.id,
-        ...payload,
-      });
-      message.success("چرخه عمر محصول با موفقیت ویرایش شد");
-      closeModal();
-      refetch();
-    }
+      if (modalMode === "add") {
+        await createLifeCycle(payload);
+        message.success("چرخه عمر محصول با موفقیت اضافه شد");
+        closeModal();
+        refetch();
+      } else {
+        await updateLifeCycle({
+          lifeCycleId: modalData.id,
+          ...payload,
+        });
+        message.success("چرخه عمر محصول با موفقیت ویرایش شد");
+        closeModal();
+        refetch();
+      }
     } catch (error) {
-        console.error(error);
-        if (error?.response?.status === 400) {
-          message.error('چرخه عمر محصول تکراری است.');
-        } else {
-          message.error('مشکلی در ثبت پیش آمده است.');
-        }
+      console.error(error);
+      if (error?.response?.status === 400) {
+        message.error("چرخه عمر محصول تکراری است.");
+      } else {
+        message.error("مشکلی در ثبت پیش آمده است.");
+      }
     }
-
-   
   };
 
   return (
@@ -82,15 +82,20 @@ const LifeCycleModal = ({
       >
         <Form form={form} layout="vertical" onFinish={onFinishForm}>
           <Row gutter={16}>
-            <Col span={24}>
-              <Form.Item name="title" label="چرخه عمر محصول">
+            <Col span={6}>
+              <Form.Item name="order" label="اولویت نمایش">
+                <Input placeholder="اولویت نمایش" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="title" label="نام چرخه عمر محصول">
                 <Input placeholder="نام چرخه عمر محصول" />
               </Form.Item>
-              <Col span={24}>
-                <Form.Item name="tag" label="برچسب ">
-                  <Input placeholder="برچسب" />
-                </Form.Item>
-              </Col>
+            </Col>
+            <Col span={6}>
+              <Form.Item name="tag" label="برچسب ">
+                <Input placeholder="برچسب" />
+              </Form.Item>
             </Col>
           </Row>
         </Form>

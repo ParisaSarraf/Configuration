@@ -3,6 +3,11 @@ import {EditOutlined , DeleteOutlined} from "@ant-design/icons";
 
 export const LifeCycleCol = ({ handleDelete, handleEdit }) => [
     {
+        title: 'اولویت نمایش',
+        dataIndex: 'order',
+        key: 'order',
+    },
+    {
         title: 'نام',
         dataIndex: 'title',
         key: 'title',
