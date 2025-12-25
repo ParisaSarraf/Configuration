@@ -7,7 +7,6 @@ const UsersPerformance = () => {
   const { data, isLoading } = useGetActivitiesUserPerformance();
   const navigate = useNavigate();
 
-  // محاسبات آماری برای نمایش در جزئیات
   const topPerformer = data?.reduce((prev, current) => (prev.avg_performance > current.avg_performance) ? prev : current, {});
   const totalActivities = data?.reduce((sum, item) => sum + item.activity_count, 0) || 0;
 
@@ -94,7 +93,7 @@ const UsersPerformance = () => {
       sorter: (a, b) => a.avg_performance - b.avg_performance,
     },
     {
-      title: "حجم فعالیت",
+      title: "تعداد فعالیت",
       dataIndex: "activity_count",
       key: "activity_count",
       align: "center",
@@ -147,7 +146,7 @@ const UsersPerformance = () => {
 
         <main>
           <Row gutter={[20, 20]} className="mb-8">
-            <Col xs={24} md={16}>
+            <Col xs={24} md={24}>
               <Card className="rounded-3xl border-none shadow-sm overflow-hidden h-full">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-bold flex items-center gap-2">
@@ -171,18 +170,7 @@ const UsersPerformance = () => {
                 </div>
               </Card>
             </Col>
-            <Col xs={24} md={8}>
-              <Card className="rounded-3xl border-none shadow-sm bg-indigo-600 text-white h-full">
-                <h3 className="text-white/80 text-sm font-medium mb-4">اطلاعیه عملکرد</h3>
-                <p className="text-lg font-bold leading-snug">
-                  میانگین بهره‌وری تیم در ماه جاری ۱۵٪ رشد داشته است.
-                </p>
-                <div className="mt-6 flex justify-end">
-                  <UserOutlined className="text-6xl text-white/10 absolute -bottom-2 -left-2" />
-                  {/* <Button ghost className="rounded-xl border-white/30 text-white hover:!bg-white/10">مشاهده جزئیات</Button> */}
-                </div>
-              </Card>
-            </Col>
+          
           </Row>
 
           <Card className="shadow-xl shadow-slate-200/60 border-none rounded-3xl overflow-hidden" bodyStyle={{ padding: 0 }}>
