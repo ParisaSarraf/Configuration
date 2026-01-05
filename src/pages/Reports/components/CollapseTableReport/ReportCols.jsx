@@ -68,7 +68,7 @@ const ReportCol = ({handleShowDetailEdition, handleAutomationFiles}) => {
                             }}
                             title="مشاهده"
                         />
-                        {/* <Button
+                        <Button
                             size={'small'}
                             type="text"
                             icon={<FileDoneOutlined/>}
@@ -79,7 +79,7 @@ const ReportCol = ({handleShowDetailEdition, handleAutomationFiles}) => {
                             title={'روال اسناد'}
                             className="text-purple-500 hover:text-purple-700 border border-purple-500"
 
-                        /> */}
+                        />
                     </div>
                 )
             }
