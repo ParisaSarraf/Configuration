@@ -30,8 +30,6 @@ const CombineFiles = ({
   modalType,
   currentProduct,
 }) => {
-  console.log(modalData);
-
   const [form] = Form.useForm();
   const [currentState, setCurrentState] = useState(null);
   const [comment, setComment] = useState("");
@@ -155,7 +153,10 @@ const CombineFiles = ({
 
     try {
       await updateState({
-        id: modalType === "SpecificAutomationFiles" ? ProductDocumentId : modalData?.id,
+        id:
+          modalType === "SpecificAutomationFiles"
+            ? ProductDocumentId
+            : modalData?.id,
         state: nextState,
         comment: comment,
       });
@@ -174,7 +175,10 @@ const CombineFiles = ({
 
     try {
       await updateState({
-        id: modalType === "SpecificAutomationFiles" ? ProductDocumentId : modalData?.id,
+        id:
+          modalType === "SpecificAutomationFiles"
+            ? ProductDocumentId
+            : modalData?.id,
         state: prevState,
         comment: comment,
       });

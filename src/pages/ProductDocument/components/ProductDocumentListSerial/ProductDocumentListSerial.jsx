@@ -213,30 +213,30 @@ const ProductDocumentListSerial = ({
     currentProduct?.id
   );
 
-  const handleDownloadZip = async () => {
-    const hide = message.loading("در حال آماده‌سازی فایل ZIP...", 0);
-    try {
-      const { data: blobData } = await fetchZip();
-      if (blobData) {
-        const url = window.URL.createObjectURL(new Blob([blobData]));
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute(
-          "download",
-          `Documents-${currentProduct?.name || "Product"}.zip`
-        );
-        document.body.appendChild(link);
-        link.click();
-        link.parentNode.removeChild(link);
-        window.URL.revokeObjectURL(url);
-        message.success("فایل با موفقیت دانلود شد");
-      }
-    } catch (error) {
-      message.error("خطا در دریافت فایل ZIP");
-    } finally {
-      hide();
-    }
-  };
+  // const handleDownloadZip = async () => {
+  //   const hide = message.loading("در حال آماده‌سازی فایل ZIP...", 0);
+  //   try {
+  //     const { data: blobData } = await fetchZip();
+  //     if (blobData) {
+  //       const url = window.URL.createObjectURL(new Blob([blobData]));
+  //       const link = document.createElement("a");
+  //       link.href = url;
+  //       link.setAttribute(
+  //         "download",
+  //         `Documents-${currentProduct?.name || "Product"}.zip`
+  //       );
+  //       document.body.appendChild(link);
+  //       link.click();
+  //       link.parentNode.removeChild(link);
+  //       window.URL.revokeObjectURL(url);
+  //       message.success("فایل با موفقیت دانلود شد");
+  //     }
+  //   } catch (error) {
+  //     message.error("خطا در دریافت فایل ZIP");
+  //   } finally {
+  //     hide();
+  //   }
+  // };
 
   const serials = useMemo(
     () => ProductSerialList?.serials || [],
@@ -351,7 +351,7 @@ const ProductDocumentListSerial = ({
               </div>
             </div>
 
-            <Button
+            {/* <Button
               type="primary"
               icon={
                 <FileZipOutlined
@@ -370,7 +370,8 @@ const ProductDocumentListSerial = ({
         "
             >
               {!isZipLoading && "دریافت خروجی ZIP"}
-            </Button>
+            </Button> */}
+
           </div>
         }
       >

@@ -4,7 +4,9 @@ import {
   DeleteOutlined,
   EditOutlined,
   FileExcelOutlined,
+  FilePdfOutlined,
   PlusOutlined,
+  FileZipOutlined,
 } from "@ant-design/icons";
 import {
   useDeleteProduct,
@@ -16,6 +18,7 @@ import { handleDownload } from "@utils/HandleDownload.js";
 import ProductTreeEtc from "../../../components/Tree/ProductTree";
 import { useQueryClient } from "@tanstack/react-query";
 import { useMyAxios } from "../../../hooks/useMyAxios";
+import { useGetZipById } from "../../../QueryServises/productDocumentQuery";
 
 const LOCAL_STORAGE_KEY = "productTreeExpandedKeys";
 
@@ -35,10 +38,51 @@ const ProductTree = ({
 
   const [treeDataSource, setTreeDataSource] = useState([]);
   const [expandedKeys, setExpandedKeys] = useState([]);
-  const [exportProductId, setExportProductId] = useState(null);
 
+  const [exportProductId, setExportProductId] = useState(null);
   const { data: exportExcelData, isFetching: isExporting } =
     useExportExcelProductChildrenBom(exportProductId);
+
+  const [zipProductId, setZipProductId] = useState(null);
+  const [zipFileName, setZipFileName] = useState("");
+
+  const { refetch: fetchZip, isFetching: isDownloadingZip } = useGetZipById(
+    zipProductId,
+    {
+      enabled: false,
+    }
+  );
+
+  useEffect(() => {
+    if (zipProductId) {
+      fetchZip().then((result) => {
+        const blobData = result.data;
+        if (blobData) {
+          try {
+            const url = window.URL.createObjectURL(new Blob([blobData]));
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute(
+              "download",
+              `Documents-${zipFileName || "Product"}.zip`
+            );
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            message.success("فایل با موفقیت دانلود شد");
+          } catch (error) {
+            console.error("Download error:", error);
+            message.error("خطا در دانلود فایل");
+          }
+        } else if (result.error) {
+          message.error("خطا در دریافت فایل از سرور");
+        }
+
+        setZipProductId(null);
+      });
+    }
+  }, [zipProductId, fetchZip, zipFileName]);
 
   useEffect(() => {
     if (productData) {
@@ -47,14 +91,6 @@ const ProductTree = ({
   }, [productData]);
 
   useEffect(() => {
-    // try {
-    //   const storedKeys = localStorage.getItem(LOCAL_STORAGE_KEY);
-    //   if (storedKeys) {
-    //     setExpandedKeys(JSON.parse(storedKeys));
-    //   }
-    // } catch (error) {
-    //   console.error("Failed to load expanded keys", error);
-    // }
     setExpandedKeys([]);
   }, []);
 
@@ -185,6 +221,16 @@ const ProductTree = ({
     } else if (actionKey === "exportExcel") {
       setExportProductId(node?.productData?.id);
       message.loading({ content: "درحال آماده‌سازی...", key: "exporting" });
+    } else if (actionKey === "downloadZip") {
+      setZipFileName(
+        node?.productData?.persian_title || node?.productData?.code
+      );
+      setZipProductId(node?.productData?.id);
+      message.loading({
+        content: "درحال آماده‌سازی فایل ZIP...",
+        key: "zipping",
+        duration: 1,
+      });
     }
   };
 
@@ -226,6 +272,15 @@ const ProductTree = ({
         </div>
       ),
     },
+    {
+      key: "downloadZip",
+      label: (
+        <div className="flex items-center gap-2">
+          <FileZipOutlined />
+          <span>دانلود مستندات (ZIP)</span>
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -233,7 +288,7 @@ const ProductTree = ({
       <ProductTreeEtc
         className="custom-product-tree"
         data={treeData}
-        isLoading={isLoading || isDeleting || isExporting}
+        isLoading={isLoading || isDeleting || isExporting || isDownloadingZip}
         isError={isError}
         onSelect={(_, { node }) => onProductClick(node.productData)}
         selectedKeys={selectedKeys}
@@ -250,5 +305,4 @@ const ProductTree = ({
     </div>
   );
 };
-
 export default ProductTree;

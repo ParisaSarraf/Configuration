@@ -27,7 +27,6 @@ const ErrorDisplay = ({ onRetry }) => (
 );
 
 const Products = () => {
-  // const {data: productData, isFetching, isError, refetch} = useProductList();
   const { data: productData, isFetching, isError, refetch } = useRootProduct();
   const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
   const [selectedKeys, setSelectedKeys] = useState([]);
