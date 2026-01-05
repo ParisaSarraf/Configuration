@@ -14,10 +14,9 @@ import { useProductSerialById } from "@/QueryServises/productSerialQuery/index.j
 import { useProductDocumentEditionLogsBySerialById } from "@/QueryServises/productDocumentQuery/index.js";
 import { ProductDocumentListSerialCol } from "./components/ProductDocumentListSerialCol";
 import { useDeleteProductEditionlog } from "@/QueryServises/productDocumentEditionLogQuery/index.js";
-import { DeleteOutlined, EyeFilled, FileZipOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EyeFilled } from "@ant-design/icons";
 import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
 import { BASEURL } from "@/Services/axiosInstance.js";
-import { useGetZipById } from "../../../../QueryServises/productDocumentQuery";
 
 const EditionsAndLogsTable = ({ editions, onEdit, onDelete, onView }) => {
   const processedData = useMemo(() => {
@@ -70,12 +69,6 @@ const EditionsAndLogsTable = ({ editions, onEdit, onDelete, onView }) => {
         key: "log_survey_date",
         render: (date) => (date ? georgianDateToJalaliDate(date) : "---"),
       },
-      // {
-      //     title: "توضیحات",
-      //     dataIndex: ["logData", "description"],
-      //     key: "log_description",
-      //     render: (text) => text || "---",
-      // },
       {
         title: "فایل",
         dataIndex: ["logData", "file"],
@@ -101,14 +94,6 @@ const EditionsAndLogsTable = ({ editions, onEdit, onDelete, onView }) => {
         render: (_, record) =>
           record.logData ? (
             <Space>
-              {/* <Tooltip title="ویرایش ">*/}
-              {/*  <Button*/}
-              {/*    size="small"*/}
-              {/*    icon={<EditOutlined />}*/}
-              {/*    className="text-green-500 border-green-500"*/}
-              {/*    onClick={() => onEdit(record)}*/}
-              {/*  />*/}
-              {/*</Tooltip>*/}
               <Tooltip title="حذف ">
                 <Button
                   size="small"
@@ -208,35 +193,6 @@ const ProductDocumentListSerial = ({
   const { mutateAsync: deleteProductEditionlog } = useDeleteProductEditionlog();
   const { data: ProductDocumentData, refetch: refetchProductDocumentData } =
     useProductDocumentEditionLogsBySerialById(serialId);
-
-  const { isFetching: isZipLoading, refetch: fetchZip } = useGetZipById(
-    currentProduct?.id
-  );
-
-  // const handleDownloadZip = async () => {
-  //   const hide = message.loading("در حال آماده‌سازی فایل ZIP...", 0);
-  //   try {
-  //     const { data: blobData } = await fetchZip();
-  //     if (blobData) {
-  //       const url = window.URL.createObjectURL(new Blob([blobData]));
-  //       const link = document.createElement("a");
-  //       link.href = url;
-  //       link.setAttribute(
-  //         "download",
-  //         `Documents-${currentProduct?.name || "Product"}.zip`
-  //       );
-  //       document.body.appendChild(link);
-  //       link.click();
-  //       link.parentNode.removeChild(link);
-  //       window.URL.revokeObjectURL(url);
-  //       message.success("فایل با موفقیت دانلود شد");
-  //     }
-  //   } catch (error) {
-  //     message.error("خطا در دریافت فایل ZIP");
-  //   } finally {
-  //     hide();
-  //   }
-  // };
 
   const serials = useMemo(
     () => ProductSerialList?.serials || [],
@@ -350,28 +306,6 @@ const ProductDocumentListSerial = ({
                 </span>
               </div>
             </div>
-
-            {/* <Button
-              type="primary"
-              icon={
-                <FileZipOutlined
-                  className={isZipLoading ? "" : "animate-bounce-short"}
-                />
-              }
-              loading={isZipLoading}
-              onClick={handleDownloadZip}
-              className="
-          flex items-center gap-2 px-4 
-          bg-gradient-to-r from-blue-600 to-indigo-600 
-          border-none hover:from-blue-700 hover:to-indigo-700 
-          shadow-md shadow-blue-100 hover:shadow-lg 
-          transition-all duration-300 rounded-md
-          h-8 text-[12px]
-        "
-            >
-              {!isZipLoading && "دریافت خروجی ZIP"}
-            </Button> */}
-
           </div>
         }
       >
