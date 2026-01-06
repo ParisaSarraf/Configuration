@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import {
   useCreateProduct,
   useFinalCodeProductById,
+  useProductList,
   useUpdateProduct,
 } from "../../../QueryServises/productQuery";
 import { useOneCoreSetting } from "../../../QueryServises/settingQuery";
@@ -19,9 +20,10 @@ const ProductModal = ({
   modalData,
   closeModal,
   refetch,
-  productData,
 }) => {
   const [form] = Form.useForm();
+
+  const { data: productData } = useProductList();
 
   const { isPending: isCreating, mutateAsync: createProduct } =
     useCreateProduct();
