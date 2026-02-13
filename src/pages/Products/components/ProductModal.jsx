@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import {
   useCreateProduct,
   useFinalCodeProductById,
+  useProductList,
   useUpdateProduct,
 } from "../../../QueryServises/productQuery";
 import { useOneCoreSetting } from "../../../QueryServises/settingQuery";
@@ -19,9 +20,10 @@ const ProductModal = ({
   modalData,
   closeModal,
   refetch,
-  productData,
 }) => {
   const [form] = Form.useForm();
+
+  const { data: productData } = useProductList();
 
   const { isPending: isCreating, mutateAsync: createProduct } =
     useCreateProduct();
@@ -44,8 +46,6 @@ const ProductModal = ({
   );
 
   const parentCodeId = parentCodeData?.code || "";
-
-  console.log(selectedPersonalityId);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -315,20 +315,6 @@ const ProductModal = ({
               />
             </Form.Item>
           </Col>
-          {/* <Col span={6}>
-                        <Form.Item
-                            label="هویت"
-                            name="personality_id"
-                            rules={[{required: true, message: "لطفاً هویت را انتخاب کنید"}]}
-                        >
-                            <TS
-                                labelInValue
-                                data={personalityData}
-                                placeholder="هویت"
-                                onChange={(value) => setSelectedPersonalityId(value)}
-                            />
-                        </Form.Item>
-                    </Col> */}
           <Col span={6}>
             <Form.Item
               label="هویت"
@@ -358,7 +344,8 @@ const ProductModal = ({
 
                   if (selectedItem) {
                     form.setFieldsValue({
-                      persian_title: selectedItem.name,
+                      // persian_title:
+                      //   selectedItem.personality_codes?.[0]?.description,
                       store_code: selectedItem.warehouse_code,
                     });
                   }
@@ -379,9 +366,26 @@ const ProductModal = ({
                   standardCodesResponse?.personality_codes?.map((item) => ({
                     value: item.id,
                     label: item.name,
+                    description: item.description,
                   })) || []
                 }
-                disabled={standardCodesResponse?.personality_codes.length === 0}
+                disabled={!standardCodesResponse?.personality_codes?.length}
+                onChange={(selected) => {
+                  if (selected) {
+                    const selectedOption =
+                      standardCodesResponse?.personality_codes?.find(
+                        (item) => item.id === selected.value
+                      );
+
+                    if (selectedOption) {
+                      form.setFieldsValue({
+                        persian_title: selectedOption.description,
+                      });
+                    }
+                  } else {
+                    form.setFieldsValue({ persian_title: "" });
+                  }
+                }}
                 filterOption={(input, option) =>
                   option.label.toLowerCase().includes(input.toLowerCase())
                 }
@@ -389,7 +393,7 @@ const ProductModal = ({
               />
             </Form.Item>
           </Col>
-           <Col span={6}>
+          <Col span={6}>
             <Form.Item label="کد انبار" name="store_code">
               <Input />
             </Form.Item>
@@ -420,7 +424,6 @@ const ProductModal = ({
               />
             </Form.Item>
           </Col>
-         
 
           <Col span={4}>
             <Form.Item label="تعداد انبار" name="warehouse_quantity">

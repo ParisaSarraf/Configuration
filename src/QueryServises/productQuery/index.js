@@ -15,6 +15,36 @@ export const useProductList = (queryOptions) => {
   });
 };
 
+export const useRootProductKey = ["root", "product"];
+export const useRootProduct = (queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: useRootProductKey,
+    queryFn: () =>
+      myAxios.get(`/product/get-root-products/`).then((response) => {
+        queryOptions?.onSuccess?.(response?.data);
+        return response?.data;
+      }),
+    ...queryOptions,
+  });
+};
+
+export const useChildProductByIdKey = (parentId) => ["child", "product", parentId];
+export const useChildProductById = (parentId, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: useChildProductByIdKey(parentId),
+    queryFn: () =>
+      parentId
+        ? myAxios
+            .get(`/product/get-product-child-by-id/${parentId}`)
+            .then((response) => response?.data)
+        : Promise.resolve([]),
+    enabled: !!parentId,
+    ...queryOptions,
+  });
+};
+
 export const useProductByIdKey = (id) => ["product", id];
 export const useProductById = (id, queryOptions) => {
   const { myAxios } = useMyAxios();

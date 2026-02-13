@@ -3,7 +3,7 @@ import Tree from "../../../components/Tree";
 
 
 const UsersAndRoleTree = ({usersAndroles, isLoading, isError, setModal, modalData, modalMode}) => {
-
+    
     const transformDataToTreeFormat = (data) => {
         if (!Array.isArray(data)) return [];
         return data.map(role => ({

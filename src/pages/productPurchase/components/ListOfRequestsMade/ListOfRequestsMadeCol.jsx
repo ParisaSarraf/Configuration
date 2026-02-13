@@ -49,8 +49,8 @@ const ListOfRequestsMadeCol = ({handleDelete, handleHide, handleExcelExportForRo
         },
         {
             title: 'توضیح اکسل',
-            dataIndex: 'export_description',
-            key: 'export_description',
+            dataIndex: 'excel_description',
+            key: 'excel_description',
         },
         {
             title: 'عملیات',
@@ -70,12 +70,12 @@ const ListOfRequestsMadeCol = ({handleDelete, handleHide, handleExcelExportForRo
                             onClick={() => handleDelete(record)}
                             icon={<DeleteOutlined/>}
                         />
-                        {/* <Button
+                        <Button
                             title={'غیرفعال'}
                             className={'text-violet-500 border border-violet-500'}
                             onClick={() => handleHide(record)}
                             icon={<PoweroffOutlined/>}
-                        /> */}
+                        />
                     </Space>
                 )
             }

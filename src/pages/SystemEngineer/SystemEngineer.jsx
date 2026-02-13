@@ -10,7 +10,6 @@ const SystemEngineer = () => {
     const {mutateAsync: deleteSystem} = useDeleteSystemEngineer()
     const {setModal, modalMode, modalData, isOpen, closeModal} = useModal()
     const handleEdit = (record) => {
-        console.log(record)
         setModal({mode: 'edit', data: record})
     }
 

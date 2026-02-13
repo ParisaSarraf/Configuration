@@ -20,7 +20,6 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
   const { refetch } = useDocumentList();
 
   useEffect(() => {
-
     if (modalMode === "edit" && modalData) {
       form.setFieldsValue({
         parent_id: modalData.parent,
@@ -37,7 +36,6 @@ const DocumentModal = ({ isOpen, modalMode, modalData, closeModal, setModal, doc
   }, [modalMode, modalData, form]);
 
   const onFinishForm = async (values) => {
-
     const payload = {
       parent_id: values.parent_id,
       code: values.code,

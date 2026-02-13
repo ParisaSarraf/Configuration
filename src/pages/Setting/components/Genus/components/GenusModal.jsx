@@ -35,6 +35,7 @@ const GenusModal = ({
         difficulty: modalData.difficulty,
         equal_material: modalData.equal_material,
         internal_code: modalData.internal_code,
+        order: modalData.order,
       });
     } else if (modalMode === "add") {
       form.resetFields();
@@ -49,6 +50,7 @@ const GenusModal = ({
       material: values.material,
       difficulty: values.difficulty,
       equal_material: values.equal_material,
+      order: values.order,
       internal_code: values.internal_code,
       ...(values.parent_id !== undefined && {
         parent_id: Number(values.parent_id),
@@ -124,6 +126,18 @@ const GenusModal = ({
               </Form.Item>
             </Col>
             <Col span={12}>
+              <Form.Item
+                name="order"
+                label="اولویت نمایش"
+                rules={[
+                  { required: true, message: "لطفاً اولویت نمایش را وارد کنید" },
+                ]}
+              >
+                <Input placeholder="اولویت نمایش" />
+              </Form.Item>
+            </Col>
+
+            <Col span={24}>
               <Form.Item name="parent_id" label="جنس والد (اختیاری)">
                 <TS data={genusList} placeholder="جنس والد (اختیاری)" />
               </Form.Item>

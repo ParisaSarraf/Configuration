@@ -85,8 +85,8 @@ const ProductDocumentEditionModal = (
             loading={isCreating || isUpdating}
         >
             <Form form={form} layout="vertical" onFinish={onFinishForm}>
-                <Row gutter={16}>
-                    <Col span={24}>
+                <Row gutter={[16,2]}>
+                    <Col span={12}>
                         <Form.Item label="نام نسخه" name="edition"
                                    rules={[{required: true, message: "لطفا نام نسخه را انتخاب کنید"}]}>
                             <Select
@@ -102,7 +102,7 @@ const ProductDocumentEditionModal = (
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={24}>
+                    <Col span={12}>
                         <Form.Item label="دلایل ویرایش نسخه" name="reasons_editing_id">
                             <Select options={ReasonsEditingData?.map((reasonEdit) => {
                                 return {

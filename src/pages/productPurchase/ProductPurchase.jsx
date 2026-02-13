@@ -1,95 +1,94 @@
-import {Button, Card, Tabs} from "antd"
-import {useProductContext} from "../../Services/Context/ProductContext";
+import { Button, Card, Tabs } from "antd";
+import { useProductContext } from "../../Services/Context/ProductContext";
 import RequestOfWarehouse from "./components/RequestOfWarehouse/RequestOfWarehouse";
 import PurchaseProductTable from "./components/PurchaseProductTable/PurchaseProductTable";
 import PurchaseModal from "./components/PurchaseModal/PurchaseModal";
 import useModal from "../../hooks/useModal";
-import {PlusOutlined} from "@ant-design/icons";
-import {useEffect, useState} from "react";
-import {useUnConfirmProductPurchaseById} from "../../QueryServises/productPurchase";
+import { PlusOutlined } from "@ant-design/icons";
+import { useEffect, useState } from "react";
+import { useUnConfirmProductPurchaseById } from "../../QueryServises/productPurchase";
 import ListOfRequestsMade from "./components/ListOfRequestsMade/ListOfRequestsMade";
 
 const ProductPurchase = () => {
-    const {currentProduct} = useProductContext();
-    const {refetch} = useUnConfirmProductPurchaseById(currentProduct?.id)
-    const {isOpen, modalMode, modalData, modalType, setModal, closeModal} = useModal();
-    const [selectedPurchaseId, setSelectedPurchaseId] = useState(null)
-    const [selectedPurchaseType, setSelectedPurchaseType] = useState(false)
+  const { currentProduct } = useProductContext();
+  const { refetch } = useUnConfirmProductPurchaseById(currentProduct?.id);
+  const { isOpen, modalMode, modalData, modalType, setModal, closeModal } =
+    useModal();
+  const [selectedPurchaseId, setSelectedPurchaseId] = useState(null);
+  const [selectedPurchaseType, setSelectedPurchaseType] = useState(false);
 
-    useEffect(() => {
-        setSelectedPurchaseId(null);
-    }, [currentProduct?.id]);
+  useEffect(() => {
+    setSelectedPurchaseId(null);
+  }, [currentProduct?.id]);
 
-    const items = [
-        {
-            key: '1',
-            label: 'لیست درخواست خرید',
-            children:
-                <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
-                        <div className="col-span-1">
-                            <PurchaseProductTable
-                                key={currentProduct?.id}
-                                currentProduct={currentProduct}
-                                setSelectedPurchaseId={setSelectedPurchaseId}
-                                setModal={setModal}
-                                setSelectedPurchaseType={setSelectedPurchaseType}
-                            />
-                        </div>
-                        <div className="col-span-1">
-                            <RequestOfWarehouse
-                                selectedPurchaseId={selectedPurchaseId}
-                                setSelectedPurchaseType={setSelectedPurchaseType}
-                                selectedPurchaseType={selectedPurchaseType}
-                                currentProduct={currentProduct}
-                                refetchUnconfirmed={refetch}
-                            />
-                        </div>
-                    </div>
-                </>
-        },
-        {
-            key: '2',
-            label: 'درخواست های انجام شده',
-            children:
-                <ListOfRequestsMade currentProduct={currentProduct} refetch={refetch}/>
-            ,
-
-        }
-    ];
-
-    return (
-        <Card
-            title={`درخواست خرید ${currentProduct?.name}`}
-            extra={
-                <Button
-                    icon={<PlusOutlined/>}
-                    className="modal-button"
-                    onClick={() => setModal({mode: 'add', data: null, type: 'purchaseModal'})}
-                    title='درخواست خرید'
-                />
-            }
-        >
-            <div>
-                <Tabs
-                    items={items}
-                    type="card"
-                />
-
-                <PurchaseModal
-                    currentProduct={currentProduct}
-                    isOpen={isOpen}
-                    modalMode={modalMode}
-                    modalData={modalData}
-                    modalType={modalType}
-                    closeModal={closeModal}
-                    setModal={setModal}
-                    refetch={refetch}
-                />
+  const items = [
+    {
+      key: "1",
+      label: "لیست درخواست خرید",
+      children: (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
+            <div className="col-span-1">
+              <PurchaseProductTable
+                key={currentProduct?.id}
+                currentProduct={currentProduct}
+                setSelectedPurchaseId={setSelectedPurchaseId}
+                setModal={setModal}
+                setSelectedPurchaseType={setSelectedPurchaseType}
+              />
             </div>
+            <div className="col-span-1">
+              <RequestOfWarehouse
+                selectedPurchaseId={selectedPurchaseId}
+                setSelectedPurchaseType={setSelectedPurchaseType}
+                selectedPurchaseType={selectedPurchaseType}
+                currentProduct={currentProduct}
+                refetchUnconfirmed={refetch}
+              />
+            </div>
+          </div>
+        </>
+      ),
+    },
+    {
+      key: "2",
+      label: "درخواست های انجام شده",
+      children: (
+        <ListOfRequestsMade currentProduct={currentProduct} refetch={refetch} />
+      ),
+    },
+  ];
 
-        </Card>
-    )
-}
+  return (
+    <Card
+      title={`درخواست خرید ${currentProduct?.name}`}
+      extra={
+        <Button
+          icon={<PlusOutlined />}
+          className="modal-button"
+          onClick={() =>
+            setModal({ mode: "add", data: null, type: "purchaseModal" })
+          }
+          title="درخواست خرید"
+        />
+      }
+    >
+      <div>
+        <Tabs items={items} type="card" />
 
-export default ProductPurchase
+        <PurchaseModal
+          currentProduct={currentProduct}
+          isOpen={isOpen}
+          modalMode={modalMode}
+          modalData={modalData}
+          modalType={modalType}
+          closeModal={closeModal}
+          setModal={setModal}
+          refetch={refetch}
+        />
+      </div>
+    </Card>
+  );
+};
+
+export default ProductPurchase;

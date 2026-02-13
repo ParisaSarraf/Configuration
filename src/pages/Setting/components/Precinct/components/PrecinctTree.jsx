@@ -21,6 +21,7 @@ const PrecinctTree = ({ setModal }) => {
             parentId: item.parent_id || null,
             is_definable: item.is_definable || false,
             life_cycle: item.life_cycle || null,
+            order: item.order || null,
             life_cycle_id: item.life_cycle?.id || null,
             children: item.children && item.children.length > 0
                 ? transformDataToTreeFormat(item.children)
@@ -62,7 +63,8 @@ const PrecinctTree = ({ setModal }) => {
                     title: node.title,
                     parent_id: node.parent_id || node.parentId || null,
                     is_definable: node.is_definable || false,
-                    life_cycle_id: node.life_cycle?.id || null
+                    life_cycle_id: node.life_cycle?.id || null,
+                    order: node.order || null,
                 }
             });
         }

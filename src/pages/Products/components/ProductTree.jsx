@@ -5,16 +5,21 @@ import {
   EditOutlined,
   EyeInvisibleOutlined,
   FileExcelOutlined,
+  FilePdfOutlined,
   PlusOutlined,
+  FileZipOutlined,
 } from "@ant-design/icons";
 import {
   useDeleteProduct,
-  useHideProduct,
+  useChildProductByIdKey,
 } from "../../../QueryServises/productQuery";
-import Tree from "../../../components/Tree";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import { useExportExcelProductChildrenBom } from "@/QueryServises/ExcelExporterQuery/index.js";
 import { handleDownload } from "@utils/HandleDownload.js";
+import ProductTreeEtc from "../../../components/Tree/ProductTree";
+import { useQueryClient } from "@tanstack/react-query";
+import { useMyAxios } from "../../../hooks/useMyAxios";
+import { useGetZipById } from "../../../QueryServises/productDocumentQuery";
 
 const LOCAL_STORAGE_KEY = "productTreeExpandedKeys";
 
@@ -27,23 +32,66 @@ const ProductTree = ({
   selectedKeys,
   onProductClick,
 }) => {
+  const queryClient = useQueryClient();
+  const { myAxios } = useMyAxios();
   const { mutate: deleteProduct, isLoading: isDeleting } = useDeleteProduct();
+
+  const [treeDataSource, setTreeDataSource] = useState([]);
+  const [expandedKeys, setExpandedKeys] = useState([]);
+
   const [exportProductId, setExportProductId] = useState(null);
   const { data: exportExcelData, isFetching: isExporting } =
     useExportExcelProductChildrenBom(exportProductId);
-  const { mutateAsync: hideProduct } = useHideProduct();
 
-  const [expandedKeys, setExpandedKeys] = useState([]);
+  const [zipProductId, setZipProductId] = useState(null);
+  const [zipFileName, setZipFileName] = useState("");
+
+  const { refetch: fetchZip, isFetching: isDownloadingZip } = useGetZipById(
+    zipProductId,
+    {
+      enabled: false,
+    }
+  );
 
   useEffect(() => {
-    try {
-      const storedKeys = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (storedKeys) {
-        setExpandedKeys(JSON.parse(storedKeys));
-      }
-    } catch (error) {
-      console.error("Failed to load expanded keys from localStorage", error);
+    if (zipProductId) {
+      fetchZip().then((result) => {
+        const blobData = result.data;
+        if (blobData) {
+          try {
+            const url = window.URL.createObjectURL(new Blob([blobData]));
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute(
+              "download",
+              `Documents-${zipFileName || "Product"}.zip`
+            );
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            message.success("فایل با موفقیت دانلود شد");
+          } catch (error) {
+            console.error("Download error:", error);
+            message.error("خطا در دانلود فایل");
+          }
+        } else if (result.error) {
+          message.error("خطا در دریافت فایل از سرور");
+        }
+
+        setZipProductId(null);
+      });
     }
+  }, [zipProductId, fetchZip, zipFileName]);
+
+  useEffect(() => {
+    if (productData) {
+      setTreeDataSource(productData);
+    }
+  }, [productData]);
+
+  useEffect(() => {
+    setExpandedKeys([]);
   }, []);
 
   const handleExpand = (keys) => {
@@ -51,8 +99,46 @@ const ProductTree = ({
       setExpandedKeys(keys);
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(keys));
     } catch (error) {
-      console.error("Failed to save expanded keys to localStorage", error);
+      console.error("Failed to save expanded keys", error);
     }
+  };
+
+  const updateTreeData = (list, key, children) => {
+    return list.map((node) => {
+      const nodeKey = `product-${node.id}`;
+      if (nodeKey === key) {
+        return { ...node, children };
+      }
+      if (node.children) {
+        return {
+          ...node,
+          children: updateTreeData(node.children, key, children),
+        };
+      }
+      return node;
+    });
+  };
+
+  const onLoadData = ({ key, id, children }) => {
+    return new Promise(async (resolve) => {
+      if (children && children.length > 0) {
+        resolve();
+        return;
+      }
+      try {
+        const data = await queryClient.fetchQuery({
+          queryKey: useChildProductByIdKey(id),
+          queryFn: () =>
+            myAxios
+              .get(`/product/get-product-child-by-id/${id}`)
+              .then((res) => res.data),
+        });
+        setTreeDataSource((prev) => updateTreeData(prev, key, data));
+        resolve();
+      } catch (error) {
+        resolve();
+      }
+    });
   };
 
   useEffect(() => {
@@ -65,91 +151,43 @@ const ProductTree = ({
     }
   }, [exportExcelData, exportProductId]);
 
-  const rightClickMenuItems = [
-    {
-      key: "edit",
-      label: (
-        <div className="w-full flex flex-row items-center gap-2">
-          <EditOutlined />
-          <span>ویرایش شاخه</span>
-        </div>
-      ),
-    },
-    {
-      key: "delete",
-      label: (
-        <div className="w-full flex flex-row items-center gap-2">
-          <DeleteOutlined />
-          <span>حذف شاخه</span>
-        </div>
-      ),
-      danger: true,
-    },
-    {
-      key: "addToParent",
-      label: (
-        <div className="w-full flex flex-row items-center gap-2">
-          <PlusOutlined />
-          <span>افزودن زیرشاخه</span>
-        </div>
-      ),
-    },
-    {
-      key: "exportExcel",
-      label: (
-        <div className="w-full flex flex-row items-center gap-2">
-          <FileExcelOutlined />
-          <span>خروجی اکسل</span>
-        </div>
-      ),
-    },
-    {
-      key: "hide",
-      label: (
-        <div className="w-full flex flex-row items-center gap-2">
-          <EyeInvisibleOutlined />
-          <span> مخفی کردن شاخه</span>
-        </div>
-      ),
-    },
-  ];
-
   const transformDataToTreeFormat = (data) => {
     if (!data) return [];
-    return data?.map((item) => ({
-      title: (
-        <div className="flex items-center">
-          <FiberManualRecordIcon
-            fontSize="small"
-            color={
-              item.status === "active"
-                ? "success"
-                : item.status === "inactive"
+    return data.map((item) => {
+      const hasLoadedChildren = item.children && item.children.length > 0;
+
+      return {
+        title: (
+          <div className="flex items-center">
+            <FiberManualRecordIcon
+              fontSize="small"
+              color={
+                item.status === "active"
+                  ? "success"
+                  : item.status === "inactive"
                   ? "error"
                   : "warning"
-            }
-          />
-          <span>
-            {item.persian_title} ({item.final_code || item.code})
-          </span>
-        </div>
-      ),
-      key: `product-${item.id}`,
-      id: item.id,
-      name: item.persian_title,
-      parentId: item.parent,
-      productData: item,
-      children:
-        item.children && item.children.length > 0
+              }
+            />
+            <span>
+              {item.persian_title} ({item.final_code || item.code})
+            </span>
+          </div>
+        ),
+        key: `product-${item.id}`,
+        id: item.id,
+        productData: item,
+        children: hasLoadedChildren
           ? transformDataToTreeFormat(item.children)
           : undefined,
-      isLeaf: !item.children || item.children.length === 0,
-    }));
+        isLeaf: !item.has_children,
+      };
+    });
   };
 
   const treeData = useMemo(() => {
-    return transformDataToTreeFormat(productData);
-  }, [productData]);
+    return transformDataToTreeFormat(treeDataSource);
+  }, [treeDataSource]);
 
   const handleRightClickAction = async (actionKey, node) => {
     const genusId = node.id;
@@ -177,72 +215,80 @@ const ProductTree = ({
         },
       });
     } else if (actionKey === "edit") {
-      try {
-        setModal({
-          mode: "edit",
-          data: node.productData,
-        });
-      } catch (error) {
-        message.error("خطا در دریافت اطلاعات محصول");
-      }
+      setModal({ mode: "edit", data: node.productData });
     } else if (actionKey === "addToParent") {
-      try {
-        setModal({
-          mode: "addToParent",
-          data: node.productData,
-        });
-      } catch (error) {
-        message.error("خطا در دریافت اطلاعات محصول");
-      }
+      setModal({ mode: "addToParent", data: node.productData });
     } else if (actionKey === "exportExcel") {
-      try {
-        setExportProductId(node?.productData?.id);
-        message.loading({
-          content: "درحال آماده‌سازی فایل اکسل...",
-          key: "exporting",
-        });
-      } catch (error) {
-        message.error("خطا در خروجی اکسل");
-      }
-    } else if (actionKey === "hide") {
-      try {
-        Modal.confirm({
-          title: "مخفی کردن محصول",
-          content: "آیا از مخفی کردن این محصول مطمئن هستید؟",
-          okText: "بله",
-          cancelText: "خیر",
-          okType: "danger",
-          onOk() {
-            return new Promise((resolve, reject) => {
-              hideProduct(
-                { id: node?.id, hide: true },
-                {
-                  onSuccess: () => {
-                    message.success("محصول با موفقیت مخفی شد");
-                    refetch();
-                    resolve();
-                  },
-                  onError: () => {
-                    message.error("خطا در مخفی کردن محصول");
-                    reject();
-                  },
-                },
-              );
-            });
-          },
-        });
-      } catch (error) {
-        message.error("خطا در مخفی کردن محصول");
-      }
+      setExportProductId(node?.productData?.id);
+      message.loading({ content: "درحال آماده‌سازی...", key: "exporting" });
+    } else if (actionKey === "downloadZip") {
+      setZipFileName(
+        node?.productData?.persian_title || node?.productData?.code
+      );
+      setZipProductId(node?.productData?.id);
+      message.loading({
+        content: "درحال آماده‌سازی فایل ZIP...",
+        key: "zipping",
+        duration: 1,
+      });
     }
   };
 
+  const rightClickMenuItems = [
+    {
+      key: "edit",
+      label: (
+        <div className="flex items-center gap-2">
+          <EditOutlined />
+          <span>ویرایش شاخه</span>
+        </div>
+      ),
+    },
+    {
+      key: "delete",
+      label: (
+        <div className="flex items-center gap-2">
+          <DeleteOutlined />
+          <span>حذف شاخه</span>
+        </div>
+      ),
+      danger: true,
+    },
+    {
+      key: "addToParent",
+      label: (
+        <div className="flex items-center gap-2">
+          <PlusOutlined />
+          <span>افزودن زیرشاخه</span>
+        </div>
+      ),
+    },
+    {
+      key: "exportExcel",
+      label: (
+        <div className="flex items-center gap-2">
+          <FileExcelOutlined />
+          <span>خروجی اکسل</span>
+        </div>
+      ),
+    },
+    {
+      key: "downloadZip",
+      label: (
+        <div className="flex items-center gap-2">
+          <FileZipOutlined />
+          <span>دانلود مستندات (ZIP)</span>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="p-2">
-      <Tree
+      <ProductTreeEtc
         className="custom-product-tree"
         data={treeData}
-        isLoading={isLoading || isDeleting || isExporting}
+        isLoading={isLoading || isDeleting || isExporting || isDownloadingZip}
         isError={isError}
         onSelect={(_, { node }) => onProductClick(node.productData)}
         selectedKeys={selectedKeys}
@@ -250,6 +296,7 @@ const ProductTree = ({
         checkable={false}
         showIcon={false}
         blockNode
+        loadData={onLoadData}
         rightClickMenuItems={rightClickMenuItems}
         onRightClickAction={handleRightClickAction}
         expandedKeys={expandedKeys}
@@ -258,5 +305,4 @@ const ProductTree = ({
     </div>
   );
 };
-
 export default ProductTree;

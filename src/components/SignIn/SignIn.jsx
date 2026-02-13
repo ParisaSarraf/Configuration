@@ -100,7 +100,7 @@ export function SignIn() {
         <img
           // src="assets/img/pattern.webp"
           src="banner.jpg"
-          className="h-screen w-full object-cover rounded-3xl"
+          className="h-[calc(100vh-100px)] w-full object-cover rounded-3xl"
           alt="Background pattern"
         />
       </div>

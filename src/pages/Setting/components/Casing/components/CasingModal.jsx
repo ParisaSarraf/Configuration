@@ -13,7 +13,8 @@ const CasingModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refet
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
                 name: modalData.name,
-                type: modalData.type || "casing"
+                type: modalData.type || "casing",
+                order: modalData.order
             });
         } else if (modalMode === "add") {
             form.resetFields();
@@ -23,7 +24,8 @@ const CasingModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refet
     const onFinishForm = (values) => {
         const payload = {
             name: values.name,
-            type: "casing"
+            type: "casing",
+            order: values.order
         };
 
         if (modalMode === "add") {
@@ -76,13 +78,22 @@ const CasingModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refet
                     }}
                 >
                     <Row gutter={16}>
-                        <Col span={24}>
+                        <Col span={12}>
                             <Form.Item
                                 name="name"
                                 label="پوشش"
                                 rules={[{ required: true, message: "لطفاً پوشش را وارد کنید" }]}
                             >
                                 <Input placeholder="پوشش" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                name="order"
+                                label="اولویت نمایش"
+                                rules={[{ required: true, message: "لطفاً اولویت نمایش را وارد کنید" }]}
+                            >
+                                <Input placeholder="اولویت نمایش" />
                             </Form.Item>
                         </Col>
                     </Row>
