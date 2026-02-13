@@ -3,16 +3,20 @@ import { message, Modal } from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
+  EyeInvisibleOutlined,
   FileExcelOutlined,
   PlusOutlined,
-} from '@ant-design/icons';
-import { useDeleteProduct } from "../../../QueryServises/productQuery";
-import Tree from "../../../components/Tree"; 
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
+} from "@ant-design/icons";
+import {
+  useDeleteProduct,
+  useHideProduct,
+} from "../../../QueryServises/productQuery";
+import Tree from "../../../components/Tree";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import { useExportExcelProductChildrenBom } from "@/QueryServises/ExcelExporterQuery/index.js";
 import { handleDownload } from "@utils/HandleDownload.js";
 
-const LOCAL_STORAGE_KEY = 'productTreeExpandedKeys';
+const LOCAL_STORAGE_KEY = "productTreeExpandedKeys";
 
 const ProductTree = ({
   productData,
@@ -20,13 +24,14 @@ const ProductTree = ({
   refetch,
   isLoading,
   isError,
-  onChange,
   selectedKeys,
-  onProductClick
+  onProductClick,
 }) => {
   const { mutate: deleteProduct, isLoading: isDeleting } = useDeleteProduct();
   const [exportProductId, setExportProductId] = useState(null);
-  const { data: exportExcelData, isFetching: isExporting } = useExportExcelProductChildrenBom(exportProductId);
+  const { data: exportExcelData, isFetching: isExporting } =
+    useExportExcelProductChildrenBom(exportProductId);
+  const { mutateAsync: hideProduct } = useHideProduct();
 
   const [expandedKeys, setExpandedKeys] = useState([]);
 
@@ -39,7 +44,7 @@ const ProductTree = ({
     } catch (error) {
       console.error("Failed to load expanded keys from localStorage", error);
     }
-  }, []); 
+  }, []);
 
   const handleExpand = (keys) => {
     try {
@@ -55,7 +60,7 @@ const ProductTree = ({
       handleDownload(
         exportExcelData,
         `زیرمجموعه_محصول_${exportProductId}.csv`,
-        setExportProductId
+        setExportProductId,
       );
     }
   }, [exportExcelData, exportProductId]);
@@ -68,7 +73,7 @@ const ProductTree = ({
           <EditOutlined />
           <span>ویرایش شاخه</span>
         </div>
-      )
+      ),
     },
     {
       key: "delete",
@@ -78,7 +83,7 @@ const ProductTree = ({
           <span>حذف شاخه</span>
         </div>
       ),
-      danger: true
+      danger: true,
     },
     {
       key: "addToParent",
@@ -87,7 +92,7 @@ const ProductTree = ({
           <PlusOutlined />
           <span>افزودن زیرشاخه</span>
         </div>
-      )
+      ),
     },
     {
       key: "exportExcel",
@@ -96,35 +101,49 @@ const ProductTree = ({
           <FileExcelOutlined />
           <span>خروجی اکسل</span>
         </div>
-      )
+      ),
+    },
+    {
+      key: "hide",
+      label: (
+        <div className="w-full flex flex-row items-center gap-2">
+          <EyeInvisibleOutlined />
+          <span> مخفی کردن شاخه</span>
+        </div>
+      ),
     },
   ];
 
   const transformDataToTreeFormat = (data) => {
     if (!data) return [];
-    return data?.map(item => ({
+    return data?.map((item) => ({
       title: (
         <div className="flex items-center">
           <FiberManualRecordIcon
             fontSize="small"
             color={
-              item.status === 'active' ? 'success' :
-                item.status === 'inactive' ? 'error' :
-                  'warning'
+              item.status === "active"
+                ? "success"
+                : item.status === "inactive"
+                  ? "error"
+                  : "warning"
             }
           />
-          <span>{item.persian_title} ({item.final_code || item.code})</span>
+          <span>
+            {item.persian_title} ({item.final_code || item.code})
+          </span>
         </div>
       ),
       key: `product-${item.id}`,
       id: item.id,
       name: item.persian_title,
       parentId: item.parent,
-      productData: item, 
-      children: item.children && item.children.length > 0
-        ? transformDataToTreeFormat(item.children)
-        : undefined,
-      isLeaf: !item.children || item.children.length === 0
+      productData: item,
+      children:
+        item.children && item.children.length > 0
+          ? transformDataToTreeFormat(item.children)
+          : undefined,
+      isLeaf: !item.children || item.children.length === 0,
     }));
   };
 
@@ -136,11 +155,11 @@ const ProductTree = ({
     const genusId = node.id;
     if (actionKey === "delete") {
       Modal.confirm({
-        title: 'حذف محصول',
-        content: 'آیا از حذف این محصول مطمئن هستید؟',
-        okText: 'بله',
-        cancelText: 'خیر',
-        okType: 'danger',
+        title: "حذف محصول",
+        content: "آیا از حذف این محصول مطمئن هستید؟",
+        okText: "بله",
+        cancelText: "خیر",
+        okType: "danger",
         onOk() {
           return new Promise((resolve, reject) => {
             deleteProduct(genusId, {
@@ -175,12 +194,45 @@ const ProductTree = ({
       } catch (error) {
         message.error("خطا در دریافت اطلاعات محصول");
       }
-    } else if (actionKey === 'exportExcel') {
+    } else if (actionKey === "exportExcel") {
       try {
         setExportProductId(node?.productData?.id);
-        message.loading({ content: 'درحال آماده‌سازی فایل اکسل...', key: 'exporting' });
+        message.loading({
+          content: "درحال آماده‌سازی فایل اکسل...",
+          key: "exporting",
+        });
       } catch (error) {
         message.error("خطا در خروجی اکسل");
+      }
+    } else if (actionKey === "hide") {
+      try {
+        Modal.confirm({
+          title: "مخفی کردن محصول",
+          content: "آیا از مخفی کردن این محصول مطمئن هستید؟",
+          okText: "بله",
+          cancelText: "خیر",
+          okType: "danger",
+          onOk() {
+            return new Promise((resolve, reject) => {
+              hideProduct(
+                { id: node?.id, hide: true },
+                {
+                  onSuccess: () => {
+                    message.success("محصول با موفقیت مخفی شد");
+                    refetch();
+                    resolve();
+                  },
+                  onError: () => {
+                    message.error("خطا در مخفی کردن محصول");
+                    reject();
+                  },
+                },
+              );
+            });
+          },
+        });
+      } catch (error) {
+        message.error("خطا در مخفی کردن محصول");
       }
     }
   };
@@ -196,8 +248,8 @@ const ProductTree = ({
         selectedKeys={selectedKeys}
         showLine={true}
         checkable={false}
-        showIcon={false} 
-        blockNode 
+        showIcon={false}
+        blockNode
         rightClickMenuItems={rightClickMenuItems}
         onRightClickAction={handleRightClickAction}
         expandedKeys={expandedKeys}

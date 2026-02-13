@@ -128,6 +128,18 @@ export const useCreateProduct = () => {
   });
 };
 
+export const useHideProduct = () => {
+  const { myAxios } = useMyAxios();
+
+  return useMutation({
+    mutationFn: ({ id, hide }) => {
+      return myAxios
+        .patch(`/product/hide-product-from-root-tree/${id}/`, { hide })
+        .then((res) => res.data);
+    },
+  });
+};
+
 export const useUpdateProduct = () => {
   const { myAxios } = useMyAxios();
   return useMutation({
