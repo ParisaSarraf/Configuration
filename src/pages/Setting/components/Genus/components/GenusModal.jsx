@@ -60,7 +60,7 @@ const GenusModal = ({
     if (modalMode === "add") {
       createGenus(payload)
         .then(() => {
-          message.success("جنس با موفقیت اضافه شد");
+          message.success("ماده اولیه با موفقیت اضافه شد");
           closeModal();
           refetch();
         })
@@ -73,7 +73,7 @@ const GenusModal = ({
         });
     } else if (modalMode === "edit") {
       if (!modalData?.id) {
-        message.error("شناسه جنس معتبر نیست");
+        message.error("شناسه ماده اولیه معتبر نیست");
         return;
       }
 
@@ -82,7 +82,7 @@ const GenusModal = ({
         ...payload,
       })
         .then(() => {
-          message.success("جنس با موفقیت ویرایش شد");
+          message.success("ماده اولیه با موفقیت ویرایش شد");
           closeModal();
           refetch();
         })
@@ -105,7 +105,7 @@ const GenusModal = ({
       />
       <Modal
         isOpen={isOpen}
-        title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} جنس`}
+        title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} ماده اولیه`}
         size={600}
         onClose={closeModal}
         onSubmit={() => form.submit()}
@@ -117,12 +117,12 @@ const GenusModal = ({
             <Col span={12}>
               <Form.Item
                 name="name"
-                label="نام جنس"
+                label="نام ماده اولیه"
                 rules={[
-                  { required: true, message: "لطفاً نام جنس را وارد کنید" },
+                  { required: true, message: "لطفاً نام ماده اولیه را وارد کنید" },
                 ]}
               >
-                <Input placeholder="نام جنس" />
+                <Input placeholder="نام ماده اولیه" />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -138,8 +138,8 @@ const GenusModal = ({
             </Col>
 
             <Col span={24}>
-              <Form.Item name="parent_id" label="جنس والد (اختیاری)">
-                <TS data={genusList} placeholder="جنس والد (اختیاری)" />
+              <Form.Item name="parent_id" label="ماده اولیه والد (اختیاری)">
+                <TS data={genusList} placeholder="ماده اولیه والد (اختیاری)" />
               </Form.Item>
             </Col>
           </Row>

@@ -14,9 +14,12 @@ const PersonalityTable = ({
   const { data, isFetching, refetch } = usePersonalityProductList();
   const { mutate: deletePersonality, isPending: isDeleting } =
     useDeletePersonalityProduct();
+
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const [selectRow, setSecletdRow] = useState(false)
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+
+
   useEffect(() => {
     try {
       const storedKeys = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -27,6 +30,7 @@ const PersonalityTable = ({
       console.error("Failed to load expanded keys from localStorage", error);
     }
   }, []);
+
   const handleExpand = (keys) => {
     try {
       setExpandedRowKeys(keys);
@@ -35,6 +39,7 @@ const PersonalityTable = ({
       console.error("Failed to save expanded keys to localStorage", error);
     }
   };
+
   const handleDelete = (personalityId, name) => {
     Modal.confirm({
       title: "حذف هویت",
@@ -60,6 +65,7 @@ const PersonalityTable = ({
       },
     });
   };
+
   const handleEdit = (record) => {
     setModal({
       mode: "edit",
@@ -72,6 +78,7 @@ const PersonalityTable = ({
       type: "addPersonality",
     });
   };
+
   const handleSelect = (record) => {
     if (record && record.id) {
       setPersonalityId(record.id);
@@ -85,6 +92,7 @@ const PersonalityTable = ({
       setSelectedRowKeys([]);
     }
   };
+  
   const toggleExpand = (key, hasChildren) => {
     if (!hasChildren) return;
     const newExpandedKeys = expandedRowKeys.includes(key)

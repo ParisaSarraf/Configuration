@@ -50,7 +50,7 @@ const Setting = () => {
             }
         },
         {
-            label: `جنس`,
+            label: `ماده اولیه`,
             key: '3',
             icon: <AppstoreOutlined/>,
             children: <Genus/>,

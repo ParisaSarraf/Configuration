@@ -491,13 +491,13 @@ const ProductModal = ({
           </Col>
 
           <Col span={8}>
-            <Form.Item label="جنس" name="genus_id">
-              <TS labelInValue data={genusData} placeholder="جنس" />
+            <Form.Item label="ماده اولیه" name="genus_id">
+              <TS labelInValue data={genusData} placeholder="ماده اولیه" />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="جنس جایگزین" name="alternative_genus_id">
-              <TS labelInValue data={genusData} placeholder="جنس جایگزین" />
+            <Form.Item label="ماده اولیه جایگزین" name="alternative_genus_id">
+              <TS labelInValue data={genusData} placeholder="ماده اولیه جایگزین" />
             </Form.Item>
           </Col>
           <Col span={8}>
