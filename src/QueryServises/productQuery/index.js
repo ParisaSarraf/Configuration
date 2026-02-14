@@ -16,20 +16,30 @@ export const useProductList = (queryOptions) => {
 };
 
 export const useRootProductKey = ["root", "product"];
-export const useRootProduct = (queryOptions) => {
+export const useRootProduct = (showHidden, queryOptions) => {
   const { myAxios } = useMyAxios();
   return useQuery({
-    queryKey: useRootProductKey,
+    queryKey: ["root", "product", showHidden],
     queryFn: () =>
-      myAxios.get(`/product/get-root-products/`).then((response) => {
-        queryOptions?.onSuccess?.(response?.data);
-        return response?.data;
-      }),
+      myAxios
+        .get("/product/get-root-products/", {
+          params: {
+            hide: showHidden,
+          },
+        })
+        .then((res) => {
+          queryOptions?.onSuccess?.(res.data);
+          return res.data;
+        }),
     ...queryOptions,
   });
 };
 
-export const useChildProductByIdKey = (parentId) => ["child", "product", parentId];
+export const useChildProductByIdKey = (parentId) => [
+  "child",
+  "product",
+  parentId,
+];
 export const useChildProductById = (parentId, queryOptions) => {
   const { myAxios } = useMyAxios();
   return useQuery({

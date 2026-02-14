@@ -17,7 +17,7 @@ import SystemManagement from "@/pages/SystemManagement/index.jsx";
 import UsersRole from "@/pages/SystemManagement/UsersRole.jsx";
 import DetailAccessProduct from "@/pages/SystemManagement/DetailAccessProduct/DetailAccessProduct.jsx";
 import UsersPerformance from "./pages/SystemManagement/UsersPerformance/UsersPerformance";
-import ManageProduct from "./pages/ManageProduct/ManageProduct";
+import ManageProduct from "./pages/SystemManagement/ManageProduct/ManageProduct";
 
 const router = createBrowserRouter([
     {

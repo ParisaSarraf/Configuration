@@ -22,7 +22,6 @@ const ProductModal = ({
   refetch,
 }) => {
   const [form] = Form.useForm();
-
   const { data: productData } = useProductList();
 
   const { isPending: isCreating, mutateAsync: createProduct } =
@@ -62,6 +61,20 @@ const ProductModal = ({
         width: modalData.width,
         warehouse_code: modalData.warehouse_code,
         warehouse_quantity: modalData.warehouse_quantity,
+
+        // strandardCode
+        standard_code_id: modalData.standard_code?.value, //1
+        alternative_standard_code_id: modalData?.alternative_standard_code
+          ? {
+              value: modalData.alternative_standard_code.id,
+              label: modalData.alternative_standard_code.full_ware_house_code,
+            }
+          : null, //2
+
+        // storeCode
+        store_code: modalData.store_code, //3
+        alternative_store_code: modalData.alternative_store_code, //4
+
         length: modalData.length,
         price: modalData.price,
         external_diagonal: modalData.external_diagonal,
@@ -82,8 +95,6 @@ const ProductModal = ({
           : null,
         pro_type: modalData.pro_type,
         description: modalData.description,
-        brand1: modalData.brand1,
-        brand1_desc: modalData.brand1_desc,
         personality_id: modalData.product_personalities?.map(
           (personality) => personality?.personality?.id
         ),
@@ -93,8 +104,11 @@ const ProductModal = ({
               label: modalData.standard_code.name,
             }
           : null,
-        brand2: modalData.brand2,
-        brand2_desc: modalData.brand2_desc,
+
+        // brand1: modalData.brand1,
+        // brand1_desc: modalData.brand1_desc,
+        // brand2: modalData.brand2,
+        // brand2_desc: modalData.brand2_desc,
         employer_code: modalData.employer_code,
         final_code: modalData.final_code || "",
       });
@@ -125,18 +139,17 @@ const ProductModal = ({
   }, [parentCodeId, productCode]);
 
   const handleParentChange = (value) => setSelectedParentCodeId(value);
-
   const onFinish = (values) => {
     const payload = {
       persian_title: values.persian_title,
       code: values.code,
       quantity: values.quantity,
-      store_code: values.store_code,
+
+      warehouse_code: values.warehouse_code,
       status: values.status,
       weight: values.weight,
       height: values.height,
       width: values.width,
-      warehouse_code: values.warehouse_code,
       warehouse_quantity: values.warehouse_quantity,
       length: values.length,
       price: values.price,
@@ -144,20 +157,25 @@ const ProductModal = ({
       internal_diagonal: values.internal_diagonal,
       pro_type: values.pro_type,
       description: values.description,
-      brand1: values.brand1,
-      brand1_desc: values.brand1_desc,
-      brand2: values.brand2,
-      brand2_desc: values.brand2_desc,
+      // brand1: values.brand1,
+      // brand1_desc: values.brand1_desc,
+      // brand2: values.brand2,
+      // brand2_desc: values.brand2_desc,
       employer_code: values.employer_code,
       final_code: finalCode,
 
       parent_id: values.parent_id?.value,
       parent_code_id: values.parent_code_id?.value,
-      standard_code_id: values.standard_code_id?.value,
+
+      standard_code_id: values.standard_code_id?.value, //1
+      alternative_standard_code_id: values.alternative_standard_code_id, //2
+
+      store_code: values.store_code, //3
+      alternative_store_code: values.alternative_store_code, //4
 
       casing_id: values.casing_id?.value,
-      genus_id: values.genus_id?.value,
 
+      genus_id: values.genus_id?.value,
       alternative_genus_id: values.alternative_genus_id?.value,
 
       personality_id: values.personality_id?.value,
@@ -193,13 +211,14 @@ const ProductModal = ({
           modalMode === "edit" ? "محصول ویرایش شد" : "محصول اضافه شد"
         );
         closeModal();
-        refetch();
+        modalMode !== "edit" && refetch();
       })
       .catch((error) => {
         message.error(error.response?.data?.message || "خطا در عملیات");
         console.error(error);
       });
   };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -277,7 +296,7 @@ const ProductModal = ({
               <Input value={finalCode} disabled />
             </Form.Item>
           </Col>
-          <Col span={4}>
+          {/* <Col span={4}>
             <Form.Item label="نام تجاری 1" name="brand1">
               <Input />
             </Form.Item>
@@ -296,7 +315,7 @@ const ProductModal = ({
             <Form.Item label="شرح نام تجاری 2" name="brand2_desc">
               <Input />
             </Form.Item>
-          </Col>
+          </Col> */}
           <Col span={4}>
             <Form.Item label="کد کارفرما" name="employer_code">
               <Input />
@@ -342,18 +361,24 @@ const ProductModal = ({
                     selected?.value
                   );
 
-                  if (selectedItem) {
-                    form.setFieldsValue({
-                      // persian_title:
-                      //   selectedItem.personality_codes?.[0]?.description,
-                      store_code: selectedItem.warehouse_code,
-                    });
-                  }
+                  // if (selectedItem) {
+                  //   form.setFieldsValue({
+                  //     // persian_title:
+                  //     //   selectedItem.personality_codes?.[0]?.description,
+                  //     store_code:
+                  //       selectedItem?.personality_codes?.[0]
+                  //         ?.full_ware_house_code,
+                  //     alternative_store_code:
+                  //       selectedItem?.personality_codes?.[0]
+                  //         ?.full_ware_house_code,
+                  //   });
+                  // }
                 }}
               />
             </Form.Item>
           </Col>
 
+          {/* کد استاندارد */}
           <Col span={6}>
             <Form.Item label="کد استاندارد" name="standard_code_id">
               <Select
@@ -382,6 +407,13 @@ const ProductModal = ({
                         persian_title: selectedOption.description,
                       });
                     }
+                    if (selectedOption) {
+                      form.setFieldsValue({
+                        // persian_title:
+                        //   selectedItem.personality_codes?.[0]?.description,
+                        store_code: selectedOption?.full_ware_house_code,
+                      });
+                    }
                   } else {
                     form.setFieldsValue({ persian_title: "" });
                   }
@@ -393,11 +425,71 @@ const ProductModal = ({
               />
             </Form.Item>
           </Col>
+
+          {/* کد انبار */}
           <Col span={6}>
             <Form.Item label="کد انبار" name="store_code">
               <Input />
             </Form.Item>
           </Col>
+
+          {/* کد استاندارد جایگزین */}
+          <Col span={6}>
+            <Form.Item
+              label="کد استاندارد جایگزین "
+              name="alternative_standard_code_id"
+            >
+              <Select
+                allowClear
+                labelInValue
+                placeholder="کد استاندارد جایگزین "
+                showSearch
+                style={{ width: "100%" }}
+                options={
+                  standardCodesResponse?.personality_codes?.map((item) => ({
+                    value: item.id,
+                    label: item.name,
+                    description: item.description,
+                  })) || []
+                }
+                disabled={!standardCodesResponse?.personality_codes?.length}
+                onChange={(selected) => {
+                  if (selected) {
+                    const selectedOption =
+                      standardCodesResponse?.personality_codes?.find(
+                        (item) => item.id === selected.value
+                      );
+
+                    if (selectedOption) {
+                      form.setFieldsValue({
+                        persian_title: selectedOption.description,
+                      });
+                    }
+                    if (selectedOption) {
+                      form.setFieldsValue({
+                        alternative_store_code:
+                          selectedOption?.full_ware_house_code,
+                      });
+                    }
+                  } else {
+                    form.setFieldsValue({ persian_title: "" });
+                  }
+                }}
+                filterOption={(input, option) =>
+                  option.label.toLowerCase().includes(input.toLowerCase())
+                }
+                suffixIcon={<SearchOutlined />}
+              />
+            </Form.Item>
+          </Col>
+
+          {/* کد انبار جایگزین */}
+          <Col span={6}>
+            <Form.Item label="کد انبار جایگزین" name="alternative_store_code">
+              <Input />
+            </Form.Item>
+          </Col>
+
           <Col span={8}>
             <Form.Item label="جنس" name="genus_id">
               <TS labelInValue data={genusData} placeholder="جنس" />

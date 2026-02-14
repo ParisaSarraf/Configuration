@@ -36,7 +36,6 @@ const ProductTree = ({
   const queryClient = useQueryClient();
   const { myAxios } = useMyAxios();
   const { mutate: deleteProduct, isLoading: isDeleting } = useDeleteProduct();
-  const { mutate: hideProduct, isLoading: isHiding } = useHideProduct();
 
   const [treeDataSource, setTreeDataSource] = useState([]);
   const [expandedKeys, setExpandedKeys] = useState([]);
@@ -233,32 +232,6 @@ const ProductTree = ({
         key: "zipping",
         duration: 1,
       });
-    } else if (actionKey === "hide") {
-      Modal.confirm({
-        title: "مخفی شدن شاخه",
-        content: "آیا از مخفی کردن این شاخه مطمئن هستید؟",
-        okText: "بله",
-        cancelText: "خیر",
-        okType: "danger",
-        onOk() {
-          return new Promise((resolve, reject) => {
-            hideProduct(
-              { id: node?.id, hide: true },
-              {
-                onSuccess: () => {
-                  message.success("محصول با موفقیت مخفی شد");
-                  refetch();
-                  resolve();
-                },
-                onError: () => {
-                  message.error("خطا در مخفی کردن محصول");
-                  reject();
-                },
-              },
-            );
-          });
-        },
-      });
     }
   };
 
@@ -308,16 +281,7 @@ const ProductTree = ({
           <span>دانلود مستندات (ZIP)</span>
         </div>
       ),
-    },
-    {
-      key: "hide",
-      label: (
-        <div className="flex items-center gap-2">
-          <EyeInvisibleOutlined />
-          <span>مخفی شدن شاخه</span>
-        </div>
-      ),
-    },
+    }
   ];
 
   return (
