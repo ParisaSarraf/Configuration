@@ -17,6 +17,7 @@ import SystemManagement from "@/pages/SystemManagement/index.jsx";
 import UsersRole from "@/pages/SystemManagement/UsersRole.jsx";
 import DetailAccessProduct from "@/pages/SystemManagement/DetailAccessProduct/DetailAccessProduct.jsx";
 import UsersPerformance from "./pages/SystemManagement/UsersPerformance/UsersPerformance";
+import ManageProduct from "./pages/ManageProduct/ManageProduct";
 
 const router = createBrowserRouter([
     {
@@ -128,6 +129,15 @@ const router = createBrowserRouter([
         element: (
             <ProtectedRoute>
                 <UsersPerformance/>
+            </ProtectedRoute>
+        ),
+        errorElement: <NotFound/>
+    },
+    {
+        path: "/panel/system-management/manage-product",
+        element: (
+            <ProtectedRoute>
+                <ManageProduct/>
             </ProtectedRoute>
         ),
         errorElement: <NotFound/>

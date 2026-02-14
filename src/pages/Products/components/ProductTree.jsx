@@ -12,6 +12,7 @@ import {
 import {
   useDeleteProduct,
   useChildProductByIdKey,
+  useHideProduct,
 } from "../../../QueryServises/productQuery";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import { useExportExcelProductChildrenBom } from "@/QueryServises/ExcelExporterQuery/index.js";
@@ -35,6 +36,7 @@ const ProductTree = ({
   const queryClient = useQueryClient();
   const { myAxios } = useMyAxios();
   const { mutate: deleteProduct, isLoading: isDeleting } = useDeleteProduct();
+  const { mutate: hideProduct, isLoading: isHiding } = useHideProduct();
 
   const [treeDataSource, setTreeDataSource] = useState([]);
   const [expandedKeys, setExpandedKeys] = useState([]);
@@ -50,7 +52,7 @@ const ProductTree = ({
     zipProductId,
     {
       enabled: false,
-    }
+    },
   );
 
   useEffect(() => {
@@ -64,7 +66,7 @@ const ProductTree = ({
             link.href = url;
             link.setAttribute(
               "download",
-              `Documents-${zipFileName || "Product"}.zip`
+              `Documents-${zipFileName || "Product"}.zip`,
             );
             document.body.appendChild(link);
             link.click();
@@ -165,8 +167,8 @@ const ProductTree = ({
                 item.status === "active"
                   ? "success"
                   : item.status === "inactive"
-                  ? "error"
-                  : "warning"
+                    ? "error"
+                    : "warning"
               }
             />
             <span>
@@ -223,13 +225,39 @@ const ProductTree = ({
       message.loading({ content: "درحال آماده‌سازی...", key: "exporting" });
     } else if (actionKey === "downloadZip") {
       setZipFileName(
-        node?.productData?.persian_title || node?.productData?.code
+        node?.productData?.persian_title || node?.productData?.code,
       );
       setZipProductId(node?.productData?.id);
       message.loading({
         content: "درحال آماده‌سازی فایل ZIP...",
         key: "zipping",
         duration: 1,
+      });
+    } else if (actionKey === "hide") {
+      Modal.confirm({
+        title: "مخفی شدن شاخه",
+        content: "آیا از مخفی کردن این شاخه مطمئن هستید؟",
+        okText: "بله",
+        cancelText: "خیر",
+        okType: "danger",
+        onOk() {
+          return new Promise((resolve, reject) => {
+            hideProduct(
+              { id: node?.id, hide: true },
+              {
+                onSuccess: () => {
+                  message.success("محصول با موفقیت مخفی شد");
+                  refetch();
+                  resolve();
+                },
+                onError: () => {
+                  message.error("خطا در مخفی کردن محصول");
+                  reject();
+                },
+              },
+            );
+          });
+        },
       });
     }
   };
@@ -278,6 +306,15 @@ const ProductTree = ({
         <div className="flex items-center gap-2">
           <FileZipOutlined />
           <span>دانلود مستندات (ZIP)</span>
+        </div>
+      ),
+    },
+    {
+      key: "hide",
+      label: (
+        <div className="flex items-center gap-2">
+          <EyeInvisibleOutlined />
+          <span>مخفی شدن شاخه</span>
         </div>
       ),
     },

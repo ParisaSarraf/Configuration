@@ -160,7 +160,6 @@ export const useCreateProduct = () => {
 
 export const useHideProduct = () => {
   const { myAxios } = useMyAxios();
-
   return useMutation({
     mutationFn: ({ id, hide }) => {
       return myAxios
