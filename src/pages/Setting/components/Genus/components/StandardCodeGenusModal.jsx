@@ -1,5 +1,8 @@
-import { Form } from "antd";
+import { Col, Form, Input, Row } from "antd";
 import Modal from "../../../../../components/Modal";
+import { useEffect } from "react";
+import TS from "../../../../../components/TreeSelect";
+import FileUploader from "../../../../../components/FileUploader/FileUploader";
 
 const StandardCodeGenusModal = ({
   isOpen,
@@ -11,7 +14,7 @@ const StandardCodeGenusModal = ({
   genusId,
 }) => {
   const [form] = Form.useForm();
-  const { data: personalityList } = usePersonalityProductList();
+  // const { data: personalityList } = usePersonalityProductList();
 //   const { isPending: isCreating, mutateAsync: createStandardCode } =
 //     useCreateStandardCode();
 //   const { isPending: isUpdating, mutateAsync: updateStandardCode } =
@@ -96,7 +99,7 @@ const StandardCodeGenusModal = ({
       onClose={closeModal}
       onSubmit={() => form.submit()}
       mode={modalMode}
-      loading={isCreating || isUpdating}
+      // loading={isCreating || isUpdating}
     >
       <Form form={form} layout="vertical" onFinish={onFinishForm}>
         <Row gutter={[16, 16]}>
@@ -116,11 +119,11 @@ const StandardCodeGenusModal = ({
           </Col>
           <Col span={12}>
             <Form.Item label="هویت" name="personality">
-              <TS
+              {/* <TS
                 data={personalityList}
                 placeholder="هویت"
                 disabled={modalMode === "add"}
-              />
+              /> */}
             </Form.Item>
           </Col>
           <Col span={12}>

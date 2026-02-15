@@ -8,9 +8,10 @@ import {
 import GenusTable from "./components/GenusTable";
 import { useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
+import StandardCodeGenusModal from "./components/StandardCodeGenusModal";
 
 const Genus = () => {
-  const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
+  const { isOpen, modalMode, modalData, setModal, closeModal, modalType } = useModal();
   const { data, isFetching, refetch } = useGenusProductList();
   const { isPending: isDeleting } = useDeleteGenusProduct();
 
@@ -81,7 +82,7 @@ const Genus = () => {
           modalData={modalData}
           closeModal={closeModal}
           setModal={setModal}
-          standardRefetch={standardRefetch}
+          // standardRefetch={standardRefetch}
           modalType={modalType}
         />
       </div>
