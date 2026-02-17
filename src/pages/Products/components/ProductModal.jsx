@@ -38,10 +38,10 @@ const ProductModal = ({
   const { data: genusData } = useGenusProductList();
   const { data: personalityData } = usePersonalityProductList();
   const { data: parentCodeData } = useFinalCodeProductById(
-    selectedParentCodeId?.value
+    selectedParentCodeId?.value,
   );
   const { data: standardCodesResponse } = useStandardCodePersonalityById(
-    selectedPersonalityId?.value
+    selectedPersonalityId?.value,
   );
 
   const parentCodeId = parentCodeData?.code || "";
@@ -96,7 +96,7 @@ const ProductModal = ({
         pro_type: modalData.pro_type,
         description: modalData.description,
         personality_id: modalData.product_personalities?.map(
-          (personality) => personality?.personality?.id
+          (personality) => personality?.personality?.id,
         ),
         standard_code_id: modalData.standard_code?.id
           ? {
@@ -208,7 +208,7 @@ const ProductModal = ({
     action
       .then(() => {
         message.success(
-          modalMode === "edit" ? "محصول ویرایش شد" : "محصول اضافه شد"
+          modalMode === "edit" ? "محصول ویرایش شد" : "محصول اضافه شد",
         );
         closeModal();
         modalMode !== "edit" && refetch();
@@ -356,10 +356,10 @@ const ProductModal = ({
                     }
                     return null;
                   };
-                  const selectedItem = findPersonality(
-                    personalityData,
-                    selected?.value
-                  );
+                  // const selectedItem = findPersonality(
+                  //   personalityData,
+                  //   selected?.value,
+                  // );
 
                   // if (selectedItem) {
                   //   form.setFieldsValue({
@@ -399,7 +399,7 @@ const ProductModal = ({
                   if (selected) {
                     const selectedOption =
                       standardCodesResponse?.personality_codes?.find(
-                        (item) => item.id === selected.value
+                        (item) => item.id === selected.value,
                       );
 
                     if (selectedOption) {
@@ -457,7 +457,7 @@ const ProductModal = ({
                   if (selected) {
                     const selectedOption =
                       standardCodesResponse?.personality_codes?.find(
-                        (item) => item.id === selected.value
+                        (item) => item.id === selected.value,
                       );
 
                     if (selectedOption) {
@@ -497,7 +497,11 @@ const ProductModal = ({
           </Col>
           <Col span={8}>
             <Form.Item label="ماده اولیه جایگزین" name="alternative_genus_id">
-              <TS labelInValue data={genusData} placeholder="ماده اولیه جایگزین" />
+              <TS
+                labelInValue
+                data={genusData}
+                placeholder="ماده اولیه جایگزین"
+              />
             </Form.Item>
           </Col>
           <Col span={8}>
@@ -525,32 +529,32 @@ const ProductModal = ({
 
           <Col span={2}>
             <Form.Item label="طول" name="length">
-              <InputNumber style={{ width: "100%" }} />
+              <InputNumber style={{ width: "100%" }} stringMode />
             </Form.Item>
           </Col>
           <Col span={2}>
             <Form.Item label="عرض" name="width">
-              <InputNumber style={{ width: "100%" }} />
+              <InputNumber style={{ width: "100%" }} stringMode />
             </Form.Item>
           </Col>
           <Col span={2}>
             <Form.Item label="ارتفاع" name="height">
-              <InputNumber style={{ width: "100%" }} />
+              <InputNumber style={{ width: "100%" }} stringMode />
             </Form.Item>
           </Col>
           <Col span={2}>
             <Form.Item label="قطر داخل" name="internal_diagonal">
-              <InputNumber style={{ width: "100%" }} />
+              <InputNumber style={{ width: "100%" }} stringMode />
             </Form.Item>
           </Col>
           <Col span={4}>
             <Form.Item label="قطر خارجی" name="external_diagonal">
-              <InputNumber style={{ width: "100%" }} />
+              <InputNumber style={{ width: "100%" }} stringMode />
             </Form.Item>
           </Col>
           <Col span={4}>
             <Form.Item label="وزن" name="weight">
-              <InputNumber style={{ width: "100%" }} />
+              <InputNumber style={{ width: "100%" }} stringMode />
             </Form.Item>
           </Col>
 
