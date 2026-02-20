@@ -1,14 +1,14 @@
 import { Button, Card, Spin, Table } from "antd";
 import useModal from "../../../../hooks/useModal";
-import GenusModal from "./components/GenusModal";
+import GenusModal from "./components/Genus/GenusModal";
 import {
   useDeleteGenusProduct,
   useGenusProductList,
 } from "@/QueryServises/genusQuery/index.js";
-import GenusTable from "./components/GenusTable";
+import GenusTable from "./components/GenusTreeTable";
 import { useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
-import StandardCodeGenusModal from "./components/StandardCodeGenusModal";
+import StandardCodeGenusModal from "./components/GenusStandardCode/StandardCodeGenusModal";
 
 const Genus = () => {
   const { isOpen, modalMode, modalData, setModal, closeModal, modalType } =

@@ -1,11 +1,11 @@
 import { useEffect } from "react";
 import { Col, Form, Input, message, Row } from "antd";
-import Modal from "../../../../../components/Modal";
+import Modal from "../../../../../../components/Modal";
 import {
   useCreateGenusProduct,
   useUpdateGenusProduct,
   useGenusProductList,
-} from "../../../../../QueryServises/genusQuery";
+} from "../../../../../../QueryServises/genusQuery";
 import TS from "@/components/TreeSelect/index.jsx";
 
 const GenusModal = ({

@@ -5,7 +5,9 @@ import {
   useDeletePersonalityProduct,
   usePersonalityProductList,
 } from "../../../../../QueryServises/personalityQuery";
+
 const LOCAL_STORAGE_KEY = 'pesonalityTreeExpandedKeys';
+
 const PersonalityTable = ({
   setModal,
   setPersonalityId,
@@ -115,14 +117,14 @@ const PersonalityTable = ({
             cursor: 'pointer'
           }}
         >
-          {record.hasChildren && (
+          {Array.isArray(record.children) && record.children.length > 0 && (
             <Button
               type="text"
               size="small"
               icon={expandedRowKeys.includes(record.key) ? <FolderOpenOutlined /> : <FolderOutlined />}
               onClick={(e) => {
                 e.stopPropagation();
-                toggleExpand(record.key, record.hasChildren);
+                toggleExpand(record.key, Array.isArray(record.children) && record.children.length > 0);
               }}
               style={{ marginLeft: '8px' }}
             />
@@ -176,6 +178,7 @@ const PersonalityTable = ({
       ),
     },
   ];
+
   return (
     <div>
       <Table

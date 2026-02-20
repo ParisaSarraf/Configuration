@@ -1,6 +1,6 @@
 import { Button, Flex } from "antd";
 
-export const GenusCol = ({ handleDelete, handleEdit }) => [
+export const GenusStandardCol = ({ handleDelete, handleEdit }) => [
     {
         title: 'نام',
         dataIndex: 'name',

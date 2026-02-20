@@ -1,8 +1,8 @@
 import { Col, Form, Input, Row } from "antd";
-import Modal from "../../../../../components/Modal";
+import Modal from "../../../../../../components/Modal";
 import { useEffect } from "react";
-import TS from "../../../../../components/TreeSelect";
-import FileUploader from "../../../../../components/FileUploader/FileUploader";
+import TS from "../../../../../../components/TreeSelect";
+import FileUploader from "../../../../../../components/FileUploader/FileUploader";
 
 const StandardCodeGenusModal = ({
   isOpen,
