@@ -1,8 +1,17 @@
-import { Col, Form, Input, Row } from "antd";
+import { Col, Form, Input, message, Row } from "antd";
 import Modal from "../../../../../../components/Modal";
 import { useEffect } from "react";
-import TS from "../../../../../../components/TreeSelect";
 import FileUploader from "../../../../../../components/FileUploader/FileUploader";
+import {
+  useCreateGenusProduct,
+  useGenusProductList,
+  useUpdateGenusProduct,
+} from "../../../../../../QueryServises/genusQuery";
+import TS from "../../../../../../components/TreeSelect";
+import {
+  useCreateStandardCode,
+  useUpdateStandardCode,
+} from "../../../../../../QueryServises/StandardCodeQuery";
 
 const StandardCodeGenusModal = ({
   isOpen,
@@ -14,17 +23,21 @@ const StandardCodeGenusModal = ({
   genusId,
 }) => {
   const [form] = Form.useForm();
-  // const { data: personalityList } = usePersonalityProductList();
-//   const { isPending: isCreating, mutateAsync: createStandardCode } =
-//     useCreateStandardCode();
-//   const { isPending: isUpdating, mutateAsync: updateStandardCode } =
-//     useUpdateStandardCode();
-
+  const { data: genusList, isFetching: isFetchingGenus } =
+    useGenusProductList();
+  const { isPending: isCreating, mutateAsync: createStandardCode } =
+    useCreateStandardCode();
+  const { isPending: isUpdating, mutateAsync: updateStandardCode } =
+    useUpdateStandardCode();
+    
   useEffect(() => {
     if (modalMode === "edit" && modalData) {
       form.setFieldsValue({
         name: modalData?.name,
-        personality: modalData?.parentData?.id,
+        genus: modalData?.parentData ? {
+          value : modalData?.parentData?.id,
+          label : modalData?.parentData?.name
+        } : null,
         warehouse_code: modalData?.warehouse_code,
         description: modalData?.description,
         standard_file: modalData?.standard_file
@@ -40,39 +53,37 @@ const StandardCodeGenusModal = ({
     } else if (modalMode === "add") {
       form.resetFields();
       form.setFieldsValue({
-        personality: genusId,
+        genus: genusId,
       });
     }
   }, [modalMode, modalData, form, genusId]);
 
   const onFinishForm = (values) => {
     if (!values.name) {
-      message.error("لطفاً نام هویت را وارد کنید");
+      message.error("لطفاً نام ماده اولیه را وارد کنید");
       return;
     }
-
     const payload = {
       name: values.name,
-      personality: modalMode === "add" ? genusId : values.genus,
+      genus: modalMode === "add" ? genusId : values.genus,
       warehouse_code: values.warehouse_code,
       description: values.description,
       standard_file: values.standard_file?.[0]?.originFileObj,
     };
-
     if (modalMode === "add") {
       createStandardCode(payload)
         .then(() => {
-          message.success("هویت با موفقیت اضافه شد");
+          message.success("ماده اولیه با موفقیت اضافه شد");
           closeModal();
           standardRefetch();
         })
         .catch((error) => {
-          message.error("خطا در اضافه کردن هویت");
+          message.error("خطا در اضافه کردن ماده اولیه");
           console.error("Create error:", error);
         });
     } else if (modalMode === "edit") {
       if (!modalData?.id) {
-        message.error("شناسه هویت برای ویرایش یافت نشد");
+        message.error("شناسه ماده اولیه برای ویرایش یافت نشد");
         return;
       }
       updateStandardCode({
@@ -80,12 +91,12 @@ const StandardCodeGenusModal = ({
         ...payload,
       })
         .then(() => {
-          message.success("هویت با موفقیت ویرایش شد");
+          message.success("ماده اولیه با موفقیت ویرایش شد");
           closeModal();
           standardRefetch();
         })
         .catch((error) => {
-          message.error("خطا در ویرایش هویت");
+          message.error("خطا در ویرایش ماده اولیه");
           console.error("Update error:", error.response?.data || error);
         });
     }
@@ -99,7 +110,7 @@ const StandardCodeGenusModal = ({
       onClose={closeModal}
       onSubmit={() => form.submit()}
       mode={modalMode}
-      // loading={isCreating || isUpdating}
+      loading={isCreating || isUpdating}
     >
       <Form form={form} layout="vertical" onFinish={onFinishForm}>
         <Row gutter={[16, 16]}>
@@ -118,12 +129,13 @@ const StandardCodeGenusModal = ({
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="هویت" name="personality">
-              {/* <TS
-                data={personalityList}
-                placeholder="هویت"
+            <Form.Item label="ماده اولیه" name="genus">
+              <TS
+              labelInValue
+                data={genusList}
+                placeholder="ماده اولیه"
                 disabled={modalMode === "add"}
-              /> */}
+              />
             </Form.Item>
           </Col>
           <Col span={12}>

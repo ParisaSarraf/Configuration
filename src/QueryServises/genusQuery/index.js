@@ -51,3 +51,18 @@ export const useUpdateGenusProduct = () => {
     },
   });
 };
+
+export const useStandardCodeGenusByIdKey = (id) => ["genus-id", id];
+export const useStandardCodeGenusById = (id, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: useStandardCodeGenusByIdKey(id),
+    queryFn: () =>
+      id
+        ? myAxios
+            .get(`/product/get-genus-by-id/${id}`)
+            .then((response) => response?.data)
+        : Promise.resolve(null),
+    ...queryOptions,
+  });
+};

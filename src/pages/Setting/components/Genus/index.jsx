@@ -1,4 +1,4 @@
-import { Button, Card, Spin, Table } from "antd";
+import { Button, Card, message, Modal, Spin, Table } from "antd";
 import useModal from "../../../../hooks/useModal";
 import GenusModal from "./components/Genus/GenusModal";
 import {
@@ -9,6 +9,9 @@ import GenusTable from "./components/GenusTreeTable";
 import { useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import StandardCodeGenusModal from "./components/GenusStandardCode/StandardCodeGenusModal";
+import { useStandardCodeGenusById } from "../../../../QueryServises/genusQuery";
+import { GenusStandardCol } from "./components/GenusStandardCode/GenusStandardCol";
+import { useDeleteStandardCode } from "../../../../QueryServises/StandardCodeQuery";
 
 const Genus = () => {
   const { isOpen, modalMode, modalData, setModal, closeModal, modalType } =
@@ -18,6 +21,51 @@ const Genus = () => {
 
   const [selectedGenusLabel, setSelectedGenusLabel] = useState("");
   const [genusId, setGenusId] = useState(null);
+  const { mutateAsync: deleteStandardCode } = useDeleteStandardCode();
+
+  const { data: StandardGenusCodeList, refetch: standardRefetch } =
+    useStandardCodeGenusById(genusId);
+
+  const TableData = Array.isArray(StandardGenusCodeList)
+    ? StandardGenusCodeList.flatMap((genus) =>
+        Array.isArray(genus.genus_codes)
+          ? genus.genus_codes.map((item) => ({
+              ...item,
+              parentData: genus,
+            }))
+          : [],
+      )
+    : [];
+
+  const handleDelete = (id) => {
+    Modal.confirm({
+      title: "حذف کد استاندارد",
+      content: "آیا از حذف این کد استاندارد مطمئن هستید؟",
+      okText: "بله",
+      cancelText: "خیر",
+      okType: "danger",
+      async onOk() {
+        try {
+          await deleteStandardCode(id);
+          message.success("کد استاندارد با موفقیت حذف شد");
+          await standardRefetch();
+          await refetch();
+          closeModal();
+        } catch (error) {
+          message.error("حذف کد استاندارد با خطا مواجه شد");
+          console.error("Delete error:", error);
+        }
+      },
+    });
+  };
+
+  const handleEdit = (record) => {
+    setModal({
+      mode: "edit",
+      data: record,
+      type: "addStandardCodeGenus",
+    });
+  };
 
   return (
     <Spin spinning={isFetching && !data} tip="در حال دریافت اطلاعات...">
@@ -59,8 +107,8 @@ const Genus = () => {
           }
         >
           <Table
-            // columns={StandardCodeCol({ handleDelete, handleEdit })}
-            // dataSource={TableData || []}
+            columns={GenusStandardCol({ handleDelete, handleEdit })}
+            dataSource={TableData || []}
             rowKey="id"
             bordered
             locale={{ emptyText: "هیچ کد استانداردی برای این هویت وجود ندارد" }}
@@ -82,7 +130,7 @@ const Genus = () => {
           modalData={modalData}
           closeModal={closeModal}
           setModal={setModal}
-          // standardRefetch={standardRefetch}
+          standardRefetch={standardRefetch}
           modalType={modalType}
         />
 
@@ -90,6 +138,7 @@ const Genus = () => {
           isOpen={modalType === "GenusModalType" && isOpen}
           modalMode={modalMode}
           modalData={modalData}
+          standardRefetch={standardRefetch}
           closeModal={closeModal}
           setModal={setModal}
           modalType={modalType}
