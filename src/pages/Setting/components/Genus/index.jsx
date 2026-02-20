@@ -11,7 +11,8 @@ import { PlusOutlined } from "@ant-design/icons";
 import StandardCodeGenusModal from "./components/StandardCodeGenusModal";
 
 const Genus = () => {
-  const { isOpen, modalMode, modalData, setModal, closeModal, modalType } = useModal();
+  const { isOpen, modalMode, modalData, setModal, closeModal, modalType } =
+    useModal();
   const { data, isFetching, refetch } = useGenusProductList();
   const { isPending: isDeleting } = useDeleteGenusProduct();
 
@@ -24,13 +25,12 @@ const Genus = () => {
         <Card
           title="مدیریت ماده اولیه"
           extra={
-            <GenusModal
-              isOpen={isOpen}
-              modalMode={modalMode}
-              modalData={modalData}
-              closeModal={closeModal}
-              setModal={setModal}
-              refetch={refetch}
+            <Button
+              className="modal-button"
+              icon={<PlusOutlined className="text-center" />}
+              onClick={() =>
+                setModal({ mode: "add", data: null, type: "GenusModalType" })
+              }
             />
           }
           loading={isDeleting}
@@ -84,6 +84,16 @@ const Genus = () => {
           setModal={setModal}
           // standardRefetch={standardRefetch}
           modalType={modalType}
+        />
+
+        <GenusModal
+          isOpen={modalType === "GenusModalType" && isOpen}
+          modalMode={modalMode}
+          modalData={modalData}
+          closeModal={closeModal}
+          setModal={setModal}
+          modalType={modalType}
+          refetch={refetch}
         />
       </div>
     </Spin>

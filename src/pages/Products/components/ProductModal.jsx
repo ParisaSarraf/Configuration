@@ -46,151 +46,147 @@ const ProductModal = ({
 
   const parentCodeId = parentCodeData?.code || "";
 
-useEffect(() => {
-  if (!isOpen) return;
+  useEffect(() => {
+    if (!isOpen) return;
 
-  form.resetFields();
+    form.resetFields();
 
-  const statusMap = {
-    active: "فعال",
-    inactive: "غیرفعال",
-    temp: "موقت",
-  };
+    const statusMap = {
+      active: "فعال",
+      inactive: "غیرفعال",
+      temp: "موقت",
+    };
 
-  // ===== EDIT MODE =====
-  if (modalMode === "edit" && modalData) {
-    // status
-    const statusValue = modalData.status
-      ? {
-          value: modalData.status,
-          label: statusMap[modalData.status],
-        }
-      : null;
-
-    // personality 
-    const personalityValue = modalData.product_personalities?.[0]
-      ? {
-          value: modalData.product_personalities[0].personality.id,
-          label: modalData.product_personalities[0].personality.name,
-        }
-      : null;
-
-    // parent
-    const parentValue = modalData.parent_code
-      ? {
-          value: modalData.parent_code.id,
-          label:
-            modalData.parent_code.persian_title ||
-            modalData.parent_code.code,
-        }
-      : null;
-
-    // casing
-    const casingValue = modalData.casing
-      ? { value: modalData.casing.id, label: modalData.casing.name }
-      : null;
-
-    // genus
-    const genusValue = modalData.genus
-      ? { value: modalData.genus.id, label: modalData.genus.name }
-      : null;
-
-    const alternativeGenusValue = modalData.alternative_genus
-      ? {
-          value: modalData.alternative_genus.id,
-          label: modalData.alternative_genus.name,
-        }
-      : null;
-
-    // standard code
-    const standardCodeValue = modalData.standard_code
-      ? {
-          value: modalData.standard_code.id,
-          label: modalData.standard_code.name,
-        }
-      : null;
-
-    const alternativeStandardCodeValue =
-      modalData.alternative_standard_code
+    // ===== EDIT MODE =====
+    if (modalMode === "edit" && modalData) {
+      // status
+      const statusValue = modalData.status
         ? {
-            value: modalData.alternative_standard_code.id,
-            label:
-              modalData.alternative_standard_code.full_ware_house_code,
+            value: modalData.status,
+            label: statusMap[modalData.status],
           }
         : null;
 
-    form.setFieldsValue({
-      persian_title: modalData.persian_title,
-      code: modalData.code,
-      quantity: modalData.quantity,
-      employer_code: modalData.employer_code,
-      final_code: modalData.final_code,
+      // personality
+      const personalityValue = modalData.product_personalities?.[0]
+        ? {
+            value: modalData.product_personalities[0].personality.id,
+            label: modalData.product_personalities[0].personality.name,
+          }
+        : null;
 
-      status: statusValue,
-      personality_id: personalityValue,
+      // parent
+      const parentValue = modalData.parent_code
+        ? {
+            value: modalData.parent_code.id,
+            label:
+              modalData.parent_code.persian_title || modalData.parent_code.code,
+          }
+        : null;
 
-      parent_id: parentValue,
-      parent_code_id: parentValue,
+      // casing
+      const casingValue = modalData.casing
+        ? { value: modalData.casing.id, label: modalData.casing.name }
+        : null;
 
-      casing_id: casingValue,
-      genus_id: genusValue,
-      alternative_genus_id: alternativeGenusValue,
+      // genus
+      const genusValue = modalData.genus
+        ? { value: modalData.genus.id, label: modalData.genus.name }
+        : null;
 
-      standard_code_id: standardCodeValue,
-      alternative_standard_code_id: alternativeStandardCodeValue,
+      const alternativeGenusValue = modalData.alternative_genus
+        ? {
+            value: modalData.alternative_genus.id,
+            label: modalData.alternative_genus.name,
+          }
+        : null;
 
-      store_code: modalData.store_code,
-      alternative_store_code: modalData.alternative_store_code,
+      // standard code
+      const standardCodeValue = modalData.standard_code
+        ? {
+            value: modalData.standard_code.id,
+            label: modalData.standard_code.name,
+          }
+        : null;
 
-      price: modalData.price,
-      warehouse_quantity: modalData.warehouse_quantity,
-      warehouse_code: modalData.warehouse_code,
+      const alternativeStandardCodeValue = modalData.alternative_standard_code
+        ? {
+            value: modalData.alternative_standard_code.id,
+            label: modalData.alternative_standard_code.full_ware_house_code,
+          }
+        : null;
 
-      length: modalData.length,
-      width: modalData.width,
-      height: modalData.height,
-      weight: modalData.weight,
-      internal_diagonal: modalData.internal_diagonal,
-      external_diagonal: modalData.external_diagonal,
+      form.setFieldsValue({
+        persian_title: modalData.persian_title,
+        code: modalData.code,
+        quantity: modalData.quantity,
+        employer_code: modalData.employer_code,
+        final_code: modalData.final_code,
 
-      description: modalData.description,
-    });
+        status: statusValue,
+        personality_id: personalityValue,
 
-    // sync states
-    setProductCode(modalData.code || "");
-    setSelectedPersonalityId(personalityValue);
-    setSelectedParentCodeId(parentValue);
-  }
+        parent_id: parentValue,
+        parent_code_id: parentValue,
 
-  // ===== ADD TO PARENT =====
-  else if (modalMode === "addToParent" && modalData) {
-    const parentValue = {
-      value: modalData.id,
-      label: modalData.persian_title || modalData.code,
-    };
+        casing_id: casingValue,
+        genus_id: genusValue,
+        alternative_genus_id: alternativeGenusValue,
 
-    setSelectedParentCodeId(parentValue);
+        standard_code_id: standardCodeValue,
+        alternative_standard_code_id: alternativeStandardCodeValue,
 
-    form.setFieldsValue({
-      parent_id: parentValue,
-      parent_code_id: parentValue,
-    });
-  }
+        store_code: modalData.store_code,
+        alternative_store_code: modalData.alternative_store_code,
 
-  // ===== ADD MODE =====
-  else if (modalMode === "add") {
-    setProductCode("");
-    setSelectedPersonalityId(null);
-    setSelectedParentCodeId(null);
+        price: modalData.price,
+        warehouse_quantity: modalData.warehouse_quantity,
+        warehouse_code: modalData.warehouse_code,
 
-    form.setFieldsValue({
-      parent_id: null,
-      parent_code_id: null,
-      final_code: "",
-    });
-  }
-}, [isOpen, modalMode, modalData]);
+        length: modalData.length,
+        width: modalData.width,
+        height: modalData.height,
+        weight: modalData.weight,
+        internal_diagonal: modalData.internal_diagonal,
+        external_diagonal: modalData.external_diagonal,
 
+        description: modalData.description,
+      });
+
+      // sync states
+      setProductCode(modalData.code || "");
+      setSelectedPersonalityId(personalityValue);
+      setSelectedParentCodeId(parentValue);
+    }
+
+    // ===== ADD TO PARENT =====
+    else if (modalMode === "addToParent" && modalData) {
+      const parentValue = {
+        value: modalData.id,
+        label: modalData.persian_title || modalData.code,
+      };
+
+      setSelectedParentCodeId(parentValue);
+
+      form.setFieldsValue({
+        parent_id: parentValue,
+        parent_code_id: parentValue,
+      });
+    }
+
+    // ===== ADD MODE =====
+    else if (modalMode === "add") {
+      setProductCode("");
+      setSelectedPersonalityId(null);
+      setSelectedParentCodeId(null);
+
+      form.setFieldsValue({
+        parent_id: null,
+        parent_code_id: null,
+        final_code: "",
+      });
+    }
+  }, [isOpen, modalMode, modalData]);
 
   useEffect(() => {
     const newFinalCode = `${parentCodeId || ""}-${productCode || ""}`;
@@ -199,6 +195,7 @@ useEffect(() => {
   }, [parentCodeId, productCode]);
 
   const handleParentChange = (value) => setSelectedParentCodeId(value);
+  
   const onFinish = (values) => {
     const payload = {
       persian_title: values.persian_title,

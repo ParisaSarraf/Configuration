@@ -1,25 +1,24 @@
 import { useEffect, useState } from "react";
-import { Table, Button, Space, Modal, message } from "antd";
-import {
-  EditOutlined,
-  DeleteOutlined,
-  FolderOutlined,
-  FolderOpenOutlined,
-} from "@ant-design/icons";
+import { Table, Modal, message } from "antd";
 import {
   useDeleteGenusProduct,
   useGenusProductList,
 } from "../../../../../QueryServises/genusQuery";
+import GenusCols from "./GenusCols";
 
 const LOCAL_STORAGE_KEY = "genusTreeExpandedKeys";
 
-const GenusTable = ({ setModal, setSelectedGenusLabel, setGenusId }) => {
+const GenusTable = ({
+  setModal,
+  setSelectedGenusLabel,
+  setGenusId,
+}) => {
   const { data, isFetching, refetch } = useGenusProductList();
   const { mutate: deleteGenus, isPending: isDeleting } =
     useDeleteGenusProduct();
 
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
-  const [selectRow, setSecletdRow] = useState(false)
+  const [selectRow, setSecletdRow] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
   /* ---------------- load expanded keys ---------------- */
@@ -117,82 +116,23 @@ const GenusTable = ({ setModal, setSelectedGenusLabel, setGenusId }) => {
     });
   };
 
+  const handleEdit = (record) => {
+    setModal({ mode: "edit", data: record, type: "GenusModalType" });
+  };
+
   /* ---------------- table data ---------------- */
   const flatData = flattenGenusData(data);
   const visibleData = getVisibleRows(flatData);
 
-  /* ---------------- columns ---------------- */
-  const columns = [
-    {
-      title: "نام ماده اولیه",
-      dataIndex: "name",
-      key: "name",
-      render: (text, record) => (
-        <div
-          style={{
-            paddingRight: `${record.level * 20}px`,
-            display: "flex",
-            alignItems: "center",
-            cursor: "pointer",
-          }}
-        >
-          {record.hasChildren ? (
-            <Button
-              type="text"
-              size="small"
-              icon={
-                expandedRowKeys.includes(record.key) ? (
-                  <FolderOpenOutlined />
-                ) : (
-                  <FolderOutlined />
-                )
-              }
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleExpand(record.key, record.hasChildren);
-              }}
-              style={{ marginLeft: 8 }}
-            />
-          ) : (
-            <span style={{ width: 24, marginLeft: 8 }} />
-          )}
-          <span>{text}</span>
-        </div>
-      ),
-    },
-    {
-      title: "عملیات",
-      key: "actions",
-      width: 120,
-      render: (_, record) => (
-        <Space>
-          <Button
-            size="small"
-            icon={<EditOutlined />}
-            className="text-green-600 border-green-500"
-            onClick={() =>
-              setModal({
-                mode: "edit",
-                data: record,
-              })
-            }
-          />
-          <Button
-            danger
-            size="small"
-            icon={<DeleteOutlined />}
-            loading={isDeleting}
-            onClick={() => handleDelete(record.id, record.name)}
-          />
-        </Space>
-      ),
-    },
-  ];
-
   /* ---------------- render ---------------- */
   return (
     <Table
-      columns={columns}
+      columns={GenusCols({
+        handleEdit,
+        toggleExpand,
+        expandedRowKeys,
+        handleDelete,
+      })}
       dataSource={visibleData}
       loading={isFetching || isDeleting}
       rowSelection={{

@@ -1,6 +1,5 @@
-import React, { useEffect } from "react";
-import { Button, Col, Form, Input, message, Row } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { useEffect } from "react";
+import { Col, Form, Input, message, Row } from "antd";
 import Modal from "../../../../../components/Modal";
 import {
   useCreateGenusProduct,
@@ -12,6 +11,7 @@ import TS from "@/components/TreeSelect/index.jsx";
 const GenusModal = ({
   isOpen,
   modalMode,
+  modalType,
   modalData,
   closeModal,
   setModal,
@@ -24,7 +24,6 @@ const GenusModal = ({
     useCreateGenusProduct();
   const { isPending: isUpdating, mutateAsync: updateGenus } =
     useUpdateGenusProduct();
-  console.log(modalData);
 
   useEffect(() => {
     if (modalMode === "edit" && modalData) {
@@ -43,8 +42,6 @@ const GenusModal = ({
   }, [modalMode, modalData, form]);
 
   const onFinishForm = (values) => {
-    console.log(values.parent_id);
-
     const payload = {
       name: values.name,
       material: values.material,
@@ -97,12 +94,6 @@ const GenusModal = ({
   };
 
   return (
-    <>
-      <Button
-        className="modal-button"
-        icon={<PlusOutlined className="text-center" />}
-        onClick={() => setModal({ mode: "add", data: null })}
-      />
       <Modal
         isOpen={isOpen}
         title={`${modalMode === "edit" ? "ویرایش" : "افزودن"} ماده اولیه`}
@@ -169,7 +160,7 @@ const GenusModal = ({
           </Row>
         </Form>
       </Modal>
-    </>
+
   );
 };
 
