@@ -46,91 +46,151 @@ const ProductModal = ({
 
   const parentCodeId = parentCodeData?.code || "";
 
-  useEffect(() => {
-    if (!isOpen) return;
-    form.resetFields();
-    if (modalMode === "edit" && modalData) {
-      form.setFieldsValue({
-        persian_title: modalData.persian_title,
-        code: modalData.code,
-        quantity: modalData.quantity,
-        store_code: modalData.store_code,
-        status: modalData.status,
-        weight: modalData.weight,
-        height: modalData.height,
-        width: modalData.width,
-        warehouse_code: modalData.warehouse_code,
-        warehouse_quantity: modalData.warehouse_quantity,
+useEffect(() => {
+  if (!isOpen) return;
 
-        // strandardCode
-        standard_code_id: modalData.standard_code?.value, //1
-        alternative_standard_code_id: modalData?.alternative_standard_code
-          ? {
-              value: modalData.alternative_standard_code.id,
-              label: modalData.alternative_standard_code.full_ware_house_code,
-            }
-          : null, //2
+  form.resetFields();
 
-        // storeCode
-        store_code: modalData.store_code, //3
-        alternative_store_code: modalData.alternative_store_code, //4
+  const statusMap = {
+    active: "فعال",
+    inactive: "غیرفعال",
+    temp: "موقت",
+  };
 
-        length: modalData.length,
-        price: modalData.price,
-        external_diagonal: modalData.external_diagonal,
-        internal_diagonal: modalData.internal_diagonal,
-        parent_id: modalData.parent_code,
-        parent_code_id: modalData.parent_code,
-        casing_id: modalData.casing
-          ? { value: modalData.casing.id, label: modalData.casing.name }
-          : null,
-        genus_id: modalData.genus?.id
-          ? { value: modalData.genus.id, label: modalData.genus.name }
-          : null,
-        alternative_genus_id: modalData.alternative_genus?.id
-          ? {
-              value: modalData.alternative_genus.id,
-              label: modalData.alternative_genus.name,
-            }
-          : null,
-        pro_type: modalData.pro_type,
-        description: modalData.description,
-        personality_id: modalData.product_personalities?.map(
-          (personality) => personality?.personality?.id,
-        ),
-        standard_code_id: modalData.standard_code?.id
-          ? {
-              value: modalData.standard_code.id,
-              label: modalData.standard_code.name,
-            }
-          : null,
+  // ===== EDIT MODE =====
+  if (modalMode === "edit" && modalData) {
+    // status
+    const statusValue = modalData.status
+      ? {
+          value: modalData.status,
+          label: statusMap[modalData.status],
+        }
+      : null;
 
-        // brand1: modalData.brand1,
-        // brand1_desc: modalData.brand1_desc,
-        // brand2: modalData.brand2,
-        // brand2_desc: modalData.brand2_desc,
-        employer_code: modalData.employer_code,
-        final_code: modalData.final_code || "",
-      });
-      setProductCode(modalData.code || "");
-    } else if (modalMode === "addToParent" && modalData) {
-      const parentLabelInValueObject = {
-        value: modalData.id,
-        label: modalData.persian_title || modalData.code,
-      };
-      setSelectedParentCodeId(parentLabelInValueObject);
-      form.setFieldsValue({
-        parent_id: parentLabelInValueObject,
-        parent_code_id: parentLabelInValueObject,
-      });
-    } else if (modalMode === "add") {
-      form.setFieldsValue({
-        parent_id: null,
-        parent_code_id: null,
-        final_code: parentCodeId || "",
-      });
-    }
-  }, [modalMode, modalData, isOpen]);
+    // personality 
+    const personalityValue = modalData.product_personalities?.[0]
+      ? {
+          value: modalData.product_personalities[0].personality.id,
+          label: modalData.product_personalities[0].personality.name,
+        }
+      : null;
+
+    // parent
+    const parentValue = modalData.parent_code
+      ? {
+          value: modalData.parent_code.id,
+          label:
+            modalData.parent_code.persian_title ||
+            modalData.parent_code.code,
+        }
+      : null;
+
+    // casing
+    const casingValue = modalData.casing
+      ? { value: modalData.casing.id, label: modalData.casing.name }
+      : null;
+
+    // genus
+    const genusValue = modalData.genus
+      ? { value: modalData.genus.id, label: modalData.genus.name }
+      : null;
+
+    const alternativeGenusValue = modalData.alternative_genus
+      ? {
+          value: modalData.alternative_genus.id,
+          label: modalData.alternative_genus.name,
+        }
+      : null;
+
+    // standard code
+    const standardCodeValue = modalData.standard_code
+      ? {
+          value: modalData.standard_code.id,
+          label: modalData.standard_code.name,
+        }
+      : null;
+
+    const alternativeStandardCodeValue =
+      modalData.alternative_standard_code
+        ? {
+            value: modalData.alternative_standard_code.id,
+            label:
+              modalData.alternative_standard_code.full_ware_house_code,
+          }
+        : null;
+
+    form.setFieldsValue({
+      persian_title: modalData.persian_title,
+      code: modalData.code,
+      quantity: modalData.quantity,
+      employer_code: modalData.employer_code,
+      final_code: modalData.final_code,
+
+      status: statusValue,
+      personality_id: personalityValue,
+
+      parent_id: parentValue,
+      parent_code_id: parentValue,
+
+      casing_id: casingValue,
+      genus_id: genusValue,
+      alternative_genus_id: alternativeGenusValue,
+
+      standard_code_id: standardCodeValue,
+      alternative_standard_code_id: alternativeStandardCodeValue,
+
+      store_code: modalData.store_code,
+      alternative_store_code: modalData.alternative_store_code,
+
+      price: modalData.price,
+      warehouse_quantity: modalData.warehouse_quantity,
+      warehouse_code: modalData.warehouse_code,
+
+      length: modalData.length,
+      width: modalData.width,
+      height: modalData.height,
+      weight: modalData.weight,
+      internal_diagonal: modalData.internal_diagonal,
+      external_diagonal: modalData.external_diagonal,
+
+      description: modalData.description,
+    });
+
+    // sync states
+    setProductCode(modalData.code || "");
+    setSelectedPersonalityId(personalityValue);
+    setSelectedParentCodeId(parentValue);
+  }
+
+  // ===== ADD TO PARENT =====
+  else if (modalMode === "addToParent" && modalData) {
+    const parentValue = {
+      value: modalData.id,
+      label: modalData.persian_title || modalData.code,
+    };
+
+    setSelectedParentCodeId(parentValue);
+
+    form.setFieldsValue({
+      parent_id: parentValue,
+      parent_code_id: parentValue,
+    });
+  }
+
+  // ===== ADD MODE =====
+  else if (modalMode === "add") {
+    setProductCode("");
+    setSelectedPersonalityId(null);
+    setSelectedParentCodeId(null);
+
+    form.setFieldsValue({
+      parent_id: null,
+      parent_code_id: null,
+      final_code: "",
+    });
+  }
+}, [isOpen, modalMode, modalData]);
+
 
   useEffect(() => {
     const newFinalCode = `${parentCodeId || ""}-${productCode || ""}`;
