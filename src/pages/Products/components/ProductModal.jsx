@@ -195,7 +195,7 @@ const ProductModal = ({
   }, [parentCodeId, productCode]);
 
   const handleParentChange = (value) => setSelectedParentCodeId(value);
-  
+
   const onFinish = (values) => {
     const payload = {
       persian_title: values.persian_title,
@@ -348,7 +348,7 @@ const ProductModal = ({
               <InputNumber style={{ width: "100%" }} />
             </Form.Item>
           </Col>
-          <Col span={4}>
+          <Col span={6}>
             <Form.Item label="کد نهایی" name="final_code">
               <Input value={finalCode} disabled />
             </Form.Item>
@@ -373,7 +373,7 @@ const ProductModal = ({
               <Input />
             </Form.Item>
           </Col> */}
-          <Col span={4}>
+          <Col span={6}>
             <Form.Item label="کد کارفرما" name="employer_code">
               <Input />
             </Form.Item>
@@ -547,12 +547,81 @@ const ProductModal = ({
             </Form.Item>
           </Col>
 
-          <Col span={8}>
+
+
+
+
+
+
+
+
+
+
+          <Col span={6}>
             <Form.Item label="ماده اولیه" name="genus_id">
               <TS labelInValue data={genusData} placeholder="ماده اولیه" />
             </Form.Item>
           </Col>
+          {/* کد استاندارد ماده اولیه  */}
+          <Col span={6}>
+            <Form.Item
+              label="کد استاندارد ماده اولیه  "
+              name="genus_standard_code_id"
+            >
+              <Select
+                allowClear
+                labelInValue
+                placeholder="کد استاندارد ماده اولیه "
+                showSearch
+                style={{ width: "100%" }}
+                options={
+                  standardCodesResponse?.personality_codes?.map((item) => ({
+                    value: item.id,
+                    label: item.name,
+                    description: item.description,
+                  })) || []
+                }
+                disabled={!standardCodesResponse?.personality_codes?.length}
+                onChange={(selected) => {
+                  if (selected) {
+                    const selectedOption =
+                      standardCodesResponse?.personality_codes?.find(
+                        (item) => item.id === selected.value,
+                      );
+
+                    if (selectedOption) {
+                      form.setFieldsValue({
+                        persian_title: selectedOption.description,
+                      });
+                    }
+                    if (selectedOption) {
+                      form.setFieldsValue({
+                        alternative_store_code:
+                          selectedOption?.full_ware_house_code,
+                      });
+                    }
+                  } else {
+                    form.setFieldsValue({ persian_title: "" });
+                  }
+                }}
+                filterOption={(input, option) =>
+                  option.label.toLowerCase().includes(input.toLowerCase())
+                }
+                suffixIcon={<SearchOutlined />}
+              />
+            </Form.Item>
+          </Col>
+
+          {/* کد انبار ماده اولیه 
           <Col span={8}>
+            <Form.Item label="کد انبار ماده اولیه " name="alternative_store_code">
+              <Input />
+            </Form.Item>
+          </Col> */}
+
+
+
+          <Col span={6}>
             <Form.Item label="ماده اولیه جایگزین" name="alternative_genus_id">
               <TS
                 labelInValue
@@ -561,6 +630,75 @@ const ProductModal = ({
               />
             </Form.Item>
           </Col>
+          {/* کد استاندارد ماده اولیه جایگزین  */}
+          <Col span={6}>
+            <Form.Item
+              label="کد استاندارد ماده اولیه جایگزین  "
+              name="alternative_standard_code_id"
+            >
+              <Select
+                allowClear
+                labelInValue
+                placeholder="کد استاندارد ماده اولیه جایگزین "
+                showSearch
+                style={{ width: "100%" }}
+                options={
+                  standardCodesResponse?.personality_codes?.map((item) => ({
+                    value: item.id,
+                    label: item.name,
+                    description: item.description,
+                  })) || []
+                }
+                disabled={!standardCodesResponse?.personality_codes?.length}
+                onChange={(selected) => {
+                  if (selected) {
+                    const selectedOption =
+                      standardCodesResponse?.personality_codes?.find(
+                        (item) => item.id === selected.value,
+                      );
+
+                    if (selectedOption) {
+                      form.setFieldsValue({
+                        persian_title: selectedOption.description,
+                      });
+                    }
+                    if (selectedOption) {
+                      form.setFieldsValue({
+                        alternative_store_code:
+                          selectedOption?.full_ware_house_code,
+                      });
+                    }
+                  } else {
+                    form.setFieldsValue({ persian_title: "" });
+                  }
+                }}
+                filterOption={(input, option) =>
+                  option.label.toLowerCase().includes(input.toLowerCase())
+                }
+                suffixIcon={<SearchOutlined />}
+              />
+            </Form.Item>
+          </Col>
+
+          {/* کد انبار ماده اولیه جایگزین 
+          <Col span={8}>
+            <Form.Item label="کد انبار ماده اولیه جایگزین " name="alternative_store_code">
+              <Input />
+            </Form.Item>
+          </Col> */}
+
+
+
+
+
+
+
+
+
+
+
+
+
           <Col span={8}>
             <Form.Item label="پوشش" name="casing_id">
               <TS labelInValue data={casingData} placeholder="پوشش" />
