@@ -7,7 +7,10 @@ import {
   useUpdateProduct,
 } from "../../../QueryServises/productQuery";
 import { useOneCoreSetting } from "../../../QueryServises/settingQuery";
-import { useGenusProductList } from "../../../QueryServises/genusQuery";
+import {
+  useGenusProductList,
+  useStandardCodeGenusById,
+} from "../../../QueryServises/genusQuery";
 import Modal from "../../../components/Modal";
 import { usePersonalityProductList } from "@/QueryServises/personalityQuery/index.js";
 import { SearchOutlined } from "@ant-design/icons";
@@ -30,6 +33,7 @@ const ProductModal = ({
     useUpdateProduct();
 
   const [selectedPersonalityId, setSelectedPersonalityId] = useState(null);
+  const [selectedGenusId, setSelectedGenusId] = useState(null);
   const [selectedParentCodeId, setSelectedParentCodeId] = useState(null);
   const [productCode, setProductCode] = useState("");
   const [finalCode, setFinalCode] = useState("");
@@ -38,17 +42,20 @@ const ProductModal = ({
   const { data: genusData } = useGenusProductList();
   const { data: personalityData } = usePersonalityProductList();
   const { data: parentCodeData } = useFinalCodeProductById(
-    selectedParentCodeId?.value,
+    selectedParentCodeId?.value
   );
   const { data: standardCodesResponse } = useStandardCodePersonalityById(
-    selectedPersonalityId?.value,
+    selectedPersonalityId?.value
+  );
+  const { data: genusStandardCode } = useStandardCodeGenusById(
+    selectedGenusId?.value
   );
 
+  console.log(genusStandardCode);
   const parentCodeId = parentCodeData?.code || "";
 
   useEffect(() => {
     if (!isOpen) return;
-
     form.resetFields();
 
     const statusMap = {
@@ -115,6 +122,18 @@ const ProductModal = ({
             label: modalData.alternative_standard_code.full_ware_house_code,
           }
         : null;
+        const genusStandardCodeValue = modalData.genus_standard_code
+        ? {
+            value: modalData.genus_standard_code.id,
+            label: modalData.genus_standard_code.full_ware_house_code,
+          }
+        : null;
+        const alternativeGenusStandardCodeValue = modalData.alternative_genus_standard_code
+        ? {
+            value: modalData.alternative_genus_standard_code.id,
+            label: modalData.alternative_genus_standard_code.full_ware_house_code,
+          }
+        : null;
 
       form.setFieldsValue({
         persian_title: modalData.persian_title,
@@ -132,6 +151,8 @@ const ProductModal = ({
         casing_id: casingValue,
         genus_id: genusValue,
         alternative_genus_id: alternativeGenusValue,
+        genus_standard_code_id: genusStandardCodeValue,
+        alternative_genus_standard_code_id: alternativeGenusStandardCodeValue,
 
         standard_code_id: standardCodeValue,
         alternative_standard_code_id: alternativeStandardCodeValue,
@@ -233,9 +254,12 @@ const ProductModal = ({
       casing_id: values.casing_id?.value,
 
       genus_id: values.genus_id?.value,
+      genus_standard_code_id: values.genus_standard_code_id?.value,
       alternative_genus_id: values.alternative_genus_id?.value,
+      alternative_genus_standard_code_id: values.alternative_genus_standard_code_id?.value,
 
       personality_id: values.personality_id?.value,
+
     };
 
     const finalPayload = {};
@@ -265,7 +289,7 @@ const ProductModal = ({
     action
       .then(() => {
         message.success(
-          modalMode === "edit" ? "محصول ویرایش شد" : "محصول اضافه شد",
+          modalMode === "edit" ? "محصول ویرایش شد" : "محصول اضافه شد"
         );
         closeModal();
         modalMode !== "edit" && refetch();
@@ -456,7 +480,7 @@ const ProductModal = ({
                   if (selected) {
                     const selectedOption =
                       standardCodesResponse?.personality_codes?.find(
-                        (item) => item.id === selected.value,
+                        (item) => item.id === selected.value
                       );
 
                     if (selectedOption) {
@@ -514,7 +538,7 @@ const ProductModal = ({
                   if (selected) {
                     const selectedOption =
                       standardCodesResponse?.personality_codes?.find(
-                        (item) => item.id === selected.value,
+                        (item) => item.id === selected.value
                       );
 
                     if (selectedOption) {
@@ -547,79 +571,37 @@ const ProductModal = ({
             </Form.Item>
           </Col>
 
-
-
-
-
-
-
-
-
-
-
           <Col span={6}>
             <Form.Item label="ماده اولیه" name="genus_id">
-              <TS labelInValue data={genusData} placeholder="ماده اولیه" />
-            </Form.Item>
-          </Col>
-          {/* کد استاندارد ماده اولیه  */}
-          <Col span={6}>
-            <Form.Item
-              label="کد استاندارد ماده اولیه  "
-              name="genus_standard_code_id"
-            >
-              <Select
-                allowClear
+              <TS
                 labelInValue
-                placeholder="کد استاندارد ماده اولیه "
-                showSearch
-                style={{ width: "100%" }}
-                options={
-                  standardCodesResponse?.personality_codes?.map((item) => ({
-                    value: item.id,
-                    label: item.name,
-                    description: item.description,
-                  })) || []
-                }
-                disabled={!standardCodesResponse?.personality_codes?.length}
-                onChange={(selected) => {
-                  if (selected) {
-                    const selectedOption =
-                      standardCodesResponse?.personality_codes?.find(
-                        (item) => item.id === selected.value,
-                      );
+                data={genusData}
+                placeholder="ماده اولیه"
+                onChange={(value) => {
+                  setSelectedGenusId(value);
+                  const selectedGenus = genusData.find(
+                    (item) => item.id === value.value
+                  );
+                  const warehouseCode =
+                    selectedGenus?.genus_codes?.[0]?.full_ware_house_code;
 
-                    if (selectedOption) {
-                      form.setFieldsValue({
-                        persian_title: selectedOption.description,
-                      });
-                    }
-                    if (selectedOption) {
-                      form.setFieldsValue({
-                        alternative_store_code:
-                          selectedOption?.full_ware_house_code,
-                      });
-                    }
-                  } else {
-                    form.setFieldsValue({ persian_title: "" });
-                  }
+                  form.setFieldsValue({
+                    genus_standard_code_id: warehouseCode ?? null,
+                  });
                 }}
-                filterOption={(input, option) =>
-                  option.label.toLowerCase().includes(input.toLowerCase())
-                }
-                suffixIcon={<SearchOutlined />}
               />
             </Form.Item>
           </Col>
 
-          {/* کد انبار ماده اولیه 
-          <Col span={8}>
-            <Form.Item label="کد انبار ماده اولیه " name="alternative_store_code">
-              <Input />
+          {/* کد استاندارد ماده اولیه */}
+          <Col span={6}>
+            <Form.Item
+              label="کد استاندارد ماده اولیه"
+              name="genus_standard_code_id"
+            >
+              <Input placeholder="کد استاندارد ماده اولیه" disabled />
             </Form.Item>
-          </Col> */}
-
-
+          </Col>
 
           <Col span={6}>
             <Form.Item label="ماده اولیه جایگزین" name="alternative_genus_id">
@@ -627,6 +609,23 @@ const ProductModal = ({
                 labelInValue
                 data={genusData}
                 placeholder="ماده اولیه جایگزین"
+                onChange={(value) => {
+                  setSelectedGenusId(value);
+                  const selectedGenus = genusData.find(
+                    (item) => item.id === value.value
+                  );
+                  const warehouseCode =
+                    selectedGenus?.genus_codes?.[0]?.full_ware_house_code;
+                  if (warehouseCode) {
+                    form.setFieldsValue({
+                      alternative_genus_standard_code_id: warehouseCode,
+                    });
+                  } else {
+                    form.setFieldsValue({
+                      alternative_genus_standard_code_id: null,
+                    });
+                  }
+                }}
               />
             </Form.Item>
           </Col>
@@ -634,7 +633,7 @@ const ProductModal = ({
           <Col span={6}>
             <Form.Item
               label="کد استاندارد ماده اولیه جایگزین  "
-              name="alternative_standard_code_id"
+              name="alternative_genus_standard_code_id"
             >
               <Select
                 allowClear
@@ -643,18 +642,18 @@ const ProductModal = ({
                 showSearch
                 style={{ width: "100%" }}
                 options={
-                  standardCodesResponse?.personality_codes?.map((item) => ({
+                  genusStandardCode?.personality_codes?.map((item) => ({
                     value: item.id,
                     label: item.name,
                     description: item.description,
                   })) || []
                 }
-                disabled={!standardCodesResponse?.personality_codes?.length}
+                disabled={!genusStandardCode?.personality_codes?.length}
                 onChange={(selected) => {
                   if (selected) {
                     const selectedOption =
-                      standardCodesResponse?.personality_codes?.find(
-                        (item) => item.id === selected.value,
+                      genusStandardCode?.personality_codes?.find(
+                        (item) => item.id === selected.value
                       );
 
                     if (selectedOption) {
@@ -679,25 +678,6 @@ const ProductModal = ({
               />
             </Form.Item>
           </Col>
-
-          {/* کد انبار ماده اولیه جایگزین 
-          <Col span={8}>
-            <Form.Item label="کد انبار ماده اولیه جایگزین " name="alternative_store_code">
-              <Input />
-            </Form.Item>
-          </Col> */}
-
-
-
-
-
-
-
-
-
-
-
-
 
           <Col span={8}>
             <Form.Item label="پوشش" name="casing_id">
