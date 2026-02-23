@@ -3,24 +3,19 @@ import { message, Modal } from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
-  EyeInvisibleOutlined,
   FileExcelOutlined,
-  FilePdfOutlined,
   PlusOutlined,
   FileZipOutlined,
 } from "@ant-design/icons";
 import {
   useDeleteProduct,
-  useChildProductByIdKey,
-  useHideProduct,
 } from "../../../QueryServises/productQuery";
-import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import { useExportExcelProductChildrenBom } from "@/QueryServises/ExcelExporterQuery/index.js";
 import { handleDownload } from "@utils/HandleDownload.js";
 import ProductTreeEtc from "../../../components/Tree/ProductTree";
-import { useQueryClient } from "@tanstack/react-query";
-import { useMyAxios } from "../../../hooks/useMyAxios";
 import { useGetZipById } from "../../../QueryServises/productDocumentQuery";
+import { useLazyProductTree } from "../../../hooks/useLazyProductTree";
+import { mapProductToTreeNode } from "../../../utils/mapProductToTreeNode";
 
 const LOCAL_STORAGE_KEY = "productTreeExpandedKeys";
 
@@ -33,11 +28,8 @@ const ProductTree = ({
   selectedKeys,
   onProductClick,
 }) => {
-  const queryClient = useQueryClient();
-  const { myAxios } = useMyAxios();
   const { mutate: deleteProduct, isLoading: isDeleting } = useDeleteProduct();
 
-  const [treeDataSource, setTreeDataSource] = useState([]);
   const [expandedKeys, setExpandedKeys] = useState([]);
 
   const [exportProductId, setExportProductId] = useState(null);
@@ -51,8 +43,15 @@ const ProductTree = ({
     zipProductId,
     {
       enabled: false,
-    },
+    }
   );
+  
+ const initialTree = useMemo(
+  () => productData?.map((p) => mapProductToTreeNode(p, false)).filter(Boolean) ?? [],
+  [productData]
+);
+
+  const { treeData, loadChildren } = useLazyProductTree(initialTree);
 
   useEffect(() => {
     if (zipProductId) {
@@ -65,7 +64,7 @@ const ProductTree = ({
             link.href = url;
             link.setAttribute(
               "download",
-              `Documents-${zipFileName || "Product"}.zip`,
+              `Documents-${zipFileName || "Product"}.zip`
             );
             document.body.appendChild(link);
             link.click();
@@ -86,12 +85,6 @@ const ProductTree = ({
   }, [zipProductId, fetchZip, zipFileName]);
 
   useEffect(() => {
-    if (productData) {
-      setTreeDataSource(productData);
-    }
-  }, [productData]);
-
-  useEffect(() => {
     setExpandedKeys([]);
   }, []);
 
@@ -104,91 +97,15 @@ const ProductTree = ({
     }
   };
 
-  const updateTreeData = (list, key, children) => {
-    return list.map((node) => {
-      const nodeKey = `product-${node.id}`;
-      if (nodeKey === key) {
-        return { ...node, children };
-      }
-      if (node.children) {
-        return {
-          ...node,
-          children: updateTreeData(node.children, key, children),
-        };
-      }
-      return node;
-    });
-  };
-
-  const onLoadData = ({ key, id, children }) => {
-    return new Promise(async (resolve) => {
-      if (children && children.length > 0) {
-        resolve();
-        return;
-      }
-      try {
-        const data = await queryClient.fetchQuery({
-          queryKey: useChildProductByIdKey(id),
-          queryFn: () =>
-            myAxios
-              .get(`/product/get-product-child-by-id/${id}`)
-              .then((res) => res.data),
-        });
-        setTreeDataSource((prev) => updateTreeData(prev, key, data));
-        resolve();
-      } catch (error) {
-        resolve();
-      }
-    });
-  };
-
   useEffect(() => {
     if (exportExcelData && exportProductId) {
       handleDownload(
         exportExcelData,
         `زیرمجموعه_محصول_${exportProductId}.csv`,
-        setExportProductId,
+        setExportProductId
       );
     }
   }, [exportExcelData, exportProductId]);
-
-  const transformDataToTreeFormat = (data) => {
-    if (!data) return [];
-    return data.map((item) => {
-      const hasLoadedChildren = item.children && item.children.length > 0;
-
-      return {
-        title: (
-          <div className="flex items-center">
-            <FiberManualRecordIcon
-              fontSize="small"
-              color={
-                item.status === "active"
-                  ? "success"
-                  : item.status === "inactive"
-                    ? "error"
-                    : "warning"
-              }
-            />
-            <span>
-              {item.persian_title} ({item.final_code || item.code})
-            </span>
-          </div>
-        ),
-        key: `product-${item.id}`,
-        id: item.id,
-        productData: item,
-        children: hasLoadedChildren
-          ? transformDataToTreeFormat(item.children)
-          : undefined,
-        isLeaf: !item.has_children,
-      };
-    });
-  };
-
-  const treeData = useMemo(() => {
-    return transformDataToTreeFormat(treeDataSource);
-  }, [treeDataSource]);
 
   const handleRightClickAction = async (actionKey, node) => {
     const genusId = node.id;
@@ -224,7 +141,7 @@ const ProductTree = ({
       message.loading({ content: "درحال آماده‌سازی...", key: "exporting" });
     } else if (actionKey === "downloadZip") {
       setZipFileName(
-        node?.productData?.persian_title || node?.productData?.code,
+        node?.productData?.persian_title || node?.productData?.code
       );
       setZipProductId(node?.productData?.id);
       message.loading({
@@ -281,7 +198,7 @@ const ProductTree = ({
           <span>دانلود مستندات (ZIP)</span>
         </div>
       ),
-    }
+    },
   ];
 
   return (
@@ -297,7 +214,7 @@ const ProductTree = ({
         checkable={false}
         showIcon={false}
         blockNode
-        loadData={onLoadData}
+        loadData={loadChildren}
         rightClickMenuItems={rightClickMenuItems}
         onRightClickAction={handleRightClickAction}
         expandedKeys={expandedKeys}
