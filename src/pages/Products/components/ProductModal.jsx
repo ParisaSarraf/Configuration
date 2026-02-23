@@ -35,6 +35,9 @@ const ProductModal = ({
   const [selectedPersonalityId, setSelectedPersonalityId] = useState(null);
   const [selectedGenusId, setSelectedGenusId] = useState(null);
   const [selectedParentCodeId, setSelectedParentCodeId] = useState(null);
+  const [genusStandardOptions, setGenusStandardOptions] = useState([]);
+  const [alterNativeGenusStandardOptions, setAlterNativeGenusStandardOptions] =
+    useState([]);
   const [productCode, setProductCode] = useState("");
   const [finalCode, setFinalCode] = useState("");
 
@@ -53,6 +56,7 @@ const ProductModal = ({
 
   console.log(genusStandardCode);
   const parentCodeId = parentCodeData?.code || "";
+
 
   useEffect(() => {
     if (!isOpen) return;
@@ -122,18 +126,20 @@ const ProductModal = ({
             label: modalData.alternative_standard_code.full_ware_house_code,
           }
         : null;
-        const genusStandardCodeValue = modalData.genus_standard_code
+      const genusStandardCodeValue = modalData.genus_standard_code
         ? {
             value: modalData.genus_standard_code.id,
             label: modalData.genus_standard_code.full_ware_house_code,
           }
         : null;
-        const alternativeGenusStandardCodeValue = modalData.alternative_genus_standard_code
-        ? {
-            value: modalData.alternative_genus_standard_code.id,
-            label: modalData.alternative_genus_standard_code.full_ware_house_code,
-          }
-        : null;
+      const alternativeGenusStandardCodeValue =
+        modalData.alternative_genus_standard_code
+          ? {
+              value: modalData.alternative_genus_standard_code.id,
+              label:
+                modalData.alternative_genus_standard_code.full_ware_house_code,
+            }
+          : null;
 
       form.setFieldsValue({
         persian_title: modalData.persian_title,
@@ -256,10 +262,10 @@ const ProductModal = ({
       genus_id: values.genus_id?.value,
       genus_standard_code_id: values.genus_standard_code_id?.value,
       alternative_genus_id: values.alternative_genus_id?.value,
-      alternative_genus_standard_code_id: values.alternative_genus_standard_code_id?.value,
+      alternative_genus_standard_code_id:
+        values.alternative_genus_standard_code_id?.value,
 
       personality_id: values.personality_id?.value,
-
     };
 
     const finalPayload = {};
@@ -571,111 +577,129 @@ const ProductModal = ({
             </Form.Item>
           </Col>
 
-          <Col span={6}>
+          <Col span={4}>
             <Form.Item label="ماده اولیه" name="genus_id">
               <TS
                 labelInValue
                 data={genusData}
                 placeholder="ماده اولیه"
                 onChange={(value) => {
-                  setSelectedGenusId(value);
                   const selectedGenus = genusData.find(
                     (item) => item.id === value.value
                   );
-                  const warehouseCode =
-                    selectedGenus?.genus_codes?.[0]?.full_ware_house_code;
-
+                  const warehouseCodes =
+                    selectedGenus?.genus_codes?.map((item) => ({
+                      value: item.id,
+                      label: item.name,
+                      description: item.description,
+                      full_ware_house_code: item.full_ware_house_code,
+                      warehouse_code: item.warehouse_code,
+                    })) || [];
+                  setGenusStandardOptions(warehouseCodes);
                   form.setFieldsValue({
-                    genus_standard_code_id: warehouseCode ?? null,
+                    genus_standard_code_id: undefined,
                   });
                 }}
               />
             </Form.Item>
           </Col>
-
           {/* کد استاندارد ماده اولیه */}
-          <Col span={6}>
+          <Col span={4}>
             <Form.Item
               label="کد استاندارد ماده اولیه"
               name="genus_standard_code_id"
             >
-              <Input placeholder="کد استاندارد ماده اولیه" disabled />
+              <Select
+                allowClear
+                labelInValue
+                placeholder="کد استاندارد ماده اولیه"
+                showSearch
+                options={genusStandardOptions}
+                disabled={!genusStandardOptions.length}
+                onChange={(value) => {
+                  if (!value) {
+                    form.setFieldsValue({ genus_store_code: undefined });
+                    return;
+                  }
+                  const selectedOption = genusStandardOptions.find(
+                    (item) => item.value === value.value
+                  );
+                  form.setFieldsValue({
+                    genus_store_code: selectedOption?.warehouse_code,
+                  });
+                }}
+              />
+            </Form.Item>
+          </Col>
+          {/* کد انبار ماده اولیه  */}
+          <Col span={4}>
+            <Form.Item label="کد انبار ماده اولیه" name="genus_store_code">
+              <Input disabled placeholder="کد انبار ماده اولیه" />
             </Form.Item>
           </Col>
 
-          <Col span={6}>
+          <Col span={4}>
             <Form.Item label="ماده اولیه جایگزین" name="alternative_genus_id">
               <TS
                 labelInValue
                 data={genusData}
-                placeholder="ماده اولیه جایگزین"
+                placeholder="ماده اولیه"
                 onChange={(value) => {
-                  setSelectedGenusId(value);
                   const selectedGenus = genusData.find(
                     (item) => item.id === value.value
                   );
-                  const warehouseCode =
-                    selectedGenus?.genus_codes?.[0]?.full_ware_house_code;
-                  if (warehouseCode) {
-                    form.setFieldsValue({
-                      alternative_genus_standard_code_id: warehouseCode,
-                    });
-                  } else {
-                    form.setFieldsValue({
-                      alternative_genus_standard_code_id: null,
-                    });
-                  }
+                  const warehouseCodes =
+                    selectedGenus?.genus_codes?.map((item) => ({
+                      value: item.id,
+                      label: item.name,
+                      description: item.description,
+                      full_ware_house_code: item.full_ware_house_code,
+                      warehouse_code: item.warehouse_code,
+                    })) || [];
+                  setAlterNativeGenusStandardOptions(warehouseCodes);
+                  form.setFieldsValue({
+                    alternative_genus_standard_code_id: undefined,
+                  });
                 }}
               />
             </Form.Item>
           </Col>
           {/* کد استاندارد ماده اولیه جایگزین  */}
-          <Col span={6}>
+          <Col span={4}>
             <Form.Item
-              label="کد استاندارد ماده اولیه جایگزین  "
+              label="کد استاندارد جایگزین  "
               name="alternative_genus_standard_code_id"
             >
               <Select
                 allowClear
                 labelInValue
-                placeholder="کد استاندارد ماده اولیه جایگزین "
+                placeholder="کد استاندارد ماده اولیه"
                 showSearch
                 style={{ width: "100%" }}
-                options={
-                  genusStandardCode?.personality_codes?.map((item) => ({
-                    value: item.id,
-                    label: item.name,
-                    description: item.description,
-                  })) || []
-                }
-                disabled={!genusStandardCode?.personality_codes?.length}
-                onChange={(selected) => {
-                  if (selected) {
-                    const selectedOption =
-                      genusStandardCode?.personality_codes?.find(
-                        (item) => item.id === selected.value
-                      );
-
-                    if (selectedOption) {
-                      form.setFieldsValue({
-                        persian_title: selectedOption.description,
-                      });
-                    }
-                    if (selectedOption) {
-                      form.setFieldsValue({
-                        alternative_store_code:
-                          selectedOption?.full_ware_house_code,
-                      });
-                    }
-                  } else {
-                    form.setFieldsValue({ persian_title: "" });
+                options={alterNativeGenusStandardOptions}
+                disabled={!alterNativeGenusStandardOptions.length}
+                 onChange={(value) => {
+                  if (!value) {
+                    form.setFieldsValue({ genus_store_code: undefined });
+                    return;
                   }
+                  const selectedOption = alterNativeGenusStandardOptions.find(  
+                    (item) => item.value === value.value
+                  );
+                  form.setFieldsValue({
+                    alternative_genus_store_code: selectedOption?.warehouse_code,
+                  });
                 }}
-                filterOption={(input, option) =>
-                  option.label.toLowerCase().includes(input.toLowerCase())
-                }
-                suffixIcon={<SearchOutlined />}
               />
+            </Form.Item>
+          </Col>
+          {/* کد انبار ماده اولیه جایگزین  */}
+          <Col span={4}>
+            <Form.Item
+              label="کد انبار ماده اولیه جایگزین"
+              name="alternative_genus_store_code"
+            >
+              <Input disabled placeholder="کد انبار ماده اولیه جایگزین" />
             </Form.Item>
           </Col>
 
