@@ -16,21 +16,21 @@ export const useLazyProductTree = (initialData = []) => {
 
   const updateTreeData = (list, key, children) =>
     list.map((node) => {
+      if (!node) return null;
       if (node.key === key) {
         return { ...node, children };
       }
-
       if (node.children) {
         return {
           ...node,
           children: updateTreeData(node.children, key, children),
         };
       }
-
       return node;
-    });
+    }).filter(Boolean);
 
-  const loadChildren = async ({ key, id, children }) => {
+  const loadChildren = async (node) => {
+    const { key, id, children } = node;
     if (children?.length) return;
 
     const data = await queryClient.fetchQuery({
@@ -42,9 +42,9 @@ export const useLazyProductTree = (initialData = []) => {
       staleTime: Infinity,
     });
 
-    setTreeData((prev) =>
-      updateTreeData(prev, key, data.map(mapProductToTreeNode))
-    );
+    const mappedChildren = data.map(item => mapProductToTreeNode(item)).filter(Boolean);
+
+    setTreeData((prev) => updateTreeData(prev, key, mappedChildren));
   };
 
   return { treeData, loadChildren };
