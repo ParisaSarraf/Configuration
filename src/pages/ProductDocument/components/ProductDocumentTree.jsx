@@ -123,10 +123,10 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
     });
   };
 
-  const handleEditDocumentProduct = (productDoc) => {
+  const handleEditDocumentProduct = ({ productDoc }) => {
     setModal({
       mode: "edit",
-      data: productDoc,
+      data: { ...productDoc },
       type: "AddDocumentProduct",
     });
   };
@@ -198,12 +198,12 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
                   edition?.state === 10
                     ? "text-[#f5222d]"
                     : edition?.state === 20
-                      ? "text-[#faad14]"
-                      : edition?.state === 30
-                        ? "text-[#52c41a]"
-                        : edition?.state === 40
-                          ? "text-[#722ed1]"
-                          : "text-[#faad14]"
+                    ? "text-[#faad14]"
+                    : edition?.state === 30
+                    ? "text-[#52c41a]"
+                    : edition?.state === 40
+                    ? "text-[#722ed1]"
+                    : "text-[#faad14]"
                 }
               />
               {edition.reasons_editing}

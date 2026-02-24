@@ -325,25 +325,25 @@ const ProductModal = ({
         <Row gutter={16}>
           <Col span={6}>
             <Form.Item name="parent_id" label="شاخه والد">
-              <TS
+              {/* <TS
                 lazy={true}
                 labelInValue
                 data={rootTreeData}
                 placeholder="شاخه والد"
                 allowClear
-              />
+              /> */}
             </Form.Item>
           </Col>
           <Col span={6}>
             <Form.Item name="parent_code_id" label="ارث بری کد">
-              <TS
+              {/* <TS
                 lazy={true}
                 labelInValue
                 data={rootTreeData}
                 placeholder="ارث بری کد"
                 onChange={handleParentChange}
                 allowClear
-              />
+              /> */}
             </Form.Item>
           </Col>
 
