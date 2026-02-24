@@ -40,7 +40,7 @@ const ProductTreeEtc = ({
   const [internalExpandedKeys, setInternalExpandedKeys] = useState(
     defaultExpandedKeys || []
   );
-  
+
   const isExpandedControlled = controlledExpandedKeys !== undefined;
   const currentExpandedKeys = isExpandedControlled
     ? controlledExpandedKeys
@@ -100,13 +100,13 @@ const ProductTreeEtc = ({
   const treeData = useMemo(() => {
     const transform = (dataList) => {
       if (!dataList || dataList.length === 0) return [];
-      return dataList.map((item) => ({
+      return dataList.filter(Boolean).map((item) => ({
         ...item,
-        title: item[titleField],
-        value: item[keyField],
-        key: item[keyField],
-        label: item[titleField],
-        children: item[childrenField]
+        title: item?.[titleField] ?? "—",
+        value: item?.[keyField],
+        key: item?.[keyField],
+        label: item?.[titleField] ?? "—",
+        children: Array.isArray(item?.[childrenField])
           ? transform(item[childrenField])
           : undefined,
       }));
