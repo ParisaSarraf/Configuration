@@ -16,7 +16,8 @@ import { usePersonalityProductList } from "@/QueryServises/personalityQuery/inde
 import { SearchOutlined } from "@ant-design/icons";
 import TS from "../../../components/TreeSelect";
 import { useStandardCodePersonalityById } from "../../../QueryServises/StandardCodeQuery";
-import { mapProductToTreeNode } from "../../../utils/mapProductToTreeNode";
+import TsLazy from "../../../components/LazyTreeSelect/LazyTreeSelect";
+import { useLazyProductTreeSelect } from "../../../hooks/useLazyProductTreeSelect";
 
 const ProductModal = ({
   isOpen,
@@ -27,10 +28,7 @@ const ProductModal = ({
   productData,
 }) => {
   const [form] = Form.useForm();
-  const rootTreeData = useMemo(
-    () => productData?.map(mapProductToTreeNode).filter(Boolean) || [],
-    [productData]
-  );
+  const { treeData, loadChildren } = useLazyProductTreeSelect(productData);
 
   const { isPending: isCreating, mutateAsync: createProduct } =
     useCreateProduct();
@@ -38,11 +36,11 @@ const ProductModal = ({
     useUpdateProduct();
 
   const [selectedPersonalityId, setSelectedPersonalityId] = useState(null);
-  const [selectedGenusId, setSelectedGenusId] = useState(null);
   const [selectedParentCodeId, setSelectedParentCodeId] = useState(null);
   const [genusStandardOptions, setGenusStandardOptions] = useState([]);
   const [alterNativeGenusStandardOptions, setAlterNativeGenusStandardOptions] =
     useState([]);
+
   const [productCode, setProductCode] = useState("");
   const [finalCode, setFinalCode] = useState("");
 
@@ -55,11 +53,7 @@ const ProductModal = ({
   const { data: standardCodesResponse } = useStandardCodePersonalityById(
     selectedPersonalityId?.value
   );
-  const { data: genusStandardCode } = useStandardCodeGenusById(
-    selectedGenusId?.value
-  );
 
-  console.log(genusStandardCode);
   const parentCodeId = parentCodeData?.code || "";
 
   useEffect(() => {
@@ -325,25 +319,25 @@ const ProductModal = ({
         <Row gutter={16}>
           <Col span={6}>
             <Form.Item name="parent_id" label="شاخه والد">
-              {/* <TS
-                lazy={true}
+              <TsLazy
+                treeData={treeData} 
+                loadData={loadChildren} 
                 labelInValue
-                data={rootTreeData}
                 placeholder="شاخه والد"
                 allowClear
-              /> */}
+              />
             </Form.Item>
           </Col>
           <Col span={6}>
             <Form.Item name="parent_code_id" label="ارث بری کد">
-              {/* <TS
-                lazy={true}
+          
+               <TsLazy
+                treeData={treeData} 
+                loadData={loadChildren} 
                 labelInValue
-                data={rootTreeData}
                 placeholder="ارث بری کد"
-                onChange={handleParentChange}
                 allowClear
-              /> */}
+              />
             </Form.Item>
           </Col>
 
