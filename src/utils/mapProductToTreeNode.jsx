@@ -1,10 +1,8 @@
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
 export const mapProductToTreeNode = (item, showHidden = false) => {
-  // اگر showHidden = false و آیتم مخفی است، null برگردان
   if (!showHidden && item.hide) return null;
-
-  return {
+  const node = {
     title: (
       <div className="flex items-center">
         <FiberManualRecordIcon
@@ -22,14 +20,20 @@ export const mapProductToTreeNode = (item, showHidden = false) => {
         </span>
       </div>
     ),
-    key: `product-${item.id}`,
-    id: item.id,
+    key: String(item.id),
     value: item.id,
+    id: item.id,
     isLeaf: !item.has_children,
-    style: item.hide ? { opacity: 0.5 } : {},
-    children: item.children
-      ?.map((child) => mapProductToTreeNode(child, showHidden))
-      .filter(Boolean), 
+    searchText: `${item.persian_title} ${item.code}`,
     productData: item,
   };
+  if (item.children && item.children.length > 0) {
+    node.children = item.children
+      .map((child) => mapProductToTreeNode(child, showHidden))
+      .filter(Boolean);
+  } else if (item.has_children) {
+    node.children = undefined;
+  }
+
+  return node;
 };

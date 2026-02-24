@@ -1,9 +1,9 @@
 import { Col, Form, Input, InputNumber, message, Row, Select } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   useCreateProduct,
   useFinalCodeProductById,
-  useProductList,
+  useRootProduct,
   useUpdateProduct,
 } from "../../../QueryServises/productQuery";
 import { useOneCoreSetting } from "../../../QueryServises/settingQuery";
@@ -16,6 +16,7 @@ import { usePersonalityProductList } from "@/QueryServises/personalityQuery/inde
 import { SearchOutlined } from "@ant-design/icons";
 import TS from "../../../components/TreeSelect";
 import { useStandardCodePersonalityById } from "../../../QueryServises/StandardCodeQuery";
+import { mapProductToTreeNode } from "../../../utils/mapProductToTreeNode";
 
 const ProductModal = ({
   isOpen,
@@ -23,9 +24,13 @@ const ProductModal = ({
   modalData,
   closeModal,
   refetch,
+  productData,
 }) => {
   const [form] = Form.useForm();
-  const { data: productData } = useProductList();
+  const rootTreeData = useMemo(
+    () => productData?.map(mapProductToTreeNode).filter(Boolean) || [],
+    [productData]
+  );
 
   const { isPending: isCreating, mutateAsync: createProduct } =
     useCreateProduct();
@@ -56,7 +61,6 @@ const ProductModal = ({
 
   console.log(genusStandardCode);
   const parentCodeId = parentCodeData?.code || "";
-
 
   useEffect(() => {
     if (!isOpen) return;
@@ -322,8 +326,9 @@ const ProductModal = ({
           <Col span={6}>
             <Form.Item name="parent_id" label="شاخه والد">
               <TS
+                lazy={true}
                 labelInValue
-                data={productData}
+                data={rootTreeData}
                 placeholder="شاخه والد"
                 allowClear
               />
@@ -332,8 +337,9 @@ const ProductModal = ({
           <Col span={6}>
             <Form.Item name="parent_code_id" label="ارث بری کد">
               <TS
+                lazy={true}
                 labelInValue
-                data={productData}
+                data={rootTreeData}
                 placeholder="ارث بری کد"
                 onChange={handleParentChange}
                 allowClear
@@ -678,16 +684,17 @@ const ProductModal = ({
                 style={{ width: "100%" }}
                 options={alterNativeGenusStandardOptions}
                 disabled={!alterNativeGenusStandardOptions.length}
-                 onChange={(value) => {
+                onChange={(value) => {
                   if (!value) {
                     form.setFieldsValue({ genus_store_code: undefined });
                     return;
                   }
-                  const selectedOption = alterNativeGenusStandardOptions.find(  
+                  const selectedOption = alterNativeGenusStandardOptions.find(
                     (item) => item.value === value.value
                   );
                   form.setFieldsValue({
-                    alternative_genus_store_code: selectedOption?.warehouse_code,
+                    alternative_genus_store_code:
+                      selectedOption?.warehouse_code,
                   });
                 }}
               />
