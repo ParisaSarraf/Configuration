@@ -79,6 +79,7 @@ const Products = () => {
       </div>
 
       <ProductModal
+        productData={productData}
         isOpen={isOpen}
         modalMode={modalMode}
         modalData={modalData}
