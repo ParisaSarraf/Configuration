@@ -21,6 +21,7 @@ const TS = ({
     return items.map((item) => {
       const titleFields = [
         "persian_title",
+        "persianTitle",
         "title",
         "name",
         "label",

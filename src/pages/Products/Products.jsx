@@ -32,6 +32,7 @@ const Products = () => {
   const [selectedKeys, setSelectedKeys] = useState([]);
   const { currentProduct, handleProductSelect } = useProductContext();
 
+
   useEffect(() => {
     if (currentProduct) {
       setSelectedKeys([`product-${currentProduct.id}`]);
