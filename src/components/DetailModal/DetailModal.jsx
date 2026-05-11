@@ -36,10 +36,7 @@ export const renderFileButton = (label, filePath) => {
 
 
 const DetailModal = ({isOpen, modalMode, modalData, closeModal, modalType}) => {
-    if (!modalData) return null;
-
-    console.log(modalData);
-    
+    if (!modalData) return null;    
 
     const getStateInfo = (state) => {
         const isEditionType = (modalType === 'SpecificEditionDetail' || modalType === 'EditionDetail');

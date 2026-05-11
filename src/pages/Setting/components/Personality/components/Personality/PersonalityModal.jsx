@@ -11,10 +11,7 @@ const PersonalityModal = ({isOpen, modalMode, modalData, closeModal, refetch}) =
     const {data: personalityList} = usePersonalityProductList();
     const [form] = Form.useForm();
     const {isPending: isCreating, mutateAsync: createPersonality} = useCreatePersonalityProduct();
-    const {isPending: isUpdating, mutateAsync: updatePersonality} = useUpdatePesonalityProduct();
-
-    console.log(modalData);
-    
+    const {isPending: isUpdating, mutateAsync: updatePersonality} = useUpdatePesonalityProduct();    
 
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
