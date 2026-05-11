@@ -23,7 +23,7 @@ const ProductModal = ({
   modalData,
   closeModal,
   refetch,
-  productData,
+  productData
 }) => {
   const [form] = Form.useForm();
   const { treeData, loadChildren } = useLazyProductTreeSelect(productData);
