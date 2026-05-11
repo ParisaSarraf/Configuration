@@ -123,19 +123,21 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
     });
   };
 
-  const handleEditDocumentProduct = ({ productDoc }) => {
+  const handleEditDocumentProduct = ({ productDoc, documentTitle , documentId }) => {
     setModal({
       mode: "edit",
-      data: { ...productDoc },
+      data: { ...productDoc, documentTitle , documentId },
       type: "AddDocumentProduct",
     });
   };
 
-  const transformNode = (node) => {
+  const transformNode = (node, parentTitle = null, parentId = null) => {
     const productDoc = node.product_document;
     const editions = productDoc?.edition || [];
     const hasEditions = editions.length > 0;
     const hasDocument = productDoc?.id;
+    const documentTitle = node.title || parentTitle;
+    const documentId = node.id || parentId;
 
     const baseNode = {
       key: `node-${node.id || productDoc.id}`,
@@ -165,7 +167,11 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
                 icon={<EditOutlined />}
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleEditDocumentProduct(productDoc);
+                  handleEditDocumentProduct({
+                    productDoc,
+                    documentTitle,
+                    documentId,
+                  });
                 }}
                 title={"ویرایش سند محصول"}
                 className="text-green-500 hover:text-green-700"
@@ -182,6 +188,8 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
       document: productDoc?.document,
       survey_date: productDoc?.survey_date,
       children: [],
+      documentTitle: documentTitle,
+      documentId: documentId,
     };
 
     if (hasEditions) {
@@ -198,12 +206,12 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
                   edition?.state === 10
                     ? "text-[#f5222d]"
                     : edition?.state === 20
-                    ? "text-[#faad14]"
-                    : edition?.state === 30
-                    ? "text-[#52c41a]"
-                    : edition?.state === 40
-                    ? "text-[#722ed1]"
-                    : "text-[#faad14]"
+                      ? "text-[#faad14]"
+                      : edition?.state === 30
+                        ? "text-[#52c41a]"
+                        : edition?.state === 40
+                          ? "text-[#722ed1]"
+                          : "text-[#faad14]"
                 }
               />
               {edition.reasons_editing}
@@ -263,7 +271,9 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
     }
 
     if (node.children?.length > 0) {
-      const childNodes = node.children.map((child) => transformNode(child));
+      const childNodes = node.children.map((child) =>
+        transformNode(child, documentTitle, documentId),
+      );
       baseNode.children.push(...childNodes);
     }
 
@@ -273,9 +283,10 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
   const transformDataToTreeView = (data) => {
     if (!data) return [];
     return Array.isArray(data)
-      ? data.map(transformNode)
-      : [transformNode(data)];
+      ? data.map((item) => transformNode(item, item.title, item.id))
+      : [transformNode(data, data.title, data.id)];
   };
+
   const treeData = useMemo(() => {
     return transformDataToTreeView(productDocument);
   }, [productDocument]);

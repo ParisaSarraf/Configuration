@@ -1,16 +1,6 @@
 import { useEffect } from "react";
 import Modal from "../../../components/Modal";
-import {
-  Button,
-  Col,
-  Form,
-  Input,
-  message,
-  Row,
-  Switch,
-  TreeSelect,
-} from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Col, Form, Input, message, Row, Switch } from "antd";
 import { useDocumentList } from "../../../QueryServises/documentQuery";
 import {
   useCreateProductDocument,
@@ -43,10 +33,10 @@ const DocumentProductModal = ({
       form.setFieldsValue({
         is_reportable: modalData?.is_reportable,
         title: modalData?.title,
-        document_id: modalData?.document
+        document_id: modalData?.documentId
           ? {
-              value: modalData?.document.id,
-              label: modalData?.document?.code,
+              value: modalData?.documentId,
+              label: modalData?.documentTitle,
             }
           : null,
         survey_date: georgianDateToJalaliDate(modalData?.survey_date),
@@ -63,7 +53,7 @@ const DocumentProductModal = ({
   const onFinishForm = async (values) => {
     const payload = {
       product_id: currentProduct?.id,
-      document_id: values.document_id,
+      document_id: values.document_id?.value,
       title: values.title,
       is_reportable: values.is_reportable || false,
       survey_date: jalaliDateToGeorgianDate(values?.survey_date),
