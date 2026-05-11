@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Button, Spin } from "antd";
 import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 import {
-  useProductList,
   useRootProduct,
 } from "../../QueryServises/productQuery";
 import ProductTree from "./components/ProductTree";

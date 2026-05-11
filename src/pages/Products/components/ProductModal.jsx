@@ -1,15 +1,13 @@
 import { Col, Form, Input, InputNumber, message, Row, Select } from "antd";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useCreateProduct,
   useFinalCodeProductById,
-  useRootProduct,
   useUpdateProduct,
 } from "../../../QueryServises/productQuery";
 import { useOneCoreSetting } from "../../../QueryServises/settingQuery";
 import {
   useGenusProductList,
-  useStandardCodeGenusById,
 } from "../../../QueryServises/genusQuery";
 import Modal from "../../../components/Modal";
 import { usePersonalityProductList } from "@/QueryServises/personalityQuery/index.js";
