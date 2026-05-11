@@ -1,20 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMyAxios } from "@/hooks/useMyAxios.js";
 
-export const useProductKey = ["lists", "product"];
-export const useProductList = (queryOptions) => {
-  const { myAxios } = useMyAxios();
-  return useQuery({
-    queryKey: useProductKey,
-    queryFn: () =>
-      myAxios.get(`/product/get-product/`).then((response) => {
-        queryOptions?.onSuccess?.(response?.data);
-        return response?.data;
-      }),
-    ...queryOptions,
-  });
-};
-
 export const useRootProductKey = ["root", "product"];
 export const useRootProduct = (showHidden, queryOptions) => {
   const { myAxios } = useMyAxios();
