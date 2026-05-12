@@ -1,4 +1,13 @@
-import { Col, Form, Input, InputNumber, message, Row, Select } from "antd";
+import {
+  Col,
+  Divider,
+  Form,
+  Input,
+  InputNumber,
+  message,
+  Row,
+  Select,
+} from "antd";
 import { useEffect, useState } from "react";
 import {
   useCreateProduct,
@@ -6,9 +15,7 @@ import {
   useUpdateProduct,
 } from "../../../QueryServises/productQuery";
 import { useOneCoreSetting } from "../../../QueryServises/settingQuery";
-import {
-  useGenusProductList,
-} from "../../../QueryServises/genusQuery";
+import { useGenusProductList } from "../../../QueryServises/genusQuery";
 import Modal from "../../../components/Modal";
 import { usePersonalityProductList } from "@/QueryServises/personalityQuery/index.js";
 import { SearchOutlined } from "@ant-design/icons";
@@ -23,7 +30,7 @@ const ProductModal = ({
   modalData,
   closeModal,
   refetch,
-  productData
+  productData,
 }) => {
   const [form] = Form.useForm();
   const { treeData, loadChildren } = useLazyProductTreeSelect(productData);
@@ -34,6 +41,10 @@ const ProductModal = ({
     useUpdateProduct();
 
   const [selectedPersonalityId, setSelectedPersonalityId] = useState(null);
+  const [
+    selectedAlternativePersonalityId,
+    setSelectedAlternativePersonalityId,
+  ] = useState(null);
   const [selectedParentCodeId, setSelectedParentCodeId] = useState(null);
   const [genusStandardOptions, setGenusStandardOptions] = useState([]);
   const [alterNativeGenusStandardOptions, setAlterNativeGenusStandardOptions] =
@@ -46,11 +57,14 @@ const ProductModal = ({
   const { data: genusData } = useGenusProductList();
   const { data: personalityData } = usePersonalityProductList();
   const { data: parentCodeData } = useFinalCodeProductById(
-    selectedParentCodeId?.value
+    selectedParentCodeId?.value,
   );
   const { data: standardCodesResponse } = useStandardCodePersonalityById(
-    selectedPersonalityId?.value
+    selectedPersonalityId?.value,
   );
+
+  const { data: alternativeStandardCodesResponse } =
+    useStandardCodePersonalityById(selectedAlternativePersonalityId?.value);
 
   const parentCodeId = parentCodeData?.code || "";
 
@@ -79,6 +93,17 @@ const ProductModal = ({
         ? {
             value: modalData.product_personalities[0].personality.id,
             label: modalData.product_personalities[0].personality.name,
+          }
+        : null;
+
+      // Alternative Personality
+      const AlternativePersonalityValue = modalData
+        .product_alternative_personalities?.[0]
+        ? {
+            value:
+              modalData.product_alternative_personalities[0].personality.id,
+            label:
+              modalData.product_alternative_personalities[0].personality.name,
           }
         : null;
 
@@ -146,6 +171,7 @@ const ProductModal = ({
 
         status: statusValue,
         personality_id: personalityValue,
+        alternative_personality_id: AlternativePersonalityValue,
 
         parent_id: parentValue,
         parent_code_id: parentValue,
@@ -174,11 +200,16 @@ const ProductModal = ({
         external_diagonal: modalData.external_diagonal,
 
         description: modalData.description,
+
+        genus_warehouse_code: modalData?.genus_warehouse_code,
+        alternative_genus_warehouse_code:
+          modalData?.alternative_genus_warehouse_code,
       });
 
       // sync states
       setProductCode(modalData.code || "");
       setSelectedPersonalityId(personalityValue);
+      setSelectedAlternativePersonalityId(AlternativePersonalityValue);
       setSelectedParentCodeId(parentValue);
     }
 
@@ -201,6 +232,7 @@ const ProductModal = ({
     else if (modalMode === "add") {
       setProductCode("");
       setSelectedPersonalityId(null);
+      setSelectedAlternativePersonalityId(null);
       setSelectedParentCodeId(null);
 
       form.setFieldsValue({
@@ -216,8 +248,6 @@ const ProductModal = ({
     setFinalCode(newFinalCode);
     form.setFieldsValue({ final_code: newFinalCode });
   }, [parentCodeId, productCode]);
-
-  const handleParentChange = (value) => setSelectedParentCodeId(value);
 
   const onFinish = (values) => {
     const payload = {
@@ -262,6 +292,10 @@ const ProductModal = ({
         values.alternative_genus_standard_code_id?.value,
 
       personality_id: values.personality_id?.value,
+      alternative_personality_id: values.alternative_personality_id?.value,
+
+      alternative_genus_warehouse_code: values.alternative_genus_warehouse_code,
+      genus_warehouse_code: values.genus_warehouse_code,
     };
 
     const finalPayload = {};
@@ -291,7 +325,7 @@ const ProductModal = ({
     action
       .then(() => {
         message.success(
-          modalMode === "edit" ? "محصول ویرایش شد" : "محصول اضافه شد"
+          modalMode === "edit" ? "محصول ویرایش شد" : "محصول اضافه شد",
         );
         closeModal();
         modalMode !== "edit" && refetch();
@@ -315,452 +349,514 @@ const ProductModal = ({
     >
       <Form form={form} layout="vertical" onFinish={onFinish}>
         <Row gutter={16}>
-          <Col span={6}>
-            <Form.Item name="parent_id" label="شاخه والد">
-              <TsLazy
-                treeData={treeData} 
-                loadData={loadChildren} 
-                labelInValue
-                placeholder="شاخه والد"
-                allowClear
-              />
-            </Form.Item>
-          </Col>
-          <Col span={6}>
-            <Form.Item name="parent_code_id" label="ارث بری کد">
-          
-               <TsLazy
-                treeData={treeData} 
-                loadData={loadChildren} 
-                labelInValue
-                placeholder="ارث بری کد"
-                allowClear
-              />
-            </Form.Item>
-          </Col>
+          <Divider orientation="start">
+            <h1 className="font-bold">اطلاعات اصلی</h1>
+          </Divider>
 
-          <Col span={4}>
-            <Form.Item
-              label="عنوان فارسی"
-              name="persian_title"
-              rules={[
-                { required: true, message: "لطفاً عنوان فارسی را وارد کنید" },
-              ]}
-            >
-              <Input placeholder="عنوان فارسی" />
-            </Form.Item>
-          </Col>
-          <Col span={4}>
-            <Form.Item
-              label="کد محصول"
-              name="code"
-              rules={[
-                { required: true, message: "لطفاً کد محصول را وارد کنید" },
-              ]}
-            >
-              <Input
-                placeholder="کد محصول"
-                value={productCode}
-                onChange={(e) => setProductCode(e.target.value)}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={4}>
-            <Form.Item
-              label="تعداد"
-              name="quantity"
-              rules={[
-                { required: true, message: "لطفاً تعداد محصول را وارد کنید" },
-              ]}
-            >
-              <InputNumber style={{ width: "100%" }} />
-            </Form.Item>
-          </Col>
-          <Col span={6}>
-            <Form.Item label="کد نهایی" name="final_code">
-              <Input value={finalCode} disabled />
-            </Form.Item>
-          </Col>
-          {/* <Col span={4}>
-            <Form.Item label="نام تجاری 1" name="brand1">
-              <Input />
-            </Form.Item>
-          </Col>
-          <Col span={4}>
-            <Form.Item label="شرح نام تجاری 1" name="brand1_desc">
-              <Input />
-            </Form.Item>
-          </Col>
-          <Col span={4}>
-            <Form.Item label="نام تجاری 2" name="brand2">
-              <Input />
-            </Form.Item>
-          </Col>
-          <Col span={4}>
-            <Form.Item label="شرح نام تجاری 2" name="brand2_desc">
-              <Input />
-            </Form.Item>
-          </Col> */}
-          <Col span={6}>
-            <Form.Item label="کد کارفرما" name="employer_code">
-              <Input />
-            </Form.Item>
-          </Col>
-          <Col span={6}>
-            <Form.Item label="وضعیت" name="status">
-              <Select
-                placeholder="وضعیت"
-                style={{ width: "100%" }}
-                options={[
-                  { label: "فعال", value: "active" },
-                  { label: "غیرفعال", value: "inactive" },
-                  { label: "موقت", value: "temp" },
+          <>
+            {/* شاخه والد */}
+            <Col span={6}>
+              <Form.Item name="parent_id" label="شاخه والد">
+                <TsLazy
+                  treeData={treeData}
+                  loadData={loadChildren}
+                  labelInValue
+                  placeholder="شاخه والد"
+                  allowClear
+                />
+              </Form.Item>
+            </Col>
+
+            {/* ارث بری کد */}
+            <Col span={6}>
+              <Form.Item name="parent_code_id" label="ارث بری کد">
+                <TsLazy
+                  treeData={treeData}
+                  loadData={loadChildren}
+                  labelInValue
+                  placeholder="ارث بری کد"
+                  allowClear
+                />
+              </Form.Item>
+            </Col>
+
+            {/* عنوان فارسی */}
+            <Col span={6}>
+              <Form.Item
+                label="عنوان فارسی"
+                name="persian_title"
+                rules={[
+                  { required: true, message: "لطفاً عنوان فارسی را وارد کنید" },
                 ]}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={6}>
-            <Form.Item
-              label="هویت"
-              name="personality_id"
-              rules={[{ required: true, message: "لطفاً هویت را انتخاب کنید" }]}
-            >
-              <TS
-                labelInValue
-                data={personalityData}
-                placeholder="هویت"
-                onChange={(selected) => {
-                  setSelectedPersonalityId(selected);
-                  const findPersonality = (list, id) => {
-                    for (const item of list) {
-                      if (item.id === id) return item;
-                      if (item.children?.length) {
-                        const found = findPersonality(item.children, id);
-                        if (found) return found;
+              >
+                <Input placeholder="عنوان فارسی" />
+              </Form.Item>
+            </Col>
+
+            {/* کد محصول */}
+            <Col span={6}>
+              <Form.Item
+                label="کد محصول"
+                name="code"
+                rules={[
+                  { required: true, message: "لطفاً کد محصول را وارد کنید" },
+                ]}
+              >
+                <Input
+                  placeholder="کد محصول"
+                  value={productCode}
+                  onChange={(e) => setProductCode(e.target.value)}
+                />
+              </Form.Item>
+            </Col>
+
+            {/* تعداد */}
+            <Col span={6}>
+              <Form.Item
+                label="تعداد"
+                name="quantity"
+                rules={[
+                  { required: true, message: "لطفاً تعداد محصول را وارد کنید" },
+                ]}
+              >
+                <InputNumber style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+
+            {/* کد نهایی */}
+            <Col span={6}>
+              <Form.Item label="کد نهایی" name="final_code">
+                <Input value={finalCode} disabled />
+              </Form.Item>
+            </Col>
+
+            {/* کد کارفرما */}
+            <Col span={6}>
+              <Form.Item label="کد کارفرما" name="employer_code">
+                <Input />
+              </Form.Item>
+            </Col>
+
+            {/* وضعیت */}
+            <Col span={6}>
+              <Form.Item label="وضعیت" name="status">
+                <Select
+                  placeholder="وضعیت"
+                  style={{ width: "100%" }}
+                  options={[
+                    { label: "فعال", value: "active" },
+                    { label: "غیرفعال", value: "inactive" },
+                    { label: "موقت", value: "temp" },
+                  ]}
+                />
+              </Form.Item>
+            </Col>
+          </>
+
+          <Divider orientation="start">
+            <h1 className="font-bold">هویت</h1>
+          </Divider>
+          <>
+            {/* هویت */}
+            <Col span={8}>
+              <Form.Item
+                label="هویت"
+                name="personality_id"
+                rules={[
+                  { required: true, message: "لطفاً هویت را انتخاب کنید" },
+                ]}
+              >
+                <TS
+                  labelInValue
+                  data={personalityData}
+                  placeholder="هویت"
+                  onChange={(selected) => {
+                    setSelectedPersonalityId(selected);
+                    const findPersonality = (list, id) => {
+                      for (const item of list) {
+                        if (item.id === id) return item;
+                        if (item.children?.length) {
+                          const found = findPersonality(item.children, id);
+                          if (found) return found;
+                        }
                       }
-                    }
-                    return null;
-                  };
-                  // const selectedItem = findPersonality(
-                  //   personalityData,
-                  //   selected?.value,
-                  // );
+                      return null;
+                    };
+                  }}
+                />
+              </Form.Item>
+            </Col>
 
-                  // if (selectedItem) {
-                  //   form.setFieldsValue({
-                  //     // persian_title:
-                  //     //   selectedItem.personality_codes?.[0]?.description,
-                  //     store_code:
-                  //       selectedItem?.personality_codes?.[0]
-                  //         ?.full_ware_house_code,
-                  //     alternative_store_code:
-                  //       selectedItem?.personality_codes?.[0]
-                  //         ?.full_ware_house_code,
-                  //   });
-                  // }
-                }}
-              />
-            </Form.Item>
-          </Col>
-
-          {/* کد استاندارد */}
-          <Col span={6}>
-            <Form.Item label="کد استاندارد" name="standard_code_id">
-              <Select
-                allowClear
-                labelInValue
-                placeholder="کد استاندارد"
-                showSearch
-                style={{ width: "100%" }}
-                options={
-                  standardCodesResponse?.personality_codes?.map((item) => ({
-                    value: item.id,
-                    label: item.name,
-                    description: item.description,
-                  })) || []
-                }
-                disabled={!standardCodesResponse?.personality_codes?.length}
-                onChange={(selected) => {
-                  if (selected) {
-                    const selectedOption =
-                      standardCodesResponse?.personality_codes?.find(
-                        (item) => item.id === selected.value
-                      );
-
-                    if (selectedOption) {
-                      form.setFieldsValue({
-                        persian_title: selectedOption.description,
-                      });
-                    }
-                    if (selectedOption) {
-                      form.setFieldsValue({
-                        // persian_title:
-                        //   selectedItem.personality_codes?.[0]?.description,
-                        store_code: selectedOption?.full_ware_house_code,
-                      });
-                    }
-                  } else {
-                    form.setFieldsValue({ persian_title: "" });
-                  }
-                }}
-                filterOption={(input, option) =>
-                  option.label.toLowerCase().includes(input.toLowerCase())
-                }
-                suffixIcon={<SearchOutlined />}
-              />
-            </Form.Item>
-          </Col>
-
-          {/* کد انبار */}
-          <Col span={6}>
-            <Form.Item label="کد انبار" name="store_code">
-              <Input />
-            </Form.Item>
-          </Col>
-
-          {/* کد استاندارد جایگزین */}
-          <Col span={6}>
-            <Form.Item
-              label="کد استاندارد جایگزین "
-              name="alternative_standard_code_id"
-            >
-              <Select
-                allowClear
-                labelInValue
-                placeholder="کد استاندارد جایگزین "
-                showSearch
-                style={{ width: "100%" }}
-                options={
-                  standardCodesResponse?.personality_codes?.map((item) => ({
-                    value: item.id,
-                    label: item.name,
-                    description: item.description,
-                  })) || []
-                }
-                disabled={!standardCodesResponse?.personality_codes?.length}
-                onChange={(selected) => {
-                  if (selected) {
-                    const selectedOption =
-                      standardCodesResponse?.personality_codes?.find(
-                        (item) => item.id === selected.value
-                      );
-
-                    if (selectedOption) {
-                      form.setFieldsValue({
-                        persian_title: selectedOption.description,
-                      });
-                    }
-                    if (selectedOption) {
-                      form.setFieldsValue({
-                        alternative_store_code:
-                          selectedOption?.full_ware_house_code,
-                      });
-                    }
-                  } else {
-                    form.setFieldsValue({ persian_title: "" });
-                  }
-                }}
-                filterOption={(input, option) =>
-                  option.label.toLowerCase().includes(input.toLowerCase())
-                }
-                suffixIcon={<SearchOutlined />}
-              />
-            </Form.Item>
-          </Col>
-
-          {/* کد انبار جایگزین */}
-          <Col span={6}>
-            <Form.Item label="کد انبار جایگزین" name="alternative_store_code">
-              <Input />
-            </Form.Item>
-          </Col>
-
-          <Col span={4}>
-            <Form.Item label="ماده اولیه" name="genus_id">
-              <TS
-                labelInValue
-                data={genusData}
-                placeholder="ماده اولیه"
-                onChange={(value) => {
-                  const selectedGenus = genusData.find(
-                    (item) => item.id === value.value
-                  );
-                  const warehouseCodes =
-                    selectedGenus?.genus_codes?.map((item) => ({
+            {/* کد استاندارد */}
+            <Col span={8}>
+              <Form.Item label="کد استاندارد" name="standard_code_id">
+                <Select
+                  allowClear
+                  labelInValue
+                  placeholder="کد استاندارد"
+                  showSearch
+                  style={{ width: "100%" }}
+                  options={
+                    standardCodesResponse?.personality_codes?.map((item) => ({
                       value: item.id,
                       label: item.name,
                       description: item.description,
-                      full_ware_house_code: item.full_ware_house_code,
-                      warehouse_code: item.warehouse_code,
-                    })) || [];
-                  setGenusStandardOptions(warehouseCodes);
-                  form.setFieldsValue({
-                    genus_standard_code_id: undefined,
-                  });
-                }}
-              />
-            </Form.Item>
-          </Col>
-          {/* کد استاندارد ماده اولیه */}
-          <Col span={4}>
-            <Form.Item
-              label="کد استاندارد ماده اولیه"
-              name="genus_standard_code_id"
-            >
-              <Select
-                allowClear
-                labelInValue
-                placeholder="کد استاندارد ماده اولیه"
-                showSearch
-                options={genusStandardOptions}
-                disabled={!genusStandardOptions.length}
-                onChange={(value) => {
-                  if (!value) {
-                    form.setFieldsValue({ genus_store_code: undefined });
-                    return;
+                    })) || []
                   }
-                  const selectedOption = genusStandardOptions.find(
-                    (item) => item.value === value.value
-                  );
-                  form.setFieldsValue({
-                    genus_store_code: selectedOption?.warehouse_code,
-                  });
-                }}
-              />
-            </Form.Item>
-          </Col>
-          {/* کد انبار ماده اولیه  */}
-          <Col span={4}>
-            <Form.Item label="کد انبار ماده اولیه" name="genus_store_code">
-              <Input disabled placeholder="کد انبار ماده اولیه" />
-            </Form.Item>
-          </Col>
+                  disabled={!standardCodesResponse?.personality_codes?.length}
+                  onChange={(selected) => {
+                    if (selected) {
+                      const selectedOption =
+                        standardCodesResponse?.personality_codes?.find(
+                          (item) => item.id === selected.value,
+                        );
 
-          <Col span={4}>
-            <Form.Item label="ماده اولیه جایگزین" name="alternative_genus_id">
-              <TS
-                labelInValue
-                data={genusData}
-                placeholder="ماده اولیه"
-                onChange={(value) => {
-                  const selectedGenus = genusData.find(
-                    (item) => item.id === value.value
-                  );
-                  const warehouseCodes =
-                    selectedGenus?.genus_codes?.map((item) => ({
-                      value: item.id,
-                      label: item.name,
-                      description: item.description,
-                      full_ware_house_code: item.full_ware_house_code,
-                      warehouse_code: item.warehouse_code,
-                    })) || [];
-                  setAlterNativeGenusStandardOptions(warehouseCodes);
-                  form.setFieldsValue({
-                    alternative_genus_standard_code_id: undefined,
-                  });
-                }}
-              />
-            </Form.Item>
-          </Col>
-          {/* کد استاندارد ماده اولیه جایگزین  */}
-          <Col span={4}>
-            <Form.Item
-              label="کد استاندارد جایگزین  "
-              name="alternative_genus_standard_code_id"
-            >
-              <Select
-                allowClear
-                labelInValue
-                placeholder="کد استاندارد ماده اولیه"
-                showSearch
-                style={{ width: "100%" }}
-                options={alterNativeGenusStandardOptions}
-                disabled={!alterNativeGenusStandardOptions.length}
-                onChange={(value) => {
-                  if (!value) {
-                    form.setFieldsValue({ genus_store_code: undefined });
-                    return;
+                      if (selectedOption) {
+                        form.setFieldsValue({
+                          persian_title: selectedOption.description,
+                        });
+                      }
+                      if (selectedOption) {
+                        form.setFieldsValue({
+                          // persian_title:
+                          //   selectedItem.personality_codes?.[0]?.description,
+                          store_code: selectedOption?.full_ware_house_code,
+                        });
+                      }
+                    } else {
+                      form.setFieldsValue({ persian_title: "" });
+                    }
+                  }}
+                  filterOption={(input, option) =>
+                    option.label.toLowerCase().includes(input.toLowerCase())
                   }
-                  const selectedOption = alterNativeGenusStandardOptions.find(
-                    (item) => item.value === value.value
-                  );
-                  form.setFieldsValue({
-                    alternative_genus_store_code:
-                      selectedOption?.warehouse_code,
-                  });
-                }}
-              />
-            </Form.Item>
-          </Col>
-          {/* کد انبار ماده اولیه جایگزین  */}
-          <Col span={4}>
-            <Form.Item
-              label="کد انبار ماده اولیه جایگزین"
-              name="alternative_genus_store_code"
-            >
-              <Input disabled placeholder="کد انبار ماده اولیه جایگزین" />
-            </Form.Item>
-          </Col>
+                  suffixIcon={<SearchOutlined />}
+                />
+              </Form.Item>
+            </Col>
 
-          <Col span={8}>
-            <Form.Item label="پوشش" name="casing_id">
-              <TS labelInValue data={casingData} placeholder="پوشش" />
-            </Form.Item>
-          </Col>
-          <Col span={4}>
-            <Form.Item label="قیمت" name="price">
-              <InputNumber
-                style={{ width: "100%" }}
-                formatter={(value) =>
-                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, "،")
-                }
-                parser={(value) => value.replace(/\$\s?|(،*)/g, "")}
-              />
-            </Form.Item>
-          </Col>
+            {/* کد انبار */}
+            <Col span={8}>
+              <Form.Item label="کد انبار" name="store_code">
+                <Input />
+              </Form.Item>
+            </Col>
+          </>
 
-          <Col span={4}>
-            <Form.Item label="تعداد انبار" name="warehouse_quantity">
-              <Input />
-            </Form.Item>
-          </Col>
+          <Divider orientation="start">
+            <h1 className="font-bold">هویت جایگزین</h1>
+          </Divider>
+          <>
+            {/* هویت جایگزین */}
+            <Col span={8}>
+              <Form.Item label="هویت" name="alternative_personality_id">
+                <TS
+                  labelInValue
+                  data={personalityData}
+                  placeholder="هویت"
+                  onChange={(selected) => {
+                    setSelectedAlternativePersonalityId(selected);
+                    const findPersonality = (list, id) => {
+                      for (const item of list) {
+                        if (item.id === id) return item;
+                        if (item.children?.length) {
+                          const found = findPersonality(item.children, id);
+                          if (found) return found;
+                        }
+                      }
+                      return null;
+                    };
+                  }}
+                />
+              </Form.Item>
+            </Col>
 
-          <Col span={2}>
-            <Form.Item label="طول" name="length">
-              <InputNumber style={{ width: "100%" }} stringMode />
-            </Form.Item>
-          </Col>
-          <Col span={2}>
-            <Form.Item label="عرض" name="width">
-              <InputNumber style={{ width: "100%" }} stringMode />
-            </Form.Item>
-          </Col>
-          <Col span={2}>
-            <Form.Item label="ارتفاع" name="height">
-              <InputNumber style={{ width: "100%" }} stringMode />
-            </Form.Item>
-          </Col>
-          <Col span={2}>
-            <Form.Item label="قطر داخل" name="internal_diagonal">
-              <InputNumber style={{ width: "100%" }} stringMode />
-            </Form.Item>
-          </Col>
-          <Col span={4}>
-            <Form.Item label="قطر خارجی" name="external_diagonal">
-              <InputNumber style={{ width: "100%" }} stringMode />
-            </Form.Item>
-          </Col>
-          <Col span={4}>
-            <Form.Item label="وزن" name="weight">
-              <InputNumber style={{ width: "100%" }} stringMode />
-            </Form.Item>
-          </Col>
+            {/* کد استاندارد جایگزین */}
+            <Col span={8}>
+              <Form.Item
+                label="کد استاندارد جایگزین "
+                name="alternative_standard_code_id"
+              >
+                <Select
+                  allowClear
+                  labelInValue
+                  placeholder="کد استاندارد جایگزین "
+                  showSearch
+                  style={{ width: "100%" }}
+                  options={
+                    alternativeStandardCodesResponse?.personality_codes?.map(
+                      (item) => ({
+                        value: item.id,
+                        label: item.name,
+                        description: item.description,
+                      }),
+                    ) || []
+                  }
+                  disabled={!alternativeStandardCodesResponse?.personality_codes?.length}
+                  onChange={(selected) => {
+                    if (selected) {
+                      const selectedOption =
+                        alternativeStandardCodesResponse?.personality_codes?.find(
+                          (item) => item.id === selected.value,
+                        );
 
-          <Col span={24}>
-            <Form.Item label="توضیحات" name="description">
-              <Input.TextArea rows={1} placeholder="توضیحات محصول" />
-            </Form.Item>
-          </Col>
+                      if (selectedOption) {
+                        form.setFieldsValue({
+                          persian_title: selectedOption.description,
+                        });
+                      }
+                      if (selectedOption) {
+                        form.setFieldsValue({
+                          alternative_store_code:
+                            selectedOption?.full_ware_house_code,
+                        });
+                      }
+                    } else {
+                      form.setFieldsValue({ persian_title: "" });
+                    }
+                  }}
+                  filterOption={(input, option) =>
+                    option.label.toLowerCase().includes(input.toLowerCase())
+                  }
+                  suffixIcon={<SearchOutlined />}
+                />
+              </Form.Item>
+            </Col>
+
+            {/* کد انبار جایگزین */}
+            <Col span={8}>
+              <Form.Item label="کد انبار جایگزین" name="alternative_store_code">
+                <Input />
+              </Form.Item>
+            </Col>
+          </>
+
+          <Divider orientation="start">
+            <h1 className="font-bold">ماده اولیه</h1>
+          </Divider>
+          <>
+            {/* ماده اولیه */}
+            <Col span={8}>
+              <Form.Item label="ماده اولیه" name="genus_id">
+                <TS
+                  labelInValue
+                  data={genusData}
+                  placeholder="ماده اولیه"
+                  onChange={(value) => {
+                    const selectedGenus = genusData.find(
+                      (item) => item.id === value.value,
+                    );
+                    const warehouseCodes =
+                      selectedGenus?.genus_codes?.map((item) => ({
+                        value: item.id,
+                        label: item.name,
+                        description: item.description,
+                        full_ware_house_code: item.full_ware_house_code,
+                        warehouse_code: item.warehouse_code,
+                      })) || [];
+                    setGenusStandardOptions(warehouseCodes);
+                    form.setFieldsValue({
+                      genus_standard_code_id: undefined,
+                    });
+                  }}
+                />
+              </Form.Item>
+            </Col>
+
+            {/* کد استاندارد ماده اولیه */}
+            <Col span={8}>
+              <Form.Item
+                label="کد استاندارد ماده اولیه"
+                name="genus_standard_code_id"
+              >
+                <Select
+                  allowClear
+                  labelInValue
+                  placeholder="کد استاندارد ماده اولیه"
+                  showSearch
+                  options={genusStandardOptions}
+                  disabled={!genusStandardOptions.length}
+                  onChange={(value) => {
+                    if (!value) {
+                      form.setFieldsValue({ genus_warehouse_code: undefined });
+                      return;
+                    }
+                    const selectedOption = genusStandardOptions.find(
+                      (item) => item.value === value.value,
+                    );
+                    form.setFieldsValue({
+                      genus_warehouse_code: selectedOption?.warehouse_code,
+                    });
+                  }}
+                />
+              </Form.Item>
+            </Col>
+
+            {/* کد انبار ماده اولیه  */}
+            <Col span={8}>
+              <Form.Item
+                label="کد انبار ماده اولیه"
+                name="genus_warehouse_code"
+              >
+                <Input placeholder="کد انبار ماده اولیه" />
+              </Form.Item>
+            </Col>
+          </>
+
+          <Divider orientation="start">
+            <h1 className="font-bold">ماده اولیه جایگزین</h1>
+          </Divider>
+          <>
+            {/* ماده اولیه جایگزین */}
+            <Col span={8}>
+              <Form.Item label="ماده اولیه جایگزین" name="alternative_genus_id">
+                <TS
+                  labelInValue
+                  data={genusData}
+                  placeholder="ماده اولیه"
+                  onChange={(value) => {
+                    const selectedGenus = genusData.find(
+                      (item) => item.id === value.value,
+                    );
+                    const warehouseCodes =
+                      selectedGenus?.genus_codes?.map((item) => ({
+                        value: item.id,
+                        label: item.name,
+                        description: item.description,
+                        full_ware_house_code: item.full_ware_house_code,
+                        warehouse_code: item.warehouse_code,
+                      })) || [];
+                    setAlterNativeGenusStandardOptions(warehouseCodes);
+                    form.setFieldsValue({
+                      alternative_genus_standard_code_id: undefined,
+                    });
+                  }}
+                />
+              </Form.Item>
+            </Col>
+
+            {/* کد استاندارد ماده اولیه جایگزین  */}
+            <Col span={8}>
+              <Form.Item
+                label="کد استاندارد ماده اولیه جایگزین  "
+                name="alternative_genus_standard_code_id"
+              >
+                <Select
+                  allowClear
+                  labelInValue
+                  placeholder="کد استاندارد ماده اولیه"
+                  showSearch
+                  style={{ width: "100%" }}
+                  options={alterNativeGenusStandardOptions}
+                  disabled={!alterNativeGenusStandardOptions.length}
+                  onChange={(value) => {
+                    if (!value) {
+                      form.setFieldsValue({ genus_warehouse_code: undefined });
+                      return;
+                    }
+                    const selectedOption = alterNativeGenusStandardOptions.find(
+                      (item) => item.value === value.value,
+                    );
+                    form.setFieldsValue({
+                      alternative_genus_warehouse_code:
+                        selectedOption?.warehouse_code,
+                    });
+                  }}
+                />
+              </Form.Item>
+            </Col>
+
+            {/* کد انبار ماده اولیه جایگزین  */}
+            <Col span={8}>
+              <Form.Item
+                label="کد انبار ماده اولیه جایگزین"
+                name="alternative_genus_warehouse_code"
+              >
+                <Input placeholder="کد انبار ماده اولیه جایگزین" />
+              </Form.Item>
+            </Col>
+          </>
+
+          <Divider orientation="start">
+            <h1 className="font-bold">اطلاعات فنی محصول</h1>
+          </Divider>
+          <>
+            {/* پوشش */}
+            <Col span={8}>
+              <Form.Item label="پوشش" name="casing_id">
+                <TS labelInValue data={casingData} placeholder="پوشش" />
+              </Form.Item>
+            </Col>
+
+            {/* قیمت */}
+            <Col span={8}>
+              <Form.Item label="قیمت" name="price">
+                <InputNumber
+                  style={{ width: "100%" }}
+                  formatter={(value) =>
+                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, "،")
+                  }
+                  parser={(value) => value.replace(/\$\s?|(،*)/g, "")}
+                />
+              </Form.Item>
+            </Col>
+
+            {/* تعداد انبار */}
+            <Col span={8}>
+              <Form.Item label="تعداد انبار" name="warehouse_quantity">
+                <Input />
+              </Form.Item>
+            </Col>
+
+            {/* طول */}
+            <Col span={4}>
+              <Form.Item label="طول" name="length">
+                <InputNumber style={{ width: "100%" }} stringMode />
+              </Form.Item>
+            </Col>
+
+            {/* عرض */}
+            <Col span={4}>
+              <Form.Item label="عرض" name="width">
+                <InputNumber style={{ width: "100%" }} stringMode />
+              </Form.Item>
+            </Col>
+
+            {/* ارتفاع */}
+            <Col span={4}>
+              <Form.Item label="ارتفاع" name="height">
+                <InputNumber style={{ width: "100%" }} stringMode />
+              </Form.Item>
+            </Col>
+
+            {/* قطر داخل */}
+            <Col span={4}>
+              <Form.Item label="قطر داخل" name="internal_diagonal">
+                <InputNumber style={{ width: "100%" }} stringMode />
+              </Form.Item>
+            </Col>
+
+            {/* قطر خارجی */}
+            <Col span={4}>
+              <Form.Item label="قطر خارجی" name="external_diagonal">
+                <InputNumber style={{ width: "100%" }} stringMode />
+              </Form.Item>
+            </Col>
+
+            {/* وزن */}
+            <Col span={4}>
+              <Form.Item label="وزن" name="weight">
+                <InputNumber style={{ width: "100%" }} stringMode />
+              </Form.Item>
+            </Col>
+
+            {/* توضیحات */}
+            <Col span={24}>
+              <Form.Item label="توضیحات" name="description">
+                <Input.TextArea rows={1} placeholder="توضیحات محصول" />
+              </Form.Item>
+            </Col>
+          </>
         </Row>
       </Form>
     </Modal>
