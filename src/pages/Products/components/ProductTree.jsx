@@ -7,9 +7,7 @@ import {
   PlusOutlined,
   FileZipOutlined,
 } from "@ant-design/icons";
-import {
-  useDeleteProduct,
-} from "../../../QueryServises/productQuery";
+import { useDeleteProduct } from "../../../QueryServises/productQuery";
 import { useExportExcelProductChildrenBom } from "@/QueryServises/ExcelExporterQuery/index.js";
 import { handleDownload } from "@utils/HandleDownload.js";
 import ProductTreeEtc from "../../../components/Tree/ProductTree";
@@ -43,15 +41,19 @@ const ProductTree = ({
     zipProductId,
     {
       enabled: false,
-    }
+    },
   );
-  
- const initialTree = useMemo(
-  () => productData?.map((p) => mapProductToTreeNode(p, false)).filter(Boolean) ?? [],
-  [productData]
-);
 
-  const { treeData, loadChildren } = useLazyProductTree(initialTree);
+  // Prepare base tree data from productData
+  const baseTreeData = useMemo(() => {
+    if (!Array.isArray(productData)) return [];
+    return productData
+      .map((p) => mapProductToTreeNode(p, false))
+      .filter(Boolean);
+  }, [productData]);
+
+  // Use the lazy loading hook with the prepared base data
+  const { treeData, loadChildren } = useLazyProductTree(baseTreeData);
 
   useEffect(() => {
     if (zipProductId) {
@@ -64,7 +66,7 @@ const ProductTree = ({
             link.href = url;
             link.setAttribute(
               "download",
-              `Documents-${zipFileName || "Product"}.zip`
+              `Documents-${zipFileName || "Product"}.zip`,
             );
             document.body.appendChild(link);
             link.click();
@@ -102,7 +104,7 @@ const ProductTree = ({
       handleDownload(
         exportExcelData,
         `زیرمجموعه_محصول_${exportProductId}.csv`,
-        setExportProductId
+        setExportProductId,
       );
     }
   }, [exportExcelData, exportProductId]);
@@ -141,7 +143,7 @@ const ProductTree = ({
       message.loading({ content: "درحال آماده‌سازی...", key: "exporting" });
     } else if (actionKey === "downloadZip") {
       setZipFileName(
-        node?.productData?.persian_title || node?.productData?.code
+        node?.productData?.persian_title || node?.productData?.code,
       );
       setZipProductId(node?.productData?.id);
       message.loading({
@@ -223,4 +225,5 @@ const ProductTree = ({
     </div>
   );
 };
+
 export default ProductTree;
