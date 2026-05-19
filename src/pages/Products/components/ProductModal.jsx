@@ -336,8 +336,6 @@ const ProductModal = ({
       });
   };
 
-  console.log(genusStandardOptions, "ksmlvkjslzkjlfksjflkjslkfjlskjf");
-
   return (
     <Modal
       isOpen={isOpen}
@@ -348,6 +346,7 @@ const ProductModal = ({
       mode={modalMode}
       loading={isCreating || isUpdating}
       className="scroll-modal"
+      destroyOnClose
     >
       <Form form={form} layout="vertical" onFinish={onFinish}>
         <Row gutter={16}>
@@ -551,11 +550,11 @@ const ProductModal = ({
           <>
             {/* هویت جایگزین */}
             <Col span={8}>
-              <Form.Item label="هویت" name="alternative_personality_id">
+              <Form.Item label="هویت جایگزین" name="alternative_personality_id">
                 <TS
                   labelInValue
                   data={personalityData}
-                  placeholder="هویت"
+                  placeholder="هویت جایگزین"
                   onChange={(selected) => {
                     setSelectedAlternativePersonalityId(selected);
                     const findPersonality = (list, id) => {
@@ -576,13 +575,13 @@ const ProductModal = ({
             {/* کد استاندارد جایگزین */}
             <Col span={8}>
               <Form.Item
-                label="کد استاندارد جایگزین "
+                label="کد استاندارد هویت جایگزین "
                 name="alternative_standard_code_id"
               >
                 <Select
                   allowClear
                   labelInValue
-                  placeholder="کد استاندارد جایگزین "
+                  placeholder="کد استاندارد هویت جایگزین "
                   showSearch
                   style={{ width: "100%" }}
                   options={
@@ -629,7 +628,10 @@ const ProductModal = ({
 
             {/* کد انبار جایگزین */}
             <Col span={8}>
-              <Form.Item label="کد انبار جایگزین" name="alternative_store_code">
+              <Form.Item
+                label="کد انبار هویت جایگزین"
+                name="alternative_store_code"
+              >
                 <Input />
               </Form.Item>
             </Col>
@@ -741,7 +743,8 @@ const ProductModal = ({
                       (item) => item.value === value.value,
                     );
                     form.setFieldsValue({
-                      genus_warehouse_code: selectedOption?.warehouse_code,
+                      genus_warehouse_code:
+                        selectedOption?.full_ware_house_code,
                     });
                   }}
                 />
@@ -855,7 +858,7 @@ const ProductModal = ({
                     );
                     form.setFieldsValue({
                       alternative_genus_warehouse_code:
-                        selectedOption?.warehouse_code,
+                        selectedOption?.full_ware_house_code,
                     });
                   }}
                 />

@@ -51,7 +51,7 @@ const CombineFiles = ({
   ];
 
   const currentStepIndex = stateSteps?.findIndex(
-    (s) => s.value === currentState
+    (s) => s.value === currentState,
   );
 
   useEffect(() => {
@@ -185,7 +185,7 @@ const CombineFiles = ({
       message.success(
         `به مرحله "${
           stateSteps?.find((s) => s.value === prevState).label
-        }" منتقل شد`
+        }" منتقل شد`,
       );
       setCurrentState(prevState);
       setComment("");
@@ -265,7 +265,8 @@ const CombineFiles = ({
       onSubmit={() => form.submit()}
       mode={modalMode}
       footer
-      className={"scroll-modal"}
+      className="scroll-modal"
+      destroyOnClose
       loading={isUpdating || isPatching}
     >
       <Form form={form} layout="vertical" onFinish={onFinishForm}>
@@ -315,7 +316,7 @@ const CombineFiles = ({
                 current={currentStepIndex}
                 items={stateSteps.map((step) => {
                   const stepLogs = logList?.filter(
-                    (l) => l.to_state === step.value
+                    (l) => l.to_state === step.value,
                   );
                   const lastLog =
                     stepLogs?.length > 0 ? stepLogs[stepLogs.length - 1] : null;
@@ -449,10 +450,10 @@ const CombineFiles = ({
                 {currentState === 20
                   ? "رد تهیه"
                   : currentState === 30
-                  ? "رد تایید"
-                  : currentState === 40
-                  ? "رد تصویب"
-                  : "تصویب شده است"}
+                    ? "رد تایید"
+                    : currentState === 40
+                      ? "رد تصویب"
+                      : "تصویب شده است"}
               </Button>
 
               <Button
@@ -468,10 +469,10 @@ const CombineFiles = ({
                 {currentState === 10
                   ? "تهیه"
                   : currentState === 20
-                  ? "تایید"
-                  : currentState === 30
-                  ? "تصویب"
-                  : "تایید نهایی"}
+                    ? "تایید"
+                    : currentState === 30
+                      ? "تصویب"
+                      : "تایید نهایی"}
               </Button>
             </Col>
           </Row>

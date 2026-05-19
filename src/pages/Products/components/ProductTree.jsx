@@ -97,9 +97,8 @@ const ProductTree = ({
 
   useEffect(() => {
     if (exportExcelData && exportProductId) {
-
       console.log(exportExcelData);
-      
+
       handleDownload(
         exportExcelData,
         exportExcelData.fileName,
