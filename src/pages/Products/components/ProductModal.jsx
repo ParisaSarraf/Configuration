@@ -336,6 +336,8 @@ const ProductModal = ({
       });
   };
 
+  console.log(genusStandardOptions, "ksmlvkjslzkjlfksjflkjslkfjlskjf");
+
   return (
     <Modal
       isOpen={isOpen}
@@ -592,7 +594,9 @@ const ProductModal = ({
                       }),
                     ) || []
                   }
-                  disabled={!alternativeStandardCodesResponse?.personality_codes?.length}
+                  disabled={
+                    !alternativeStandardCodesResponse?.personality_codes?.length
+                  }
                   onChange={(selected) => {
                     if (selected) {
                       const selectedOption =
@@ -642,10 +646,49 @@ const ProductModal = ({
                   labelInValue
                   data={genusData}
                   placeholder="ماده اولیه"
+                  // onChange={(value) => {
+                  //   const selectedGenus = genusData.find(
+                  //     (item) => item.id === value.value,
+                  //   );
+                  //   const warehouseCodes =
+                  //     selectedGenus?.genus_codes?.map((item) => ({
+                  //       value: item.id,
+                  //       label: item.name,
+                  //       description: item.description,
+                  //       full_ware_house_code: item.full_ware_house_code,
+                  //       warehouse_code: item.warehouse_code,
+                  //     })) || [];
+                  //   setGenusStandardOptions(warehouseCodes);
+                  //   form.setFieldsValue({
+                  //     genus_standard_code_id: undefined,
+                  //   });
+                  // }}
                   onChange={(value) => {
-                    const selectedGenus = genusData.find(
-                      (item) => item.id === value.value,
+                    if (!value) {
+                      setGenusStandardOptions([]);
+                      form.setFieldsValue({
+                        genus_standard_code_id: undefined,
+                        genus_warehouse_code: undefined,
+                      });
+                      return;
+                    }
+
+                    const findNodeRecursive = (nodes, id) => {
+                      for (const node of nodes) {
+                        if (node.id === id) return node;
+                        if (node.children && node.children.length > 0) {
+                          const found = findNodeRecursive(node.children, id);
+                          if (found) return found;
+                        }
+                      }
+                      return null;
+                    };
+
+                    const selectedGenus = findNodeRecursive(
+                      genusData || [],
+                      value.value,
                     );
+
                     const warehouseCodes =
                       selectedGenus?.genus_codes?.map((item) => ({
                         value: item.id,
@@ -657,6 +700,7 @@ const ProductModal = ({
                     setGenusStandardOptions(warehouseCodes);
                     form.setFieldsValue({
                       genus_standard_code_id: undefined,
+                      genus_warehouse_code: undefined,
                     });
                   }}
                 />
@@ -676,6 +720,18 @@ const ProductModal = ({
                   showSearch
                   options={genusStandardOptions}
                   disabled={!genusStandardOptions.length}
+                  // onChange={(value) => {
+                  //   if (!value) {
+                  //     form.setFieldsValue({ genus_warehouse_code: undefined });
+                  //     return;
+                  //   }
+                  //   const selectedOption = genusStandardOptions.find(
+                  //     (item) => item.value === value.value,
+                  //   );
+                  //   form.setFieldsValue({
+                  //     genus_warehouse_code: selectedOption?.warehouse_code,
+                  //   });
+                  // }}
                   onChange={(value) => {
                     if (!value) {
                       form.setFieldsValue({ genus_warehouse_code: undefined });
@@ -714,10 +770,49 @@ const ProductModal = ({
                   labelInValue
                   data={genusData}
                   placeholder="ماده اولیه"
+                  // onChange={(value) => {
+                  //   const selectedGenus = genusData.find(
+                  //     (item) => item.id === value.value,
+                  //   );
+                  //   const warehouseCodes =
+                  //     selectedGenus?.genus_codes?.map((item) => ({
+                  //       value: item.id,
+                  //       label: item.name,
+                  //       description: item.description,
+                  //       full_ware_house_code: item.full_ware_house_code,
+                  //       warehouse_code: item.warehouse_code,
+                  //     })) || [];
+                  //   setAlterNativeGenusStandardOptions(warehouseCodes);
+                  //   form.setFieldsValue({
+                  //     alternative_genus_standard_code_id: undefined,
+                  //   });
+                  // }}
                   onChange={(value) => {
-                    const selectedGenus = genusData.find(
-                      (item) => item.id === value.value,
+                    if (!value) {
+                      setAlterNativeGenusStandardOptions([]);
+                      form.setFieldsValue({
+                        alternative_genus_standard_code_id: undefined,
+                        alternative_genus_warehouse_code: undefined,
+                      });
+                      return;
+                    }
+
+                    const findNodeRecursive = (nodes, id) => {
+                      for (const node of nodes) {
+                        if (node.id === id) return node;
+                        if (node.children && node.children.length > 0) {
+                          const found = findNodeRecursive(node.children, id);
+                          if (found) return found;
+                        }
+                      }
+                      return null;
+                    };
+
+                    const selectedGenus = findNodeRecursive(
+                      genusData || [],
+                      value.value,
                     );
+
                     const warehouseCodes =
                       selectedGenus?.genus_codes?.map((item) => ({
                         value: item.id,
@@ -729,6 +824,7 @@ const ProductModal = ({
                     setAlterNativeGenusStandardOptions(warehouseCodes);
                     form.setFieldsValue({
                       alternative_genus_standard_code_id: undefined,
+                      alternative_genus_warehouse_code: undefined,
                     });
                   }}
                 />
