@@ -27,9 +27,7 @@ const ProductTree = ({
   onProductClick,
 }) => {
   const { mutate: deleteProduct, isLoading: isDeleting } = useDeleteProduct();
-
   const [expandedKeys, setExpandedKeys] = useState([]);
-
   const [exportProductId, setExportProductId] = useState(null);
   const { data: exportExcelData, isFetching: isExporting } =
     useExportExcelProductChildrenBom(exportProductId);
@@ -44,7 +42,6 @@ const ProductTree = ({
     },
   );
 
-  // Prepare base tree data from productData
   const baseTreeData = useMemo(() => {
     if (!Array.isArray(productData)) return [];
     return productData
@@ -52,7 +49,6 @@ const ProductTree = ({
       .filter(Boolean);
   }, [productData]);
 
-  // Use the lazy loading hook with the prepared base data
   const { treeData, loadChildren } = useLazyProductTree(baseTreeData);
 
   useEffect(() => {
@@ -101,9 +97,12 @@ const ProductTree = ({
 
   useEffect(() => {
     if (exportExcelData && exportProductId) {
+
+      console.log(exportExcelData);
+      
       handleDownload(
         exportExcelData,
-        `زیرمجموعه_محصول_${exportProductId}.csv`,
+        exportExcelData.fileName,
         setExportProductId,
       );
     }
