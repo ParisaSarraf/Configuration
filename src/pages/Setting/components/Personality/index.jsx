@@ -1,4 +1,4 @@
-import { Button, Card, message, Modal, Spin, Table } from "antd";
+import { Button, Card, Input, message, Modal, Spin, Table } from "antd";
 import useModal from "../../../../hooks/useModal";
 import {
   useCoreSettingsList,
@@ -14,21 +14,23 @@ import {
   useDeleteStandardCode,
   useStandardCodePersonalityById,
 } from "@/QueryServises/StandardCodeQuery/index.js";
+const { Search } = Input;
 
 const Personality = () => {
   const { isOpen, modalMode, modalData, setModal, closeModal, modalType } =
     useModal();
   const { data, isFetching, refetch } = useCoreSettingsList();
   const [PersonalityId, setPersonalityId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const { mutateAsync: deleteStandardCode } = useDeleteStandardCode();
 
   const { data: StandardPersonalityCodeList, refetch: standardRefetch } =
-    useStandardCodePersonalityById(PersonalityId);
+    useStandardCodePersonalityById(PersonalityId, searchTerm);
   const TableData = StandardPersonalityCodeList?.personality_codes?.map(
     (item) => ({
       ...item,
       parentData: StandardPersonalityCodeList,
-    })
+    }),
   );
 
   const { isPending: isDeleting } = useDeleteCoreSetting();
@@ -62,6 +64,10 @@ const Personality = () => {
       data: { ...record },
       type: "addStandardCode",
     });
+  };
+
+  const handleSearch = (value) => {
+    setSearchTerm(value);
   };
 
   return (
@@ -100,6 +106,12 @@ const Personality = () => {
             />
           }
         >
+          <Search
+            className="mb-2"
+            placeholder="کد های استاندارد"
+            onSearch={handleSearch}
+            enterButton
+          />
           <Table
             columns={StandardCodeCol({ handleDelete, handleEdit })}
             dataSource={TableData || []}
