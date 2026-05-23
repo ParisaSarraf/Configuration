@@ -11,12 +11,10 @@ export const handleDownload = (blobUrl, fileName, resetExportState) => {
         setTimeout(() => {
             window.URL.revokeObjectURL(blobUrl);
         }, 100);
-
         message.success("فایل با موفقیت دانلود شد");
         if (resetExportState) {
             resetExportState(null);
         }
-
     } catch (error) {
         message.error("دانلود فایل با خطا مواجه شد");
         console.error('Download error:', error);

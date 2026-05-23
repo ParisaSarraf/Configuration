@@ -98,10 +98,14 @@ const ProductTree = ({
   useEffect(() => {
     if (exportExcelData && exportProductId) {
       console.log(exportExcelData);
-
+      // handleDownload(
+      //   exportExcelData,
+      //   exportExcelData.fileName,
+      //   setExportProductId,
+      // );
       handleDownload(
         exportExcelData,
-        exportExcelData.fileName,
+        `زیرمجموعه_محصول_${exportProductId}.csv`,
         setExportProductId,
       );
     }

@@ -112,39 +112,61 @@ export const useExportExcelProductIntroduction = (id, queryOptions) => {
   });
 };
 
+// export const useExportExcelProductChildrenBom = (id, queryOptions) => {
+//   const { myAxios } = useMyAxios();
+//   return useQuery({
+//     queryKey: ["confirmed-product", id],
+//     queryFn: async () => {
+//       if (!id) return null;
+//       const response = await myAxios.get(
+//         `/product/get-product-csv-by-id/${id}`,
+//         { responseType: "blob" },
+//       );
+//       const disposition = response.headers["content-disposition"];
+//       let fileName = `lcl;sz;lfc.csv`;
+//       if (disposition) {
+//         const utf8Match = disposition.match(/filename\*=UTF-8''([^;\n]*)/i);
+//         const plainMatch = disposition.match(/filename="?([^";\n]*)"?/i);
+
+//         if (utf8Match?.[1]) {
+//           fileName = decodeURIComponent(utf8Match[1]);
+//         } else if (plainMatch?.[1]) {
+//           fileName = plainMatch[1].trim();
+//         }
+//       }
+//       const blob = new Blob([response.data], {
+//         type: "text/csv;charset=utf-8;",
+//       });
+
+//       console.log("All headers:", response.headers);
+//       console.log(
+//         "Content-Disposition:",
+//         response.headers["content-disposition"],
+//       );
+//       return { url: window.URL.createObjectURL(blob), fileName };
+//     },
+//     ...queryOptions,
+//     enabled: !!id,
+//   });
+// };
+
 export const useExportExcelProductChildrenBom = (id, queryOptions) => {
   const { myAxios } = useMyAxios();
   return useQuery({
     queryKey: ["confirmed-product", id],
-    queryFn: async () => {
-      if (!id) return null;
-      const response = await myAxios.get(
-        `/product/get-product-csv-by-id/${id}`,
-        { responseType: "blob" },
-      );
-      const disposition = response.headers["content-disposition"];
-      let fileName = `lcl;sz;lfc.csv`;
-      if (disposition) {
-        const utf8Match = disposition.match(/filename\*=UTF-8''([^;\n]*)/i);
-        const plainMatch = disposition.match(/filename="?([^";\n]*)"?/i);
-
-        if (utf8Match?.[1]) {
-          fileName = decodeURIComponent(utf8Match[1]);
-        } else if (plainMatch?.[1]) {
-          fileName = plainMatch[1].trim();
-        }
-      }
-      const blob = new Blob([response.data], {
-        type: "text/csv;charset=utf-8;",
-      });
-
-      console.log("All headers:", response.headers);
-      console.log(
-        "Content-Disposition:",
-        response.headers["content-disposition"],
-      );
-      return { url: window.URL.createObjectURL(blob), fileName };
-    },
+    queryFn: () =>
+      id
+        ? myAxios
+            .get(`/product/get-product-csv-by-id/${id}`, {
+              responseType: "blob",
+            })
+            .then((response) => {
+              const blob = new Blob([response.data], {
+                type: "text/csv;charset=utf-8;",
+              });
+              return window.URL.createObjectURL(blob);
+            })
+        : Promise.resolve(null),
     ...queryOptions,
     enabled: !!id,
   });
