@@ -111,7 +111,7 @@ const DocumentProductModal = ({
 
             <Col span={12}>
               <Date
-                label="تاریخ بررسی"
+                label="تاریخ بازبینی"
                 name="survey_date"
                 stringifyDate={true}
                 noStyle
