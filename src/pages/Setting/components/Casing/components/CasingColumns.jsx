@@ -7,11 +7,11 @@ export const CasingColumns = ({ handleDelete, handleEdit }) => [
     key: "name",
     render: (_, __, index) => index + 1,
   },
-  {
-    title: "اولویت نمایش",
-    key: "order",
-    dataIndex: "order",
-  },
+  // {
+  //   title: "اولویت نمایش",
+  //   key: "order",
+  //   dataIndex: "order",
+  // },
   {
     title: "نام",
     dataIndex: "name",
