@@ -11,8 +11,10 @@ export const mapProductToTreeNode = (item, showHidden = false) => {
             item.status === "active"
               ? "success"
               : item.status === "inactive"
-              ? "error"
-              : "warning"
+                ? "error"
+                : item.status === null
+                  ? "disabled"
+                  : "warning"
           }
         />
         <span>
