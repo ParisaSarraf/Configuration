@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button, Spin } from "antd";
 import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
-import {
-  useRootProduct,
-} from "../../QueryServises/productQuery";
+import { useRootProduct } from "../../QueryServises/productQuery";
 import ProductTree from "./components/ProductTree";
 import ProductModal from "./components/ProductModal";
 import { useProductContext } from "../../Services/Context/ProductContext";
@@ -31,10 +29,9 @@ const Products = () => {
   const [selectedKeys, setSelectedKeys] = useState([]);
   const { currentProduct, handleProductSelect } = useProductContext();
 
-
   useEffect(() => {
     if (currentProduct) {
-      setSelectedKeys([`product-${currentProduct.id}`]);
+      setSelectedKeys([String(currentProduct.id)]);
     }
   }, [currentProduct]);
 

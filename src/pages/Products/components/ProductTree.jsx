@@ -208,7 +208,6 @@ const ProductTree = ({
   return (
     <div className="p-2">
       <ProductTreeEtc
-        className="custom-product-tree"
         data={treeData}
         isLoading={isLoading || isDeleting || isExporting || isDownloadingZip}
         isError={isError}
