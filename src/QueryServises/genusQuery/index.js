@@ -52,15 +52,30 @@ export const useUpdateGenusProduct = () => {
   });
 };
 
-export const useStandardCodeGenusByIdKey = (id) => ["genus-id", id];
-export const useStandardCodeGenusById = (id, queryOptions) => {
+export const useStandardCodeGenusByIdKey = (id, name, full_ware_house_code = {}) => [
+  "genus-id",
+  id,
+  name,
+  full_ware_house_code,
+];
+export const useStandardCodeGenusById = (
+  id,
+  name,
+  full_ware_house_code,
+  queryOptions,
+) => {
   const { myAxios } = useMyAxios();
   return useQuery({
-    queryKey: useStandardCodeGenusByIdKey(id),
+    queryKey: useStandardCodeGenusByIdKey(id, name, full_ware_house_code),
     queryFn: () =>
       id
         ? myAxios
-            .get(`/product/get-genus-by-id/${id}`)
+            .get(`/product/get-genus-by-id/${id}`, {
+              params: {
+                ...(name && { name }),
+                ...(full_ware_house_code && { full_ware_house_code }),
+              },
+            })
             .then((response) => response?.data)
         : Promise.resolve(null),
     ...queryOptions,

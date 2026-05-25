@@ -1,4 +1,4 @@
-import { Button, Card, message, Modal, Spin, Table } from "antd";
+import { Button, Card, Input, message, Modal, Spin, Table } from "antd";
 import useModal from "../../../../hooks/useModal";
 import GenusModal from "./components/Genus/GenusModal";
 import {
@@ -13,6 +13,8 @@ import { useStandardCodeGenusById } from "../../../../QueryServises/genusQuery";
 import { GenusStandardCol } from "./components/GenusStandardCode/GenusStandardCol";
 import { useDeleteStandardCode } from "../../../../QueryServises/StandardCodeQuery";
 
+const { Search } = Input;
+
 const Genus = () => {
   const { isOpen, modalMode, modalData, setModal, closeModal, modalType } =
     useModal();
@@ -21,10 +23,12 @@ const Genus = () => {
 
   const [selectedGenusLabel, setSelectedGenusLabel] = useState("");
   const [genusId, setGenusId] = useState(null);
+  const [searchName, setSearchName] = useState("");
+  const [searchDescription, setSearchDescription] = useState("");
   const { mutateAsync: deleteStandardCode } = useDeleteStandardCode();
 
   const { data: StandardGenusCodeList, refetch: standardRefetch } =
-    useStandardCodeGenusById(genusId);
+    useStandardCodeGenusById(genusId, searchName, searchDescription);
 
   const TableData = Array.isArray(StandardGenusCodeList)
     ? StandardGenusCodeList.flatMap((genus) =>
@@ -67,6 +71,14 @@ const Genus = () => {
     });
   };
 
+  const handleNameSearch = (value) => {
+    setSearchName(value);
+  };
+
+  const handleDescriptionSearch = (value) => {
+    setSearchDescription(value);
+  };
+
   return (
     <Spin spinning={isFetching && !data} tip="در حال دریافت اطلاعات...">
       <div className="w-full grid grid-cols-2 gap-2">
@@ -106,6 +118,20 @@ const Genus = () => {
             />
           }
         >
+          <div className="flex flex-row gap-2 mb-1">
+            <Search
+              placeholder="کد های استاندارد"
+              onSearch={handleNameSearch}
+              enterButton
+              style={{ flex: 1 }}
+            />
+            <Search
+              placeholder="نام"
+              onSearch={handleDescriptionSearch}
+              enterButton
+              style={{ flex: 1 }}
+            />
+          </div>
           <Table
             columns={GenusStandardCol({ handleDelete, handleEdit })}
             dataSource={TableData || []}
