@@ -1,4 +1,4 @@
-import { Button, Card, Input, message, Modal, Spin, Table } from "antd";
+import { Button, Card, Input, message, Modal, Space, Spin, Table } from "antd";
 import useModal from "../../../../hooks/useModal";
 import {
   useCoreSettingsList,
@@ -21,11 +21,17 @@ const Personality = () => {
     useModal();
   const { data, isFetching, refetch } = useCoreSettingsList();
   const [PersonalityId, setPersonalityId] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchName, setSearchName] = useState("");
+  const [searchDescription, setSearchDescription] = useState("");
   const { mutateAsync: deleteStandardCode } = useDeleteStandardCode();
 
   const { data: StandardPersonalityCodeList, refetch: standardRefetch } =
-    useStandardCodePersonalityById(PersonalityId, searchTerm);
+    useStandardCodePersonalityById(
+      PersonalityId,
+      searchName,
+      searchDescription,
+    );
+
   const TableData = StandardPersonalityCodeList?.personality_codes?.map(
     (item) => ({
       ...item,
@@ -66,8 +72,12 @@ const Personality = () => {
     });
   };
 
-  const handleSearch = (value) => {
-    setSearchTerm(value);
+  const handleNameSearch = (value) => {
+    setSearchName(value);
+  };
+
+  const handleDescriptionSearch = (value) => {
+    setSearchDescription(value);
   };
 
   return (
@@ -106,12 +116,20 @@ const Personality = () => {
             />
           }
         >
-          <Search
-            className="mb-2"
-            placeholder="کد های استاندارد"
-            onSearch={handleSearch}
-            enterButton
-          />
+          <div className="flex flex-row gap-2 mb-1">
+            <Search
+              placeholder="کد های استاندارد"
+              onSearch={handleNameSearch}
+              enterButton
+              style={{ flex: 1 }}
+            />
+            <Search
+              placeholder="نام"
+              onSearch={handleDescriptionSearch}
+              enterButton
+              style={{ flex: 1 }}
+            />
+          </div>
           <Table
             columns={StandardCodeCol({ handleDelete, handleEdit })}
             dataSource={TableData || []}

@@ -15,23 +15,31 @@ export const useStandardCodeList = (queryOptions) => {
   });
 };
 
-export const useStandardCodePersonalityByIdKey = (id, name) => [
+export const useStandardCodePersonalityByIdKey = (id, name, description) => [
   "personality-id",
   id,
   name,
+  description,
 ];
-export const useStandardCodePersonalityById = (id, name, queryOptions) => {
+export const useStandardCodePersonalityById = (
+  id,
+  name,
+  description,
+  queryOptions = {},
+) => {
   const { myAxios } = useMyAxios();
   return useQuery({
-    queryKey: useStandardCodePersonalityByIdKey(id, name),
-    queryFn: () =>
-      id
-        ? myAxios
-            .get(`/core/get-personality-by-id/${id}`, {
-              params: name ? { name } : {},
-            })
-            .then((response) => response?.data)
-        : Promise.resolve(null),
+    queryKey: useStandardCodePersonalityByIdKey(id, name, description),
+    queryFn: async () => {
+      const response = await myAxios.get(`/core/get-personality-by-id/${id}`, {
+        params: {
+          ...(name && { name }),
+          ...(description && { description }),
+        },
+      });
+      return response?.data;
+    },
+    enabled: !!id,
     ...queryOptions,
   });
 };
