@@ -1,5 +1,6 @@
 import { EyeOutlined, FileDoneOutlined } from "@ant-design/icons";
 import { Button, Tag } from "antd";
+import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
 
 const ReportCol = ({ handleShowDetailEdition, handleAutomationFiles }) => {
   return [
@@ -27,7 +28,16 @@ const ReportCol = ({ handleShowDetailEdition, handleAutomationFiles }) => {
       key: "edition",
       width: 100,
       render: (record) => {
-        return <Tag color={"blue"}>{record}</Tag>;
+        return <Tag color="green">{georgianDateToJalaliDate(record)}</Tag>;
+      },
+    },
+    {
+      title: "تاریخ بازبینی",
+      dataIndex: ["survey_date"],
+      key: "survey_date",
+      width: 100,
+      render: (record) => {
+        return <Tag color={"green"}>{record}</Tag>;
       },
     },
     {

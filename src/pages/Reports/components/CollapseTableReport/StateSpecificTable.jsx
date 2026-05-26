@@ -9,14 +9,12 @@ import DetailModal from '../../../../components/DetailModal/DetailModal.jsx';
 const StateSpecificTable = ({productId, state, filters = {}}) => {
     const {setModal, modalData, modalMode, modalType, isOpen, closeModal} = useModal();
     const {currentProduct} = useProductContext();
-
     let finalFilters = {...filters};
     if (state !== null) {
         finalFilters.states = state;
     } else {
         delete finalFilters.states;
     }
-
     const {data: reportData, isLoading, refetch} = useGetProductDocumentReport(
         productId,
         finalFilters,
@@ -24,7 +22,6 @@ const StateSpecificTable = ({productId, state, filters = {}}) => {
             enabled: !!productId,
         }
     );
-
     if (isLoading) {
         return <div style={{textAlign: 'center', margin: '20px 0'}}><Spin/></div>;
     }
@@ -41,7 +38,6 @@ const StateSpecificTable = ({productId, state, filters = {}}) => {
     }
     return (
         <>
-
             <Table
                 size="small"
                 scroll={{x: 'max-content'}}
