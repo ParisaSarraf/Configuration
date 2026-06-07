@@ -142,3 +142,32 @@ export const useGetZipById = (id, queryOptions) => {
     ...queryOptions,
   });
 };
+
+
+// AI
+// Trigger zip creation → returns { uuid }
+export const useCreateZipReport = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: (productId) =>
+      myAxios
+        .get(`/product/get-product-documnet-zip-report-by-id/${productId}`)
+        .then((res) => res.data),
+  });
+};
+
+// Poll status by uuid77yg
+export const useZipReportStatus = (uuid, { enabled } = {}) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: ["zipReportStatus", uuid],
+    queryFn: () =>
+      myAxios
+        .get(`/product/get-product-documnet-zip-report-status-by-uuid-id/${uuid}`)
+        .then((res) => res.data),
+    enabled: !!uuid && enabled,
+    refetchInterval: (data) =>
+      data?.status === "SUCCESS" || data?.status === "FAILURE" ? false : 2_000,
+    refetchIntervalInBackground: true,
+  });
+};
