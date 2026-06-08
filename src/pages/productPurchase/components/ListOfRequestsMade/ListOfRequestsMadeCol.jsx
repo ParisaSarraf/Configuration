@@ -1,14 +1,13 @@
 import {Button, Space, Tag} from "antd";
 import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
-import {DeleteOutlined, FileExcelOutlined, PoweroffOutlined} from "@ant-design/icons";
+import {DeleteOutlined, FileExcelOutlined, FileZipOutlined, PoweroffOutlined} from "@ant-design/icons";
 
-const ListOfRequestsMadeCol = ({handleDelete, handleHide, handleExcelExportForRow}) => {
+const ListOfRequestsMadeCol = ({handleDelete, handleHide, handleExcelExportForRow, handleDownloadZip}) => {
     return [
         {
             title: 'نام محصول',
             dataIndex: ['product', 'persian_title'],
             key: 'persian_title',
-
         },
         {
             title: 'کد محصول',
@@ -63,6 +62,12 @@ const ListOfRequestsMadeCol = ({handleDelete, handleHide, handleExcelExportForRo
                             className={'text-green-500 border-green-500'}
                             onClick={() => handleExcelExportForRow(record)}
                             icon={<FileExcelOutlined/>}
+                        />
+                        <Button
+                            title={'دانلود ZIP مستندات'}
+                            className={'text-blue-500 border-blue-500'}
+                            onClick={() => handleDownloadZip(record)}
+                            icon={<FileZipOutlined/>}
                         />
                         <Button
                             title={'حذف'}

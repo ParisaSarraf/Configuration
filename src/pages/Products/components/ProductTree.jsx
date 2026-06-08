@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { message, Modal } from "antd";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { message, Modal, Progress, Typography } from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -11,12 +11,82 @@ import { useDeleteProduct } from "../../../QueryServises/productQuery";
 import { useExportExcelProductChildrenBom } from "@/QueryServises/ExcelExporterQuery/index.js";
 import { handleDownload } from "@utils/HandleDownload.js";
 import ProductTreeEtc from "../../../components/Tree/ProductTree";
-import { useGetZipById } from "../../../QueryServises/productDocumentQuery";
+import {
+  useCreateZipReport,
+  useZipReportStatus,
+} from "../../../QueryServises/productDocumentQuery";
 import { useLazyProductTree } from "../../../hooks/useLazyProductTree";
 import { mapProductToTreeNode } from "../../../utils/mapProductToTreeNode";
+import {BASEURL} from "@/Services/axiosInstance.js";
 
 const LOCAL_STORAGE_KEY = "productTreeExpandedKeys";
 
+// ── small sub-component so polling only mounts when a uuid exists ──────────
+const ZipProgressModal = ({ uuid, fileName, onDone, onClose }) => {
+  const { data, isError } = useZipReportStatus(uuid, { enabled: true });
+
+  const status = data?.status;
+  const percent = data?.progress_percent ?? 0;
+  const passed = data?.passed ?? 0;
+  const total = data?.total ?? 0;
+
+  // download as soon as SUCCESS arrives
+ useEffect(() => {
+  if (status === "SUCCESS" && data?.file) {
+    const baseOrigin = BASEURL.replace("/api/v1", "");
+    const downloadUrl = `${baseOrigin}${data.file}`;
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.setAttribute("download", `Documents-${fileName || "Product"}.zip`);
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode.removeChild(link);
+    message.success("فایل با موفقیت دانلود شد");
+    onDone();
+  }
+  if (status === "FAILURE" || isError) {
+    message.error("خطا در ساخت فایل ZIP");
+    onClose();
+  }
+  }, [status, isError]);
+
+  const progressStatus =
+    status === "SUCCESS" ? "success" : isError ? "exception" : "active";
+
+  return (
+    <Modal
+      open
+      title="در حال آماده‌سازی فایل ZIP"
+      footer={null}
+      closable={status === "SUCCESS" || status === "FAILURE" || isError}
+      onCancel={onClose}
+      centered
+    >
+      <div className="py-4 flex flex-col gap-3">
+        <Progress
+          percent={percent}
+          status={progressStatus}
+          strokeColor={{ from: "#108ee9", to: "#87d068" }}
+        />
+        <Typography.Text type="secondary" className="text-center block">
+          {status === "SUCCESS"
+            ? "آماده — در حال دانلود..."
+            : `پردازش شده: ${passed} از ${total} فایل`}
+        </Typography.Text>
+        {status !== "SUCCESS" && (
+          <Typography.Text
+            type="secondary"
+            className="text-center block text-xs"
+          >
+            وضعیت هر ۲ ثانیه به‌روز می‌شود
+          </Typography.Text>
+        )}
+      </div>
+    </Modal>
+  );
+};
+
+// ── main component ─────────────────────────────────────────────────────────
 const ProductTree = ({
   productData,
   setModal,
@@ -32,15 +102,9 @@ const ProductTree = ({
   const { data: exportExcelData, isFetching: isExporting } =
     useExportExcelProductChildrenBom(exportProductId);
 
-  const [zipProductId, setZipProductId] = useState(null);
-  const [zipFileName, setZipFileName] = useState("");
-
-  const { refetch: fetchZip, isFetching: isDownloadingZip } = useGetZipById(
-    zipProductId,
-    {
-      enabled: false,
-    },
-  );
+  // zip state
+  const { mutate: createZip, isLoading: isRequestingZip } = useCreateZipReport();
+  const [zipTask, setZipTask] = useState(null); // { uuid, fileName }
 
   const baseTreeData = useMemo(() => {
     if (!Array.isArray(productData)) return [];
@@ -50,37 +114,6 @@ const ProductTree = ({
   }, [productData]);
 
   const { treeData, loadChildren } = useLazyProductTree(baseTreeData);
-
-  useEffect(() => {
-    if (zipProductId) {
-      fetchZip().then((result) => {
-        const blobData = result.data;
-        if (blobData) {
-          try {
-            const url = window.URL.createObjectURL(new Blob([blobData]));
-            const link = document.createElement("a");
-            link.href = url;
-            link.setAttribute(
-              "download",
-              `Documents-${zipFileName || "Product"}.zip`,
-            );
-            document.body.appendChild(link);
-            link.click();
-            link.parentNode.removeChild(link);
-            window.URL.revokeObjectURL(url);
-            message.success("فایل با موفقیت دانلود شد");
-          } catch (error) {
-            console.error("Download error:", error);
-            message.error("خطا در دانلود فایل");
-          }
-        } else if (result.error) {
-          message.error("خطا در دریافت فایل از سرور");
-        }
-
-        setZipProductId(null);
-      });
-    }
-  }, [zipProductId, fetchZip, zipFileName]);
 
   useEffect(() => {
     setExpandedKeys([]);
@@ -97,12 +130,6 @@ const ProductTree = ({
 
   useEffect(() => {
     if (exportExcelData && exportProductId) {
-      console.log(exportExcelData);
-      // handleDownload(
-      //   exportExcelData,
-      //   exportExcelData.fileName,
-      //   setExportProductId,
-      // );
       handleDownload(
         exportExcelData,
         `زیرمجموعه_محصول_${exportProductId}.csv`,
@@ -111,8 +138,9 @@ const ProductTree = ({
     }
   }, [exportExcelData, exportProductId]);
 
-  const handleRightClickAction = async (actionKey, node) => {
+  const handleRightClickAction = (actionKey, node) => {
     const genusId = node.id;
+
     if (actionKey === "delete") {
       Modal.confirm({
         title: "حذف محصول",
@@ -144,14 +172,21 @@ const ProductTree = ({
       setExportProductId(node?.productData?.id);
       message.loading({ content: "درحال آماده‌سازی...", key: "exporting" });
     } else if (actionKey === "downloadZip") {
-      setZipFileName(
-        node?.productData?.persian_title || node?.productData?.code,
-      );
-      setZipProductId(node?.productData?.id);
-      message.loading({
-        content: "درحال آماده‌سازی فایل ZIP...",
-        key: "zipping",
-        duration: 1,
+      const fileName =
+        node?.productData?.persian_title || node?.productData?.code;
+      const productId = node?.productData?.id;
+
+      createZip(productId, {
+        onSuccess: (data) => {
+          if (data?.uuid) {
+            setZipTask({ uuid: data.uuid, fileName });
+          } else {
+            message.error("خطا: شناسه وظیفه دریافت نشد");
+          }
+        },
+        onError: () => {
+          message.error("خطا در شروع ساخت فایل ZIP");
+        },
       });
     }
   };
@@ -209,7 +244,7 @@ const ProductTree = ({
     <div className="p-2">
       <ProductTreeEtc
         data={treeData}
-        isLoading={isLoading || isDeleting || isExporting || isDownloadingZip}
+        isLoading={isLoading || isDeleting || isExporting || isRequestingZip}
         isError={isError}
         onSelect={(_, { node }) => onProductClick(node.productData)}
         selectedKeys={selectedKeys}
@@ -223,6 +258,16 @@ const ProductTree = ({
         expandedKeys={expandedKeys}
         onExpand={handleExpand}
       />
+
+      {/* Progress modal — only mounts while a zip task is active */}
+      {zipTask && (
+        <ZipProgressModal
+          uuid={zipTask.uuid}
+          fileName={zipTask.fileName}
+          onDone={() => setZipTask(null)}
+          onClose={() => setZipTask(null)}
+        />
+      )}
     </div>
   );
 };

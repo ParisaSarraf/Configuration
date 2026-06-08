@@ -2,7 +2,9 @@ import { message, Modal, Table, Tag } from "antd";
 import {
   useConfirmProductPurchaseById,
   useDeleteProductPurchase,
+  useCreatePurchaseZipReport,      // 👈 new
 } from "@/QueryServises/productPurchase/index.js";
+import { usePurchaseZipReportStatus } from "@/QueryServises/productPurchase/index.js"; // 👈 new
 import ListOfRequestsMadeCol from "./ListOfRequestsMadeCol";
 import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
 import { useExportExcelProductPurchase } from "../../../../QueryServises/ExcelExporterQuery";
@@ -11,7 +13,71 @@ import { handleDownload } from "@utils/HandleDownload.js";
 import useModal from "../../../../hooks/useModal";
 import { useUpdateProductPurchase } from "../../../../QueryServises/productPurchase";
 import ExportPurchaseExcelModal from "../../../../components/exportPurchaseExcelModal";
+import { Progress, Typography } from "antd";
+import { BASEURL } from "../../../../Services/axiosInstance.js"; // 👈 adjust path if needed
 
+// ── Zip Progress Modal ─────────────────────────────────────────────────────
+const PurchaseZipProgressModal = ({ uuid, fileName, onDone, onClose }) => {
+  const { data, isError } = usePurchaseZipReportStatus(uuid, { enabled: true });
+
+  const status = data?.status;
+  const percent = data?.progress_percent ?? 0;
+  const passed = data?.passed ?? 0;
+  const total = data?.total ?? 0;
+
+  useEffect(() => {
+    if (status === "SUCCESS" && data?.file) {
+      const baseOrigin = BASEURL.replace("/api/v1", "");
+      const downloadUrl = `${baseOrigin}${data.file}`;
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.setAttribute("download", `Purchase-${fileName || "list"}.zip`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      message.success("فایل با موفقیت دانلود شد");
+      onDone();
+    }
+    if (status === "FAILURE" || isError) {
+      message.error("خطا در ساخت فایل ZIP");
+      onClose();
+    }
+  }, [status, isError]);
+
+  const progressStatus =
+    status === "SUCCESS" ? "success" : isError ? "exception" : "active";
+
+  return (
+    <Modal
+      open
+      title="در حال آماده‌سازی فایل ZIP"
+      footer={null}
+      closable={status === "SUCCESS" || status === "FAILURE" || isError}
+      onCancel={onClose}
+      centered
+    >
+      <div className="py-4 flex flex-col gap-3">
+        <Progress
+          percent={percent}
+          status={progressStatus}
+          strokeColor={{ from: "#108ee9", to: "#87d068" }}
+        />
+        <Typography.Text type="secondary" className="text-center block">
+          {status === "SUCCESS"
+            ? "آماده — در حال دانلود..."
+            : `پردازش شده: ${passed} از ${total} فایل`}
+        </Typography.Text>
+        {status !== "SUCCESS" && (
+          <Typography.Text type="secondary" className="text-center block text-xs">
+            وضعیت هر ۲ ثانیه به‌روز می‌شود
+          </Typography.Text>
+        )}
+      </div>
+    </Modal>
+  );
+};
+
+// ── Main Component ─────────────────────────────────────────────────────────
 const ListOfRequestsMade = ({ currentProduct, refetch }) => {
   const { isOpen, modalMode, modalData, modalType, setModal, closeModal } =
     useModal();
@@ -24,14 +90,14 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
     useUpdateProductPurchase();
   const [exportExcelData, setExportExcelData] = useState(null);
   const { data: exportExcel, refetch: refetchExport } =
-    useExportExcelProductPurchase(exportExcelData, {
-      enabled: false,
-    });
+    useExportExcelProductPurchase(exportExcelData, { enabled: false });
+
+  // 👇 zip state
+  const { mutate: createZip, isLoading: isRequestingZip } = useCreatePurchaseZipReport();
+  const [zipTask, setZipTask] = useState(null); // { uuid, fileName }
 
   useEffect(() => {
-    if (exportExcelData) {
-      refetchExport();
-    }
+    if (exportExcelData) refetchExport();
   }, [exportExcelData, refetchExport]);
 
   useEffect(() => {
@@ -41,8 +107,25 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
     }
   }, [exportExcel, exportExcelData]);
 
-  const handleExportAfterDescription = (id) => {
-    setExportExcelData(id);
+  const handleExportAfterDescription = (id) => setExportExcelData(id);
+
+  // 👇 new handler
+  const handleDownloadZip = (record) => {
+    createZip(record?.id, {
+      onSuccess: (data) => {
+        if (data?.uuid) {
+          setZipTask({
+            uuid: data.uuid,
+            fileName: record?.id,
+          });
+        } else {
+          message.error("خطا: شناسه وظیفه دریافت نشد");
+        }
+      },
+      onError: () => {
+        message.error("خطا در شروع ساخت فایل ZIP");
+      },
+    });
   };
 
   const expandedRowRender = (record) => {
@@ -56,9 +139,7 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
         title: "کد محصول",
         dataIndex: ["product", "code"],
         key: "code",
-        render: (record) => {
-          return <Tag color={"orange"}>{record}</Tag>;
-        },
+        render: (record) => <Tag color={"orange"}>{record}</Tag>,
       },
       {
         title: "تعداد تایید شده",
@@ -69,9 +150,9 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
         title: "تاریخ تایید",
         dataIndex: "date",
         key: "date",
-        render: (text) => {
-          return <Tag color={"green"}>{georgianDateToJalaliDate(text)}</Tag>;
-        },
+        render: (text) => (
+          <Tag color={"green"}>{georgianDateToJalaliDate(text)}</Tag>
+        ),
       },
     ];
 
@@ -143,11 +224,7 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
   };
 
   const handleExcelExportForRow = async (record) => {
-    setModal({
-      mode: "exportExcel",
-      data: record?.id,
-      type: "exportExcelModal",
-    });
+    setModal({ mode: "exportExcel", data: record?.id, type: "exportExcelModal" });
   };
 
   return (
@@ -157,6 +234,7 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
           handleDelete,
           handleHide,
           handleExcelExportForRow,
+          handleDownloadZip,      // 👈 pass to columns
         })}
         dataSource={purchaseData || []}
         pagination={{
@@ -169,6 +247,7 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
         bordered
         size={"small"}
         expandedRowRender={expandedRowRender}
+        loading={isRequestingZip}   // 👈 spinner while requesting
       />
 
       <ExportPurchaseExcelModal
@@ -180,6 +259,16 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
         onExportSuccess={handleExportAfterDescription}
         refetch={refetch}
       />
+
+      {/* 👇 Progress modal — only mounts while a zip task is active */}
+      {zipTask && (
+        <PurchaseZipProgressModal
+          uuid={zipTask.uuid}
+          fileName={zipTask.fileName}
+          onDone={() => setZipTask(null)}
+          onClose={() => setZipTask(null)}
+        />
+      )}
     </div>
   );
 };

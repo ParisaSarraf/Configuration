@@ -109,3 +109,30 @@ export const useUpdateProductPurchase = () => {
         },
     });
 };
+//////////////////////////////////// AI //////////////////////////////////////
+// Trigger zip creation → returns { uuid }
+export const useCreatePurchaseZipReport = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: (productId) =>
+      myAxios
+        .get(`/product/get-confirmed-product-purchases-list-zip-by-id/${productId}`)
+        .then((res) => res.data),
+  });
+};
+
+// Poll status by uuid
+export const usePurchaseZipReportStatus = (uuid, { enabled } = {}) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: ["purchaseZipReportStatus", uuid],
+    queryFn: () =>
+      myAxios
+        .get(`/product/get-confirmed-product-purchases-zip-status/${uuid}`)
+        .then((res) => res.data),
+    enabled: !!uuid && enabled,
+    refetchInterval: (data) =>
+      data?.status === "SUCCESS" || data?.status === "FAILURE" ? false : 2_000,
+    refetchIntervalInBackground: true,
+  });
+};
