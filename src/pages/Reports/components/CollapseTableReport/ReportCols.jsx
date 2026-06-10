@@ -28,7 +28,7 @@ const ReportCol = ({ handleShowDetailEdition, handleAutomationFiles }) => {
       key: "edition",
       width: 100,
       render: (record) => {
-        return <Tag color="green">{georgianDateToJalaliDate(record)}</Tag>;
+        return <Tag color="green">{record}</Tag>;
       },
     },
     {
