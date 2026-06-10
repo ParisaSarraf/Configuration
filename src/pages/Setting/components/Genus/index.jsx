@@ -12,6 +12,7 @@ import StandardCodeGenusModal from "./components/GenusStandardCode/StandardCodeG
 import { useStandardCodeGenusById } from "../../../../QueryServises/genusQuery";
 import { GenusStandardCol } from "./components/GenusStandardCode/GenusStandardCol";
 import { useDeleteStandardCode } from "../../../../QueryServises/StandardCodeQuery";
+import useColumnSearch from "../../../../hooks/useColumnSearch";
 
 const { Search } = Input;
 
@@ -23,12 +24,25 @@ const Genus = () => {
 
   const [selectedGenusLabel, setSelectedGenusLabel] = useState("");
   const [genusId, setGenusId] = useState(null);
-  const [searchName, setSearchName] = useState("");
-  const [searchDescription, setSearchDescription] = useState("");
+
+  const [searchParams, setSearchParams] = useState({
+    name: "",
+    description: "",
+  });
+
   const { mutateAsync: deleteStandardCode } = useDeleteStandardCode();
 
   const { data: StandardGenusCodeList, refetch: standardRefetch } =
-    useStandardCodeGenusById(genusId, searchName, searchDescription);
+    useStandardCodeGenusById(
+      genusId,
+      searchParams.name,
+      searchParams.description,
+    );
+
+  const { getColumnSearchProps } = useColumnSearch({
+    setSearchParams,
+    refetch,
+  });
 
   const TableData = Array.isArray(StandardGenusCodeList)
     ? StandardGenusCodeList.flatMap((genus) =>
@@ -118,22 +132,12 @@ const Genus = () => {
             />
           }
         >
-          <div className="flex flex-row gap-2 mb-1">
-            <Search
-              placeholder="کد های استاندارد"
-              onSearch={handleNameSearch}
-              enterButton
-              style={{ flex: 1 }}
-            />
-            <Search
-              placeholder="نام"
-              onSearch={handleDescriptionSearch}
-              enterButton
-              style={{ flex: 1 }}
-            />
-          </div>
           <Table
-            columns={GenusStandardCol({ handleDelete, handleEdit })}
+            columns={GenusStandardCol({
+              getColumnSearchProps,
+              handleDelete,
+              handleEdit,
+            })}
             dataSource={TableData || []}
             rowKey="id"
             bordered

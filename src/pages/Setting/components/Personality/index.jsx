@@ -1,4 +1,4 @@
-import { Button, Card, Input, message, Modal, Spin, Table } from "antd";
+import { Button, Card, message, Modal, Spin, Table } from "antd";
 import useModal from "../../../../hooks/useModal";
 import {
   useCoreSettingsList,
@@ -16,7 +16,6 @@ import {
 } from "@/QueryServises/StandardCodeQuery/index.js";
 import useColumnSearch from "../../../../hooks/useColumnSearch";
 
-const { Search } = Input;
 
 const Personality = () => {
   const { isOpen, modalMode, modalData, setModal, closeModal, modalType } =
@@ -46,7 +45,7 @@ const Personality = () => {
   const { isPending: isDeleting } = useDeleteCoreSetting();
   const [selectedPersonalityLabel, setSelectedPersonalityLabel] = useState("");
 
-  const { getColumnSearchProps, handleResetAll } = useColumnSearch({
+  const { getColumnSearchProps } = useColumnSearch({
     setSearchParams,
     refetch,
   });

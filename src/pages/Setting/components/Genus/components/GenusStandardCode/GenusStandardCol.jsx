@@ -2,7 +2,7 @@ import {DeleteOutlined, EditOutlined} from "@ant-design/icons";
 import {Button, Image, Space} from "antd";
 import {BASEURL} from "@/Services/axiosInstance.js";
 
-export const GenusStandardCol = ({handleDelete, handleEdit}) => {
+export const GenusStandardCol = ({getColumnSearchProps, handleDelete, handleEdit}) => {
     return [
         {
             title: 'ردیف',
@@ -14,6 +14,7 @@ export const GenusStandardCol = ({handleDelete, handleEdit}) => {
             dataIndex: 'name',
             key: 'name',
             width: 200,
+            ...getColumnSearchProps("name", " کد استاندارد"),
             render: (text) => <span>{text}</span>
         },
         {
@@ -28,6 +29,7 @@ export const GenusStandardCol = ({handleDelete, handleEdit}) => {
             dataIndex: 'description',
             key: 'description',
             width: 200,
+            ...getColumnSearchProps("description", "نام"),
             render: (text) => <span>{text}</span>
         },
         {
