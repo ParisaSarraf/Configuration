@@ -1,4 +1,4 @@
-import { Button, Card, Input, message, Modal, Space, Spin, Table } from "antd";
+import { Button, Card, Input, message, Modal, Spin, Table } from "antd";
 import useModal from "../../../../hooks/useModal";
 import {
   useCoreSettingsList,
@@ -14,6 +14,8 @@ import {
   useDeleteStandardCode,
   useStandardCodePersonalityById,
 } from "@/QueryServises/StandardCodeQuery/index.js";
+import useColumnSearch from "../../../../hooks/useColumnSearch";
+
 const { Search } = Input;
 
 const Personality = () => {
@@ -21,15 +23,17 @@ const Personality = () => {
     useModal();
   const { data, isFetching, refetch } = useCoreSettingsList();
   const [PersonalityId, setPersonalityId] = useState(null);
-  const [searchName, setSearchName] = useState("");
-  const [searchDescription, setSearchDescription] = useState("");
+  const [searchParams, setSearchParams] = useState({
+    name: "",
+    description: "",
+  });
   const { mutateAsync: deleteStandardCode } = useDeleteStandardCode();
 
   const { data: StandardPersonalityCodeList, refetch: standardRefetch } =
     useStandardCodePersonalityById(
       PersonalityId,
-      searchName,
-      searchDescription,
+      searchParams.name,
+      searchParams.description,
     );
 
   const TableData = StandardPersonalityCodeList?.personality_codes?.map(
@@ -41,6 +45,11 @@ const Personality = () => {
 
   const { isPending: isDeleting } = useDeleteCoreSetting();
   const [selectedPersonalityLabel, setSelectedPersonalityLabel] = useState("");
+
+  const { getColumnSearchProps, handleResetAll } = useColumnSearch({
+    setSearchParams,
+    refetch,
+  });
 
   const handleDelete = (id) => {
     Modal.confirm({
@@ -70,14 +79,6 @@ const Personality = () => {
       data: { ...record },
       type: "addStandardCode",
     });
-  };
-
-  const handleNameSearch = (value) => {
-    setSearchName(value);
-  };
-
-  const handleDescriptionSearch = (value) => {
-    setSearchDescription(value);
   };
 
   return (
@@ -116,22 +117,12 @@ const Personality = () => {
             />
           }
         >
-          <div className="flex flex-row gap-2 mb-1">
-            <Search
-              placeholder="کد های استاندارد"
-              onSearch={handleNameSearch}
-              enterButton
-              style={{ flex: 1 }}
-            />
-            <Search
-              placeholder="نام"
-              onSearch={handleDescriptionSearch}
-              enterButton
-              style={{ flex: 1 }}
-            />
-          </div>
           <Table
-            columns={StandardCodeCol({ handleDelete, handleEdit })}
+            columns={StandardCodeCol({
+              getColumnSearchProps,
+              handleDelete,
+              handleEdit,
+            })}
             dataSource={TableData || []}
             rowKey="id"
             bordered
