@@ -12,10 +12,11 @@ import StateCountFetcher from "@/pages/Reports/components/StateCountFetcher.jsx"
 import { handleDownload } from "../../../../utils/HandleDownload.js";
 import { useGetProductDocumentReportCsv } from "../../../../QueryServises/ReportsQuery/index.js";
 
-const ExcelExportButton = ({ productId, state }) => {
+const ExcelExportButton = ({ productId, state, filters }) => {
   const { isLoading: isExporting, refetch } = useGetProductDocumentReportCsv(
     productId,
     state,
+    { ...filters },
     { enabled: false },
   );
 
@@ -90,7 +91,13 @@ export const DocumentStateList = ({ productId, filters = {} }) => {
 
           return (
             <Collapse.Panel
-              extra={<ExcelExportButton productId={productId} state={state} />}
+              extra={
+                <ExcelExportButton
+                  productId={productId}
+                  state={state}
+                  filters={filters}
+                />
+              }
               key={String(state)}
               header={`${stateLabels[state]} (${isLoading ? "..." : count})`}
               style={{

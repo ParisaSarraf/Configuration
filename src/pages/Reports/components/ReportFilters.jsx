@@ -1,89 +1,101 @@
-import {Button, Card, Checkbox, Col, Form, Row, Select, Space} from 'antd';
-import {FilterOutlined, ReloadOutlined} from '@ant-design/icons';
+import { Button, Card, Checkbox, Col, Form, Row, Select, Space } from "antd";
+import { FilterOutlined, ReloadOutlined } from "@ant-design/icons";
 import TS from "@/components/TreeSelect/index.jsx";
-import { useUserList } from '../../../QueryServises/userQuery';
+import { useUserList } from "../../../QueryServises/userQuery";
+import Date from "@/components/DatePicker/Date.jsx";
 
-const {Option} = Select;
+const { Option } = Select;
 
-const ReportFilters = ({form, onFinish, onReset, loading, documentList}) => {
-    const {data : userList} = useUserList();
-    // const stateOptions = [
-    //     {value: 10, label: 'تهیه'},
-    //     {value: 20, label: 'تایید'},
-    //     {value: 30, label: 'تصدیق'},
-    //     {value: 40, label: 'تصویب'},
-    // ];
-    // const fileOptions = [
-    //     {value: 1, label: 'تهیه'},
-    //     {value: 2, label: 'تایید'},
-    //     {value: 3, label: 'تصدیق'},
-    //     {value: 4, label: 'تصویب'},
-    // ];
+const ReportFilters = ({ form, onFinish, onReset, loading, documentList }) => {
+  const { data: userList } = useUserList();
 
-    return (
-        <Card
-            title="فیلترهای گزارش"
-            style={{marginBottom: 24}}
-            extra={
-                <Space>
-                    <Button icon={<ReloadOutlined/>} onClick={onReset} disabled={loading}>
-                        بازنشانی
-                    </Button>
-                    <Button type="primary" icon={<FilterOutlined/>} onClick={() => form.submit()} loading={loading}>
-                        اعمال فیلتر
-                    </Button>
-                </Space>
-            }
-        >
-            <Form form={form} layout="vertical" onFinish={onFinish} initialValues={{with_children: true}}>
-                <Row gutter={[16, 16]}>
-                    <Col xs={24} sm={12} md={8} lg={6}>
-                        <Form.Item name="document_tree_id" label="درخت اسناد">
-                            <TS data={documentList} placeholder="اسناد"/>
-                        </Form.Item>
-                    </Col>
-                    <Col xs={24} sm={12} md={8} lg={6}>
-                        <Form.Item name="user_id" label="کاربر">
-                           <Select placeholder="انتخاب کاربر" allowClear maxTagCount="responsive">
-                                {userList?.map(option => (
-                                    <Option key={option.id} value={option.id}>
-                                        {option.username}
-                                    </Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                    </Col>
-                    {/* <Col xs={24} sm={12} md={8} lg={6}>
-                        <Form.Item name="files_number" label="تعداد فایل‌ها">
-                            <Select mode="multiple" placeholder="انتخاب فایل ها" allowClear maxTagCount="responsive">
-                                {fileOptions.map(option => (
-                                    <Option key={option.value} value={option.value}>
-                                        {option.label}
-                                    </Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                    </Col> */}
-                    {/* <Col xs={24} sm={12} md={8} lg={6}>
-                        <Form.Item name="states" label="وضعیت‌ها">
-                            <Select mode="multiple" placeholder="انتخاب وضعیت‌ها" allowClear maxTagCount="responsive">
-                                {stateOptions.map(option => (
-                                    <Option key={option.value} value={option.value}>
-                                        {option.label}
-                                    </Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                    </Col> */}
-                    <Col xs={24} sm={12} md={8} lg={6}>
-                        <Form.Item name="with_children" valuePropName="checked" label="گزینه‌های نمایش">
-                            <Checkbox>نمایش اسناد فرزند</Checkbox>
-                        </Form.Item>
-                    </Col>
-                </Row>
-            </Form>
-        </Card>
-    );
+  return (
+    <Card
+      title="فیلترهای گزارش"
+      style={{ marginBottom: 24 }}
+      extra={
+        <Space>
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={onReset}
+            disabled={loading}
+          >
+            بازنشانی
+          </Button>
+          <Button
+            type="primary"
+            icon={<FilterOutlined />}
+            onClick={() => form.submit()}
+            loading={loading}
+          >
+            اعمال فیلتر
+          </Button>
+        </Space>
+      }
+    >
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+        initialValues={{ with_children: true }}
+      >
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <Form.Item name="document_tree_id" label="درخت اسناد">
+              <TS data={documentList} placeholder="اسناد" />
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <Form.Item name="user_id" label="کاربر">
+              <Select
+                placeholder="انتخاب کاربر"
+                allowClear
+                maxTagCount="responsive"
+              >
+                {userList?.map((option) => (
+                  <Option key={option.id} value={option.id}>
+                    {option.username}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <Date
+              name="start_survey_date"
+              label="تاریخ شروع"
+              rules={[
+                { required: true, message: "لطفاً تاریخ شروع را انتخاب کنید" },
+              ]}
+              stringifyDate={true}
+            />
+          </Col>
+
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <Date
+              name="end_survey_date"
+              label="تاریخ پایان"
+              rules={[
+                { required: true, message: "لطفاً تاریخ پایان را انتخاب کنید" },
+              ]}
+              stringifyDate={true}
+            />
+          </Col>
+
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <Form.Item
+              name="with_children"
+              valuePropName="checked"
+              label="گزینه‌های نمایش"
+            >
+              <Checkbox>نمایش اسناد فرزند</Checkbox>
+            </Form.Item>
+          </Col>
+        </Row>
+      </Form>
+    </Card>
+  );
 };
 
 export default ReportFilters;

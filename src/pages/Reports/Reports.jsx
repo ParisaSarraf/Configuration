@@ -5,6 +5,7 @@ import { DocumentStateList } from "@/pages/Reports/components/CollapseTableRepor
 import PieChartReport from "@/pages/Reports/components/PieChartReport/PieChartReport.jsx";
 import ReportFilters from "@/pages/Reports/components/ReportFilters.jsx";
 import { useDocumentList } from "@/QueryServises/documentQuery/index.js";
+import { jalaliDateToGeorgianDate } from "@utils/timeTool.jsx";
 
 const Reports = () => {
   const { currentProduct } = useProductContext();
@@ -29,6 +30,8 @@ const Reports = () => {
           values.files_number && values.files_number.length > 0
             ? values.files_number.join(",")
             : undefined,
+        start_survey_date: jalaliDateToGeorgianDate(values.start_survey_date),
+        end_survey_date: jalaliDateToGeorgianDate(values.end_survey_date),
         with_children: values.with_children,
       };
 
