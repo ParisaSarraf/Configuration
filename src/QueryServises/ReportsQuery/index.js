@@ -24,29 +24,39 @@ export const useGetProductDocumentReport = (
 export const useGetProductDocumentReportCsv = (
   id,
   states,
+  filters = {},
   queryOptions = {},
 ) => {
   const { myAxios } = useMyAxios();
+
   return useQuery({
-    queryKey: ["product-document-report-csv", id, states],
+    queryKey: ["product-document-report-csv", id, states, filters],
     queryFn: async () => {
       if (!id) return null;
+
       const response = await myAxios.get(
         `/product/get-product-document-report-csv/${id}/`,
         {
           responseType: "blob",
-          params: { states },
+          params: {
+            states,
+            ...filters,
+          },
         },
       );
+
       const disposition = response.headers["content-disposition"];
       let fileName = `report-${states}.csv`;
+
       if (disposition) {
         const match = disposition.match(/filename="(.+)"/);
         if (match) fileName = match[1];
       }
+
       const blob = new Blob([response.data], {
         type: "text/csv;charset=utf-8;",
       });
+
       return {
         url: window.URL.createObjectURL(blob),
         fileName,

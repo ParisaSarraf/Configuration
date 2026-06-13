@@ -16,7 +16,7 @@ const ExcelExportButton = ({ productId, state, filters }) => {
   const { isLoading: isExporting, refetch } = useGetProductDocumentReportCsv(
     productId,
     state,
-    { ...filters },
+    filters,
     { enabled: false },
   );
 
