@@ -65,9 +65,6 @@ const ReportFilters = ({ form, onFinish, onReset, loading, documentList }) => {
             <Date
               name="start_survey_date"
               label="تاریخ شروع"
-              rules={[
-                { required: true, message: "لطفاً تاریخ شروع را انتخاب کنید" },
-              ]}
               stringifyDate={true}
             />
           </Col>
@@ -76,9 +73,6 @@ const ReportFilters = ({ form, onFinish, onReset, loading, documentList }) => {
             <Date
               name="end_survey_date"
               label="تاریخ پایان"
-              rules={[
-                { required: true, message: "لطفاً تاریخ پایان را انتخاب کنید" },
-              ]}
               stringifyDate={true}
             />
           </Col>
