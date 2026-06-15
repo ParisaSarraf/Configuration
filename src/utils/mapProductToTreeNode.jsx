@@ -4,7 +4,7 @@ export const mapProductToTreeNode = (item, showHidden = false) => {
   if (!showHidden && item.hide) return null;
   const node = {
     title: (
-      <div className="flex items-center">
+      <div className="flex items-center -mr-4">
         <FiberManualRecordIcon
           fontSize="small"
           color={

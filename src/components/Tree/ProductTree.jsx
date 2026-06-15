@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
-import { Dropdown, message, Tree as AntTree, TreeSelect } from "antd";
+import { Dropdown, Tree as AntTree, TreeSelect } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 
 const ProductTreeEtc = ({
@@ -38,7 +38,7 @@ const ProductTreeEtc = ({
 }) => {
   const [rightClickNode, setRightClickNode] = useState(null);
   const [internalExpandedKeys, setInternalExpandedKeys] = useState(
-    defaultExpandedKeys || []
+    defaultExpandedKeys || [],
   );
 
   const isExpandedControlled = controlledExpandedKeys !== undefined;
@@ -55,7 +55,7 @@ const ProductTreeEtc = ({
         onExpand(keys);
       }
     },
-    [isExpandedControlled, onExpand]
+    [isExpandedControlled, onExpand],
   );
 
   const handleSelect = useCallback(
@@ -65,7 +65,7 @@ const ProductTreeEtc = ({
         onNodeClick(info.node);
       }
     },
-    [onSelect, onNodeClick]
+    [onSelect, onNodeClick],
   );
 
   const handleCheck = useCallback(
@@ -74,7 +74,7 @@ const ProductTreeEtc = ({
         onChange(checkedKeys, info);
       }
     },
-    [onChange]
+    [onChange],
   );
 
   const handleRightClick = useCallback(
@@ -83,7 +83,7 @@ const ProductTreeEtc = ({
       event.preventDefault();
       setRightClickNode(node);
     },
-    [showRightClickMenu]
+    [showRightClickMenu],
   );
 
   const handleMenuClick = useCallback(
@@ -94,7 +94,7 @@ const ProductTreeEtc = ({
       }
       setRightClickNode(null);
     },
-    [onRightClickAction, rightClickNode]
+    [onRightClickAction, rightClickNode],
   );
 
   const treeData = useMemo(() => {

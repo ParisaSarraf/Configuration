@@ -241,8 +241,9 @@ const ProductTree = ({
   ];
 
   return (
-    <div className="p-2">
+    <>
       <ProductTreeEtc
+        className="-p-2"
         data={treeData}
         isLoading={isLoading || isDeleting || isExporting || isRequestingZip}
         isError={isError}
@@ -268,7 +269,7 @@ const ProductTree = ({
           onClose={() => setZipTask(null)}
         />
       )}
-    </div>
+    </>
   );
 };
 
