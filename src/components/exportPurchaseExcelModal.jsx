@@ -1,4 +1,4 @@
-import { Form, message } from "antd";
+import { Form, Input, message } from "antd";
 import Modal from "./Modal";
 import TextArea from "antd/es/input/TextArea";
 import { useUpdateProductPurchase } from "../QueryServises/productPurchase";
@@ -31,11 +31,13 @@ const ExportPurchaseExcelModal = ({
         await updateWarehouse({
           RequestOfWarehouseId: modalData,
           excel_description: values.excel_description,
+          file_name: values.file_name,
         });
       } else {
         await updateProductPurchase({
           productPurchaseId: modalData,
           excel_description: values.excel_description,
+          file_name: values.file_name,
         });
       }
       message.success("دلیل خروجی اکسل با موفقیت ثبت شد");
@@ -77,6 +79,18 @@ const ExportPurchaseExcelModal = ({
       ]}
     >
       <Form layout="vertical" form={form} onFinish={onFinish}>
+        <Form.Item
+          label="نام فایل"
+          name={"file_name"}
+          rules={[
+            {
+              required: true,
+              message: "لطفاً نام فایل را وارد کنید",
+            },
+          ]}
+        >
+          <Input placeholder="نام فایل"  />
+        </Form.Item>
         <Form.Item
           label="توضیحات خروجی اکسل"
           name="excel_description"
