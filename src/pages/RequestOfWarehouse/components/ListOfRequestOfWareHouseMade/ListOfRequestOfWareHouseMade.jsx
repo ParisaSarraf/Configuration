@@ -7,9 +7,13 @@ import {
 import ListOfRequestOfWareHouseMadeCol from "@/pages/RequestOfWarehouse/components/ListOfRequestOfWareHouseMade/ListOfRequestOfWareHouseMadeCol.jsx";
 import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
 import useModal from "../../../../hooks/useModal";
-import { useState } from "react";
-import { useUpdateRequestOfWarehouse } from "../../../../QueryServises/RequestOfWarehouse";
+import { useEffect, useState } from "react";
+import {
+  useExportExcelProductWarehouse,
+  useUpdateRequestOfWarehouse,
+} from "../../../../QueryServises/RequestOfWarehouse";
 import ExportPurchaseExcelModal from "../../../../components/exportPurchaseExcelModal";
+import { handleDownload } from "@utils/HandleDownload.js";
 
 const ListOfRequestOfWareHouseMade = ({ currentProduct, refetch }) => {
   const { isOpen, modalMode, modalData, modalType, setModal, closeModal } =
@@ -17,11 +21,26 @@ const ListOfRequestOfWareHouseMade = ({ currentProduct, refetch }) => {
   const { mutateAsync: updateWarehouse, isLoading: isUpdatingWarehouse } =
     useUpdateRequestOfWarehouse();
   const [exportExcelData, setExportExcelData] = useState(null);
+  const { data: exportExcel, refetch: refetchExport } =
+    useExportExcelProductWarehouse(exportExcelData, { enabled: false });
 
   const { data: requestOfWarehouse, refetch: refetchRequestOfWarehouse } =
     useGetConfirmedWarehouseRequestById(currentProduct?.id);
   const { mutateAsync: deleteProductPurchaseWarehouse } =
     useDeleteRequestOfWarehouse();
+
+  useEffect(() => {
+    if (exportExcelData) refetchExport();
+  }, [exportExcelData, refetchExport]);
+
+  useEffect(() => {
+    if (exportExcel && exportExcelData) {
+      handleDownload(exportExcel, `warehouse_list_${exportExcelData}.csv`);
+      setExportExcelData(null);
+    }
+  }, [exportExcel, exportExcelData]);
+
+  const handleExportAfterDescription = (id) => setExportExcelData(id);
 
   const expandedRowRender = (record) => {
     const nestedColumns = [
@@ -124,10 +143,6 @@ const ListOfRequestOfWareHouseMade = ({ currentProduct, refetch }) => {
     });
   };
 
-  const handleExportAfterDescription = (id) => {
-    setExportExcelData(id);
-  };
-
   const handleExcelExportForRow = async (record) => {
     setModal({
       mode: "exportExcelWareHouse",
@@ -137,7 +152,7 @@ const ListOfRequestOfWareHouseMade = ({ currentProduct, refetch }) => {
   };
 
   return (
-    <div>
+    <>
       <Table
         columns={ListOfRequestOfWareHouseMadeCol({
           handleDelete,
@@ -156,7 +171,6 @@ const ListOfRequestOfWareHouseMade = ({ currentProduct, refetch }) => {
         bordered
         expandedRowRender={expandedRowRender}
       />
-
       <ExportPurchaseExcelModal
         isOpen={modalType === "exportExcelModal" && isOpen}
         modalData={modalData}
@@ -166,7 +180,7 @@ const ListOfRequestOfWareHouseMade = ({ currentProduct, refetch }) => {
         onExportSuccess={handleExportAfterDescription}
         refetch={refetch}
       />
-    </div>
+    </>
   );
 };
 

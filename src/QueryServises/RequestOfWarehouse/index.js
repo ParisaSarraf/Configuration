@@ -119,3 +119,29 @@ export const useDeleteRequestOfWarehouse = () => {
     },
   });
 };
+
+
+export const useExportExcelProductWarehouse = (id, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: ["confirmed-request", id],
+    queryFn: () =>
+      id
+        ? myAxios
+            .get(
+              `/product/get-confirmed-ware-house-request-csv-by-id/${id}`,
+              {
+                responseType: "blob",
+              },
+            )
+            .then((response) => {
+              const blob = new Blob([response.data], {
+                type: "text/csv;charset=utf-8;",
+              });
+              return window.URL.createObjectURL(blob);
+            })
+        : Promise.resolve(null),
+    ...queryOptions,
+    enabled: !!id,
+  });
+};

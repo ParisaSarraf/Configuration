@@ -75,7 +75,6 @@ const ProductPurchase = () => {
     >
       <div>
         <Tabs items={items} type="card" />
-
         <PurchaseModal
           currentProduct={currentProduct}
           isOpen={isOpen}
