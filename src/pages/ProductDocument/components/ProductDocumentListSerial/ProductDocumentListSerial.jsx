@@ -45,9 +45,7 @@ const EditionsAndLogsTable = ({ editions, onEdit, onDelete, onView }) => {
     });
     return flatData;
   }, [editions]);
-
-  console.log(processedData);
-
+  
   const mergedColumns = useMemo(
     () => [
       {
@@ -55,13 +53,15 @@ const EditionsAndLogsTable = ({ editions, onEdit, onDelete, onView }) => {
         dataIndex: "edition",
         key: "edition",
         onCell: (record) => ({ rowSpan: record.rowSpan }),
+        width: 100,
       },
       {
         title: "کد سند",
         dataIndex: "full_code",
         key: "full_code",
         onCell: (record) => ({ rowSpan: record.rowSpan }),
-        render: (text) => text || "---",
+        render: (text) => text || "--", 
+        width: 150,
       },
       {
         title: "تاریخ بازبینی",

@@ -18,7 +18,6 @@ const RoleSelectionPanel = ({selectedUserId, selectedRoleId, onSelectRole, onDel
         onSelectRole(roleId === selectedRoleId ? null : roleId);
     };
 
-    console.log(assignedRoles);
 
     if (!selectedUserId) {
         return (

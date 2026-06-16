@@ -88,7 +88,6 @@ export const MyPlanCols = ({handleShowDetail, handlePlan}) => {
                 title: 'عملیات',
                 key: 'actions',
                 render: (record) => {
-                    // console.log(record);
                     const isPlanDone = record.state === 20
                     return (
                         <Space direction="horizontal">

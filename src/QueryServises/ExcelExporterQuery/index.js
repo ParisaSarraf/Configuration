@@ -138,11 +138,7 @@ export const useExportExcelProductIntroduction = (id, queryOptions) => {
 //         type: "text/csv;charset=utf-8;",
 //       });
 
-//       console.log("All headers:", response.headers);
-//       console.log(
-//         "Content-Disposition:",
-//         response.headers["content-disposition"],
-//       );
+
 //       return { url: window.URL.createObjectURL(blob), fileName };
 //     },
 //     ...queryOptions,

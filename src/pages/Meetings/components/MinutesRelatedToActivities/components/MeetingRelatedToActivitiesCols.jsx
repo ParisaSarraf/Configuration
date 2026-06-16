@@ -95,7 +95,6 @@ export const MeetingRelatedToActivitiesCols = () => {
             title: 'وضعیت',
             key: 'state',
             render: (record) => {
-                // console.log(record)
                 const getStateInfo = (state) => {
                     const states = {
                         10: {label: "در انتظار اقدام", status: "warning"},
@@ -125,7 +124,6 @@ export const MeetingRelatedToActivitiesCols = () => {
         //     title: 'فایل‌ها',
         //     key: 'files',
         //     render: (record) => {
-        //         console.log(record)
         //         const base = BASEURL.replace("/api/v1", "");
         //
         //         return (
