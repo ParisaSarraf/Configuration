@@ -6,25 +6,28 @@ export const SerialListCol = (handleEditProductSerial, handleDeleteProductSerial
     {
         title: 'ردیف',
         render: (text, record, index) => index + 1,
+        width: 70,
     },
     {
         title: 'سریال',
         dataIndex: 'full_serial',
         key: 'full_serial',
+        width: 200,
     },
     {
         title: 'تاریخ',
         dataIndex: 'date',
         key: 'date',
+        width: 150,
         render: (record) => {
             return (
                 <>{georgianDateToJalaliDate(record) || 'تاریخ ندارد'}</>
-                // <>{record}</>
             )
         },
     },
     {
         title: 'عملیات',
+        width: 120,
         render: (text, record) => (
             <div className="flex flex-row gap-2 justify-center">
                 <Button
