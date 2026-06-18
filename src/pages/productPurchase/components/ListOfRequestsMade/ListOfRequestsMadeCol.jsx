@@ -58,6 +58,16 @@ const ListOfRequestsMadeCol = ({
       },
     },
     {
+      title: "درخواست کننده",
+      dataIndex: ["requester", "username"],
+      key: "username",
+    },
+    {
+      title: "تایید کننده",
+      dataIndex: ["approver", "username"],
+      key: "username",
+    },
+    {
       title: "توضیح اکسل",
       dataIndex: "excel_description",
       key: "excel_description",
