@@ -62,6 +62,34 @@ export const useUnConfirmProductPurchaseById = (id, queryOptions) => {
   });
 };
 
+export const useCreatePdfById = () => {
+  const { myAxios } = useMyAxios();
+
+  return useMutation({
+    mutationFn: (id) =>
+      myAxios.get(
+        `/product/get-confirmed-product-purchases-list-pdf-by-id/${id}`,
+        {
+          responseType: "blob",
+        },
+      ),
+    onSuccess: (response, variables) => {
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `purchase-${variables}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      message.success("خروجی PDF با موفقیت دانلود شد");
+    },
+    onError: () => {
+      message.error("خطا در ایجاد خروجی PDF");
+    },
+  });
+};
+
 export const useCreateProductPurchase = () => {
   const { myAxios } = useMyAxios();
   return useMutation({

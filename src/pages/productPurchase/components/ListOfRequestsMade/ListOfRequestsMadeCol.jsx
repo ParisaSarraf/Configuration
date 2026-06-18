@@ -3,6 +3,8 @@ import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
 import {
   DeleteOutlined,
   FileExcelOutlined,
+  FilePdfFilled,
+  FilePdfOutlined,
   FileZipOutlined,
   PoweroffOutlined,
 } from "@ant-design/icons";
@@ -11,6 +13,7 @@ const ListOfRequestsMadeCol = ({
   handleDelete,
   handleHide,
   handleExcelExportForRow,
+  handleExportPdfForRow,
   handleDownloadZip,
 }) => {
   return [
@@ -78,6 +81,12 @@ const ListOfRequestsMadeCol = ({
       render: (record) => {
         return (
           <Space>
+            <Button
+              title={"خروجی PDF"}
+              className={"text-red-800 border-red-800"}
+              onClick={() => handleExportPdfForRow(record)}
+              icon={<FilePdfOutlined />}
+            />
             <Button
               title={"خروجی اکسل"}
               className={"text-green-500 border-green-500"}

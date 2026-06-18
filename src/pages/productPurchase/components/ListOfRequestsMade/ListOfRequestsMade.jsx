@@ -2,7 +2,7 @@ import { message, Modal, Table, Tag } from "antd";
 import {
   useConfirmProductPurchaseById,
   useDeleteProductPurchase,
-  useCreatePurchaseZipReport,      // 👈 new
+  useCreatePurchaseZipReport, // 👈 new
 } from "@/QueryServises/productPurchase/index.js";
 import { usePurchaseZipReportStatus } from "@/QueryServises/productPurchase/index.js"; // 👈 new
 import ListOfRequestsMadeCol from "./ListOfRequestsMadeCol";
@@ -11,7 +11,10 @@ import { useExportExcelProductPurchase } from "../../../../QueryServises/ExcelEx
 import { useEffect, useState } from "react";
 import { handleDownload } from "@utils/HandleDownload.js";
 import useModal from "../../../../hooks/useModal";
-import { useUpdateProductPurchase } from "../../../../QueryServises/productPurchase";
+import {
+  useCreatePdfById,
+  useUpdateProductPurchase,
+} from "../../../../QueryServises/productPurchase";
 import ExportPurchaseExcelModal from "../../../../components/exportPurchaseExcelModal";
 import { Progress, Typography } from "antd";
 import { BASEURL } from "../../../../Services/axiosInstance.js"; // 👈 adjust path if needed
@@ -68,7 +71,10 @@ const PurchaseZipProgressModal = ({ uuid, fileName, onDone, onClose }) => {
             : `پردازش شده: ${passed} از ${total} فایل`}
         </Typography.Text>
         {status !== "SUCCESS" && (
-          <Typography.Text type="secondary" className="text-center block text-xs">
+          <Typography.Text
+            type="secondary"
+            className="text-center block text-xs"
+          >
             وضعیت هر ۲ ثانیه به‌روز می‌شود
           </Typography.Text>
         )}
@@ -84,7 +90,7 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
   const { data: purchaseData, refetch: purchaseDataRefetch } =
     useConfirmProductPurchaseById(currentProduct?.id);
   const { mutateAsync: deleteProductPurchase } = useDeleteProductPurchase(
-    currentProduct?.id
+    currentProduct?.id,
   );
   const { mutateAsync: updateProductPurchase, isLoading: isUpdating } =
     useUpdateProductPurchase();
@@ -93,7 +99,8 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
     useExportExcelProductPurchase(exportExcelData, { enabled: false });
 
   // 👇 zip state
-  const { mutate: createZip, isLoading: isRequestingZip } = useCreatePurchaseZipReport();
+  const { mutate: createZip, isLoading: isRequestingZip } =
+    useCreatePurchaseZipReport();
   const [zipTask, setZipTask] = useState(null); // { uuid, fileName }
 
   useEffect(() => {
@@ -106,6 +113,8 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
       setExportExcelData(null);
     }
   }, [exportExcel, exportExcelData]);
+
+  const { mutateAsync: createPdf } = useCreatePdfById();
 
   const handleExportAfterDescription = (id) => setExportExcelData(id);
 
@@ -224,8 +233,37 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
   };
 
   const handleExcelExportForRow = async (record) => {
-    setModal({ mode: "exportExcel", data: record?.id, type: "exportExcelModal" });
+    setModal({
+      mode: "exportExcel",
+      data: record?.id,
+      type: "exportExcelModal",
+    });
   };
+
+  const handleExportPdfForRow = async (record) => {
+    Modal.confirm({
+      title: "تایید خروجی PDF",
+      content: (
+        <div>
+          <p>
+            آیا از خروجی PDF برای محصول <strong>{record.name}</strong> اطمینان
+            دارید؟
+          </p>
+        </div>
+      ),
+      okText: "بله، خروجی بگیر",
+      cancelText: "انصراف",
+      onOk: async () => {
+        try {
+          await createPdf(record.id);
+          message.success("خروجی PDF با موفقیت ایجاد شد");
+        } catch (error) {
+          message.error("خطا در ایجاد خروجی PDF");
+        }
+      },
+    });
+  };
+
 
   return (
     <div className={"w-full flex flex-col"}>
@@ -234,7 +272,8 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
           handleDelete,
           handleHide,
           handleExcelExportForRow,
-          handleDownloadZip,      // 👈 pass to columns
+          handleExportPdfForRow,
+          handleDownloadZip, // 👈 pass to columns
         })}
         dataSource={purchaseData || []}
         pagination={{
@@ -247,7 +286,7 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
         bordered
         size={"small"}
         expandedRowRender={expandedRowRender}
-        loading={isRequestingZip}   // 👈 spinner while requesting
+        loading={isRequestingZip} // 👈 spinner while requesting
       />
 
       <ExportPurchaseExcelModal
