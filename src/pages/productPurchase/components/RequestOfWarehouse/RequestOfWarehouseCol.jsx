@@ -8,6 +8,11 @@ const RequestOfWarehouseCol = () => {
       key: "name",
     },
     {
+      title: "کد محصول",
+      dataIndex: "code",
+      key: "code",
+    },
+    {
       title: "تعداد کل",
       dataIndex: "quantity",
       key: "quantity",
