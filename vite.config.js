@@ -1,20 +1,24 @@
-import {defineConfig} from "vite";
+import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
-    plugins: [react()],
-    resolve: {
-        alias: {
-            "@": path.resolve(__dirname, "src"),
-            "@component": path.resolve(__dirname, "src/component"),
-            "@utils": path.resolve(__dirname, "src/utils"),
-            "@QueryServices": path.resolve(__dirname, "src/QueryServices"),
-            "@assets": path.resolve(__dirname, "src/assets"),
-        },
+  plugins: [react()],
+  define: {
+    "process.env": {},
+    global: {},
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "src"),
+      "@component": path.resolve(__dirname, "src/component"),
+      "@utils": path.resolve(__dirname, "src/utils"),
+      "@QueryServices": path.resolve(__dirname, "src/QueryServices"),
+      "@assets": path.resolve(__dirname, "src/assets"),
     },
-    server:{
-        port:5174
-    }
+  },
+  server: {
+    port: 5174,
+  },
 });
