@@ -41,16 +41,16 @@ const ListOfRequestsMadeCol = ({
     },
     {
       title: "تاریخ درخواست",
-      dataIndex: "date",
-      key: "date",
+      dataIndex: "request_date",
+      key: "request_date",
       render: (text) => {
         return <Tag color={"green"}>{georgianDateToJalaliDate(text)}</Tag>;
       },
     },
     {
       title: "تاریخ تایید",
-      dataIndex: "total_number",
-      key: "total_number",
+      dataIndex: "approve_date",
+      key: "approve_date",
       render: (text) => {
         return (
           <Tag color={"green"}>{georgianDateToJalaliDate(text) || "ندارد"}</Tag>
