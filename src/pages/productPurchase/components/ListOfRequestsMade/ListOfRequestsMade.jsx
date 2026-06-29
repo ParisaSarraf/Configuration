@@ -95,6 +95,8 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
   const { mutateAsync: updateProductPurchase, isLoading: isUpdating } =
     useUpdateProductPurchase();
   const [exportExcelData, setExportExcelData] = useState(null);
+
+
   const { data: exportExcel, refetch: refetchExport } =
     useExportExcelProductPurchase(exportExcelData, { enabled: false });
 
@@ -235,7 +237,7 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
   const handleExcelExportForRow = async (record) => {
     setModal({
       mode: "exportExcel",
-      data: record?.id,
+      data: { record: record?.product, id: record.id },
       type: "exportExcelModal",
     });
   };

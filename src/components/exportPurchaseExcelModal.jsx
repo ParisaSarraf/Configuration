@@ -25,6 +25,7 @@ const ExportPurchaseExcelModal = ({
     }
   }, [isOpen, form]);
 
+
   const onFinish = async (values) => {
     try {
       if (modalMode === "exportExcelWareHouse") {
@@ -35,17 +36,17 @@ const ExportPurchaseExcelModal = ({
         });
       } else {
         await updateProductPurchase({
-          productPurchaseId: modalData,
+          product: modalData?.record?.id,
+          productPurchaseId: modalData?.id,
           excel_description: values.excel_description,
           file_name: values.file_name,
         });
       }
       message.success("دلیل خروجی اکسل با موفقیت ثبت شد");
       if (onExportSuccess) {
-        onExportSuccess(modalData);
+        onExportSuccess(modalData?.id);
       }
       await refetch();
-
       closeModal();
     } catch (error) {
       console.error("Update error:", error);
