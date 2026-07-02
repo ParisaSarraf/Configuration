@@ -232,11 +232,21 @@ body {
 }
 
 /* ---------- Scroll in Modal ---------- */
-.scroll-modal {
+/* .scroll-modal {
   max-height: 80vh !important;
   overflow-y: auto !important;
   padding: 0 !important;
   z-index: 1000000000000000 !important;
+} */
+
+.scroll-modal {
+  z-index: 2000 !important;
+}
+
+.scroll-modal .ant-modal-body {
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 0 !important;
 }
 
 .image-container {
@@ -286,7 +296,6 @@ body {
   cursor: col-resize;
 }
 
-
 /* ========================= ant design table responsive =================== */
 .rtl-table {
   width: 100%;
@@ -294,5 +303,5 @@ body {
 }
 
 .rtl-table .ant-table {
-  min-width: 700px; 
+  min-width: 700px;
 }
