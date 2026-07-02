@@ -18,6 +18,7 @@ import {
 import ExportPurchaseExcelModal from "../../../../components/exportPurchaseExcelModal";
 import { Progress, Typography } from "antd";
 import { BASEURL } from "../../../../Services/axiosInstance.js"; // 👈 adjust path if needed
+import { TableAntd } from "../../../../components/TableAntd/TableAntd.jsx";
 
 // ── Zip Progress Modal ─────────────────────────────────────────────────────
 const PurchaseZipProgressModal = ({ uuid, fileName, onDone, onClose }) => {
@@ -269,7 +270,7 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
 
   return (
     <div className={"w-full flex flex-col"}>
-      <Table
+      <TableAntd
         columns={ListOfRequestsMadeCol({
           handleDelete,
           handleHide,
@@ -278,15 +279,7 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
           handleDownloadZip, // 👈 pass to columns
         })}
         dataSource={purchaseData || []}
-        pagination={{
-          defaultPageSize: 5,
-          pageSizeOptions: [10, 20, 45, 100],
-          size: "small",
-          showSizeChanger: true,
-        }}
         rowKey="id"
-        bordered
-        size={"small"}
         expandedRowRender={expandedRowRender}
         loading={isRequestingZip} // 👈 spinner while requesting
       />

@@ -1,13 +1,20 @@
-import { Button, Card, Tabs } from "antd";
+import { Button, Card, Modal, Tabs } from "antd";
 import { useProductContext } from "../../Services/Context/ProductContext";
 import RequestOfWarehouse from "./components/RequestOfWarehouse/RequestOfWarehouse";
 import PurchaseProductTable from "./components/PurchaseProductTable/PurchaseProductTable";
 import PurchaseModal from "./components/PurchaseModal/PurchaseModal";
 import useModal from "../../hooks/useModal";
-import { PlusOutlined } from "@ant-design/icons";
+import {
+  ExclamationCircleOutlined,
+  FileExcelOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { useUnConfirmProductPurchaseById } from "../../QueryServises/productPurchase";
 import ListOfRequestsMade from "./components/ListOfRequestsMade/ListOfRequestsMade";
+import { useExportExcelMainProductPurchase } from "../../QueryServises/ExcelExporterQuery";
+import { handleDownload } from "@utils/HandleDownload.js";
+import ExportPurchaseExcelModal from "../../components/exportPurchaseExcelModal";
 
 const ProductPurchase = () => {
   const { currentProduct } = useProductContext();
@@ -17,9 +24,25 @@ const ProductPurchase = () => {
   const [selectedPurchaseId, setSelectedPurchaseId] = useState(null);
   const [selectedPurchaseType, setSelectedPurchaseType] = useState(false);
 
+  const [exportExcelData, setExportExcelData] = useState(null);
+
+  const { data: exportExcel, refetch: refetchExport } =
+    useExportExcelMainProductPurchase(currentProduct?.id, { enabled: false });
+
   useEffect(() => {
     setSelectedPurchaseId(null);
   }, [currentProduct?.id]);
+
+  useEffect(() => {
+    if (exportExcelData) refetchExport();
+  }, [exportExcelData, refetchExport]);
+
+  useEffect(() => {
+    if (exportExcel && exportExcelData) {
+      handleDownload(exportExcel, `purchase_list_${exportExcelData}.csv`);
+      setExportExcelData(null);
+    }
+  }, [exportExcel, exportExcelData]);
 
   const items = [
     {
@@ -59,18 +82,41 @@ const ProductPurchase = () => {
     },
   ];
 
+  const handleSCVdownload = () => {
+    Modal.confirm({
+      title: "دانلود فایل اکسل",
+      content: "آیا مایل به ایجاد و دانلود فایل اکسل هستید؟",
+      centered: true,
+      okText: "دانلود",
+      cancelText: "انصراف",
+      okType: "primary",
+      maskClosable: true,
+      onOk: async () => {
+        setExportExcelData(await exportExcel);
+      },
+    });
+  };
+
   return (
     <Card
       title={`درخواست خرید ${currentProduct?.name}`}
       extra={
-        <Button
-          icon={<PlusOutlined />}
-          className="modal-button"
-          onClick={() =>
-            setModal({ mode: "add", data: null, type: "purchaseModal" })
-          }
-          title="درخواست خرید"
-        />
+        <div className="w-full flex flex-row gap-2">
+          <Button
+            icon={<PlusOutlined />}
+            className="modal-button"
+            onClick={() =>
+              setModal({ mode: "add", data: null, type: "purchaseModal" })
+            }
+            title="درخواست خرید"
+          />
+          <Button
+            icon={<FileExcelOutlined />}
+            title={"خروجی اکسل"}
+            className={"text-green-500 border-green-500 mt-4"}
+            onClick={() => handleSCVdownload()}
+          />
+        </div>
       }
     >
       <div>
