@@ -1,67 +1,69 @@
-import {message, Modal, Table} from "antd"
-import PurchaseProductCol from "./PurchaseProductCol"
-import {useDeleteProductPurchase, useUnConfirmProductPurchaseById} from "@/QueryServises/productPurchase/index.js"
-import {useEffect} from "react";
+import { message, Modal } from "antd";
+import PurchaseProductCol from "./PurchaseProductCol";
+import {
+  useDeleteProductPurchase,
+  useUnConfirmProductPurchaseById,
+} from "@/QueryServises/productPurchase/index.js";
+import { useEffect } from "react";
+import { TableAntd } from "../../../../components/TableAntd/TableAntd";
 
-const PurchaseProductTable = ({currentProduct, setSelectedPurchaseId, setModal, setSelectedPurchaseType}) => {
-    const {data: purchaseData, refetch} = useUnConfirmProductPurchaseById(currentProduct?.id)
-    const {mutateAsync: deleteProductPurchase} = useDeleteProductPurchase();
+const PurchaseProductTable = ({
+  currentProduct,
+  setSelectedPurchaseId,
+  setModal,
+  setSelectedPurchaseType,
+}) => {
+  const { data: purchaseData, refetch } = useUnConfirmProductPurchaseById(
+    currentProduct?.id,
+  );
+  const { mutateAsync: deleteProductPurchase } = useDeleteProductPurchase();
 
+  const handleEdit = (record) => {
+    setModal({ mode: "edit", data: record, type: "add" });
+  };
 
-    const handleEdit = (record) => {
-        setModal({mode: 'edit', data: record, type: 'add'})
-    }
+  useEffect(() => {
+    refetch();
+  }, [currentProduct?.id, refetch]);
 
-    useEffect(() => {
-        refetch();
-    }, [currentProduct?.id, refetch]);
-
-    const handleDelete = (id) => {
-        Modal.confirm({
-            title: "حذف درخواست خرید",
-            content: "از حذف این درخواست خرید مطمئن هستید؟",
-            okText: "بله ، مطمئنم",
-            cancelText: "خیر ، منصرف شدم.",
-            async onOk() {
-                try {
-                    await deleteProductPurchase(id)
-                    message.success("درخواست خرید با موفقیت حذف شد");
-                    await refetch()
-                } catch (error) {
-                    message.error(error?.detail);
-                    console.error(error);
-                }
-            },
-            onCancel() {
-                message.warning("عملیات حذف لغو شد");
-            }
-        });
-    }
-
-    const rowSelection = {
-        type: 'radio',
-        onChange: (selectedRowKeys, selectedRows) => {
-            setSelectedPurchaseType(selectedRows)
-            setSelectedPurchaseId(selectedRowKeys[0] || null);
+  const handleDelete = (id) => {
+    Modal.confirm({
+      title: "حذف درخواست خرید",
+      content: "از حذف این درخواست خرید مطمئن هستید؟",
+      okText: "بله ، مطمئنم",
+      cancelText: "خیر ، منصرف شدم.",
+      async onOk() {
+        try {
+          await deleteProductPurchase(id);
+          message.success("درخواست خرید با موفقیت حذف شد");
+          await refetch();
+        } catch (error) {
+          message.error(error?.detail);
+          console.error(error);
         }
-    };
+      },
+      onCancel() {
+        message.warning("عملیات حذف لغو شد");
+      },
+    });
+  };
 
-    return (
-        <Table
-            columns={PurchaseProductCol({handleEdit, handleDelete})}
-            dataSource={purchaseData || []}
-            rowSelection={rowSelection}
-            rowKey="id"
-            size="small"
-            bordered
-            pagination={{
-                defaultPageSize: 5,
-                pageSizeOptions: [10, 20, 45,100],
-                size: "small",
-                showSizeChanger: true,
-            }}
-        />
-    )
-}
+  const rowSelection = {
+    type: "radio",
+    onChange: (selectedRowKeys, selectedRows) => {
+      setSelectedPurchaseType(selectedRows);
+      setSelectedPurchaseId(selectedRowKeys[0] || null);
+    },
+  };
 
-export default PurchaseProductTable
+  return (
+    <TableAntd
+      columns={PurchaseProductCol({ handleEdit, handleDelete })}
+      dataSource={purchaseData || []}
+      rowSelection={rowSelection}
+      rowKey="id"
+    />
+  );
+};
+
+export default PurchaseProductTable;

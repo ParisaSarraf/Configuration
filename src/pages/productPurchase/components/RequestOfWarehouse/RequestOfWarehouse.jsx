@@ -1,4 +1,4 @@
-import {Button, Col, Form, message, Row, Table, Tooltip} from "antd";
+import {Button, Col, Form, message, Row, Tooltip} from "antd";
 import {useState} from "react"; // 👈 افزودن useState
 import {
     useConfirmProductPurchaseById,
@@ -9,6 +9,7 @@ import RequestOfWarehouseCol from "./RequestOfWarehouseCol";
 import {SendOutlined} from "@ant-design/icons";
 import {usePersonalityProductList} from "@/QueryServises/personalityQuery/index.js";
 import TS from "@/components/TreeSelect/index.jsx";
+import { TableAntd } from "../../../../components/TableAntd/TableAntd";
 
 const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType, currentProduct, refetchUnconfirmed}) => {
 
@@ -90,7 +91,7 @@ const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType, currentPr
                     </div>
                 </Col>
                 <Col span={24}>
-                    <Table
+                    <TableAntd
                         footer={() => (
                             <div style={{textAlign: 'left'}}>
                                 <Tooltip title="تایید نهایی و ارسال همه موارد">
@@ -107,15 +108,6 @@ const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType, currentPr
                         columns={RequestOfWarehouseCol()}
                         dataSource={purchaseData}
                         rowKey="id"
-                        size={'small'}
-                        bordered
-                        scroll={{y: 300}}
-                        pagination={{
-                            defaultPageSize: 5,
-                            pageSizeOptions: [10, 20, 45,100],
-                            size: "small",
-                            showSizeChanger: true,
-                        }}
                     />
                 </Col>
             </Row>
