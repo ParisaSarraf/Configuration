@@ -285,3 +285,14 @@ body {
   height: 100%;
   cursor: col-resize;
 }
+
+
+/* ========================= ant design table responsive =================== */
+.rtl-table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.rtl-table .ant-table {
+  min-width: 700px; 
+}
