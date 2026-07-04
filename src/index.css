@@ -249,6 +249,20 @@ body {
   padding: 0 !important;
 }
 
+
+.scroll-modal .ant-modal-content {
+    overflow: hidden;
+}
+
+.scroll-modal .ant-modal-body {
+    max-height: 80vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+
+/* -------------------------------------- scroll modal body ---------------------------- */
+
 .image-container {
   width: 100%;
   height: 350px;
