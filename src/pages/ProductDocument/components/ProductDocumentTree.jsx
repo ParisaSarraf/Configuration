@@ -123,10 +123,14 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
     });
   };
 
-  const handleEditDocumentProduct = ({ productDoc, documentTitle , documentId }) => {
+  const handleEditDocumentProduct = ({
+    productDoc,
+    documentTitle,
+    documentId,
+  }) => {
     setModal({
       mode: "edit",
-      data: { ...productDoc, documentTitle , documentId },
+      data: { ...productDoc, documentTitle, documentId },
       type: "AddDocumentProduct",
     });
   };
@@ -190,6 +194,7 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
       children: [],
       documentTitle: documentTitle,
       documentId: documentId,
+      isActive: editions?.is_active,
     };
 
     if (hasEditions) {

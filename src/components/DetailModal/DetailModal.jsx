@@ -279,6 +279,10 @@ const DetailModal = ({
                   <span className="text-gray-500">وضعیت</span>
                   <Badge status={stateInfo.status} text={stateInfo.label} />
                 </div>
+                <div className="flex justify-between py-1">
+                  <span className="text-gray-500">وضعیت</span>
+                  <Badge status={editionData.is_active ? "success" : "danger"} text={editionData.is_active ? "فعال" : "غیرفعال"} />
+                </div>
               </SectionCard>
               <SectionCard title={"فایل های پیوست"}>
                 <h1>
