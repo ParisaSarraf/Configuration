@@ -213,3 +213,20 @@ export const useUpdateProductInfo = () => {
     },
   });
 };
+
+export const useUpdateWarehouseStock = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: ({ csv_file }) => {
+      const formData = new FormData();
+      formData.append("csv_file", csv_file);
+      return myAxios
+        .patch(`/product/patch-product-quantity-by-store-code/`, formData, {
+          headers: {
+            "Content-Type": undefined,
+          },
+        })
+        .then((response) => response?.data);
+    },
+  });
+};
