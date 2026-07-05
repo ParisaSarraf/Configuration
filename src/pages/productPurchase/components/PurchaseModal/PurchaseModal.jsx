@@ -58,7 +58,7 @@ const PurchaseModal = ({isOpen, modalMode, modalData, closeModal, currentProduct
                 onClose={closeModal}
                 onSubmit={() => form.submit()}
                 mode={modalMode}
-                footer={false}
+                // footer={}
             >
                 <Form
                     form={form}
