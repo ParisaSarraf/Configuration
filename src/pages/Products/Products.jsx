@@ -61,14 +61,22 @@ const Products = () => {
     <div className="h-full flex flex-col bg-white p-4">
       <div className="flex justify-between items-center pb-4 border-b border-slate-200">
         <h2 className="text-lg font-semibold text-slate-800">محصولات</h2>
-        <Button
-          type="primary"
-          shape="round"
-          onClick={() => setModal({ mode: "add" })}
-          icon={<PlusOutlined />}
-        >
-          افزودن
-        </Button>
+        <div className="flex flex-row gap-2">
+          <Button
+            type="primary"
+            shape="round"
+            onClick={() => setModal({ mode: "add" })}
+            icon={<PlusOutlined />}
+            title="افزودن محصول"
+          />
+          <Button
+            type="primary"
+            shape="round"
+            onClick={() => setModal({ mode: "add" })}
+            icon={<ReloadOutlined />}
+            title="بروزرسانی موجودی انبار"
+          />
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto mt-4 custom-scrollbar">
