@@ -7,7 +7,6 @@ import {
   Modal,
   Select,
   Space,
-  Table,
   Tooltip,
 } from "antd";
 import { useProductSerialById } from "@/QueryServises/productSerialQuery/index.js";
@@ -15,8 +14,8 @@ import { useProductDocumentEditionLogsBySerialById } from "@/QueryServises/produ
 import { ProductDocumentListSerialCol } from "./components/ProductDocumentListSerialCol";
 import { useDeleteProductEditionlog } from "@/QueryServises/productDocumentEditionLogQuery/index.js";
 import { DeleteOutlined, EyeFilled } from "@ant-design/icons";
-import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
 import { BASEURL } from "@/Services/axiosInstance.js";
+import { TableAntd } from "../../../../components/TableAntd/TableAntd";
 
 const EditionsAndLogsTable = ({ editions, onEdit, onDelete, onView }) => {
   const processedData = useMemo(() => {
@@ -24,7 +23,6 @@ const EditionsAndLogsTable = ({ editions, onEdit, onDelete, onView }) => {
     editions?.forEach((edition) => {
       const { logs, ...editionDetails } = edition;
       const logCount = logs?.length || 0;
-
       if (logCount === 0) {
         flatData.push({
           ...editionDetails,
@@ -63,12 +61,12 @@ const EditionsAndLogsTable = ({ editions, onEdit, onDelete, onView }) => {
         render: (text) => text || "--", 
         width: 150,
       },
-      {
-        title: "تاریخ بازبینی",
-        dataIndex: ["logData", "survey_date"],
-        key: "log_survey_date",
-        render: (date) => (date ? georgianDateToJalaliDate(date) : "---"),
-      },
+      // {
+      //   title: "تاریخ بازبینی",
+      //   dataIndex: ["logData", "survey_date"],
+      //   key: "log_survey_date",
+      //   render: (date) => (date ? georgianDateToJalaliDate(date) : "---"),
+      // },
       {
         title: "فایل",
         dataIndex: ["logData", "file"],
@@ -118,7 +116,7 @@ const EditionsAndLogsTable = ({ editions, onEdit, onDelete, onView }) => {
   );
 
   return (
-    <Table
+    <TableAntd
       columns={mergedColumns}
       dataSource={processedData}
       size="small"
@@ -130,6 +128,7 @@ const EditionsAndLogsTable = ({ editions, onEdit, onDelete, onView }) => {
 };
 
 const DocumentsTable = ({ documents, onEdit, onDelete, onView }) => {
+  console.log(documents, 'slfkcslkcskdflc');
   const documentColumns = useMemo(
     () => [
       { title: "عنوان سند", dataIndex: "title", key: "title" },
@@ -138,14 +137,14 @@ const DocumentsTable = ({ documents, onEdit, onDelete, onView }) => {
         key: "full_code",
         render: (doc) => doc.document?.full_code,
       },
-      {
-        title: "تاریخ بازبینی",
-        dataIndex: "survey_date",
-        key: "survey_date",
-        render: (survey_date) => {
-          return georgianDateToJalaliDate(survey_date);
-        },
-      },
+      // {
+      //   title: "تاریخ بازبینی",
+      //   dataIndex: "survey_date",
+      //   key: "survey_date",
+      //   render: (doc) => {
+      //     return georgianDateToJalaliDate(doc.editions.logs[0].survey_date);
+      //   },
+      // },
     ],
     []
   );
@@ -168,7 +167,7 @@ const DocumentsTable = ({ documents, onEdit, onDelete, onView }) => {
   );
 
   return (
-    <Table
+    <TableAntd
       columns={documentColumns}
       dataSource={documentData}
       size="small"
@@ -309,12 +308,10 @@ const ProductDocumentListSerial = ({
           </div>
         }
       >
-        <Table
-          bordered
+        <TableAntd
           pagination={false}
           dataSource={tableData}
           columns={ProductDocumentListSerialCol}
-          size="small"
           expandable={{
             expandedRowRender,
             rowExpandable: (record) =>

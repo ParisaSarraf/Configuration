@@ -7,14 +7,13 @@ export const TableAntd = ({
   loading,
   rowKey = "id",
   page,
-  setPage,
   pageSize,
-  setPageSize,
   totalItems,
   className = "",
   rowSelection,
   expandable,
   footer,
+  locale,
 }) => {
   return (
     <div className={`rtl-table ${className}`}>
@@ -28,7 +27,7 @@ export const TableAntd = ({
         scroll={{ x: "max-content" }}
         loading={loading}
         rowKey={rowKey}
-        locale={{ filterConfirm: "اعمال", filterReset: "ریست" }}
+        locale={{ filterConfirm: "اعمال", filterReset: "ریست" } || locale}
         expandable={expandable}
         rowSelection={rowSelection}
         pagination={{

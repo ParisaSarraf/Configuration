@@ -23,9 +23,6 @@ const ProductDocumentEditionModal = ({
   const { isPending: isUpdating, mutateAsync: updateProductDocumentEdition } =
     useUpdateProductDocumentEdition();
 
-    console.log(modalData);
-    
-
   useEffect(() => {
     if (modalMode === "edit" && modalData) {
       form.setFieldsValue({
@@ -48,7 +45,6 @@ const ProductDocumentEditionModal = ({
       reasons_editing_id: values.reasons_editing_id,
       is_active: values.is_active,
     };
-
     try {
       if (modalMode === "edition") {
         await createProductDocumentEdition(payload);
