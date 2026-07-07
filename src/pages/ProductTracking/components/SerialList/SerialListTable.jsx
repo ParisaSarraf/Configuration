@@ -1,4 +1,4 @@
-import { message, Modal, Table } from "antd";
+import { message, Modal } from "antd";
 import { SerialListCol } from "./SerialListCol";
 import {
   useDeleteProductSerial,

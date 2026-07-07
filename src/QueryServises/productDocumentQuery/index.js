@@ -171,3 +171,18 @@ export const useZipReportStatus = (uuid, { enabled } = {}) => {
     refetchIntervalInBackground: true,
   });
 };
+
+export const useExportExcelSerial = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: (id) =>
+      myAxios
+        .get(`/product/get-product-document-edition-logs-csv-by-serial-id/${id}`, {
+          responseType: "blob",
+        })
+        .then((response) => {
+          const blob = new Blob([response.data], { type: "text/csv;charset=utf-8;" });
+          return window.URL.createObjectURL(blob);
+        }),
+  });
+};
