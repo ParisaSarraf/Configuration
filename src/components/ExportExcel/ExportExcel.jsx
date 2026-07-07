@@ -9,8 +9,6 @@ const ExportExcelButton = ({
   isLoading,
   FnName,
 }) => {
-  console.log(id);
-
   const handleClick = () => {
     Modal.confirm({
       title: title || "خروجی اکسل",
