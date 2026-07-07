@@ -6,6 +6,7 @@ import {
 } from "../../../../QueryServises/productSerialQuery";
 import { useEffect } from "react";
 import { useResizableColumns } from "../../../../hooks/useResizableColumns.jsx";
+import { TableAntd } from "../../../../components/TableAntd/TableAntd.jsx";
 
 const SerialListTable = ({
   setModal,
@@ -52,18 +53,11 @@ const SerialListTable = ({
   const { resizableColumns, components } = useResizableColumns(baseColumns);
 
   return (
-    <Table
-      size="small"
+    <TableAntd
       components={components}
       columns={resizableColumns}
       dataSource={productSerial?.serials}
       rowKey="id"
-      pagination={{
-        defaultPageSize: 5,
-        pageSizeOptions: [10, 20, 45, 100],
-        size: "small",
-        showSizeChanger: true,
-      }}
       rowSelection={{
         type: "radio",
         selectedRowKeys: selectedRowId ? [selectedRowId] : [],

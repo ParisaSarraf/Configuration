@@ -38,17 +38,14 @@ export const TableAntd = ({
           showTotal: (total) => `تعداد کل: ${total}`,
           showSizeChanger: true,
           defaultPageSize: 5,
+          pageSizeOptions: [10, 20, 45, 100],
           size: "small",
-          pageSizeOptions: ["10", "20", "45", "100"],
+          showSizeChanger: true,
           locale: {
             items_per_page: "",
             page: "صفحه",
             jump_to: "برو به صفحه",
             jump_to_confirm: "برو",
-          },
-          onChange: (newPage, newPageSize) => {
-            setPage(newPage);
-            setPageSize(newPageSize);
           },
         }}
       />
