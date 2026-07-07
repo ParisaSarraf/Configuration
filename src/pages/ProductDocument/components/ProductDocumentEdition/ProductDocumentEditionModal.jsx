@@ -109,7 +109,7 @@ const ProductDocumentEditionModal = ({
                   })),
                 ]}
                 placeholder="انتخاب کنید"
-                disabled={modalMode !== "edition"}
+                // disabled={modalMode !== "edition"}
               />
             </Form.Item>
           </Col>
