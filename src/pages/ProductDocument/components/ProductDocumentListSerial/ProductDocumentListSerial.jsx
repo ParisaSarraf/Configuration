@@ -1,67 +1,162 @@
 import { useCallback, useMemo } from "react";
-import { Card, Form, message, Modal, Select } from "antd";
+import {
+  Button,
+  Card,
+  Form,
+  message,
+  Modal,
+  Select,
+  Space,
+  Tooltip,
+} from "antd";
 import { useProductSerialById } from "@/QueryServises/productSerialQuery/index.js";
 import { useProductDocumentEditionLogsBySerialById } from "@/QueryServises/productDocumentQuery/index.js";
 import { ProductDocumentListSerialCol } from "./components/ProductDocumentListSerialCol";
 import { useDeleteProductEditionlog } from "@/QueryServises/productDocumentEditionLogQuery/index.js";
+import { DeleteOutlined, EyeFilled } from "@ant-design/icons";
+import { BASEURL } from "@/Services/axiosInstance.js";
 import { TableAntd } from "../../../../components/TableAntd/TableAntd";
+import { georgianDateToJalaliDate } from "../../../../utils/timeTool";
 
-const DocumentsTable = ({ documents }) => {
+const DocumentsTable = ({ documents, onEdit, onDelete, onView }) => {
+  const documentData = useMemo(() => {
+    const flatData = [];
+
+    documents?.forEach((doc) => {
+      const { editions, ...docDetails } = doc;
+
+      const totalRows =
+        editions?.reduce((sum, ed) => sum + (ed.logs?.length || 1), 0) || 1;
+
+      if (!editions || editions.length === 0) {
+        flatData.push({
+          ...docDetails,
+          key: `doc-${doc.id}`,
+          editionData: null,
+          logData: null,
+          docRowSpan: 1,
+          editionRowSpan: 1,
+        });
+        return;
+      }
+
+      let isFirstRowOfDoc = true;
+
+      editions.forEach((edition) => {
+        const { logs, ...editionDetails } = edition;
+        const logCount = logs?.length || 0;
+
+        if (logCount === 0) {
+          flatData.push({
+            ...docDetails,
+            editionData: editionDetails,
+            logData: null,
+            key: `edition-${edition.id}`,
+            docRowSpan: isFirstRowOfDoc ? totalRows : 0,
+            editionRowSpan: 1,
+          });
+          isFirstRowOfDoc = false;
+        } else {
+          logs.forEach((log, index) => {
+            flatData.push({
+              ...docDetails,
+              editionData: editionDetails,
+              logData: log,
+              key: `log-${log.id}`,
+              docRowSpan: isFirstRowOfDoc ? totalRows : 0,
+              editionRowSpan: index === 0 ? logCount : 0,
+            });
+            isFirstRowOfDoc = false;
+          });
+        }
+      });
+    });
+
+    return flatData;
+  }, [documents]);
+
   const documentColumns = useMemo(
     () => [
       {
         title: "عنوان سند",
         dataIndex: "title",
         key: "title",
-        // render: (doc) => `${doc.document?.full_code} / ${editionDoc.full_code}`,
-        render: (_, doc) =>
-          `${doc.document?.full_code} / ${doc.editions?.[0]?.full_code ?? ""}`,
+        onCell: (record) => ({ rowSpan: record.docRowSpan }),
+        render: (_, record) => (record ? record.document?.full_code : "--"),
       },
       {
-        title: "کد",
-        key: "full_code",
-        render: (doc) => doc.document?.full_code,
+        title: "نسخه",
+        key: "edition_full_code",
+        onCell: (record) => ({ rowSpan: record.editionRowSpan }),
+        render: (_, record) =>
+          record.editionData?.full_code ? record.editionData?.full_code : "--",
       },
-      // {
-      //   title: "تاریخ بازبینی",
-      //   dataIndex: "survey_date",
-      //   key: "survey_date",
-      //   render: (doc) => {
-      //     return georgianDateToJalaliDate(doc.editions.logs[0].survey_date);
-      //   },
-      // },
+      {
+        title: "تاریخ تهیه",
+        key: "edition_survey_date",
+        onCell: (record) => ({ rowSpan: record.editionRowSpan }),
+        render: (_, record) =>
+          record.logData?.survey_date
+            ? georgianDateToJalaliDate(record.logData?.survey_date)
+            : "--",
+      },
+      {
+        title: "فایل",
+        dataIndex: ["logData", "file"],
+        key: "log_file",
+        render: (fileUrl) =>
+          fileUrl ? (
+            <a
+              href={`${BASEURL.replace("/api/v1", "")}${fileUrl}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              مشاهده
+            </a>
+          ) : (
+            "ندارد"
+          ),
+      },
+      {
+        title: "عملیات",
+        key: "actions",
+        fixed: "right",
+        width: 120,
+        render: (_, record) =>
+          record.logData ? (
+            <Space>
+              <Tooltip title="حذف ">
+                <Button
+                  size="small"
+                  icon={<DeleteOutlined />}
+                  danger
+                  onClick={() => onDelete(record.logData)}
+                />
+              </Tooltip>
+              <Tooltip title="نمایش جزئیات ">
+                <Button
+                  size="small"
+                  icon={<EyeFilled />}
+                  className="text-sky-500 border-sky-500"
+                  onClick={() => onView(record)}
+                />
+              </Tooltip>
+            </Space>
+          ) : null,
+      },
     ],
-    [],
+    [onEdit, onDelete, onView],
   );
-
-  const documentData = useMemo(
-    () => documents?.map((doc) => ({ ...doc, key: doc.id })) || [],
-    [documents],
-  );
-
-  // const renderEditionsAndLogs = useCallback(
-  //   (documentRecord) => (
-  //     <EditionsAndLogsTable
-  //       editions={documentRecord.editions}
-  //       onEdit={onEdit}
-  //       onDelete={onDelete}
-  //       onView={onView}
-  //     />
-  //   ),
-  //   [onEdit, onDelete, onView]
-  // );
 
   return (
     <TableAntd
+      rowKey="key"
       columns={documentColumns}
       dataSource={documentData}
       size="small"
+      bordered
       pagination={false}
-      expandable={{
-        // expandedRowRender: renderEditionsAndLogs,
-        rowExpandable: (record) =>
-          record.editions && record.editions.length > 0,
-      }}
+      scroll={{ x: "max-content" }}
     />
   );
 };
@@ -116,7 +211,7 @@ const ProductDocumentListSerial = ({
         type: "EditionDetailView",
       });
     },
-    [setModal],
+    [setModal, ProductDocumentData],
   );
 
   const handleDeleteLogEdition = useCallback(

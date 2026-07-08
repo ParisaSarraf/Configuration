@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Form, Input, Modal, Spin } from "antd";
+import { Button, Form, Input, message, Modal, Spin } from "antd";
 import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 import {
   useRootProduct,
@@ -63,30 +63,93 @@ const Products = () => {
     );
   };
 
+  // const handleUpdateWarehouseStock = () => {
+  //   Modal.confirm({
+  //     title: "بروزرسانی موجودی انبار",
+  //     okText: "بله",
+  //     okType: "primary",
+  //     content: (
+  //       <>
+  //       <span>ایا از آپلود فایل مطمئن هستید؟</span>
+  //       <Form form={form}>
+  //         <Form.Item label="فایل" name="csv_file" rules={[{ required: true }]}>
+  //           <FileUploader />
+  //         </Form.Item>
+  //       </Form>
+  //       </>
+  //     ),
+  //     onOk: async () => {
+  //       const values = await form.validateFields();
+  //       const csvFile = values.csv_file?.[0]?.originFileObj;
+  //       try {
+  //         await fileUpdateWarehouseStock({ csv_file: csvFile });
+  //         message.success("بروزرسانی موجودی انبار با موفقیت انجام شد");
+  //         form.resetFields();
+  //         await refetch();
+  //       } catch (error) {
+  //         message.error(error.message);
+  //         return Promise.reject(error);
+  //       }
+  //     },
+  //     onCancel: () => {
+  //       form.resetFields();
+  //     },
+  //   });
+  // };
+
   const handleUpdateWarehouseStock = () => {
     Modal.confirm({
-      title: "آیا مطمئن هستید؟",
-      okText: "بله",
+      title: (
+        <div className="flex items-center gap-2 text-lg font-semibold">
+          📦 بروزرسانی موجودی انبار
+        </div>
+      ),
+      width: 520,
+      centered: true,
+      okText: "آپلود و بروزرسانی",
+      cancelText: "انصراف",
       okType: "primary",
       content: (
-        <Form form={form}>
-          <Form.Item label="فایل" name="csv_file" rules={[{ required: true }]}>
-            <FileUploader />
-          </Form.Item>
-        </Form>
+        <div className="mt-4 space-y-4">
+          <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-amber-700">
+            آیا از آپلود فایل و بروزرسانی موجودی انبار اطمینان دارید؟
+          </div>
+
+          <Form form={form} layout="vertical">
+            <Form.Item
+              label="فایل CSV"
+              name="csv_file"
+              rules={[{ required: true, message: "فایل را انتخاب کنید." }]}
+            >
+              <FileUploader />
+            </Form.Item>
+          </Form>
+        </div>
       ),
       onOk: async () => {
-        const values = await form.validateFields();
-        const csvFile = values.csv_file?.[0]?.originFileObj;
-        console.log(csvFile);
         try {
+          const values = await form.validateFields();
+          const csvFile = values.csv_file?.[0]?.originFileObj;
           await fileUpdateWarehouseStock({ csv_file: csvFile });
-          message.success("بروزرسانی موجودی انبار با موفقیت انجام شد");
+          message.success("بروزرسانی موجودی انبار با موفقیت انجام شد.");
           form.resetFields();
           await refetch();
         } catch (error) {
-          message.error(error.message);
-          return Promise.reject(error);
+          const errorData = error.response?.data;
+          let errorMessage = "خطایی رخ داده است.";
+          if (Array.isArray(errorData)) {
+            errorMessage = errorData.join("\n");
+          } else if (Array.isArray(errorData?.detail)) {
+            errorMessage = errorData.detail.join("\n");
+          } else if (typeof errorData?.detail === "string") {
+            errorMessage = errorData.detail;
+          } else if (typeof errorData === "string") {
+            errorMessage = errorData;
+          } else if (error.message) {
+            errorMessage = error.message;
+          }
+          message.error(errorMessage);
+          throw error;
         }
       },
       onCancel: () => {
