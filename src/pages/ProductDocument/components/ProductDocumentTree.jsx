@@ -202,8 +202,8 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
         key: `edition-${edition.id}`,
         value: `edition-${edition.id}`,
         title: (
-          <div className="flex flex-row justify-between items-center w-full">
-            <span className="w-full gap-2">
+          <div className={`flex flex-row justify-between items-center w-full ${edition?.is_active ? "text-sky-500" : "text-black"}`}>
+            <span className={`w-full gap-2 `}>
               {edition.edition_full} -
               <FiberManualRecordIcon
                 fontSize="small"
@@ -339,7 +339,7 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
       onRightClickAction={handleRightClickAction}
       expandedKeys={expandedKeys}
       onExpand={handleExpand}
-    />
+  />
   );
 };
 
