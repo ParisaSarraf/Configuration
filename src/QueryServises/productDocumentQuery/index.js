@@ -69,7 +69,7 @@ export const useUpdateProductDocumentEdition = () => {
             headers: {
               "Content-Type": "multipart/form-data",
             },
-          }
+          },
         )
         .then((response) => response?.data);
     },
@@ -117,7 +117,7 @@ export const useProductDocumentEditionLogsBySerialById = (id, queryOptions) => {
       id
         ? myAxios
             .get(
-              `/product/get-product-document-edition-logs-by-serial-id/${id}`
+              `/product/get-product-document-edition-logs-by-serial-id/${id}`,
             )
             .then((response) => response?.data)
         : Promise.resolve(null),
@@ -143,7 +143,6 @@ export const useGetZipById = (id, queryOptions) => {
   });
 };
 
-
 // AI
 // Trigger zip creation → returns { uuid }
 export const useCreateZipReport = () => {
@@ -156,6 +155,19 @@ export const useCreateZipReport = () => {
   });
 };
 
+// zip by serial id
+export const useCreateZipReportBySerialId = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: (productId) =>
+      myAxios
+        .get(
+          `/product/get-product-document-edition-logs-zip-by-serial-id/${productId}`,
+        )
+        .then((res) => res.data),
+  });
+};
+
 // Poll status by uuid77yg
 export const useZipReportStatus = (uuid, { enabled } = {}) => {
   const { myAxios } = useMyAxios();
@@ -163,7 +175,24 @@ export const useZipReportStatus = (uuid, { enabled } = {}) => {
     queryKey: ["zipReportStatus", uuid],
     queryFn: () =>
       myAxios
-        .get(`/product/get-product-documnet-zip-report-status-by-uuid-id/${uuid}`)
+        .get(
+          `/product/get-product-documnet-zip-report-status-by-uuid-id/${uuid}`,
+        )
+        .then((res) => res.data),
+    enabled: !!uuid && enabled,
+    refetchInterval: (data) =>
+      data?.status === "SUCCESS" || data?.status === "FAILURE" ? false : 2_000,
+    refetchIntervalInBackground: true,
+  });
+};
+
+export const useZipSerialReportStatusBySerialId = (uuid, { enabled } = {}) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: ["zipSerialReportStatusBySerialId", uuid],
+    queryFn: () =>
+      myAxios
+        .get(`/product/get-product-document-edition-logs-zip-by-status/${uuid}`)
         .then((res) => res.data),
     enabled: !!uuid && enabled,
     refetchInterval: (data) =>
@@ -177,11 +206,16 @@ export const useExportExcelSerial = () => {
   return useMutation({
     mutationFn: (id) =>
       myAxios
-        .get(`/product/get-product-document-edition-logs-csv-by-serial-id/${id}`, {
-          responseType: "blob",
-        })
+        .get(
+          `/product/get-product-document-edition-logs-csv-by-serial-id/${id}`,
+          {
+            responseType: "blob",
+          },
+        )
         .then((response) => {
-          const blob = new Blob([response.data], { type: "text/csv;charset=utf-8;" });
+          const blob = new Blob([response.data], {
+            type: "text/csv;charset=utf-8;",
+          });
           return window.URL.createObjectURL(blob);
         }),
   });

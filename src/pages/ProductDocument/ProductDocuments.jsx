@@ -8,6 +8,7 @@ import ProductDocumentListSerial from "./components/ProductDocumentListSerial/Pr
 import AddProductDocumentListSerialLogModal from "./components/ProductDocumentListSerial/components/AddProductDocumentListSerialLogModal";
 import { useEffect, useState } from "react";
 import {
+  useCreateZipReportBySerialId,
   useExportExcelSerial,
   useProductDocumentEditionLogsBySerialById,
   useProductDocumentTreeById,
@@ -15,8 +16,10 @@ import {
 import EditionDetailViewModal from "./components/ProductDocumentListSerial/components/EditionDetailViewModal";
 import DetailModal from "@/components/DetailModal/DetailModal.jsx";
 import CombineFiles from "@/pages/ProductDocument/components/CombineFiles/CombineFiles.jsx";
-import { PlusOutlined } from "@ant-design/icons";
+import { DownloadOutlined, PlusOutlined } from "@ant-design/icons";
 import ExportExcelButton from "../../components/ExportExcel/ExportExcel";
+import ZipProgressModal from "../../components/ZipProgressModal/ZipProgressModal";
+import ZipSerialProgressModal from "../../components/ZipSerialProgressModal/ZipSerialProgressModal";
 
 const ProductDocuments = () => {
   const { currentProduct } = useProductContext();
@@ -25,10 +28,13 @@ const ProductDocuments = () => {
   const { refetch } = useProductDocumentTreeById(currentProduct?.id);
   const [serialId, setSerialId] = useState(null);
   const [serialLabel, setSerialLabel] = useState("");
+  const [zipTask, setZipTask] = useState(null);
   const { refetch: refetchSerialId } =
     useProductDocumentEditionLogsBySerialById(serialId);
   const { mutateAsync: exportExcel, isLoading: isExporting } =
     useExportExcelSerial();
+  const { mutate: createZip, isLoading: isRequestingZip } =
+    useCreateZipReportBySerialId();
 
   useEffect(() => {
     setSerialId(null);
@@ -85,6 +91,31 @@ const ProductDocuments = () => {
                   fileName={serialLabel || "serial-export"}
                   FnName={exportExcel}
                   isLoading={isExporting}
+                />
+
+                <Button
+                  className="mt-4"
+                  type="primary"
+                  title="دانلود فایل ZIP"
+                  icon={<DownloadOutlined />}
+                  loading={isRequestingZip}
+                  disabled={!serialId}
+                  onClick={() => {
+                    if (!serialId) return;
+                    createZip(serialId, {
+                      onSuccess: (res) => {
+                        setZipTask({ uuid: res.uuid, fileName: serialLabel });
+                        setModal({
+                          mode: "zip",
+                          data: serialId,
+                          type: "ZipSerialProgressModal",
+                        });
+                      },
+                      onError: () => {
+                        message.error("خطا در شروع ساخت فایل ZIP");
+                      },
+                    });
+                  }}
                 />
               </div>
             }
@@ -148,6 +179,16 @@ const ProductDocuments = () => {
         setModal={setModal}
         refetch={refetch}
       />
+
+      {modalType === "ZipSerialProgressModal" && zipTask && (
+        <ZipSerialProgressModal
+          isOpen={modalType === "ZipSerialProgressModal" && isOpen}
+          uuid={zipTask.uuid}
+          fileName={zipTask.fileName}
+          onDone={() => setZipTask(null)}
+          onClose={() => setZipTask(null)}
+        />
+      )}
     </Card>
   );
 };

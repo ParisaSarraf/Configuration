@@ -108,7 +108,6 @@ const ProductTree = ({
       const fileName =
         node?.productData?.persian_title || node?.productData?.code;
       const productId = node?.productData?.id;
-
       createZip(productId, {
         onSuccess: (data) => {
           if (data?.uuid) {
