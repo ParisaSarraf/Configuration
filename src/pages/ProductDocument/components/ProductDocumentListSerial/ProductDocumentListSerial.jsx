@@ -1,137 +1,22 @@
 import { useCallback, useMemo } from "react";
-import {
-  Button,
-  Card,
-  Form,
-  message,
-  Modal,
-  Select,
-  Space,
-  Tooltip,
-} from "antd";
+import { Card, Form, message, Modal, Select } from "antd";
 import { useProductSerialById } from "@/QueryServises/productSerialQuery/index.js";
 import { useProductDocumentEditionLogsBySerialById } from "@/QueryServises/productDocumentQuery/index.js";
 import { ProductDocumentListSerialCol } from "./components/ProductDocumentListSerialCol";
 import { useDeleteProductEditionlog } from "@/QueryServises/productDocumentEditionLogQuery/index.js";
-import { DeleteOutlined, EyeFilled } from "@ant-design/icons";
-import { BASEURL } from "@/Services/axiosInstance.js";
 import { TableAntd } from "../../../../components/TableAntd/TableAntd";
 
-const EditionsAndLogsTable = ({ editions, onEdit, onDelete, onView }) => {
-  const processedData = useMemo(() => {
-    const flatData = [];
-    editions?.forEach((edition) => {
-      const { logs, ...editionDetails } = edition;
-      const logCount = logs?.length || 0;
-      if (logCount === 0) {
-        flatData.push({
-          ...editionDetails,
-          key: `edition-${edition.id}`,
-          logData: null,
-          rowSpan: 1,
-        });
-      } else {
-        logs.forEach((log, index) => {
-          flatData.push({
-            ...editionDetails,
-            key: `log-${log.id}`,
-            logData: log,
-            rowSpan: index === 0 ? logCount : 0,
-          });
-        });
-      }
-    });
-    return flatData;
-  }, [editions]);
-  
-  const mergedColumns = useMemo(
-    () => [
-      {
-        title: "نسخه",
-        dataIndex: "edition",
-        key: "edition",
-        onCell: (record) => ({ rowSpan: record.rowSpan }),
-        width: 100,
-      },
-      {
-        title: "کد سند",
-        dataIndex: "full_code",
-        key: "full_code",
-        onCell: (record) => ({ rowSpan: record.rowSpan }),
-        render: (text) => text || "--", 
-        width: 150,
-      },
-      // {
-      //   title: "تاریخ بازبینی",
-      //   dataIndex: ["logData", "survey_date"],
-      //   key: "log_survey_date",
-      //   render: (date) => (date ? georgianDateToJalaliDate(date) : "---"),
-      // },
-      {
-        title: "فایل",
-        dataIndex: ["logData", "file"],
-        key: "log_file",
-        render: (fileUrl) =>
-          fileUrl ? (
-            <a
-              href={`${BASEURL.replace("/api/v1", "")}${fileUrl}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              مشاهده
-            </a>
-          ) : (
-            "ندارد"
-          ),
-      },
-      {
-        title: "عملیات",
-        key: "actions",
-        fixed: "right",
-        width: 120,
-        render: (_, record) =>
-          record.logData ? (
-            <Space>
-              <Tooltip title="حذف ">
-                <Button
-                  size="small"
-                  icon={<DeleteOutlined />}
-                  danger
-                  onClick={() => onDelete(record.logData)}
-                />
-              </Tooltip>
-              <Tooltip title="نمایش جزئیات ">
-                <Button
-                  size="small"
-                  icon={<EyeFilled />}
-                  className="text-sky-500 border-sky-500"
-                  onClick={() => onView(record)}
-                />
-              </Tooltip>
-            </Space>
-          ) : null,
-      },
-    ],
-    [onEdit, onDelete, onView]
-  );
-
-  return (
-    <TableAntd
-      columns={mergedColumns}
-      dataSource={processedData}
-      size="small"
-      bordered
-      pagination={false}
-      scroll={{ x: "max-content" }}
-    />
-  );
-};
-
-const DocumentsTable = ({ documents, onEdit, onDelete, onView }) => {
-  console.log(documents, 'slfkcslkcskdflc');
+const DocumentsTable = ({ documents }) => {
   const documentColumns = useMemo(
     () => [
-      { title: "عنوان سند", dataIndex: "title", key: "title" },
+      {
+        title: "عنوان سند",
+        dataIndex: "title",
+        key: "title",
+        // render: (doc) => `${doc.document?.full_code} / ${editionDoc.full_code}`,
+        render: (_, doc) =>
+          `${doc.document?.full_code} / ${doc.editions?.[0]?.full_code ?? ""}`,
+      },
       {
         title: "کد",
         key: "full_code",
@@ -146,25 +31,25 @@ const DocumentsTable = ({ documents, onEdit, onDelete, onView }) => {
       //   },
       // },
     ],
-    []
+    [],
   );
 
   const documentData = useMemo(
     () => documents?.map((doc) => ({ ...doc, key: doc.id })) || [],
-    [documents]
+    [documents],
   );
 
-  const renderEditionsAndLogs = useCallback(
-    (documentRecord) => (
-      <EditionsAndLogsTable
-        editions={documentRecord.editions}
-        onEdit={onEdit}
-        onDelete={onDelete}
-        onView={onView}
-      />
-    ),
-    [onEdit, onDelete, onView]
-  );
+  // const renderEditionsAndLogs = useCallback(
+  //   (documentRecord) => (
+  //     <EditionsAndLogsTable
+  //       editions={documentRecord.editions}
+  //       onEdit={onEdit}
+  //       onDelete={onDelete}
+  //       onView={onView}
+  //     />
+  //   ),
+  //   [onEdit, onDelete, onView]
+  // );
 
   return (
     <TableAntd
@@ -173,7 +58,7 @@ const DocumentsTable = ({ documents, onEdit, onDelete, onView }) => {
       size="small"
       pagination={false}
       expandable={{
-        expandedRowRender: renderEditionsAndLogs,
+        // expandedRowRender: renderEditionsAndLogs,
         rowExpandable: (record) =>
           record.editions && record.editions.length > 0,
       }}
@@ -195,7 +80,7 @@ const ProductDocumentListSerial = ({
 
   const serials = useMemo(
     () => ProductSerialList?.serials || [],
-    [ProductSerialList]
+    [ProductSerialList],
   );
 
   const tableData = useMemo(
@@ -204,7 +89,7 @@ const ProductDocumentListSerial = ({
         ...product,
         key: product.id,
       })) || [],
-    [ProductDocumentData]
+    [ProductDocumentData],
   );
 
   const SerialListOption = useMemo(
@@ -213,14 +98,14 @@ const ProductDocumentListSerial = ({
         value: serial.id,
         label: serial.full_serial || `سریال ${serial.id} `,
       })),
-    [serials]
+    [serials],
   );
 
   const handleEditLogEdition = useCallback(
     (logRecord) => {
       setModal({ mode: "edit", data: logRecord, type: "AddLogEdition" });
     },
-    [setModal]
+    [setModal],
   );
 
   const handleShowDetailEdiotnLog = useCallback(
@@ -231,7 +116,7 @@ const ProductDocumentListSerial = ({
         type: "EditionDetailView",
       });
     },
-    [setModal]
+    [setModal],
   );
 
   const handleDeleteLogEdition = useCallback(
@@ -256,7 +141,7 @@ const ProductDocumentListSerial = ({
         },
       });
     },
-    [deleteProductEditionlog, refetchProductDocumentData]
+    [deleteProductEditionlog, refetchProductDocumentData],
   );
 
   const expandedRowRender = useCallback(
@@ -268,7 +153,7 @@ const ProductDocumentListSerial = ({
         onView={handleShowDetailEdiotnLog}
       />
     ),
-    [handleEditLogEdition, handleDeleteLogEdition, handleShowDetailEdiotnLog]
+    [handleEditLogEdition, handleDeleteLogEdition, handleShowDetailEdiotnLog],
   );
 
   const handleSerialChange = useCallback(
@@ -276,7 +161,7 @@ const ProductDocumentListSerial = ({
       setSerialId(value);
       setSerialLabel(option.label);
     },
-    [setSerialId, setSerialLabel]
+    [setSerialId, setSerialLabel],
   );
 
   return (
