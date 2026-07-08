@@ -320,4 +320,9 @@ body {
   min-width: 700px;
 }
 
+/* فقط برای جدول‌هایی که میخوایم به‌جای اسکرول، ستون‌ها جمع بشن */
+.rtl-table.rtl-table--fit .ant-table {
+  min-width: 0;
+  width: 100%;
+}
 

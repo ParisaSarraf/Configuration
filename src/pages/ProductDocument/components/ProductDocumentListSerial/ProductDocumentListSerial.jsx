@@ -153,10 +153,10 @@ const DocumentsTable = ({ documents, onEdit, onDelete, onView }) => {
       rowKey="key"
       columns={documentColumns}
       dataSource={documentData}
-      size="small"
-      bordered
       pagination={false}
-      scroll={{ x: "max-content" }}
+      className="rtl-table--fit"
+      scroll={{}}
+      tableLayout="fixed"
     />
   );
 };
@@ -289,7 +289,9 @@ const ProductDocumentListSerial = ({
         }
       >
         <TableAntd
-          pagination={false}
+          className="rtl-table--fit"
+          scroll={{}}
+          tableLayout="fixed"
           dataSource={tableData}
           columns={ProductDocumentListSerialCol}
           expandable={{

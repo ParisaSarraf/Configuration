@@ -14,6 +14,8 @@ export const TableAntd = ({
   expandable,
   footer,
   locale,
+  scroll,       
+  tableLayout,  
 }) => {
   return (
     <div className={`rtl-table ${className}`}>
@@ -24,7 +26,8 @@ export const TableAntd = ({
         columns={columns}
         components={components}
         dataSource={dataSource}
-        scroll={{ x: "max-content" }}
+        scroll={scroll !== undefined ? scroll : { x: "max-content" }}
+        tableLayout={tableLayout}
         loading={loading}
         rowKey={rowKey}
         locale={{ filterConfirm: "اعمال", filterReset: "ریست" } || locale}
