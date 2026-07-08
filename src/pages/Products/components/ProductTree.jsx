@@ -64,8 +64,8 @@ const ProductTree = ({
   useEffect(() => {
     if (exportExcelData && exportProductId) {
       handleDownload(
-        exportExcelData,
-        `زیرمجموعه_محصول_${exportProductId}.csv`,
+        exportExcelData.url,
+        exportExcelData.fileName,
         setExportProductId,
       );
     }

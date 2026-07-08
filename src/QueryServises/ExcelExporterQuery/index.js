@@ -179,14 +179,21 @@ export const useExportExcelProductChildrenBom = (id, queryOptions) => {
     queryFn: () =>
       id
         ? myAxios
-            .get(`/product/get-product-csv-by-id/${id}`, {
-              responseType: "blob",
-            })
+            .get(`/product/get-product-csv-by-id/${id}`, { responseType: "blob" })
             .then((response) => {
-              const blob = new Blob([response.data], {
-                type: "text/csv;charset=utf-8;",
-              });
-              return window.URL.createObjectURL(blob);
+              const blob = new Blob([response.data], { type: "text/csv;charset=utf-8;" });
+              const url = window.URL.createObjectURL(blob);
+
+              let fileName ; 
+              const disposition = response.headers["content-disposition"];
+              if (disposition) {
+                const match = disposition.match(/filename\*?=(?:UTF-8'')?["']?([^"';]+)["']?/i);
+                if (match?.[1]) {
+                  fileName = decodeURIComponent(match[1]);
+                }
+              }
+
+              return { url, fileName };
             })
         : Promise.resolve(null),
     ...queryOptions,
