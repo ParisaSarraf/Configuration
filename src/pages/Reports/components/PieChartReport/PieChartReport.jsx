@@ -71,7 +71,7 @@ const PieChartReport = ({ currentProduct, filters = {} }) => {
 
 const getStateLabel = (stateCode) => {
   const stateLabels = {
-    10: "تهیه نشده ",
+    10: "تعریف نشده ",
     20: "تهیه شده",
     30: "تایید شده",
     40: "تصویب شده",

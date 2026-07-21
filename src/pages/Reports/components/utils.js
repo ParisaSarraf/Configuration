@@ -2,7 +2,7 @@ export const ALL_STATES = [null, 10, 20, 30, 40];
 
 export const stateLabels = {
     null: 'همه اسناد',
-    10: 'تهیه نشده ',
+    10: 'تعریف نشده ',
     20: 'تهیه شده',
     30: 'تایید شده',
     40: 'تصویب شده',

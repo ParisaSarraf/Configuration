@@ -47,7 +47,7 @@ const ReportCol = ({ handleShowDetailEdition, handleAutomationFiles }) => {
       width: 100,
       render: (record) => {
         if (record === 10) {
-          return <Tag color={"orange"}>{"تهیه نشده"}</Tag>;
+          return <Tag color={"orange"}>{"تعریف نشده"}</Tag>;
         }
         if (record === 20) {
           return <Tag color={"green"}>{"تهیه شده"}</Tag>;
