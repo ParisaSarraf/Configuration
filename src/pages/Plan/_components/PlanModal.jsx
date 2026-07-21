@@ -12,9 +12,9 @@ import TsLazy from "../../../components/LazyTreeSelect/LazyTreeSelect";
 const STATUS_OPTIONS = [
   { value: "draft", label: "پیش‌نویس" },
   { value: "approved", label: "تأیید شده" },
-  { value: "active", label: "فعال شده" },
-  { value: "revised", label: "ویرایش شده" },
-  { value: "closed", label: "بسته" },
+  { value: "active", label: "تکمیل شده" },
+  { value: "revised", label: "لغو و بازبینی" },
+  { value: "closed", label: "لغو و بسته" },
 ];
 
 const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
