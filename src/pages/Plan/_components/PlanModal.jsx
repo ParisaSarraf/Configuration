@@ -57,15 +57,20 @@ const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
       product_id: values.product_id?.value ?? values.product_id,
     };
 
-    if (isEdit) {
-      await updatePlan({ productionPlanId: modalData.id, ...payload });
-      message.success("بروزرسانی موفقیت انجام شد.");
-    } else {
-      await addPlan(payload);
-      message.success("باموفقیت ایجاد شد.");
+    try {
+      if (isEdit) {
+        await updatePlan({ productionPlanId: modalData.id, ...payload });
+        message.success("بروزرسانی با موفقیت انجام شد.");
+      } else {
+        await addPlan(payload);
+        message.success("با موفقیت ایجاد شد.");
+      }
+      refetch();
+      closeModal();
+    } catch (error) {
+      message.error(error?.response?.data?.detail ?? "خطا در ثبت برنامه تولید");
+      console.error(error);
     }
-    refetch();
-    closeModal();
   };
 
   return (

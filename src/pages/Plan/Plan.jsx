@@ -9,10 +9,12 @@ import {
 } from "../../QueryServises/PlanQuery";
 import { TableAntd } from "../../components/TableAntd/TableAntd";
 import PlanCols from "./_components/PlanCols";
+import PlanDetailModal from "./_components/PlanDetailModal";
 
 const Plan = () => {
   const navigate = useNavigate();
-  const { setModal, modalMode, modalData, isOpen, closeModal } = useModal();
+  const { setModal, modalMode, modalData, modalType, isOpen, closeModal } =
+    useModal();
   const { data: plans, isPending, refetch } = useProductionPlanList();
   const deletePlan = useDeleteProductionPlan();
 
@@ -62,7 +64,7 @@ const Plan = () => {
             <TableAntd
               rowKey="id"
               loading={isPending}
-              columns={PlanCols({ deletePlan, refetch })}
+              columns={PlanCols({ deletePlan, refetch, setModal })}
               dataSource={plans ?? []}
               locale={{
                 emptyText: <Empty description="برنامه تولیدی ثبت نشده است" />,
@@ -71,13 +73,23 @@ const Plan = () => {
           </Card>
         </main>
 
-        <PlanModal
-          refetch={refetch}
-          isOpen={isOpen}
-          modalMode={modalMode}
-          modalData={modalData}
-          closeModal={closeModal}
-        />
+        {modalType === "addPlan" && (
+          <PlanModal
+            refetch={refetch}
+            isOpen={isOpen}
+            modalMode={modalMode}
+            modalData={modalData}
+            closeModal={closeModal}
+          />
+        )}
+        {modalType === "showDetail" && (
+          <PlanDetailModal
+            isOpen={isOpen}
+            modalData={modalData}
+            closeModal={closeModal}
+            refetch={refetch}
+          />
+        )}
       </div>
     </div>
   );

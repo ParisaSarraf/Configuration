@@ -1,14 +1,9 @@
 import { Button, message, Popconfirm, Progress, Tag, Tooltip } from "antd";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
+import { STATUS_OPTIONS } from "./plan.constants";
 
-const PlanCols = ({ deletePlan, refetch }) => {
-  const STATUS_OPTIONS = [
-    { value: "draft", label: "پیش‌نویس" },
-    { value: "approved", label: "تأیید شده" },
-    { value: "active", label: "تکمیل شده" },
-    { value: "revised", label: "لغو و بازبینی" },
-    { value: "closed", label: "لغو و بسته" },
-  ];
+const PlanCols = ({ deletePlan, refetch, setModal }) => {
+
 
   return [
     {
@@ -31,13 +26,10 @@ const PlanCols = ({ deletePlan, refetch }) => {
       title: "وضعیت",
       dataIndex: "status",
       align: "center",
-      render: (s) => (
-        <Tag
-          color={STATUS_OPTIONS.find((o) => o.value === s)?.color ?? "default"}
-        >
-          {STATUS_OPTIONS.find((o) => o.value === s)?.label ?? s}
-        </Tag>
-      ),
+      render: (s) => {
+        const meta = STATUS_OPTIONS.find((o) => o.value === s);
+        return <Tag color={meta?.color ?? "default"}>{meta?.label ?? s}</Tag>;
+      },
     },
     {
       title: "مقدار برنامه‌ریزی شده",
@@ -67,10 +59,15 @@ const PlanCols = ({ deletePlan, refetch }) => {
     {
       title: "توضیحات",
       dataIndex: "notes",
-      ellipsis: true,
-      //   render: () => {
-      //     <Tooltip>{notes}</Tooltip>;
-      //   },
+      ellipsis: { showTitle: false },
+      render: (notes) =>
+        notes ? (
+          <Tooltip placement="topRight" title={notes}>
+            <span>{notes}</span>
+          </Tooltip>
+        ) : (
+          "—"
+        ),
     },
     {
       title: "عملیات",
@@ -117,6 +114,17 @@ const PlanCols = ({ deletePlan, refetch }) => {
               size="small"
             />
           </Popconfirm>
+          <Tooltip title="جزئیات">
+            <Button
+              type="text"
+              icon={<EyeOutlined />}
+              className="text-sky-600 border border-sky-600"
+              onClick={() =>
+                setModal({ mode: "show", data: record, type: "showDetail" })
+              }
+              size="small"
+            />
+          </Tooltip>
         </div>
       ),
     },

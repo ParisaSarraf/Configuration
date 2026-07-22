@@ -16,17 +16,18 @@ export const useProductionPlanList = (queryOptions) => {
   });
 };
 
-export const useProductionPlanOne = (queryOptions) => {
+export const useProductionPlanOne = ({ queryOptions, productionPlanId }) => {
   const { myAxios } = useMyAxios();
   return useQuery({
-    queryKey: useProductionPlanKey,
+    queryKey: ["production-plan", productionPlanId],
     queryFn: () =>
       myAxios
-        .get(`/plan/get-production-plan/${queryOptions?.productionPlanId}`)
+        .get(`/plan/get-production-plan-by-id/${productionPlanId}`)
         .then((response) => {
           queryOptions?.onSuccess?.(response?.data);
           return response?.data;
         }),
+    enabled: !!productionPlanId,
     ...queryOptions,
   });
 };
