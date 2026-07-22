@@ -334,11 +334,11 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal }) => {
   const periods = plan?.periods ?? [];
   const totalPlanned = periods.reduce(
     (s, p) => s + (p.planned_quantity ?? 0),
-    0
+    0,
   );
   const totalProduced = periods.reduce(
     (s, p) => s + (p.total_quantity_produced ?? 0),
-    0
+    0,
   );
   const totalVariance = totalProduced - totalPlanned;
   const achievement =
