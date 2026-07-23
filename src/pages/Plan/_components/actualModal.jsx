@@ -5,7 +5,6 @@ import { useCreateProductionActual } from "../../../QueryServises/PlanQuery";
 import { MONTH_NAMES } from "./PlanPeriodsChart";
 import Date from "../../../components/DatePicker/Date";
 
-// modalData = رکورد دوره (period)
 const ActualModal = ({ isOpen, modalData, closeModal, refetch }) => {
   const [form] = Form.useForm();
   const { mutateAsync: addActual, isPending } = useCreateProductionActual();
@@ -45,11 +44,6 @@ const ActualModal = ({ isOpen, modalData, closeModal, refetch }) => {
       <div className="p-1">
         <Form form={form} layout="vertical" onFinish={onFinish}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
-            {/* <Form.Item
-              name="production_date"
-              label="تاریخ تولید"
-              rules={[{ required: true, message: "تاریخ تولید الزامی است" }]}
-            > */}
             <Date
               stringifyDate={true}
               noStyle
@@ -57,7 +51,6 @@ const ActualModal = ({ isOpen, modalData, closeModal, refetch }) => {
               label="تاریخ تولید"
               name="production_date"
             />
-            {/* </Form.Item> */}
 
             <Form.Item
               name="quantity_produced"

@@ -86,6 +86,7 @@ const Plan = () => {
         )}
         {modalType === "showDetail" && (
           <PlanDetailModal
+            setModal={setModal}
             isOpen={isOpen}
             modalData={modalData}
             closeModal={closeModal}

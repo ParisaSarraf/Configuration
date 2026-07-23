@@ -9,7 +9,6 @@ const MONTH_OPTIONS = MONTH_NAMES.map((name, i) => ({
   label: name,
 }));
 
-// modalData = رکورد برنامه تولید (plan)
 const PeriodModal = ({ isOpen, modalData, closeModal, refetch }) => {
   const [form] = Form.useForm();
   const { mutateAsync: addPeriod, isPending } = useCreateProductionPlanPeriod();
