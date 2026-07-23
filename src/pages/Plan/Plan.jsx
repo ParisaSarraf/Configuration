@@ -10,6 +10,8 @@ import {
 import { TableAntd } from "../../components/TableAntd/TableAntd";
 import PlanCols from "./_components/PlanCols";
 import PlanDetailModal from "./_components/PlanDetailModal";
+import PeriodModal from "./_components/periodModal";
+import ActualModal from "./_components/actualModal";
 
 const Plan = () => {
   const navigate = useNavigate();
@@ -84,6 +86,22 @@ const Plan = () => {
         )}
         {modalType === "showDetail" && (
           <PlanDetailModal
+            isOpen={isOpen}
+            modalData={modalData}
+            closeModal={closeModal}
+            refetch={refetch}
+          />
+        )}
+        {modalType === "actualModal" && (
+          <ActualModal
+            isOpen={isOpen}
+            modalData={modalData}
+            closeModal={closeModal}
+            refetch={refetch}
+          />
+        )}
+        {modalType === "periodModal" && (
+          <PeriodModal
             isOpen={isOpen}
             modalData={modalData}
             closeModal={closeModal}

@@ -1,10 +1,14 @@
 import { Button, message, Popconfirm, Progress, Tag, Tooltip } from "antd";
-import { DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  EyeOutlined,
+  FileDoneOutlined,
+  NumberOutlined,
+} from "@ant-design/icons";
 import { STATUS_OPTIONS } from "./plan.constants";
 
 const PlanCols = ({ deletePlan, refetch, setModal }) => {
-
-
   return [
     {
       title: "محصول",
@@ -114,6 +118,28 @@ const PlanCols = ({ deletePlan, refetch, setModal }) => {
               size="small"
             />
           </Popconfirm>
+          <Tooltip title="پیش بینی">
+            <Button
+              type="text"
+              icon={<NumberOutlined />}
+              className="text-yellow-600 border border-yellow-600"
+              onClick={() =>
+                setModal({ mode: "actual", data: record, type: "actualModal" })
+              }
+              size="small"
+            />
+          </Tooltip>
+          <Tooltip title="انجام شه">
+            <Button
+              type="text"
+              icon={<FileDoneOutlined />}
+              className="text-purple-600 border border-purple-600"
+              onClick={() =>
+                setModal({ mode: "period", data: record, type: "periodModal" })
+              }
+              size="small"
+            />
+          </Tooltip>
           <Tooltip title="جزئیات">
             <Button
               type="text"

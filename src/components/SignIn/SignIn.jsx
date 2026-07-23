@@ -96,14 +96,14 @@ export function SignIn() {
         </Form>
       </div>
 
-      <div className="w-2/5 h-full hidden lg:block p-5">
+      {/* <div className="w-2/5 h-full hidden lg:block p-5">
         <img
           // src="assets/img/pattern.webp"
           src="banner.jpg"
           className="h-[calc(100vh-100px)] w-full object-cover rounded-3xl"
           alt="Background pattern"
         />
-      </div>
+      </div> */}
     </section>
   );
 }

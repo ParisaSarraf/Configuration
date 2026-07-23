@@ -1,4 +1,5 @@
 import {
+  Button,
   Card,
   Col,
   Descriptions,
@@ -9,10 +10,12 @@ import {
   Skeleton,
   Statistic,
   Tag,
+  Tooltip,
 } from "antd";
 import {
   BarChartOutlined,
   FallOutlined,
+  PlusOutlined,
   RiseOutlined,
   TableOutlined,
 } from "@ant-design/icons";
@@ -80,6 +83,25 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal }) => {
         const sign = v > 0 ? "+" : "";
         return <Tag color={color}>{`${sign}${v.toLocaleString("fa-IR")}`}</Tag>;
       },
+    },
+    {
+      title: "",
+      key: "addActual",
+      align: "center",
+      width: 50,
+      render: (_, record) => (
+        <Tooltip title="ثبت تولید">
+          <Button
+            type="text"
+            size="small"
+            icon={<PlusOutlined />}
+            className="text-emerald-600"
+            onClick={() =>
+              setModal({ mode: "add", data: record, type: "actualModal" })
+            }
+          />
+        </Tooltip>
+      ),
     },
     {
       title: "توضیحات",

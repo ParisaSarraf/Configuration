@@ -117,7 +117,7 @@ export const useCreateProductionPlanPeriod = () => {
   return useMutation({
     mutationFn: (params) => {
       return myAxios
-        .post(`/plan/add-production-plan-period/`, params)
+        .post(`/plan/add-producion-plan-period/`, params)
         .then((response) => {
           return response?.data;
         });

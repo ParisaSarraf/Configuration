@@ -40,7 +40,6 @@ export const TableAntd = ({
           pageSize: pageSize,
           total: totalItems,
           showTotal: (total) => `تعداد کل: ${total}`,
-          showSizeChanger: true,
           defaultPageSize: 5,
           pageSizeOptions: [10, 20, 45, 100],
           size: "small",
