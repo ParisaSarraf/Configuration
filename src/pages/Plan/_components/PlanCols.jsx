@@ -123,7 +123,7 @@ const PlanCols = ({ deletePlan, refetch, setModal, getColumnSearchProps }) => {
               size="small"
             />
           </Popconfirm>
-          <Tooltip title="پیش بینی">
+          {/* <Tooltip title="پیش بینی">
             <Button
               type="text"
               icon={<NumberOutlined />}
@@ -133,7 +133,7 @@ const PlanCols = ({ deletePlan, refetch, setModal, getColumnSearchProps }) => {
               }
               size="small"
             />
-          </Tooltip>
+          </Tooltip> */}
           <Tooltip title="انجام شده">
             <Button
               type="text"
