@@ -16,6 +16,29 @@ export const useProductionPlanList = (queryOptions) => {
   });
 };
 
+export const useYearPercentageOfPerformanceKey = [
+  "lists",
+  "year-percentage-of-performance",
+];
+export const useYearPercentageOfPerformanceList = (queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: useYearPercentageOfPerformanceKey,
+    queryFn: () =>
+      myAxios
+        .get(`/plan/get-year-percentage-of-performane/`, {
+          params: {
+            year: queryOptions?.year,
+          },
+        })
+        .then((response) => {
+          queryOptions?.onSuccess?.(response?.data);
+          return response?.data;
+        }),
+    ...queryOptions,
+  });
+};
+
 export const useProductionPlanOne = ({ queryOptions, productionPlanId }) => {
   const { myAxios } = useMyAxios();
   return useQuery({

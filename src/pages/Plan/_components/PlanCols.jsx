@@ -8,7 +8,7 @@ import {
 } from "@ant-design/icons";
 import { STATUS_OPTIONS } from "./plan.constants";
 
-const PlanCols = ({ deletePlan, refetch, setModal }) => {
+const PlanCols = ({ deletePlan, refetch, setModal, getColumnSearchProps }) => {
   return [
     {
       title: "محصول",
@@ -25,7 +25,12 @@ const PlanCols = ({ deletePlan, refetch, setModal }) => {
         </div>
       ),
     },
-    { title: "شماره نسخه", dataIndex: "version_number", align: "center" },
+    {
+      title: "سال",
+      dataIndex: "year",
+      align: "center",
+      ...getColumnSearchProps("year", " سال"),
+    },
     {
       title: "وضعیت",
       dataIndex: "status",
@@ -129,7 +134,7 @@ const PlanCols = ({ deletePlan, refetch, setModal }) => {
               size="small"
             />
           </Tooltip>
-          {/* <Tooltip title="انجام شه">
+          <Tooltip title="انجام شده">
             <Button
               type="text"
               icon={<FileDoneOutlined />}
@@ -139,7 +144,7 @@ const PlanCols = ({ deletePlan, refetch, setModal }) => {
               }
               size="small"
             />
-          </Tooltip> */}
+          </Tooltip>
           <Tooltip title="جزئیات">
             <Button
               type="text"

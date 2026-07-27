@@ -85,14 +85,6 @@ const Genus = () => {
     });
   };
 
-  const handleNameSearch = (value) => {
-    setSearchName(value);
-  };
-
-  const handleDescriptionSearch = (value) => {
-    setSearchDescription(value);
-  };
-
   return (
     <Spin spinning={isFetching && !data} tip="در حال دریافت اطلاعات...">
       <div className="w-full grid grid-cols-2 gap-2">
