@@ -103,13 +103,13 @@ const Plan = () => {
             </Card>
           </div>
 
-          {/* <YearPerformanceReport
+          <YearPerformanceReport
             yearPercentageOfPerformanceList={yearPercentageOfPerformanceList}
             searchParams={searchParams}
             setSearchParams={setSearchParams}
             onSearch={yearRefetch}
             isFetching={isYearFetching}
-          /> */}
+          />
         </main>
 
         {modalType === "addPlan" && (
