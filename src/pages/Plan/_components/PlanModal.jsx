@@ -43,12 +43,7 @@ const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
           : undefined,
         // version_number: modalData.version_number,
         status: modalData.status,
-        product_name: modalData.product
-          ? {
-              value: modalData.product.id,
-              label: modalData.product.persian_title ?? modalData.product.code,
-            }
-          : undefined,
+        product_name: modalData.product_name,
         year: modalData.year,
         weight: modalData.weight,
         total_planned_quantity: modalData.total_planned_quantity,
@@ -63,7 +58,7 @@ const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
     const payload = {
       ...values,
       product_id: values.product_id?.value ?? values.product_id,
-      product_name: values.product_name?.value ?? values.product_name,
+      product_name: values.product_name,
     };
 
     try {
@@ -110,13 +105,14 @@ const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
             </Form.Item>
 
             <Form.Item name={"product_name"} label="نام محصول">
-              <TsLazy
+              {/* <TsLazy
                 treeData={treeData}
                 loadData={loadChildren}
                 labelInValue
                 placeholder="محصولات"
                 allowClear
-              />
+              /> */}
+              <Input placeholder="نام محصول" />
             </Form.Item>
 
             <Form.Item name={"weight"} label="وزن">

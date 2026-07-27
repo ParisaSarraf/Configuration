@@ -12,12 +12,12 @@ const PlanCols = ({ deletePlan, refetch, setModal, getColumnSearchProps }) => {
   return [
     {
       title: "محصول",
-      key: "product",
+      key: "product_name",
       align: "center",
       render: (_, record) => (
         <div className="flex flex-col items-center">
           <span className="font-medium">
-            {record.product?.persian_title ?? "—"}
+            {record.product_name ?? "—"}
           </span>
           <span className="text-xs text-slate-400">
             کد: {record.product?.code ?? "—"}
