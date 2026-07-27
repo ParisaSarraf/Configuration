@@ -41,8 +41,16 @@ const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
               label: modalData.product.persian_title ?? modalData.product.code,
             }
           : undefined,
-        version_number: modalData.version_number,
+        // version_number: modalData.version_number,
         status: modalData.status,
+        product_name: modalData.product
+          ? {
+              value: modalData.product.id,
+              label: modalData.product.persian_title ?? modalData.product.code,
+            }
+          : undefined,
+        year: modalData.year,
+        weight: modalData.weight,
         total_planned_quantity: modalData.total_planned_quantity,
         notes: modalData.notes,
       });
@@ -55,6 +63,7 @@ const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
     const payload = {
       ...values,
       product_id: values.product_id?.value ?? values.product_id,
+      product_name: values.product_name?.value ?? values.product_name,
     };
 
     try {
@@ -80,6 +89,7 @@ const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
       title={isEdit ? "ویرایش برنامه تولید" : "افزودن برنامه تولید"}
       onSubmit={() => form.submit()}
       loading={isLoading}
+      size={500}
     >
       <div className="p-1">
         <Form
@@ -89,11 +99,7 @@ const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
           initialValues={{ status: "draft" }}
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
-            <Form.Item
-              name="product_id"
-              label="محصول"
-              rules={[{ required: true, message: "انتخاب محصول الزامی است" }]}
-            >
+            <Form.Item name="product_id" label="محصول">
               <TsLazy
                 treeData={treeData}
                 loadData={loadChildren}
@@ -103,12 +109,22 @@ const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
               />
             </Form.Item>
 
-            <Form.Item
-              name="version_number"
-              label="شماره نسخه"
-              rules={[{ required: true, message: "شماره نسخه الزامی است" }]}
-            >
-              <InputNumber className="!w-full" min={0} placeholder="مثلاً ۱" />
+            <Form.Item name={"product_name"} label="نام محصول">
+              <TsLazy
+                treeData={treeData}
+                loadData={loadChildren}
+                labelInValue
+                placeholder="محصولات"
+                allowClear
+              />
+            </Form.Item>
+
+            <Form.Item name={"weight"} label="وزن">
+              <Input placeholder="وزن" />
+            </Form.Item>
+
+            <Form.Item name={"year"} label="سال">
+              <InputNumber placeholder="سال" className="w-full" />
             </Form.Item>
 
             <Form.Item name="status" label="وضعیت" rules={[{ required: true }]}>

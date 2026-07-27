@@ -129,7 +129,7 @@ const PlanCols = ({ deletePlan, refetch, setModal }) => {
               size="small"
             />
           </Tooltip>
-          <Tooltip title="انجام شه">
+          {/* <Tooltip title="انجام شه">
             <Button
               type="text"
               icon={<FileDoneOutlined />}
@@ -139,7 +139,7 @@ const PlanCols = ({ deletePlan, refetch, setModal }) => {
               }
               size="small"
             />
-          </Tooltip>
+          </Tooltip> */}
           <Tooltip title="جزئیات">
             <Button
               type="text"
