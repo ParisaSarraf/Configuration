@@ -101,13 +101,13 @@ const Plan = () => {
             </Card>
           </div>
 
-          <YearPerformanceReport
+          {/* <YearPerformanceReport
             yearPercentageOfPerformanceList={yearPercentageOfPerformanceList}
             searchParams={searchParams}
             setSearchParams={setSearchParams}
             onSearch={yearRefetch}
             isFetching={isYearFetching}
-          />
+          /> */}
         </main>
 
         {modalType === "addPlan" && (
@@ -131,6 +131,7 @@ const Plan = () => {
         {modalType === "actualModal" && (
           <ActualModal
             isOpen={isOpen}
+            modalMode={modalMode}
             modalData={modalData}
             closeModal={closeModal}
             refetch={refetch}
