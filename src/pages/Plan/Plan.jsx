@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import useModal from "../../hooks/useModal";
 import PlanModal from "./_components/PlanModal";
 import {
+  useDeleteProductionActual,
   useDeleteProductionPlan,
   useProductionPlanList,
   useYearPercentageOfPerformanceList,
@@ -24,6 +25,7 @@ const Plan = () => {
     useModal();
   const { data: plans, isPending, refetch } = useProductionPlanList();
   const deletePlan = useDeleteProductionPlan();
+  const deleteActual = useDeleteProductionActual();
   const [searchParams, setSearchParams] = useState({
     year: "",
   });
@@ -126,6 +128,7 @@ const Plan = () => {
             modalData={modalData}
             closeModal={closeModal}
             refetch={refetch}
+            deleteActual={deleteActual}
           />
         )}
         {modalType === "actualModal" && (

@@ -5,6 +5,8 @@ import {
   Descriptions,
   Divider,
   Empty,
+  message,
+  Popconfirm,
   Progress,
   Row,
   Skeleton,
@@ -13,7 +15,7 @@ import {
   Tag,
   Tooltip,
 } from "antd";
-import { FallOutlined, PlusOutlined, RiseOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, FallOutlined, PlusOutlined, RiseOutlined } from "@ant-design/icons";
 import Modal from "../../../components/Modal";
 import { useProductionPlanOne } from "../../../QueryServises/PlanQuery";
 import { STATUS_OPTIONS } from "./plan.constants";
@@ -32,8 +34,8 @@ const SectionTitle = ({ children }) => (
   <h3 className="text-base font-bold text-slate-800 mb-4">{children}</h3>
 );
 
-const PlanDetailModal = ({ isOpen, modalData, closeModal, setModal }) => {
-  const { data, isLoading } = useProductionPlanOne({
+const PlanDetailModal = ({ isOpen, modalData, closeModal, setModal, deleteActual, refetch }) => {
+  const { data, isLoading , refetch: refetchPlan } = useProductionPlanOne({
     productionPlanId: modalData?.id,
   });
 
@@ -65,6 +67,7 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, setModal }) => {
 
   const productTitle =
     plan?.product?.persian_title ?? plan?.product_name ?? "—";
+
 
   const periodColumns = [
     {
@@ -148,6 +151,52 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, setModal }) => {
       dataIndex: "recorded_at",
       align: "center",
       render: (d) => (d ? georgianDateToJalaliDate(d) : "—"),
+    },
+    {
+      title: "عملیات",
+      align: "center",
+      render: (_, record) => (
+        <div className="flex items-center justify-center gap-1">
+          <Tooltip title="ویرایش">
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              className="text-green-600 border border-green-600"
+              onClick={() =>
+                setModal({ mode: "edit", data: record, type: "actualModal" })
+              }
+              size="small"
+            />
+          </Tooltip>
+          <Popconfirm
+            title="حذف برنامه تولید"
+            description="آیا از حذف این برنامه مطمئن هستید؟"
+            okText="بله، حذف کن"
+            cancelText="انصراف"
+            okButtonProps={{ danger: true, loading: deleteActual.isPending }}
+            onConfirm={() => {
+              deleteActual
+                .mutateAsync(record.id)
+                .then(() => {
+                  message.success("تولید با موفقیت حذف شد");
+                  refetchPlan();
+                })
+                .catch((error) => {
+                  message.error("خطا در حذف تولید");
+                  console.error(error);
+                });
+            }}
+          >
+            <Button
+              type="text"
+              className="border border-red-600"
+              danger
+              icon={<DeleteOutlined />}
+              size="small"
+            />
+          </Popconfirm>
+        </div>
+      ),
     },
   ];
 

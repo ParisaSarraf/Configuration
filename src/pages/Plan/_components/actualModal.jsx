@@ -1,26 +1,57 @@
 import { Form, InputNumber, message, Tooltip } from "antd";
 import { useEffect } from "react";
 import Modal from "../../../components/Modal";
-import { useCreateProductionActual } from "../../../QueryServises/PlanQuery";
+import {
+  useCreateProductionActual,
+  useUpdateProductionActual,
+} from "../../../QueryServises/PlanQuery";
 import { MONTH_NAMES } from "./PlanPeriodsChart";
 import Date from "../../../components/DatePicker/Date";
+import {
+  georgianDateToJalaliDate,
+  jalaliDateToGeorgianDate,
+} from "../../../utils/timeTool";
 
-const ActualModal = ({ isOpen, modalData, closeModal, refetch }) => {
+const ActualModal = ({ isOpen, modalData, closeModal, refetch, modalMode }) => {
   const [form] = Form.useForm();
   const { mutateAsync: addActual, isPending } = useCreateProductionActual();
+  const { mutateAsync: updateActual } = useUpdateProductionActual();
 
   useEffect(() => {
     if (isOpen) form.resetFields();
   }, [isOpen, form]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (modalData) {
+      form.setFieldsValue({
+        production_plan_period_id: modalData?.id,
+        production_date: georgianDateToJalaliDate(modalData.production_date),
+        quantity_produced: modalData.quantity_produced,
+      });
+    } else {
+      form.resetFields();
+    }
+  }, [isOpen, modalData, form]);
+
   const onFinish = async (values) => {
     try {
-      await addActual({
-        production_plan_period_id: modalData?.id,
-        production_date: values.production_date,
-        quantity_produced: values.quantity_produced,
-      });
-      message.success("تولید واقعی با موفقیت ثبت شد");
+      if (modalMode === "add") {
+        await addActual({
+          production_plan_period_id: modalData?.id,
+          production_date: jalaliDateToGeorgianDate(values?.production_date),
+          quantity_produced: values.quantity_produced,
+        });
+        message.success("تولید واقعی با موفقیت ثبت شد");
+      } else {
+        await updateActual({
+          productionActualId: modalData?.id,
+          production_date: values.production_date,
+          quantity_produced: values.quantity_produced,
+        });
+        message.success("تولید واقعی با موفقیت بروزرسانی شد");
+      }
       refetch?.();
       closeModal();
     } catch (error) {
