@@ -32,6 +32,8 @@ const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
 
   useEffect(() => {
     if (!isOpen) return;
+    console.log(modalData);
+    
 
     if (isEdit && modalData) {
       form.setFieldsValue({
@@ -42,6 +44,7 @@ const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
             }
           : undefined,
         // version_number: modalData.version_number,
+        product_name: modalData.product_name,
         status: modalData.status,
         product_name: modalData.product_name,
         year: modalData.year,
