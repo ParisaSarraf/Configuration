@@ -29,6 +29,12 @@ const PlanCols = ({ deletePlan, refetch, setModal, getColumnSearchProps }) => {
       ),
     },
     {
+      title: "پیمانکار",
+      dataIndex: "contractor_id",
+      key: "contractor_id",
+      align: "center",
+    },
+    {
       title: "سال",
       dataIndex: "year",
       align: "center",
