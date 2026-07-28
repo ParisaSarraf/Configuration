@@ -239,19 +239,19 @@ const PlanDetailModal = ({
   ];
 
   const chartsTabContent = (
-    <div className="w-full grid grid-cols-3 gap-8 pt-2">
+    <div className="w-full grid grid-cols-2 gap-8 pt-2">
       <div>
         <SectionTitle>نمودار مقادیر (برنامه / تولید)</SectionTitle>
         <Card size="small" className="rounded-xl border-slate-200">
           <QuantityTrendChart periods={periods} />
         </Card>
       </div>
-      <div>
+      {/* <div>
         <SectionTitle>نمودار وزن (برنامه‌ریزی‌شده / محقق‌شده)</SectionTitle>
         <Card size="small" className="rounded-xl border-slate-200">
           <WeightTrendChart periods={periods} />
         </Card>
-      </div>
+      </div> */}
       <div>
         <SectionTitle>انحراف از معیار</SectionTitle>
         <Card size="small" className="rounded-xl border-slate-200">
@@ -335,6 +335,29 @@ const PlanDetailModal = ({
         <Skeleton active paragraph={{ rows: 6 }} />
       ) : (
         <div className="flex flex-col gap-8">
+          {/* ============ دو تب: نمودارها / جدول ============ */}
+          {periods.length === 0 ? (
+            <Empty description="دوره‌ای برای این برنامه ثبت نشده است">
+              <Button
+                type="primary"
+                icon={<FileDoneOutlined />}
+                onClick={() => setQuickModal("period")}
+              >
+                افزودن اولین دوره
+              </Button>
+            </Empty>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {/* نمودارها */}
+              <Card className="rounded-xl">{chartsTabContent}</Card>
+
+              {/* جدول */}
+              <Card title="جدول دوره ها" styles={{ body: { padding: 0 } }}>
+                {tableTabContent}
+              </Card>
+            </div>
+          )}
+
           {/* ============ اطلاعات کلی ============ */}
           <div>
             <SectionTitle>اطلاعات کلی</SectionTitle>
@@ -356,6 +379,7 @@ const PlanDetailModal = ({
               <Descriptions.Item label="وزن">
                 {plan?.weight != null ? faNum(plan.weight) : "—"}
               </Descriptions.Item>
+
               <Descriptions.Item label="وضعیت">
                 <Tag color={statusMeta?.color ?? "default"}>
                   {statusMeta?.label ?? plan?.status ?? "—"}
@@ -564,35 +588,6 @@ const PlanDetailModal = ({
           </div>
 
           <Divider className="!my-0" />
-
-          {/* ============ دو تب: نمودارها / جدول ============ */}
-          {periods.length === 0 ? (
-            <Empty description="دوره‌ای برای این برنامه ثبت نشده است">
-              <Button
-                type="primary"
-                icon={<FileDoneOutlined />}
-                onClick={() => setQuickModal("period")}
-              >
-                افزودن اولین دوره
-              </Button>
-            </Empty>
-          ) : (
-            <Tabs
-              defaultActiveKey="charts"
-              items={[
-                {
-                  key: "charts",
-                  label: "نمودارها",
-                  children: chartsTabContent,
-                },
-                {
-                  key: "table",
-                  label: "جدول دوره‌ها",
-                  children: tableTabContent,
-                },
-              ]}
-            />
-          )}
         </div>
       )}
 
