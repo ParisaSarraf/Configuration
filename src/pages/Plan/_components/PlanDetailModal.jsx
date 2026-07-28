@@ -374,7 +374,7 @@ const PlanDetailModal = ({
                 {plan?.product?.code ?? "—"}
               </Descriptions.Item>
               <Descriptions.Item label="سال">
-                {plan?.year != null ? faNum(plan.year) : "—"}
+                {plan?.year != null ? plan.year : "—"}
               </Descriptions.Item>
               <Descriptions.Item label="وزن">
                 {plan?.weight != null ? faNum(plan.weight) : "—"}
