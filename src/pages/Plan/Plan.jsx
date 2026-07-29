@@ -49,14 +49,14 @@ const Plan = () => {
   const currentYear = useMemo(() => getCurrentJalaliYear(), []);
   const isYearColumnSearched = Boolean(tableSearchParams.year);
 
-  const displayedPlans = useMemo(() => {
-    const list = plans ?? [];
+const displayedPlans = useMemo(() => {
+    const list = Array.isArray(plans) ? plans : plans?.data ?? [];
     if (isYearColumnSearched || !currentYear) return list;
     return list.filter((p) => String(p.year) === String(currentYear));
   }, [plans, isYearColumnSearched, currentYear]);
 
   const isDefaultYearFilterActive =
-    !isYearColumnSearched && !!currentYear && (plans?.length ?? 0) > 0;
+    !isYearColumnSearched && !!currentYear && (displayedPlans?.length ?? 0) > 0;
 
   const showAllPlans = () => {
     setTableSearchParams((prev) => ({ ...prev, year: "__all__" }));

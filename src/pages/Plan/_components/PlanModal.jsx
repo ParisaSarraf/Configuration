@@ -44,8 +44,6 @@ const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
               label: modalData.product.persian_title ?? modalData.product.code,
             }
           : undefined,
-        // version_number: modalData.version_number,
-        contractor_id : modalData.contractor_id,
         product_name: modalData.product_name,
         contractor_id: modalData.contractor
           ? {
