@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Button,
   Card,
@@ -12,6 +12,7 @@ import {
   Row,
   Skeleton,
   Statistic,
+  Switch,
   Tag,
   Tooltip,
 } from "antd";
@@ -44,10 +45,38 @@ const SectionTitle = ({ children }) => (
   <h3 className="text-base font-bold text-slate-800 mb-4">{children}</h3>
 );
 
+const buildCumulativePeriods = (list) => {
+  const sorted = [...(list ?? [])].sort(
+    (a, b) => (a.period_month ?? 0) - (b.period_month ?? 0)
+  );
+
+  let cumPlanned = 0;
+  let cumProduced = 0;
+  let cumPlannedWeight = 0;
+  let cumProduceWeight = 0;
+
+  return sorted.map((p) => {
+    cumPlanned += p.planned_quantity ?? 0;
+    cumProduced += p.total_quantity_produced ?? 0;
+    cumPlannedWeight += p.planed_weight ?? 0;
+    cumProduceWeight += p.produce_weight ?? 0;
+
+    return {
+      ...p,
+      planned_quantity: cumPlanned,
+      total_quantity_produced: cumProduced,
+      planed_weight: cumPlannedWeight,
+      produce_weight: cumProduceWeight,
+      variance: cumProduced - cumPlanned,
+    };
+  });
+};
+
 const PlanDetailModal = ({
   isOpen,
   modalData,
   closeModal,
+  setModal,
   deleteActual,
   refetch,
 }) => {
@@ -65,6 +94,9 @@ const PlanDetailModal = ({
     mode: "add",
     data: null,
   });
+
+  const [viewMode, setViewMode] = useState("cumulative"); // "cumulative" | "period"
+  const isCumulative = viewMode === "cumulative";
 
   const closeQuickModal = () => setQuickModal(null);
 
@@ -84,6 +116,12 @@ const PlanDetailModal = ({
   const progress = plan?.year_progress_percent ?? 0;
 
   const periods = plan?.periods ?? [];
+
+  // آرایه‌ی نمایشی که هم به نمودارها هم به جدول داده می‌شود — با تغییر سوییچ عوض می‌شود
+  const displayPeriods = useMemo(
+    () => (isCumulative ? buildCumulativePeriods(periods) : periods),
+    [periods, isCumulative]
+  );
 
   const totalPlanned = periods.reduce(
     (s, p) => s + (p.planned_quantity ?? 0),
@@ -108,6 +146,8 @@ const PlanDetailModal = ({
   const productTitle =
     plan?.product?.persian_title ?? plan?.product_name ?? "—";
 
+  const colSuffix = isCumulative ? " (تجمیعی)" : "";
+
   const periodColumns = [
     {
       title: "ماه",
@@ -117,31 +157,31 @@ const PlanDetailModal = ({
       render: (m) => MONTH_NAMES[m - 1] ?? `ماه ${m}`,
     },
     {
-      title: "برنامه",
+      title: `برنامه${colSuffix}`,
       dataIndex: "planned_quantity",
       align: "center",
       render: (v) => v?.toLocaleString("fa-IR") ?? "—",
     },
     {
-      title: "تولید",
+      title: `تولید${colSuffix}`,
       dataIndex: "total_quantity_produced",
       align: "center",
       render: (v) => v?.toLocaleString("fa-IR") ?? "—",
     },
     {
-      title: "وزن برنامه‌ریزی‌شده",
+      title: `وزن برنامه‌ریزی‌شده${colSuffix}`,
       dataIndex: "planed_weight",
       align: "center",
       render: (v) => v?.toLocaleString("fa-IR") ?? "—",
     },
     {
-      title: "وزن محقق‌شده",
+      title: `وزن محقق‌شده${colSuffix}`,
       dataIndex: "produce_weight",
       align: "center",
       render: (v) => v?.toLocaleString("fa-IR") ?? "—",
     },
     {
-      title: "انحراف",
+      title: `انحراف${colSuffix}`,
       dataIndex: "variance",
       align: "center",
       render: (v) => {
@@ -238,15 +278,17 @@ const PlanDetailModal = ({
   const chartsTabContent = (
     <div className="w-full grid grid-cols-2 gap-8 pt-2">
       <div>
-        <SectionTitle>نمودار مقادیر (برنامه / تولید)</SectionTitle>
+        <SectionTitle>
+          نمودار مقادیر (برنامه / تولید){colSuffix}
+        </SectionTitle>
         <Card size="small" className="rounded-xl border-slate-200">
-          <QuantityTrendChart periods={periods} />
+          <QuantityTrendChart periods={displayPeriods} />
         </Card>
       </div>
       <div>
-        <SectionTitle>انحراف از معیار</SectionTitle>
+        <SectionTitle>انحراف از معیار{colSuffix}</SectionTitle>
         <Card size="small" className="rounded-xl border-slate-200">
-          <VarianceTrendChart periods={periods} />
+          <VarianceTrendChart periods={displayPeriods} />
         </Card>
       </div>
     </div>
@@ -262,7 +304,7 @@ const PlanDetailModal = ({
         <TableAntd
           rowKey="id"
           columns={periodColumns}
-          dataSource={periods}
+          dataSource={displayPeriods}
           pagination={false}
           expandable={{
             rowExpandable: (record) => !!record.actuals?.length,
@@ -326,7 +368,7 @@ const PlanDetailModal = ({
         <Skeleton active paragraph={{ rows: 6 }} />
       ) : (
         <div className="flex flex-col gap-8">
-          {/* ============ دو تب: نمودارها / جدول ============ */}
+          {/* ============ سوییچ نمایش تجمیعی / دوره‌ای ============ */}
           {periods.length === 0 ? (
             <Empty description="دوره‌ای برای این برنامه ثبت نشده است">
               <Button
@@ -339,6 +381,22 @@ const PlanDetailModal = ({
             </Empty>
           ) : (
             <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-slate-600">
+                  {isCumulative
+                    ? "نمایش تجمیعی (جمع از ابتدای سال تا هر ماه)"
+                    : "نمایش دوره‌ای (مقدار هر ماه به‌تنهایی)"}
+                </span>
+                <Switch
+                  checked={isCumulative}
+                  onChange={(checked) =>
+                    setViewMode(checked ? "cumulative" : "period")
+                  }
+                  checkedChildren="تجمیعی"
+                  unCheckedChildren="دوره‌ای"
+                />
+              </div>
+
               {/* نمودارها */}
               <Card className="rounded-xl">{chartsTabContent}</Card>
 

@@ -6,12 +6,13 @@ import {
   FileDoneOutlined,
 } from "@ant-design/icons";
 import { STATUS_OPTIONS } from "./plan.constants";
-import { getAchievementColor, getAchievementStatus } from "../../../utils/chart.theme";
-import { getCurrentJalaliYear } from "./plan.utils";
+import {
+  getAchievementColor,
+  getAchievementStatus,
+  truncateWords,
+} from "../../../utils/chart.theme";
 
 const PlanCols = ({ deletePlan, refetch, setModal, getColumnSearchProps }) => {
-  const currentYear = getCurrentJalaliYear();
-
   return [
     {
       title: "محصول",
@@ -19,9 +20,7 @@ const PlanCols = ({ deletePlan, refetch, setModal, getColumnSearchProps }) => {
       align: "center",
       render: (_, record) => (
         <div className="flex flex-col items-center">
-          <span className="font-medium">
-            {record.product_name ?? "—"}
-          </span>
+          <span className="font-medium">{record.product_name ?? "—"}</span>
           <span className="text-xs text-slate-400">
             کد: {record.product?.code ?? "—"}
           </span>
@@ -29,17 +28,10 @@ const PlanCols = ({ deletePlan, refetch, setModal, getColumnSearchProps }) => {
       ),
     },
     {
-      title: "پیمانکار",
-      dataIndex: "contractor_id",
-      key: "contractor_id",
-      align: "center",
-    },
-    {
       title: "سال",
       dataIndex: "year",
       align: "center",
       sorter: (a, b) => (a.year ?? 0) - (b.year ?? 0),
-      defaultFilteredValue: currentYear ? [currentYear] : undefined,
       ...getColumnSearchProps("year", " سال"),
     },
     {
@@ -60,7 +52,9 @@ const PlanCols = ({ deletePlan, refetch, setModal, getColumnSearchProps }) => {
       sorter: (a, b) =>
         (a.total_planned_quantity ?? 0) - (b.total_planned_quantity ?? 0),
       render: (v) => (
-        <span className="tabular-nums">{v?.toLocaleString("fa-IR") ?? "—"}</span>
+        <span className="tabular-nums">
+          {v?.toLocaleString("fa-IR") ?? "—"}
+        </span>
       ),
     },
     {
@@ -89,7 +83,8 @@ const PlanCols = ({ deletePlan, refetch, setModal, getColumnSearchProps }) => {
       title: "تاریخ ایجاد",
       dataIndex: "created_at",
       align: "center",
-      sorter: (a, b) => new Date(a.created_at ?? 0) - new Date(b.created_at ?? 0),
+      sorter: (a, b) =>
+        new Date(a.created_at ?? 0) - new Date(b.created_at ?? 0),
       render: (d) => (d ? new Date(d).toLocaleDateString("fa-IR") : "—"),
     },
     {
@@ -98,8 +93,8 @@ const PlanCols = ({ deletePlan, refetch, setModal, getColumnSearchProps }) => {
       ellipsis: { showTitle: false },
       render: (notes) =>
         notes ? (
-          <Tooltip placement="topRight" title={notes}>
-            <span>{notes}</span>
+          <Tooltip title={notes || "—"}>
+            <span>{truncateWords(notes, 5)}</span>
           </Tooltip>
         ) : (
           "—"
