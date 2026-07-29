@@ -37,7 +37,11 @@ import {
 import PeriodModal from "./periodModal";
 import PlanModal from "./PlanModal";
 import ActualModal from "./actualModal";
-import { METRIC_COLORS, getAchievementColor } from "../../../utils/chart.theme";
+import {
+  METRIC_COLORS,
+  getAchievementColor,
+  truncateWords,
+} from "../../../utils/chart.theme";
 
 const faNum = (v) => (v ?? 0).toLocaleString("fa-IR");
 
@@ -45,33 +49,11 @@ const SectionTitle = ({ children }) => (
   <h3 className="text-base font-bold text-slate-800 mb-4">{children}</h3>
 );
 
-const buildCumulativePeriods = (list) => {
-  const sorted = [...(list ?? [])].sort(
-    (a, b) => (a.period_month ?? 0) - (b.period_month ?? 0)
-  );
-
-  let cumPlanned = 0;
-  let cumProduced = 0;
-  let cumPlannedWeight = 0;
-  let cumProduceWeight = 0;
-
-  return sorted.map((p) => {
-    cumPlanned += p.planned_quantity ?? 0;
-    cumProduced += p.total_quantity_produced ?? 0;
-    cumPlannedWeight += p.planed_weight ?? 0;
-    cumProduceWeight += p.produce_weight ?? 0;
-
-    return {
-      ...p,
-      planned_quantity: cumPlanned,
-      total_quantity_produced: cumProduced,
-      planed_weight: cumPlannedWeight,
-      produce_weight: cumProduceWeight,
-      variance: cumProduced - cumPlanned,
-    };
-  });
-};
-
+/**
+ * دوره‌ها را بر اساس ماه مرتب کرده و مقادیر هر دوره را به‌صورت تجمیعی
+ * (جمع از ابتدای سال تا همان ماه) برمی‌گرداند. id و actuals هر دوره
+ * دست‌نخورده باقی می‌مانند چون به عملیات ثبت/ویرایش تولید نیاز دارند.
+ */
 const PlanDetailModal = ({
   isOpen,
   modalData,
@@ -95,6 +77,7 @@ const PlanDetailModal = ({
     data: null,
   });
 
+  // پیش‌فرض حتماً باید روی «تجمیعی» باشد
   const [viewMode, setViewMode] = useState("cumulative"); // "cumulative" | "period"
   const isCumulative = viewMode === "cumulative";
 
@@ -117,11 +100,23 @@ const PlanDetailModal = ({
 
   const periods = plan?.periods ?? [];
 
-  // آرایه‌ی نمایشی که هم به نمودارها هم به جدول داده می‌شود — با تغییر سوییچ عوض می‌شود
-  const displayPeriods = useMemo(
-    () => (isCumulative ? buildCumulativePeriods(periods) : periods),
-    [periods, isCumulative]
-  );
+  // فقط از فیلدهای تجمیعی که خودِ API می‌فرستد استفاده می‌کنیم — هیچ جمع‌زدنی
+  // اینجا انجام نمی‌شود، فقط بر اساس حالت سوییچ، فیلد مناسب انتخاب می‌شود.
+  const displayPeriods = useMemo(() => {
+    const sorted = [...periods].sort(
+      (a, b) => (a.period_month ?? 0) - (b.period_month ?? 0),
+    );
+
+    if (!isCumulative) return sorted;
+
+    return sorted.map((p) => ({
+      ...p,
+      planned_quantity: p.cumulative_planned_quantity,
+      total_quantity_produced: p.cumulative_total_quantity_produced,
+      planed_weight: p.cumulative_planed_weight,
+      produce_weight: p.cumulative_produce_weight,
+    }));
+  }, [periods, isCumulative]);
 
   const totalPlanned = periods.reduce(
     (s, p) => s + (p.planned_quantity ?? 0),
@@ -147,6 +142,35 @@ const PlanDetailModal = ({
     plan?.product?.persian_title ?? plan?.product_name ?? "—";
 
   const colSuffix = isCumulative ? " (تجمیعی)" : "";
+
+  // ستون آخر بسته به حالت عوض می‌شود؛ در حالت تجمیعی از فیلد واقعیِ
+  // cumulative_performance که خودِ API می‌فرستد استفاده می‌شود، نه محاسبه‌ی دستی
+  const varianceOrPerformanceColumn = isCumulative
+    ? {
+        title: "درصد تحقق تجمیعی",
+        dataIndex: "cumulative_performance",
+        align: "center",
+        render: (v) => {
+          if (v == null) return "—";
+          const rounded = Math.round(v * 100) / 100;
+          const color =
+            rounded >= 100 ? "success" : rounded >= 50 ? "warning" : "error";
+          return <Tag color={color}>{`${faNum(rounded)}٪`}</Tag>;
+        },
+      }
+    : {
+        title: "انحراف",
+        dataIndex: "variance",
+        align: "center",
+        render: (v) => {
+          if (v == null) return "—";
+          const color = v > 0 ? "success" : v < 0 ? "error" : "default";
+          const sign = v > 0 ? "+" : "";
+          return (
+            <Tag color={color}>{`${sign}${v.toLocaleString("fa-IR")}`}</Tag>
+          );
+        },
+      };
 
   const periodColumns = [
     {
@@ -180,17 +204,7 @@ const PlanDetailModal = ({
       align: "center",
       render: (v) => v?.toLocaleString("fa-IR") ?? "—",
     },
-    {
-      title: `انحراف${colSuffix}`,
-      dataIndex: "variance",
-      align: "center",
-      render: (v) => {
-        if (v == null) return "—";
-        const color = v > 0 ? "success" : v < 0 ? "error" : "default";
-        const sign = v > 0 ? "+" : "";
-        return <Tag color={color}>{`${sign}${v.toLocaleString("fa-IR")}`}</Tag>;
-      },
-    },
+    varianceOrPerformanceColumn,
     {
       title: "",
       key: "addActual",
@@ -276,21 +290,25 @@ const PlanDetailModal = ({
   ];
 
   const chartsTabContent = (
-    <div className="w-full grid grid-cols-2 gap-8 pt-2">
+    <div
+      className={`w-full grid gap-8 pt-2 ${
+        isCumulative ? "grid-cols-1" : "grid-cols-2"
+      }`}
+    >
       <div>
-        <SectionTitle>
-          نمودار مقادیر (برنامه / تولید){colSuffix}
-        </SectionTitle>
+        <SectionTitle>نمودار مقادیر (برنامه / تولید){colSuffix}</SectionTitle>
         <Card size="small" className="rounded-xl border-slate-200">
           <QuantityTrendChart periods={displayPeriods} />
         </Card>
       </div>
-      <div>
-        <SectionTitle>انحراف از معیار{colSuffix}</SectionTitle>
-        <Card size="small" className="rounded-xl border-slate-200">
-          <VarianceTrendChart periods={displayPeriods} />
-        </Card>
-      </div>
+      {!isCumulative && (
+        <div>
+          <SectionTitle>انحراف از معیار</SectionTitle>
+          <Card size="small" className="rounded-xl border-slate-200">
+            <VarianceTrendChart periods={displayPeriods} />
+          </Card>
+        </div>
+      )}
     </div>
   );
 
@@ -461,8 +479,9 @@ const PlanDetailModal = ({
                   ? georgianDateToJalaliDate(plan.updated_at)
                   : "—"}
               </Descriptions.Item>
+
               <Descriptions.Item label="توضیحات" span={2}>
-                {plan?.notes || "—"}
+                <Tooltip title={plan?.notes}>{plan?.notes ? truncateWords(plan?.notes) : ""}</Tooltip>
               </Descriptions.Item>
             </Descriptions>
           </div>
