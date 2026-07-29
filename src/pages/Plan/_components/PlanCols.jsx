@@ -35,6 +35,20 @@ const PlanCols = ({ deletePlan, refetch, setModal, getColumnSearchProps }) => {
       ...getColumnSearchProps("year", " سال"),
     },
     {
+      title: "نام پیمانکار",
+      dataIndex: ["contractor", "name"],
+      align: "center",
+      sorter: (a, b) => (a.contractor?.name ?? 0) - (b.contractor?.name ?? 0),
+      ...getColumnSearchProps("contractor.name", " نام پیمانکار"),
+    },
+    {
+      title: "وزن",
+      dataIndex:  "weight",
+      align: "center",
+      sorter: (a, b) => (a.weight ?? 0) - (b.weight ?? 0),
+      ...getColumnSearchProps("weight", "وزن"),
+    },
+    {
       title: "وضعیت",
       dataIndex: "status",
       align: "center",

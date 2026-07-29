@@ -45,13 +45,14 @@ const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
             }
           : undefined,
         // version_number: modalData.version_number,
+        contractor_id : modalData.contractor_id,
         product_name: modalData.product_name,
-        contractor_id: modalData.contractor_id
+        contractor_id: modalData.contractor
           ? {
-              value: modalData.contractor_id,
+              value: modalData.contractor.id,
               label:
-                modalData.contractor_id.persian_title ??
-                modalData.contractor_id.code,
+                modalData.contractor.name ??
+                modalData.contractor.code,
             }
           : undefined,
         status: modalData.status,
@@ -71,7 +72,7 @@ const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
       ...values,
       product_id: values.product_id?.value ?? values.product_id,
       product_name: values.product_name,
-      contractor_id: values.contractor_id,
+      contractor_id: values.contractor_id?.value ?? values.contractor_id,
     };
 
     try {
@@ -128,7 +129,7 @@ const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
               <Select
                 options={contractorsData.map((item) => ({
                   value: item.id,
-                  label: item.persian_title ?? item.code,
+                  label: item.name ?? item.code,
                 }))}
                 placeholder="پیمانکار"
                 allowClear={true}
