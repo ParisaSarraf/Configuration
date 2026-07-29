@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Card, Empty, Input, Segmented, Skeleton, Tag } from "antd";
+import { Button, Card, Empty, Input, Segmented, Skeleton, Switch } from "antd";
 import {
   BarChartOutlined,
   LineChartOutlined,
@@ -11,7 +11,6 @@ import {
   ComposedChart,
   Legend,
   Line,
-  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -60,18 +59,6 @@ const SectionTitle = ({ children }) => (
   <h3 className="text-base font-bold text-slate-800 mb-4">{children}</h3>
 );
 
-const ChartSectionHeader = ({ title, chartType, onChangeType }) => (
-  <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-    <SectionTitle>{title}</SectionTitle>
-    <Segmented
-      size="small"
-      value={chartType}
-      onChange={onChangeType}
-      options={CHART_TYPE_OPTIONS}
-    />
-  </div>
-);
-
 const renderSeries = (chartType, series) =>
   series.map((s) =>
     chartType === "bar" ? (
@@ -93,7 +80,7 @@ const renderSeries = (chartType, series) =>
         strokeWidth={2.5}
         dot={dotStyle(s.color)}
       />
-    )
+    ),
   );
 
 const YearPerformanceReport = ({
@@ -104,14 +91,11 @@ const YearPerformanceReport = ({
   isFetching,
 }) => {
   const [yearInput, setYearInput] = useState(searchParams?.year ?? "");
-  const [chartTypes, setChartTypes] = useState({
-    quantity: "line",
-    weight: "line",
-    performance: "line",
-  });
+  const [chartType, setChartType] = useState("line");
 
-  const setChartType = (key) => (value) =>
-    setChartTypes((prev) => ({ ...prev, [key]: value }));
+  // پیش‌فرض حتماً باید روی «تجمیعی» باشد
+  const [viewMode, setViewMode] = useState("cumulative"); // "cumulative" | "period"
+  const isCumulative = viewMode === "cumulative";
 
   const handleSearch = (yearOverride) => {
     const year = yearOverride ?? yearInput;
@@ -127,19 +111,23 @@ const YearPerformanceReport = ({
         handleSearch(currentYear);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const rawData = yearPercentageOfPerformanceList ?? [];
 
+  // فقط انتخاب فیلد مناسب بر اساس سوییچ — بدون هیچ جمع‌زدنی؛
+  // هر دو مقدار (دوره‌ای و تجمیعی) مستقیماً از خودِ API می‌آیند
   const chartData = [...rawData]
     .sort((a, b) => a.period_month - b.period_month)
     .map((p) => ({
       month: MONTH_NAMES[p.period_month - 1] ?? `ماه ${p.period_month}`,
-      planned: p.planned_quantity ?? 0,
-      actual: p.actual_quantity ?? 0,
-      planedWeight: p.sum_of_planed_weight ?? 0,
-      produceWeight: p.sum_of_produce_weight ?? 0,
-      performance: p.performance ?? 0,
+      planedWeight: isCumulative
+        ? (p.cumulative_planed_weight ?? 0)
+        : (p.sum_of_planed_weight ?? 0),
+      produceWeight: isCumulative
+        ? (p.cumulative_produce_weight ?? 0)
+        : (p.sum_of_produce_weight ?? 0),
     }));
 
   const weightSeries = [
@@ -152,54 +140,6 @@ const YearPerformanceReport = ({
       dataKey: "produceWeight",
       name: "وزن محقق‌شده",
       color: METRIC_COLORS.produceWeight,
-    },
-  ];
-
-  const performanceSeries = [
-    { dataKey: "performance", name: "درصد عملکرد", color: METRIC_COLORS.performance },
-  ];
-
-  const tableColumns = [
-    {
-      title: "ماه",
-      dataIndex: "period_month",
-      align: "center",
-      width: 100,
-      render: (m) => MONTH_NAMES[m - 1] ?? `ماه ${m}`,
-    },
-    {
-      title: "مقدار برنامه‌ریزی",
-      dataIndex: "planned_quantity",
-      align: "center",
-      render: (v) => fa(v),
-    },
-    {
-      title: "مقدار واقعی",
-      dataIndex: "actual_quantity",
-      align: "center",
-      render: (v) => fa(v),
-    },
-    {
-      title: "وزن برنامه‌ریزی‌شده",
-      dataIndex: "sum_of_planed_weight",
-      align: "center",
-      render: (v) => fa(v),
-    },
-    {
-      title: "وزن محقق‌شده",
-      dataIndex: "sum_of_produce_weight",
-      align: "center",
-      render: (v) => fa(v),
-    },
-    {
-      title: "درصد عملکرد",
-      dataIndex: "performance",
-      align: "center",
-      render: (v) => {
-        if (v == null) return "—";
-        const color = v >= 100 ? "success" : v >= 50 ? "warning" : "error";
-        return <Tag color={color}>{`${fa(Math.round(v * 100) / 100)}٪`}</Tag>;
-      },
     },
   ];
 
@@ -233,91 +173,68 @@ const YearPerformanceReport = ({
       ) : rawData.length === 0 ? (
         <Empty description="برای مشاهده گزارش، سال مورد نظر را جستجو کنید" />
       ) : (
-        <>
-          <div className="w-full grid grid-cols-2 gap-8">
-            <div>
-              <ChartSectionHeader
-                title="نمودار وزن (برنامه‌ریزی‌شده / محقق‌شده)"
-                chartType={chartTypes.weight}
-                onChangeType={setChartType("weight")}
-              />
-              <Card size="small" className="rounded-xl border-slate-200">
-                <ResponsiveContainer width="100%" height={300}>
-                  <ComposedChart
-                    data={chartData}
-                    margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="#e2e8f0"
-                      vertical={false}
-                    />
-                    <XAxis dataKey="month" reversed {...baseAxisProps} />
-                    <YAxis
-                      orientation="right"
-                      tickFormatter={fa}
-                      width={50}
-                      {...baseAxisProps}
-                    />
-                    <Tooltip
-                      content={<ChartTooltip />}
-                      cursor={{ fill: "#f1f5f9" }}
-                    />
-                    <Legend
-                      iconType="circle"
-                      wrapperStyle={{ fontSize: 13, direction: "rtl" }}
-                    />
-                    {renderSeries(chartTypes.weight, weightSeries)}
-                  </ComposedChart>
-                </ResponsiveContainer>
-              </Card>
-            </div>
-
-            <div>
-              <ChartSectionHeader
-                title="نمودار درصد عملکرد"
-                chartType={chartTypes.performance}
-                onChangeType={setChartType("performance")}
-              />
-              <Card size="small" className="rounded-xl border-slate-200">
-                <ResponsiveContainer width="100%" height={300}>
-                  <ComposedChart
-                    data={chartData}
-                    margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="#e2e8f0"
-                      vertical={false}
-                    />
-                    <XAxis dataKey="month" reversed {...baseAxisProps} />
-                    <YAxis
-                      orientation="right"
-                      tickFormatter={(v) => `${fa(v)}٪`}
-                      width={60}
-                      {...baseAxisProps}
-                    />
-                    <Tooltip
-                      content={<ChartTooltip />}
-                      cursor={{ fill: "#f1f5f9" }}
-                    />
-                    <Legend
-                      iconType="circle"
-                      wrapperStyle={{ fontSize: 13, direction: "rtl" }}
-                    />
-                    <ReferenceLine
-                      y={100}
-                      stroke="#cbd5e1"
-                      strokeDasharray="4 4"
-                    />
-                    {renderSeries(chartTypes.performance, performanceSeries)}
-                  </ComposedChart>
-                </ResponsiveContainer>
-              </Card>
-            </div>
+        <div>
+          {/* سوییچ تجمیعی / دوره‌ای */}
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-slate-600">
+              {isCumulative
+                ? "نمایش تجمیعی (جمع از ابتدای سال تا هر ماه)"
+                : "نمایش دوره‌ای (مقدار هر ماه به‌تنهایی)"}
+            </span>
+            <Switch
+              checked={isCumulative}
+              onChange={(checked) =>
+                setViewMode(checked ? "cumulative" : "period")
+              }
+              checkedChildren="تجمیعی"
+              unCheckedChildren="دوره‌ای"
+            />
           </div>
-         
-        </>
+
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <SectionTitle>
+              نمودار وزن (برنامه‌ریزی‌شده / محقق‌شده)
+              {isCumulative ? " (تجمیعی)" : ""}
+            </SectionTitle>
+            <Segmented
+              size="small"
+              value={chartType}
+              onChange={setChartType}
+              options={CHART_TYPE_OPTIONS}
+            />
+          </div>
+
+          <Card size="small" className="rounded-xl border-slate-200">
+            <ResponsiveContainer width="100%" height={340}>
+              <ComposedChart
+                data={chartData}
+                margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="#e2e8f0"
+                  vertical={false}
+                />
+                <XAxis dataKey="month" reversed {...baseAxisProps} />
+                <YAxis
+                  orientation="right"
+                  tickFormatter={fa}
+                  width={50}
+                  {...baseAxisProps}
+                />
+                <Tooltip
+                  content={<ChartTooltip />}
+                  cursor={{ fill: "#f1f5f9" }}
+                />
+                <Legend
+                  iconType="circle"
+                  wrapperStyle={{ fontSize: 13, direction: "rtl" }}
+                />
+                {renderSeries(chartType, weightSeries)}
+              </ComposedChart>
+            </ResponsiveContainer>
+          </Card>
+        </div>
       )}
     </Card>
   );
