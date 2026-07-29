@@ -16,14 +16,24 @@ const PlanCols = ({ deletePlan, refetch, setModal, getColumnSearchProps }) => {
   return [
     {
       title: "محصول",
+      key: "product",
+      align: "center",
+      render: (_, record) => (
+        <div className="flex flex-col items-center">
+          <span className="font-medium">{record.product?.persian_title ?? "—"}</span>
+          <span className="text-xs text-slate-400">
+            کد: {record.product?.code ?? "—"}
+          </span>
+        </div>
+      ),
+    },
+    {
+      title: "نام محصول",
       key: "product_name",
       align: "center",
       render: (_, record) => (
         <div className="flex flex-col items-center">
           <span className="font-medium">{record.product_name ?? "—"}</span>
-          <span className="text-xs text-slate-400">
-            کد: {record.product?.code ?? "—"}
-          </span>
         </div>
       ),
     },
