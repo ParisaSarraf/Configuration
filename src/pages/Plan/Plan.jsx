@@ -28,9 +28,12 @@ const Plan = () => {
   const deletePlan = useDeleteProductionPlan();
   const deleteActual = useDeleteProductionActual();
 
+  const currentYear = useMemo(() => getCurrentJalaliYear(), []);
+
   const [searchParams, setSearchParams] = useState({
-    year: "",
+    year: currentYear || "",
   });
+
   const {
     data: yearPercentageOfPerformanceList,
     refetch: yearRefetch,
@@ -46,22 +49,23 @@ const Plan = () => {
     refetch,
   });
 
-  const currentYear = useMemo(() => getCurrentJalaliYear(), []);
-  const isYearColumnSearched = Boolean(tableSearchParams.year);
+  const activeYear = searchParams.year || currentYear;
+  const isShowAllActive = tableSearchParams.year === "__all__";
+  const isYearColumnSearched = Boolean(tableSearchParams.year && !isShowAllActive);
 
-const displayedPlans = useMemo(() => {
+  const displayedPlans = useMemo(() => {
     const list = Array.isArray(plans) ? plans : plans?.data ?? [];
-    if (isYearColumnSearched || !currentYear) return list;
-    return list.filter((p) => String(p.year) === String(currentYear));
-  }, [plans, isYearColumnSearched, currentYear]);
+    if (isShowAllActive || isYearColumnSearched) return list;
+    if (!activeYear) return list;
+    return list.filter((p) => String(p.year) === String(activeYear));
+  }, [plans, isShowAllActive, isYearColumnSearched, activeYear]);
 
   const isDefaultYearFilterActive =
-    !isYearColumnSearched && !!currentYear && (displayedPlans?.length ?? 0) > 0;
+    !isShowAllActive && !isYearColumnSearched && !!activeYear && (plans?.length ?? 0) > 0;
 
   const showAllPlans = () => {
     setTableSearchParams((prev) => ({ ...prev, year: "__all__" }));
-
-    };
+  };
 
   return (
     <div className="min-h-screen bg-[#f1f5f9] p-4 sm:p-6 lg:p-8">
@@ -111,13 +115,13 @@ const displayedPlans = useMemo(() => {
               isFetching={isYearFetching}
             />
             <Card
-              className="rounded-2xl shadow-sm border-slate-200"
+              className="rounded-2xl shadow-sm border-slate-200 mt-6"
               styles={{ body: { padding: 0 } }}
             >
               {isDefaultYearFilterActive && (
                 <div className="flex items-center justify-between gap-2 px-4 py-2 border-b border-slate-100">
                   <Tag color="blue" className="!m-0">
-                    نمایش پیش‌فرض: فقط پلن‌های سال {currentYear}
+                    نمایش پیش‌فرض: فقط پلن‌های سال {activeYear}
                   </Tag>
                   <Button type="link" size="small" onClick={showAllPlans}>
                     نمایش همه سال‌ها

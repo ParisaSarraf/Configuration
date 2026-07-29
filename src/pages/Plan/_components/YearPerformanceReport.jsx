@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Button, Card, Empty, Input, Segmented, Skeleton, Switch } from "antd";
 import {
   BarChartOutlined,
@@ -90,11 +90,12 @@ const YearPerformanceReport = ({
   onSearch,
   isFetching,
 }) => {
-  const [yearInput, setYearInput] = useState(searchParams?.year ?? "");
-  const [chartType, setChartType] = useState("line");
+  const currentYear = useMemo(() => getCurrentJalaliYear(), []);
+  const initialYear = searchParams?.year || currentYear || "";
 
-  // پیش‌فرض حتماً باید روی «تجمیعی» باشد
-  const [viewMode, setViewMode] = useState("cumulative"); // "cumulative" | "period"
+  const [yearInput, setYearInput] = useState(initialYear);
+  const [chartType, setChartType] = useState("line");
+  const [viewMode, setViewMode] = useState("cumulative");
   const isCumulative = viewMode === "cumulative";
 
   const handleSearch = (yearOverride) => {
@@ -104,20 +105,15 @@ const YearPerformanceReport = ({
   };
 
   useEffect(() => {
-    if (!searchParams?.year) {
-      const currentYear = getCurrentJalaliYear();
-      if (currentYear) {
-        setYearInput(currentYear);
-        handleSearch(currentYear);
-      }
+    if (!searchParams?.year && currentYear) {
+      setSearchParams((prev) => ({ ...prev, year: currentYear }));
+      onSearch?.();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const rawData = yearPercentageOfPerformanceList ?? [];
 
-  // فقط انتخاب فیلد مناسب بر اساس سوییچ — بدون هیچ جمع‌زدنی؛
-  // هر دو مقدار (دوره‌ای و تجمیعی) مستقیماً از خودِ API می‌آیند
   const chartData = [...rawData]
     .sort((a, b) => a.period_month - b.period_month)
     .map((p) => ({
@@ -174,7 +170,6 @@ const YearPerformanceReport = ({
         <Empty description="برای مشاهده گزارش، سال مورد نظر را جستجو کنید" />
       ) : (
         <div>
-          {/* سوییچ تجمیعی / دوره‌ای */}
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-slate-600">
               {isCumulative
