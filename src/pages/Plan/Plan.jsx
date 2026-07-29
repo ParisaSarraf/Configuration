@@ -28,7 +28,6 @@ const Plan = () => {
   const deletePlan = useDeleteProductionPlan();
   const deleteActual = useDeleteProductionActual();
 
-  // این state فقط برای گزارش عملکرد سالانه است (کاملاً مستقل از فیلتر جدول اصلی)
   const [searchParams, setSearchParams] = useState({
     year: "",
   });
@@ -40,8 +39,6 @@ const Plan = () => {
     year: searchParams.year,
   });
 
-  // این state جدا، فقط برای سرچ ستون‌های جدول اصلی (سال، محصول و ...) است.
-  // عمداً از searchParams بالا جداست تا سرچ داخل گزارش سالانه روی جدول اصلی اثر نگذارد.
   const [tableSearchParams, setTableSearchParams] = useState({});
 
   const { getColumnSearchProps } = useColumnSearch({
@@ -52,9 +49,6 @@ const Plan = () => {
   const currentYear = useMemo(() => getCurrentJalaliYear(), []);
   const isYearColumnSearched = Boolean(tableSearchParams.year);
 
-  // حالت پیش‌فرض: فقط پلن‌های سال جاری نشون داده می‌شن.
-  // به‌محض این‌که کاربر خودش ستون «سال» جدول رو سرچ کنه، این پیش‌فرض کنار می‌ره
-  // و کل لیست به antd Table داده می‌شه تا فیلتر داخلی خودش (onFilter) رو اعمال کنه.
   const displayedPlans = useMemo(() => {
     const list = plans ?? [];
     if (isYearColumnSearched || !currentYear) return list;
@@ -66,7 +60,7 @@ const Plan = () => {
 
   const showAllPlans = () => {
     setTableSearchParams((prev) => ({ ...prev, year: "__all__" }));
-    // handleResetAll()
+
     };
 
   return (

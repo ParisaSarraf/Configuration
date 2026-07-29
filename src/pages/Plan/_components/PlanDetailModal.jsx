@@ -12,7 +12,6 @@ import {
   Row,
   Skeleton,
   Statistic,
-  Tabs,
   Tag,
   Tooltip,
 } from "antd";
@@ -32,7 +31,6 @@ import { georgianDateToJalaliDate } from "../../../utils/timeTool";
 import {
   MONTH_NAMES,
   QuantityTrendChart,
-  WeightTrendChart,
   VarianceTrendChart,
 } from "./PlanPeriodsChart";
 import PeriodModal from "./periodModal";
@@ -50,7 +48,6 @@ const PlanDetailModal = ({
   isOpen,
   modalData,
   closeModal,
-  setModal,
   deleteActual,
   refetch,
 }) => {
@@ -246,12 +243,6 @@ const PlanDetailModal = ({
           <QuantityTrendChart periods={periods} />
         </Card>
       </div>
-      {/* <div>
-        <SectionTitle>نمودار وزن (برنامه‌ریزی‌شده / محقق‌شده)</SectionTitle>
-        <Card size="small" className="rounded-xl border-slate-200">
-          <WeightTrendChart periods={periods} />
-        </Card>
-      </div> */}
       <div>
         <SectionTitle>انحراف از معیار</SectionTitle>
         <Card size="small" className="rounded-xl border-slate-200">
