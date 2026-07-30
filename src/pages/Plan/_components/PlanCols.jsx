@@ -12,7 +12,18 @@ import {
   truncateWords,
 } from "../../../utils/chart.theme";
 
-const PlanCols = ({ deletePlan, refetch, setModal, getColumnSearchProps }) => {
+const PlanCols = ({
+  plans,
+  deletePlan,
+  refetch,
+  setModal,
+  getColumnSearchProps,
+}) => {
+  const totalWeight = (plans ?? []).reduce(
+    (sum, item) => sum + (Number(item?.weight) || 0),
+    0,
+  );
+
   return [
     {
       title: "محصول",
@@ -20,20 +31,15 @@ const PlanCols = ({ deletePlan, refetch, setModal, getColumnSearchProps }) => {
       align: "center",
       render: (_, record) => (
         <div className="flex flex-col items-center">
-          <span className="font-medium">{record.product?.persian_title ?? "—"}</span>
-          <span className="text-xs text-slate-400">
-            کد: {record.product?.code ?? "—"}
+          <span className="font-medium">
+            {record.product?.persian_title || record.product_name || "—"}
           </span>
-        </div>
-      ),
-    },
-    {
-      title: "نام محصول",
-      key: "product_name",
-      align: "center",
-      render: (_, record) => (
-        <div className="flex flex-col items-center">
-          <span className="font-medium">{record.product_name ?? "—"}</span>
+
+          {record.product?.code && (
+            <span className="text-xs text-slate-400">
+              کد: {record.product.code}
+            </span>
+          )}
         </div>
       ),
     },
@@ -45,15 +51,15 @@ const PlanCols = ({ deletePlan, refetch, setModal, getColumnSearchProps }) => {
       ...getColumnSearchProps("year", " سال"),
     },
     {
-      title: "نام پیمانکار",
+      title: "نام کارفرما",
       dataIndex: ["contractor", "name"],
       align: "center",
       sorter: (a, b) => (a.contractor?.name ?? 0) - (b.contractor?.name ?? 0),
-      ...getColumnSearchProps("contractor.name", " نام پیمانکار"),
+      ...getColumnSearchProps("contractor.name", " نام کارفرما"),
     },
     {
-      title: "وزن",
-      dataIndex:  "weight",
+      title: `وزن (${totalWeight})`,
+      dataIndex: "weight",
       align: "center",
       sorter: (a, b) => (a.weight ?? 0) - (b.weight ?? 0),
       ...getColumnSearchProps("weight", "وزن"),
@@ -96,20 +102,6 @@ const PlanCols = ({ deletePlan, refetch, setModal, getColumnSearchProps }) => {
           strokeColor={getAchievementColor(v)}
         />
       ),
-    },
-    {
-      title: "ایجاد کننده",
-      dataIndex: "created_by",
-      align: "center",
-      render: (u) => (u ? `${u.name ?? ""} ${u.last_name ?? ""}`.trim() : "—"),
-    },
-    {
-      title: "تاریخ ایجاد",
-      dataIndex: "created_at",
-      align: "center",
-      sorter: (a, b) =>
-        new Date(a.created_at ?? 0) - new Date(b.created_at ?? 0),
-      render: (d) => (d ? new Date(d).toLocaleDateString("fa-IR") : "—"),
     },
     {
       title: "توضیحات",

@@ -34,8 +34,6 @@ const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
 
   useEffect(() => {
     if (!isOpen) return;
-    console.log(modalData);
-
     if (isEdit && modalData) {
       form.setFieldsValue({
         product_id: modalData.product
@@ -48,9 +46,7 @@ const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
         contractor_id: modalData.contractor
           ? {
               value: modalData.contractor.id,
-              label:
-                modalData.contractor.name ??
-                modalData.contractor.code,
+              label: modalData.contractor.name ?? modalData.contractor.code,
             }
           : undefined,
         status: modalData.status,
@@ -68,10 +64,18 @@ const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
   const onFinish = async (values) => {
     const payload = {
       ...values,
-      product_id: values.product_id?.value ?? values.product_id,
-      product_name: values.product_name,
-      contractor_id: values.contractor_id?.value ?? values.contractor_id,
+      product_id: values.product_id?.value ?? values.product_id ?? null,
+      product_name: values.product_name ?? null,
+      contractor_id:
+        values.contractor_id?.value ?? values.contractor_id ?? null,
     };
+    if (payload.product_id) {
+      payload.product_name = null;
+    }
+
+    if (payload.product_name) {
+      payload.product_id = null;
+    }
 
     try {
       if (isEdit) {
@@ -90,7 +94,7 @@ const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
   };
 
   const contractorsData =
-    contractorData?.filter((item) => item.is_employer === false) || [];
+    contractorData?.filter((item) => item.is_employer === true) || [];
 
   return (
     <Modal
@@ -116,20 +120,36 @@ const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
                 labelInValue
                 placeholder="محصولات"
                 allowClear
+                onChange={(value) => {
+                  if (value) {
+                    form.setFieldsValue({
+                      product_name: undefined,
+                    });
+                  }
+                }}
               />
             </Form.Item>
 
-            <Form.Item name={"product_name"} label="نام محصول">
-              <Input placeholder="نام محصول" />
+            <Form.Item name="product_name" label="نام محصول">
+              <Input
+                placeholder="نام محصول"
+                onChange={(e) => {
+                  if (e.target.value) {
+                    form.setFieldsValue({
+                      product_id: undefined,
+                    });
+                  }
+                }}
+              />
             </Form.Item>
 
-            <Form.Item name={"contractor_id"} label="پیمانکار">
+            <Form.Item name={"contractor_id"} label="کارفرما">
               <Select
                 options={contractorsData.map((item) => ({
                   value: item.id,
                   label: item.name ?? item.code,
                 }))}
-                placeholder="پیمانکار"
+                placeholder="کارفرما"
                 allowClear={true}
               />
             </Form.Item>

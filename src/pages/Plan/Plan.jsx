@@ -51,17 +51,22 @@ const Plan = () => {
 
   const activeYear = searchParams.year || currentYear;
   const isShowAllActive = tableSearchParams.year === "__all__";
-  const isYearColumnSearched = Boolean(tableSearchParams.year && !isShowAllActive);
+  const isYearColumnSearched = Boolean(
+    tableSearchParams.year && !isShowAllActive,
+  );
 
   const displayedPlans = useMemo(() => {
-    const list = Array.isArray(plans) ? plans : plans?.data ?? [];
+    const list = Array.isArray(plans) ? plans : (plans?.data ?? []);
     if (isShowAllActive || isYearColumnSearched) return list;
     if (!activeYear) return list;
     return list.filter((p) => String(p.year) === String(activeYear));
   }, [plans, isShowAllActive, isYearColumnSearched, activeYear]);
 
   const isDefaultYearFilterActive =
-    !isShowAllActive && !isYearColumnSearched && !!activeYear && (plans?.length ?? 0) > 0;
+    !isShowAllActive &&
+    !isYearColumnSearched &&
+    !!activeYear &&
+    (plans?.length ?? 0) > 0;
 
   const showAllPlans = () => {
     setTableSearchParams((prev) => ({ ...prev, year: "__all__" }));
@@ -132,6 +137,7 @@ const Plan = () => {
                 rowKey="id"
                 loading={isPending}
                 columns={PlanCols({
+                  plans,
                   deletePlan,
                   refetch,
                   setModal,
@@ -143,7 +149,11 @@ const Plan = () => {
                 }}
                 onRow={(record) => ({
                   onClick: () =>
-                    setModal({ mode: "show", data: record, type: "showDetail" }),
+                    setModal({
+                      mode: "show",
+                      data: record,
+                      type: "showDetail",
+                    }),
                   className: "cursor-pointer hover:!bg-sky-50/60",
                 })}
               />

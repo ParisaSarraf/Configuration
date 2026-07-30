@@ -11,21 +11,33 @@ import {
 } from "recharts";
 
 export const MONTH_NAMES = [
-  "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
-  "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند",
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "10",
+  "11",
+  "12",
 ];
 
 const fa = (v) => (v ?? 0).toLocaleString("fa-IR");
 
 const ChartTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
+  const visible = payload.filter((item) => item.value != null);
+  if (!visible.length) return null;
   return (
     <div
       dir="rtl"
       className="bg-white/95 backdrop-blur rounded-xl shadow-lg border border-slate-100 px-4 py-3 text-sm"
     >
       <p className="font-bold text-slate-800 mb-2">{label}</p>
-      {payload.map((item) => (
+      {visible.map((item) => (
         <div key={item.dataKey} className="flex items-center gap-2 py-0.5">
           <span
             className="inline-block w-2.5 h-2.5 rounded-full"
@@ -39,18 +51,42 @@ const ChartTooltip = ({ active, payload, label }) => {
   );
 };
 
-const buildChartData = (periods) =>
-  [...(periods ?? [])]
-    .sort((a, b) => a.period_month - b.period_month)
-    .map((p) => ({
-      month: MONTH_NAMES[p.period_month - 1] ?? `ماه ${p.period_month}`,
+/**
+ * همیشه هر ۱۲ ماه سال را برمی‌گرداند (فروردین تا اسفند) تا لیبل ماه‌ها
+ * همیشه روی محور X کامل باشد. برای ماه‌هایی که period متناظرشان از API
+ * نیامده، مقدار null گذاشته می‌شود — Recharts با null نه صفر می‌کشد و
+ * نه نقطه‌ای می‌گذارد، فقط همان‌جا خط را قطع می‌کند.
+ */
+const buildChartData = (periods) => {
+  const byMonth = new Map((periods ?? []).map((p) => [p.period_month, p]));
+
+  return MONTH_NAMES.map((name, idx) => {
+    const monthNumber = idx + 1;
+    const p = byMonth.get(monthNumber);
+
+    if (!p) {
+      return {
+        month: name,
+        planned: null,
+        produced: null,
+        variance: null,
+        planedWeight: null,
+        produceWeight: null,
+        weightVariance: null,
+      };
+    }
+
+    return {
+      month: name,
       planned: p.planned_quantity ?? 0,
       produced: p.total_quantity_produced ?? 0,
       variance: p.variance ?? 0,
       planedWeight: p.planed_weight ?? 0,
       produceWeight: p.produce_weight ?? 0,
       weightVariance: (p.produce_weight ?? 0) - (p.planed_weight ?? 0),
-    }));
+    };
+  });
+};
 
 const baseAxisProps = {
   tick: { fontSize: 12, fill: "#64748b" },
@@ -62,12 +98,27 @@ export const QuantityTrendChart = ({ periods }) => {
   const chartData = buildChartData(periods);
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <LineChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+      <LineChart
+        data={chartData}
+        margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
+      >
+        <CartesianGrid
+          strokeDasharray="3 3"
+          stroke="#e2e8f0"
+          vertical={false}
+        />
         <XAxis dataKey="month" reversed {...baseAxisProps} />
-        <YAxis orientation="right" tickFormatter={fa} width={50} {...baseAxisProps} />
+        <YAxis
+          orientation="right"
+          tickFormatter={fa}
+          width={50}
+          {...baseAxisProps}
+        />
         <Tooltip content={<ChartTooltip />} />
-        <Legend iconType="circle" wrapperStyle={{ fontSize: 13, direction: "rtl" }} />
+        <Legend
+          iconType="circle"
+          wrapperStyle={{ fontSize: 13, direction: "rtl" }}
+        />
         <Line
           name="مقدار برنامه‌ریزی شده"
           dataKey="planned"
@@ -93,12 +144,27 @@ export const WeightTrendChart = ({ periods }) => {
   const chartData = buildChartData(periods);
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <LineChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+      <LineChart
+        data={chartData}
+        margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
+      >
+        <CartesianGrid
+          strokeDasharray="3 3"
+          stroke="#e2e8f0"
+          vertical={false}
+        />
         <XAxis dataKey="month" reversed {...baseAxisProps} />
-        <YAxis orientation="right" tickFormatter={fa} width={50} {...baseAxisProps} />
+        <YAxis
+          orientation="right"
+          tickFormatter={fa}
+          width={50}
+          {...baseAxisProps}
+        />
         <Tooltip content={<ChartTooltip />} />
-        <Legend iconType="circle" wrapperStyle={{ fontSize: 13, direction: "rtl" }} />
+        <Legend
+          iconType="circle"
+          wrapperStyle={{ fontSize: 13, direction: "rtl" }}
+        />
         <Line
           name="وزن برنامه‌ریزی‌شده"
           dataKey="planedWeight"
@@ -124,12 +190,27 @@ export const VarianceTrendChart = ({ periods }) => {
   const chartData = buildChartData(periods);
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <LineChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+      <LineChart
+        data={chartData}
+        margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
+      >
+        <CartesianGrid
+          strokeDasharray="3 3"
+          stroke="#e2e8f0"
+          vertical={false}
+        />
         <XAxis dataKey="month" reversed {...baseAxisProps} />
-        <YAxis orientation="right" tickFormatter={fa} width={50} {...baseAxisProps} />
+        <YAxis
+          orientation="right"
+          tickFormatter={fa}
+          width={50}
+          {...baseAxisProps}
+        />
         <Tooltip content={<ChartTooltip />} />
-        <Legend iconType="circle" wrapperStyle={{ fontSize: 13, direction: "rtl" }} />
+        <Legend
+          iconType="circle"
+          wrapperStyle={{ fontSize: 13, direction: "rtl" }}
+        />
         <ReferenceLine y={0} stroke="#cbd5e1" />
         <Line
           name="انحراف مقداری"

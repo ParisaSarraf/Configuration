@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Button, Card, Empty, Input, Segmented, Skeleton, Switch } from "antd";
 import {
   BarChartOutlined,
@@ -24,13 +24,15 @@ const fa = (v) => (v ?? 0).toLocaleString("fa-IR");
 
 const ChartTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
+  const visible = payload.filter((item) => item.value != null);
+  if (!visible.length) return null;
   return (
     <div
       dir="rtl"
       className="bg-white/95 backdrop-blur rounded-xl shadow-lg border border-slate-100 px-4 py-3 text-sm"
     >
       <p className="font-bold text-slate-800 mb-2">{label}</p>
-      {payload.map((item) => (
+      {visible.map((item) => (
         <div key={item.dataKey} className="flex items-center gap-2 py-0.5">
           <span
             className="inline-block w-2.5 h-2.5 rounded-full"
@@ -90,41 +92,57 @@ const YearPerformanceReport = ({
   onSearch,
   isFetching,
 }) => {
-  const currentYear = useMemo(() => getCurrentJalaliYear(), []);
-  const initialYear = searchParams?.year || currentYear || "";
-
-  const [yearInput, setYearInput] = useState(initialYear);
+  const [yearInput, setYearInput] = useState(searchParams?.year ?? "");
   const [chartType, setChartType] = useState("line");
-  const [viewMode, setViewMode] = useState("cumulative");
+
+  // پیش‌فرض حتماً باید روی «تجمیعی» باشد
+  const [viewMode, setViewMode] = useState("cumulative"); // "cumulative" | "period"
   const isCumulative = viewMode === "cumulative";
 
   const handleSearch = (yearOverride) => {
     const year = yearOverride ?? yearInput;
     setSearchParams((prev) => ({ ...prev, year }));
-    onSearch?.();
+    // توجه: onSearch اینجا صدا زده نمی‌شود چون setSearchParams آسنکرون است؛
+    // Plan.jsx با useEffect روی تغییر searchParams.year، خودش refetch را صدا می‌زند
+    // (وگرنه فچ اول با مقدار قدیمی سال انجام می‌شد و کاربر باید دوباره کلیک می‌کرد)
   };
 
   useEffect(() => {
-    if (!searchParams?.year && currentYear) {
-      setSearchParams((prev) => ({ ...prev, year: currentYear }));
-      onSearch?.();
+    if (!searchParams?.year) {
+      const currentYear = getCurrentJalaliYear();
+      if (currentYear) {
+        setYearInput(currentYear);
+        handleSearch(currentYear);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const rawData = yearPercentageOfPerformanceList ?? [];
 
-  const chartData = [...rawData]
-    .sort((a, b) => a.period_month - b.period_month)
-    .map((p) => ({
-      month: MONTH_NAMES[p.period_month - 1] ?? `ماه ${p.period_month}`,
+  // همیشه هر ۱۲ ماه سال روی محور چارت نمایش داده می‌شود، صرف‌نظر از اینکه API
+  // برای کدام ماه‌ها داده فرستاده. برای ماه‌های نیامده مقدار null گذاشته می‌شود
+  // تا Recharts همان‌جا خط را قطع کند (نه صفر بکشد، نه ادامه بدهد)، ولی لیبل ماه
+  // همچنان روی محور X نمایش داده می‌شود.
+  const byMonth = new Map(rawData.map((p) => [p.period_month, p]));
+  const chartData = MONTH_NAMES.map((name, idx) => {
+    const monthNumber = idx + 1;
+    const p = byMonth.get(monthNumber);
+
+    if (!p) {
+      return { month: name, planedWeight: null, produceWeight: null };
+    }
+
+    return {
+      month: name,
       planedWeight: isCumulative
         ? (p.cumulative_planed_weight ?? 0)
         : (p.sum_of_planed_weight ?? 0),
       produceWeight: isCumulative
         ? (p.cumulative_produce_weight ?? 0)
         : (p.sum_of_produce_weight ?? 0),
-    }));
+    };
+  });
 
   const weightSeries = [
     {
@@ -170,6 +188,7 @@ const YearPerformanceReport = ({
         <Empty description="برای مشاهده گزارش، سال مورد نظر را جستجو کنید" />
       ) : (
         <div>
+          {/* سوییچ تجمیعی / دوره‌ای */}
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-slate-600">
               {isCumulative

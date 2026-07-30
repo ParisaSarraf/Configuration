@@ -37,11 +37,7 @@ import {
 import PeriodModal from "./periodModal";
 import PlanModal from "./PlanModal";
 import ActualModal from "./actualModal";
-import {
-  METRIC_COLORS,
-  getAchievementColor,
-  truncateWords,
-} from "../../../utils/chart.theme";
+import { METRIC_COLORS, getAchievementColor } from "../../../utils/chart.theme";
 
 const faNum = (v) => (v ?? 0).toLocaleString("fa-IR");
 
@@ -479,9 +475,8 @@ const PlanDetailModal = ({
                   ? georgianDateToJalaliDate(plan.updated_at)
                   : "—"}
               </Descriptions.Item>
-
               <Descriptions.Item label="توضیحات" span={2}>
-                <Tooltip title={plan?.notes}>{plan?.notes ? truncateWords(plan?.notes) : ""}</Tooltip>
+                {plan?.notes || "—"}
               </Descriptions.Item>
             </Descriptions>
           </div>
