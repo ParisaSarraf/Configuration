@@ -64,17 +64,23 @@ const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
   const onFinish = async (values) => {
     const payload = {
       ...values,
-      product_id: values.product_id?.value ?? values.product_id ?? null,
-      product_name: values.product_name ?? null,
-      contractor_id:
-        values.contractor_id?.value ?? values.contractor_id ?? null,
+      product_id: values.product_id?.value ?? values.product_id,
+      product_name: values.product_name,
+      contractor_id: values.contractor_id?.value ?? values.contractor_id,
     };
+
+    Object.keys(payload).forEach((key) => {
+      if (payload[key] == null || payload[key] === "") {
+        delete payload[key];
+      }
+    });
+
     if (payload.product_id) {
-      payload.product_name = null;
+      delete payload.product_name;
     }
 
     if (payload.product_name) {
-      payload.product_id = null;
+      delete payload.product_id;
     }
 
     try {

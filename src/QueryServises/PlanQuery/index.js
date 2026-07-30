@@ -3,15 +3,19 @@ import { useMyAxios } from "../../hooks/useMyAxios";
 
 // Production Plan
 export const useProductionPlanKey = ["lists", "production-paln"];
-export const useProductionPlanList = (queryOptions) => {
+export const useProductionPlanList = ({ year, ...queryOptions } = {}) => {
   const { myAxios } = useMyAxios();
   return useQuery({
-    queryKey: useProductionPlanKey,
+    queryKey: [...useProductionPlanKey, { year: year || null }],
     queryFn: () =>
-      myAxios.get(`/plan/get-production-plan/`).then((response) => {
-        queryOptions?.onSuccess?.(response?.data);
-        return response?.data;
-      }),
+      myAxios
+        .get(`/plan/get-production-plan/`, {
+          params: year ? { year } : {},
+        })
+        .then((response) => {
+          queryOptions?.onSuccess?.(response?.data);
+          return response?.data;
+        }),
     ...queryOptions,
   });
 };
