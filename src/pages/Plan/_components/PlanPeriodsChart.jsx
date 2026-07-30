@@ -11,18 +11,18 @@ import {
 } from "recharts";
 
 export const MONTH_NAMES = [
-  "1",
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  "10",
-  "11",
-  "12",
+  "فروردین",
+  "اردیبهشت",
+  "خرداد",
+  "تیر",
+  "مرداد",
+  "شهریور",
+  "مهر",
+  "آبان",
+  "آذر",
+  "دی",
+  "بهمن",
+  "اسفند",
 ];
 
 const fa = (v) => (v ?? 0).toLocaleString("fa-IR");
@@ -51,12 +51,39 @@ const ChartTooltip = ({ active, payload, label }) => {
   );
 };
 
-/**
- * همیشه هر ۱۲ ماه سال را برمی‌گرداند (فروردین تا اسفند) تا لیبل ماه‌ها
- * همیشه روی محور X کامل باشد. برای ماه‌هایی که period متناظرشان از API
- * نیامده، مقدار null گذاشته می‌شود — Recharts با null نه صفر می‌کشد و
- * نه نقطه‌ای می‌گذارد، فقط همان‌جا خط را قطع می‌کند.
- */
+export const MonthTick = ({ x, y, payload, data }) => {
+  const item = data?.find((d) => d.month === payload.value);
+
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text
+        x={0}
+        y={0}
+        dy={16}
+        textAnchor="middle"
+        fill="#64748b"
+        fontSize={12}
+      >
+        {payload.value}
+      </text>
+
+      {item?.cumulativePerformance != null && (
+        <text
+          x={0}
+          y={0}
+          dy={34}
+          textAnchor="middle"
+          fill="#0f172a"
+          fontSize={11}
+          fontWeight="600"
+        >
+          ({fa(item.cumulativePerformance)}٪)
+        </text>
+      )}
+    </g>
+  );
+};
+
 const buildChartData = (periods) => {
   const byMonth = new Map((periods ?? []).map((p) => [p.period_month, p]));
 
@@ -78,6 +105,7 @@ const buildChartData = (periods) => {
 
     return {
       month: name,
+      cumulativePerformance: p.cumulative_performance ?? null,
       planned: p.planned_quantity ?? 0,
       produced: p.total_quantity_produced ?? 0,
       variance: p.variance ?? 0,
@@ -107,7 +135,12 @@ export const QuantityTrendChart = ({ periods }) => {
           stroke="#e2e8f0"
           vertical={false}
         />
-        <XAxis dataKey="month" reversed {...baseAxisProps} />
+        <XAxis
+          dataKey="month"
+          reversed
+          {...baseAxisProps}
+          tick={<MonthTick />}
+        />
         <YAxis
           orientation="right"
           tickFormatter={fa}
@@ -153,7 +186,17 @@ export const WeightTrendChart = ({ periods }) => {
           stroke="#e2e8f0"
           vertical={false}
         />
-        <XAxis dataKey="month" reversed {...baseAxisProps} />
+        <XAxis
+          dataKey="month"
+          reversed
+          {...baseAxisProps}
+          tick={(props) => (
+            <MonthTick
+              {...props}
+              data={chartData}
+            />
+          )}
+        />{" "}
         <YAxis
           orientation="right"
           tickFormatter={fa}
@@ -199,7 +242,12 @@ export const VarianceTrendChart = ({ periods }) => {
           stroke="#e2e8f0"
           vertical={false}
         />
-        <XAxis dataKey="month" reversed {...baseAxisProps} />
+        <XAxis
+          dataKey="month"
+          reversed
+          {...baseAxisProps}
+          tick={<MonthTick />}
+        />{" "}
         <YAxis
           orientation="right"
           tickFormatter={fa}
