@@ -45,11 +45,6 @@ const SectionTitle = ({ children }) => (
   <h3 className="text-base font-bold text-slate-800 mb-4">{children}</h3>
 );
 
-/**
- * دوره‌ها را بر اساس ماه مرتب کرده و مقادیر هر دوره را به‌صورت تجمیعی
- * (جمع از ابتدای سال تا همان ماه) برمی‌گرداند. id و actuals هر دوره
- * دست‌نخورده باقی می‌مانند چون به عملیات ثبت/ویرایش تولید نیاز دارند.
- */
 const PlanDetailModal = ({
   isOpen,
   modalData,
@@ -96,8 +91,6 @@ const PlanDetailModal = ({
 
   const periods = plan?.periods ?? [];
 
-  // فقط از فیلدهای تجمیعی که خودِ API می‌فرستد استفاده می‌کنیم — هیچ جمع‌زدنی
-  // اینجا انجام نمی‌شود، فقط بر اساس حالت سوییچ، فیلد مناسب انتخاب می‌شود.
   const displayPeriods = useMemo(() => {
     const sorted = [...periods].sort(
       (a, b) => (a.period_month ?? 0) - (b.period_month ?? 0),
@@ -139,8 +132,6 @@ const PlanDetailModal = ({
 
   const colSuffix = isCumulative ? " (تجمیعی)" : "";
 
-  // ستون آخر بسته به حالت عوض می‌شود؛ در حالت تجمیعی از فیلد واقعیِ
-  // cumulative_performance که خودِ API می‌فرستد استفاده می‌شود، نه محاسبه‌ی دستی
   const varianceOrPerformanceColumn = isCumulative
     ? {
         title: "درصد تحقق تجمیعی",
@@ -441,6 +432,9 @@ const PlanDetailModal = ({
               </Descriptions.Item>
               <Descriptions.Item label="وزن">
                 {plan?.weight != null ? faNum(plan.weight) : "—"}
+              </Descriptions.Item>
+              <Descriptions.Item label="نام کارفرما">
+                {plan?.contractor?.name ?? "—"}
               </Descriptions.Item>
 
               <Descriptions.Item label="وضعیت">
