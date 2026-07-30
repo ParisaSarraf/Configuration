@@ -147,6 +147,7 @@ const Plan = () => {
                 locale={{
                   emptyText: <Empty description="برنامه تولیدی ثبت نشده است" />,
                 }}
+                pagination={false}
                 onRow={(record) => ({
                   onClick: () =>
                     setModal({

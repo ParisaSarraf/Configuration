@@ -8,14 +8,15 @@ export const TableAntd = ({
   rowKey = "id",
   page,
   pageSize,
+  pagination,
   totalItems,
   className = "",
   rowSelection,
   expandable,
   footer,
   locale,
-  scroll,       
-  tableLayout,  
+  scroll,
+  tableLayout,
   expandedRowRender,
 }) => {
   return (
@@ -35,22 +36,26 @@ export const TableAntd = ({
         locale={{ filterConfirm: "اعمال", filterReset: "ریست" } || locale}
         expandable={expandable}
         rowSelection={rowSelection}
-        pagination={{
-          current: page,
-          pageSize: pageSize,
-          total: totalItems,
-          showTotal: (total) => `تعداد کل: ${total}`,
-          defaultPageSize: 5,
-          pageSizeOptions: [10, 20, 45, 100],
-          size: "small",
-          showSizeChanger: true,
-          locale: {
-            items_per_page: "",
-            page: "صفحه",
-            jump_to: "برو به صفحه",
-            jump_to_confirm: "برو",
-          },
-        }}
+        pagination={
+          pagination !== undefined
+            ? pagination
+            : {
+                current: page,
+                pageSize,
+                total: totalItems,
+                showTotal: (total) => `تعداد کل: ${total}`,
+                defaultPageSize: 5,
+                pageSizeOptions: [10, 20, 45, 100],
+                size: "small",
+                showSizeChanger: true,
+                locale: {
+                  items_per_page: "",
+                  page: "صفحه",
+                  jump_to: "برو به صفحه",
+                  jump_to_confirm: "برو",
+                },
+              }
+        }
       />
     </div>
   );
