@@ -135,6 +135,20 @@ const Plan = () => {
                   setModal,
                   getColumnSearchProps,
                 })}
+                rowClassName={(record) => {
+                  switch (record.status) {
+                    case "draft":
+                      return "bg-gray-100";
+                    case "stopped":
+                      return "bg-orange-100";
+                    case "closed":
+                      return "bg-green-100";
+                    case "approved":
+                      return "bg-white";
+                    default:
+                      return "";
+                  }
+                }}
                 dataSource={plans ?? []}
                 locale={{
                   emptyText: <Empty description="برنامه تولیدی ثبت نشده است" />,

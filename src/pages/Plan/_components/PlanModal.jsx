@@ -11,11 +11,10 @@ import TsLazy from "../../../components/LazyTreeSelect/LazyTreeSelect";
 import { useContractorProductList } from "../../../QueryServises/ProductContractorQuery";
 
 const STATUS_OPTIONS = [
-  { value: "draft", label: "پیش‌نویس" },
-  { value: "approved", label: "تأیید شده" },
-  { value: "active", label: "تکمیل شده" },
-  { value: "revised", label: "لغو و بازبینی" },
-  { value: "closed", label: "لغو و بسته" },
+  { value: "draft", label: "پیش‌نویس", color: "bg-gray-200" },
+  { value: "approved", label: "تایید شده", color: "bg-white" },
+  { value: "stopped", label: "توقف", color: "bg-orange-200" },
+  { value: "closed", label: "بسته", color: "bg-green-200" },
 ];
 
 const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {

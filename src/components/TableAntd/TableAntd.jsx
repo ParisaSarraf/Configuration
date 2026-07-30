@@ -12,6 +12,7 @@ export const TableAntd = ({
   totalItems,
   className = "",
   rowSelection,
+  rowClassName,
   expandable,
   footer,
   locale,
@@ -24,6 +25,7 @@ export const TableAntd = ({
       <Table
         size="small"
         bordered
+        rowClassName={rowClassName}
         footer={footer}
         columns={columns}
         components={components}
