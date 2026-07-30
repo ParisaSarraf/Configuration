@@ -91,7 +91,29 @@ const PlanDetailModal = ({
 
   const periods = plan?.periods ?? [];
 
-  const displayPeriods = useMemo(() => {
+  // const displayPeriods = useMemo(() => {
+  //   const sorted = [...periods].sort(
+  //     (a, b) => (a.period_month ?? 0) - (b.period_month ?? 0),
+  //   );
+
+  //   if (!isCumulative) return sorted;
+
+  //   return sorted.map((p) => ({
+  //     ...p,
+  //     planned_quantity: p.planned_quantity,
+  //     total_quantity_produced: p.total_quantity_produced,
+  //     planed_weight: p.cumulative_planed_weight,
+  //     produce_weight: p.cumulative_produce_weight,
+  //   }));
+  // }, [periods, isCumulative]);
+
+  const tablePeriods = useMemo(() => {
+    return [...periods].sort(
+      (a, b) => (a.period_month ?? 0) - (b.period_month ?? 0),
+    );
+  }, [periods]);
+
+  const chartPeriods = useMemo(() => {
     const sorted = [...periods].sort(
       (a, b) => (a.period_month ?? 0) - (b.period_month ?? 0),
     );
@@ -100,10 +122,11 @@ const PlanDetailModal = ({
 
     return sorted.map((p) => ({
       ...p,
-      planned_quantity: p.cumulative_planned_quantity,
-      total_quantity_produced: p.cumulative_total_quantity_produced,
-      planed_weight: p.cumulative_planed_weight,
-      produce_weight: p.cumulative_produce_weight,
+      planned_quantity: p.cumulative_planned_quantity ?? p.planned_quantity,
+      total_quantity_produced:
+        p.cumulative_total_quantity_produced ?? p.total_quantity_produced,
+      planed_weight: p.cumulative_planed_weight ?? p.planed_weight,
+      produce_weight: p.cumulative_produce_weight ?? p.produce_weight,
     }));
   }, [periods, isCumulative]);
 
@@ -168,13 +191,13 @@ const PlanDetailModal = ({
       render: (m) => MONTH_NAMES[m - 1] ?? `ماه ${m}`,
     },
     {
-      title: `برنامه${colSuffix}`,
+      title: `برنامه`,
       dataIndex: "planned_quantity",
       align: "center",
       render: (v) => v?.toLocaleString("fa-IR") ?? "—",
     },
     {
-      title: `تولید${colSuffix}`,
+      title: `تولید`,
       dataIndex: "total_quantity_produced",
       align: "center",
       render: (v) => v?.toLocaleString("fa-IR") ?? "—",
@@ -285,14 +308,14 @@ const PlanDetailModal = ({
       <div>
         <SectionTitle>نمودار مقادیر (برنامه / تولید){colSuffix}</SectionTitle>
         <Card size="small" className="rounded-xl border-slate-200">
-          <QuantityTrendChart periods={displayPeriods} />
+          <QuantityTrendChart periods={chartPeriods} />
         </Card>
       </div>
       {!isCumulative && (
         <div>
           <SectionTitle>انحراف از معیار</SectionTitle>
           <Card size="small" className="rounded-xl border-slate-200">
-            <VarianceTrendChart periods={displayPeriods} />
+            <VarianceTrendChart periods={chartPeriods} />
           </Card>
         </div>
       )}
@@ -309,7 +332,7 @@ const PlanDetailModal = ({
         <TableAntd
           rowKey="id"
           columns={periodColumns}
-          dataSource={displayPeriods}
+          dataSource={tablePeriods}
           pagination={false}
           expandable={{
             rowExpandable: (record) => !!record.actuals?.length,

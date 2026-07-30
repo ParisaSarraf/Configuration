@@ -164,6 +164,7 @@ export const QuantityTrendChart = ({ periods }) => {
           stroke="#0ea5e9"
           strokeWidth={2.5}
           dot={{ r: 4, fill: "#0ea5e9", strokeWidth: 2, stroke: "#fff" }}
+          connectNulls={true}
         />
         <Line
           name="مقدار تولید شده"
@@ -172,6 +173,7 @@ export const QuantityTrendChart = ({ periods }) => {
           stroke="#10b981"
           strokeWidth={2.5}
           dot={{ r: 4, fill: "#10b981", strokeWidth: 2, stroke: "#fff" }}
+          connectNulls={true}
         />
       </LineChart>
     </ResponsiveContainer>
