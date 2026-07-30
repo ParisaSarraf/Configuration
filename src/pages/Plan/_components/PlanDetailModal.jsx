@@ -367,7 +367,7 @@ const PlanDetailModal = ({
       isOpen={isOpen}
       onClose={closeModal}
       footer={null}
-      size={1300}
+      size={1500}
     >
       {isLoading ? (
         <Skeleton active paragraph={{ rows: 6 }} />
