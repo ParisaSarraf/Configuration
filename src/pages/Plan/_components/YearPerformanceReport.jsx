@@ -247,7 +247,12 @@ const YearPerformanceReport = ({
                 />
                 <Legend
                   iconType="circle"
-                  wrapperStyle={{ fontSize: 13, direction: "rtl" }}
+                  verticalAlign="bottom"
+                  wrapperStyle={{
+                    fontSize: 13,
+                    direction: "rtl",
+                    paddingTop: "20px",
+                  }}
                 />
                 {renderSeries(chartType, weightSeries)}
               </ComposedChart>

@@ -139,7 +139,7 @@ export const QuantityTrendChart = ({ periods }) => {
           dataKey="month"
           reversed
           {...baseAxisProps}
-          tick={<MonthTick />}
+          tick={(props) => <MonthTick {...props} data={chartData} />}
         />
         <YAxis
           orientation="right"
@@ -150,7 +150,12 @@ export const QuantityTrendChart = ({ periods }) => {
         <Tooltip content={<ChartTooltip />} />
         <Legend
           iconType="circle"
-          wrapperStyle={{ fontSize: 13, direction: "rtl" }}
+          verticalAlign="bottom"
+          wrapperStyle={{
+            fontSize: 13,
+            direction: "rtl",
+            paddingTop: "20px",
+          }}
         />
         <Line
           name="مقدار برنامه‌ریزی شده"
@@ -190,13 +195,8 @@ export const WeightTrendChart = ({ periods }) => {
           dataKey="month"
           reversed
           {...baseAxisProps}
-          tick={(props) => (
-            <MonthTick
-              {...props}
-              data={chartData}
-            />
-          )}
-        />{" "}
+          tick={(props) => <MonthTick {...props} data={chartData} />}
+        />
         <YAxis
           orientation="right"
           tickFormatter={fa}
@@ -206,8 +206,13 @@ export const WeightTrendChart = ({ periods }) => {
         <Tooltip content={<ChartTooltip />} />
         <Legend
           iconType="circle"
-          wrapperStyle={{ fontSize: 13, direction: "rtl" }}
+          wrapperStyle={{
+            fontSize: 13,
+            direction: "rtl",
+            paddingTop: "40px",
+          }}
         />
+
         <Line
           name="وزن برنامه‌ریزی‌شده"
           dataKey="planedWeight"
@@ -235,7 +240,7 @@ export const VarianceTrendChart = ({ periods }) => {
     <ResponsiveContainer width="100%" height={300}>
       <LineChart
         data={chartData}
-        margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
+        margin={{ top: 10, right: 10, left: 10, bottom: 50 }}
       >
         <CartesianGrid
           strokeDasharray="3 3"
@@ -246,8 +251,8 @@ export const VarianceTrendChart = ({ periods }) => {
           dataKey="month"
           reversed
           {...baseAxisProps}
-          tick={<MonthTick />}
-        />{" "}
+          tick={(props) => <MonthTick {...props} data={chartData} />}
+        />
         <YAxis
           orientation="right"
           tickFormatter={fa}
@@ -257,7 +262,12 @@ export const VarianceTrendChart = ({ periods }) => {
         <Tooltip content={<ChartTooltip />} />
         <Legend
           iconType="circle"
-          wrapperStyle={{ fontSize: 13, direction: "rtl" }}
+          verticalAlign="bottom"
+          wrapperStyle={{
+            fontSize: 13,
+            direction: "rtl",
+            paddingTop: "20px",
+          }}
         />
         <ReferenceLine y={0} stroke="#cbd5e1" />
         <Line
