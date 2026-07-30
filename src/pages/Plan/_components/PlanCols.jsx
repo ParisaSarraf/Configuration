@@ -76,7 +76,7 @@ const PlanCols = ({
       },
     },
     {
-      title: "مقدار برنامه‌ریزی شده",
+      title: "تعداد برنامه‌ریزی شده",
       dataIndex: "total_planned_quantity",
       align: "center",
       sorter: (a, b) =>
