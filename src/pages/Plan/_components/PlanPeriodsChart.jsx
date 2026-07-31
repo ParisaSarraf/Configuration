@@ -87,15 +87,49 @@ export const MonthTick = ({ x, y, payload, data }) => {
 const buildChartData = (periods) => {
   const byMonth = new Map((periods ?? []).map((p) => [p.period_month, p]));
 
+  const existingMonths = [...byMonth.keys()].sort((a, b) => a - b);
+  const firstMonth = existingMonths.length ? existingMonths[0] : 13;
+  const lastMonth = existingMonths.length ? existingMonths[existingMonths.length - 1] : 0;
+
   return MONTH_NAMES.map((name, idx) => {
     const monthNumber = idx + 1;
     const p = byMonth.get(monthNumber);
 
+    // قبل از اولین داده => صفر
+    if (monthNumber < firstMonth) {
+      return {
+        month: name,
+        cumulativePerformance: null,
+        cumulative_planned_quantity: 0,
+        cumulative_total_quantity_produced: 0,
+        variance: 0,
+        planedWeight: 0,
+        produceWeight: 0,
+        weightVariance: 0,
+      };
+    }
+
+    // بعد از آخرین داده => null
+    if (monthNumber > lastMonth) {
+      return {
+        month: name,
+        cumulativePerformance: null,
+        cumulative_planned_quantity: null,
+        cumulative_total_quantity_produced: null,
+        variance: null,
+        planedWeight: null,
+        produceWeight: null,
+        weightVariance: null,
+      };
+    }
+
+    // اگر این ماه داده ندارد (بین دو ماه دارای داده)
     if (!p) {
       return {
         month: name,
-        planned: null,
-        produced: null,
+        cumulativePerformance: null,
+        cumulative_planned_quantity: null,
+        cumulative_total_quantity_produced: null,
         variance: null,
         planedWeight: null,
         produceWeight: null,
@@ -105,13 +139,17 @@ const buildChartData = (periods) => {
 
     return {
       month: name,
-      cumulativePerformance: p.cumulative_performance ?? null,
-      planned: p.planned_quantity ?? 0,
-      produced: p.total_quantity_produced ?? 0,
-      variance: p.variance ?? 0,
-      planedWeight: p.planed_weight ?? 0,
-      produceWeight: p.produce_weight ?? 0,
-      weightVariance: (p.produce_weight ?? 0) - (p.planed_weight ?? 0),
+      cumulativePerformance: p.cumulative_performance,
+      cumulative_planned_quantity: p.cumulative_planned_quantity,
+      cumulative_total_quantity_produced:
+        p.cumulative_total_quantity_produced,
+      variance: p.variance,
+      planedWeight: p.planed_weight,
+      produceWeight: p.produce_weight,
+      weightVariance:
+        p.produce_weight == null || p.planed_weight == null
+          ? null
+          : p.produce_weight - p.planed_weight,
     };
   });
 };
@@ -159,7 +197,7 @@ export const QuantityTrendChart = ({ periods }) => {
         />
         <Line
           name="مقدار برنامه‌ریزی شده"
-          dataKey="planned"
+          dataKey="cumulative_planned_quantity"
           type="monotone"
           stroke="#0ea5e9"
           strokeWidth={2.5}
@@ -168,7 +206,7 @@ export const QuantityTrendChart = ({ periods }) => {
         />
         <Line
           name="مقدار تولید شده"
-          dataKey="produced"
+          dataKey="cumulative_total_quantity_produced"
           type="monotone"
           stroke="#10b981"
           strokeWidth={2.5}
