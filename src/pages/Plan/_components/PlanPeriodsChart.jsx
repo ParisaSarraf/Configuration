@@ -89,7 +89,9 @@ const buildChartData = (periods) => {
 
   const existingMonths = [...byMonth.keys()].sort((a, b) => a - b);
   const firstMonth = existingMonths.length ? existingMonths[0] : 13;
-  const lastMonth = existingMonths.length ? existingMonths[existingMonths.length - 1] : 0;
+  const lastMonth = existingMonths.length
+    ? existingMonths[existingMonths.length - 1]
+    : 0;
 
   return MONTH_NAMES.map((name, idx) => {
     const monthNumber = idx + 1;
@@ -141,8 +143,7 @@ const buildChartData = (periods) => {
       month: name,
       cumulativePerformance: p.cumulative_performance,
       cumulative_planned_quantity: p.cumulative_planned_quantity,
-      cumulative_total_quantity_produced:
-        p.cumulative_total_quantity_produced,
+      cumulative_total_quantity_produced: p.cumulative_total_quantity_produced,
       variance: p.variance,
       planedWeight: p.planed_weight,
       produceWeight: p.produce_weight,
@@ -280,7 +281,7 @@ export const VarianceTrendChart = ({ periods }) => {
     <ResponsiveContainer width="100%" height={300}>
       <LineChart
         data={chartData}
-        margin={{ top: 10, right: 10, left: 10, bottom: 50 }}
+        margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
       >
         <CartesianGrid
           strokeDasharray="3 3"
@@ -317,6 +318,7 @@ export const VarianceTrendChart = ({ periods }) => {
           stroke="#f59e0b"
           strokeWidth={2.5}
           dot={{ r: 4, fill: "#f59e0b", strokeWidth: 2, stroke: "#fff" }}
+          connectNulls={true}
         />
         <Line
           name="انحراف وزنی"
@@ -325,6 +327,7 @@ export const VarianceTrendChart = ({ periods }) => {
           stroke="#ef4444"
           strokeWidth={2.5}
           dot={{ r: 4, fill: "#ef4444", strokeWidth: 2, stroke: "#fff" }}
+          connectNulls={true}
         />
       </LineChart>
     </ResponsiveContainer>

@@ -70,7 +70,7 @@ const renderSeries = (chartType, series) =>
         dataKey={s.dataKey}
         fill={s.color}
         radius={[6, 6, 0, 0]}
-        maxBarSize={36}
+        maxBarSize={15}
       />
     ) : (
       <Line
@@ -80,6 +80,7 @@ const renderSeries = (chartType, series) =>
         type="monotone"
         stroke={s.color}
         strokeWidth={2.5}
+        connectNulls={true}
         dot={dotStyle(s.color)}
       />
     ),
