@@ -115,8 +115,9 @@ const YearPerformanceReport = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const rawData = yearPercentageOfPerformanceList ?? [];
-
+  const rawData = Array.isArray(yearPercentageOfPerformanceList)
+    ? yearPercentageOfPerformanceList
+    : Object.values(yearPercentageOfPerformanceList || {});
   const byMonth = new Map(rawData.map((p) => [p.period_month, p]));
   const chartData = MONTH_NAMES.map((name, idx) => {
     const monthNumber = idx + 1;
