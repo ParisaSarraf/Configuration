@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 import useModal from "../../hooks/useModal";
 import PlanModal from "./_components/PlanModal";
 import {
-  useDeleteProductionActual,
   useDeleteProductionPlan,
   useProductionPlanList,
   useYearPercentageOfPerformanceList,
@@ -38,7 +37,6 @@ const Plan = () => {
   } = useProductionPlanList({ year: searchParams.year });
 
   const deletePlan = useDeleteProductionPlan();
-  const deleteActual = useDeleteProductionActual();
 
   const {
     data: yearPercentageOfPerformanceList,
@@ -179,12 +177,10 @@ const Plan = () => {
         )}
         {modalType === "showDetail" && (
           <PlanDetailModal
-            setModal={setModal}
             isOpen={isOpen}
             modalData={modalData}
             closeModal={closeModal}
             refetch={refetch}
-            deleteActual={deleteActual}
           />
         )}
         {modalType === "actualModal" && (

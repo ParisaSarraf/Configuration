@@ -1,7 +1,7 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { Button, Col, Form, Input, message, Row, TreeSelect } from "antd";
-import Modal from "../../../../../components/Modal";
-import FileUploader from "../../../../../components/FileUploader/FileUploader";
+import Modal from "../../../../../components/Modal/index.jsx";
+import FileUploader from "../../../../../components/FileUploader/FileUploader.jsx";
 import { useEffect } from "react";
 import {
   useAvailableProductEditionList,

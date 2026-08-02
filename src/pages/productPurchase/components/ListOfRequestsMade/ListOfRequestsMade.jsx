@@ -5,17 +5,17 @@ import {
   useCreatePurchaseZipReport, // 👈 new
 } from "@/QueryServises/productPurchase/index.js";
 import { usePurchaseZipReportStatus } from "@/QueryServises/productPurchase/index.js"; // 👈 new
-import ListOfRequestsMadeCol from "./ListOfRequestsMadeCol";
+import ListOfRequestsMadeCol from "./ListOfRequestsMadeCol.jsx";
 import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
-import { useExportExcelProductPurchase } from "../../../../QueryServises/ExcelExporterQuery";
+import { useExportExcelProductPurchase } from "../../../../QueryServises/ExcelExporterQuery/index.js";
 import { useEffect, useState } from "react";
 import { handleDownload } from "@utils/HandleDownload.js";
-import useModal from "../../../../hooks/useModal";
+import useModal from "../../../../hooks/useModal.js";
 import {
   useCreatePdfById,
   useUpdateProductPurchase,
-} from "../../../../QueryServises/productPurchase";
-import ExportPurchaseExcelModal from "../../../../components/exportPurchaseExcelModal";
+} from "../../../../QueryServises/productPurchase/index.js";
+import ExportPurchaseExcelModal from "../../../../components/exportPurchaseExcelModal.jsx";
 import { Progress, Typography } from "antd";
 import { BASEURL } from "../../../../Services/axiosInstance.js"; // 👈 adjust path if needed
 import { TableAntd } from "../../../../components/TableAntd/TableAntd.jsx";

@@ -1,6 +1,6 @@
 import { Button, Card } from 'antd';
 import RecursiveTable from './RecursiveTable';
-import ProductCols from '../components/ProductCols';
+import ProductCols from './ProductCols';
 import { handleDownload } from "@utils/HandleDownload.js";
 import { FileExcelOutlined } from '@ant-design/icons';
 import { useExportExcelProductTable } from '../../../QueryServises/ExcelExporterQuery';

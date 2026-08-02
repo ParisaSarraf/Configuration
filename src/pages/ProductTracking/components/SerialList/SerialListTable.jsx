@@ -1,9 +1,9 @@
 import { message, Modal } from "antd";
-import { SerialListCol } from "./SerialListCol";
+import { SerialListCol } from "./SerialListCol.jsx";
 import {
   useDeleteProductSerial,
   useProductSerialById,
-} from "../../../../QueryServises/productSerialQuery";
+} from "../../../../QueryServises/productSerialQuery/index.js";
 import { useEffect } from "react";
 import { useResizableColumns } from "../../../../hooks/useResizableColumns.jsx";
 import { TableAntd } from "../../../../components/TableAntd/TableAntd.jsx";

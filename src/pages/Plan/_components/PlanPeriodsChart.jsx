@@ -3,7 +3,6 @@ import {
   Legend,
   Line,
   LineChart,
-  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -54,6 +53,8 @@ const ChartTooltip = ({ active, payload, label }) => {
 export const MonthTick = ({ x, y, payload, data }) => {
   const item = data?.find((d) => d.month === payload.value);
 
+  if (!payload.value) return <g transform={`translate(${x},${y})`} />;
+
   return (
     <g transform={`translate(${x},${y})`}>
       <text
@@ -84,149 +85,41 @@ export const MonthTick = ({ x, y, payload, data }) => {
   );
 };
 
-// const buildChartData = (periods) => {
-//   const byMonth = new Map((periods ?? []).map((p) => [p.period_month, p]));
+const buildChartData = ({ periods = [], actuals = [] } = {}) => {
+  const periodByMonth = new Map(periods.map((p) => [p.period_month, p]));
+  const actualByMonth = new Map(actuals.map((a) => [a.production_month, a]));
 
-//   const existingMonths = [...byMonth.keys()].sort((a, b) => a - b);
-//   const firstMonth = existingMonths.length ? existingMonths[0] : 13;
-//   const lastMonth = existingMonths.length
-//     ? existingMonths[existingMonths.length - 1]
-//     : 0;
+  const hasData = periodByMonth.size > 0 || actualByMonth.size > 0;
 
-//   return MONTH_NAMES.map((name, idx) => {
-//     const monthNumber = idx + 1;
-//     const p = byMonth.get(monthNumber);
-
-//     // قبل از اولین داده => صفر
-//     if (monthNumber < firstMonth) {
-//       return {
-//         month: name,
-//         cumulativePerformance: null,
-//         cumulative_planned_quantity: 0,
-//         cumulative_total_quantity_produced: 0,
-//         variance: 0,
-//         planedWeight: 0,
-//         produceWeight: 0,
-//         weightVariance: 0,
-//       };
-//     }
-
-//     // بعد از آخرین داده => null
-//     if (monthNumber > lastMonth) {
-//       return {
-//         month: name,
-//         cumulativePerformance: null,
-//         cumulative_planned_quantity: null,
-//         cumulative_total_quantity_produced: null,
-//         variance: null,
-//         planedWeight: null,
-//         produceWeight: null,
-//         weightVariance: null,
-//       };
-//     }
-
-//     // اگر این ماه داده ندارد (بین دو ماه دارای داده)
-//     if (!p) {
-//       return {
-//         month: name,
-//         cumulativePerformance: null,
-//         cumulative_planned_quantity: null,
-//         cumulative_total_quantity_produced: null,
-//         variance: null,
-//         planedWeight: null,
-//         produceWeight: null,
-//         weightVariance: null,
-//       };
-//     }
-
-//     return {
-//       month: name,
-//       cumulativePerformance: p.cumulative_performance,
-//       cumulative_planned_quantity: p.cumulative_planned_quantity,
-//       cumulative_total_quantity_produced: p.cumulative_total_quantity_produced,
-//       variance: p.variance,
-//       planedWeight: p.planed_weight,
-//       produceWeight: p.produce_weight,
-//       weightVariance:
-//         p.produce_weight == null || p.planed_weight == null
-//           ? null
-//           : p.produce_weight - p.planed_weight,
-//     };
-//   });
-// };
-
-const buildChartData = (periods) => {
-  const byMonth = new Map((periods ?? []).map((p) => [p.period_month, p]));
-
-  const existingMonths = [...byMonth.keys()].sort((a, b) => a - b);
-  const firstMonth = existingMonths.length ? existingMonths[0] : 13;
-  const lastMonth = existingMonths.length
-    ? existingMonths[existingMonths.length - 1]
-    : 0;
-
-  return MONTH_NAMES.map((name, idx) => {
+  const months = MONTH_NAMES.map((name, idx) => {
     const monthNumber = idx + 1;
-    const p = byMonth.get(monthNumber);
+    const period = periodByMonth.get(monthNumber);
+    const actual = actualByMonth.get(monthNumber);
 
-    // قبل از اولین داده => صفر
-    if (monthNumber < firstMonth) {
-      return {
-        month: name,
-        cumulativePerformance: null,
-        plannedQuantity: 0,
-        producedQuantity: 0,
-        variance: 0,
-        planedWeight: 0,
-        produceWeight: 0,
-        weightVariance: 0,
-      };
-    }
-
-    // بعد از آخرین داده => null
-    if (monthNumber > lastMonth) {
-      return {
-        month: name,
-        cumulativePerformance: null,
-        plannedQuantity: null,
-        producedQuantity: null,
-        variance: null,
-        planedWeight: null,
-        produceWeight: null,
-        weightVariance: null,
-      };
-    }
-
-    // اگر این ماه داده ندارد (بین دو ماه دارای داده)
-    if (!p) {
-      return {
-        month: name,
-        cumulativePerformance: null,
-        plannedQuantity: null,
-        producedQuantity: null,
-        variance: null,
-        planedWeight: null,
-        produceWeight: null,
-        weightVariance: null,
-      };
-    }
-
-    // نکته‌ی مهم: planned_quantity / total_quantity_produced از قبل توسط
-    // PlanDetailModal (در chartPeriods) بسته به حالت تجمیعی/دوره‌ای نرمالایز شده‌اند،
-    // پس دیگه نباید مستقیم سراغ cumulative_* بریم.
     return {
       month: name,
-      cumulativePerformance: p.cumulative_performance,
-      plannedQuantity: p.planned_quantity,
-      producedQuantity: p.total_quantity_produced,
-      variance: p.variance,
-      planedWeight: p.planed_weight,
-      produceWeight: p.produce_weight,
-      weightVariance:
-        p.produce_weight == null || p.planed_weight == null
-          ? null
-          : p.produce_weight - p.planed_weight,
+      cumulativePerformance:
+        actual?.cumulative_performance ?? period?.cumulative_performance ?? null,
+      cumulative_planned_quantity:
+        period?.cumulative_planned_quantity ?? null,
+      cumulative_quantity_produced:
+        actual?.cumulative_quantity_produced ?? null,
     };
   });
+
+  if (!hasData) return months;
+
+  // نقطه‌ی مبدأ (0,0) قبل از اولین ماه، تا خط همیشه از مبدأ شروع شود و
+  // بدون کشیده‌شدن روی ماه‌های بدون داده، مستقیماً به اولین نقطه‌ی موجود وصل شود
+  return [
+    {
+      month: "",
+      cumulativePerformance: null,
+      cumulative_planned_quantity: 0,
+      cumulative_quantity_produced: 0,
+    },
+    ...months,
+  ];
 };
 
 const baseAxisProps = {
@@ -235,8 +128,8 @@ const baseAxisProps = {
   tickLine: false,
 };
 
-export const QuantityTrendChart = ({ periods }) => {
-  const chartData = buildChartData(periods);
+export const QuantityTrendChart = ({ periods, actuals }) => {
+  const chartData = buildChartData({ periods, actuals });
   return (
     <ResponsiveContainer width="100%" height={300}>
       <LineChart
@@ -272,7 +165,7 @@ export const QuantityTrendChart = ({ periods }) => {
         />
         <Line
           name="مقدار برنامه‌ریزی شده"
-          dataKey="plannedQuantity"
+          dataKey="cumulative_planned_quantity"
           type="monotone"
           stroke="#0ea5e9"
           strokeWidth={2.5}
@@ -281,126 +174,11 @@ export const QuantityTrendChart = ({ periods }) => {
         />
         <Line
           name="مقدار تولید شده"
-          dataKey="producedQuantity"
+          dataKey="cumulative_quantity_produced"
           type="monotone"
           stroke="#10b981"
           strokeWidth={2.5}
           dot={{ r: 4, fill: "#10b981", strokeWidth: 2, stroke: "#fff" }}
-          connectNulls={true}
-        />
-      </LineChart>
-    </ResponsiveContainer>
-  );
-};
-
-export const WeightTrendChart = ({ periods }) => {
-  const chartData = buildChartData(periods);
-  return (
-    <ResponsiveContainer width="100%" height={300}>
-      <LineChart
-        data={chartData}
-        margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
-      >
-        <CartesianGrid
-          strokeDasharray="3 3"
-          stroke="#e2e8f0"
-          vertical={false}
-        />
-        <XAxis
-          dataKey="month"
-          reversed
-          {...baseAxisProps}
-          tick={(props) => <MonthTick {...props} data={chartData} />}
-        />
-        <YAxis
-          orientation="right"
-          tickFormatter={fa}
-          width={50}
-          {...baseAxisProps}
-        />
-        <Tooltip content={<ChartTooltip />} />
-        <Legend
-          iconType="circle"
-          wrapperStyle={{
-            fontSize: 13,
-            direction: "rtl",
-            paddingTop: "40px",
-          }}
-        />
-
-        <Line
-          name="وزن برنامه‌ریزی‌شده"
-          dataKey="planedWeight"
-          type="monotone"
-          stroke="#6366f1"
-          strokeWidth={2.5}
-          dot={{ r: 4, fill: "#6366f1", strokeWidth: 2, stroke: "#fff" }}
-        />
-        <Line
-          name="وزن محقق‌شده"
-          dataKey="produceWeight"
-          type="monotone"
-          stroke="#f97316"
-          strokeWidth={2.5}
-          dot={{ r: 4, fill: "#f97316", strokeWidth: 2, stroke: "#fff" }}
-        />
-      </LineChart>
-    </ResponsiveContainer>
-  );
-};
-
-export const VarianceTrendChart = ({ periods }) => {
-  const chartData = buildChartData(periods);
-  return (
-    <ResponsiveContainer width="100%" height={300}>
-      <LineChart
-        data={chartData}
-        margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
-      >
-        <CartesianGrid
-          strokeDasharray="3 3"
-          stroke="#e2e8f0"
-          vertical={false}
-        />
-        <XAxis
-          dataKey="month"
-          reversed
-          {...baseAxisProps}
-          tick={(props) => <MonthTick {...props} data={chartData} />}
-        />
-        <YAxis
-          orientation="right"
-          tickFormatter={fa}
-          width={50}
-          {...baseAxisProps}
-        />
-        <Tooltip content={<ChartTooltip />} />
-        <Legend
-          iconType="circle"
-          verticalAlign="bottom"
-          wrapperStyle={{
-            fontSize: 13,
-            direction: "rtl",
-            paddingTop: "20px",
-          }}
-        />
-        <ReferenceLine y={0} stroke="#cbd5e1" />
-        <Line
-          name="انحراف مقداری"
-          dataKey="variance"
-          type="monotone"
-          stroke="#f59e0b"
-          strokeWidth={2.5}
-          dot={{ r: 4, fill: "#f59e0b", strokeWidth: 2, stroke: "#fff" }}
-          connectNulls={true}
-        />
-        <Line
-          name="انحراف وزنی"
-          dataKey="weightVariance"
-          type="monotone"
-          stroke="#ef4444"
-          strokeWidth={2.5}
-          dot={{ r: 4, fill: "#ef4444", strokeWidth: 2, stroke: "#fff" }}
           connectNulls={true}
         />
       </LineChart>

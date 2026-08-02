@@ -115,13 +115,11 @@ const YearPerformanceReport = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const rawData = Array.isArray(yearPercentageOfPerformanceList)
-    ? yearPercentageOfPerformanceList
-    : Object.values(yearPercentageOfPerformanceList || {});
-  const byMonth = new Map(rawData.map((p) => [p.period_month, p]));
+  const rawData = yearPercentageOfPerformanceList ?? {};
+
   const chartData = MONTH_NAMES.map((name, idx) => {
     const monthNumber = idx + 1;
-    const p = byMonth.get(monthNumber);
+    const p = rawData[monthNumber];
 
     if (!p) {
       return {
@@ -186,7 +184,7 @@ const YearPerformanceReport = ({
 
       {isFetching ? (
         <Skeleton active paragraph={{ rows: 6 }} />
-      ) : rawData.length === 0 ? (
+      ) : Object.keys(rawData).length === 0 ? (
         <Empty description="برای مشاهده گزارش، سال مورد نظر را جستجو کنید" />
       ) : (
         <div>

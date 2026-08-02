@@ -1,6 +1,6 @@
 import { Button, Card, Tooltip } from "antd";
-import { useProductContext } from "../../Services/Context/ProductContext";
-import ListOfProductsAttachedToSerialsTransfer from "./components/ListOfProductsAttachedToSerialsTransfer";
+import { useProductContext } from "../../Services/Context/ProductContext.jsx";
+import ListOfProductsAttachedToSerialsTransfer from "./components/ListOfProductsAttachedToSerialsTransfer.jsx";
 import useModal from "../../hooks/useModal.js";
 import SerialList from "./components/SerialList/SerialList.jsx";
 import { PlusOutlined } from "@ant-design/icons";

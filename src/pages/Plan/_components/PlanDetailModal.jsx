@@ -2,42 +2,35 @@ import { useMemo, useState } from "react";
 import {
   Button,
   Card,
-  Col,
   Descriptions,
   Divider,
   Empty,
   message,
   Popconfirm,
   Progress,
-  Row,
   Skeleton,
-  Statistic,
-  Switch,
   Tag,
   Tooltip,
 } from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
-  FallOutlined,
   FileDoneOutlined,
   PlusOutlined,
-  RiseOutlined,
 } from "@ant-design/icons";
 import Modal from "../../../components/Modal";
-import { useProductionPlanOne } from "../../../QueryServises/PlanQuery";
+import {
+  useDeleteProductionActual,
+  useDeleteProductionPlanPeriod,
+  useProductionPlanOne,
+} from "../../../QueryServises/PlanQuery";
 import { STATUS_OPTIONS } from "./plan.constants";
 import { TableAntd } from "../../../components/TableAntd/TableAntd";
 import { georgianDateToJalaliDate } from "../../../utils/timeTool";
-import {
-  MONTH_NAMES,
-  QuantityTrendChart,
-  VarianceTrendChart,
-} from "./PlanPeriodsChart";
+import { MONTH_NAMES, QuantityTrendChart } from "./PlanPeriodsChart";
 import PeriodModal from "./periodModal";
 import PlanModal from "./PlanModal";
 import ActualModal from "./actualModal";
-import { METRIC_COLORS, getAchievementColor } from "../../../utils/chart.theme";
 
 const faNum = (v) => (v ?? 0).toLocaleString("fa-IR");
 
@@ -45,14 +38,7 @@ const SectionTitle = ({ children }) => (
   <h3 className="text-base font-bold text-slate-800 mb-4">{children}</h3>
 );
 
-const PlanDetailModal = ({
-  isOpen,
-  modalData,
-  closeModal,
-  setModal,
-  deleteActual,
-  refetch,
-}) => {
+const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
   const {
     data,
     isLoading,
@@ -62,20 +48,34 @@ const PlanDetailModal = ({
   });
 
   const [quickModal, setQuickModal] = useState(null); // "period" | "edit" | null
+  const [periodModalState, setPeriodModalState] = useState({
+    open: false,
+    mode: "add",
+    data: null,
+  });
   const [actualModalState, setActualModalState] = useState({
     open: false,
     mode: "add",
     data: null,
   });
 
-  // پیش‌فرض حتماً باید روی «تجمیعی» باشد
-  const [viewMode, setViewMode] = useState("cumulative"); // "cumulative" | "period"
-  const isCumulative = viewMode === "cumulative";
+  const deleteActual = useDeleteProductionActual();
+  const deletePeriod = useDeleteProductionPlanPeriod();
 
   const closeQuickModal = () => setQuickModal(null);
 
+  const openPeriodModal = (mode, data) =>
+    setPeriodModalState({ open: true, mode, data });
+
+  const closePeriodModal = () =>
+    setPeriodModalState((prev) => ({ ...prev, open: false }));
+
   const openActualModal = (mode, data) =>
-    setActualModalState({ open: true, mode, data });
+    setActualModalState({
+      open: true,
+      mode,
+      data: mode === "add" ? { ...data, production_plan_id: plan?.id } : data,
+    });
 
   const closeActualModal = () =>
     setActualModalState((prev) => ({ ...prev, open: false }));
@@ -90,271 +90,233 @@ const PlanDetailModal = ({
   const progress = plan?.year_progress_percent ?? 0;
 
   const periods = plan?.periods ?? [];
+  const actuals = plan?.actuals ?? [];
 
-  // const displayPeriods = useMemo(() => {
-  //   const sorted = [...periods].sort(
-  //     (a, b) => (a.period_month ?? 0) - (b.period_month ?? 0),
-  //   );
-
-  //   if (!isCumulative) return sorted;
-
-  //   return sorted.map((p) => ({
-  //     ...p,
-  //     planned_quantity: p.planned_quantity,
-  //     total_quantity_produced: p.total_quantity_produced,
-  //     planed_weight: p.cumulative_planed_weight,
-  //     produce_weight: p.cumulative_produce_weight,
-  //   }));
-  // }, [periods, isCumulative]);
-
-  const tablePeriods = useMemo(() => {
-    return [...periods].sort(
-      (a, b) => (a.period_month ?? 0) - (b.period_month ?? 0),
-    );
-  }, [periods]);
-
-  const chartPeriods = useMemo(() => {
-    const sorted = [...periods].sort(
-      (a, b) => (a.period_month ?? 0) - (b.period_month ?? 0),
+  const tableRows = useMemo(() => {
+    const byMonth = new Map(
+      actuals.map((a) => [a.production_month, a]),
     );
 
-    if (!isCumulative) return sorted;
-
-    return sorted.map((p) => ({
-      ...p,
-      planned_quantity: p.cumulative_planned_quantity ?? p.planned_quantity,
-      total_quantity_produced:
-        p.cumulative_total_quantity_produced ?? p.total_quantity_produced,
-      planed_weight: p.cumulative_planed_weight ?? p.planed_weight,
-      produce_weight: p.cumulative_produce_weight ?? p.produce_weight,
-    }));
-  }, [periods, isCumulative]);
-
-  const totalPlanned = periods.reduce(
-    (s, p) => s + (p.planned_quantity ?? 0),
-    0,
-  );
-  const totalProduced = periods.reduce(
-    (s, p) => s + (p.total_quantity_produced ?? 0),
-    0,
-  );
-  const totalVariance = totalProduced - totalPlanned;
-  const achievement =
-    totalPlanned > 0 ? Math.round((totalProduced / totalPlanned) * 100) : 0;
-
-  const totalPlanedWeight = plan?.sum_of_planed_weight ?? 0;
-  const totalProduceWeight = plan?.sum_of_produce_weight ?? 0;
-  const totalWeightVariance = totalProduceWeight - totalPlanedWeight;
-  const weightAchievement =
-    totalPlanedWeight > 0
-      ? Math.round((totalProduceWeight / totalPlanedWeight) * 100)
-      : 0;
+    return [...periods]
+      .sort((a, b) => (a.period_month ?? 0) - (b.period_month ?? 0))
+      .map((period) => {
+        const actual = byMonth.get(period.period_month);
+        return {
+          ...period,
+          period_id: period.id,
+          actual_id: actual?.id,
+          production_month: actual?.production_month ?? null,
+          produced_weight: actual?.produced_weight ?? null,
+          quantity_produced: actual?.quantity_produced ?? null,
+        };
+      });
+  }, [periods, actuals]);
 
   const productTitle =
     plan?.product?.persian_title ?? plan?.product_name ?? "—";
 
-  const colSuffix = isCumulative ? " (تجمیعی)" : "";
-
-  const varianceOrPerformanceColumn = isCumulative
-    ? {
-        title: "درصد تحقق تجمیعی",
-        dataIndex: "cumulative_performance",
-        align: "center",
-        render: (v) => {
-          if (v == null) return "—";
-          const rounded = Math.round(v * 100) / 100;
-          const color =
-            rounded >= 100 ? "success" : rounded >= 50 ? "warning" : "error";
-          return <Tag color={color}>{`${faNum(rounded)}٪`}</Tag>;
-        },
-      }
-    : {
-        title: "انحراف",
-        dataIndex: "variance",
-        align: "center",
-        render: (v) => {
-          if (v == null) return "—";
-          const color = v > 0 ? "success" : v < 0 ? "error" : "default";
-          const sign = v > 0 ? "+" : "";
-          return (
-            <Tag color={color}>{`${sign}${v.toLocaleString("fa-IR")}`}</Tag>
-          );
-        },
-      };
-
-  const periodColumns = [
+  const columns = [
     {
       title: "ماه",
       dataIndex: "period_month",
       align: "center",
-      width: 90,
+      width: 120,
       render: (m) => MONTH_NAMES[m - 1] ?? `ماه ${m}`,
     },
     {
-      title: `برنامه`,
+      title: "مقدار برنامه‌ریزی‌شده",
       dataIndex: "planned_quantity",
       align: "center",
-      render: (v) => v?.toLocaleString("fa-IR") ?? "—",
-    },
-    {
-      title: `تولید`,
-      dataIndex: "total_quantity_produced",
-      align: "center",
-      render: (v) => v?.toLocaleString("fa-IR") ?? "—",
-    },
-    {
-      title: `وزن برنامه‌ریزی‌شده${colSuffix}`,
-      dataIndex: "planed_weight",
-      align: "center",
-      render: (v) => v?.toLocaleString("fa-IR") ?? "—",
-    },
-    {
-      title: `وزن محقق‌شده${colSuffix}`,
-      dataIndex: "produce_weight",
-      align: "center",
-      render: (v) => v?.toLocaleString("fa-IR") ?? "—",
-    },
-    varianceOrPerformanceColumn,
-    {
-      title: "",
-      key: "addActual",
-      align: "center",
-      width: 50,
-      render: (_, record) => (
-        <Tooltip title="ثبت تولید">
-          <Button
-            type="text"
-            size="small"
-            icon={<PlusOutlined />}
-            className="text-emerald-600"
-            onClick={() => openActualModal("add", record)}
-          />
-        </Tooltip>
-      ),
-    },
-  ];
-
-  const actualColumns = [
-    {
-      title: "تاریخ تولید",
-      dataIndex: "production_date",
-      align: "center",
-      render: (d) => (d ? georgianDateToJalaliDate(d) : "—"),
+      render: (v) => (v != null ? v.toLocaleString("fa-IR") : "—"),
     },
     {
       title: "مقدار تولید شده",
       dataIndex: "quantity_produced",
       align: "center",
-      render: (v) => v?.toLocaleString("fa-IR") ?? "—",
+      render: (v) => (v != null ? v.toLocaleString("fa-IR") : "—"),
     },
     {
-      title: "زمان ثبت",
-      dataIndex: "recorded_at",
+      title: "وزن برنامه‌ریزی‌شده",
+      dataIndex: "planed_weight",
       align: "center",
-      render: (d) => (d ? georgianDateToJalaliDate(d) : "—"),
+      render: (v) => (v != null ? v.toLocaleString("fa-IR") : "—"),
+    },
+    {
+      title: "وزن تولید شده",
+      dataIndex: "produced_weight",
+      align: "center",
+      render: (v) => (v != null ? v.toLocaleString("fa-IR") : "—"),
     },
     {
       title: "عملیات",
+      key: "actions",
       align: "center",
+      width: 170,
       render: (_, record) => (
-        <div className="flex items-center justify-center gap-1">
-          <Tooltip title="ویرایش">
+        <div
+          className="flex items-center justify-center gap-1"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Tooltip title="ویرایش دوره">
             <Button
               type="text"
-              icon={<EditOutlined />}
-              className="text-green-600 border border-green-600"
-              onClick={() => openActualModal("edit", record)}
               size="small"
-            />
+              icon={<EditOutlined />}
+              className="text-sky-600 border border-sky-600"
+              onClick={() => openPeriodModal("edit", record)}
+            >
+              ویرایش دوره
+            </Button>
           </Tooltip>
           <Popconfirm
-            title="حذف برنامه تولید"
-            description="آیا از حذف این برنامه مطمئن هستید؟"
+            title="حذف دوره تولید"
+            description="آیا از حذف این دوره مطمئن هستید؟"
             okText="بله، حذف کن"
             cancelText="انصراف"
-            okButtonProps={{ danger: true, loading: deleteActual.isPending }}
+            okButtonProps={{ danger: true, loading: deletePeriod.isPending }}
             onConfirm={() => {
-              deleteActual
-                .mutateAsync(record.id)
+              deletePeriod
+                .mutateAsync(record.period_id)
                 .then(() => {
-                  message.success("تولید با موفقیت حذف شد");
+                  message.success("دوره تولید با موفقیت حذف شد");
                   handleQuickModalRefetch();
                 })
                 .catch((error) => {
-                  message.error("خطا در حذف تولید");
+                  message.error("خطا در حذف دوره تولید");
                   console.error(error);
                 });
             }}
           >
-            <Button
-              type="text"
-              className="border border-red-600"
-              danger
-              icon={<DeleteOutlined />}
-              size="small"
-            />
+            <Tooltip title="حذف دوره">
+              <Button
+                type="text"
+                size="small"
+                danger
+                icon={<DeleteOutlined />}
+              />
+            </Tooltip>
           </Popconfirm>
+
+          {record.actual_id != null ? (
+            <>
+              <Tooltip title="ویرایش تولید واقعی">
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<EditOutlined />}
+                  className="text-green-600 border border-green-600"
+                  onClick={() => openActualModal("edit", record)}
+                >
+                  ویرایش تولید
+                </Button>
+              </Tooltip>
+              <Popconfirm
+                title="حذف تولید واقعی"
+                description="آیا از حذف این تولید مطمئن هستید؟"
+                okText="بله، حذف کن"
+                cancelText="انصراف"
+                okButtonProps={{ danger: true, loading: deleteActual.isPending }}
+                onConfirm={() => {
+                  deleteActual
+                    .mutateAsync(record.actual_id)
+                    .then(() => {
+                      message.success("تولید واقعی با موفقیت حذف شد");
+                      handleQuickModalRefetch();
+                    })
+                    .catch((error) => {
+                      message.error("خطا در حذف تولید واقعی");
+                      console.error(error);
+                    });
+                }}
+              >
+                <Tooltip title="حذف تولید واقعی">
+                  <Button
+                    type="text"
+                    size="small"
+                    danger
+                    icon={<DeleteOutlined />}
+                  />
+                </Tooltip>
+              </Popconfirm>
+            </>
+          ) : (
+            <Tooltip title="ثبت تولید واقعی">
+              <Button
+                type="text"
+                size="small"
+                icon={<PlusOutlined />}
+                className="text-emerald-600 border border-emerald-600"
+                onClick={() => openActualModal("add", record)}
+              >
+                ثبت تولید
+              </Button>
+            </Tooltip>
+          )}
         </div>
       ),
     },
   ];
 
-  const chartsTabContent = (
-    <div
-      className={`w-full grid gap-8 pt-2 ${
-        isCumulative ? "grid-cols-1" : "grid-cols-2"
-      }`}
-    >
-      <div>
-        <SectionTitle>نمودار مقادیر (برنامه / تولید){colSuffix}</SectionTitle>
-        <Card size="small" className="rounded-xl border-slate-200">
-          <QuantityTrendChart periods={chartPeriods} />
-        </Card>
-      </div>
-      {!isCumulative && (
-        <div>
-          <SectionTitle>انحراف از معیار</SectionTitle>
-          <Card size="small" className="rounded-xl border-slate-200">
-            <VarianceTrendChart periods={chartPeriods} />
-          </Card>
-        </div>
-      )}
-    </div>
-  );
-
-  const tableTabContent = (
-    <div className="pt-2">
-      <Card
-        size="small"
-        className="rounded-xl border-slate-200"
-        styles={{ body: { padding: 0 } }}
-      >
-        <TableAntd
-          rowKey="id"
-          columns={periodColumns}
-          dataSource={tablePeriods}
-          pagination={false}
-          expandable={{
-            rowExpandable: (record) => !!record.actuals?.length,
-            expandedRowRender: (record) => (
-              <div className="py-2 px-2">
-                <h4 className="text-sm font-semibold text-slate-600 mb-2">
-                  تولیدهای ثبت‌شده این دوره
-                </h4>
-                <TableAntd
-                  rowKey="id"
-                  size="small"
-                  columns={actualColumns}
-                  dataSource={record.actuals ?? []}
-                  pagination={false}
-                />
-              </div>
-            ),
-          }}
+  const finalPlanInfoItems = [
+    { label: "نام محصول", value: productTitle },
+    { label: "سال", value: plan?.year != null ? plan.year : "—" },
+    { label: "وزن", value: plan?.weight != null ? faNum(plan.weight) : "—" },
+    {
+      label: "مقدار کل برنامه‌ریزی شده",
+      value:
+        plan?.total_planned_quantity?.toLocaleString("fa-IR") ?? "—",
+    },
+    {
+      label: "درصد پیشرفت سال",
+      value: (
+        <Progress
+          percent={Math.min(progress, 100)}
+          size="small"
+          status={progress > 100 ? "success" : undefined}
+          format={() => `${progress.toLocaleString("fa-IR")}٪`}
+          className="!m-0 max-w-[160px]"
         />
-      </Card>
-    </div>
-  );
+      ),
+    },
+    {
+      label: "مجموع وزن برنامه‌ریزی‌شده",
+      value:
+        plan?.sum_of_planed_weight != null
+          ? faNum(plan.sum_of_planed_weight)
+          : "—",
+    },
+    {
+      label: "مجموع وزن محقق‌شده",
+      value:
+        plan?.sum_of_produce_weight != null
+          ? faNum(plan.sum_of_produce_weight)
+          : "—",
+    },
+    {
+      label: "وضعیت",
+      value: (
+        <Tag color={statusMeta?.color ?? "default"}>
+          {statusMeta?.label ?? plan?.status ?? "—"}
+        </Tag>
+      ),
+    },
+    {
+      label: "توضیحات",
+      value: plan?.notes || "—",
+    },
+    {
+      label: "تاریخ ایجاد",
+      value: plan?.created_at
+        ? georgianDateToJalaliDate(plan.created_at)
+        : "—",
+    },
+    {
+      label: "آخرین بروزرسانی",
+      value: plan?.updated_at
+        ? georgianDateToJalaliDate(plan.updated_at)
+        : "—",
+    },
+  ];
 
   return (
     <Modal
@@ -367,6 +329,14 @@ const PlanDetailModal = ({
           </span>
           {!isLoading && plan && (
             <div className="flex items-center gap-2">
+              <Button
+                size="small"
+                icon={<PlusOutlined />}
+                className="text-emerald-600 border border-emerald-600"
+                onClick={() => openActualModal("add", {})}
+              >
+                ثبت تولید
+              </Button>
               <Button
                 size="small"
                 icon={<FileDoneOutlined />}
@@ -396,45 +366,6 @@ const PlanDetailModal = ({
         <Skeleton active paragraph={{ rows: 6 }} />
       ) : (
         <div className="flex flex-col gap-8">
-          {/* ============ سوییچ نمایش تجمیعی / دوره‌ای ============ */}
-          {periods.length === 0 ? (
-            <Empty description="دوره‌ای برای این برنامه ثبت نشده است">
-              <Button
-                type="primary"
-                icon={<FileDoneOutlined />}
-                onClick={() => setQuickModal("period")}
-              >
-                افزودن اولین دوره
-              </Button>
-            </Empty>
-          ) : (
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-600">
-                  {isCumulative
-                    ? "نمایش تجمیعی (جمع از ابتدای سال تا هر ماه)"
-                    : "نمایش دوره‌ای (مقدار هر ماه به‌تنهایی)"}
-                </span>
-                <Switch
-                  checked={isCumulative}
-                  onChange={(checked) =>
-                    setViewMode(checked ? "cumulative" : "period")
-                  }
-                  checkedChildren="تجمیعی"
-                  unCheckedChildren="دوره‌ای"
-                />
-              </div>
-
-              {/* نمودارها */}
-              <Card className="rounded-xl">{chartsTabContent}</Card>
-
-              {/* جدول */}
-              <Card title="جدول دوره ها" styles={{ body: { padding: 0 } }}>
-                {tableTabContent}
-              </Card>
-            </div>
-          )}
-
           {/* ============ اطلاعات کلی ============ */}
           <div>
             <SectionTitle>اطلاعات کلی</SectionTitle>
@@ -447,9 +378,6 @@ const PlanDetailModal = ({
               <Descriptions.Item label="محصول">
                 {productTitle}
               </Descriptions.Item>
-              <Descriptions.Item label="کد محصول">
-                {plan?.product?.code ?? "—"}
-              </Descriptions.Item>
               <Descriptions.Item label="سال">
                 {plan?.year != null ? plan.year : "—"}
               </Descriptions.Item>
@@ -459,7 +387,11 @@ const PlanDetailModal = ({
               <Descriptions.Item label="نام کارفرما">
                 {plan?.contractor?.name ?? "—"}
               </Descriptions.Item>
-
+              <Descriptions.Item label="ایجاد کننده">
+                {plan?.created_by
+                  ? `${plan.created_by.name ?? ""} ${plan.created_by.last_name ?? ""}`.trim()
+                  : "—"}
+              </Descriptions.Item>
               <Descriptions.Item label="وضعیت">
                 <Tag color={statusMeta?.color ?? "default"}>
                   {statusMeta?.label ?? plan?.status ?? "—"}
@@ -477,9 +409,14 @@ const PlanDetailModal = ({
                   className="!m-0 max-w-[160px]"
                 />
               </Descriptions.Item>
-              <Descriptions.Item label="ایجاد کننده">
-                {plan?.created_by
-                  ? `${plan.created_by.name ?? ""} ${plan.created_by.last_name ?? ""}`.trim()
+              <Descriptions.Item label="مجموع وزن برنامه‌ریزی‌شده">
+                {plan?.sum_of_planed_weight != null
+                  ? faNum(plan.sum_of_planed_weight)
+                  : "—"}
+              </Descriptions.Item>
+              <Descriptions.Item label="مجموع وزن محقق‌شده">
+                {plan?.sum_of_produce_weight != null
+                  ? faNum(plan.sum_of_produce_weight)
                   : "—"}
               </Descriptions.Item>
               <Descriptions.Item label="تاریخ ایجاد">
@@ -500,181 +437,99 @@ const PlanDetailModal = ({
 
           <Divider className="!my-0" />
 
-          {/* ============ آمار کلی ============ */}
+          {/* ============ نمودار ============ */}
           <div>
-            <SectionTitle>آمار کلی دوره‌ها</SectionTitle>
-            <Row gutter={[12, 12]}>
-              <Col xs={12} md={6}>
-                <Card
-                  size="small"
-                  className="rounded-xl border-slate-200 text-center border-r-4"
-                  style={{ borderRightColor: METRIC_COLORS.planned }}
-                >
-                  <Statistic
-                    title="مجموع مقدار برنامه‌ریزی"
-                    value={totalPlanned}
-                    formatter={faNum}
-                    valueStyle={{ color: METRIC_COLORS.planned, fontSize: 20 }}
-                  />
-                </Card>
-              </Col>
-              <Col xs={12} md={6}>
-                <Card
-                  size="small"
-                  className="rounded-xl border-slate-200 text-center border-r-4"
-                  style={{ borderRightColor: METRIC_COLORS.produced }}
-                >
-                  <Statistic
-                    title="مجموع مقدار تولید"
-                    value={totalProduced}
-                    formatter={faNum}
-                    valueStyle={{ color: METRIC_COLORS.produced, fontSize: 20 }}
-                  />
-                </Card>
-              </Col>
-              <Col xs={12} md={6}>
-                <Card
-                  size="small"
-                  className="rounded-xl border-slate-200 text-center border-r-4"
-                  style={{ borderRightColor: METRIC_COLORS.plannedWeight }}
-                >
-                  <Statistic
-                    title="مجموع وزن برنامه‌ریزی‌شده"
-                    value={totalPlanedWeight}
-                    formatter={faNum}
-                    valueStyle={{
-                      color: METRIC_COLORS.plannedWeight,
-                      fontSize: 20,
-                    }}
-                  />
-                </Card>
-              </Col>
-              <Col xs={12} md={6}>
-                <Card
-                  size="small"
-                  className="rounded-xl border-slate-200 text-center border-r-4"
-                  style={{ borderRightColor: METRIC_COLORS.produceWeight }}
-                >
-                  <Statistic
-                    title="مجموع وزن محقق‌شده"
-                    value={totalProduceWeight}
-                    formatter={faNum}
-                    valueStyle={{
-                      color: METRIC_COLORS.produceWeight,
-                      fontSize: 20,
-                    }}
-                  />
-                </Card>
-              </Col>
-              <Col xs={12} md={6}>
-                <Card
-                  size="small"
-                  className="rounded-xl border-slate-200 text-center border-r-4"
-                  style={{ borderRightColor: getAchievementColor(achievement) }}
-                >
-                  <Statistic
-                    title="درصد تحقق مقداری"
-                    value={achievement}
-                    formatter={faNum}
-                    suffix="٪"
-                    valueStyle={{
-                      color: getAchievementColor(achievement),
-                      fontSize: 20,
-                    }}
-                  />
-                </Card>
-              </Col>
-              <Col xs={12} md={6}>
-                <Card
-                  size="small"
-                  className="rounded-xl border-slate-200 text-center border-r-4"
-                  style={{
-                    borderRightColor: getAchievementColor(weightAchievement),
-                  }}
-                >
-                  <Statistic
-                    title="درصد تحقق وزنی"
-                    value={weightAchievement}
-                    formatter={faNum}
-                    suffix="٪"
-                    valueStyle={{
-                      color: getAchievementColor(weightAchievement),
-                      fontSize: 20,
-                    }}
-                  />
-                </Card>
-              </Col>
-              <Col xs={12} md={6}>
-                <Card
-                  size="small"
-                  className="rounded-xl border-slate-200 text-center border-r-4"
-                  style={{
-                    borderRightColor:
-                      totalVariance >= 0
-                        ? METRIC_COLORS.produced
-                        : METRIC_COLORS.weightVariance,
-                  }}
-                >
-                  <Statistic
-                    title="انحراف کل مقداری"
-                    value={totalVariance}
-                    formatter={faNum}
-                    prefix={
-                      totalVariance >= 0 ? <RiseOutlined /> : <FallOutlined />
-                    }
-                    valueStyle={{
-                      color:
-                        totalVariance >= 0
-                          ? METRIC_COLORS.produced
-                          : METRIC_COLORS.weightVariance,
-                      fontSize: 20,
-                    }}
-                  />
-                </Card>
-              </Col>
-              <Col xs={12} md={6}>
-                <Card
-                  size="small"
-                  className="rounded-xl border-slate-200 text-center border-r-4"
-                  style={{
-                    borderRightColor:
-                      totalWeightVariance >= 0
-                        ? METRIC_COLORS.produced
-                        : METRIC_COLORS.weightVariance,
-                  }}
-                >
-                  <Statistic
-                    title="انحراف کل وزنی"
-                    value={totalWeightVariance}
-                    formatter={faNum}
-                    prefix={
-                      totalWeightVariance >= 0 ? (
-                        <RiseOutlined />
-                      ) : (
-                        <FallOutlined />
-                      )
-                    }
-                    valueStyle={{
-                      color:
-                        totalWeightVariance >= 0
-                          ? METRIC_COLORS.produced
-                          : METRIC_COLORS.weightVariance,
-                      fontSize: 20,
-                    }}
-                  />
-                </Card>
-              </Col>
-            </Row>
+            <SectionTitle>نمودار مقادیر (برنامه / تولید)</SectionTitle>
+            <Card size="small" className="rounded-xl border-slate-200">
+              <QuantityTrendChart periods={periods} actuals={actuals} />
+            </Card>
           </div>
 
           <Divider className="!my-0" />
+
+          {/* ============ جدول دوره‌ها ============ */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <SectionTitle>جدول دوره‌ها</SectionTitle>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="small"
+                  icon={<PlusOutlined />}
+                  className="text-emerald-600 border border-emerald-600"
+                  onClick={() => openActualModal("add", {})}
+                >
+                  ثبت تولید
+                </Button>
+                <Button
+                  size="small"
+                  icon={<FileDoneOutlined />}
+                  className="text-purple-600 border border-purple-600"
+                  onClick={() => setQuickModal("period")}
+                >
+                  افزودن دوره
+                </Button>
+              </div>
+            </div>
+            {periods.length === 0 ? (
+              <Empty description="دوره‌ای برای این برنامه ثبت نشده است">
+                <Button
+                  type="primary"
+                  icon={<FileDoneOutlined />}
+                  onClick={() => setQuickModal("period")}
+                >
+                  افزودن اولین دوره
+                </Button>
+              </Empty>
+            ) : (
+              <Card
+                size="small"
+                className="rounded-xl border-slate-200"
+                styles={{ body: { padding: 0 } }}
+              >
+                <TableAntd
+                  rowKey="period_id"
+                  columns={columns}
+                  dataSource={tableRows}
+                  pagination={false}
+                />
+              </Card>
+            )}
+          </div>
+
+          <Divider className="!my-0" />
+
+          {/* ============ اطلاعات نهایی برنامه ============ */}
+          <div>
+            <SectionTitle>اطلاعات نهایی برنامه</SectionTitle>
+            <Descriptions
+              bordered
+              size="small"
+              column={{ xs: 1, sm: 2 }}
+              labelStyle={{ fontWeight: 600, whiteSpace: "nowrap" }}
+            >
+              {finalPlanInfoItems.map((item, index) => (
+                <Descriptions.Item
+                  key={index}
+                  label={item.label}
+                  span={item.label === "توضیحات" ? 2 : undefined}
+                >
+                  {item.value}
+                </Descriptions.Item>
+              ))}
+            </Descriptions>
+          </div>
         </div>
       )}
 
       <PeriodModal
-        isOpen={quickModal === "period"}
-        modalData={plan}
-        closeModal={closeQuickModal}
+        isOpen={quickModal === "period" || periodModalState.open}
+        modalMode={periodModalState.open ? periodModalState.mode : "add"}
+        modalData={
+          periodModalState.open ? periodModalState.data : plan
+        }
+        closeModal={
+          periodModalState.open ? closePeriodModal : closeQuickModal
+        }
         refetch={handleQuickModalRefetch}
       />
       <PlanModal

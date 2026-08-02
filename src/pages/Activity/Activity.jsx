@@ -12,7 +12,7 @@ import TrusteeModal from "@/pages/Activity/components/TrusteeModal.jsx";
 import PlanModal from "@/pages/Activity/components/PlanModal.jsx";
 import { useCallback, useState } from "react";
 import DetailModal from "../../components/DetailModal/DetailModal.jsx";
-import { useUserSimple } from "../../QueryServises/userQuery";
+import { useUserSimple } from "../../QueryServises/userQuery/index.js";
 import { useParams } from "react-router-dom";
 import { useExportExcelActivity } from "../../QueryServises/ExcelExporterQuery/index.js";
 import { handleDownload } from "@utils/HandleDownload.js";
