@@ -93,18 +93,28 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
   const actuals = plan?.actuals ?? [];
 
   const tableRows = useMemo(() => {
-    const byMonth = new Map(
+    const periodByMonth = new Map(
+      periods.map((p) => [p.period_month, p]),
+    );
+    const actualByMonth = new Map(
       actuals.map((a) => [a.production_month, a]),
     );
 
-    return [...periods]
-      .sort((a, b) => (a.period_month ?? 0) - (b.period_month ?? 0))
-      .map((period) => {
-        const actual = byMonth.get(period.period_month);
+    const months = new Set([
+      ...periodByMonth.keys(),
+      ...actualByMonth.keys(),
+    ]);
+
+    return [...months]
+      .sort((a, b) => a - b)
+      .map((month) => {
+        const period = periodByMonth.get(month);
+        const actual = actualByMonth.get(month);
         return {
           ...period,
-          period_id: period.id,
+          period_id: period?.id,
           actual_id: actual?.id,
+          period_month: month,
           production_month: actual?.production_month ?? null,
           produced_weight: actual?.produced_weight ?? null,
           quantity_produced: actual?.quantity_produced ?? null,
@@ -157,45 +167,61 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
           className="flex items-center justify-center gap-1"
           onClick={(e) => e.stopPropagation()}
         >
-          <Tooltip title="ویرایش دوره">
-            <Button
-              type="text"
-              size="small"
-              icon={<EditOutlined />}
-              className="text-sky-600 border border-sky-600"
-              onClick={() => openPeriodModal("edit", record)}
-            >
-              ویرایش دوره
-            </Button>
-          </Tooltip>
-          <Popconfirm
-            title="حذف دوره تولید"
-            description="آیا از حذف این دوره مطمئن هستید؟"
-            okText="بله، حذف کن"
-            cancelText="انصراف"
-            okButtonProps={{ danger: true, loading: deletePeriod.isPending }}
-            onConfirm={() => {
-              deletePeriod
-                .mutateAsync(record.period_id)
-                .then(() => {
-                  message.success("دوره تولید با موفقیت حذف شد");
-                  handleQuickModalRefetch();
-                })
-                .catch((error) => {
-                  message.error("خطا در حذف دوره تولید");
-                  console.error(error);
-                });
-            }}
-          >
-            <Tooltip title="حذف دوره">
+          {record.period_id != null ? (
+            <>
+              <Tooltip title="ویرایش دوره">
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<EditOutlined />}
+                  className="text-sky-600 border border-sky-600"
+                  onClick={() => openPeriodModal("edit", record)}
+                >
+                  ویرایش دوره
+                </Button>
+              </Tooltip>
+              <Popconfirm
+                title="حذف دوره تولید"
+                description="آیا از حذف این دوره مطمئن هستید؟"
+                okText="بله، حذف کن"
+                cancelText="انصراف"
+                okButtonProps={{ danger: true, loading: deletePeriod.isPending }}
+                onConfirm={() => {
+                  deletePeriod
+                    .mutateAsync(record.period_id)
+                    .then(() => {
+                      message.success("دوره تولید با موفقیت حذف شد");
+                      handleQuickModalRefetch();
+                    })
+                    .catch((error) => {
+                      message.error("خطا در حذف دوره تولید");
+                      console.error(error);
+                    });
+                }}
+              >
+                <Tooltip title="حذف دوره">
+                  <Button
+                    type="text"
+                    size="small"
+                    danger
+                    icon={<DeleteOutlined />}
+                  />
+                </Tooltip>
+              </Popconfirm>
+            </>
+          ) : (
+            <Tooltip title="افزودن دوره">
               <Button
                 type="text"
                 size="small"
-                danger
-                icon={<DeleteOutlined />}
-              />
+                icon={<PlusOutlined />}
+                className="text-sky-600 border border-sky-600"
+                onClick={() => openPeriodModal("add", { ...record, id: plan?.id })}
+              >
+                ایجاد دوره
+              </Button>
             </Tooltip>
-          </Popconfirm>
+          )}
 
           {record.actual_id != null ? (
             <>
