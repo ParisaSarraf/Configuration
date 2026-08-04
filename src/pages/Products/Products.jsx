@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Form, Input, message, Modal, Spin } from "antd";
+import { Button, Form, message, Modal, Spin } from "antd";
 import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 import {
   useRootProduct,
@@ -62,40 +62,6 @@ const Products = () => {
       />
     );
   };
-
-  // const handleUpdateWarehouseStock = () => {
-  //   Modal.confirm({
-  //     title: "بروزرسانی موجودی انبار",
-  //     okText: "بله",
-  //     okType: "primary",
-  //     content: (
-  //       <>
-  //       <span>ایا از آپلود فایل مطمئن هستید؟</span>
-  //       <Form form={form}>
-  //         <Form.Item label="فایل" name="csv_file" rules={[{ required: true }]}>
-  //           <FileUploader />
-  //         </Form.Item>
-  //       </Form>
-  //       </>
-  //     ),
-  //     onOk: async () => {
-  //       const values = await form.validateFields();
-  //       const csvFile = values.csv_file?.[0]?.originFileObj;
-  //       try {
-  //         await fileUpdateWarehouseStock({ csv_file: csvFile });
-  //         message.success("بروزرسانی موجودی انبار با موفقیت انجام شد");
-  //         form.resetFields();
-  //         await refetch();
-  //       } catch (error) {
-  //         message.error(error.message);
-  //         return Promise.reject(error);
-  //       }
-  //     },
-  //     onCancel: () => {
-  //       form.resetFields();
-  //     },
-  //   });
-  // };
 
   const handleUpdateWarehouseStock = () => {
     Modal.confirm({

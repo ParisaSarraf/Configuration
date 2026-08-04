@@ -1,12 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
-import { message, Modal } from "antd";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Input, message, Modal } from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
   FileExcelOutlined,
   PlusOutlined,
   FileZipOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
+import { useMyAxios } from "@/hooks/useMyAxios";
 import { useDeleteProduct } from "../../../QueryServises/productQuery";
 import { useExportExcelProductChildrenBom } from "@/QueryServises/ExcelExporterQuery/index.js";
 import { handleDownload } from "@utils/HandleDownload.js";
@@ -18,7 +20,6 @@ import ZipProgressModal from "../../../components/ZipProgressModal/ZipProgressMo
 
 const LOCAL_STORAGE_KEY = "productTreeExpandedKeys";
 
-// ── main component ─────────────────────────────────────────────────────────
 const ProductTree = ({
   productData,
   setModal,
@@ -28,16 +29,18 @@ const ProductTree = ({
   selectedKeys,
   onProductClick,
 }) => {
+  const { myAxios } = useMyAxios();
   const { mutate: deleteProduct, isLoading: isDeleting } = useDeleteProduct();
   const [expandedKeys, setExpandedKeys] = useState([]);
   const [exportProductId, setExportProductId] = useState(null);
+  const [searchLoading, setSearchLoading] = useState(false);
+
   const { data: exportExcelData, isFetching: isExporting } =
     useExportExcelProductChildrenBom(exportProductId);
 
-  // zip state
   const { mutate: createZip, isLoading: isRequestingZip } =
     useCreateZipReport();
-  const [zipTask, setZipTask] = useState(null); // { uuid, fileName }
+  const [zipTask, setZipTask] = useState(null);
 
   const baseTreeData = useMemo(() => {
     if (!Array.isArray(productData)) return [];
@@ -46,7 +49,8 @@ const ProductTree = ({
       .filter(Boolean);
   }, [productData]);
 
-  const { treeData, loadChildren } = useLazyProductTree(baseTreeData);
+  const { treeData, loadChildren, expandToPath } =
+    useLazyProductTree(baseTreeData);
 
   useEffect(() => {
     setExpandedKeys([]);
@@ -58,6 +62,42 @@ const ProductTree = ({
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(keys));
     } catch (error) {
       console.error("Failed to save expanded keys", error);
+    }
+  };
+
+  const handleSearch = async (rawCode) => {
+    const fullCode = rawCode?.trim();
+    if (!fullCode) return;
+
+    setSearchLoading(true);
+    try {
+      const { data } = await myAxios.get(
+        "/product/search-product-tree-by-full-code/",
+        { params: { full_code: fullCode } },
+      );
+      const idPath = data?.id_path;
+
+      if (!Array.isArray(idPath) || idPath.length === 0) {
+        message.warning("محصولی با این کد یافت نشد");
+        return;
+      }
+
+      const {
+        expandedKeys: pathKeys,
+        targetKey,
+        targetNode,
+      } = await expandToPath(idPath);
+
+      setExpandedKeys((prev) => Array.from(new Set([...prev, ...pathKeys])));
+
+      if (targetNode?.productData) {
+        onProductClick(targetNode.productData);
+      }
+
+    } catch (error) {
+      message.error("خطا در جستجوی محصول");
+    } finally {
+      setSearchLoading(false);
     }
   };
 
@@ -174,6 +214,15 @@ const ProductTree = ({
 
   return (
     <>
+      <Input.Search
+        placeholder="جستجوی محصول بر اساس کد کامل (مثال: 1000-100-1)"
+        allowClear
+        loading={searchLoading}
+        enterButton={<SearchOutlined />}
+        onSearch={handleSearch}
+        className="mb-2"
+      />
+
       <ProductTreeEtc
         className="-p-2"
         data={treeData}
@@ -192,7 +241,6 @@ const ProductTree = ({
         onExpand={handleExpand}
       />
 
-      {/* Progress modal — only mounts while a zip task is active */}
       {zipTask && (
         <ZipProgressModal
           uuid={zipTask.uuid}
