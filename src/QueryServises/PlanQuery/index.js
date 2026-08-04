@@ -39,6 +39,26 @@ export const useProductionPlanCsvList = ({ year, ...queryOptions } = {}) => {
   });
 };
 
+// get pdf
+export const useProductionPlanPdfKey = ["lists", "production-paln-pdf"];
+export const useProductionPlanPdfList = ({ year, ...queryOptions } = {}) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: [...useProductionPlanPdfKey, { year: year || null }],
+    queryFn: () =>
+      myAxios
+        .get(`/plan/get-production-plan-pdf/`, {
+          params: year ? { year } : {},
+        })
+        .then((response) => {
+          queryOptions?.onSuccess?.(response?.data);
+          return response?.data;
+        }),
+    ...queryOptions,
+  });
+};
+
+
 export const useYearPercentageOfPerformanceKey = [
   "lists",
   "year-percentage-of-performance",

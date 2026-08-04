@@ -1,6 +1,7 @@
 import {
   ArrowRightOutlined,
   FileExcelOutlined,
+  FilePdfOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
 import { Button, Card, Empty, Tag, Tooltip } from "antd";
@@ -12,6 +13,7 @@ import {
   useDeleteProductionPlan,
   useProductionPlanCsvList,
   useProductionPlanList,
+  useProductionPlanPdfList,
   useYearPercentageOfPerformanceList,
 } from "../../QueryServises/PlanQuery";
 
@@ -37,6 +39,9 @@ const Plan = () => {
   const { data: csvData } = useProductionPlanCsvList({
     year: searchParams.year,
   });
+  const { data: pdfData } = useProductionPlanPdfList({
+    year: searchParams.year,
+  });
 
   const {
     data: plans,
@@ -51,6 +56,15 @@ const Plan = () => {
     const link = document.createElement("a");
     link.href = URL.createObjectURL(new Blob([csvData], { type: "text/csv" }));
     link.download = `production-plan-${searchParams.year}.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  };
+
+  const ExportPdf = () => {
+    if (!pdfData) return;
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(new Blob([pdfData], { type: "application/pdf" }));
+    link.download = `production-plan-${searchParams.year}.pdf`;
     link.click();
     URL.revokeObjectURL(link.href);
   };
@@ -152,6 +166,18 @@ const Plan = () => {
                         }
                         onClick={ExportExcel}
                         className="hover:!bg-green-50"
+                      />
+                    </Tooltip>
+                    <Tooltip title="خروجی PDF">
+                      <Button
+                        type="text"
+                        size="small"
+                        shape="circle"
+                        icon={
+                          <FilePdfOutlined className="text-red-600 text-lg" />
+                        }
+                        onClick={ExportPdf}
+                        className="hover:!bg-red-50"
                       />
                     </Tooltip>
                   </div>
