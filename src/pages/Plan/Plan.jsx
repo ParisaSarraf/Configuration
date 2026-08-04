@@ -11,9 +11,9 @@ import useModal from "../../hooks/useModal";
 import PlanModal from "./_components/PlanModal";
 import {
   useDeleteProductionPlan,
-  useProductionPlanCsvList,
+  useProductionPlanCsvDownload,
   useProductionPlanList,
-  useProductionPlanPdfList,
+  useProductionPlanPdfDownload,
   useYearPercentageOfPerformanceList,
 } from "../../QueryServises/PlanQuery";
 
@@ -36,12 +36,8 @@ const Plan = () => {
   const [searchParams, setSearchParams] = useState({
     year: currentYear || "",
   });
-  const { data: csvData } = useProductionPlanCsvList({
-    year: searchParams.year,
-  });
-  const { data: pdfData } = useProductionPlanPdfList({
-    year: searchParams.year,
-  });
+  const csvDownload = useProductionPlanCsvDownload();
+  const pdfDownload = useProductionPlanPdfDownload();
 
   const {
     data: plans,
@@ -50,23 +46,42 @@ const Plan = () => {
   } = useProductionPlanList({ year: searchParams.year });
 
   const deletePlan = useDeleteProductionPlan();
+  const ExportExcel = async () => {
+    try {
+      const { blob, fileName } = await csvDownload.mutateAsync({
+        year: searchParams.year,
+      });
 
-  const ExportExcel = () => {
-    if (!csvData) return;
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(new Blob([csvData], { type: "text/csv" }));
-    link.download = `production-plan-${searchParams.year}.csv`;
-    link.click();
-    URL.revokeObjectURL(link.href);
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      link.click();
+
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const ExportPdf = () => {
-    if (!pdfData) return;
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(new Blob([pdfData], { type: "application/pdf" }));
-    link.download = `production-plan-${searchParams.year}.pdf`;
-    link.click();
-    URL.revokeObjectURL(link.href);
+  const ExportPdf = async () => {
+    try {
+      const { blob, fileName } = await pdfDownload.mutateAsync({
+        year: searchParams.year,
+      });
+
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      link.click();
+
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const {

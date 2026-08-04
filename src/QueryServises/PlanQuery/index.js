@@ -22,42 +22,61 @@ export const useProductionPlanList = ({ year, ...queryOptions } = {}) => {
 
 // get csv
 export const useProductionPlanCsvKey = ["lists", "production-paln-csv"];
-export const useProductionPlanCsvList = ({ year, ...queryOptions } = {}) => {
+export const useProductionPlanCsvDownload = () => {
   const { myAxios } = useMyAxios();
-  return useQuery({
-    queryKey: [...useProductionPlanCsvKey, { year: year || null }],
-    queryFn: () =>
-      myAxios
-        .get(`/plan/get-production-plan-csv/`, {
-          params: year ? { year } : {},
-        })
-        .then((response) => {
-          queryOptions?.onSuccess?.(response?.data);
-          return response?.data;
-        }),
-    ...queryOptions,
+
+  return useMutation({
+    mutationFn: async ({ year }) => {
+      const response = await myAxios.get("/plan/get-production-plan-csv/", {
+        params: year ? { year } : {},
+        responseType: "blob",
+      });
+
+      const disposition = response.headers["content-disposition"];
+
+      const fileName =
+        disposition?.match(
+          /filename\*=UTF-8''([^;]+)|filename="?([^"]+)"?/,
+        )?.[1] ||
+        disposition?.match(/filename="?([^"]+)"?/)?.[1] ||
+        "production-plan.csv";
+
+      return {
+        blob: response.data,
+        fileName: decodeURIComponent(fileName),
+      };
+    },
   });
 };
 
 // get pdf
 export const useProductionPlanPdfKey = ["lists", "production-paln-pdf"];
-export const useProductionPlanPdfList = ({ year, ...queryOptions } = {}) => {
+export const useProductionPlanPdfDownload = () => {
   const { myAxios } = useMyAxios();
-  return useQuery({
-    queryKey: [...useProductionPlanPdfKey, { year: year || null }],
-    queryFn: () =>
-      myAxios
-        .get(`/plan/get-production-plan-pdf/`, {
-          params: year ? { year } : {},
-        })
-        .then((response) => {
-          queryOptions?.onSuccess?.(response?.data);
-          return response?.data;
-        }),
-    ...queryOptions,
+
+  return useMutation({
+    mutationFn: async ({ year }) => {
+      const response = await myAxios.get("/plan/get-production-plan-pdf/", {
+        params: year ? { year } : {},
+        responseType: "blob",
+      });
+
+      const disposition = response.headers["content-disposition"];
+
+      const fileName =
+        disposition?.match(
+          /filename\*=UTF-8''([^;]+)|filename="?([^"]+)"?/,
+        )?.[1] ||
+        disposition?.match(/filename="?([^"]+)"?/)?.[1] ||
+        "production-plan.pdf";
+
+      return {
+        blob: response.data,
+        fileName: decodeURIComponent(fileName),
+      };
+    },
   });
 };
-
 
 export const useYearPercentageOfPerformanceKey = [
   "lists",
