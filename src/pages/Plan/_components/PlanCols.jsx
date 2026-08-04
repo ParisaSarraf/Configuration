@@ -88,6 +88,18 @@ const PlanCols = ({
       ),
     },
     {
+      title: "تعداد تولید شده",
+      dataIndex: "total_actual_quantity",
+      align: "center",
+      sorter: (a, b) =>
+        (a.total_actual_quantity ?? 0) - (b.total_actual_quantity ?? 0),
+      render: (v) => (
+        <span className="tabular-nums">
+          {v?.toLocaleString("fa-IR") ?? "—"}
+        </span>
+      ),
+    },
+    {
       title: "پیشرفت سال",
       dataIndex: "year_progress_percent",
       align: "center",

@@ -93,17 +93,10 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
   const actuals = plan?.actuals ?? [];
 
   const tableRows = useMemo(() => {
-    const periodByMonth = new Map(
-      periods.map((p) => [p.period_month, p]),
-    );
-    const actualByMonth = new Map(
-      actuals.map((a) => [a.production_month, a]),
-    );
+    const periodByMonth = new Map(periods.map((p) => [p.period_month, p]));
+    const actualByMonth = new Map(actuals.map((a) => [a.production_month, a]));
 
-    const months = new Set([
-      ...periodByMonth.keys(),
-      ...actualByMonth.keys(),
-    ]);
+    const months = new Set([...periodByMonth.keys(), ...actualByMonth.keys()]);
 
     return [...months]
       .sort((a, b) => a - b)
@@ -185,7 +178,10 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
                 description="آیا از حذف این دوره مطمئن هستید؟"
                 okText="بله، حذف کن"
                 cancelText="انصراف"
-                okButtonProps={{ danger: true, loading: deletePeriod.isPending }}
+                okButtonProps={{
+                  danger: true,
+                  loading: deletePeriod.isPending,
+                }}
                 onConfirm={() => {
                   deletePeriod
                     .mutateAsync(record.period_id)
@@ -216,7 +212,9 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
                 size="small"
                 icon={<PlusOutlined />}
                 className="text-sky-600 border border-sky-600"
-                onClick={() => openPeriodModal("add", { ...record, id: plan?.id })}
+                onClick={() =>
+                  openPeriodModal("add", { ...record, id: plan?.id })
+                }
               >
                 ایجاد دوره
               </Button>
@@ -241,7 +239,10 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
                 description="آیا از حذف این تولید مطمئن هستید؟"
                 okText="بله، حذف کن"
                 cancelText="انصراف"
-                okButtonProps={{ danger: true, loading: deleteActual.isPending }}
+                okButtonProps={{
+                  danger: true,
+                  loading: deleteActual.isPending,
+                }}
                 onConfirm={() => {
                   deleteActual
                     .mutateAsync(record.actual_id)
@@ -289,8 +290,7 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
     { label: "وزن", value: plan?.weight != null ? faNum(plan.weight) : "—" },
     {
       label: "مقدار کل برنامه‌ریزی شده",
-      value:
-        plan?.total_planned_quantity?.toLocaleString("fa-IR") ?? "—",
+      value: plan?.total_planned_quantity?.toLocaleString("fa-IR") ?? "—",
     },
     {
       label: "درصد پیشرفت سال",
@@ -332,15 +332,11 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
     },
     {
       label: "تاریخ ایجاد",
-      value: plan?.created_at
-        ? georgianDateToJalaliDate(plan.created_at)
-        : "—",
+      value: plan?.created_at ? georgianDateToJalaliDate(plan.created_at) : "—",
     },
     {
       label: "آخرین بروزرسانی",
-      value: plan?.updated_at
-        ? georgianDateToJalaliDate(plan.updated_at)
-        : "—",
+      value: plan?.updated_at ? georgianDateToJalaliDate(plan.updated_at) : "—",
     },
   ];
 
@@ -424,7 +420,10 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
                 </Tag>
               </Descriptions.Item>
               <Descriptions.Item label="مقدار کل برنامه‌ریزی شده">
-                {plan?.total_planned_quantity?.toLocaleString("fa-IR") ?? "—"}
+                {plan?.total_planned_quantity ?? "—"}
+              </Descriptions.Item>
+              <Descriptions.Item label="مقدار کل تولید شده">
+                {plan?.total_actual_quantity ?? "—"}
               </Descriptions.Item>
               <Descriptions.Item label="پیشرفت سال">
                 <Progress
@@ -477,24 +476,6 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
           <div>
             <div className="flex items-center justify-between mb-4">
               <SectionTitle>جدول دوره‌ها</SectionTitle>
-              <div className="flex items-center gap-2">
-                <Button
-                  size="small"
-                  icon={<PlusOutlined />}
-                  className="text-emerald-600 border border-emerald-600"
-                  onClick={() => openActualModal("add", {})}
-                >
-                  ثبت تولید
-                </Button>
-                <Button
-                  size="small"
-                  icon={<FileDoneOutlined />}
-                  className="text-purple-600 border border-purple-600"
-                  onClick={() => setQuickModal("period")}
-                >
-                  افزودن دوره
-                </Button>
-              </div>
             </div>
             {periods.length === 0 ? (
               <Empty description="دوره‌ای برای این برنامه ثبت نشده است">
@@ -550,12 +531,8 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
       <PeriodModal
         isOpen={quickModal === "period" || periodModalState.open}
         modalMode={periodModalState.open ? periodModalState.mode : "add"}
-        modalData={
-          periodModalState.open ? periodModalState.data : plan
-        }
-        closeModal={
-          periodModalState.open ? closePeriodModal : closeQuickModal
-        }
+        modalData={periodModalState.open ? periodModalState.data : plan}
+        closeModal={periodModalState.open ? closePeriodModal : closeQuickModal}
         refetch={handleQuickModalRefetch}
       />
       <PlanModal

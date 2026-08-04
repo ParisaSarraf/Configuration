@@ -20,6 +20,25 @@ export const useProductionPlanList = ({ year, ...queryOptions } = {}) => {
   });
 };
 
+// get csv
+export const useProductionPlanCsvKey = ["lists", "production-paln-csv"];
+export const useProductionPlanCsvList = ({ year, ...queryOptions } = {}) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: [...useProductionPlanCsvKey, { year: year || null }],
+    queryFn: () =>
+      myAxios
+        .get(`/plan/get-production-plan-csv/`, {
+          params: year ? { year } : {},
+        })
+        .then((response) => {
+          queryOptions?.onSuccess?.(response?.data);
+          return response?.data;
+        }),
+    ...queryOptions,
+  });
+};
+
 export const useYearPercentageOfPerformanceKey = [
   "lists",
   "year-percentage-of-performance",

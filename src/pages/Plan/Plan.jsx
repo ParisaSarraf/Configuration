@@ -1,11 +1,16 @@
-import { ArrowRightOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Empty, Tag } from "antd";
+import {
+  ArrowRightOutlined,
+  FileExcelOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
+import { Button, Card, Empty, Tag, Tooltip } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import useModal from "../../hooks/useModal";
 import PlanModal from "./_components/PlanModal";
 import {
   useDeleteProductionPlan,
+  useProductionPlanCsvList,
   useProductionPlanList,
   useYearPercentageOfPerformanceList,
 } from "../../QueryServises/PlanQuery";
@@ -29,6 +34,9 @@ const Plan = () => {
   const [searchParams, setSearchParams] = useState({
     year: currentYear || "",
   });
+  const { data: csvData } = useProductionPlanCsvList({
+    year: searchParams.year,
+  });
 
   const {
     data: plans,
@@ -37,6 +45,15 @@ const Plan = () => {
   } = useProductionPlanList({ year: searchParams.year });
 
   const deletePlan = useDeleteProductionPlan();
+
+  const ExportExcel = () => {
+    if (!csvData) return;
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(new Blob([csvData], { type: "text/csv" }));
+    link.download = `production-plan-${searchParams.year}.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  };
 
   const {
     data: yearPercentageOfPerformanceList,
@@ -113,14 +130,31 @@ const Plan = () => {
             >
               {isYearFilterActive && (
                 <div className="flex items-center justify-between gap-2 px-4 py-2 border-b border-slate-100">
-                  <Tag color="blue" className="!m-0">
-                    {isDefaultYear
-                      ? `نمایش پیش‌فرض: فقط پلن‌های سال ${searchParams.year}`
-                      : `فیلتر فعال: فقط پلن‌های سال ${searchParams.year}`}
-                  </Tag>
-                  <Button type="link" size="small" onClick={clearYearFilter}>
-                    نمایش همه سال‌ها
-                  </Button>
+                  <div>
+                    <Tag color="blue" className="!m-0">
+                      {isDefaultYear
+                        ? `نمایش پیش‌فرض: فقط پلن‌های سال ${searchParams.year}`
+                        : `فیلتر فعال: فقط پلن‌های سال ${searchParams.year}`}
+                    </Tag>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button type="link" size="small" onClick={clearYearFilter}>
+                      نمایش همه سال‌ها
+                    </Button>
+
+                    <Tooltip title="خروجی اکسل">
+                      <Button
+                        type="text"
+                        size="small"
+                        shape="circle"
+                        icon={
+                          <FileExcelOutlined className="text-green-600 text-lg" />
+                        }
+                        onClick={ExportExcel}
+                        className="hover:!bg-green-50"
+                      />
+                    </Tooltip>
+                  </div>
                 </div>
               )}
               <TableAntd

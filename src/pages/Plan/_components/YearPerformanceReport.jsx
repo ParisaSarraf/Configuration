@@ -117,6 +117,33 @@ const YearPerformanceReport = ({
 
   const rawData = yearPercentageOfPerformanceList ?? {};
 
+  // const chartData = MONTH_NAMES.map((name, idx) => {
+  //   const monthNumber = idx + 1;
+  //   const p = rawData[monthNumber];
+
+  //   if (!p) {
+  //     return {
+  //       month: name,
+  //       cumulativePerformance: null,
+  //       planedWeight: null,
+  //       produceWeight: null,
+  //     };
+  //   }
+
+  //   return {
+  //     month: name,
+  //     cumulativePerformance: p.cumulative_performance ?? null,
+
+  //     planedWeight: isCumulative
+  //       ? (p.cumulative_planed_weight ?? 0)
+  //       : (p.sum_of_planed_weight ?? 0),
+
+  //     produceWeight: isCumulative
+  //       ? (p.cumulative_produce_weight ?? 0)
+  //       : (p.sum_of_produce_weight ?? 0),
+  //   };
+  // });
+
   const chartData = MONTH_NAMES.map((name, idx) => {
     const monthNumber = idx + 1;
     const p = rawData[monthNumber];
@@ -130,17 +157,28 @@ const YearPerformanceReport = ({
       };
     }
 
+    const hasPlannedData = !!p.sum_of_planed_weight;
+    const hasProduceData = !!p.sum_of_produce_weight;
+
     return {
       month: name,
-      cumulativePerformance: p.cumulative_performance ?? null,
 
-      planedWeight: isCumulative
-        ? (p.cumulative_planed_weight ?? 0)
-        : (p.sum_of_planed_weight ?? 0),
+      cumulativePerformance:
+        hasPlannedData && hasProduceData
+          ? (p.cumulative_performance ?? null)
+          : null,
 
-      produceWeight: isCumulative
-        ? (p.cumulative_produce_weight ?? 0)
-        : (p.sum_of_produce_weight ?? 0),
+      planedWeight: !hasPlannedData
+        ? null
+        : isCumulative
+          ? (p.cumulative_planed_weight ?? null)
+          : (p.sum_of_planed_weight ?? null),
+
+      produceWeight: !hasProduceData
+        ? null
+        : isCumulative
+          ? (p.cumulative_produce_weight ?? null)
+          : (p.sum_of_produce_weight ?? null),
     };
   });
 
