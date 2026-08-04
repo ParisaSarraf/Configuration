@@ -164,8 +164,9 @@ const YearPerformanceReport = ({
       month: name,
 
       cumulativePerformance:
-        hasPlannedData && hasProduceData
-          ? (p.cumulative_performance ?? null)
+        p.cumulative_performance !== null &&
+        p.cumulative_performance !== undefined
+          ? p.cumulative_performance
           : null,
 
       planedWeight: !hasPlannedData
