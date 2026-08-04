@@ -93,7 +93,6 @@ const ProductTree = ({
       if (targetNode?.productData) {
         onProductClick(targetNode.productData);
       }
-
     } catch (error) {
       message.error("خطا در جستجوی محصول");
     } finally {
@@ -214,14 +213,30 @@ const ProductTree = ({
 
   return (
     <>
-      <Input.Search
-        placeholder="جستجوی محصول بر اساس کد کامل (مثال: 1000-100-1)"
-        allowClear
-        loading={searchLoading}
-        enterButton={<SearchOutlined />}
-        onSearch={handleSearch}
-        className="mb-2"
-      />
+      <div className="mb-3 flex items-center gap-2 rounded-lg bg-slate-100 p-1.5">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-white shadow-sm">
+          <SearchOutlined className="text-sm text-slate-500" />
+        </div>
+        <Input.Search
+          bordered={false}
+          size="middle"
+          allowClear
+          loading={searchLoading}
+          placeholder="جستجوی کد محصول..."
+          onSearch={handleSearch}
+          enterButton={<span className="px-2 text-xs">جستجو</span>}
+          className="
+      flex-1
+      [&_.ant-input]:!bg-transparent
+      [&_.ant-input]:!text-sm
+      [&_.ant-input]:placeholder:text-xs
+      [&_.ant-input-search-button]:!h-8
+      [&_.ant-input-search-button]:!rounded-md
+      [&_.ant-input-search-button]:!bg-slate-800
+      [&_.ant-input-search-button]:hover:!bg-slate-700
+    "
+        />
+      </div>
 
       <ProductTreeEtc
         className="-p-2"
