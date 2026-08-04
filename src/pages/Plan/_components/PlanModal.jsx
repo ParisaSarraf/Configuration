@@ -49,7 +49,6 @@ const PlanModal = ({ isOpen, modalMode, modalData, closeModal, refetch }) => {
             }
           : undefined,
         status: modalData.status,
-        product_name: modalData.product_name,
         year: modalData.year,
         weight: modalData.weight,
         total_planned_quantity: modalData.total_planned_quantity,
