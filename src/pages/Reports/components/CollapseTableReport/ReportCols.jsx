@@ -1,4 +1,8 @@
-import { EyeOutlined, FileDoneOutlined } from "@ant-design/icons";
+import {
+  EyeOutlined,
+  FileDoneOutlined,
+  CheckOutlined,
+} from "@ant-design/icons";
 import { Button, Tag } from "antd";
 import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
 
@@ -29,6 +33,54 @@ const ReportCol = ({ handleShowDetailEdition, handleAutomationFiles }) => {
       width: 100,
       render: (record) => {
         return <Tag color="green">{record}</Tag>;
+      },
+    },
+    {
+      title: "A",
+      dataIndex: ["editions", 0, "file_1"],
+      key: "file_1",
+      width: 50,
+      align: "center",
+      render: (record) => {
+        return record ? (
+          <CheckOutlined className="text-green-500 font-bold" />
+        ) : null;
+      },
+    },
+    {
+      title: "B",
+      dataIndex: ["editions", 0, "file_2"],
+      key: "file_2",
+      width: 50,
+      align: "center",
+      render: (record) => {
+        return record ? (
+          <CheckOutlined className="text-green-500 font-bold" />
+        ) : null;
+      },
+    },
+    {
+      title: "C",
+      dataIndex: ["editions", 0, "file_3"],
+      key: "file_3",
+      width: 50,
+      align: "center",
+      render: (record) => {
+        return record ? (
+          <CheckOutlined className="text-green-500 font-bold" />
+        ) : null;
+      },
+    },
+    {
+      title: "D",
+      dataIndex: ["editions", 0, "file_4"],
+      key: "file_4",
+      width: 50,
+      align: "center",
+      render: (record) => {
+        return record ? (
+          <CheckOutlined className="text-green-500 font-bold" />
+        ) : null;
       },
     },
     {

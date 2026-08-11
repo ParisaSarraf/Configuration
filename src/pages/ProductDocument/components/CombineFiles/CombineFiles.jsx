@@ -71,6 +71,7 @@ const CombineFiles = ({
           modalType === "SpecificAutomationFiles"
             ? modalData?.editions?.[0]?.edition
             : modalData?.edition,
+        is_active: modalData?.is_active,
         file_1: fileSource.file_1
           ? [
               {
@@ -108,6 +109,7 @@ const CombineFiles = ({
             ]
           : [],
         description: fileSource?.description,
+        is_combined: true,
       });
     } else {
       form.resetFields();
@@ -115,6 +117,11 @@ const CombineFiles = ({
   }, [modalMode, modalData, form]);
 
   const onFinishForm = async (values) => {
+    const fileSource =
+      modalType === "SpecificAutomationFiles"
+        ? modalData?.editions?.[0] || {}
+        : modalData;
+
     const payload = {
       product_document_id:
         modalType === "SpecificAutomationFiles"
@@ -126,6 +133,7 @@ const CombineFiles = ({
       file_3: values.file_3?.[0]?.originFileObj,
       file_4: values.file_4?.[0]?.originFileObj,
       description: values.description,
+      is_active: fileSource.is_active ?? true,
     };
 
     try {

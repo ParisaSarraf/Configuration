@@ -34,11 +34,14 @@ const StateSpecificTable = ({ productId, state, filters = {} }) => {
     );
   }
 
+
   const handleShowDetailEdition = (edition) => {
     setModal({ mode: "add", data: edition, type: "SpecificEditionDetail" });
   };
 
   const handleAutomationFiles = (edition) => {
+    console.log(edition);
+    
     setModal({ mode: "add", data: edition, type: "SpecificAutomationFiles" });
   };
 
