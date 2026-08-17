@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Avatar, Divider, Dropdown } from "antd";
+import { Avatar, Badge, Button, Divider, Dropdown, Tooltip } from "antd";
 import {
   AppstoreOutlined,
   CalendarOutlined,
+  FormOutlined,
   LoginOutlined,
   LogoutOutlined,
   SecurityScanOutlined,
@@ -48,50 +49,64 @@ const CustomHeader = ({ children }) => {
     {
       key: "profile",
       label: (
-        <div className="flex flex-col items-start px-2 pt-2">
-          <span className="font-semibold text-base text-slate-800">
-            {userFullName}
-          </span>
-          <span className="text-xs text-slate-500">
-            {userData?.is_staff ? "مدیر سیستم" : "کاربر"}
-          </span>
+        <div className="flex items-center gap-3 px-1 py-2">
+          <Avatar
+            size={36}
+            src={
+              userData?.temp_image
+                ? `${BASEURL.replace("/api/v1", "")}${userData.temp_image}`
+                : null
+            }
+            icon={<UserOutlined />}
+            className="border-2 border-slate-200 bg-slate-100 text-slate-500 shrink-0"
+          />
+          <div className="flex flex-col items-start min-w-0">
+            <span className="font-semibold text-sm text-slate-800 truncate w-full">
+              {userFullName}
+            </span>
+            <span className="text-xs text-slate-400">
+              {userData?.is_staff ? "مدیر سیستم" : "کاربر"}
+            </span>
+          </div>
         </div>
       ),
       disabled: true,
     },
-    {
-      type: "divider",
-    },
+    { type: "divider" },
     {
       key: "cartable",
-      label: <span className={"text-sky-600"}>کارتابل شخصی</span>,
-      icon: <UserOutlined className={"text-sky-700"} />,
+      label: <span className="text-sky-700 font-medium">کارتابل شخصی</span>,
+      icon: <UserOutlined className="text-sky-600" />,
       onClick: () => navigate("/my-work"),
       className:
-        "!rounded-md !my-1 !p-2 transition-colors bg-sky-100 text-sky-700 hover:!bg-sky-100",
+        "!rounded-lg !my-0.5 !py-2.5 !px-3 transition-colors hover:!bg-sky-50",
     },
     {
       key: "change-password",
-      label: <span className={"text-violet-600"}>تغییر رمز عبور</span>,
-      icon: <SecurityScanOutlined className={"text-violet-700"} />,
+      label: (
+        <span className="text-violet-700 font-medium">تغییر رمز عبور</span>
+      ),
+      icon: <SecurityScanOutlined className="text-violet-600" />,
       onClick: () => navigate("/forget-password"),
       className:
-        "!rounded-md !my-1 !p-2 transition-colors bg-violet-50 text-violet-700 hover:!bg-violet-100",
+        "!rounded-lg !my-0.5 !py-2.5 !px-3 transition-colors hover:!bg-violet-50",
     },
     {
       key: "plan",
-      label: <span className={"text-green-600"}>برنامه ریزی تولید</span>,
-      icon: <SecurityScanOutlined className={"text-green-700"} />,
+      label: (
+        <span className="text-emerald-700 font-medium">برنامه ریزی تولید</span>
+      ),
+      icon: <SecurityScanOutlined className="text-emerald-600" />,
       onClick: () => navigate("/plan"),
       className:
-        "!rounded-md !my-1 !p-2 transition-colors bg-green-50 text-green-700 hover:!bg-green-100",
+        "!rounded-lg !my-0.5 !py-2.5 !px-3 transition-colors hover:!bg-emerald-50",
     },
     {
       key: "settings",
-      label: "تنظیمات",
-      icon: <SettingOutlined />,
+      label: <span className="text-slate-700 font-medium">تنظیمات</span>,
+      icon: <SettingOutlined className="text-slate-500" />,
       className:
-        "!rounded-md !my-1 !p-2 transition-colors bg-slate-50 text-slate-700 hover:!bg-slate-100",
+        "!rounded-lg !my-0.5 !py-2.5 !px-3 transition-colors hover:!bg-slate-50",
       children: [
         {
           key: "base-data",
@@ -111,23 +126,23 @@ const CustomHeader = ({ children }) => {
           : []),
       ],
     },
-    {
-      type: "divider",
-    },
+    { type: "divider" },
     {
       key: "logout",
-      label: <span className={"text-red-500"}> خروج از حساب کاربری</span>,
-      icon: <LogoutOutlined className={"text-red-500"} />,
+      label: (
+        <span className="text-red-600 font-medium">خروج از حساب کاربری</span>
+      ),
+      icon: <LogoutOutlined className="text-red-500" />,
       onClick: handleLogout,
       className:
-        "!rounded-md !my-1 !p-2 transition-colors bg-red-50 text-red-700 hover:!bg-red-100",
+        "!rounded-lg !my-0.5 !py-2.5 !px-3 transition-colors hover:!bg-red-50",
     },
   ];
 
   const customDropdownFooter = (
     <div className="grid grid-cols-2 gap-2 p-2">
-      <div className="flex flex-col items-start bg-slate-50 hover:bg-slate-100 p-2 rounded-md transition-colors">
-        <span className="text-xs text-slate-400 flex items-center gap-1 mb-1">
+      <div className="flex flex-col items-start bg-slate-50 hover:bg-slate-100 p-2.5 rounded-lg transition-colors">
+        <span className="text-[11px] text-slate-400 flex items-center gap-1 mb-1">
           <CalendarOutlined />
           تاریخ امروز
         </span>
@@ -135,8 +150,8 @@ const CustomHeader = ({ children }) => {
           {currentTime.format("D MMMM YYYY")}
         </span>
       </div>
-      <div className="flex flex-col items-start bg-slate-50 hover:bg-slate-100 p-2 rounded-md transition-colors">
-        <span className="text-xs text-slate-400 flex items-center gap-1 mb-1">
+      <div className="flex flex-col items-start bg-slate-50 hover:bg-slate-100 p-2.5 rounded-lg transition-colors">
+        <span className="text-[11px] text-slate-400 flex items-center gap-1 mb-1">
           <LoginOutlined />
           آخرین ورود
         </span>
@@ -154,38 +169,59 @@ const CustomHeader = ({ children }) => {
     : null;
 
   return (
-    <header className="bg-white rounded-lg my-2 mx-2 flex items-center justify-between h-14 shadow-sm border border-gray-100 px-4">
-      <div className="flex items-center gap-3">
+    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/70 rounded-xl my-2 mx-2 flex items-center justify-between h-14 shadow-sm ring-1 ring-slate-100 px-3 sm:px-4">
+      {/* Left cluster: sidebar toggle + brand */}
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
         {children}
-        <span className="hidden md:block font-semibold text-slate-700">
+        <Divider type="vertical" className="hidden sm:block !h-6 !m-0" />
+        <span className="hidden sm:block font-bold tracking-tight text-slate-800 truncate">
           مسیر
         </span>
       </div>
 
-      <div className="flex items-center gap-4">
+      {/* Right cluster: actions */}
+      <div className="flex items-center gap-2 sm:gap-3">
+        <Tooltip title="فرم ساز" placement="bottom">
+          <Button
+            icon={<FormOutlined />}
+            onClick={() => navigate("/forms")}
+            className="!flex !items-center !gap-1.5 !border-sky-200 !bg-sky-50 !text-sky-700 hover:!bg-sky-100 hover:!border-sky-300 !font-medium !rounded-lg !shadow-none"
+          >
+            <span className="hidden md:inline">فرم ساز</span>
+          </Button>
+        </Tooltip>
+
+        <Divider type="vertical" className="!h-6 !m-0" />
+
         <Dropdown
           menu={{ items: menuItems }}
           trigger={["click"]}
           placement="bottomLeft"
           arrow
           dropdownRender={(menu) => (
-            <div className="bg-white rounded-lg shadow-2xl mt-2  border border-slate-50">
+            <div className="bg-white rounded-xl shadow-xl mt-2 border border-slate-100 overflow-hidden min-w-[260px]">
               {menu}
-              <Divider style={{ margin: "0" }} />
+              <Divider style={{ margin: 0 }} />
               {customDropdownFooter}
             </div>
           )}
         >
           <button
-            className="flex items-center gap-2 cursor-pointer"
+            className="flex items-center gap-2 cursor-pointer rounded-lg px-1.5 py-1 transition-colors hover:bg-slate-50"
             aria-label="User menu"
           >
-            <Avatar
-              src={imageUrl}
-              icon={<UserOutlined />}
-              className="border-2 border-slate-200 bg-slate-100 text-slate-500"
-            />
-            <span className="hidden sm:inline text-sm font-semibold text-gray-700">
+            <Badge
+              dot
+              status={userData?.is_staff ? "gold" : "success"}
+              offset={[-4, 4]}
+            >
+              <Avatar
+                src={imageUrl}
+                icon={<UserOutlined />}
+                className="border-2 border-slate-200 bg-slate-100 text-slate-500"
+              />
+            </Badge>
+            <span className="hidden sm:inline text-sm font-semibold text-slate-700 max-w-[140px] truncate">
               {userFullName}
             </span>
           </button>
