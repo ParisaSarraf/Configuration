@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { Button, Segmented, Tooltip } from "antd";
 import {
   BarChart3,
@@ -13,9 +12,30 @@ import {
 } from "lucide-react";
 
 const VIEW_OPTIONS = [
-  { value: "edit", label: <span><PenLine size={14} /> ویرایش</span> },
-  { value: "preview", label: <span><Eye size={14} /> پیش‌نمایش</span> },
-  { value: "responses", label: <span><BarChart3 size={14} /> پاسخ‌ها</span> },
+  {
+    value: "edit",
+    label: (
+      <>
+        <PenLine size={14} /> ویرایش
+      </>
+    ),
+  },
+  {
+    value: "preview",
+    label: (
+      <>
+        <Eye size={14} /> پیش‌نمایش
+      </>
+    ),
+  },
+  {
+    value: "responses",
+    label: (
+      <>
+        <BarChart3 size={14} /> پاسخ‌ها
+      </>
+    ),
+  },
 ];
 
 const saveText = {
@@ -40,7 +60,9 @@ export default function BuilderHeader({
   return (
     <header className="builder-header">
       <div className="builder-brand-block">
-        <div className="builder-brand-mark"><Sparkles size={16} /></div>
+        <div className="builder-brand-mark">
+          <Sparkles size={16} />
+        </div>
         <div className="builder-title-wrap">
           <div className="builder-title-line">
             <input
@@ -69,11 +91,25 @@ export default function BuilderHeader({
       />
 
       <div className="builder-header-actions">
-        <Button className="builder-connect-button" icon={<Link2 size={14} />} onClick={onConnect}><span>اتصال API</span></Button>
-        <Button onClick={onSave} loading={saveState === "saving"}>ذخیره پیش‌نویس</Button>
-        <Button type="primary" icon={<Send size={14} />} onClick={onPublish}>انتشار فرم</Button>
+        <Button
+          className="builder-connect-button"
+          icon={<Link2 size={14} />}
+          onClick={onConnect}
+        >
+          <span>اتصال API</span>
+        </Button>
+        <Button onClick={onSave} loading={saveState === "saving"}>
+          ذخیره پیش‌نویس
+        </Button>
+        <Button type="primary" icon={<Send size={14} />} onClick={onPublish}>
+          انتشار فرم
+        </Button>
         <Tooltip title="تنظیمات فرم">
-          <Button className="icon-only-button" icon={<MoreHorizontal size={18} />} onClick={onSettings} />
+          <Button
+            className="icon-only-button"
+            icon={<MoreHorizontal size={18} />}
+            onClick={onSettings}
+          />
         </Tooltip>
       </div>
     </header>
