@@ -19,6 +19,7 @@ import DetailAccessProduct from "@/pages/SystemManagement/DetailAccessProduct/De
 import UsersPerformance from "./pages/SystemManagement/UsersPerformance/UsersPerformance";
 import ManageProduct from "./pages/SystemManagement/ManageProduct/ManageProduct";
 import Plan from "./pages/Plan/Plan";
+import Formbuilder from "./pages/Forms/Formbuilder";
 
 const router = createBrowserRouter([
   {
@@ -173,6 +174,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <Plan />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/forms",
+    element: (
+      <ProtectedRoute>
+        <Formbuilder />
       </ProtectedRoute>
     ),
   },
