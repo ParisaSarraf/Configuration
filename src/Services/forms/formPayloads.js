@@ -105,7 +105,7 @@ export const toFieldPayload = (field, formDefinitionId, order) => ({
   max_length: integer(field.maxLength),
   regex_validation: String(resolveValidationPattern(field)),
   regex_error_message: String(field.regexErrorMessage || (field.validation && field.validation !== "none" ? "فرمت مقدار واردشده معتبر نیست." : "")),
-  choices: JSON.stringify(field.options || []),
+  choices: Array.isArray(field.options) ? field.options : [],
   allowed_extensions: String(field.allowedExtensions || ""),
   max_file_size_mb: nullableNumber(field.maxFileSizeMb),
 });
@@ -113,8 +113,8 @@ export const toFieldPayload = (field, formDefinitionId, order) => ({
 export const toSubmissionPayload = ({ formDefinitionId, submitterId, values, attachments = [] }) => ({
   form_definition_id: integer(formDefinitionId),
   submiter_id: integer(submitterId),
-  form_data: JSON.stringify(values),
-  attachments: JSON.stringify(attachments),
+  form_data: values && typeof values === "object" ? values : {},
+  attachments: Array.isArray(attachments) ? attachments : [],
 });
 
 export const readFilesAsAttachments = async (fileMap, maxTotalBytes = 8 * 1024 * 1024) => {
