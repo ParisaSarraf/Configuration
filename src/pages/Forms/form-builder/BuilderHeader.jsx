@@ -5,6 +5,7 @@ import {
   Check,
   Cloud,
   Eye,
+  Link2,
   MoreHorizontal,
   PenLine,
   Send,
@@ -34,6 +35,7 @@ export default function BuilderHeader({
   onSave,
   onPublish,
   onSettings,
+  onConnect,
 }) {
   return (
     <header className="builder-header">
@@ -67,6 +69,7 @@ export default function BuilderHeader({
       />
 
       <div className="builder-header-actions">
+        <Button className="builder-connect-button" icon={<Link2 size={14} />} onClick={onConnect}><span>اتصال API</span></Button>
         <Button onClick={onSave} loading={saveState === "saving"}>ذخیره پیش‌نویس</Button>
         <Button type="primary" icon={<Send size={14} />} onClick={onPublish}>انتشار فرم</Button>
         <Tooltip title="تنظیمات فرم">

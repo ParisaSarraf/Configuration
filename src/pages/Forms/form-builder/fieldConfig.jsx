@@ -41,6 +41,13 @@ export const createField = (type, overrides = {}) => ({
   validation: "none",
   minLength: 0,
   maxLength: 200,
+  fieldName: "",
+  defaultValue: "",
+  cssClass: "",
+  regexValidation: "",
+  regexErrorMessage: "",
+  allowedExtensions: "pdf,doc,docx,jpg,jpeg,png",
+  maxFileSizeMb: 10,
   ...FIELD_DEFAULTS[type],
   ...overrides,
 });

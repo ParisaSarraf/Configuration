@@ -5,6 +5,7 @@ import BuilderHeader from "./form-builder/BuilderHeader";
 import ComponentLibrary from "./form-builder/ComponentLibrary";
 import FormCanvas from "./form-builder/FormCanvas";
 import PropertiesPanel from "./form-builder/PropertiesPanel";
+import FormConnectionFlow from "./form-builder/FormConnectionFlow";
 import { createField, INITIAL_FIELDS } from "./form-builder/fieldConfig";
 import "./form-builder/form-builder.css";
 
@@ -32,6 +33,7 @@ function FormBuilderWorkspace() {
   const [viewMode, setViewMode] = useState("edit");
   const [saveState, setSaveState] = useState(savedDraft ? "saved" : "idle");
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [connectionOpen, setConnectionOpen] = useState(false);
 
   const markDirty = useCallback(() => setSaveState("dirty"), []);
 
@@ -132,6 +134,7 @@ function FormBuilderWorkspace() {
         onSave={saveDraft}
         onPublish={publish}
         onSettings={() => setSettingsOpen(true)}
+        onConnect={() => setConnectionOpen(true)}
       />
 
       <div className={`form-builder-workspace is-${viewMode}`} dir="ltr">
@@ -186,6 +189,14 @@ function FormBuilderWorkspace() {
           rows={4}
         />
       </Modal>
+
+      <FormConnectionFlow
+        open={connectionOpen}
+        onClose={() => setConnectionOpen(false)}
+        title={title}
+        description={description}
+        fields={fields}
+      />
     </div>
   );
 }

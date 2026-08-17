@@ -10,6 +10,7 @@ import {
   X,
 } from "lucide-react";
 import { getFieldMeta } from "./fieldConfig";
+import { slugify } from "../../../Services/forms/formPayloads";
 
 const { TextArea } = Input;
 
@@ -58,6 +59,14 @@ function ContentSettings({ field, set }) {
         <TextArea value={field.label} autoSize={{ minRows: 2, maxRows: 4 }} onChange={(event) => set({ label: event.target.value })} />
       </Property>
 
+      <Property label="نام فنی فیلد" hint="این مقدار به‌عنوان کلید form_data و field_name ارسال می‌شود.">
+        <Input
+          dir="ltr"
+          value={field.fieldName || slugify(field.label)}
+          onChange={(event) => set({ fieldName: slugify(event.target.value) })}
+        />
+      </Property>
+
       {supportsPlaceholder && (
         <Property label="متن جایگزین" hint="پیش از وارد کردن پاسخ نمایش داده می‌شود.">
           <Input value={field.placeholder} onChange={(event) => set({ placeholder: event.target.value })} />
@@ -72,6 +81,11 @@ function ContentSettings({ field, set }) {
           onChange={(event) => set({ helperText: event.target.value })}
         />
       </Property>
+
+      <div className="property-grid">
+        <Property label="مقدار پیش‌فرض"><Input value={field.defaultValue} onChange={(event) => set({ defaultValue: event.target.value })} /></Property>
+        <Property label="کلاس CSS"><Input dir="ltr" value={field.cssClass} onChange={(event) => set({ cssClass: event.target.value })} /></Property>
+      </div>
 
       {field.type === "select" && <OptionsEditor options={field.options} onChange={(options) => set({ options })} />}
 
@@ -121,6 +135,12 @@ function ValidationSettings({ field, set }) {
             <Property label="حداقل کاراکتر"><InputNumber min={0} value={field.minLength} onChange={(value) => set({ minLength: value || 0 })} /></Property>
             <Property label="حداکثر کاراکتر"><InputNumber min={1} value={field.maxLength} onChange={(value) => set({ maxLength: value || 1 })} /></Property>
           </div>
+          <Property label="الگوی Regex سفارشی" hint="در صورت ورود، بر الگوی آماده اولویت دارد.">
+            <Input dir="ltr" value={field.regexValidation} onChange={(event) => set({ regexValidation: event.target.value })} />
+          </Property>
+          <Property label="پیام خطای اعتبارسنجی">
+            <Input value={field.regexErrorMessage} onChange={(event) => set({ regexErrorMessage: event.target.value })} />
+          </Property>
         </>
       )}
 
@@ -131,7 +151,18 @@ function ValidationSettings({ field, set }) {
         </div>
       )}
 
-      {!isText && !isNumber && (
+      {field.type === "file" && (
+        <>
+          <Property label="پسوندهای مجاز" hint="با کاما جدا کنید؛ مانند pdf,docx,png">
+            <Input dir="ltr" value={field.allowedExtensions} onChange={(event) => set({ allowedExtensions: event.target.value })} />
+          </Property>
+          <Property label="حداکثر حجم فایل (MB)">
+            <InputNumber min={0} value={field.maxFileSizeMb} onChange={(maxFileSizeMb) => set({ maxFileSizeMb: maxFileSizeMb || 0 })} />
+          </Property>
+        </>
+      )}
+
+      {!isText && !isNumber && field.type !== "file" && (
         <div className="property-placeholder"><ListChecks size={22} /><strong>تنظیم اضافه‌ای نیاز نیست</strong><span>این نوع فیلد به‌صورت خودکار اعتبارسنجی می‌شود.</span></div>
       )}
     </div>

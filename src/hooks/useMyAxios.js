@@ -2,56 +2,62 @@ import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MainContext } from "../Services/Context/AuthContext";
 import myAxios from "../Services/axiosInstance";
-import { logoutFn } from "../Services/authService";
+import { logoutFn, refreshAccessToken } from "../Services/authService";
+
+let refreshPromise = null;
 
 export const useMyAxios = () => {
   const { authToken, setAuthToken } = useContext(MainContext);
   const navigate = useNavigate();
-  let isGettingNewToken = false;
-
   useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
     if (!accessToken) {
       navigate("/sign-in");
-    } else {
-      myAxios.defaults.headers["Authorization"] = `Bearer ${accessToken}`;
+      return undefined;
     }
-  }, [authToken, navigate]);
 
-  myAxios.interceptors.request.use((config) => {
-    const accessToken = localStorage.getItem("accessToken");
-    if (accessToken) {
-      config.headers["Authorization"] = `Bearer ${accessToken}`;
-    }
-    return config;
-  });
+    myAxios.defaults.headers.Authorization = `Bearer ${accessToken}`;
 
-  myAxios.interceptors.response.use(
-    (response) => response,
-    async (error) => {
-      const originalRequest = error.config;
-      if (error.response?.status === 401 && !originalRequest._retry) {
-        originalRequest._retry = true;
-        try {
-          if (!isGettingNewToken) {
-            isGettingNewToken = true;
-            const newAccessToken = await refreshAccessToken();
-            setAuthToken(newAccessToken);
-            originalRequest.headers[
-              "Authorization"
-            ] = `Bearer ${newAccessToken}`;
-            return myAxios(originalRequest);
-          }
-        } catch (refreshError) {
-          console.error("Unable to refresh token:", refreshError);
-          await logoutFn();
-          navigate("/sign-in");
-          window.location.reload();
-        }
+    const requestInterceptor = myAxios.interceptors.request.use((config) => {
+      const currentToken = localStorage.getItem("accessToken");
+      if (currentToken) {
+        config.headers.Authorization = `Bearer ${currentToken}`;
       }
-      return Promise.reject(error);
-    }
-  );
+      return config;
+    });
+
+    const responseInterceptor = myAxios.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
+        if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+          originalRequest._retry = true;
+          try {
+            if (!refreshPromise) {
+              refreshPromise = refreshAccessToken().finally(() => {
+                refreshPromise = null;
+              });
+            }
+            const newAccessToken = await refreshPromise;
+            setAuthToken(newAccessToken);
+            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+            return myAxios(originalRequest);
+          } catch (refreshError) {
+            console.error("Unable to refresh token:", refreshError);
+            await logoutFn();
+            setAuthToken(null);
+            navigate("/sign-in", { replace: true });
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      myAxios.interceptors.request.eject(requestInterceptor);
+      myAxios.interceptors.response.eject(responseInterceptor);
+    };
+  }, [authToken, navigate, setAuthToken]);
 
   const handleLogout = async () => {
     try {

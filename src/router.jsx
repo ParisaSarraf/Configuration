@@ -1,6 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute/‎ProtectedRoute‎"
 import MainLayout from "./components/Layouts/MainLayout";
-import ProtectedRoute from "./components/ProtectedRoute/‎ProtectedRoute‎";
 import SignIn from "./components/SignIn/SignIn";
 import NotFound from "./pages/NotFound/NotFound";
 import ForgetPassword from "./pages/ForgetPassword/ForgetPassword";
