@@ -190,33 +190,33 @@ function FormBuilderWorkspace() {
   );
 }
 
-const darkTheme = {
-  algorithm: antTheme.darkAlgorithm,
+const lightTheme = {
+  algorithm: antTheme.defaultAlgorithm,
   token: {
-    colorPrimary: "#c7a76b",
-    colorInfo: "#c7a76b",
-    colorBgBase: "#0a0a0b",
-    colorBgContainer: "#151517",
-    colorBgElevated: "#1a1a1d",
-    colorBorder: "rgba(255,255,255,.09)",
-    colorText: "#f4f2ed",
-    colorTextSecondary: "#929298",
+    colorPrimary: "#9a7135",
+    colorInfo: "#9a7135",
+    colorBgBase: "#f7f8fa",
+    colorBgContainer: "#ffffff",
+    colorBgElevated: "#ffffff",
+    colorBorder: "#e4e7ec",
+    colorText: "#20242c",
+    colorTextSecondary: "#667085",
     borderRadius: 10,
     fontFamily: "Vazir, Vazirmatn, IRANSans, sans-serif",
     controlHeight: 38,
-    boxShadowSecondary: "0 18px 50px rgba(0,0,0,.45)",
+    boxShadowSecondary: "0 18px 50px rgba(16,24,40,.14)",
   },
   components: {
-    Button: { primaryShadow: "none", defaultBg: "rgba(255,255,255,.035)" },
-    Input: { activeShadow: "0 0 0 3px rgba(199,167,107,.10)" },
-    Select: { optionSelectedBg: "rgba(199,167,107,.12)" },
-    Switch: { handleBg: "#111113" },
+    Button: { primaryShadow: "none", defaultBg: "#ffffff" },
+    Input: { activeShadow: "0 0 0 3px rgba(154,113,53,.10)" },
+    Select: { optionSelectedBg: "rgba(154,113,53,.10)" },
+    Switch: { handleBg: "#ffffff" },
   },
 };
 
 export default function FormBuilder() {
   return (
-    <ConfigProvider direction="rtl" theme={darkTheme}>
+    <ConfigProvider direction="rtl" theme={lightTheme}>
       <AntApp>
         <FormBuilderWorkspace />
       </AntApp>

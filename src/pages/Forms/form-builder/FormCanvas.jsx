@@ -29,9 +29,9 @@ function CanvasToolbar({ viewMode, fields }) {
       <div className="canvas-toolbar-actions">
         <span className="collaborators-label">همکاران</span>
         <Avatar.Group size={27} max={{ count: 3 }}>
-          <Avatar style={{ background: "#6e5840" }}>م</Avatar>
-          <Avatar style={{ background: "#3f536c" }}>س</Avatar>
-          <Avatar style={{ background: "#544365" }}>ن</Avatar>
+          <Avatar style={{ color: "#684d28", background: "#f3e8d5" }}>م</Avatar>
+          <Avatar style={{ color: "#315a75", background: "#e0eff7" }}>س</Avatar>
+          <Avatar style={{ color: "#654b73", background: "#eee6f2" }}>ن</Avatar>
         </Avatar.Group>
         <i className="toolbar-divider" />
         <Tooltip title={`${fields.length.toLocaleString("fa-IR")} فیلد`}><Button type="text" icon={<LayoutTemplate size={15} />} /></Tooltip>
