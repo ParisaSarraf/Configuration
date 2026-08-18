@@ -72,7 +72,6 @@ export const toCategoryPayload = (values) => ({
 
 export const toDefinitionPayload = (values, categoryId) => ({
   category_id: integer(categoryId),
-  created_by_id: integer(values.created_by_id),
   name: String(values.name || "").trim(),
   slug: slugify(values.slug || values.name, "form"),
   description: String(values.description || "").trim(),
