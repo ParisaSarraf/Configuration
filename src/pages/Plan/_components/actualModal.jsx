@@ -1,5 +1,5 @@
-import { Form, Input, InputNumber, message, Select, Tooltip } from "antd";
-import { useEffect } from "react";
+import { Form, InputNumber, Spin, Tooltip, message } from "antd";
+import { useEffect, useMemo, useState } from "react";
 import Modal from "../../../components/Modal";
 import {
   useCreateProductionActual,
@@ -12,96 +12,200 @@ const MONTH_OPTIONS = MONTH_NAMES.map((name, i) => ({
   label: name,
 }));
 
+const EMPTY_ROW_STATES = Array.from({ length: 12 }, () => ({
+  status: "idle", // "idle" | "loading" | "success" | "error"
+  error: null,
+}));
+
 const ActualModal = ({ isOpen, modalData, closeModal, refetch, modalMode }) => {
   const [form] = Form.useForm();
-  const { mutateAsync: addActual, isPending } = useCreateProductionActual();
+  const { mutateAsync: addActual } = useCreateProductionActual();
   const { mutateAsync: updateActual } = useUpdateProductionActual();
+
+  const [rowStates, setRowStates] = useState(EMPTY_ROW_STATES);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const isEdit = modalMode === "edit";
-  const actualId = modalData?.actual_id ?? modalData?.id;
+
+  const existingByMonth = useMemo(() => {
+    let actuals = [];
+    if (Array.isArray(modalData?.actuals)) {
+      actuals = modalData.actuals;
+    } else if (isEdit && modalData?.production_month) {
+      actuals = [
+        {
+          id: modalData.actual_id ?? modalData.id,
+          production_month: modalData.production_month,
+          quantity_produced: modalData.quantity_produced,
+        },
+      ];
+    }
+    return actuals.reduce((acc, a) => {
+      acc[a.production_month] = a;
+      return acc;
+    }, {});
+  }, [modalData, isEdit]);
+
+  const productionPlanId = modalData?.production_plan_id ?? modalData?.id;
 
   useEffect(() => {
     if (!isOpen) return;
 
-    if (isEdit && modalData) {
-      form.setFieldsValue({
-        production_plan_id: modalData?.production_plan_id,
-        production_month: modalData.production_month,
-        quantity_produced: modalData.quantity_produced,
-      });
-    } else {
-      form.resetFields();
-      if (modalData?.production_plan_id != null) {
-        form.setFieldsValue({ production_plan_id: modalData.production_plan_id });
-      }
-    }
-  }, [isOpen, isEdit, modalData, form]);
+    const initialValues = {};
+    const initialRowStates = EMPTY_ROW_STATES.map((row) => ({ ...row }));
 
-  const onFinish = async (values) => {
-    try {
-      if (isEdit) {
-        await updateActual({
-          productionActualId: actualId,
-          production_month: values.production_month,
-          quantity_produced: values.quantity_produced,
-        });
-        message.success("تولید واقعی با موفقیت بروزرسانی شد");
-      } else {
-        await addActual({
-          production_plan_id: values.production_plan_id,
-          production_month: values.production_month,
-          quantity_produced: values.quantity_produced,
-        });
-        message.success("تولید واقعی با موفقیت ثبت شد");
+    MONTH_OPTIONS.forEach(({ value }, i) => {
+      const existing = existingByMonth[value];
+      initialValues[`month_${value}`] = existing?.quantity_produced ?? undefined;
+      if (existing) {
+        initialRowStates[i] = { status: "success", error: null };
       }
-      refetch?.();
-      closeModal();
-    } catch (error) {
-      message.error(error?.response?.data?.detail ?? "خطا در ثبت تولید واقعی");
-      console.error(error);
-    }
+    });
+
+    form.setFieldsValue(initialValues);
+    setRowStates(initialRowStates);
+  }, [isOpen, existingByMonth, form]);
+
+  const setRowState = (index, nextState) => {
+    setRowStates((prev) => {
+      const next = [...prev];
+      next[index] = nextState;
+      return next;
+    });
   };
 
-  const monthName = modalData?.production_month
-    ? MONTH_NAMES[modalData.production_month - 1]
-    : null;
+  const runSubmission = async (values) => {
+    setIsSubmitting(true);
+
+    for (let i = 0; i < MONTH_OPTIONS.length; i++) {
+      const monthNum = MONTH_OPTIONS[i].value;
+
+      if (rowStates[i].status === "success") continue;
+
+      const qty = values[`month_${monthNum}`];
+      if (qty === undefined || qty === null || qty === "") {
+        setRowState(i, { status: "idle", error: null });
+        continue;
+      }
+
+      setRowState(i, { status: "loading", error: null });
+
+      try {
+        const existing = existingByMonth[monthNum];
+        if (existing) {
+          await updateActual({
+            productionActualId: existing.id,
+            production_month: monthNum,
+            quantity_produced: qty,
+          });
+        } else {
+          await addActual({
+            production_plan_id: productionPlanId,
+            production_month: monthNum,
+            quantity_produced: qty,
+          });
+        }
+        setRowState(i, { status: "success", error: null });
+      } catch (error) {
+        const errMsg =
+          error?.response?.data?.detail ?? "خطا در ثبت این ماه";
+        setRowState(i, { status: "error", error: errMsg });
+        message.error(
+          `ثبت ${MONTH_OPTIONS[i].label} با خطا مواجه شد. مقدار را بررسی و دوباره تلاش کنید.`
+        );
+        console.error(error);
+        setIsSubmitting(false);
+        return false;
+      }
+    }
+
+    setIsSubmitting(false);
+    return true;
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+
+      const hasAnyValue = MONTH_OPTIONS.some(
+        ({ value }) =>
+          values[`month_${value}`] !== undefined &&
+          values[`month_${value}`] !== null
+      );
+
+      if (!hasAnyValue) {
+        message.warning("حداقل مقدار یک ماه را وارد کنید");
+        return;
+      }
+
+      const success = await runSubmission(values);
+      if (success) {
+        message.success("تولید واقعی با موفقیت ثبت شد");
+        refetch?.();
+        closeModal();
+      }
+    } catch {
+      // form.validateFields() rejected — inline field errors are already shown.
+    }
+  };
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={closeModal}
-      title={`ثبت تولید واقعی${monthName ? ` — ماه ${monthName}` : ""}`}
-      onSubmit={() => form.submit()}
-      loading={isPending}
+      title="ثبت تولید واقعی ۱۲ ماهه"
+      onSubmit={handleSubmit}
+      loading={isSubmitting}
     >
       <div className="p-1">
-        <Form form={form} layout="vertical" onFinish={onFinish}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
-            <Form.Item
-              name="production_month"
-              label="ماه تولید"
-              rules={[{ required: true, message: "انتخاب ماه الزامی است" }]}
-            >
-              <Select options={MONTH_OPTIONS} placeholder="انتخاب ماه" />
-            </Form.Item>
+        <Form form={form} layout="vertical">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+            {MONTH_OPTIONS.map(({ value, label }, i) => {
+              const rowState = rowStates[i];
+              const rowLocked = isSubmitting || rowState.status === "loading";
 
-            <Form.Item
-              name="quantity_produced"
-              label={
-                <Tooltip title="مقدار تولید شده در هر ماه">
-                  <span>مقدار تولید شده</span>
-                </Tooltip>
-              }
-              rules={[{ required: true, message: "مقدار الزامی است" }]}
-            >
-              <InputNumber className="!w-full" min={0} placeholder="مثلاً ۲۳" />
-            </Form.Item>
+              return (
+                <div key={value} className="flex items-center gap-2">
+                  <span className="w-14 shrink-0 text-sm text-slate-600">
+                    {label}
+                  </span>
+
+                  <Form.Item
+                    name={`month_${value}`}
+                    className="!mb-0 flex-1"
+                    rules={[
+                      {
+                        type: "number",
+                        min: 0,
+                        message: "مقدار باید عددی و بزرگ‌تر یا مساوی صفر باشد",
+                      },
+                    ]}
+                  >
+                    <InputNumber
+                      className="!w-full"
+                      min={0}
+                      placeholder="—"
+                      disabled={rowLocked}
+                    />
+                  </Form.Item>
+
+                  <span className="w-4 shrink-0 text-center">
+                    {rowState.status === "loading" && <Spin size="small" />}
+                    {rowState.status === "success" && (
+                      <span className="text-green-600" title="ثبت شد">
+                        ✓
+                      </span>
+                    )}
+                    {rowState.status === "error" && (
+                      <Tooltip title={rowState.error}>
+                        <span className="text-red-600 cursor-help">✕</span>
+                      </Tooltip>
+                    )}
+                  </span>
+                </div>
+              );
+            })}
           </div>
-
-          {!isEdit && (
-            <Form.Item name="production_plan_id" hidden>
-              <Input />
-            </Form.Item>
-          )}
         </Form>
       </div>
     </Modal>
