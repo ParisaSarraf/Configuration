@@ -1,24 +1,66 @@
 import { Col, Form, Input, InputNumber, Checkbox, message, Row } from "antd";
 import Modal from "../../../components/Modal";
 import { useFormApiMutations } from "../../../QueryServises/formsQuery";
+import { useEffect } from "react";
 
-const FormCategoryModal = ({ isOpen, closeModal, modalData }) => {
-  const mutations = useFormApiMutations();
+const FormCategoryModal = ({ isOpen, closeModal, modalMode, modalData }) => {
+  const { category } = useFormApiMutations();
   const [form] = Form.useForm();
 
   const onFinish = async (values) => {
     try {
-      await mutations.category(values);
-      message.success("باموفقیت دسته بندی جدید اضافه شد.");
+      const processedValues = {
+        ...values,
+        allowed_groups: values.allowed_groups
+          ? typeof values.allowed_groups === "string"
+            ? values.allowed_groups.split(",").map((g) => g.trim()).filter(Boolean)
+            : values.allowed_groups
+          : [],
+      };
+
+      const payload =
+        modalMode === "edit" && modalData?.id
+          ? { id: modalData.id, ...processedValues }
+          : processedValues;
+
+      await category.mutateAsync(payload);
+      message.success(
+        modalMode === "edit"
+          ? "دسته‌بندی با موفقیت ویرایش شد."
+          : "با موفقیت دسته‌بندی جدید اضافه شد."
+      );
       closeModal();
     } catch (error) {
       console.error(error);
-      message.error("مشکلی در ایجاد دسته بندی پیش آمده است");
+      message.error("مشکلی در انجام عملیات پیش آمده است");
     }
   };
 
+  useEffect(() => {
+    if (!isOpen) return;
+    form.resetFields();
+    if (modalMode === "edit" && modalData) {
+      form.setFieldsValue({
+        name: modalData.name,
+        slug: modalData.slug,
+        order: modalData.order,
+        icon: modalData.icon,
+        description: modalData.description,
+        allowed_groups: Array.isArray(modalData.allowed_groups)
+          ? modalData.allowed_groups.join(", ")
+          : modalData.allowed_groups,
+        is_collapsed_by_default: modalData.is_collapsed_by_default,
+      });
+    }
+  }, [isOpen, modalMode, modalData, form]);
+
   return (
-    <Modal size={500} isOpen={isOpen} onClose={closeModal}>
+    <Modal
+      size={500}
+      isOpen={isOpen}
+      onClose={closeModal}
+      onSubmit={() => form.submit()}
+    >
       <Form layout="vertical" form={form} onFinish={onFinish}>
         <Row gutter={12}>
           <Col span={12}>
@@ -47,8 +89,8 @@ const FormCategoryModal = ({ isOpen, closeModal, modalData }) => {
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item name="allowed_groups" label="گروه‌های مجاز">
-              <Input />
+            <Form.Item name="allowed_groups" label="گروه‌های مجاز (با کاما جدا کنید)">
+              <Input placeholder="group1, group2" />
             </Form.Item>
           </Col>
           <Col span={12} className="flex items-center">
