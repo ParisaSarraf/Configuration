@@ -1,6 +1,9 @@
-
 const FormCategory = () => {
-  return <div>sefcsedfc</div>;
+  return( 
+  <div>
+    
+  </div>
+);
 };
 
 export default FormCategory;
