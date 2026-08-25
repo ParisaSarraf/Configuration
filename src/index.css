@@ -326,3 +326,40 @@ body {
   width: 100%;
 }
 
+
+
+/* ======================= form ===================== */
+.studio-context-menu {
+  position: fixed;
+  z-index: 1000;
+  min-width: 180px;
+  background: #fff;
+  border: 1px solid #e2e2e2;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+  margin: 0;
+  list-style: none;
+}
+
+.studio-context-menu li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.studio-context-menu li:hover {
+  background: #f4f4f4;
+}
+
+.studio-context-menu li.is-danger {
+  color: #d33;
+}
+
+.studio-context-menu li.is-danger:hover {
+  background: #fdeaea;
+}
