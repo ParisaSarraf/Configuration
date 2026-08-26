@@ -43,12 +43,12 @@ export const useFormDefinition = (id, queryOptions) => {
 //   });
 // };
 
-export const useDeleteFormCategory = () => {
-  const { myAxios } = useMyAxios();
-  return useMutation({
-    mutationFn: (id) => formApi.deleteCategory(myAxios, id),
-  });
-};
+// export const useDeleteFormCategory = () => {
+//   const { myAxios } = useMyAxios();
+//   return useMutation({
+//     mutationFn: (id) => formApi.deleteCategory(myAxios, id),
+//   });
+// };
 
 export const useCreateFormDefinition = () => {
   const { myAxios } = useMyAxios();
@@ -128,31 +128,31 @@ export const useCreateFormCategory = () => {
   });
 };
 
-// export const useDeleteGenusProduct = () => {
-//   const { myAxios } = useMyAxios();
-//   return useMutation({
-//     mutationFn: (params) => {
-//       return myAxios
-//         .delete(`/product/delete-genus/${params}/`)
-//         .then((response) => {
-//           return response?.data;
-//         });
-//     },
-//   });
-// };
+export const useDeleteFormCategory = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: (params) => {
+      return myAxios
+        .delete(`/forms/delete-form-category/${params}`)
+        .then((response) => {
+          return response?.data;
+        });
+    },
+  });
+};
 
-// export const useUpdateGenusProduct = () => {
-//   const { myAxios } = useMyAxios();
-//   return useMutation({
-//     mutationFn: ({ genusId, ...params }) => {
-//       return myAxios
-//         .put(`/product/update-genus/${genusId}/`, params)
-//         .then((response) => {
-//           return response?.data;
-//         });
-//     },
-//   });
-// };
+export const useUpdateFormCategory = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: ({ FormCategoryId, ...params }) => {
+      return myAxios
+        .put(`/forms/update-form-category/${FormCategoryId}`, params)
+        .then((response) => {
+          return response?.data;
+        });
+    },
+  });
+};
 
 // export const useStandardCodeGenusByIdKey = (
 //   id,

@@ -1,9 +1,20 @@
-import { Col, Form, Input, InputNumber, Checkbox, message, Row } from "antd";
-import { useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import {
+  Col,
+  Form,
+  Input,
+  InputNumber,
+  Checkbox,
+  message,
+  Row,
+} from "antd";
+
 import Modal from "../../../components/Modal";
 
-import { useEffect } from "react";
-import { useCreateFormCategory } from "../../../QueryServises/formsQuery";
+import {
+  useCreateFormCategory,
+  useUpdateFormCategory,
+} from "../../../QueryServises/formsQuery";
 
 const FormCategoryModal = ({
   isOpen,
@@ -13,58 +24,90 @@ const FormCategoryModal = ({
   refetch,
 }) => {
   const [form] = Form.useForm();
-  const { mutateAsync: createCategory } = useCreateFormCategory();
 
+  const { mutateAsync: createCategory, isPending: isCreating } =
+    useCreateFormCategory();
+
+  const { mutateAsync: editCategory, isPending: isUpdating } =
+    useUpdateFormCategory();
+
+  const isEdit = modalMode === "edit";
+  const isPending = isCreating || isUpdating;
+
+  // =========================
+  // Submit
+  // =========================
   const onFinish = async (values) => {
     try {
       const processedValues = {
         ...values,
+
         allowed_groups: values.allowed_groups
           ? typeof values.allowed_groups === "string"
             ? values.allowed_groups
                 .split(",")
-                .map((g) => g.trim())
+                .map((group) => group.trim())
                 .filter(Boolean)
             : values.allowed_groups
           : [],
       };
 
-      const payload =
-        modalMode === "edit" && modalData?.id
-          ? { id: modalData.id, ...processedValues }
-          : processedValues;
+      if (isEdit && modalData?.id) {
+        await editCategory({
+          FormCategoryId: modalData.id,
+          ...processedValues,
+        });
 
-      await createCategory(payload);
-      message.success(
-        modalMode === "edit"
-          ? "دسته‌بندی با موفقیت ویرایش شد."
-          : "با موفقیت دسته‌بندی جدید اضافه شد.",
-      );
+        message.success("دسته‌بندی با موفقیت ویرایش شد.");
+      } else {
+        await createCategory(processedValues);
+
+        message.success("دسته‌بندی جدید با موفقیت ایجاد شد.");
+      }
+
       closeModal();
-      refetch();
+
+      if (refetch) {
+        await refetch();
+      }
     } catch (error) {
-      console.error(error);
-      message.error("مشکلی در انجام عملیات پیش آمده است");
+      console.error("Category submit error:", error);
+
+      message.error(
+        isEdit
+          ? "ویرایش دسته‌بندی با مشکل مواجه شد."
+          : "ایجاد دسته‌بندی با مشکل مواجه شد.",
+      );
     }
   };
 
+  // =========================
+  // Set form values
+  // =========================
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      return;
+    }
+
     form.resetFields();
-    if (modalMode === "edit" && modalData) {
+
+    if (isEdit && modalData) {
       form.setFieldsValue({
-        name: modalData.name,
-        slug: modalData.slug,
-        order: modalData.order,
-        icon: modalData.icon,
-        description: modalData.description,
+        name: modalData.name ?? "",
+        slug: modalData.slug ?? "",
+        order: modalData.order ?? 0,
+        icon: modalData.icon ?? "",
+        description: modalData.description ?? "",
+
         allowed_groups: Array.isArray(modalData.allowed_groups)
           ? modalData.allowed_groups.join(", ")
-          : modalData.allowed_groups,
-        is_collapsed_by_default: modalData.is_collapsed_by_default,
+          : modalData.allowed_groups ?? "",
+
+        is_collapsed_by_default:
+          modalData.is_collapsed_by_default ?? false,
       });
     }
-  }, [isOpen, modalMode, modalData, form]);
+  }, [isOpen, isEdit, modalData, form]);
 
   return (
     <Modal
@@ -72,49 +115,123 @@ const FormCategoryModal = ({
       isOpen={isOpen}
       onClose={closeModal}
       onSubmit={() => form.submit()}
+      loading={isPending}
     >
-      <Form layout="vertical" form={form} onFinish={onFinish}>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+        disabled={isPending}
+      >
         <Row gutter={12}>
+          {/* Name */}
           <Col span={12}>
-            <Form.Item name="name" label="نام">
-              <Input />
+            <Form.Item
+              name="name"
+              label="نام دسته‌بندی"
+              rules={[
+                {
+                  required: true,
+                  message: "نام دسته‌بندی را وارد کنید",
+                },
+              ]}
+            >
+              <Input
+                placeholder="مثلاً فرم‌های اداری"
+                allowClear
+              />
             </Form.Item>
           </Col>
+
+          {/* Slug */}
           <Col span={12}>
-            <Form.Item name="slug" label="اسلاگ">
-              <Input />
+            <Form.Item
+              name="slug"
+              label="اسلاگ"
+              rules={[
+                {
+                  required: true,
+                  message: "اسلاگ را وارد کنید",
+                },
+              ]}
+            >
+              <Input
+                placeholder="example-category"
+                allowClear
+              />
             </Form.Item>
           </Col>
+
+          {/* Order */}
           <Col span={12}>
-            <Form.Item name="order" label="ترتیب">
-              <InputNumber className="w-full" />
+            <Form.Item
+              name="order"
+              label="ترتیب"
+              initialValue={0}
+            >
+              <InputNumber
+                min={0}
+                className="w-full"
+                placeholder="0"
+              />
             </Form.Item>
           </Col>
+
+          {/* Icon */}
           <Col span={12}>
-            <Form.Item name="icon" label="آیکون">
-              <Input />
+            <Form.Item
+              name="icon"
+              label="آیکون"
+            >
+              <Input
+                placeholder="مثلاً folder"
+                allowClear
+              />
             </Form.Item>
           </Col>
+
+          {/* Description */}
           <Col span={24}>
-            <Form.Item name="description" label="توضیحات">
-              <Input.TextArea rows={2} />
+            <Form.Item
+              name="description"
+              label="توضیحات"
+            >
+              <Input.TextArea
+                rows={3}
+                placeholder="توضیحات دسته‌بندی..."
+                showCount
+                maxLength={500}
+              />
             </Form.Item>
           </Col>
+
+          {/* Allowed Groups */}
           <Col span={12}>
             <Form.Item
               name="allowed_groups"
-              label="گروه‌های مجاز (با کاما جدا کنید)"
+              label="گروه‌های مجاز"
+              extra="گروه‌ها را با کاما جدا کنید"
             >
-              <Input placeholder="group1, group2" />
+              <Input
+                placeholder="group1, group2"
+                allowClear
+              />
             </Form.Item>
           </Col>
-          <Col span={12} className="flex items-center">
+
+          {/* Collapsed */}
+          <Col
+            span={12}
+            className="flex items-center"
+          >
             <Form.Item
               name="is_collapsed_by_default"
               valuePropName="checked"
               className="mb-0"
             >
-              <Checkbox>پیش‌فرض بسته شده</Checkbox>
+              <Checkbox>
+                پیش‌فرض بسته باشد
+              </Checkbox>
             </Form.Item>
           </Col>
         </Row>
