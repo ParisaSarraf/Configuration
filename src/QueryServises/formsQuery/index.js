@@ -36,34 +36,6 @@ export const useFormDefinition = (id, queryOptions) => {
   });
 };
 
-// export const useCreateFormCategory = () => {
-//   const { myAxios } = useMyAxios();
-//   return useMutation({
-//     mutationFn: (payload) => formApi.createCategory(myAxios, payload),
-//   });
-// };
-
-// export const useDeleteFormCategory = () => {
-//   const { myAxios } = useMyAxios();
-//   return useMutation({
-//     mutationFn: (id) => formApi.deleteCategory(myAxios, id),
-//   });
-// };
-
-export const useCreateFormDefinition = () => {
-  const { myAxios } = useMyAxios();
-  return useMutation({
-    mutationFn: (payload) => formApi.createDefinition(myAxios, payload),
-  });
-};
-
-export const useUpdateFormDefinition = () => {
-  const { myAxios } = useMyAxios();
-  return useMutation({
-    mutationFn: ({ id, payload }) =>
-      formApi.updateDefinition(myAxios, id, payload),
-  });
-};
 
 export const useDeleteFormDefinition = () => {
   const { myAxios } = useMyAxios();
@@ -154,31 +126,34 @@ export const useUpdateFormCategory = () => {
   });
 };
 
-// export const useStandardCodeGenusByIdKey = (
-//   id,
-//   name,
-//   full_ware_house_code = {},
-// ) => ["genus-id", id, name, full_ware_house_code];
-// export const useStandardCodeGenusById = (
-//   id,
-//   name,
-//   full_ware_house_code,
-//   queryOptions,
-// ) => {
-//   const { myAxios } = useMyAxios();
-//   return useQuery({
-//     queryKey: useStandardCodeGenusByIdKey(id, name, full_ware_house_code),
-//     queryFn: () =>
-//       id
-//         ? myAxios
-//             .get(`/product/get-genus-by-id/${id}`, {
-//               params: {
-//                 ...(name && { name }),
-//                 ...(full_ware_house_code && { full_ware_house_code }),
-//               },
-//             })
-//             .then((response) => response?.data)
-//         : Promise.resolve(null),
-//     ...queryOptions,
-//   });
-// };
+
+
+
+// ======================= form definition =================================
+export const useCreateFormDefinition = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: (params) => {
+      return myAxios
+        .post(`/forms/add-form-definition/`, params)
+        .then((response) => {
+          return response?.data;
+        });
+    },
+  });
+};
+
+
+export const useUpdateFormDefinition = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: ({ FormDefinitionId, ...params }) => {
+      return myAxios
+        .put(`/forms/update-form-definition/${FormDefinitionId}`, params)
+        .then((response) => {
+          return response?.data;
+        });
+    },
+  });
+};
+

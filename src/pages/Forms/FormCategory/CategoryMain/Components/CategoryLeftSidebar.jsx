@@ -4,6 +4,7 @@ import { DeleteOutlined, FormOutlined, EditOutlined } from "@ant-design/icons";
 import { FolderOpen, Folder, Layers3, Plus } from "lucide-react";
 import FormCategoryModal from "../../FormCategoryModal";
 import { useDeleteFormCategory } from "../../../../../QueryServises/formsQuery";
+import FormDefinitionModal from "../../../FormDefinition/Components/FormDefinitionModal";
 
 const CategoryLeftSidebar = ({
   category = [],
@@ -51,7 +52,7 @@ const CategoryLeftSidebar = ({
   };
 
   const handleForm = (item) => {
-    console.log("Add form:", item);
+    setModal({ mode: "add", data: item?.id, type: "createFormCategory" });
   };
 
   const handleEdit = (item) => {
@@ -59,182 +60,203 @@ const CategoryLeftSidebar = ({
   };
 
   return (
-    <aside className="flex h-full min-h-0 w-full flex-col">
-      {/* Header */}
-      <div className="mb-3 flex shrink-0 items-center justify-between border-b border-gray-100 pb-3">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-            <Layers3 size={16} />
+    <>
+      <aside className="flex h-full min-h-0 w-full flex-col">
+        {/* Header */}
+        <div className="mb-3 flex shrink-0 items-center justify-between border-b border-gray-100 pb-3">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+              <Layers3 size={16} />
+            </div>
+
+            <div>
+              <h2 className="text-xs font-bold text-gray-800">دسته‌بندی‌ها</h2>
+
+              <p className="text-[10px] text-gray-400">
+                مدیریت دسته‌بندی فرم‌ها
+              </p>
+            </div>
           </div>
 
-          <div>
-            <h2 className="text-xs font-bold text-gray-800">دسته‌بندی‌ها</h2>
-
-            <p className="text-[10px] text-gray-400">مدیریت دسته‌بندی فرم‌ها</p>
-          </div>
+          <Tooltip title="دسته‌بندی جدید">
+            <Button
+              type="primary"
+              size="small"
+              icon={<Plus size={14} />}
+              onClick={() =>
+                setModal({
+                  mode: "add",
+                  data: null,
+                  type: "createCategory",
+                })
+              }
+              className="!flex !h-7 !w-7 !items-center !justify-center !p-0"
+            />
+          </Tooltip>
         </div>
 
-        <Tooltip title="دسته‌بندی جدید">
-          <Button
-            type="primary"
-            size="small"
-            icon={<Plus size={14} />}
-            onClick={() =>
-              setModal({
-                mode: "add",
-                data: null,
-                type: "createCategory",
-              })
-            }
-            className="!flex !h-7 !w-7 !items-center !justify-center !p-0"
-          />
-        </Tooltip>
-
-        <FormCategoryModal
-          refetch={refetch}
-          isOpen={modalType === "createCategory" && isOpen}
-          modalData={modalData}
-          modalMode={modalMode}
-          closeModal={closeModal}
-        />
-      </div>
-
-      {/* List */}
-      <div className="min-h-0 flex-1 space-y-1 overflow-y-auto">
-        {/* All */}
-        <button
-          type="button"
-          onClick={() => setCategoryId("all")}
-          className={`flex w-full items-center gap-2 rounded-lg px-2 py-2 transition ${
-            categoryId === "all"
-              ? "bg-blue-50 text-blue-600"
-              : "text-gray-600 hover:bg-gray-50"
-          }`}
-        >
-          <FolderOpen size={15} />
-
-          <span className="min-w-0 flex-1 truncate text-right text-xs font-medium">
-            همه فرم‌ها
-          </span>
-
-          <span
-            className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] ${
+        {/* List */}
+        <div className="min-h-0 flex-1 space-y-1 overflow-y-auto">
+          {/* All */}
+          <button
+            type="button"
+            onClick={() => setCategoryId("all")}
+            className={`flex w-full items-center gap-2 rounded-lg px-2 py-2 transition ${
               categoryId === "all"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 text-gray-500"
+                ? "bg-blue-50 text-blue-600"
+                : "text-gray-600 hover:bg-gray-50"
             }`}
           >
-            {forms.length}
-          </span>
-        </button>
+            <FolderOpen size={15} />
 
-        {/* Categories */}
-        {categories.map((item) => {
-          const count = forms.filter(
-            (form) =>
-              String(form.category?.id || form.category_id) === String(item.id),
-          ).length;
+            <span className="min-w-0 flex-1 truncate text-right text-xs font-medium">
+              همه فرم‌ها
+            </span>
 
-          const isActive = String(categoryId) === String(item.id);
-
-          return (
-            <div
-              key={item.id}
-              className={`group flex items-center rounded-lg transition ${
-                isActive ? "bg-blue-50" : "hover:bg-gray-50"
+            <span
+              className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] ${
+                categoryId === "all"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-500"
               }`}
             >
-              {/* Category */}
-              <Tooltip title={item.name} placement="top" mouseEnterDelay={0.5}>
-                <button
-                  type="button"
-                  onClick={() => setCategoryId(item.id)}
-                  className="flex min-w-0 flex-1 items-center gap-2 px-2 py-2 text-right"
-                >
-                  {/* Icon */}
-                  <span
-                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${
-                      isActive
-                        ? "bg-blue-100 text-blue-600"
-                        : "bg-gray-100 text-gray-500"
-                    }`}
-                  >
-                    {isActive ? <FolderOpen size={14} /> : <Folder size={14} />}
-                  </span>
+              {forms.length}
+            </span>
+          </button>
 
-                  {/* Name */}
-                  <span
-                    className={`min-w-0 flex-1 truncate text-xs font-medium ${
-                      isActive ? "text-blue-700" : "text-gray-700"
-                    }`}
-                  >
-                    {item.name}
-                  </span>
+          {/* Categories */}
+          {categories.map((item) => {
+            const count = forms.filter(
+              (form) =>
+                String(form.category?.id || form.category_id) ===
+                String(item.id),
+            ).length;
 
-                  {/* Count */}
-                  <span
-                    className={`flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 text-[10px] ${
-                      isActive
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-500"
-                    }`}
-                  >
-                    {count}
-                  </span>
-                </button>
-              </Tooltip>
+            const isActive = String(categoryId) === String(item.id);
 
-              {/* Actions */}
+            return (
               <div
-                className={`flex shrink-0 items-center transition-opacity ${
-                  isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                key={item.id}
+                className={`group flex items-center rounded-lg transition ${
+                  isActive ? "bg-blue-50" : "hover:bg-gray-50"
                 }`}
               >
-                <Tooltip title="افزودن فرم">
-                  <Button
-                    type="text"
-                    size="small"
-                    icon={<FormOutlined />}
-                    className="!h-6 !w-6 !p-0 !text-gray-400 hover:!bg-green-50 hover:!text-green-600"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleForm(item);
-                    }}
-                  />
+                {/* Category */}
+                <Tooltip
+                  title={item.name}
+                  placement="top"
+                  mouseEnterDelay={0.5}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setCategoryId(item.id)}
+                    className="flex min-w-0 flex-1 items-center gap-2 px-2 py-2 text-right"
+                  >
+                    {/* Icon */}
+                    <span
+                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${
+                        isActive
+                          ? "bg-blue-100 text-blue-600"
+                          : "bg-gray-100 text-gray-500"
+                      }`}
+                    >
+                      {isActive ? (
+                        <FolderOpen size={14} />
+                      ) : (
+                        <Folder size={14} />
+                      )}
+                    </span>
+
+                    {/* Name */}
+                    <span
+                      className={`min-w-0 flex-1 truncate text-xs font-medium ${
+                        isActive ? "text-blue-700" : "text-gray-700"
+                      }`}
+                    >
+                      {item.name}
+                    </span>
+
+                    {/* Count */}
+                    <span
+                      className={`flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 text-[10px] ${
+                        isActive
+                          ? "bg-blue-600 text-white"
+                          : "bg-gray-100 text-gray-500"
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  </button>
                 </Tooltip>
 
-                <Tooltip title="ویرایش">
-                  <Button
-                    type="text"
-                    size="small"
-                    icon={<EditOutlined />}
-                    className="!h-6 !w-6 !p-0 !text-gray-400 hover:!bg-blue-50 hover:!text-blue-600"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEdit(item);
-                    }}
-                  />
-                </Tooltip>
+                {/* Actions */}
+                <div
+                  className={`flex shrink-0 items-center transition-opacity ${
+                    isActive
+                      ? "opacity-100"
+                      : "opacity-0 group-hover:opacity-100"
+                  }`}
+                >
+                  <Tooltip title="افزودن فرم">
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={<FormOutlined />}
+                      className="!h-6 !w-6 !p-0 !text-gray-400 hover:!bg-green-50 hover:!text-green-600"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleForm(item);
+                      }}
+                    />
+                  </Tooltip>
 
-                <Tooltip title="حذف">
-                  <Button
-                    type="text"
-                    danger
-                    size="small"
-                    icon={<DeleteOutlined />}
-                    className="!h-6 !w-6 !p-0"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(item);
-                    }}
-                  />
-                </Tooltip>
+                  <Tooltip title="ویرایش">
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={<EditOutlined />}
+                      className="!h-6 !w-6 !p-0 !text-gray-400 hover:!bg-blue-50 hover:!text-blue-600"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEdit(item);
+                      }}
+                    />
+                  </Tooltip>
+
+                  <Tooltip title="حذف">
+                    <Button
+                      type="text"
+                      danger
+                      size="small"
+                      icon={<DeleteOutlined />}
+                      className="!h-6 !w-6 !p-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(item);
+                      }}
+                    />
+                  </Tooltip>
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
-    </aside>
+            );
+          })}
+        </div>
+      </aside>
+      <FormCategoryModal
+        refetch={refetch}
+        isOpen={modalType === "createCategory" && isOpen}
+        modalData={modalData}
+        modalMode={modalMode}
+        closeModal={closeModal}
+      />
+      <FormDefinitionModal
+        refetch={refetch}
+        isOpen={modalType === "createFormCategory" && isOpen}
+        modalData={modalData}
+        modalMode={modalMode}
+        closeModal={closeModal}
+      />
+    </>
   );
 };
 
