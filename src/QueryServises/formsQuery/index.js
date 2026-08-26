@@ -36,7 +36,6 @@ export const useFormDefinition = (id, queryOptions) => {
   });
 };
 
-
 export const useDeleteFormDefinition = () => {
   const { myAxios } = useMyAxios();
   return useMutation({
@@ -126,9 +125,6 @@ export const useUpdateFormCategory = () => {
   });
 };
 
-
-
-
 // ======================= form definition =================================
 export const useCreateFormDefinition = () => {
   const { myAxios } = useMyAxios();
@@ -143,7 +139,6 @@ export const useCreateFormDefinition = () => {
   });
 };
 
-
 export const useUpdateFormDefinition = () => {
   const { myAxios } = useMyAxios();
   return useMutation({
@@ -157,3 +152,17 @@ export const useUpdateFormDefinition = () => {
   });
 };
 
+export const useFormDefinitionByIdKey = (id) => ["form", "definition", id];
+export const useFormDefinitionById = (id, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: useFormDefinitionByIdKey(id),
+    queryFn: () =>
+      id
+        ? myAxios
+            .get(`/forms/get-form-definition/${id}`)
+            .then((response) => response?.data)
+        : Promise.resolve(null),
+    ...queryOptions,
+  });
+};
