@@ -62,7 +62,7 @@ const FormDefinitionModal = ({
       close_date: values.close_date ? values.close_date : null,
     };
     try {
-      if (isEdit && modalData?.id) {
+      if (isEdit && modalData?.id) {``
         await updateDefinition({
           FormDefinitionId: modalData.id,
           ...payload,
