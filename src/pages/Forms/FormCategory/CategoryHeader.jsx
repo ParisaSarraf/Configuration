@@ -22,26 +22,6 @@ const CategoryHeader = ({
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <Button
-          type="primary"
-          icon={<Plus size={16} />}
-          onClick={() =>
-            setModal({ mode: "add", data: null, type: "createCategory" })
-          }
-          className="flex items-center rounded-lg font-medium"
-        >
-          فرم جدید
-        </Button>
-      </div>
-
-      <FormCategoryModal
-        refetch={refetch}
-        isOpen={modalType === "createCategory" && isOpen}
-        modalData={modalData}
-        modalMode={modalMode}
-        closeModal={closeModal}
-      />
     </header>
   );
 };

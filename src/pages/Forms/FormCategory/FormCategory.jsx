@@ -4,11 +4,21 @@ import CategoryHeader from "./CategoryHeader";
 import CategoryMain from "./CategoryMain/CategoryMain";
 
 const FormCategory = () => {
-  const { setModal, modalMode, modalData, modalType, closeModal, isOpen } =
-    useModal();
-  const { data: category, refetch } = useFormCategoryList();
+  const {
+    setModal,
+    modalMode,
+    modalData,
+    modalType,
+    closeModal,
+    isOpen,
+  } = useModal();
+
+const { data, refetch } = useFormCategoryList();
+
+const category = data ?? [];
+
   return (
-    <div>
+    <div className="min-h-screen bg-[#f7f8fa]">
       <CategoryHeader
         refetch={refetch}
         setModal={setModal}
@@ -18,7 +28,17 @@ const FormCategory = () => {
         closeModal={closeModal}
         isOpen={isOpen}
       />
-      <CategoryMain />
+
+      <CategoryMain
+        category={category}
+        refetch={refetch}
+        setModal={setModal}
+        modalMode={modalMode}
+        modalData={modalData}
+        modalType={modalType}
+        closeModal={closeModal}
+        isOpen={isOpen}
+      />
     </div>
   );
 };
