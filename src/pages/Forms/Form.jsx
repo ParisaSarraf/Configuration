@@ -1,11 +1,11 @@
-import React from 'react'
+import FormCategory from "./FormCategory/FormCategory";
 
-const Form = () => {
+const InitialForm = () => {
   return (
     <div>
-      
+      <FormCategory />
     </div>
-  )
-}
+  );
+};
 
-export default Form
+export default InitialForm;

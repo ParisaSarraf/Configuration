@@ -1,16 +1,19 @@
 import { Col, Form, Input, InputNumber, Checkbox, message, Row } from "antd";
 import { useQueryClient } from "@tanstack/react-query";
 import Modal from "../../../components/Modal";
-import {
-  useCreateFormCategory,
-  formCategoriesKey,
-} from "../../../QueryServises/formsQuery";
-import { useEffect } from "react";
 
-const FormCategoryModal = ({ isOpen, closeModal, modalMode, modalData }) => {
-  const queryClient = useQueryClient();
-  const createCategory = useCreateFormCategory();
+import { useEffect } from "react";
+import { useCreateFormCategory } from "../../../QueryServises/formsQuery";
+
+const FormCategoryModal = ({
+  isOpen,
+  closeModal,
+  modalMode,
+  modalData,
+  refetch,
+}) => {
   const [form] = Form.useForm();
+  const { mutateAsync: createCategory } = useCreateFormCategory();
 
   const onFinish = async (values) => {
     try {
@@ -18,7 +21,10 @@ const FormCategoryModal = ({ isOpen, closeModal, modalMode, modalData }) => {
         ...values,
         allowed_groups: values.allowed_groups
           ? typeof values.allowed_groups === "string"
-            ? values.allowed_groups.split(",").map((g) => g.trim()).filter(Boolean)
+            ? values.allowed_groups
+                .split(",")
+                .map((g) => g.trim())
+                .filter(Boolean)
             : values.allowed_groups
           : [],
       };
@@ -28,14 +34,14 @@ const FormCategoryModal = ({ isOpen, closeModal, modalMode, modalData }) => {
           ? { id: modalData.id, ...processedValues }
           : processedValues;
 
-      await createCategory.mutateAsync(payload);
-      await queryClient.invalidateQueries({ queryKey: formCategoriesKey });
+      await createCategory(payload);
       message.success(
         modalMode === "edit"
           ? "دسته‌بندی با موفقیت ویرایش شد."
-          : "با موفقیت دسته‌بندی جدید اضافه شد."
+          : "با موفقیت دسته‌بندی جدید اضافه شد.",
       );
       closeModal();
+      refetch();
     } catch (error) {
       console.error(error);
       message.error("مشکلی در انجام عملیات پیش آمده است");
@@ -95,7 +101,10 @@ const FormCategoryModal = ({ isOpen, closeModal, modalMode, modalData }) => {
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item name="allowed_groups" label="گروه‌های مجاز (با کاما جدا کنید)">
+            <Form.Item
+              name="allowed_groups"
+              label="گروه‌های مجاز (با کاما جدا کنید)"
+            >
               <Input placeholder="group1, group2" />
             </Form.Item>
           </Col>
