@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types, no-unused-vars */
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   App as AntApp,
   Button,
@@ -14,11 +15,24 @@ import {
 } from "antd";
 import { FolderOpen, Pencil, Plus, Settings, Trash2 } from "lucide-react";
 import { useMyAxios } from "../../hooks/useMyAxios";
+import { formApi } from "../../Services/forms/formApi";
 import {
-  formApi,
   extractEntityId,
   getApiErrorMessage,
-} from "../../Services/forms/formApi";
+} from "../../Services/forms/formUtils";
+import {
+  useFormCategories,
+  formCategoriesKey,
+  useCreateFormDefinition,
+  useCreateFormField,
+  useDeleteFormDefinition,
+  useDeleteFormField,
+  useFormDefinitions,
+  formDefinitionsKey,
+  formDefinitionKey,
+  useUpdateFormDefinition,
+  useUpdateFormField,
+} from "../../QueryServises/formsQuery";
 import {
   toDefinitionPayload,
   toFieldPayload,
@@ -38,7 +52,9 @@ const emptyDraft = (categoryId) => ({
   description: "",
   fields: INITIAL_FIELDS.map((field) => ({ ...field })),
 });
+
 const Dashboard = FormStudioDashboard;
+
 const apiFieldToEditor = (field) => ({
   id: crypto.randomUUID?.() || `field-${field.id}`,
   serverId: field.id,
@@ -64,109 +80,13 @@ const apiFieldToEditor = (field) => ({
   maxFileSizeMb: field.max_file_size_mb ?? 0,
 });
 
-function LegacyDashboard({
-  categories,
-  definitions,
-  loading,
-  onCreate,
-  onEdit,
-  onDelete,
-}) {
-  const [categoryId, setCategoryId] = useState();
-  const grouped = definitions.reduce((result, definition) => {
-    const id =
-      definition.category?.id || definition.category_id || "uncategorized";
-    (result[id] ||= []).push(definition);
-    return result;
-  }, {});
-  return (
-    <div className="form-studio-dashboard" dir="rtl">
-      <section className="studio-dashboard-hero">
-        <div>
-          <span>FORM STUDIO</span>
-          <h1>فرم‌ها، ساده و همیشه همگام</h1>
-          <p>
-            فرم را انتخاب کنید یا مستقیماً یک فرم تازه بسازید؛ تغییرات شما در
-            پس‌زمینه ذخیره می‌شوند.
-          </p>
-        </div>
-        <div className="dashboard-create">
-          <Select
-            placeholder="دسته‌بندی فرم"
-            value={categoryId}
-            onChange={setCategoryId}
-            options={categories.map((item) => ({
-              value: item.id,
-              label: item.name,
-            }))}
-          />
-          <Button
-            type="primary"
-            icon={<Plus size={16} />}
-            disabled={!categoryId}
-            onClick={() => onCreate(categoryId)}
-          >
-            فرم جدید
-          </Button>
-        </div>
-      </section>
-      {loading ? (
-        <div className="dashboard-loading">
-          <Spin />
-        </div>
-      ) : definitions.length === 0 ? (
-        <Empty description="هنوز فرمی ساخته نشده است" />
-      ) : (
-        Object.entries(grouped).map(([id, forms]) => (
-          <section className="form-dashboard-group" key={id}>
-            <h2>
-              <FolderOpen size={17} />
-              {categories.find((item) => String(item.id) === id)?.name ||
-                forms[0].category?.name ||
-                "بدون دسته‌بندی"}
-            </h2>
-            <div className="form-dashboard-grid">
-              {forms.map((form) => (
-                <article key={form.id} className="form-dashboard-card">
-                  <div>
-                    <Tag color={form.is_active ? "green" : "default"}>
-                      {form.is_active ? "فعال" : "غیرفعال"}
-                    </Tag>
-                    <h3>{form.name}</h3>
-                    <p>{form.description || "بدون توضیحات"}</p>
-                  </div>
-                  <div className="dashboard-card-actions">
-                    <Button
-                      icon={<Pencil size={14} />}
-                      onClick={() => onEdit(form.id)}
-                    >
-                      ویرایش
-                    </Button>
-                    <Popconfirm
-                      title="این فرم حذف شود؟"
-                      description="این عمل قابل بازگشت نیست."
-                      okText="حذف"
-                      cancelText="انصراف"
-                      onConfirm={() => onDelete(form.id)}
-                    >
-                      <Button danger type="text" icon={<Trash2 size={15} />}>
-                        حذف
-                      </Button>
-                    </Popconfirm>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
-        ))
-      )}
-    </div>
-  );
-}
-
 function Workspace({ draft, onBack, onRefresh }) {
   const { message } = AntApp.useApp();
-  const { myAxios } = useMyAxios();
+  const createDefinition = useCreateFormDefinition();
+  const createFieldMutation = useCreateFormField();
+  const updateDefinition = useUpdateFormDefinition();
+  const updateFieldMutation = useUpdateFormField();
+  const deleteFieldMutation = useDeleteFormField();
   const [title, setTitle] = useState(draft.title),
     [description, setDescription] = useState(draft.description),
     [fields, setFields] = useState(draft.fields),
@@ -195,33 +115,32 @@ function Workspace({ draft, onBack, onRefresh }) {
         draft.categoryId,
       );
       if (!formId.current) {
-        const created = await formApi.createDefinition(
-          myAxios,
-          definitionPayload,
-        );
+        const created = await createDefinition.mutateAsync(definitionPayload);
         formId.current = extractEntityId(created);
         if (!formId.current)
           throw new Error("The server did not return a form id.");
       } else
-        await formApi.updateDefinition(
-          myAxios,
-          formId.current,
-          definitionPayload,
-        );
+        await updateDefinition.mutateAsync({
+          id: formId.current,
+          payload: definitionPayload,
+        });
       await Promise.all(
         deletedFieldIds.current
           .splice(0)
-          .map((id) => formApi.deleteField(myAxios, id)),
+          .map((id) => deleteFieldMutation.mutateAsync(id)),
       );
       const nextFields = await Promise.all(
         current.fields.map(async (field, index) => {
           const payload = toFieldPayload(field, formId.current, index);
           if (field.serverId) {
             const { form_definition_id, ...update } = payload;
-            await formApi.updateField(myAxios, field.serverId, update);
+            await updateFieldMutation.mutateAsync({
+              id: field.serverId,
+              payload: update,
+            });
             return field;
           }
-          const created = await formApi.createField(myAxios, payload);
+          const created = await createFieldMutation.mutateAsync(payload);
           return { ...field, serverId: extractEntityId(created) };
         }),
       );
@@ -232,7 +151,16 @@ function Workspace({ draft, onBack, onRefresh }) {
       setSaveState("dirty");
       message.error(getApiErrorMessage(error));
     }
-  }, [draft.categoryId, message, myAxios, onRefresh]);
+  }, [
+    createDefinition,
+    createFieldMutation,
+    deleteFieldMutation,
+    draft.categoryId,
+    message,
+    onRefresh,
+    updateDefinition,
+    updateFieldMutation,
+  ]);
   const markDirty = useCallback(() => {
     setSaveState("dirty");
     clearTimeout(timer.current);
@@ -368,31 +296,35 @@ function Workspace({ draft, onBack, onRefresh }) {
 function FormStudio() {
   const { message } = AntApp.useApp();
   const { myAxios } = useMyAxios();
-  const [categories, setCategories] = useState([]),
-    [definitions, setDefinitions] = useState([]),
-    [loading, setLoading] = useState(true),
-    [draft, setDraft] = useState(null);
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [nextCategories, nextDefinitions] = await Promise.all([
-        formApi.getCategories(myAxios),
-        formApi.getDefinitions(myAxios),
-      ]);
-      setCategories(nextCategories || []);
-      setDefinitions(nextDefinitions || []);
-    } catch (error) {
-      message.error(getApiErrorMessage(error));
-    } finally {
-      setLoading(false);
-    }
-  }, [message, myAxios]);
+  const queryClient = useQueryClient();
+  const categoriesQuery = useFormCategories();
+  const definitionsQuery = useFormDefinitions();
+  const deleteDefinition = useDeleteFormDefinition();
+  const [draft, setDraft] = useState(null);
+  const categories = categoriesQuery.data || [];
+  const refetch = categoriesQuery.refetch;
+  const definitions = definitionsQuery.data || [];
+  const loading = categoriesQuery.isPending || definitionsQuery.isPending;
+  const refreshForms = useCallback(
+    () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: formCategoriesKey }),
+        queryClient.invalidateQueries({ queryKey: formDefinitionsKey }),
+      ]),
+    [queryClient],
+  );
+
   useEffect(() => {
-    load();
-  }, [load]);
+    const error = categoriesQuery.error || definitionsQuery.error;
+    if (error) message.error(getApiErrorMessage(error));
+  }, [categoriesQuery.error, definitionsQuery.error, message]);
+
   const edit = async (id) => {
     try {
-      const detail = await formApi.getDefinition(myAxios, id);
+      const detail = await queryClient.fetchQuery({
+        queryKey: formDefinitionKey(id),
+        queryFn: () => formApi.getDefinition(myAxios, id),
+      });
       const form = Array.isArray(detail) ? detail[0] : detail;
       setDraft({
         id: form.id,
@@ -405,11 +337,12 @@ function FormStudio() {
       message.error(getApiErrorMessage(error));
     }
   };
+
   const remove = async (id) => {
     try {
-      await formApi.deleteDefinition(myAxios, id);
+      await deleteDefinition.mutateAsync(id);
       message.success("فرم حذف شد");
-      load();
+      await refreshForms();
     } catch (error) {
       message.error(getApiErrorMessage(error));
     }
@@ -419,21 +352,22 @@ function FormStudio() {
       draft={draft}
       onBack={() => {
         setDraft(null);
-        load();
+        refreshForms();
       }}
-      onRefresh={load}
+      onRefresh={refreshForms}
     />
   ) : (
     <Dashboard
+      refetch={refetch}
       categories={categories}
       definitions={definitions}
       loading={loading}
-      onCreate={(categoryId) => setDraft(emptyDraft(categoryId))}
       onEdit={edit}
       onDelete={remove}
     />
   );
 }
+
 const lightTheme = {
   algorithm: antTheme.defaultAlgorithm,
   token: {
@@ -447,6 +381,7 @@ const lightTheme = {
     fontFamily: "Vazir, Vazirmatn, IRANSans, sans-serif",
   },
 };
+
 export default function FormBuilder() {
   return (
     <ConfigProvider direction="rtl" theme={lightTheme}>

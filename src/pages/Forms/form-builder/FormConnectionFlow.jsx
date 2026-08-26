@@ -37,8 +37,13 @@ import {
 } from "lucide-react";
 import dayjs from "dayjs";
 import { jwtDecode } from "jwt-decode";
-import { useFormApiMutations } from "../../../QueryServises/formsQuery";
-import { extractEntityId, getApiErrorMessage } from "../../../Services/forms/formApi";
+import {
+  useCreateFormCategory,
+  useCreateFormDefinition,
+  useCreateFormField,
+  useCreateFormSubmission,
+} from "../../../QueryServises/formsQuery";
+import { extractEntityId, getApiErrorMessage } from "../../../Services/forms/formUtils";
 import {
   readFilesAsAttachments,
   resolveValidationPattern,
@@ -432,7 +437,10 @@ export default function FormConnectionFlow({ open, onClose, title, description, 
   const { message: notify } = AntApp.useApp();
   const [flow, setFlow] = useState(loadFlow);
   const [step, setStep] = useState(flow.definition ? 2 : flow.category ? 1 : 0);
-  const mutations = useFormApiMutations();
+  const createCategory = useCreateFormCategory();
+  const createDefinition = useCreateFormDefinition();
+  const createField = useCreateFormField();
+  const createSubmission = useCreateFormSubmission();
 
   const update = (recipe) => {
     setFlow((current) => {
@@ -490,10 +498,10 @@ export default function FormConnectionFlow({ open, onClose, title, description, 
       <div className="connection-api-badge"><Database size={13} /><span dir="ltr">POST /api/v1/forms/…</span><Tag color="green">Frontend only</Tag></div>
       <Steps className="connection-steps" current={step} items={steps} responsive={false} />
       <div className="connection-step-card">
-        {step === 0 && <CategoryStep flow={flow} mutation={mutations.category} notify={notify} onCreated={selectCategory} />}
-        {step === 1 && <DefinitionStep flow={flow} title={title} description={description} mutation={mutations.definition} notify={notify} onCreated={setDefinition} onBack={() => setStep(0)} />}
-        {step === 2 && <FieldsStep flow={flow} fields={fields} mutation={mutations.field} notify={notify} onSynced={setSynced} onBack={() => setStep(1)} />}
-        {step === 3 && <SubmissionStep flow={flow} fields={fields} mutation={mutations.submission} notify={notify} onBack={() => setStep(2)} onDone={onClose} />}
+        {step === 0 && <CategoryStep flow={flow} mutation={createCategory} notify={notify} onCreated={selectCategory} />}
+        {step === 1 && <DefinitionStep flow={flow} title={title} description={description} mutation={createDefinition} notify={notify} onCreated={setDefinition} onBack={() => setStep(0)} />}
+        {step === 2 && <FieldsStep flow={flow} fields={fields} mutation={createField} notify={notify} onSynced={setSynced} onBack={() => setStep(1)} />}
+        {step === 3 && <SubmissionStep flow={flow} fields={fields} mutation={createSubmission} notify={notify} onBack={() => setStep(2)} onDone={onClose} />}
       </div>
       <div className="connection-contract-note"><CheckCircle2 size={13} />تمام payloadها پیش از ارسال به قرارداد فعلی API تبدیل می‌شوند؛ هیچ تغییری در backend لازم نیست.</div>
     </Drawer>

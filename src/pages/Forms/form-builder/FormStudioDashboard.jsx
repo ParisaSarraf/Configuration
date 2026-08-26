@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { formApi } from "../../../Services/forms/formApi";
+import { useFormDefinition } from "../../../QueryServises/formsQuery";
 import FormCategoryModal from "../FormCategory/FormCategoryModal";
 import useModal from "../../../hooks/useModal";
 import StudioHeader from "../StudioOverview/StudioHeader";
@@ -7,22 +7,19 @@ import StudioSidebar from "../StudioOverview/StudioSidebar";
 import StudioFormList from "../StudioOverview/StudioFormList";
 import StudioPreview from "../StudioOverview/StudioPreview";
 
-
 export default function FormStudioDashboard({
+  refetch,
   categories,
   definitions,
   loading,
-  myAxios,
-  onCreate,
   onEdit,
   onDelete,
 }) {
-  const { setModal, modalData, modalMode, modalType, isOpen, closeModal } = useModal();
+  const { setModal, modalData, modalMode, modalType, isOpen, closeModal } =
+    useModal();
 
   const [categoryId, setCategoryId] = useState("all");
   const [selectedId, setSelectedId] = useState();
-  const [preview, setPreview] = useState(null);
-  const [previewLoading, setPreviewLoading] = useState(false);
 
   const visible = useMemo(
     () =>
@@ -30,36 +27,21 @@ export default function FormStudioDashboard({
         ? definitions
         : definitions.filter(
             (form) =>
-              String(form.category?.id || form.category_id) === String(categoryId)
+              String(form.category?.id || form.category_id) ===
+              String(categoryId),
           ),
-    [categoryId, definitions]
+    [categoryId, definitions],
   );
-  
+
   const selected = visible.find((form) => form.id === selectedId) || visible[0];
+  const { data: previewData, isLoading: previewLoading } = useFormDefinition(
+    selected?.id,
+  );
+  const preview = Array.isArray(previewData) ? previewData[0] : previewData;
 
   useEffect(() => {
     if (selected?.id) setSelectedId(selected.id);
   }, [selected?.id]);
-
-  useEffect(() => {
-    let cancelled = false;
-    if (!selected?.id) {
-      setPreview(null);
-      return undefined;
-    }
-    setPreviewLoading(true);
-    formApi
-      .getDefinition(myAxios, selected.id)
-      .then((data) => {
-        if (!cancelled) setPreview(Array.isArray(data) ? data[0] : data);
-      })
-      .finally(() => {
-        if (!cancelled) setPreviewLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [myAxios, selected?.id]);
 
   return (
     <div className="form-studio-dashboard" dir="rtl">
@@ -68,11 +50,14 @@ export default function FormStudioDashboard({
         setCategoryId={setCategoryId}
         categories={categories}
         definitionsCount={definitions.length}
-        onOpenCreate={() => setModal({ data: null, type: "createCategory", mode: "add" })}
+        onOpenCreate={() =>
+          setModal({ data: null, type: "createCategory", mode: "add" })
+        }
       />
 
       <div className="studio-dashboard-body">
         <StudioSidebar
+          refetch={refetch}
           categories={categories}
           categoryId={categoryId}
           setCategoryId={setCategoryId}

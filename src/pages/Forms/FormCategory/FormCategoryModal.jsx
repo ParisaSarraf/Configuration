@@ -1,10 +1,15 @@
 import { Col, Form, Input, InputNumber, Checkbox, message, Row } from "antd";
+import { useQueryClient } from "@tanstack/react-query";
 import Modal from "../../../components/Modal";
-import { useFormApiMutations } from "../../../QueryServises/formsQuery";
+import {
+  useCreateFormCategory,
+  formCategoriesKey,
+} from "../../../QueryServises/formsQuery";
 import { useEffect } from "react";
 
 const FormCategoryModal = ({ isOpen, closeModal, modalMode, modalData }) => {
-  const { category } = useFormApiMutations();
+  const queryClient = useQueryClient();
+  const createCategory = useCreateFormCategory();
   const [form] = Form.useForm();
 
   const onFinish = async (values) => {
@@ -23,7 +28,8 @@ const FormCategoryModal = ({ isOpen, closeModal, modalMode, modalData }) => {
           ? { id: modalData.id, ...processedValues }
           : processedValues;
 
-      await category.mutateAsync(payload);
+      await createCategory.mutateAsync(payload);
+      await queryClient.invalidateQueries({ queryKey: formCategoriesKey });
       message.success(
         modalMode === "edit"
           ? "دسته‌بندی با موفقیت ویرایش شد."

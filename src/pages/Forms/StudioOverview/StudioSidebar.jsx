@@ -1,19 +1,24 @@
 import { DeleteOutlined, EditOutlined, FormOutlined } from "@ant-design/icons";
-import { Button, Modal } from "antd";
+import { Button, message, Modal } from "antd";
+import { useQueryClient } from "@tanstack/react-query";
 import { FolderOpen } from "lucide-react";
-import { useFormApiMutations } from "../../../QueryServises/formsQuery";
+import {
+  useDeleteFormCategory,
+  formCategoriesKey,
+  formDefinitionsKey,
+} from "../../../QueryServises/formsQuery";
 
 export default function StudioSidebar({
+  refetch,
   categories,
   categoryId,
   setCategoryId,
   definitions,
 }) {
-  const { category } = useFormApiMutations();
+  const queryClient = useQueryClient();
+  const deleteCategory = useDeleteFormCategory();
 
   const handleDelete = (category) => {
-    console.log(category);
-
     Modal.confirm({
       title: "حذف دسته‌بندی",
       content: `آیا از حذف دسته‌بندی «${category.name}» مطمئن هستید؟`,
@@ -22,9 +27,19 @@ export default function StudioSidebar({
       okButtonProps: {
         danger: true,
       },
-      onOk: async() => {
-        await category
-        console.log("Delete category:", category.id);
+      onOk: async () => {
+        try {
+          await deleteCategory.mutateAsync(category.id);
+          await Promise.all([
+            queryClient.invalidateQueries({ queryKey: formCategoriesKey }),
+            queryClient.invalidateQueries({ queryKey: formDefinitionsKey }),
+          ]);
+          message.success("باموفقیت حذف شد.");
+          refetch();
+        } catch (error) {
+          message.error("مشکلی پیش آمده است.");
+          console.error(error);
+        }
       },
     });
   };
