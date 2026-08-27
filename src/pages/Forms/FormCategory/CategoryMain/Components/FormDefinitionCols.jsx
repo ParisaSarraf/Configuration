@@ -2,6 +2,7 @@ import {
   DeleteOutlined,
   EditOutlined,
   EyeOutlined,
+  FormatPainterFilled,
   FormOutlined,
 } from "@ant-design/icons";
 import { Button, Modal, message } from "antd";
@@ -68,6 +69,7 @@ const FormDefinitionCols = ({
     {
       title: "عملیات",
       key: "operation",
+      width: 150,
       render: (text, record) => (
         <div className="flex items-center gap-2">
           <Button
@@ -75,24 +77,28 @@ const FormDefinitionCols = ({
             icon={<DeleteOutlined />}
             className="text-red-500"
             onClick={() => handleDelete(record)}
+            title="حذف"
           />
           <Button
             icon={<EditOutlined />}
             type="text"
             className="text-green-500"
             onClick={() => handleEdit(record)}
+            title="ویرایش"
           />
           <Button
             icon={<EyeOutlined />}
             type="text"
             className="text-blue-500"
             onClick={() => handleView(record)}
+            title="جزئیات"
           />
           <Button
-            icon={<FormOutlined />}
+            icon={<FormatPainterFilled />}
             type="text"
-            className="text-yellow-500"
+            className="text-orange-500"
             onClick={() => handleCreateFormDefinitionFeild(record?.id)}
+            title="شروع فرآیند ساخت فرم"
           />
         </div>
       ),

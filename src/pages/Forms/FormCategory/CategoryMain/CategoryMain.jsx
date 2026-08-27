@@ -5,6 +5,7 @@ import CategoryRightSidebar from "./Components/CategoryRightSidebar";
 import { TableAntd } from "../../../../components/TableAntd/TableAntd";
 import FormDefinitionCols from "./Components/FormDefinitionCols";
 import FormDefinitionCategoryDetail from "../../FormDefinition/Components/FormDefinitionCategoryDetail";
+import { useNavigate } from "react-router-dom";
 
 const CategoryMain = ({
   category = [],
@@ -17,6 +18,7 @@ const CategoryMain = ({
   isOpen,
 }) => {
   const [categoryId, setCategoryId] = useState("all");
+  const navigate = useNavigate();
 
   const categories = category ?? [];
   const { data: categoryByIdData } = useFormCategoryById(categoryId);
@@ -38,11 +40,7 @@ const CategoryMain = ({
   };
 
   const handleCreateFormDefinitionFeild = (record) => {
-    setModal({
-      mode: "create",
-      data: record,
-      type: "createFormDefinitionFeild",
-    });
+    navigate('/')
   };
 
   const columns = FormDefinitionCols({
