@@ -155,7 +155,7 @@ function CategoryStep({ flow, onCreated, mutation, notify }) {
       const response = await mutation.mutateAsync(payload);
       const id = extractEntityId(response);
       if (!id) throw new Error("پاسخ ایجاد دسته‌بندی شامل شناسه قابل استفاده نیست.");
-      onCreated({ id, name: payload.name, slug: payload.slug }, false);
+      onCreated({ id, name: payload.name}, false);
       notify.success("دسته‌بندی فرم ایجاد شد");
     } catch (error) {
       notify.error(getApiErrorMessage(error, error.message));
@@ -235,7 +235,6 @@ function DefinitionStep({ flow, title, description, onCreated, onBack, mutation,
         className="connection-form"
         initialValues={{
           name: title,
-          slug: slugify(title),
           description,
           created_by_id: currentUserId,
           is_active: true,

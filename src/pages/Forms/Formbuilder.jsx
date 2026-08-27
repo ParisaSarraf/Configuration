@@ -106,7 +106,6 @@ function Workspace({ draft, onBack, onRefresh }) {
       const definitionPayload = toDefinitionPayload(
         {
           name: current.title,
-          slug: current.title,
           description: current.description,
           is_active: true,
           version: 1,

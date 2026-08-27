@@ -125,6 +125,21 @@ export const useUpdateFormCategory = () => {
   });
 };
 
+export const useFormCategoryByIdKey = (id) => ["form", "category", id];
+export const useFormCategoryById = (id, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: useFormCategoryByIdKey(id),
+    queryFn: () =>
+      id
+        ? myAxios
+            .get(`/forms/get-category-forms-by-id/${id}`)
+            .then((response) => response?.data)
+        : Promise.resolve(null),
+    ...queryOptions,
+  });
+};
+
 // ======================= form definition =================================
 export const useCreateFormDefinition = () => {
   const { myAxios } = useMyAxios();
@@ -164,5 +179,18 @@ export const useFormDefinitionById = (id, queryOptions) => {
             .then((response) => response?.data)
         : Promise.resolve(null),
     ...queryOptions,
+  });
+};
+
+export const useDeleteDefinition = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: (params) => {
+      return myAxios
+        .delete(`/forms/delete-form-definition/${params}`)
+        .then((response) => {
+          return response?.data;
+        });
+    },
   });
 };

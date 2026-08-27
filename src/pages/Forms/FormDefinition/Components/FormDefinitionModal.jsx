@@ -62,7 +62,8 @@ const FormDefinitionModal = ({
       close_date: values.close_date ? values.close_date : null,
     };
     try {
-      if (isEdit && modalData?.id) {``
+      if (isEdit && modalData?.id) {
+        ``;
         await updateDefinition({
           FormDefinitionId: modalData.id,
           ...payload,
@@ -90,11 +91,10 @@ const FormDefinitionModal = ({
         category_id: modalData.category_id,
         created_by_id: modalData.created_by_id,
         name: modalData.name ?? "",
-        slug: modalData.slug ?? "",
         description: modalData.description ?? "",
         is_active: modalData.is_active ?? true,
         version: modalData.version ?? 1,
-        close_date: modalData.close_date ? dayjs(modalData.close_date) : null,
+        close_date: modalData.close_date ? modalData.close_date : null,
         max_submissions: modalData.max_submissions ?? null,
         enable_auto_save: modalData.enable_auto_save ?? true,
         auto_save_interval: modalData.auto_save_interval ?? 30,
@@ -143,21 +143,6 @@ const FormDefinitionModal = ({
               ]}
             >
               <Input placeholder="نام فرم" allowClear />
-            </Form.Item>
-          </Col>
-
-          <Col span={12}>
-            <Form.Item
-              name="slug"
-              label="Slug"
-              rules={[
-                {
-                  required: true,
-                  message: "Slug را وارد کنید",
-                },
-              ]}
-            >
-              <Input placeholder="example-form" allowClear />
             </Form.Item>
           </Col>
 

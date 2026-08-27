@@ -1,13 +1,5 @@
 import { useEffect } from "react";
-import {
-  Col,
-  Form,
-  Input,
-  InputNumber,
-  Checkbox,
-  message,
-  Row,
-} from "antd";
+import { Col, Form, Input, InputNumber, Checkbox, message, Row } from "antd";
 
 import Modal from "../../../components/Modal";
 
@@ -94,28 +86,29 @@ const FormCategoryModal = ({
     if (isEdit && modalData) {
       form.setFieldsValue({
         name: modalData.name ?? "",
-        slug: modalData.slug ?? "",
         order: modalData.order ?? 0,
         icon: modalData.icon ?? "",
         description: modalData.description ?? "",
-
         allowed_groups: Array.isArray(modalData.allowed_groups)
           ? modalData.allowed_groups.join(", ")
-          : modalData.allowed_groups ?? "",
+          : (modalData.allowed_groups ?? ""),
 
-        is_collapsed_by_default:
-          modalData.is_collapsed_by_default ?? false,
+        is_collapsed_by_default: modalData.is_collapsed_by_default ?? false,
       });
     }
   }, [isOpen, isEdit, modalData, form]);
 
   return (
     <Modal
+      mode={modalMode}
+      className="scroll-modal"
+      destroyOnClose
       size={500}
       isOpen={isOpen}
       onClose={closeModal}
       onSubmit={() => form.submit()}
       loading={isPending}
+      title={isEdit ? "ویرایش دسته‌بندی" : "ایجاد دسته‌بندی جدید"}
     >
       <Form
         form={form}
@@ -136,66 +129,28 @@ const FormCategoryModal = ({
                 },
               ]}
             >
-              <Input
-                placeholder="مثلاً فرم‌های اداری"
-                allowClear
-              />
+              <Input placeholder="مثلاً فرم‌های اداری" allowClear />
             </Form.Item>
           </Col>
 
-          {/* Slug */}
-          <Col span={12}>
-            <Form.Item
-              name="slug"
-              label="اسلاگ"
-              rules={[
-                {
-                  required: true,
-                  message: "اسلاگ را وارد کنید",
-                },
-              ]}
-            >
-              <Input
-                placeholder="example-category"
-                allowClear
-              />
-            </Form.Item>
-          </Col>
 
           {/* Order */}
           <Col span={12}>
-            <Form.Item
-              name="order"
-              label="ترتیب"
-              initialValue={0}
-            >
-              <InputNumber
-                min={0}
-                className="w-full"
-                placeholder="0"
-              />
+            <Form.Item name="order" label="ترتیب" initialValue={0}>
+              <InputNumber min={0} className="w-full" placeholder="0" />
             </Form.Item>
           </Col>
 
           {/* Icon */}
           <Col span={12}>
-            <Form.Item
-              name="icon"
-              label="آیکون"
-            >
-              <Input
-                placeholder="مثلاً folder"
-                allowClear
-              />
+            <Form.Item name="icon" label="آیکون">
+              <Input placeholder="مثلاً folder" allowClear />
             </Form.Item>
           </Col>
 
           {/* Description */}
           <Col span={24}>
-            <Form.Item
-              name="description"
-              label="توضیحات"
-            >
+            <Form.Item name="description" label="توضیحات">
               <Input.TextArea
                 rows={3}
                 placeholder="توضیحات دسته‌بندی..."
@@ -212,26 +167,18 @@ const FormCategoryModal = ({
               label="گروه‌های مجاز"
               extra="گروه‌ها را با کاما جدا کنید"
             >
-              <Input
-                placeholder="group1, group2"
-                allowClear
-              />
+              <Input placeholder="group1, group2" allowClear />
             </Form.Item>
           </Col>
 
           {/* Collapsed */}
-          <Col
-            span={12}
-            className="flex items-center"
-          >
+          <Col span={12} className="flex items-center">
             <Form.Item
               name="is_collapsed_by_default"
               valuePropName="checked"
               className="mb-0"
             >
-              <Checkbox>
-                پیش‌فرض بسته باشد
-              </Checkbox>
+              <Checkbox>پیش‌فرض بسته باشد</Checkbox>
             </Form.Item>
           </Col>
         </Row>

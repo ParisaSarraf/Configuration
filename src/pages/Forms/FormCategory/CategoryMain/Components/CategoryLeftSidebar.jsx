@@ -16,9 +16,9 @@ const CategoryLeftSidebar = ({
   modalMode,
   modalType,
   modalData,
+  categoryId,
+  setCategoryId,
 }) => {
-  const [categoryId, setCategoryId] = useState("all");
-
   const { mutateAsync: deleteCategory } = useDeleteFormCategory();
 
   const categories = category ?? [];
@@ -52,7 +52,7 @@ const CategoryLeftSidebar = ({
   };
 
   const handleForm = (item) => {
-    setModal({ mode: "add", data: item?.id, type: "createFormCategory" });
+    setModal({ mode: "add", data: item?.id, type: "createFormDefinitionCategory" });
   };
 
   const handleEdit = (item) => {
@@ -97,41 +97,8 @@ const CategoryLeftSidebar = ({
 
         {/* List */}
         <div className="min-h-0 flex-1 space-y-1 overflow-y-auto">
-          {/* All */}
-          <button
-            type="button"
-            onClick={() => setCategoryId("all")}
-            className={`flex w-full items-center gap-2 rounded-lg px-2 py-2 transition ${
-              categoryId === "all"
-                ? "bg-blue-50 text-blue-600"
-                : "text-gray-600 hover:bg-gray-50"
-            }`}
-          >
-            <FolderOpen size={15} />
-
-            <span className="min-w-0 flex-1 truncate text-right text-xs font-medium">
-              همه فرم‌ها
-            </span>
-
-            <span
-              className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] ${
-                categoryId === "all"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-500"
-              }`}
-            >
-              {forms.length}
-            </span>
-          </button>
-
           {/* Categories */}
           {categories.map((item) => {
-            const count = forms.filter(
-              (form) =>
-                String(form.category?.id || form.category_id) ===
-                String(item.id),
-            ).length;
-
             const isActive = String(categoryId) === String(item.id);
 
             return (
@@ -184,7 +151,7 @@ const CategoryLeftSidebar = ({
                           : "bg-gray-100 text-gray-500"
                       }`}
                     >
-                      {count}
+                      {item.number_of_forms}
                     </span>
                   </button>
                 </Tooltip>
@@ -251,7 +218,7 @@ const CategoryLeftSidebar = ({
       />
       <FormDefinitionModal
         refetch={refetch}
-        isOpen={modalType === "createFormCategory" && isOpen}
+        isOpen={modalType === "createFormDefinitionCategory" && isOpen}
         modalData={modalData}
         modalMode={modalMode}
         closeModal={closeModal}
