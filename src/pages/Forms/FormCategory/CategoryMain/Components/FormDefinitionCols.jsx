@@ -38,7 +38,10 @@ const FormDefinitionCols = ({
 
   return [
     {
-title:"ردیف",
+      title: "ردیف",
+      dataIndex: "index",
+      key: "index",
+      render: (text, record, index) => index + 1,
     },
     {
       title: "نام فرم",
@@ -54,13 +57,13 @@ title:"ردیف",
       title: "تاریخ بسته شدن",
       dataIndex: "close_date",
       key: "close_date",
-      render: (text) => (text ? georgianDateToJalaliDate(text) : "نامحدود"),
+      render: (text) => (text ? georgianDateToJalaliDate(text) : "-"),
     },
     {
       title: "تاریخ ایجاد",
       dataIndex: "created_at",
       key: "created_at",
-      render: (text) => (text ? georgianDateToJalaliDate(text) : "نامحدود"),
+      render: (text) => (text ? georgianDateToJalaliDate(text) : "-"),
     },
     {
       title: "عملیات",
