@@ -52,7 +52,11 @@ const CategoryLeftSidebar = ({
   };
 
   const handleForm = (item) => {
-    setModal({ mode: "add", data: item?.id, type: "createFormDefinitionCategory" });
+    setModal({
+      mode: "add",
+      data: item?.id,
+      type: "createFormDefinitionCategory",
+    });
   };
 
   const handleEdit = (item) => {
@@ -62,7 +66,6 @@ const CategoryLeftSidebar = ({
   return (
     <>
       <aside className="flex h-full min-h-0 w-full flex-col">
-        {/* Header */}
         <div className="mb-3 flex shrink-0 items-center justify-between border-b border-gray-100 pb-3">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
@@ -95,9 +98,7 @@ const CategoryLeftSidebar = ({
           </Tooltip>
         </div>
 
-        {/* List */}
         <div className="min-h-0 flex-1 space-y-1 overflow-y-auto">
-          {/* Categories */}
           {categories.map((item) => {
             const isActive = String(categoryId) === String(item.id);
 
@@ -108,7 +109,6 @@ const CategoryLeftSidebar = ({
                   isActive ? "bg-blue-50" : "hover:bg-gray-50"
                 }`}
               >
-                {/* Category */}
                 <Tooltip
                   title={item.name}
                   placement="top"
@@ -119,7 +119,6 @@ const CategoryLeftSidebar = ({
                     onClick={() => setCategoryId(item.id)}
                     className="flex min-w-0 flex-1 items-center gap-2 px-2 py-2 text-right"
                   >
-                    {/* Icon */}
                     <span
                       className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${
                         isActive
@@ -134,7 +133,6 @@ const CategoryLeftSidebar = ({
                       )}
                     </span>
 
-                    {/* Name */}
                     <span
                       className={`min-w-0 flex-1 truncate text-xs font-medium ${
                         isActive ? "text-blue-700" : "text-gray-700"
@@ -142,21 +140,9 @@ const CategoryLeftSidebar = ({
                     >
                       {item.name}
                     </span>
-
-                    {/* Count */}
-                    <span
-                      className={`flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 text-[10px] ${
-                        isActive
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-100 text-gray-500"
-                      }`}
-                    >
-                      {item.number_of_forms}
-                    </span>
                   </button>
                 </Tooltip>
 
-                {/* Actions */}
                 <div
                   className={`flex shrink-0 items-center transition-opacity ${
                     isActive
@@ -204,6 +190,16 @@ const CategoryLeftSidebar = ({
                     />
                   </Tooltip>
                 </div>
+
+                <span
+                  className={`flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-2 mx-2 text-[10px] ${
+                    isActive
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-500"
+                  }`}
+                >
+                  {item.number_of_forms}
+                </span>
               </div>
             );
           })}

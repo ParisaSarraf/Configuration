@@ -27,7 +27,7 @@ const FormDefinitionCols = ({
         try {
           await deleteCategoryDefinition(record.id);
           message.success("فرم با موفقیت حذف شد");
-          await refetch();
+          await refetch;
         } catch (error) {
           message.error("خطا در حذف فرم");
           console.error("Delete error:", error);
