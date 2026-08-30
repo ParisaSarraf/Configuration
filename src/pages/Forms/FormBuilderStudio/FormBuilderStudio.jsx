@@ -53,6 +53,7 @@ import {
   writeLayout,
 } from "./formStudioLayout";
 import "./form-builder-studio.css";
+import "./studio-redesign.css";
 
 const FIELD_TYPES = [
   ["text", "متن کوتاه", Type],

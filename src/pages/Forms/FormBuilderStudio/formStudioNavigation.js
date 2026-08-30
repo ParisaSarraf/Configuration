@@ -3,7 +3,11 @@ export const formStudioPath = (formDefinitionId) => {
   return Number.isInteger(id) && id > 0 ? `/forms/${id}/studio` : null;
 };
 
-export const openFormStudio = (navigate, formDefinitionId, currentPath = "") => {
+export const openFormStudio = (
+  navigate,
+  formDefinitionId,
+  currentPath = "",
+) => {
   const target = formStudioPath(formDefinitionId);
   if (!target || typeof navigate !== "function") return false;
   if (currentPath === target) return true;

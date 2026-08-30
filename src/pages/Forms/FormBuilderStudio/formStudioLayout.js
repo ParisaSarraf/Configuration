@@ -8,7 +8,8 @@ export const WIDTHS = Object.freeze([
   { value: "2/3", label: "۲/۳", span: 16 },
 ]);
 
-export const validWidth = (value) => WIDTHS.some((item) => item.value === value);
+export const validWidth = (value) =>
+  WIDTHS.some((item) => item.value === value);
 
 export const readLayout = (cssClass = "", fallbackRow = 0) => {
   const layout = { rowId: String(fallbackRow), width: "1/1" };
@@ -20,31 +21,36 @@ export const readLayout = (cssClass = "", fallbackRow = 0) => {
   return layout;
 };
 
-export const stripLayout = (cssClass = "") => String(cssClass)
-  .replace(LAYOUT_TOKEN, " ")
-  .replace(/\s+/g, " ")
-  .trim();
+export const stripLayout = (cssClass = "") =>
+  String(cssClass).replace(LAYOUT_TOKEN, " ").replace(/\s+/g, " ").trim();
 
-export const writeLayout = (cssClass, rowId, width) => [
-  stripLayout(cssClass),
-  `form-studio-row:${rowId || 0}`,
-  `form-studio-width:${validWidth(width) ? width : "1/1"}`,
-].filter(Boolean).join(" ");
+export const writeLayout = (cssClass, rowId, width) =>
+  [
+    stripLayout(cssClass),
+    `form-studio-row:${rowId || 0}`,
+    `form-studio-width:${validWidth(width) ? width : "1/1"}`,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
-export const widthSpan = (width) => WIDTHS.find((item) => item.value === width)?.span || 24;
+export const widthSpan = (width) =>
+  WIDTHS.find((item) => item.value === width)?.span || 24;
 
-export const normalizeFields = (fields) => (Array.isArray(fields) ? fields : [])
-  .filter((field) => field && field.id != null)
-  .map((field, index) => {
-    const layout = readLayout(field.css_class, index);
-    return {
-      ...field,
-      order: Number.isFinite(Number(field.order)) ? Number(field.order) : index,
-      rowId: layout.rowId,
-      width: layout.width,
-    };
-  })
-  .sort((a, b) => a.order - b.order);
+export const normalizeFields = (fields) =>
+  (Array.isArray(fields) ? fields : [])
+    .filter((field) => field && field.id != null)
+    .map((field, index) => {
+      const layout = readLayout(field.css_class, index);
+      return {
+        ...field,
+        order: Number.isFinite(Number(field.order))
+          ? Number(field.order)
+          : index,
+        rowId: layout.rowId,
+        width: layout.width,
+      };
+    })
+    .sort((a, b) => a.order - b.order);
 
 export const reorderFields = (fields, fromId, toId, sideBySide = false) => {
   const from = fields.findIndex((field) => String(field.id) === String(fromId));
