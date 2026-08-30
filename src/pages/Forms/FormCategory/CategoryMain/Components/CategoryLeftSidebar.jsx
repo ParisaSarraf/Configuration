@@ -54,7 +54,7 @@ const CategoryLeftSidebar = ({
   const handleForm = (item) => {
     setModal({
       mode: "add",
-      data: item?.id,
+      data: item,
       type: "createFormDefinitionCategory",
     });
   };

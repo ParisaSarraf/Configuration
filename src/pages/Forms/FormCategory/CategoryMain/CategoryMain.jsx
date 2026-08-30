@@ -45,7 +45,7 @@ const CategoryMain = ({
 
   const columns = FormDefinitionCols({
     handleEdit,
-    handleView,
+    handleView,   
     refetch,
     handleCreateFormDefinitionFeild,
   });
