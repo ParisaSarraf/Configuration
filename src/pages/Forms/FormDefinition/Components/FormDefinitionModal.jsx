@@ -6,6 +6,7 @@ import {
   useUpdateFormDefinition,
 } from "../../../../QueryServises/formsQuery";
 import Date from "../../../../components/DatePicker/Date";
+import { georgianDateToJalaliDate, jalaliDateToGeorgianDate } from "../../../../utils/timeTool";
 
 const FormDefinitionModal = ({
   isOpen,
@@ -32,7 +33,7 @@ const FormDefinitionModal = ({
       description: values.description,
       is_active: values.is_active ?? true,
       version: values.version,
-      close_date: values.close_date || null,
+      close_date: jalaliDateToGeorgianDate(values.close_date) || null,
       max_submissions: values.max_submissions ?? null,
     };
 
@@ -55,16 +56,12 @@ const FormDefinitionModal = ({
     }
   };
 
-console.log(modalData);
-
-
 
   useEffect(() => {
     if (!isOpen) {
       form.resetFields();
       return;
     }
-
     if (isEdit && modalData) {
       form.setFieldsValue({
         category_id: modalData.category?.id,
@@ -72,7 +69,7 @@ console.log(modalData);
         description: modalData.description,
         is_active: modalData.is_active ,
         version: modalData.version,
-        close_date: modalData.close_date,
+        close_date: georgianDateToJalaliDate(modalData.close_date),
         max_submissions: modalData.max_submissions ?? null,
       });
     } else {
@@ -87,7 +84,6 @@ console.log(modalData);
       onClose={closeModal}
       onSubmit={() => form.submit()}
       loading={isPending}
-      className="scroll-modal"
       title={`${isEdit ? "ویرایش فرم" : "ایجاد فرم"}`}
     >
       <Form
