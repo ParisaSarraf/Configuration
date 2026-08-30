@@ -19,7 +19,6 @@ import DetailAccessProduct from "@/pages/SystemManagement/DetailAccessProduct/De
 import UsersPerformance from "./pages/SystemManagement/UsersPerformance/UsersPerformance";
 import ManageProduct from "./pages/SystemManagement/ManageProduct/ManageProduct";
 import Plan from "./pages/Plan/Plan";
-import Formbuilder from "./pages/Forms/Formbuilder";
 import InitialForm from "./pages/Forms/Form";
 
 const router = createBrowserRouter([

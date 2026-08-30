@@ -40,7 +40,7 @@ const CategoryMain = ({
   };
 
   const handleCreateFormDefinitionFeild = (record) => {
-    navigate('/')
+    navigate('/forms-initial')
   };
 
   const columns = FormDefinitionCols({
@@ -51,7 +51,7 @@ const CategoryMain = ({
   });
 
   return (
-    <div className="px-6 pb-6" dir="rtl">
+    <div className="px-6 pb-6" >
       <div
         className="
           mx-auto
