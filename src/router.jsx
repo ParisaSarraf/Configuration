@@ -20,6 +20,7 @@ import UsersPerformance from "./pages/SystemManagement/UsersPerformance/UsersPer
 import ManageProduct from "./pages/SystemManagement/ManageProduct/ManageProduct";
 import Plan from "./pages/Plan/Plan";
 import InitialForm from "./pages/Forms/Form";
+import FormBuilderStudio from "./pages/Forms/FormBuilderStudio/FormBuilderStudio";
 
 const router = createBrowserRouter([
   {
@@ -182,6 +183,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <InitialForm />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/forms/:formDefinitionId/studio",
+    element: (
+      <ProtectedRoute>
+        <FormBuilderStudio />
       </ProtectedRoute>
     ),
   },

@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMyAxios } from "../../hooks/useMyAxios";
 import { formApi } from "../../Services/forms/formApi";
 
@@ -45,22 +45,38 @@ export const useDeleteFormDefinition = () => {
 
 export const useCreateFormField = () => {
   const { myAxios } = useMyAxios();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload) => formApi.createField(myAxios, payload),
+    onSuccess: (_, payload) => queryClient.invalidateQueries({
+      queryKey: formDefinitionKey(payload.form_definition_id),
+    }),
   });
 };
 
 export const useUpdateFormField = () => {
   const { myAxios } = useMyAxios();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, payload }) => formApi.updateField(myAxios, id, payload),
+    onSuccess: (_, variables) => {
+      if (variables.formDefinitionId) queryClient.invalidateQueries({
+        queryKey: formDefinitionKey(variables.formDefinitionId),
+      });
+    },
   });
 };
 
 export const useDeleteFormField = () => {
   const { myAxios } = useMyAxios();
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id) => formApi.deleteField(myAxios, id),
+    mutationFn: ({ id }) => formApi.deleteField(myAxios, id),
+    onSuccess: (_, variables) => {
+      if (variables.formDefinitionId) queryClient.invalidateQueries({
+        queryKey: formDefinitionKey(variables.formDefinitionId),
+      });
+    },
   });
 };
 

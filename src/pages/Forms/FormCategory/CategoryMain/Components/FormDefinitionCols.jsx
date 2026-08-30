@@ -3,7 +3,6 @@ import {
   EditOutlined,
   EyeOutlined,
   FormatPainterFilled,
-  FormOutlined,
 } from "@ant-design/icons";
 import { Button, Modal, message } from "antd";
 import { useDeleteDefinition } from "../../../../../QueryServises/formsQuery";
@@ -13,7 +12,7 @@ const FormDefinitionCols = ({
   handleEdit,
   handleView,
   refetch,
-  handleCreateFormDefinitionFeild,
+  handleCreateFormDefinitionField,
 }) => {
   const { mutateAsync: deleteCategoryDefinition } = useDeleteDefinition();
 
@@ -97,7 +96,7 @@ const FormDefinitionCols = ({
             icon={<FormatPainterFilled />}
             type="text"
             className="text-orange-500"
-            onClick={() => handleCreateFormDefinitionFeild(record?.id)}
+            onClick={() => handleCreateFormDefinitionField(record?.id)}
             title="شروع فرآیند ساخت فرم"
           />
         </div>

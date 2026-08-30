@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useState } from "react";
 import { useFormCategoryById } from "../../../../QueryServises/formsQuery";
 import CategoryLeftSidebar from "./Components/CategoryLeftSidebar";
@@ -5,7 +6,8 @@ import CategoryRightSidebar from "./Components/CategoryRightSidebar";
 import { TableAntd } from "../../../../components/TableAntd/TableAntd";
 import FormDefinitionCols from "./Components/FormDefinitionCols";
 import FormDefinitionCategoryDetail from "../../FormDefinition/Components/FormDefinitionCategoryDetail";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { openFormStudio } from "../../FormBuilderStudio/formStudioNavigation";
 
 const CategoryMain = ({
   category = [],
@@ -19,6 +21,7 @@ const CategoryMain = ({
 }) => {
   const [categoryId, setCategoryId] = useState("all");
   const navigate = useNavigate();
+  const location = useLocation();
 
   const categories = category ?? [];
   const { data: categoryByIdData } = useFormCategoryById(categoryId);
@@ -39,15 +42,15 @@ const CategoryMain = ({
     });
   };
 
-  const handleCreateFormDefinitionFeild = (record) => {
-    navigate('/forms-initial')
+  const handleCreateFormDefinitionField = (formDefinitionId) => {
+    openFormStudio(navigate, formDefinitionId, location.pathname);
   };
 
   const columns = FormDefinitionCols({
     handleEdit,
     handleView,   
     refetch,
-    handleCreateFormDefinitionFeild,
+    handleCreateFormDefinitionField,
   });
 
   return (
