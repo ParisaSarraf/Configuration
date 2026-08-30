@@ -67,6 +67,24 @@ const FIELD_TYPES = [
   ["rating", "امتیازدهی", Star],
 ];
 
+// Presentational only — ties each field type to one accent color, carried
+// from the palette tile through to the card on canvas.
+const FIELD_COLORS = {
+  text: "#3b82f6",
+  textarea: "#6366f1",
+  number: "#10b981",
+  select: "#8b5cf6",
+  radio: "#8b5cf6",
+  checkbox: "#a855f7",
+  date: "#d98a2b",
+  file: "#06b6d4",
+  rating: "#f43f5e",
+};
+const fieldMeta = (type) => ({
+  Icon: FIELD_TYPES.find(([value]) => value === type)?.[2] || Type,
+  color: FIELD_COLORS[type] || "#d98a2b",
+});
+
 const CHOICE_TYPES = new Set([
   "select",
   "radio",
@@ -163,10 +181,12 @@ function FieldPreview({ field }) {
 }
 
 function FieldCard({ field, onEdit, onRemove, onWidth, onDropField }) {
+  const { Icon, color } = fieldMeta(field.field_type);
   return (
     <Card
       size="small"
       className="studio-field-card"
+      style={{ "--field-accent": color }}
       draggable
       onDragStart={(event) => {
         event.dataTransfer.effectAllowed = "move";
@@ -190,8 +210,13 @@ function FieldCard({ field, onEdit, onRemove, onWidth, onDropField }) {
           className="studio-field-title"
           onClick={() => onEdit(field)}
         >
-          <GripVertical size={16} />
-          {field.field_label || "بدون عنوان"}
+          <GripVertical size={16} className="studio-drag-handle" />
+          <span className="studio-field-type-badge">
+            <Icon size={12} />
+          </span>
+          <span className="studio-field-title-text">
+            {field.field_label || "بدون عنوان"}
+          </span>
           {field.required && <b>*</b>}
         </button>
       }
@@ -417,19 +442,26 @@ function Studio({ formDefinitionId }) {
       </header>
       <div className="studio-workspace">
         <aside className="studio-library">
+          <span className="studio-library-eyebrow">جعبه‌ابزار</span>
           <h2>فیلدهای فرم</h2>
           <p>برای افزودن یک نوع فیلد کلیک کنید.</p>
-          {FIELD_TYPES.map(([type, label, Icon]) => (
-            <Button
-              key={type}
-              icon={<Icon size={15} />}
-              onClick={() => add(type)}
-              disabled={saving}
-            >
-              {label}
-              <Plus size={13} />
-            </Button>
-          ))}
+          <div className="studio-type-grid">
+            {FIELD_TYPES.map(([type, label, Icon]) => (
+              <button
+                key={type}
+                type="button"
+                className="studio-type-tile"
+                style={{ "--tile-accent": FIELD_COLORS[type] }}
+                onClick={() => add(type)}
+                disabled={saving}
+              >
+                <span className="studio-type-icon">
+                  <Icon size={16} />
+                </span>
+                {label}
+              </button>
+            ))}
+          </div>
         </aside>
         <main className="studio-canvas">
           <div className="studio-canvas-heading">
@@ -439,6 +471,13 @@ function Studio({ formDefinitionId }) {
                 برای ترتیب، کارت را بکشید؛ برای هم‌ردیف شدن روی ناحیه «کنار این
                 فیلد» رها کنید.
               </p>
+            </div>
+            <div className="studio-width-legend">
+              {WIDTHS.map((item) => (
+                <span key={item.value} className="studio-width-chip">
+                  {item.label}
+                </span>
+              ))}
             </div>
           </div>
           {!fields.length ? (
