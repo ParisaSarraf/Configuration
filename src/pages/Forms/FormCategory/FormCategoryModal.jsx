@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Col, Form, Input, InputNumber, Checkbox, message, Row } from "antd";
 
 import Modal from "../../../components/Modal";
@@ -7,6 +7,7 @@ import {
   useCreateFormCategory,
   useUpdateFormCategory,
 } from "../../../QueryServises/formsQuery";
+import IconPicker from "../../../components/IconPicker/Index";
 
 const FormCategoryModal = ({
   isOpen,
@@ -17,6 +18,8 @@ const FormCategoryModal = ({
 }) => {
   const [form] = Form.useForm();
 
+  const initialValuesRef = useRef({});
+
   const { mutateAsync: createCategory, isPending: isCreating } =
     useCreateFormCategory();
 
@@ -26,45 +29,44 @@ const FormCategoryModal = ({
   const isEdit = modalMode === "edit";
   const isPending = isCreating || isUpdating;
 
-  // =========================
-  // Submit
-  // =========================
   const onFinish = async (values) => {
+    const payload = {
+      name: values.name ?? "",
+      order: values.order ?? 0,
+      icon: values.icon ?? "",
+      description: values.description ?? "",
+      is_collapsed_by_default: values.is_collapsed_by_default ?? false,
+    };
+
     try {
-      const processedValues = {
-        ...values,
-
-        allowed_groups: values.allowed_groups
-          ? typeof values.allowed_groups === "string"
-            ? values.allowed_groups
-                .split(",")
-                .map((group) => group.trim())
-                .filter(Boolean)
-            : values.allowed_groups
-          : [],
-      };
-
       if (isEdit && modalData?.id) {
+        const changedFields = Object.keys(payload).reduce((acc, key) => {
+          if (payload[key] !== initialValuesRef.current[key]) {
+            acc[key] = payload[key];
+          }
+          return acc;
+        }, {});
+
+        if (Object.keys(changedFields).length === 0) {
+          closeModal();
+          return;
+        }
+
         await editCategory({
           FormCategoryId: modalData.id,
-          ...processedValues,
+          ...changedFields,
         });
-
         message.success("دسته‌بندی با موفقیت ویرایش شد.");
       } else {
-        await createCategory(processedValues);
-
+        await createCategory(payload);
         message.success("دسته‌بندی جدید با موفقیت ایجاد شد.");
       }
-
       closeModal();
-
       if (refetch) {
         await refetch();
       }
     } catch (error) {
       console.error("Category submit error:", error);
-
       message.error(
         isEdit
           ? "ویرایش دسته‌بندی با مشکل مواجه شد."
@@ -73,28 +75,23 @@ const FormCategoryModal = ({
     }
   };
 
-  // =========================
-  // Set form values
-  // =========================
   useEffect(() => {
     if (!isOpen) {
       return;
     }
-
     form.resetFields();
-
     if (isEdit && modalData) {
-      form.setFieldsValue({
+      const values = {
         name: modalData.name ?? "",
         order: modalData.order ?? 0,
         icon: modalData.icon ?? "",
         description: modalData.description ?? "",
-        allowed_groups: Array.isArray(modalData.allowed_groups)
-          ? modalData.allowed_groups.join(", ")
-          : (modalData.allowed_groups ?? ""),
-
         is_collapsed_by_default: modalData.is_collapsed_by_default ?? false,
+      };
+      form.setFieldsValue({
+        ...values,
       });
+      initialValuesRef.current = values;
     }
   }, [isOpen, isEdit, modalData, form]);
 
@@ -117,7 +114,6 @@ const FormCategoryModal = ({
         disabled={isPending}
       >
         <Row gutter={12}>
-          {/* Name */}
           <Col span={12}>
             <Form.Item
               name="name"
@@ -133,24 +129,23 @@ const FormCategoryModal = ({
             </Form.Item>
           </Col>
 
-
-          {/* Order */}
           <Col span={12}>
-            <Form.Item name="order" label="ترتیب" initialValue={0}>
+            <Form.Item name="order" label="ترتیب نمایش فرم در لیست">
               <InputNumber min={0} className="w-full" placeholder="0" />
             </Form.Item>
           </Col>
 
-          {/* Icon */}
-          <Col span={12}>
-            <Form.Item name="icon" label="آیکون">
-              <Input placeholder="مثلاً folder" allowClear />
-            </Form.Item>
-          </Col>
-
-          {/* Description */}
           <Col span={24}>
-            <Form.Item name="description" label="توضیحات">
+            <Form.Item
+              name="description"
+              label="توضیحات"
+              rules={[
+                {
+                  required: true,
+                  message: "توضیحات دسته‌بندی را وارد کنید",
+                },
+              ]}
+            >
               <Input.TextArea
                 rows={3}
                 placeholder="توضیحات دسته‌بندی..."
@@ -160,25 +155,9 @@ const FormCategoryModal = ({
             </Form.Item>
           </Col>
 
-          {/* Allowed Groups */}
-          <Col span={12}>
-            <Form.Item
-              name="allowed_groups"
-              label="گروه‌های مجاز"
-              extra="گروه‌ها را با کاما جدا کنید"
-            >
-              <Input placeholder="group1, group2" allowClear />
-            </Form.Item>
-          </Col>
-
-          {/* Collapsed */}
-          <Col span={12} className="flex items-center">
-            <Form.Item
-              name="is_collapsed_by_default"
-              valuePropName="checked"
-              className="mb-0"
-            >
-              <Checkbox>پیش‌فرض بسته باشد</Checkbox>
+          <Col span={24}>
+            <Form.Item name="icon" label="آیکون">
+              <IconPicker />
             </Form.Item>
           </Col>
         </Row>
