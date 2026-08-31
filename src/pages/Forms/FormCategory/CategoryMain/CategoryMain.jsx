@@ -20,6 +20,7 @@ const CategoryMain = ({
   isOpen,
 }) => {
   const [categoryId, setCategoryId] = useState("all");
+  const [FormId, setFormId] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -48,13 +49,21 @@ const CategoryMain = ({
 
   const columns = FormDefinitionCols({
     handleEdit,
-    handleView,   
+    handleView,
     refetch,
     handleCreateFormDefinitionField,
   });
 
+  const rowSelection = {
+    type: "radio",
+    onChange: (selectedRowKeys, selectedRows) => {
+      // setFormId(selectedRows);
+      setFormId(selectedRowKeys[0] || null);
+    },
+  };
+
   return (
-    <div className="px-6 pb-6" >
+    <div className="px-6 pb-6">
       <div
         className="
           mx-auto
@@ -93,6 +102,7 @@ const CategoryMain = ({
               scroll={{ x: "max-content" }}
               tableLayout="auto"
               dataSource={forms}
+              rowSelection={rowSelection}
             />
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-2 text-gray-500">
@@ -113,6 +123,7 @@ const CategoryMain = ({
             refetch={refetch}
             setModal={setModal}
             modalMode={modalMode}
+            FormId={FormId}
             modalData={modalData}
             modalType={modalType}
             closeModal={closeModal}

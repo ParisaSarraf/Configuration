@@ -1,12 +1,10 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   App,
   Button,
-  Card,
   Checkbox,
-  Col,
   ConfigProvider,
   Drawer,
   Empty,
@@ -14,6 +12,7 @@ import {
   Input,
   InputNumber,
   Row,
+  Col,
   Select,
   Spin,
   Switch,
@@ -26,8 +25,9 @@ import {
   CheckSquare,
   ChevronDown,
   FileUp,
-  GripVertical,
   Hash,
+  Maximize2,
+  Move,
   Plus,
   Save,
   Star,
@@ -45,27 +45,36 @@ import { useQueryClient } from "@tanstack/react-query";
 import { getApiErrorMessage } from "../../../Services/forms/formUtils";
 import { slugify } from "../../../Services/forms/formPayloads";
 import {
+  GRID,
+  canvasHeight,
+  canvasWidth,
+  clamp,
+  colsToPx,
   normalizeFields,
-  reorderFields,
+  pxToCols,
+  pxToRows,
+  pxToX,
+  rowsToPx,
+  settleCollisions,
   stripLayout,
-  WIDTHS,
-  widthSpan,
   writeLayout,
+  xToPx,
 } from "./formStudioLayout";
 import "./form-builder-studio.css";
-import "./studio-redesign.css";
 
 const FIELD_TYPES = [
-  ["text", "متن کوتاه", Type],
-  ["textarea", "متن بلند", Type],
-  ["number", "عدد", Hash],
-  ["select", "لیست کشویی", ChevronDown],
-  ["radio", "گزینه رادیویی", CheckSquare],
-  ["checkbox", "چک‌باکس", CheckSquare],
-  ["date", "تاریخ", CalendarDays],
-  ["file", "بارگذاری فایل", FileUp],
-  ["rating", "امتیازدهی", Star],
+  ["text", "متن کوتاه", Type, "violet"],
+  ["textarea", "متن بلند", Type, "indigo"],
+  ["number", "عدد", Hash, "teal"],
+  ["select", "لیست کشویی", ChevronDown, "amber"],
+  ["radio", "گزینه رادیویی", CheckSquare, "rose"],
+  ["checkbox", "چک‌باکس", CheckSquare, "rose"],
+  ["date", "تاریخ", CalendarDays, "sky"],
+  ["file", "بارگذاری فایل", FileUp, "slate"],
+  ["rating", "امتیازدهی", Star, "gold"],
 ];
+
+const TYPE_META = new Map(FIELD_TYPES.map(([type, , , tone]) => [type, tone]));
 
 const CHOICE_TYPES = new Set([
   "select",
@@ -95,7 +104,12 @@ const fieldPayload = (field, formDefinitionId, order = field.order) => ({
   help_text: field.help_text || "",
   placeholder: field.placeholder || "",
   default_value: field.default_value == null ? "" : String(field.default_value),
-  css_class: writeLayout(field.css_class, field.rowId, field.width),
+  css_class: writeLayout(field.css_class, {
+    x: field.x,
+    y: field.y,
+    w: field.w,
+    h: field.h,
+  }),
   required: Boolean(field.required),
   min_value: field.min_value ?? null,
   max_value: field.max_value ?? null,
@@ -162,51 +176,62 @@ function FieldPreview({ field }) {
   );
 }
 
-function FieldCard({ field, onEdit, onRemove, onWidth, onDropField }) {
+/**
+ * A single field card on the free canvas. It knows nothing about grid
+ * snapping — it just reports raw pointer deltas up to the canvas via
+ * onDragStart/onResizeStart, which owns the live px position while a
+ * gesture is in progress (see Studio's `gesture` state).
+ */
+function FieldCard({
+  field,
+  left,
+  top,
+  width,
+  height,
+  isActive,
+  isSelected,
+  onEdit,
+  onRemove,
+  onSelect,
+  onDragStart,
+  onResizeStart,
+  onNudge,
+}) {
+  const tone = TYPE_META.get(field.field_type) || "violet";
   return (
-    <Card
-      size="small"
-      className="studio-field-card"
-      draggable
-      onDragStart={(event) => {
-        event.dataTransfer.effectAllowed = "move";
-        event.dataTransfer.setData(
-          "application/x-form-field-id",
-          String(field.id),
-        );
+    <div
+      className={`studio-field-card tone-${tone}${isActive ? " is-dragging" : ""}${
+        isSelected ? " is-selected" : ""
+      }`}
+      style={{ left, top, width, height }}
+      onPointerDown={(event) => {
+        event.stopPropagation();
+        onSelect(field.id);
       }}
-      onDragOver={(event) => event.preventDefault()}
-      onDrop={(event) => {
-        event.preventDefault();
-        onDropField(
-          event.dataTransfer.getData("application/x-form-field-id"),
-          field.id,
-          false,
-        );
-      }}
-      title={
+    >
+      <div className="studio-field-bar" />
+      <div className="studio-field-head">
+        <button
+          type="button"
+          className="studio-field-handle"
+          aria-label="جابه‌جایی فیلد"
+          onPointerDown={(event) => onDragStart(event, field)}
+          onKeyDown={(event) => onNudge(event, field)}
+        >
+          <Move size={14} />
+        </button>
         <button
           type="button"
           className="studio-field-title"
           onClick={() => onEdit(field)}
         >
-          <GripVertical size={16} />
           {field.field_label || "بدون عنوان"}
           {field.required && <b>*</b>}
         </button>
-      }
-      extra={
         <div
           className="studio-field-actions"
-          onClick={(event) => event.stopPropagation()}
+          onPointerDown={(event) => event.stopPropagation()}
         >
-          <Select
-            size="small"
-            aria-label="عرض فیلد"
-            value={field.width}
-            options={WIDTHS}
-            onChange={(width) => onWidth(field.id, width)}
-          />
           <Tooltip title="حذف فیلد">
             <Button
               danger
@@ -217,8 +242,7 @@ function FieldCard({ field, onEdit, onRemove, onWidth, onDropField }) {
             />
           </Tooltip>
         </div>
-      }
-    >
+      </div>
       <button
         type="button"
         className="studio-field-body"
@@ -229,21 +253,168 @@ function FieldCard({ field, onEdit, onRemove, onWidth, onDropField }) {
       </button>
       <button
         type="button"
-        className="studio-side-drop"
-        onDragOver={(event) => event.preventDefault()}
-        onDrop={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          onDropField(
-            event.dataTransfer.getData("application/x-form-field-id"),
-            field.id,
-            true,
-          );
-        }}
+        className="studio-field-resize"
+        aria-label="تغییر اندازه فیلد"
+        onPointerDown={(event) => onResizeStart(event, field)}
       >
-        کنار این فیلد رها کنید
+        <Maximize2 size={11} />
       </button>
-    </Card>
+    </div>
+  );
+}
+
+function Canvas({ fields, saving, onEdit, onRemove, onPersist }) {
+  const canvasRef = useRef(null);
+  const [gesture, setGesture] = useState(null); // { kind, id, ... }
+  const [selectedId, setSelectedId] = useState(null);
+
+  const width = canvasWidth();
+  const height = canvasHeight(fields);
+
+  const beginDrag = (event, field) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setSelectedId(field.id);
+    setGesture({
+      kind: "move",
+      id: field.id,
+      pointerX: event.clientX,
+      pointerY: event.clientY,
+      originLeft: xToPx(field.x),
+      originTop: rowsToPx(field.y),
+      w: field.w,
+      h: field.h,
+      liveLeft: xToPx(field.x),
+      liveTop: rowsToPx(field.y),
+    });
+  };
+
+  const beginResize = (event, field) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setSelectedId(field.id);
+    setGesture({
+      kind: "resize",
+      id: field.id,
+      pointerX: event.clientX,
+      pointerY: event.clientY,
+      originW: colsToPx(field.w),
+      originH: rowsToPx(field.h),
+      liveW: colsToPx(field.w),
+      liveH: rowsToPx(field.h),
+    });
+  };
+
+  useEffect(() => {
+    if (!gesture) return undefined;
+
+    const handleMove = (event) => {
+      const dx = event.clientX - gesture.pointerX;
+      const dy = event.clientY - gesture.pointerY;
+      if (gesture.kind === "move") {
+        const maxLeft = width - colsToPx(gesture.w);
+        setGesture((prev) => ({
+          ...prev,
+          liveLeft: clamp(prev.originLeft + dx, 0, Math.max(maxLeft, 0)),
+          liveTop: Math.max(prev.originTop + dy, 0),
+        }));
+      } else {
+        setGesture((prev) => ({
+          ...prev,
+          liveW: clamp(
+            prev.originW + dx,
+            colsToPx(GRID.minCols),
+            width - xToPx(fields.find((f) => f.id === prev.id)?.x || 0),
+          ),
+          liveH: Math.max(prev.originH + dy, rowsToPx(GRID.minRows)),
+        }));
+      }
+    };
+
+    const handleUp = () => {
+      setGesture((current) => {
+        if (!current) return null;
+        const target = fields.find((f) => f.id === current.id);
+        if (!target) return null;
+
+        let next;
+        if (current.kind === "move") {
+          const w = current.w;
+          const x = clamp(pxToX(current.liveLeft), 0, GRID.cols - w);
+          const y = Math.max(pxToRows(current.liveTop), 0);
+          next = fields.map((f) => (f.id === target.id ? { ...f, x, y } : f));
+        } else {
+          const w = clamp(pxToCols(current.liveW), GRID.minCols, GRID.cols - target.x);
+          const h = Math.max(pxToRows(current.liveH), GRID.minRows);
+          next = fields.map((f) => (f.id === target.id ? { ...f, w, h } : f));
+        }
+        onPersist(settleCollisions(next, target.id));
+        return null;
+      });
+    };
+
+    window.addEventListener("pointermove", handleMove);
+    window.addEventListener("pointerup", handleUp, { once: true });
+    return () => {
+      window.removeEventListener("pointermove", handleMove);
+      window.removeEventListener("pointerup", handleUp);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gesture?.id, gesture?.kind]);
+
+  const nudge = (event, field) => {
+    const step = event.shiftKey ? 2 : 1;
+    let dx = 0;
+    let dy = 0;
+    if (event.key === "ArrowLeft") dx = step;
+    else if (event.key === "ArrowRight") dx = -step;
+    else if (event.key === "ArrowUp") dy = -step;
+    else if (event.key === "ArrowDown") dy = step;
+    else return;
+    event.preventDefault();
+    const x = clamp(field.x + dx, 0, GRID.cols - field.w);
+    const y = Math.max(field.y + dy, 0);
+    const next = fields.map((f) => (f.id === field.id ? { ...f, x, y } : f));
+    onPersist(settleCollisions(next, field.id));
+  };
+
+  return (
+    <div
+      className="studio-canvas-scroll"
+      onPointerDown={() => setSelectedId(null)}
+    >
+      <div
+        className="studio-canvas-surface"
+        ref={canvasRef}
+        style={{ width, height, opacity: saving ? 0.75 : 1 }}
+      >
+        {fields.map((field) => {
+          const isActive = gesture?.id === field.id;
+          const left = isActive && gesture.kind === "move" ? gesture.liveLeft : xToPx(field.x);
+          const top = isActive && gesture.kind === "move" ? gesture.liveTop : rowsToPx(field.y);
+          const w = isActive && gesture.kind === "resize" ? gesture.liveW : colsToPx(field.w);
+          const h = isActive && gesture.kind === "resize" ? gesture.liveH : rowsToPx(field.h);
+          return (
+            <FieldCard
+              key={field.id}
+              field={field}
+              left={left}
+              top={top}
+              width={w}
+              height={h}
+              isActive={isActive}
+              isSelected={selectedId === field.id}
+              onEdit={onEdit}
+              onRemove={onRemove}
+              onSelect={setSelectedId}
+              onDragStart={beginDrag}
+              onResizeStart={beginResize}
+              onNudge={nudge}
+            />
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -262,14 +433,7 @@ function Studio({ formDefinitionId }) {
   const definition = Array.isArray(data) ? data[0] : data;
 
   useEffect(() => setFields(normalizeFields(definition?.fields)), [definition]);
-  const rows = useMemo(
-    () =>
-      fields.reduce((all, field) => {
-        (all[field.rowId] ||= []).push(field);
-        return all;
-      }, {}),
-    [fields],
-  );
+
   const saving =
     createField.isPending || updateField.isPending || deleteField.isPending;
 
@@ -277,6 +441,7 @@ function Studio({ formDefinitionId }) {
     queryClient.invalidateQueries({
       queryKey: formDefinitionKey(formDefinitionId),
     });
+
   const persistLayout = async (next) => {
     setFields(next);
     try {
@@ -291,7 +456,6 @@ function Studio({ formDefinitionId }) {
           });
         }),
       );
-      message.success("چیدمان با موفقیت ذخیره شد");
       refresh();
     } catch (error) {
       message.error(getApiErrorMessage(error, "ذخیره چیدمان با مشکل مواجه شد"));
@@ -301,6 +465,8 @@ function Studio({ formDefinitionId }) {
 
   const add = async (type) => {
     const order = fields.length;
+    const takenRows = fields.map((f) => f.y + f.h);
+    const y = takenRows.length ? Math.max(...takenRows) + GRID.gapAfterPlace : 0;
     const draft = {
       field_type: type,
       field_label:
@@ -308,8 +474,10 @@ function Studio({ formDefinitionId }) {
       field_name: `field-${Date.now().toString(36)}`,
       required: false,
       choices: [],
-      rowId: `row-${Date.now()}`,
-      width: "1/1",
+      x: 0,
+      y,
+      w: GRID.defaultCols,
+      h: GRID.defaultRows,
       order,
     };
     try {
@@ -419,15 +587,18 @@ function Studio({ formDefinitionId }) {
         <aside className="studio-library">
           <h2>فیلدهای فرم</h2>
           <p>برای افزودن یک نوع فیلد کلیک کنید.</p>
-          {FIELD_TYPES.map(([type, label, Icon]) => (
+          {FIELD_TYPES.map(([type, label, Icon, tone]) => (
             <Button
               key={type}
-              icon={<Icon size={15} />}
+              className={`studio-library-btn tone-${tone}`}
               onClick={() => add(type)}
               disabled={saving}
             >
+              <span className="studio-library-icon">
+                <Icon size={15} />
+              </span>
               {label}
-              <Plus size={13} />
+              <Plus size={13} className="studio-library-plus" />
             </Button>
           ))}
         </aside>
@@ -436,8 +607,8 @@ function Studio({ formDefinitionId }) {
             <div>
               <h2>چیدمان فیلدها</h2>
               <p>
-                برای ترتیب، کارت را بکشید؛ برای هم‌ردیف شدن روی ناحیه «کنار این
-                فیلد» رها کنید.
+                فیلد را از دسته‌ی وسط بکشید تا هرجای بوم که می‌خواهید رها
+                شود، و از گوشه‌ی پایین‌راست اندازه‌اش را تغییر دهید.
               </p>
             </div>
           </div>
@@ -452,30 +623,13 @@ function Studio({ formDefinitionId }) {
               </Button>
             </Empty>
           ) : (
-            Object.entries(rows).map(([rowId, rowFields]) => (
-              <Row className="studio-row" gutter={[16, 16]} key={rowId}>
-                {rowFields.map((field) => (
-                  <Col xs={24} md={widthSpan(field.width)} key={field.id}>
-                    <FieldCard
-                      field={field}
-                      onEdit={openEditor}
-                      onRemove={remove}
-                      onWidth={(id, width) =>
-                        persistLayout(
-                          fields.map((item) =>
-                            item.id === id ? { ...item, width } : item,
-                          ),
-                        )
-                      }
-                      onDropField={(from, to, beside) =>
-                        from &&
-                        persistLayout(reorderFields(fields, from, to, beside))
-                      }
-                    />
-                  </Col>
-                ))}
-              </Row>
-            ))
+            <Canvas
+              fields={fields}
+              saving={saving}
+              onEdit={openEditor}
+              onRemove={remove}
+              onPersist={persistLayout}
+            />
           )}
         </main>
       </div>
