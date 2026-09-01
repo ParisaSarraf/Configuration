@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { useState } from "react";
 import { useFormCategoryById } from "../../../../QueryServises/formsQuery";
 import CategoryLeftSidebar from "./Components/CategoryLeftSidebar";
@@ -47,17 +46,21 @@ const CategoryMain = ({
     openFormStudio(navigate, formDefinitionId, location.pathname);
   };
 
+  const handlePreview = (record) => {
+    setFormId(record.id);
+  };
+
   const columns = FormDefinitionCols({
     handleEdit,
     handleView,
     refetch,
     handleCreateFormDefinitionField,
+    handlePreview,
   });
 
   const rowSelection = {
     type: "radio",
     onChange: (selectedRowKeys, selectedRows) => {
-      // setFormId(selectedRows);
       setFormId(selectedRowKeys[0] || null);
     },
   };
@@ -71,8 +74,8 @@ const CategoryMain = ({
           h-[calc(100vh-180px)]
           max-w-[1600px]
           min-h-0
-          grid-cols-[260px_minmax(0,1fr)_300px]
-          gap-5
+          grid-cols-[260px_minmax(0,1fr)_550px]
+          gap-2
         "
       >
         {/* Left Sidebar */}

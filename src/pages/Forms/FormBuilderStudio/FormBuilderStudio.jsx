@@ -16,6 +16,7 @@ import {
   Select,
   Spin,
   Switch,
+  Table,
   Tag,
   Tooltip,
 } from "antd";
@@ -31,6 +32,7 @@ import {
   Plus,
   Save,
   Star,
+  Table as TableIcon,
   Trash2,
   Type,
 } from "lucide-react";
@@ -72,6 +74,13 @@ const FIELD_TYPES = [
   ["date", "تاریخ", CalendarDays, "sky"],
   ["file", "بارگذاری فایل", FileUp, "slate"],
   ["rating", "امتیازدهی", Star, "gold"],
+  ["matrix", "جدول", TableIcon, "cyan"],
+];
+
+const MATRIX_COLUMN_TYPES = [
+  { value: "text", label: "متن" },
+  { value: "number", label: "عدد" },
+  { value: "date", label: "تاریخ" },
 ];
 
 const TYPE_META = new Map(FIELD_TYPES.map(([type, , , tone]) => [type, tone]));
@@ -128,6 +137,7 @@ const editorValues = (field) => ({
   choicesText: (field.choices || [])
     .map((item) => (typeof item === "string" ? item : item.label || item.value))
     .join("\n"),
+  columns: field.field_type === "matrix" ? field.choices || [] : [],
 });
 
 function FieldPreview({ field }) {
@@ -140,6 +150,29 @@ function FieldPreview({ field }) {
   });
   if (field.field_type === "textarea")
     return <Input.TextArea rows={2} placeholder={field.placeholder} disabled />;
+  if (field.field_type === "matrix") {
+    const cols = (field.choices || []).map((col, index) => ({
+      title: (typeof col === "string" ? col : col.label) || `ستون ${index + 1}`,
+      dataIndex: String(index),
+      key: (typeof col === "object" && col.key) || String(index),
+    }));
+    return (
+      <div className="studio-matrix-preview">
+        <Table
+          size="small"
+          pagination={false}
+          bordered
+          columns={
+            cols.length ? cols : [{ title: "ستونی تعریف نشده", dataIndex: "0" }]
+          }
+          dataSource={[{}]}
+        />
+        <Button block type="dashed" size="small" disabled icon={<Plus size={12} />}>
+          افزودن ردیف
+        </Button>
+      </div>
+    );
+  }
   if (field.field_type === "select")
     return (
       <Select
@@ -473,11 +506,17 @@ function Studio({ formDefinitionId }) {
         FIELD_TYPES.find(([value]) => value === type)?.[1] || "فیلد جدید",
       field_name: `field-${Date.now().toString(36)}`,
       required: false,
-      choices: [],
+      choices:
+        type === "matrix"
+          ? [
+              { key: "column-1", label: "ستون ۱", type: "text" },
+              { key: "column-2", label: "ستون ۲", type: "text" },
+            ]
+          : [],
       x: 0,
       y,
       w: GRID.defaultCols,
-      h: GRID.defaultRows,
+      h: type === "matrix" ? GRID.defaultRows * 2 : GRID.defaultRows,
       order,
     };
     try {
@@ -502,10 +541,23 @@ function Studio({ formDefinitionId }) {
   const saveEditor = async () => {
     try {
       const values = await form.validateFields();
-      const choices = String(values.choicesText || "")
-        .split("\n")
-        .map((item) => item.trim())
-        .filter(Boolean);
+      const isMatrix = (values.field_type || editing.field_type) === "matrix";
+      const choices = isMatrix
+        ? (values.columns || [])
+            .filter((col) => col && String(col.label || "").trim())
+            .map((col, index) =>
+              typeof col === "object"
+                ? {
+                    key: col.key || slugify(col.label, `col-${index + 1}`),
+                    label: String(col.label).trim(),
+                    type: col.type || "text",
+                  }
+                : col,
+            )
+        : String(values.choicesText || "")
+            .split("\n")
+            .map((item) => item.trim())
+            .filter(Boolean);
       const next = { ...editing, ...values, choices };
       const payload = fieldPayload(next, formDefinitionId);
       delete payload.form_definition_id;
@@ -699,6 +751,62 @@ function Studio({ formDefinitionId }) {
               extra="هر گزینه را در یک خط وارد کنید"
             >
               <Input.TextArea rows={5} />
+            </Form.Item>
+          )}
+          {editing && (editedType || editing.field_type) === "matrix" && (
+            <Form.Item label="ستون‌های جدول" required>
+              <Form.List name="columns">
+                {(columnFields, { add: addColumn, remove: removeColumn }) => (
+                  <div className="studio-matrix-columns">
+                    {columnFields.map((columnField) => (
+                      <Row
+                        key={columnField.key}
+                        gutter={8}
+                        align="middle"
+                        className="studio-matrix-col-row"
+                      >
+                        <Col flex="auto">
+                          <Form.Item
+                            name={[columnField.name, "label"]}
+                            rules={[
+                              { required: true, message: "نام ستون را وارد کنید" },
+                            ]}
+                            noStyle
+                          >
+                            <Input placeholder="نام ستون" />
+                          </Form.Item>
+                        </Col>
+                        <Col flex="110px">
+                          <Form.Item
+                            name={[columnField.name, "type"]}
+                            initialValue="text"
+                            noStyle
+                          >
+                            <Select options={MATRIX_COLUMN_TYPES} />
+                          </Form.Item>
+                        </Col>
+                        <Col flex="none">
+                          <Button
+                            danger
+                            type="text"
+                            size="small"
+                            icon={<Trash2 size={14} />}
+                            onClick={() => removeColumn(columnField.name)}
+                          />
+                        </Col>
+                      </Row>
+                    ))}
+                    <Button
+                      type="dashed"
+                      block
+                      icon={<Plus size={14} />}
+                      onClick={() => addColumn({ type: "text" })}
+                    >
+                      افزودن ستون
+                    </Button>
+                  </div>
+                )}
+              </Form.List>
             </Form.Item>
           )}
           <Row gutter={12}>

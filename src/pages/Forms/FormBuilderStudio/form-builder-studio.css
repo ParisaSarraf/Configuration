@@ -29,6 +29,7 @@
 .tone-sky    { --tone: #2f8fd1; --tone-soft: #e7f4fd; }
 .tone-slate  { --tone: #5b6478; --tone-soft: #eef0f4; }
 .tone-gold   { --tone: #b8890a; --tone-soft: #fbf1dc; }
+.tone-cyan   { --tone: #0e8fa3; --tone-soft: #e3f6f9; }
 
 .form-studio {
   min-height: 100vh;
@@ -276,6 +277,17 @@
   box-shadow: none !important;
   border-radius: 8px !important;
 }
+
+.studio-matrix-preview { overflow-x: auto; }
+.studio-matrix-preview .ant-table { font-size: 11px; }
+.studio-matrix-preview .ant-table-thead > tr > th { padding: 5px 8px; background: var(--tone-soft); color: var(--tone); font-weight: 700; }
+.studio-matrix-preview .ant-table-tbody > tr > td { padding: 7px 8px; }
+.studio-matrix-preview .ant-btn { margin-top: 6px; }
+
+/* ---------- Matrix / table column editor (in the field drawer) ---------- */
+
+.studio-matrix-columns { display: flex; flex-direction: column; gap: 8px; }
+.studio-matrix-col-row { margin: 0; }
 
 .studio-field-resize {
   position: absolute;

@@ -48,9 +48,10 @@ export const useCreateFormField = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload) => formApi.createField(myAxios, payload),
-    onSuccess: (_, payload) => queryClient.invalidateQueries({
-      queryKey: formDefinitionKey(payload.form_definition_id),
-    }),
+    onSuccess: (_, payload) =>
+      queryClient.invalidateQueries({
+        queryKey: formDefinitionKey(payload.form_definition_id),
+      }),
   });
 };
 
@@ -60,9 +61,10 @@ export const useUpdateFormField = () => {
   return useMutation({
     mutationFn: ({ id, payload }) => formApi.updateField(myAxios, id, payload),
     onSuccess: (_, variables) => {
-      if (variables.formDefinitionId) queryClient.invalidateQueries({
-        queryKey: formDefinitionKey(variables.formDefinitionId),
-      });
+      if (variables.formDefinitionId)
+        queryClient.invalidateQueries({
+          queryKey: formDefinitionKey(variables.formDefinitionId),
+        });
     },
   });
 };
@@ -73,9 +75,10 @@ export const useDeleteFormField = () => {
   return useMutation({
     mutationFn: ({ id }) => formApi.deleteField(myAxios, id),
     onSuccess: (_, variables) => {
-      if (variables.formDefinitionId) queryClient.invalidateQueries({
-        queryKey: formDefinitionKey(variables.formDefinitionId),
-      });
+      if (variables.formDefinitionId)
+        queryClient.invalidateQueries({
+          queryKey: formDefinitionKey(variables.formDefinitionId),
+        });
     },
   });
 };
@@ -208,5 +211,26 @@ export const useDeleteDefinition = () => {
           return response?.data;
         });
     },
+  });
+};
+
+// ======================= form field ============================
+export const useFormDefinitionFieldByIdKey = (id) => [
+  "form",
+  "definition",
+  "field",
+  id,
+];
+export const useFormDefinitionFieldById = (id, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: useFormDefinitionFieldByIdKey(id),
+    queryFn: () =>
+      id
+        ? myAxios
+            .get(`/forms/get-form-definition/${id}`)
+            .then((response) => response?.data)
+        : Promise.resolve(null),
+    ...queryOptions,
   });
 };
