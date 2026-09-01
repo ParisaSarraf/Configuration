@@ -1,56 +1,43 @@
 /* eslint-disable react/prop-types */
-// یک کنترل ورودی برای هر نوع فیلد.
-// کلید ماجرا: پراپ readOnly. در حالت پیش‌نمایش تعاملی و تکمیل فرم
-// مقدار false است و کاربر واقعاً تایپ می‌کند؛ در فرم‌ساز true است.
+import { FILE_TYPES, MULTI_TYPES, NUMBER_TYPES, toOptions } from "./formElements";
 
-import { toOptions, MULTI_TYPES } from "./formElements";
-
-const INPUT_TYPE_MAP = {
-  email: "email",
-  url: "url",
-  phone: "tel",
-  number: "number",
-  decimal: "number",
-  currency: "number",
-  date: "date",
-  datetime: "datetime-local",
-  time: "time",
-};
-
+/**
+ * کنترل خام یک فیلد (بدون جعبه و برچسب).
+ * ظاهر عمداً خنثی است تا شبیه فرم‌های اداری چاپی باشد.
+ */
 export default function FieldControl({
   field,
   value,
   onChange,
   readOnly = false,
   invalid = false,
-  compact = false,
 }) {
-  const type = field.field_type;
-  const cls = `fr-input${invalid ? " is-invalid" : ""}`;
-  const set = (next) => !readOnly && onChange?.(next);
+  const type = field?.field_type || "text";
+  const cls = `fr-input${invalid ? " fr-invalid" : ""}`;
+  const emit = (next) => onChange && onChange(next);
+  const options = toOptions(field?.choices);
+  const name = field?.field_name || `field-${field?.id ?? "x"}`;
 
   if (type === "textarea")
     return (
       <textarea
-        className={`fr-textarea${invalid ? " is-invalid" : ""}`}
-        rows={compact ? 2 : 4}
-        value={value ?? ""}
+        className={`fr-textarea${invalid ? " fr-invalid" : ""}`}
         placeholder={field.placeholder || ""}
-        disabled={readOnly}
-        onChange={(event) => set(event.target.value)}
+        readOnly={readOnly}
+        value={value ?? ""}
+        onChange={(event) => emit(event.target.value)}
       />
     );
 
-  if (type === "select") {
-    const options = toOptions(field.choices);
+  if (type === "select")
     return (
       <select
-        className={`fr-select${invalid ? " is-invalid" : ""}`}
-        value={value ?? ""}
+        className={`fr-select${invalid ? " fr-invalid" : ""}`}
         disabled={readOnly}
-        onChange={(event) => set(event.target.value)}
+        value={value ?? ""}
+        onChange={(event) => emit(event.target.value)}
       >
-        <option value="">{field.placeholder || "انتخاب کنید"}</option>
+        <option value="">{field.placeholder || "—"}</option>
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
@@ -58,52 +45,50 @@ export default function FieldControl({
         ))}
       </select>
     );
-  }
 
-  if (type === "radio" || type === "option_row") {
-    const options = toOptions(field.choices);
-    const list = options.length ? options : [{ value: "", label: "بدون گزینه" }];
+  if (type === "radio" || type === "option_row")
     return (
-      <div className={`fr-options${type === "radio" ? " fr-col" : ""}`}>
-        {list.map((option) => (
-          <label
-            key={option.value}
-            className={`fr-option${readOnly ? " is-readonly" : ""}`}
-          >
+      <div className="fr-options">
+        {(options.length
+          ? options
+          : [
+              { value: "گزینه ۱", label: "گزینه ۱" },
+              { value: "گزینه ۲", label: "گزینه ۲" },
+            ]
+        ).map((option) => (
+          <label className="fr-option" key={option.value}>
             <input
               type="radio"
-              name={`${field.field_name || field.id}`}
+              name={name}
               checked={String(value ?? "") === String(option.value)}
               disabled={readOnly}
-              onChange={() => set(option.value)}
+              onChange={() => emit(option.value)}
             />
-            {option.label}
+            <span>{option.label}</span>
           </label>
         ))}
       </div>
     );
-  }
 
   if (MULTI_TYPES.has(type)) {
-    const options = toOptions(field.choices);
-    const selected = Array.isArray(value) ? value : [];
-    const toggle = (option) =>
-      set(
-        selected.includes(option)
-          ? selected.filter((item) => item !== option)
-          : [...selected, option],
-      );
+    const list = Array.isArray(value) ? value : [];
     return (
-      <div className="fr-options fr-col">
-        {(options.length ? options : [{ value: "", label: "بدون گزینه" }]).map((option) => (
-          <label key={option.value} className={`fr-option${readOnly ? " is-readonly" : ""}`}>
+      <div className="fr-options">
+        {options.map((option) => (
+          <label className="fr-option" key={option.value}>
             <input
               type="checkbox"
-              checked={selected.includes(option.value)}
+              checked={list.includes(option.value)}
               disabled={readOnly}
-              onChange={() => toggle(option.value)}
+              onChange={(event) =>
+                emit(
+                  event.target.checked
+                    ? [...list, option.value]
+                    : list.filter((item) => item !== option.value),
+                )
+              }
             />
-            {option.label}
+            <span>{option.label}</span>
           </label>
         ))}
       </div>
@@ -112,73 +97,60 @@ export default function FieldControl({
 
   if (type === "checkbox")
     return (
-      <label className={`fr-option${readOnly ? " is-readonly" : ""}`}>
+      <label className="fr-option">
         <input
           type="checkbox"
           checked={Boolean(value)}
           disabled={readOnly}
-          onChange={(event) => set(event.target.checked)}
+          onChange={(event) => emit(event.target.checked)}
         />
-        {field.default_value || "تأیید می‌کنم"}
+        <span>{field.default_value || field.placeholder || "تأیید می‌کنم"}</span>
       </label>
     );
 
-  if (type === "rating") {
-    const current = Number(value) || 0;
-    return (
-      <div className="fr-rating">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            type="button"
-            className={star <= current ? "is-on" : ""}
-            disabled={readOnly}
-            onClick={() => set(star)}
-            aria-label={`امتیاز ${star}`}
-          >
-            ★
-          </button>
-        ))}
-      </div>
-    );
-  }
-
-  if (type === "file" || type === "multifile" || type === "spreadsheet")
+  if (type === "date")
     return (
       <input
-        className="fr-file"
-        type="file"
-        multiple={type === "multifile"}
-        accept={field.allowed_extensions || undefined}
-        disabled={readOnly}
-        onChange={(event) =>
-          set(Array.from(event.target.files || []).map((file) => file.name).join("، "))
-        }
+        className={cls}
+        type="text"
+        inputMode="numeric"
+        placeholder={field.placeholder || "۱۴۰۵/۰۰/۰۰"}
+        readOnly={readOnly}
+        value={value ?? ""}
+        onChange={(event) => emit(event.target.value)}
       />
     );
 
-  if (type === "signature")
+  if (NUMBER_TYPES.has(type))
     return (
-      <div className="fr-sign">
-        {readOnly ? "محل امضا" : (
-          <input
-            className="fr-input"
-            placeholder="نام و امضا"
-            value={value ?? ""}
-            onChange={(event) => set(event.target.value)}
-          />
-        )}
-      </div>
+      <input
+        className={cls}
+        type="number"
+        placeholder={field.placeholder || ""}
+        readOnly={readOnly}
+        value={value ?? ""}
+        onChange={(event) => emit(event.target.value)}
+      />
+    );
+
+  if (FILE_TYPES.has(type))
+    return (
+      <input
+        className={cls}
+        type="file"
+        disabled={readOnly}
+        onChange={(event) => emit(event.target.files?.[0]?.name || "")}
+      />
     );
 
   return (
     <input
       className={cls}
-      type={INPUT_TYPE_MAP[type] || "text"}
-      value={value ?? ""}
+      type="text"
       placeholder={field.placeholder || ""}
-      disabled={readOnly}
-      onChange={(event) => set(event.target.value)}
+      readOnly={readOnly}
+      value={value ?? ""}
+      onChange={(event) => emit(event.target.value)}
     />
   );
 }

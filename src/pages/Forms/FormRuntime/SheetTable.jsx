@@ -1,138 +1,120 @@
 /* eslint-disable react/prop-types */
-// جدول پیشرفته با سلول‌های ادغام‌شده (rowspan/colspan) و نوع ورودی متفاوت
-// در هر سلول — همان چیزی که فرم‌های رسمی (مثل فرم درخواست تغییرات)
-// لازم دارند و جدول ساده (matrix) نمی‌تواند بسازد.
+import { parseSheet } from "./formElements";
 
-import { parseSheet, toOptions } from "./formElements";
+/**
+ * جدول پیشرفته با سلول‌های ادغام‌شده (rowspan/colspan).
+ * ساختار در field.choices ذخیره می‌شود:
+ *   { r, c, rs, cs, text, type, name, variant, align, tall, width, options }
+ *   type: static | text | number | checkbox | select | sign
+ */
+export default function SheetTable({
+  field,
+  values = {},
+  onChange,
+  readOnly = false,
+}) {
+  const { rows, cols, cells } = parseSheet(field);
 
-function CellInput({ cell, values, onChange, readOnly }) {
-  const key = cell.name || cell.key;
-  const value = values?.[key];
-  const set = (next) => !readOnly && onChange?.(key, next);
+  const byPosition = new Map();
+  const covered = new Set();
+  cells.forEach((cell) => {
+    byPosition.set(`${cell.r}:${cell.c}`, cell);
+    for (let r = cell.r; r < cell.r + cell.rs; r += 1) {
+      for (let c = cell.c; c < cell.c + cell.cs; c += 1) {
+        if (r !== cell.r || c !== cell.c) covered.add(`${r}:${c}`);
+      }
+    }
+  });
 
-  if (cell.type === "textarea")
-    return (
-      <textarea
-        className="fr-textarea"
-        rows={2}
-        value={value ?? ""}
-        placeholder={cell.placeholder}
-        disabled={readOnly}
-        onChange={(event) => set(event.target.value)}
-      />
-    );
+  const widths = [];
+  cells
+    .filter((cell) => cell.width && cell.cs === 1)
+    .forEach((cell) => {
+      if (!widths[cell.c]) widths[cell.c] = cell.width;
+    });
 
-  if (cell.type === "checkbox")
-    return (
-      <label className={`fr-option${readOnly ? " is-readonly" : ""}`}>
+  const set = (cellName, next) => {
+    if (!cellName || !onChange) return;
+    onChange({ ...values, [cellName]: next });
+  };
+
+  const renderContent = (cell) => {
+    const value = cell.name ? values[cell.name] : undefined;
+    if (cell.type === "static" || !cell.name) return cell.text || "\u00a0";
+    if (cell.type === "checkbox")
+      return (
         <input
           type="checkbox"
           checked={Boolean(value)}
           disabled={readOnly}
-          onChange={(event) => set(event.target.checked)}
+          onChange={(event) => set(cell.name, event.target.checked)}
         />
-        {cell.text}
-      </label>
-    );
-
-  if (cell.type === "radio_row") {
-    const options = toOptions(cell.options);
+      );
+    if (cell.type === "sign") return <span className="fr-signbox" />;
+    if (cell.type === "select")
+      return (
+        <select
+          className="fr-select"
+          disabled={readOnly}
+          value={value ?? ""}
+          onChange={(event) => set(cell.name, event.target.value)}
+        >
+          <option value="">{cell.placeholder || "—"}</option>
+          {cell.options.map((option) => (
+            <option key={String(option)} value={String(option)}>
+              {String(option)}
+            </option>
+          ))}
+        </select>
+      );
     return (
-      <div className="fr-options">
-        {options.map((option) => (
-          <label key={option.value} className={`fr-option${readOnly ? " is-readonly" : ""}`}>
-            <input
-              type="radio"
-              name={key}
-              checked={String(value ?? "") === String(option.value)}
-              disabled={readOnly}
-              onChange={() => set(option.value)}
-            />
-            {option.label}
-          </label>
-        ))}
-      </div>
-    );
-  }
-
-  if (cell.type === "select") {
-    const options = toOptions(cell.options);
-    return (
-      <select
-        className="fr-select"
+      <input
+        className="fr-input"
+        type={cell.type === "number" ? "number" : "text"}
+        placeholder={cell.placeholder || ""}
+        readOnly={readOnly}
         value={value ?? ""}
-        disabled={readOnly}
-        onChange={(event) => set(event.target.value)}
-      >
-        <option value="">{cell.placeholder || "—"}</option>
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+        onChange={(event) => set(cell.name, event.target.value)}
+      />
     );
-  }
-
-  if (cell.type === "signature")
-    return (
-      <div className="fr-sign">
-        {readOnly ? "" : (
-          <input
-            className="fr-input"
-            value={value ?? ""}
-            onChange={(event) => set(event.target.value)}
-          />
-        )}
-      </div>
-    );
-
-  return (
-    <input
-      className="fr-input"
-      type={cell.type === "number" ? "number" : cell.type === "date" ? "date" : "text"}
-      value={value ?? ""}
-      placeholder={cell.placeholder}
-      disabled={readOnly}
-      onChange={(event) => set(event.target.value)}
-    />
-  );
-}
-
-export default function SheetTable({ field, values, onChange, readOnly = false }) {
-  const { matrix } = parseSheet(field);
+  };
 
   return (
     <table className="fr-sheet">
+      {widths.length ? (
+        <colgroup>
+          {Array.from({ length: cols }).map((_, index) => (
+            <col
+              key={index}
+              style={widths[index] ? { width: widths[index] } : undefined}
+            />
+          ))}
+        </colgroup>
+      ) : null}
       <tbody>
-        {matrix.map((row, rowIndex) => (
-          <tr key={`row-${rowIndex}`}>
-            {row.map((cell) => {
+        {Array.from({ length: rows }).map((_, r) => (
+          <tr key={r}>
+            {Array.from({ length: cols }).map((__, c) => {
+              const key = `${r}:${c}`;
+              if (covered.has(key)) return null;
+              const cell = byPosition.get(key);
+              if (!cell) return <td key={c} />;
               const classes = [
                 cell.variant === "head" ? "fr-head" : "",
                 cell.variant === "sub" ? "fr-sub" : "",
-                cell.align === "center" ? "fr-center" : "",
                 cell.tall ? "fr-tall" : "",
+                cell.align === "right" ? "fr-right" : "",
               ]
                 .filter(Boolean)
                 .join(" ");
               return (
                 <td
-                  key={cell.key}
-                  className={classes}
-                  colSpan={cell.cs > 1 ? cell.cs : undefined}
+                  key={c}
+                  className={classes || undefined}
                   rowSpan={cell.rs > 1 ? cell.rs : undefined}
+                  colSpan={cell.cs > 1 ? cell.cs : undefined}
                 >
-                  {cell.type ? (
-                    <CellInput
-                      cell={cell}
-                      values={values}
-                      onChange={onChange}
-                      readOnly={readOnly}
-                    />
-                  ) : (
-                    cell.text
-                  )}
+                  {renderContent(cell)}
                 </td>
               );
             })}

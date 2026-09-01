@@ -1,266 +1,200 @@
 /* eslint-disable react/prop-types */
-// =====================================================================
-// FormRenderer — رندرر مشترک برای سه حالت:
-//   mode="design"  فقط نمایش (داخل فرم‌ساز)
-//   mode="preview" پیش‌نمایش تعاملی — کاربر تایپ می‌کند، چیزی ذخیره نمی‌شود
-//   mode="fill"    تکمیل واقعی فرم و ارسال
-// خروجی چاپ A4 هم از همین کامپوننت می‌آید، پس پیش‌نمایش دقیقاً همان
-// چیزی است که چاپ می‌شود.
-// =====================================================================
-
 import { useMemo, useState } from "react";
-import { GRID, normalizeFields } from "../FormBuilderStudio/formStudioLayout";
-import { INPUT_TYPES, validateAll } from "./formElements";
 import FieldControl from "./FieldControl";
 import SheetTable from "./SheetTable";
+import { SHEET_TYPES, validateAll } from "./formElements";
+import { COLS, heightOf, rowsToPx, sortFields, widthOf } from "./flowLayout";
 import "./form-runtime.css";
 
-const keyOf = (field) => field.field_name || String(field.id);
+const matrixToSheet = (field) => {
+  const columns = Array.isArray(field.choices) ? field.choices : [];
+  const cells = [];
+  columns.forEach((column, index) => {
+    const label =
+      (typeof column === "string" ? column : column?.label) ||
+      `ستون ${index + 1}`;
+    cells.push({ r: 0, c: index, text: label, type: "static", variant: "head" });
+    cells.push({
+      r: 1,
+      c: index,
+      type: (typeof column === "object" && column?.type) || "text",
+      name: `${field.field_name}-${index}`,
+    });
+  });
+  return {
+    ...field,
+    choices: cells,
+    min_value: 2,
+    max_value: columns.length || 1,
+  };
+};
 
-const sortByOrder = (fields) =>
-  [...(fields || [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+/**
+ * یک عنصر فرم را دقیقاً همان‌گونه که در خروجی چاپی دیده می‌شود رسم می‌کند.
+ * همین کامپوننت در حالت طراحی (FormLiveEditor) هم استفاده می‌شود،
+ * پس «پیش‌نمایش» و «خروجی» هیچ‌وقت از هم جدا نمی‌شوند.
+ */
+export function Element({
+  field,
+  values = {},
+  onChange,
+  readOnly = false,
+  error,
+}) {
+  const type = field?.field_type || "text";
+  const label = field?.field_label || "";
+  const value = values[field?.field_name];
+  const setValue = (next) =>
+    onChange && onChange({ ...values, [field.field_name]: next });
 
-/* ------------------------------- عناصر ------------------------------- */
-
-function DocHeader({ field }) {
-  const meta = Array.isArray(field.choices) ? field.choices : [];
-  return (
-    <div className="fr-docheader">
-      <div className="fr-docheader-meta">
-        {meta.map((item, index) => (
-          <span key={item.key || index}>
-            {item.label}: <b>{item.value}</b>
-          </span>
-        ))}
-      </div>
-      <div className="fr-docheader-title">{field.field_label}</div>
-      <div className="fr-docheader-logo">
-        {field.default_value ? (
-          <img src={field.default_value} alt="لوگو" />
-        ) : (
-          <span className="fr-help">لوگو</span>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function Element({ field, values, errors, onChange, readOnly }) {
-  const type = field.field_type;
-
-  if (type === "page_break") return <div className="fr-pagebreak" />;
-  if (type === "hidden" || type === "spacer") return null;
-  if (type === "divider") return <div className="fr-divider" />;
-  if (type === "doc_header") return <DocHeader field={field} />;
-  if (type === "section_band") return <div className="fr-band">{field.field_label}</div>;
-
-  if (type === "static_text")
+  if (type === "doc_header") {
+    const meta = (Array.isArray(field.choices) ? field.choices : []).filter(
+      (item) => item && typeof item === "object",
+    );
+    const logo = field.default_value || "";
     return (
-      <div className="fr-cell fr-plain">
-        <span className="fr-static">{field.default_value || field.field_label}</span>
+      <div className="fr-docheader">
+        <div className="fr-docheader-logo">
+          {logo ? (
+            <img src={logo} alt="لوگو" />
+          ) : (
+            <span className="fr-help">لوگو</span>
+          )}
+        </div>
+        <div className="fr-docheader-title">{label}</div>
+        <div className="fr-docheader-meta">
+          {meta.map((item, index) => (
+            <span key={item.key || index}>
+              {item.label}: <b>{item.value}</b>
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (type === "section_band") return <div className="fr-band">{label}</div>;
+  if (type === "divider") return <div className="fr-divider" />;
+  if (type === "page_break")
+    return <div className="fr-pagebreak">— شکست صفحه در چاپ —</div>;
+  if (type === "static_text")
+    return <div className="fr-static">{field.default_value || label}</div>;
+
+  if (SHEET_TYPES.has(type)) {
+    const source = type === "matrix" ? matrixToSheet(field) : field;
+    return (
+      <SheetTable
+        field={source}
+        values={values}
+        onChange={onChange}
+        readOnly={readOnly}
+      />
+    );
+  }
+
+  if (type === "signature")
+    return (
+      <div className="fr-cell fr-stack">
+        <span className="fr-label">{label}</span>
+        <div className="fr-sign">{readOnly ? "" : "محل امضا"}</div>
       </div>
     );
 
-  if (type === "sheet_table" || type === "matrix")
-    return <SheetTable field={field} values={values} onChange={onChange} readOnly={readOnly} />;
-
-  const key = keyOf(field);
-  const error = errors?.[key];
-  const stacked =
-    type === "textarea" ||
-    type === "radio" ||
-    type === "checkboxes" ||
-    type === "signature" ||
-    Boolean(field.help_text);
-
+  const stacked = type === "textarea";
   return (
     <div className={`fr-cell${stacked ? " fr-stack" : ""}`}>
-      {field.field_label && type !== "checkbox" && (
-        <span className="fr-label">
-          {field.field_label}
-          {field.required && <span className="fr-req">*</span>}
-        </span>
-      )}
-      {field.help_text && <span className="fr-help">{field.help_text}</span>}
-      <FieldControl
-        field={field}
-        value={values?.[key]}
-        onChange={(next) => onChange?.(key, next)}
-        readOnly={readOnly}
-        invalid={Boolean(error)}
-        compact={!stacked}
-      />
-      {error && <span className="fr-error">{error}</span>}
+      <span className="fr-label">
+        {label}
+        {field.required ? <span className="fr-req">*</span> : null}
+      </span>
+      <div className="fr-value">
+        <FieldControl
+          field={field}
+          value={value}
+          onChange={setValue}
+          readOnly={readOnly}
+          invalid={Boolean(error)}
+        />
+      </div>
     </div>
   );
 }
 
-function Section({ item, values, errors, onChange, readOnly }) {
-  const fields = normalizeFields(sortByOrder(item.fields));
-  if (!fields.length) return null;
-  return (
-    <div
-      className="fr-grid"
-      style={{
-        gridTemplateColumns: `repeat(${GRID.cols}, minmax(0, 1fr))`,
-        gridAutoRows: `${GRID.rowUnit}px`,
-      }}
-    >
-      {fields.map((field) => (
-        <div
-          key={field.id}
-          className="fr-slot"
-          style={{
-            gridColumn: `${field.x + 1} / span ${field.w}`,
-            gridRow: `${field.y + 1} / span ${field.h}`,
-          }}
-        >
-          <Element
-            field={field}
-            values={values}
-            errors={errors}
-            onChange={onChange}
-            readOnly={readOnly}
-          />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/* ------------------------------- رندرر ------------------------------- */
-
+/**
+ * نمایش کامل فرم روی کاغذ A4 براساس مختصات x/y/w/h هر فیلد.
+ */
 export default function FormRenderer({
-  categories = [],
-  mode = "preview",
-  showToolbar = true,
+  fields = [],
+  mode = "preview", // preview | fill | print
   framed = true,
+  fluid = false,
+  showToolbar = true,
   onSubmit,
 }) {
-  const [interactive, setInteractive] = useState(mode !== "design");
-  const [device, setDevice] = useState("a4"); // a4 | fluid | mobile
   const [values, setValues] = useState({});
   const [errors, setErrors] = useState({});
-  const [notice, setNotice] = useState("");
+  const ordered = useMemo(() => sortFields(fields), [fields]);
+  const readOnly = mode === "print";
 
-  const readOnly = !interactive;
-
-  const allFields = useMemo(
-    () =>
-      categories
-        .flatMap((item) => item.fields || [])
-        .filter((field) => INPUT_TYPES.has(field.field_type)),
-    [categories],
+  const height = ordered.reduce(
+    (max, field) => Math.max(max, (Number(field.y) || 0) + heightOf(field)),
+    0,
   );
 
-  const filledCount = allFields.filter((field) => {
-    const value = values[keyOf(field)];
-    return value !== undefined && value !== "" && value !== false;
-  }).length;
-
-  const change = (key, next) => {
-    setValues((prev) => ({ ...prev, [key]: next }));
-    setErrors((prev) => (prev[key] ? { ...prev, [key]: "" } : prev));
+  const submit = () => {
+    const check = validateAll(ordered, values);
+    setErrors(check.errors);
+    if (check.ok && onSubmit) onSubmit(values);
   };
 
-  const check = () => {
-    const found = validateAll(allFields, values);
-    setErrors(found);
-    const count = Object.keys(found).length;
-    setNotice(count ? `${count} فیلد ایراد دارد.` : "همه فیلدها معتبرند.");
-    return count === 0;
-  };
-
-  const paperClass = [
-    "fr-paper",
-    device === "mobile" ? "fr-mobile" : "",
-    device === "fluid" ? "fr-fluid" : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const errorList = Object.values(errors);
 
   return (
     <div className="fr-root">
-      {showToolbar && (
-        <div className="fr-toolbar fr-no-print">
-          <button
-            type="button"
-            className={`fr-chip${interactive ? " is-active" : ""}`}
-            onClick={() => setInteractive((prev) => !prev)}
-          >
-            {interactive ? "حالت تعاملی: روشن" : "حالت تعاملی: خاموش"}
-          </button>
-          <button
-            type="button"
-            className={`fr-chip${device === "a4" ? " is-active" : ""}`}
-            onClick={() => setDevice("a4")}
-          >
-            A4
-          </button>
-          <button
-            type="button"
-            className={`fr-chip${device === "fluid" ? " is-active" : ""}`}
-            onClick={() => setDevice("fluid")}
-          >
-            تمام‌عرض
-          </button>
-          <button
-            type="button"
-            className={`fr-chip${device === "mobile" ? " is-active" : ""}`}
-            onClick={() => setDevice("mobile")}
-          >
-            موبایل
-          </button>
-
-          <span className="fr-toolbar-spacer" />
-
-          <span className={`fr-status${notice.includes("ایراد") ? " is-error" : ""}`}>
-            {notice || `${filledCount} از ${allFields.length} فیلد تکمیل شده`}
-          </span>
-
-          <button type="button" className="fr-chip" onClick={check} disabled={readOnly}>
-            بررسی اعتبارسنجی
-          </button>
-          <button
-            type="button"
-            className="fr-chip"
-            onClick={() => {
-              setValues({});
-              setErrors({});
-              setNotice("");
-            }}
-            disabled={readOnly}
-          >
-            پاک‌کردن
-          </button>
-          <button type="button" className="fr-chip" onClick={() => window.print()}>
+      {showToolbar && mode !== "print" ? (
+        <div className="fr-toolbar">
+          <button type="button" onClick={() => window.print()}>
             چاپ / PDF
           </button>
-          {mode === "fill" && (
-            <button
-              type="button"
-              className="fr-chip is-active"
-              onClick={() => check() && onSubmit?.(values)}
-            >
+          {onSubmit ? (
+            <button type="button" onClick={submit}>
               ثبت فرم
             </button>
-          )}
+          ) : null}
         </div>
-      )}
-
-      <div className={`fr-paper-wrap${device === "fluid" ? " fr-fluid" : ""}`}>
-        <div className={`${paperClass} fr-print-area`}>
+      ) : null}
+      <div className="fr-paper-wrap">
+        <div className={`fr-paper fr-print-area${fluid ? " fr-fluid" : ""}`}>
+          {errorList.length ? (
+            <div className="fr-errors">
+              {errorList.map((item) => (
+                <div key={item}>{item}</div>
+              ))}
+            </div>
+          ) : null}
           <div className={framed ? "fr-frame" : undefined}>
-            {categories.map((item, index) => (
-              <Section
-                key={item.id ?? item.category?.id ?? index}
-                item={item}
-                values={values}
-                errors={errors}
-                onChange={change}
-                readOnly={readOnly}
-              />
-            ))}
+            <div className="fr-grid" style={{ height: rowsToPx(height) }}>
+              {ordered.map((field) => (
+                <div
+                  key={field.id || field.field_name}
+                  className="fr-slot"
+                  style={{
+                    right: `${((Number(field.x) || 0) / COLS) * 100}%`,
+                    width: `${(widthOf(field) / COLS) * 100}%`,
+                    top: rowsToPx(Number(field.y) || 0),
+                    height: rowsToPx(heightOf(field)),
+                  }}
+                >
+                  <Element
+                    field={field}
+                    values={values}
+                    onChange={setValues}
+                    readOnly={readOnly}
+                    error={errors[field.field_name]}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
