@@ -120,7 +120,7 @@ const CategoryMain = ({
         </main>
 
         {/* Right Sidebar */}
-        <aside className="min-h-0 overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+        <aside className="min-h-0 overflow-y-auto rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
           <CategoryRightSidebar
             category={categories}
             refetch={refetch}

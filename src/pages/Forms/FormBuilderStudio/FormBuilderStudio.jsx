@@ -63,6 +63,12 @@ import {
   xToPx,
 } from "./formStudioLayout";
 import "./form-builder-studio.css";
+import "../FormRuntime/form-runtime.css";
+import { EyeOutlined } from "@ant-design/icons";
+import FieldControl from "../FormRuntime/FieldControl";
+import SheetTable from "../FormRuntime/SheetTable";
+import { emptySheet } from "../FormRuntime/formElements";
+import { CHANGE_REQUEST_TEMPLATE } from "../FormRuntime/sampleChangeRequestForm";
 
 const FIELD_TYPES = [
   ["text", "متن کوتاه", Type, "violet"],
@@ -74,8 +80,24 @@ const FIELD_TYPES = [
   ["date", "تاریخ", CalendarDays, "sky"],
   ["file", "بارگذاری فایل", FileUp, "slate"],
   ["rating", "امتیازدهی", Star, "gold"],
-  ["matrix", "جدول", TableIcon, "cyan"],
+  ["matrix", "جدول ساده", TableIcon, "cyan"],
+  ["sheet_table", "جدول پیشرفته", TableIcon, "cyan"],
+  ["doc_header", "سربرگ سند", Type, "slate"],
+  ["section_band", "نوار عنوان بخش", Type, "sky"],
+  ["option_row", "گزینه‌های خطی", CheckSquare, "rose"],
+  ["signature", "محل امضا", Type, "slate"],
+  ["static_text", "متن ثابت", Type, "slate"],
+  ["divider", "خط جداکننده", Type, "slate"],
+  ["page_break", "شکست صفحه (چاپ)", Type, "slate"],
 ];
+
+const LAYOUT_ONLY = new Set([
+  "section_band",
+  "doc_header",
+  "static_text",
+  "divider",
+  "page_break",
+]);
 
 const MATRIX_COLUMN_TYPES = [
   { value: "text", label: "متن" },
@@ -88,10 +110,39 @@ const TYPE_META = new Map(FIELD_TYPES.map(([type, , , tone]) => [type, tone]));
 const CHOICE_TYPES = new Set([
   "select",
   "radio",
+  "option_row",
   "checkboxes",
   "multiselect",
   "multiselect_list",
 ]);
+const STRUCTURED_TYPES = new Set(["sheet_table", "doc_header"]);
+
+const defaultChoices = (type) => {
+  if (type === "matrix")
+    return [
+      { key: "column-1", label: "ستون ۱", type: "text" },
+      { key: "column-2", label: "ستون ۲", type: "text" },
+    ];
+  if (type === "sheet_table") return emptySheet(3, 3);
+  if (type === "doc_header")
+    return [
+      { key: "code", label: "شناسه سند", value: "SY-SE-F-000" },
+      { key: "rev", label: "تاریخ بازنگری", value: "۱۴۰۵/۰۱/۰۱" },
+    ];
+  if (type === "option_row") return ["گزینه ۱", "گزینه ۲"];
+  return [];
+};
+
+const defaultHeight = (type) => {
+  if (type === "section_band" || type === "divider" || type === "static_text")
+    return 3;
+  if (type === "page_break") return 2;
+  if (type === "doc_header") return 8;
+  if (type === "sheet_table" || type === "matrix" || type === "textarea")
+    return GRID.defaultRows * 2;
+  if (type === "option_row" || type === "signature") return 4;
+  return GRID.defaultRows;
+};
 const NUMBER_TYPES = new Set([
   "number",
   "decimal",
@@ -100,6 +151,7 @@ const NUMBER_TYPES = new Set([
   "rating",
 ]);
 const FILE_TYPES = new Set(["file", "multifile", "spreadsheet"]);
+const LAYOUT_SAVE_DELAY = 1500;
 
 const fieldPayload = (field, formDefinitionId, order = field.order) => ({
   form_definition_id: Number(formDefinitionId),
@@ -138,9 +190,74 @@ const editorValues = (field) => ({
     .map((item) => (typeof item === "string" ? item : item.label || item.value))
     .join("\n"),
   columns: field.field_type === "matrix" ? field.choices || [] : [],
+  structureText: STRUCTURED_TYPES.has(field.field_type)
+    ? JSON.stringify(field.choices || [], null, 2)
+    : "",
 });
 
+// پیش‌نمایش عناصر سندی با همان CSS خروجی چاپ (fr-*) تا بوم طراحی
+// دقیقاً شبیه کاغذ نهایی باشد.
+function DocElementPreview({ field }) {
+  const type = field.field_type;
+  if (type === "page_break")
+    return <div className="fr-pagebreak">شکست صفحه در چاپ</div>;
+  if (type === "divider") return <div className="fr-divider" />;
+  if (type === "section_band")
+    return <div className="fr-band">{field.field_label}</div>;
+  if (type === "static_text")
+    return (
+      <div className="fr-cell fr-plain">
+        <span className="fr-static">
+          {field.default_value || field.field_label}
+        </span>
+      </div>
+    );
+  if (type === "doc_header") {
+    const meta = Array.isArray(field.choices) ? field.choices : [];
+    return (
+      <div className="fr-docheader">
+        <div className="fr-docheader-meta">
+          {meta.map((item, index) => (
+            <span key={item.key || index}>
+              {item.label}: <b>{item.value}</b>
+            </span>
+          ))}
+        </div>
+        <div className="fr-docheader-title">{field.field_label}</div>
+        <div className="fr-docheader-logo">
+          {field.default_value ? (
+            <img src={field.default_value} alt="لوگو" />
+          ) : (
+            <span className="fr-help">لوگو</span>
+          )}
+        </div>
+      </div>
+    );
+  }
+  if (type === "sheet_table")
+    return <SheetTable field={field} values={{}} readOnly />;
+  return (
+    <div className="fr-cell">
+      {field.field_label && (
+        <span className="fr-label">{field.field_label}</span>
+      )}
+      <FieldControl field={field} value={undefined} readOnly />
+    </div>
+  );
+}
+
 function FieldPreview({ field }) {
+  if (
+    LAYOUT_ONLY.has(field.field_type) ||
+    field.field_type === "sheet_table" ||
+    field.field_type === "option_row" ||
+    field.field_type === "signature"
+  )
+    return (
+      <div className="fr-root" style={{ width: "100%" }}>
+        <DocElementPreview field={field} />
+      </div>
+    );
   const options = (field.choices || []).map((item) => {
     const value = typeof item === "string" ? item : item.value;
     return {
@@ -167,7 +284,13 @@ function FieldPreview({ field }) {
           }
           dataSource={[{}]}
         />
-        <Button block type="dashed" size="small" disabled icon={<Plus size={12} />}>
+        <Button
+          block
+          type="dashed"
+          size="small"
+          disabled
+          icon={<Plus size={12} />}
+        >
           افزودن ردیف
         </Button>
       </div>
@@ -377,7 +500,11 @@ function Canvas({ fields, saving, onEdit, onRemove, onPersist }) {
           const y = Math.max(pxToRows(current.liveTop), 0);
           next = fields.map((f) => (f.id === target.id ? { ...f, x, y } : f));
         } else {
-          const w = clamp(pxToCols(current.liveW), GRID.minCols, GRID.cols - target.x);
+          const w = clamp(
+            pxToCols(current.liveW),
+            GRID.minCols,
+            GRID.cols - target.x,
+          );
           const h = Math.max(pxToRows(current.liveH), GRID.minRows);
           next = fields.map((f) => (f.id === target.id ? { ...f, w, h } : f));
         }
@@ -423,10 +550,22 @@ function Canvas({ fields, saving, onEdit, onRemove, onPersist }) {
       >
         {fields.map((field) => {
           const isActive = gesture?.id === field.id;
-          const left = isActive && gesture.kind === "move" ? gesture.liveLeft : xToPx(field.x);
-          const top = isActive && gesture.kind === "move" ? gesture.liveTop : rowsToPx(field.y);
-          const w = isActive && gesture.kind === "resize" ? gesture.liveW : colsToPx(field.w);
-          const h = isActive && gesture.kind === "resize" ? gesture.liveH : rowsToPx(field.h);
+          const left =
+            isActive && gesture.kind === "move"
+              ? gesture.liveLeft
+              : xToPx(field.x);
+          const top =
+            isActive && gesture.kind === "move"
+              ? gesture.liveTop
+              : rowsToPx(field.y);
+          const w =
+            isActive && gesture.kind === "resize"
+              ? gesture.liveW
+              : colsToPx(field.w);
+          const h =
+            isActive && gesture.kind === "resize"
+              ? gesture.liveH
+              : rowsToPx(field.h);
           return (
             <FieldCard
               key={field.id}
@@ -464,8 +603,31 @@ function Studio({ formDefinitionId }) {
   const [form] = Form.useForm();
   const editedType = Form.useWatch("field_type", form);
   const definition = Array.isArray(data) ? data[0] : data;
+  const layoutSaveTimer = useRef(null);
+  const pendingLayout = useRef(null);
+  const savedLayout = useRef([]);
+  const layoutSaveInProgress = useRef(false);
 
-  useEffect(() => setFields(normalizeFields(definition?.fields)), [definition]);
+  // const handleShowPreview = () => {
+  //   setModal({
+  //     mode: "preview",
+  //     data: formDefinitionId,
+  //     type: "viewCategoryDefinitionDetail",
+  //   });
+  // };
+
+  useEffect(() => {
+    const initialFields = normalizeFields(definition?.fields);
+    setFields(initialFields);
+    savedLayout.current = initialFields;
+  }, [definition]);
+
+  useEffect(
+    () => () => {
+      if (layoutSaveTimer.current) clearTimeout(layoutSaveTimer.current);
+    },
+    [],
+  );
 
   const saving =
     createField.isPending || updateField.isPending || deleteField.isPending;
@@ -475,48 +637,75 @@ function Studio({ formDefinitionId }) {
       queryKey: formDefinitionKey(formDefinitionId),
     });
 
-  const persistLayout = async (next) => {
-    setFields(next);
+  const hasLayoutChanged = (field, order) => {
+    const previous = savedLayout.current.find((item) => item.id === field.id);
+    return (
+      !previous ||
+      previous.x !== field.x ||
+      previous.y !== field.y ||
+      previous.w !== field.w ||
+      previous.h !== field.h ||
+      previous.order !== order
+    );
+  };
+
+  const flushLayout = async () => {
+    if (layoutSaveInProgress.current || !pendingLayout.current) return;
+    const next = pendingLayout.current;
+    pendingLayout.current = null;
+    layoutSaveInProgress.current = true;
     try {
-      await Promise.all(
-        next.map((field, order) => {
-          const payload = fieldPayload(field, formDefinitionId, order);
-          delete payload.form_definition_id;
-          return updateField.mutateAsync({
-            id: field.id,
-            payload,
-            formDefinitionId,
-          });
-        }),
-      );
-      refresh();
+      const changedFields = next.filter(hasLayoutChanged);
+      for (const field of changedFields) {
+        const order = next.findIndex((item) => item.id === field.id);
+        const payload = fieldPayload(field, formDefinitionId, order);
+        delete payload.form_definition_id;
+        await updateField.mutateAsync({
+          id: field.id,
+          payload,
+          formDefinitionId,
+          invalidate: false,
+        });
+      }
+      savedLayout.current = next;
     } catch (error) {
       message.error(getApiErrorMessage(error, "ذخیره چیدمان با مشکل مواجه شد"));
       refresh();
+    } finally {
+      layoutSaveInProgress.current = false;
+      if (pendingLayout.current) {
+        layoutSaveTimer.current = setTimeout(flushLayout, LAYOUT_SAVE_DELAY);
+      }
     }
+  };
+
+  const persistLayout = (next) => {
+    setFields(next);
+    pendingLayout.current = next;
+    if (layoutSaveTimer.current) clearTimeout(layoutSaveTimer.current);
+    layoutSaveTimer.current = setTimeout(flushLayout, LAYOUT_SAVE_DELAY);
   };
 
   const add = async (type) => {
     const order = fields.length;
     const takenRows = fields.map((f) => f.y + f.h);
-    const y = takenRows.length ? Math.max(...takenRows) + GRID.gapAfterPlace : 0;
+    const y = takenRows.length
+      ? Math.max(...takenRows) + GRID.gapAfterPlace
+      : 0;
     const draft = {
       field_type: type,
       field_label:
         FIELD_TYPES.find(([value]) => value === type)?.[1] || "فیلد جدید",
       field_name: `field-${Date.now().toString(36)}`,
       required: false,
-      choices:
-        type === "matrix"
-          ? [
-              { key: "column-1", label: "ستون ۱", type: "text" },
-              { key: "column-2", label: "ستون ۲", type: "text" },
-            ]
-          : [],
+      choices: defaultChoices(type),
+      default_value: type === "static_text" ? "متن دلخواه سند" : "",
+      min_value: type === "sheet_table" ? 3 : null,
+      max_value: type === "sheet_table" ? 3 : null,
       x: 0,
       y,
       w: GRID.defaultCols,
-      h: type === "matrix" ? GRID.defaultRows * 2 : GRID.defaultRows,
+      h: defaultHeight(type),
       order,
     };
     try {
@@ -527,6 +716,38 @@ function Studio({ formDefinitionId }) {
       refresh();
     } catch (error) {
       message.error(getApiErrorMessage(error, "افزودن فیلد با مشکل مواجه شد"));
+    }
+  };
+
+  // درج یک‌مرحله‌ای قالب رسمی «درخواست تغییرات»
+  const insertTemplate = async () => {
+    const takenRows = fields.map((f) => f.y + f.h);
+    const baseY = takenRows.length
+      ? Math.max(...takenRows) + GRID.gapAfterPlace
+      : 0;
+    const baseOrder = fields.length;
+    const stamp = Date.now().toString(36);
+    try {
+      for (let index = 0; index < CHANGE_REQUEST_TEMPLATE.length; index += 1) {
+        const draft = CHANGE_REQUEST_TEMPLATE[index];
+        // eslint-disable-next-line no-await-in-loop
+        await createField.mutateAsync(
+          fieldPayload(
+            {
+              ...draft,
+              field_name: `${draft.field_name}-${stamp}${index}`,
+              y: baseY + draft.y,
+            },
+            formDefinitionId,
+            baseOrder + index,
+          ),
+        );
+      }
+      message.success("قالب فرم رسمی درج شد");
+    } catch (error) {
+      message.error(getApiErrorMessage(error, "درج قالب با مشکل مواجه شد"));
+    } finally {
+      refresh();
     }
   };
 
@@ -541,8 +762,25 @@ function Studio({ formDefinitionId }) {
   const saveEditor = async () => {
     try {
       const values = await form.validateFields();
-      const isMatrix = (values.field_type || editing.field_type) === "matrix";
-      const choices = isMatrix
+      const editedFieldType = values.field_type || editing.field_type;
+      const isMatrix = editedFieldType === "matrix";
+      const isStructured = STRUCTURED_TYPES.has(editedFieldType);
+      if (isStructured) {
+        let parsed = null;
+        try {
+          parsed = JSON.parse(values.structureText || "[]");
+        } catch {
+          parsed = null;
+        }
+        if (!Array.isArray(parsed)) {
+          message.error("ساختار JSON معتبر نیست؛ تغییرات ذخیره نشد.");
+          return;
+        }
+        values.choices = parsed;
+      }
+      const choices = isStructured
+        ? values.choices
+        : isMatrix
         ? (values.columns || [])
             .filter((col) => col && String(col.label || "").trim())
             .map((col, index) =>
@@ -568,10 +806,10 @@ function Studio({ formDefinitionId }) {
         id: editing.id,
         payload,
         formDefinitionId,
+        invalidate: false,
       });
       message.success("فیلد با موفقیت ذخیره شد");
       closeEditor();
-      refresh();
     } catch (error) {
       if (!error?.errorFields) {
         message.error(getApiErrorMessage(error, "ذخیره فیلد با مشکل مواجه شد"));
@@ -631,9 +869,21 @@ function Studio({ formDefinitionId }) {
             </p>
           </div>
         </div>
-        <Tag color={saving ? "processing" : "success"}>
-          {saving ? "در حال ذخیره" : "ذخیره‌شده"}
-        </Tag>
+        <>
+          <Tag color={saving ? "processing" : "success"}>
+            {saving ? "در حال ذخیره" : "ذخیره‌شده"}
+          </Tag>
+          {/* <Button
+            className="text-sky-700 border-sky-700"
+            icon={<EyeOutlined />}
+            onClick={handleShowPreview}
+          >
+            پیش نمایش
+          </Button> */}
+          <Button onClick={insertTemplate} disabled={saving}>
+            درج قالب فرم رسمی
+          </Button>
+        </>
       </header>
       <div className="studio-workspace">
         <aside className="studio-library">
@@ -659,8 +909,8 @@ function Studio({ formDefinitionId }) {
             <div>
               <h2>چیدمان فیلدها</h2>
               <p>
-                فیلد را از دسته‌ی وسط بکشید تا هرجای بوم که می‌خواهید رها
-                شود، و از گوشه‌ی پایین‌راست اندازه‌اش را تغییر دهید.
+                فیلد را از دسته‌ی وسط بکشید تا هرجای بوم که می‌خواهید رها شود، و
+                از گوشه‌ی پایین‌راست اندازه‌اش را تغییر دهید.
               </p>
             </div>
           </div>
@@ -753,6 +1003,24 @@ function Studio({ formDefinitionId }) {
               <Input.TextArea rows={5} />
             </Form.Item>
           )}
+          {editing &&
+            STRUCTURED_TYPES.has(editedType || editing.field_type) && (
+              <Form.Item
+                name="structureText"
+                label={
+                  (editedType || editing.field_type) === "sheet_table"
+                    ? "سلول‌های جدول (JSON)"
+                    : "محتوای سربرگ (JSON)"
+                }
+                extra={
+                  (editedType || editing.field_type) === "sheet_table"
+                    ? "هر سلول: { r, c, rs, cs, text, type, name, variant, align, options, tall }"
+                    : "هر ردیف: { key, label, value }"
+                }
+              >
+                <Input.TextArea rows={10} style={{ fontFamily: "monospace" }} />
+              </Form.Item>
+            )}
           {editing && (editedType || editing.field_type) === "matrix" && (
             <Form.Item label="ستون‌های جدول" required>
               <Form.List name="columns">
@@ -769,7 +1037,10 @@ function Studio({ formDefinitionId }) {
                           <Form.Item
                             name={[columnField.name, "label"]}
                             rules={[
-                              { required: true, message: "نام ستون را وارد کنید" },
+                              {
+                                required: true,
+                                message: "نام ستون را وارد کنید",
+                              },
                             ]}
                             noStyle
                           >
