@@ -176,3 +176,57 @@ body.fr-printing .fr-matrix-bar,
 body.fr-printing .fr-matrix-tools {
   display: none !important;
 }
+
+/* ---------------- تاریخ: تقویم شمسی خود پروژه ---------------- */
+.fr-datefield {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  width: 100%;
+  min-width: 0;
+}
+.fr-datefield-picker {
+  flex: 1 1 128px;
+  min-width: 116px;
+}
+.fr-datefield .rmdp-container {
+  width: 100% !important;
+}
+.fr-datefield input {
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--fr-ink);
+  direction: ltr;
+  text-align: center;
+  background: transparent;
+}
+.fr-datefield-hint {
+  font-size: 10px;
+  color: var(--fr-muted);
+  direction: ltr;
+}
+.fr-datefield.is-invalid .fr-datefield-picker > div {
+  border-color: var(--fr-danger) !important;
+}
+.fr-timeinput {
+  max-width: 104px;
+  direction: ltr;
+  text-align: center;
+}
+.fr-sheet .fr-datefield,
+.fr-matrix-table .fr-datefield {
+  gap: 4px;
+}
+.fr-sheet .fr-datefield-hint,
+.fr-matrix-table .fr-datefield-hint {
+  display: none;
+}
+@media print {
+  .fr-datefield-hint {
+    display: none;
+  }
+  .fr-datefield .rmdp-container > div:last-child {
+    display: none;
+  }
+}

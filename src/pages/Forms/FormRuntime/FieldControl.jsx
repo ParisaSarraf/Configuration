@@ -11,6 +11,7 @@
 import { toOptions, MULTI_TYPES } from "./formElements";
 import { resolveType } from "./fieldSchema";
 import MatrixInput from "./MatrixInput";
+import DateField from "./DateField";
 
 const INPUT_TYPE_MAP = {
   email: "email",
@@ -54,6 +55,19 @@ export default function FieldControl({
   if (type === "matrix")
     return (
       <MatrixInput field={field} value={value} onChange={set} readOnly={readOnly} />
+    );
+
+  /* ------------- تاریخ / تاریخ‌وساعت / ساعت (تقویم پروژه) ------------- */
+  if (type === "date" || type === "datetime" || type === "time")
+    return (
+      <DateField
+        mode={type}
+        value={value}
+        onChange={set}
+        readOnly={readOnly}
+        invalid={invalid}
+        placeholder={field.placeholder}
+      />
     );
 
   /* ------------------------- متن چندخطی ------------------------- */

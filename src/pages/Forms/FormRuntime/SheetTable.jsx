@@ -4,6 +4,7 @@
 // لازم دارند و جدول ساده (matrix) نمی‌تواند بسازد.
 
 import { parseSheet, toOptions } from "./formElements";
+import DateField from "./DateField";
 
 function CellInput({ cell, values, onChange, readOnly }) {
   const key = cell.name || cell.key;
@@ -87,10 +88,22 @@ function CellInput({ cell, values, onChange, readOnly }) {
       </div>
     );
 
+  // خانهٔ تاریخ در جدول‌های سند هم با تقویم شمسی پروژه پر می‌شود.
+  if (cell.type === "date")
+    return (
+      <DateField
+        mode="date"
+        value={value}
+        onChange={set}
+        readOnly={readOnly}
+        placeholder={cell.placeholder}
+      />
+    );
+
   return (
     <input
       className="fr-input"
-      type={cell.type === "number" ? "number" : cell.type === "date" ? "date" : "text"}
+      type={cell.type === "number" ? "number" : "text"}
       value={value ?? ""}
       placeholder={cell.placeholder}
       disabled={readOnly}

@@ -12,6 +12,7 @@
 
 import { toMatrixColumns } from "./fieldSchema";
 import { toOptions } from "./formElements";
+import DateField from "./DateField";
 
 const emptyRow = (columns) =>
   columns.reduce(
@@ -56,10 +57,16 @@ function CellControl({ column, value, onChange, readOnly }) {
     );
   }
 
+  // ستون تاریخ هم همان تقویم شمسی پروژه را می‌گیرد.
+  if (column.type === "date")
+    return (
+      <DateField mode="date" value={value} onChange={set} readOnly={readOnly} />
+    );
+
   return (
     <input
       className="fr-input"
-      type={column.type === "number" ? "number" : column.type === "date" ? "date" : "text"}
+      type={column.type === "number" ? "number" : "text"}
       value={value ?? ""}
       disabled={readOnly}
       onChange={(event) => set(event.target.value)}

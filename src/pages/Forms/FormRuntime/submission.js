@@ -14,6 +14,30 @@
 
 import { DISPLAY_ONLY, canonicalType } from "./fieldSchema";
 import { MULTI_TYPES } from "./formElements";
+import {
+  jalaliDateTimeToGeorgianDateTime,
+  jalaliDateToGeorgianDate,
+} from "../../../utils/timeTool";
+
+const JALALI_DATE = /^\d{4}\/\d{1,2}\/\d{1,2}/;
+
+const ok = (text) =>
+  text && !String(text).includes("Invalid") ? String(text) : "";
+
+/**
+ * مقدار تاریخ همیشه میلادی ذخیره می‌شود. تقویم خودش میلادی
+ * می‌دهد، ولی اگر جایی مقدار شمسی مانده بود (مقدار پیش‌فرض یا
+ * دادهٔ قدیمی)، همین‌جا با timeTool تبدیل می‌شود.
+ */
+const toGregorianISO = (text, type) => {
+  if (!JALALI_DATE.test(text)) return text;
+  const [datePart, timePart] = text.split(/[T ]/);
+  if (type === "datetime")
+    return ok(
+      jalaliDateTimeToGeorgianDateTime(`${datePart}T${timePart || "00:00"}`),
+    );
+  return ok(jalaliDateToGeorgianDate(datePart));
+};
 
 const NUMERIC = new Set(["number", "decimal", "currency", "slider", "rating"]);
 
@@ -87,6 +111,12 @@ export const normalizeValue = (field, raw) => {
           .map((item) => item.trim())
           .filter(Boolean);
     return names.length ? names.map((name) => ({ name })) : null;
+  }
+
+  if (type === "date" || type === "datetime") {
+    const text = String(raw || "").trim();
+    if (!text) return null;
+    return toGregorianISO(text, type) || null;
   }
 
   return typeof raw === "string" ? raw.trim() : raw;
