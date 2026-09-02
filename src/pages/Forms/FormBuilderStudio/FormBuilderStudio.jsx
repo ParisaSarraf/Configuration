@@ -4,7 +4,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   App,
   Button,
-  Checkbox,
   ConfigProvider,
   Drawer,
   Empty,
@@ -17,7 +16,6 @@ import {
   Select,
   Spin,
   Switch,
-  Table,
   Tag,
   Tooltip,
 } from "antd";
@@ -70,145 +68,215 @@ import FieldControl from "../FormRuntime/FieldControl";
 import SheetTable from "../FormRuntime/SheetTable";
 import SheetBuilder from "../FormRuntime/SheetBuilder";
 import { emptySheet } from "../FormRuntime/formElements";
+import {
+  AUTO_PATTERNS,
+  FIELD_DEFS,
+  GROUPS,
+  MATRIX_COLUMN_TYPES,
+  applyTypeMarker,
+  canonicalType,
+  defaultChoicesFor,
+  hasPanel,
+  labelOf,
+  payloadKeysOf,
+  resolveType,
+  toBackendType,
+  toChoiceObjects,
+  toMatrixColumns,
+} from "../FormRuntime/fieldSchema";
+import MatrixInput from "../FormRuntime/MatrixInput";
 import { CHANGE_REQUEST_TEMPLATE } from "../FormRuntime/sampleChangeRequestForm";
 import FormLiveEditor from "../FormRuntime/FormLiveEditor";
 import { flowLayout, moveFieldTo } from "../FormRuntime/flowLayout";
 
-const FIELD_TYPES = [
-  ["text", "متن کوتاه", Type, "violet"],
-  ["textarea", "متن بلند", Type, "indigo"],
-  ["number", "عدد", Hash, "teal"],
-  ["select", "لیست کشویی", ChevronDown, "amber"],
-  ["radio", "گزینه رادیویی", CheckSquare, "rose"],
-  ["checkbox", "چک‌باکس", CheckSquare, "rose"],
-  ["date", "تاریخ", CalendarDays, "sky"],
-  ["file", "بارگذاری فایل", FileUp, "slate"],
-  ["rating", "امتیازدهی", Star, "gold"],
-  ["matrix", "جدول ساده", TableIcon, "cyan"],
-  ["sheet_table", "جدول پیشرفته", TableIcon, "cyan"],
-  ["doc_header", "سربرگ سند", Type, "slate"],
-  ["section_band", "نوار عنوان بخش", Type, "sky"],
-  ["option_row", "گزینه‌های خطی", CheckSquare, "rose"],
-  ["signature", "محل امضا", Type, "slate"],
-  ["static_text", "متن ثابت", Type, "slate"],
-  ["divider", "خط جداکننده", Type, "slate"],
-  ["page_break", "شکست صفحه (چاپ)", Type, "slate"],
-];
+const HIDE = { display: "none" };
+
+const TYPE_ICONS = {
+  number: Hash,
+  decimal: Hash,
+  currency: Hash,
+  slider: Hash,
+  rating: Star,
+  date: CalendarDays,
+  datetime: CalendarDays,
+  time: CalendarDays,
+  select: ChevronDown,
+  multiselect_list: ChevronDown,
+  radio: CheckSquare,
+  option_row: CheckSquare,
+  checkbox: CheckSquare,
+  checkboxes: CheckSquare,
+  multiselect: CheckSquare,
+  file: FileUp,
+  multifile: FileUp,
+  matrix: TableIcon,
+  sheet_table: TableIcon,
+};
+
+const GROUP_TONES = {
+  "ورودی متن": "violet",
+  "عدد و زمان": "teal",
+  "انتخاب": "amber",
+  "فایل": "slate",
+  "جدول": "cyan",
+  "سند": "sky",
+};
+
+// پالت از رجیستری واحد ساخته می‌شود: [type, label, Icon, tone, group]
+const FIELD_TYPES = FIELD_DEFS.map((def) => [
+  def.type,
+  def.label,
+  TYPE_ICONS[def.type] || Type,
+  GROUP_TONES[def.group] || "violet",
+  def.group,
+]);
 
 const LAYOUT_ONLY = new Set([
-  "section_band",
+  "section",
   "doc_header",
-  "static_text",
+  "display_text",
   "divider",
   "page_break",
 ]);
 
-const MATRIX_COLUMN_TYPES = [
-  { value: "text", label: "متن" },
-  { value: "number", label: "عدد" },
-  { value: "date", label: "تاریخ" },
-];
-
 const TYPE_META = new Map(FIELD_TYPES.map(([type, , , tone]) => [type, tone]));
 
-const CHOICE_TYPES = new Set([
-  "select",
-  "radio",
-  "option_row",
-  "checkboxes",
-  "multiselect",
-  "multiselect_list",
-]);
+// انواعی که فهرست گزینه دارند (جدول‌ها جدا هستند)
+const CHOICE_TYPES = new Set(
+  FIELD_DEFS.filter((def) => hasPanel(def.type, "choices")).map(
+    (def) => def.type,
+  ),
+);
 const STRUCTURED_TYPES = new Set(["sheet_table", "doc_header"]);
 
-const defaultChoices = (type) => {
-  if (type === "matrix")
-    return [
-      { key: "column-1", label: "ستون ۱", type: "text" },
-      { key: "column-2", label: "ستون ۲", type: "text" },
-    ];
-  if (type === "sheet_table") return emptySheet(3, 3);
-  if (type === "doc_header")
-    return [
-      { key: "code", label: "شناسه سند", value: "SY-SE-F-000" },
-      { key: "rev", label: "تاریخ بازنگری", value: "۱۴۰۵/۰۱/۰۱" },
-    ];
-  if (type === "option_row") return ["گزینه ۱", "گزینه ۲"];
-  return [];
-};
+const defaultChoices = (type) =>
+  canonicalType(type) === "sheet_table"
+    ? emptySheet(3, 3)
+    : defaultChoicesFor(type);
 
 const defaultHeight = (type) => {
-  if (type === "section_band" || type === "divider" || type === "static_text")
+  const kind = canonicalType(type);
+  if (kind === "section" || kind === "divider" || kind === "display_text")
     return 3;
-  if (type === "page_break") return 2;
-  if (type === "doc_header") return 8;
-  if (type === "sheet_table" || type === "matrix" || type === "textarea")
+  if (kind === "page_break") return 2;
+  if (kind === "doc_header") return 8;
+  if (
+    kind === "sheet_table" ||
+    kind === "matrix" ||
+    kind === "textarea" ||
+    kind === "address"
+  )
     return GRID.defaultRows * 2;
-  if (type === "option_row" || type === "signature") return 4;
+  if (kind === "option_row" || kind === "signature" || kind === "slider")
+    return 4;
   return GRID.defaultRows;
 };
-const NUMBER_TYPES = new Set([
-  "number",
-  "decimal",
-  "currency",
-  "slider",
-  "rating",
-]);
-const FILE_TYPES = new Set(["file", "multifile", "spreadsheet"]);
+
 const LAYOUT_SAVE_DELAY = 1500;
 
-const fieldPayload = (field, formDefinitionId, order = field.order) => ({
-  form_definition_id: Number(formDefinitionId),
-  field_name: slugify(
-    field.field_name || field.field_label || `field-${order + 1}`,
-    "field",
-  ),
-  field_label: String(field.field_label || "").trim() || "فیلد بدون عنوان",
-  field_type: field.field_type || "text",
-  order,
-  help_text: field.help_text || "",
-  placeholder: field.placeholder || "",
-  default_value: field.default_value == null ? "" : String(field.default_value),
-  css_class: writeLayout(field.css_class, {
-    x: field.x,
-    y: field.y,
-    w: field.w,
-    h: field.h,
-  }),
-  required: Boolean(field.required),
-  min_value: field.min_value ?? null,
-  max_value: field.max_value ?? null,
-  min_length: field.min_length ?? null,
-  max_length: field.max_length ?? null,
-  regex_validation: field.regex_validation || "",
-  regex_error_message: field.regex_error_message || "",
-  choices: Array.isArray(field.choices) ? field.choices : [],
-  allowed_extensions: field.allowed_extensions || "",
-  max_file_size_mb: field.max_file_size_mb ?? null,
-});
+// مقدار «خالی» هر کلید اختیاری. اگر کلیدی به نوع فیلد مربوط نباشد،
+// صریحاً خالی فرستاده می‌شود تا مقدار قدیمی روی رکورد باقی نماند.
+const EMPTY_BY_KEY = {
+  placeholder: "",
+  help_text: "",
+  default_value: "",
+  min_length: null,
+  max_length: null,
+  min_value: null,
+  max_value: null,
+  regex_validation: "",
+  regex_error_message: "",
+  choices: [],
+  allowed_extensions: "",
+  max_file_size_mb: null,
+};
 
-const editorValues = (field) => ({
-  ...field,
-  css_class: stripLayout(field.css_class),
-  choicesText: (field.choices || [])
-    .map((item) => (typeof item === "string" ? item : item.label || item.value))
-    .join("\n"),
-  columns: field.field_type === "matrix" ? field.choices || [] : [],
-  structureText: STRUCTURED_TYPES.has(field.field_type)
-    ? JSON.stringify(field.choices || [], null, 2)
-    : "",
-});
+// فقط کلیدهای مرتبط با نوع فیلد به API فرستاده می‌شوند.
+const fieldPayload = (field, formDefinitionId, order = field.order) => {
+  const type = resolveType(field);
+  const def = FIELD_DEFS.find((item) => item.type === type);
+  const allowed = payloadKeysOf(type);
 
-// پیش‌نمایش عناصر سندی با همان CSS خروجی چاپ (fr-*) تا بوم طراحی
-// دقیقاً شبیه کاغذ نهایی باشد.
+  const optional = {
+    placeholder: field.placeholder || "",
+    help_text: field.help_text || "",
+    default_value:
+      field.default_value == null ? "" : String(field.default_value),
+    min_length: field.min_length ?? null,
+    max_length: field.max_length ?? null,
+    min_value: field.min_value ?? null,
+    max_value: field.max_value ?? null,
+    regex_validation: field.regex_validation || "",
+    regex_error_message: field.regex_error_message || "",
+    choices: Array.isArray(field.choices) ? field.choices : [],
+    allowed_extensions: field.allowed_extensions || "",
+    max_file_size_mb: field.max_file_size_mb ?? null,
+  };
+
+  // اعتبارسنجی خودکار ایمیل / URL / تلفن
+  const auto = def && def.autoPattern ? AUTO_PATTERNS[def.autoPattern] : null;
+  if (auto && !optional.regex_validation) {
+    optional.regex_validation = auto.regex;
+    optional.regex_error_message = optional.regex_error_message || auto.message;
+  }
+
+  const payload = {
+    form_definition_id: Number(formDefinitionId),
+    field_name: slugify(
+      field.field_name || field.field_label || `field-${order + 1}`,
+      "field",
+    ),
+    field_label:
+      String(field.field_label || "").trim() || "فیلد بدون عنوان",
+    field_type: toBackendType(type),
+    order,
+    css_class: writeLayout(applyTypeMarker(type, field.css_class), {
+      x: field.x,
+      y: field.y,
+      w: field.w,
+      h: field.h,
+    }),
+    required: Boolean(field.required),
+  };
+
+  Object.keys(EMPTY_BY_KEY).forEach((key) => {
+    payload[key] = allowed.has(key) ? optional[key] : EMPTY_BY_KEY[key];
+  });
+
+  return payload;
+};
+
+const editorValues = (field) => {
+  const type = resolveType(field);
+  return {
+    ...field,
+    field_type: type,
+    css_class: stripLayout(field.css_class),
+    choiceList: CHOICE_TYPES.has(type) ? toChoiceObjects(field.choices) : [],
+    columns:
+      type === "matrix"
+        ? toMatrixColumns(field.choices).map((col) => ({
+            ...col,
+            optionsText: (col.options || [])
+              .map((option) => option.label)
+              .join(", "),
+          }))
+        : [],
+    structureText: STRUCTURED_TYPES.has(type)
+      ? JSON.stringify(field.choices || [], null, 2)
+      : "",
+  };
+};
+
+// پیش‌نمایش عناصر سندی با همان CSS خروجی چاپ (fr-*)
 function DocElementPreview({ field }) {
-  const type = field.field_type;
+  const type = resolveType(field);
   if (type === "page_break")
     return <div className="fr-pagebreak">شکست صفحه در چاپ</div>;
   if (type === "divider") return <div className="fr-divider" />;
-  if (type === "section_band")
+  if (type === "section")
     return <div className="fr-band">{field.field_label}</div>;
-  if (type === "static_text")
+  if (type === "display_text")
     return (
       <div className="fr-cell fr-plain">
         <span className="fr-static">
@@ -251,88 +319,33 @@ function DocElementPreview({ field }) {
 }
 
 function FieldPreview({ field }) {
+  const type = resolveType(field);
+
   if (
-    LAYOUT_ONLY.has(field.field_type) ||
-    field.field_type === "sheet_table" ||
-    field.field_type === "option_row" ||
-    field.field_type === "signature"
+    LAYOUT_ONLY.has(type) ||
+    type === "sheet_table" ||
+    type === "option_row" ||
+    type === "signature"
   )
     return (
       <div className="fr-root" style={{ width: "100%" }}>
         <DocElementPreview field={field} />
       </div>
     );
-  const options = (field.choices || []).map((item) => {
-    const value = typeof item === "string" ? item : item.value;
-    return {
-      value,
-      label: typeof item === "string" ? item : item.label || value,
-    };
-  });
-  if (field.field_type === "textarea")
-    return <Input.TextArea rows={2} placeholder={field.placeholder} disabled />;
-  if (field.field_type === "matrix") {
-    const cols = (field.choices || []).map((col, index) => ({
-      title: (typeof col === "string" ? col : col.label) || `ستون ${index + 1}`,
-      dataIndex: String(index),
-      key: (typeof col === "object" && col.key) || String(index),
-    }));
+
+  // جدول پرشدنی: همان کنترل واقعی، فقط غیرفعال
+  if (type === "matrix")
     return (
-      <div className="studio-matrix-preview">
-        <Table
-          size="small"
-          pagination={false}
-          bordered
-          columns={
-            cols.length ? cols : [{ title: "ستونی تعریف نشده", dataIndex: "0" }]
-          }
-          dataSource={[{}]}
-        />
-        <Button
-          block
-          type="dashed"
-          size="small"
-          disabled
-          icon={<Plus size={12} />}
-        >
-          افزودن ردیف
-        </Button>
+      <div className="fr-root studio-matrix-preview" style={{ width: "100%" }}>
+        <MatrixInput field={field} value={[]} readOnly />
       </div>
     );
-  }
-  if (field.field_type === "select")
-    return (
-      <Select
-        className="w-full"
-        options={options}
-        placeholder={field.placeholder || "انتخاب کنید"}
-        disabled
-      />
-    );
-  if (field.field_type === "checkbox")
-    return (
-      <Checkbox disabled>{field.default_value || "تأیید می‌کنم"}</Checkbox>
-    );
-  if (NUMBER_TYPES.has(field.field_type))
-    return (
-      <InputNumber
-        className="w-full"
-        placeholder={field.placeholder}
-        disabled
-      />
-    );
-  if (FILE_TYPES.has(field.field_type))
-    return (
-      <Button block icon={<FileUp size={14} />} disabled>
-        انتخاب فایل
-      </Button>
-    );
+
+  // بقیهٔ انواع با همان کنترلی که کاربر نهایی می‌بیند
   return (
-    <Input
-      type={field.field_type === "date" ? "date" : "text"}
-      placeholder={field.placeholder}
-      disabled
-    />
+    <div className="fr-root" style={{ width: "100%" }}>
+      <FieldControl field={{ ...field, field_type: type }} readOnly />
+    </div>
   );
 }
 
@@ -606,6 +619,11 @@ function Studio({ formDefinitionId }) {
   const [editing, setEditing] = useState(null);
   const [form] = Form.useForm();
   const editedType = Form.useWatch("field_type", form);
+  // نوع مورد ویرایش (با در نطر گرفتن نشانهٔ css) — مبنای نمایش پنل‌ها
+  const activeType = resolveType({
+    field_type: editedType || editing?.field_type,
+    css_class: editing?.css_class,
+  });
   const definition = Array.isArray(data) ? data[0] : data;
   const [designMode, setDesignMode] = useState("live");
   const pendingInsertIndex = useRef(null);
@@ -763,14 +781,28 @@ function Studio({ formDefinitionId }) {
       : 0;
     const draft = {
       field_type: type,
-      field_label:
-        FIELD_TYPES.find(([value]) => value === type)?.[1] || "فیلد جدید",
+      field_label: labelOf(type),
       field_name: `field-${Date.now().toString(36)}`,
       required: false,
       choices: defaultChoices(type),
-      default_value: type === "static_text" ? "متن دلخواه سند" : "",
-      min_value: type === "sheet_table" ? 3 : null,
-      max_value: type === "sheet_table" ? 3 : null,
+      default_value:
+        canonicalType(type) === "display_text"
+          ? "متن دلخواه سند"
+          : "",
+      min_value:
+        canonicalType(type) === "sheet_table"
+          ? 3
+          : canonicalType(type) === "slider"
+            ? 0
+            : null,
+      max_value:
+        canonicalType(type) === "sheet_table"
+          ? 3
+          : canonicalType(type) === "slider"
+            ? 100
+            : canonicalType(type) === "rating"
+              ? 5
+              : null,
       x: 0,
       y,
       w: GRID.defaultCols,
@@ -831,9 +863,12 @@ function Studio({ formDefinitionId }) {
   const saveEditor = async () => {
     try {
       const values = await form.validateFields();
-      const editedFieldType = values.field_type || editing.field_type;
+      const editedFieldType = canonicalType(
+        values.field_type || editing.field_type,
+      );
       const isMatrix = editedFieldType === "matrix";
       const isStructured = STRUCTURED_TYPES.has(editedFieldType);
+      let choices = [];
       if (isStructured) {
         let parsed = null;
         try {
@@ -845,27 +880,53 @@ function Studio({ formDefinitionId }) {
           message.error("ساختار JSON معتبر نیست؛ تغییرات ذخیره نشد.");
           return;
         }
-        values.choices = parsed;
+        choices = parsed;
+      } else if (isMatrix) {
+        // ستون‌های جدول پرشدنی: [{ value, label, type }]
+        choices = (values.columns || [])
+          .filter((col) => col && String(col.label || "").trim())
+          .map((col, index) => ({
+            value: String(
+              col.value || col.key || slugify(col.label, `column-${index + 1}`),
+            ),
+            label: String(col.label).trim(),
+            type: col.type || "text",
+            ...(col.type === "select"
+              ? {
+                  options: toChoiceObjects(
+                    String(col.optionsText || "")
+                      .split(",")
+                      .map((item) => item.trim())
+                      .filter(Boolean),
+                  ),
+                }
+              : {}),
+          }));
+        if (!choices.length) {
+          message.error("برای جدول حداقل یک ستون تعریف کنید.");
+          return;
+        }
+      } else if (CHOICE_TYPES.has(editedFieldType)) {
+        // قالب مورد توافق بک‌اند: [{ value, label }]
+        choices = (values.choiceList || [])
+          .filter((item) => item && String(item.label || "").trim())
+          .map((item, index) => ({
+            value:
+              String(item.value || "").trim() ||
+              slugify(item.label, `option-${index + 1}`),
+            label: String(item.label).trim(),
+          }));
       }
-      const choices = isStructured
-        ? values.choices
-        : isMatrix
-        ? (values.columns || [])
-            .filter((col) => col && String(col.label || "").trim())
-            .map((col, index) =>
-              typeof col === "object"
-                ? {
-                    key: col.key || slugify(col.label, `col-${index + 1}`),
-                    label: String(col.label).trim(),
-                    type: col.type || "text",
-                  }
-                : col,
-            )
-        : String(values.choicesText || "")
-            .split("\n")
-            .map((item) => item.trim())
-            .filter(Boolean);
-      const next = { ...editing, ...values, choices };
+      const next = {
+        ...editing,
+        ...values,
+        field_type: editedFieldType,
+        choices,
+      };
+      delete next.choiceList;
+      delete next.columns;
+      delete next.structureText;
+      delete next.choicesText;
       const payload = fieldPayload(next, formDefinitionId);
       delete payload.form_definition_id;
       setFields((all) =>
@@ -967,19 +1028,26 @@ function Studio({ formDefinitionId }) {
         <aside className="studio-library">
           <h2>فیلدهای فرم</h2>
           <p>برای افزودن یک نوع فیلد کلیک کنید.</p>
-          {FIELD_TYPES.map(([type, label, Icon, tone]) => (
-            <Button
-              key={type}
-              className={`studio-library-btn tone-${tone}`}
-              onClick={() => add(type)}
-              disabled={saving}
-            >
-              <span className="studio-library-icon">
-                <Icon size={15} />
-              </span>
-              {label}
-              <Plus size={13} className="studio-library-plus" />
-            </Button>
+          {GROUPS.map((group) => (
+            <div key={group} className="studio-library-group">
+              <h3>{group}</h3>
+              {FIELD_TYPES.filter(([, , , , itemGroup]) => itemGroup === group).map(
+                ([type, label, Icon, tone]) => (
+                  <Button
+                    key={type}
+                    className={`studio-library-btn tone-${tone}`}
+                    onClick={() => add(type)}
+                    disabled={saving}
+                  >
+                    <span className="studio-library-icon">
+                      <Icon size={15} />
+                    </span>
+                    {label}
+                    <Plus size={13} className="studio-library-plus" />
+                  </Button>
+                ),
+              )}
+            </div>
           ))}
         </aside>
         <main className="studio-canvas">
@@ -1048,6 +1116,26 @@ function Studio({ formDefinitionId }) {
         }
       >
         <Form form={form} layout="vertical" requiredMark="optional" dir="rtl">
+          <div className="studio-editor-typebar">
+            <span className="studio-editor-typename">
+              نوع فیلد: <b>{labelOf(activeType)}</b>
+            </span>
+            <Form.Item name="field_type" noStyle>
+              <Select
+                size="small"
+                className="studio-editor-typeswitch"
+                popupMatchSelectWidth={false}
+                options={FIELD_TYPES.map(([value, label]) => ({
+                  value,
+                  label,
+                }))}
+              />
+            </Form.Item>
+          </div>
+          <p className="studio-editor-hint">
+            فقط تنظیم‌هایی که برای این نوع فیلد معنا دارند نمایش داده می‌شوند.
+          </p>
+
           <Row gutter={12}>
             <Col span={12}>
               <Form.Item
@@ -1062,6 +1150,7 @@ function Studio({ formDefinitionId }) {
               <Form.Item
                 name="field_name"
                 label="نام فنی"
+                extra="کلید ذخیره‌سازی در گزارش‌ها"
                 rules={[
                   { required: true },
                   {
@@ -1074,47 +1163,131 @@ function Studio({ formDefinitionId }) {
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item name="field_type" label="نوع فیلد">
-            <Select
-              options={FIELD_TYPES.map(([value, label]) => ({ value, label }))}
-            />
+
+          <Form.Item
+            name="required"
+            label="پاسخ اجباری"
+            valuePropName="checked"
+            extra="بدون تکمیل این فیلد، ارسال فرم ممکن نیست."
+            style={LAYOUT_ONLY.has(activeType) ? HIDE : undefined}
+          >
+            <Switch />
           </Form.Item>
-          <Form.Item name="placeholder" label="متن جایگزین">
-            <Input />
-          </Form.Item>
-          <Form.Item name="help_text" label="متن راهنما">
+
+          <Form.Item
+            name="help_text"
+            label="متن راهنما"
+            style={
+              hasPanel(activeType, "basic") || hasPanel(activeType, "help")
+                ? undefined
+                : HIDE
+            }
+          >
             <Input.TextArea rows={2} />
           </Form.Item>
-          <Form.Item name="default_value" label="مقدار پیش‌فرض">
+
+          <Form.Item
+            name="placeholder"
+            label="متن جایگزین داخل کادر"
+            style={hasPanel(activeType, "basic") ? undefined : HIDE}
+          >
             <Input />
           </Form.Item>
-          {editing && CHOICE_TYPES.has(editedType || editing.field_type) && (
+
+          <Form.Item
+            name="default_value"
+            label={
+              hasPanel(activeType, "checkboxLabel")
+                ? "متن کنار تیک"
+                : hasPanel(activeType, "staticText")
+                  ? "متن نمایشی"
+                  : hasPanel(activeType, "docheader")
+                    ? "نشانی تصویر لوگو"
+                    : "مقدار پیش‌فرض"
+            }
+            style={
+              hasPanel(activeType, "basic") ||
+              hasPanel(activeType, "checkboxLabel") ||
+              hasPanel(activeType, "staticText") ||
+              hasPanel(activeType, "docheader")
+                ? undefined
+                : HIDE
+            }
+          >
+            {hasPanel(activeType, "staticText") ? (
+              <Input.TextArea rows={3} />
+            ) : (
+              <Input />
+            )}
+          </Form.Item>
+
+          <Form.Item
+            label="گزینه‌ها"
+            extra="برچسب را کاربر می‌بیند؛ مقدار (value) در پایگاه داده ذخیره می‌شود و اگر خالی بماند خودکار ساخته می‌شود."
+            style={hasPanel(activeType, "choices") ? undefined : HIDE}
+          >
+            <Form.List name="choiceList">
+              {(optionFields, { add: addOption, remove: removeOption }) => (
+                <div className="studio-choice-list">
+                  {optionFields.map((optionField) => (
+                    <Row
+                      key={optionField.key}
+                      gutter={8}
+                      align="middle"
+                      className="studio-matrix-col-row"
+                    >
+                      <Col flex="auto">
+                        <Form.Item name={[optionField.name, "label"]} noStyle>
+                          <Input placeholder="برچسب (مانند: مرد)" />
+                        </Form.Item>
+                      </Col>
+                      <Col flex="140px">
+                        <Form.Item name={[optionField.name, "value"]} noStyle>
+                          <Input dir="ltr" placeholder="value" />
+                        </Form.Item>
+                      </Col>
+                      <Col flex="none">
+                        <Button
+                          danger
+                          type="text"
+                          size="small"
+                          icon={<Trash2 size={14} />}
+                          onClick={() => removeOption(optionField.name)}
+                        />
+                      </Col>
+                    </Row>
+                  ))}
+                  <Button
+                    type="dashed"
+                    block
+                    icon={<Plus size={14} />}
+                    onClick={() => addOption({ label: "", value: "" })}
+                  >
+                    افزودن گزینه
+                  </Button>
+                </div>
+              )}
+            </Form.List>
+          </Form.Item>
+
+          {editing && activeType === "sheet_table" && (
             <Form.Item
-              name="choicesText"
-              label="گزینه‌ها"
-              extra="هر گزینه را در یک خط وارد کنید"
+              name="structureText"
+              label="طراحی جدول"
+              extra="روی هر خانه کلیک کنید تا نوع و متن آن مشخص شود؛ با + و × ردیف و ستون کم و زیاد می‌شود."
             >
-              <Input.TextArea rows={5} />
+              <SheetBuilder
+                onSize={(rowCount, colCount) =>
+                  form.setFieldsValue({
+                    min_value: rowCount,
+                    max_value: colCount,
+                  })
+                }
+              />
             </Form.Item>
           )}
-          {editing &&
-            (editedType || editing.field_type) === "sheet_table" && (
-              <Form.Item
-                name="structureText"
-                label="طراحی جدول"
-                extra="روی هر خانه کلیک کنید تا نوع و متن آن مشخص شود؛ با + و × ردیف و ستون کم و زیاد می‌شود."
-              >
-                <SheetBuilder
-                  onSize={(rowCount, colCount) =>
-                    form.setFieldsValue({
-                      min_value: rowCount,
-                      max_value: colCount,
-                    })
-                  }
-                />
-              </Form.Item>
-            )}
-          {editing && (editedType || editing.field_type) === "doc_header" && (
+
+          {editing && activeType === "doc_header" && (
             <Form.Item
               name="structureText"
               label="محتوای سربرگ"
@@ -1123,57 +1296,85 @@ function Studio({ formDefinitionId }) {
               <Input.TextArea rows={8} style={{ fontFamily: "monospace" }} />
             </Form.Item>
           )}
-          {editing && (editedType || editing.field_type) === "matrix" && (
-            <Form.Item label="ستون‌های جدول" required>
+
+          {editing && activeType === "matrix" && (
+            <Form.Item
+              label="ستون‌های جدول"
+              required
+              extra="ستون‌ها را شما می‌سازید؛ کاربر هنگام تکمیل فرم، ردیف‌ها را اضافه و پر می‌کند."
+            >
               <Form.List name="columns">
                 {(columnFields, { add: addColumn, remove: removeColumn }) => (
                   <div className="studio-matrix-columns">
                     {columnFields.map((columnField) => (
-                      <Row
+                      <div
                         key={columnField.key}
-                        gutter={8}
-                        align="middle"
-                        className="studio-matrix-col-row"
+                        className="studio-matrix-col-card"
                       >
-                        <Col flex="auto">
-                          <Form.Item
-                            name={[columnField.name, "label"]}
-                            rules={[
-                              {
-                                required: true,
-                                message: "نام ستون را وارد کنید",
-                              },
-                            ]}
-                            noStyle
-                          >
-                            <Input placeholder="نام ستون" />
-                          </Form.Item>
-                        </Col>
-                        <Col flex="110px">
-                          <Form.Item
-                            name={[columnField.name, "type"]}
-                            initialValue="text"
-                            noStyle
-                          >
-                            <Select options={MATRIX_COLUMN_TYPES} />
-                          </Form.Item>
-                        </Col>
-                        <Col flex="none">
-                          <Button
-                            danger
-                            type="text"
-                            size="small"
-                            icon={<Trash2 size={14} />}
-                            onClick={() => removeColumn(columnField.name)}
-                          />
-                        </Col>
-                      </Row>
+                        <Row
+                          gutter={8}
+                          align="middle"
+                          className="studio-matrix-col-row"
+                        >
+                          <Col flex="auto">
+                            <Form.Item
+                              name={[columnField.name, "label"]}
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "نام ستون را وارد کنید",
+                                },
+                              ]}
+                              noStyle
+                            >
+                              <Input placeholder="عنوان ستون" />
+                            </Form.Item>
+                          </Col>
+                          <Col flex="130px">
+                            <Form.Item
+                              name={[columnField.name, "type"]}
+                              initialValue="text"
+                              noStyle
+                            >
+                              <Select options={MATRIX_COLUMN_TYPES} />
+                            </Form.Item>
+                          </Col>
+                          <Col flex="none">
+                            <Button
+                              danger
+                              type="text"
+                              size="small"
+                              icon={<Trash2 size={14} />}
+                              onClick={() => removeColumn(columnField.name)}
+                            />
+                          </Col>
+                        </Row>
+                        <Form.Item shouldUpdate noStyle>
+                          {({ getFieldValue }) =>
+                            getFieldValue([
+                              "columns",
+                              columnField.name,
+                              "type",
+                            ]) === "select" ? (
+                              <Form.Item
+                                name={[columnField.name, "optionsText"]}
+                                noStyle
+                              >
+                                <Input
+                                  size="small"
+                                  placeholder="گزینه‌های این ستون را با , جدا کنید"
+                                />
+                              </Form.Item>
+                            ) : null
+                          }
+                        </Form.Item>
+                      </div>
                     ))}
                     <Button
                       type="dashed"
                       block
                       icon={<Plus size={14} />}
-                      onClick={() => addColumn({ type: "text" })}
+                      onClick={() => addColumn({ type: "text", label: "" })}
                     >
                       افزودن ستون
                     </Button>
@@ -1182,58 +1383,98 @@ function Studio({ formDefinitionId }) {
               </Form.List>
             </Form.Item>
           )}
-          <Row gutter={12}>
+
+          <Row
+            gutter={12}
+            style={hasPanel(activeType, "length") ? undefined : HIDE}
+          >
             <Col span={12}>
-              <Form.Item name="min_length" label="حداقل طول">
+              <Form.Item name="min_length" label="حداقل تعداد کاراکتر">
                 <InputNumber className="w-full" min={0} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="max_length" label="حداکثر طول">
+              <Form.Item name="max_length" label="حداکثر تعداد کاراکتر">
                 <InputNumber className="w-full" min={0} />
               </Form.Item>
             </Col>
           </Row>
+
           <Row
             gutter={12}
             style={
-              (editedType || editing?.field_type) === "sheet_table"
-                ? { display: "none" }
-                : undefined
+              hasPanel(activeType, "range") ||
+              hasPanel(activeType, "rating") ||
+              hasPanel(activeType, "matrix")
+                ? undefined
+                : HIDE
             }
           >
-            <Col span={12}>
-              <Form.Item name="min_value" label="حداقل مقدار">
+            <Col
+              span={12}
+              style={hasPanel(activeType, "rating") ? HIDE : undefined}
+            >
+              <Form.Item
+                name="min_value"
+                label={
+                  hasPanel(activeType, "matrix")
+                    ? "حداقل تعداد ردیف"
+                    : "کمترین مقدار"
+                }
+              >
                 <InputNumber className="w-full" />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="max_value" label="حداکثر مقدار">
+              <Form.Item
+                name="max_value"
+                label={
+                  hasPanel(activeType, "rating")
+                    ? "بیشترین ستاره (۱ تا ۱۰)"
+                    : hasPanel(activeType, "matrix")
+                      ? "حداکثر تعداد ردیف"
+                      : "بیشترین مقدار"
+                }
+              >
                 <InputNumber className="w-full" />
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item name="regex_validation" label="قانون Regex">
-            <Input dir="ltr" />
-          </Form.Item>
-          <Form.Item name="regex_error_message" label="پیام خطای اعتبارسنجی">
-            <Input />
-          </Form.Item>
-          <Form.Item name="allowed_extensions" label="پسوندهای مجاز فایل">
-            <Input dir="ltr" placeholder="pdf,docx,png" />
-          </Form.Item>
-          <Form.Item name="max_file_size_mb" label="حداکثر حجم فایل (MB)">
-            <InputNumber min={0} />
-          </Form.Item>
-          <Form.Item name="css_class" label="کلاس CSS">
-            <Input dir="ltr" />
-          </Form.Item>
-          <Form.Item
-            name="required"
-            label="پاسخ اجباری"
-            valuePropName="checked"
+
+          <Row
+            gutter={12}
+            style={hasPanel(activeType, "file") ? undefined : HIDE}
           >
-            <Switch />
+            <Col span={14}>
+              <Form.Item name="allowed_extensions" label="پسوندهای مجاز">
+                <Input dir="ltr" placeholder="pdf,docx,png" />
+              </Form.Item>
+            </Col>
+            <Col span={10}>
+              <Form.Item name="max_file_size_mb" label="حداکثر حجم (MB)">
+                <InputNumber className="w-full" min={0} />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row
+            gutter={12}
+            style={hasPanel(activeType, "regex") ? undefined : HIDE}
+          >
+            <Col span={12}>
+              <Form.Item name="regex_validation" label="قانون Regex">
+                <Input dir="ltr" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="regex_error_message" label="پیام خطا">
+                <Input />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Form.Item name="css_class" label="کلاس CSS (پیشرفته)">
+            <Input dir="ltr" />
           </Form.Item>
         </Form>
       </Drawer>

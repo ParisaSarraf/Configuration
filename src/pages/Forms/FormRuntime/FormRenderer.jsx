@@ -11,15 +11,23 @@
 import { useMemo, useRef, useState } from "react";
 import { GRID, normalizeFields } from "../FormBuilderStudio/formStudioLayout";
 import { INPUT_TYPES, validateAll } from "./formElements";
+import { resolveType } from "./fieldSchema";
 import FieldControl from "./FieldControl";
 import SheetTable from "./SheetTable";
 import printForm from "./printForm";
 import "./form-runtime.css";
+import "./field-extras.css";
 
 const keyOf = (field) => field.field_name || String(field.id);
 
 const sortByOrder = (fields) =>
   [...(fields || [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+/** فیلدهایی که واقعاً مقدار دارند (برای اعتبارسنجی و پیلود). */
+export const inputFieldsOf = (categories) =>
+  (categories || [])
+    .flatMap((item) => item.fields || [])
+    .filter((field) => INPUT_TYPES.has(resolveType(field)));
 
 /* ------------------------------- عناصر ------------------------------- */
 
@@ -46,33 +54,45 @@ function DocHeader({ field }) {
   );
 }
 
-export function Element({ field, values, errors, onChange, readOnly }) {
-  const type = field.field_type;
+/** عناصری که عنوان بالای ورودی می‌نشیند (نه کنار آن). */
+const STACKED_TYPES = new Set([
+  "textarea",
+  "address",
+  "radio",
+  "checkboxes",
+  "multiselect",
+  "multiselect_list",
+  "signature",
+  "matrix",
+  "file",
+  "multifile",
+  "slider",
+]);
 
+export function Element({ field, values, errors, onChange, readOnly }) {
+  const type = resolveType(field);
+
+  /* ---- عناصر نمایشی ---- */
   if (type === "page_break") return <div className="fr-pagebreak" />;
-  if (type === "hidden" || type === "spacer") return null;
+  if (type === "spacer") return null;
   if (type === "divider") return <div className="fr-divider" />;
   if (type === "doc_header") return <DocHeader field={field} />;
-  if (type === "section_band") return <div className="fr-band">{field.field_label}</div>;
+  if (type === "section") return <div className="fr-band">{field.field_label}</div>;
 
-  if (type === "static_text")
+  if (type === "display_text")
     return (
       <div className="fr-cell fr-plain">
         <span className="fr-static">{field.default_value || field.field_label}</span>
       </div>
     );
 
-  if (type === "sheet_table" || type === "matrix")
+  /* ---- جدول ثابت سند ---- */
+  if (type === "sheet_table")
     return <SheetTable field={field} values={values} onChange={onChange} readOnly={readOnly} />;
 
   const key = keyOf(field);
   const error = errors?.[key];
-  const stacked =
-    type === "textarea" ||
-    type === "radio" ||
-    type === "checkboxes" ||
-    type === "signature" ||
-    Boolean(field.help_text);
+  const stacked = STACKED_TYPES.has(type) || Boolean(field.help_text);
 
   return (
     <div className={`fr-cell${stacked ? " fr-stack" : ""}`}>
@@ -137,6 +157,8 @@ export default function FormRenderer({
   showToolbar = true,
   framed = true,
   onSubmit,
+  submitting = false,
+  submitLabel = "ثبت فرم",
   paperRef,
 }) {
   // برای چاپ، دقیقاً همین گرهٔ کاغذ به printForm داده می‌شود.
@@ -150,13 +172,7 @@ export default function FormRenderer({
 
   const readOnly = !interactive;
 
-  const allFields = useMemo(
-    () =>
-      categories
-        .flatMap((item) => item.fields || [])
-        .filter((field) => INPUT_TYPES.has(field.field_type)),
-    [categories],
-  );
+  const allFields = useMemo(() => inputFieldsOf(categories), [categories]);
 
   const filledCount = allFields.filter((field) => {
     const value = values[keyOf(field)];
@@ -249,9 +265,10 @@ export default function FormRenderer({
             <button
               type="button"
               className="fr-chip is-active"
+              disabled={submitting}
               onClick={() => check() && onSubmit?.(values)}
             >
-              ثبت فرم
+              {submitting ? "در حال ارسال…" : submitLabel}
             </button>
           )}
         </div>

@@ -1,9 +1,16 @@
 /* eslint-disable react/prop-types */
+// =====================================================================
 // یک کنترل ورودی برای هر نوع فیلد.
-// کلید ماجرا: پراپ readOnly. در حالت پیش‌نمایش تعاملی و تکمیل فرم
+//
+// کلید ماجرا پراپ readOnly است: در پیش‌نمایش تعاملی و تکمیل فرم
 // مقدار false است و کاربر واقعاً تایپ می‌کند؛ در فرم‌ساز true است.
+// نوع فیلد از resolveType گرفته می‌شود تا نوع‌های قدیمی و نشانه‌دار
+// (مانند گزینه‌های خطی) هم درست رندر شوند.
+// =====================================================================
 
 import { toOptions, MULTI_TYPES } from "./formElements";
+import { resolveType } from "./fieldSchema";
+import MatrixInput from "./MatrixInput";
 
 const INPUT_TYPE_MAP = {
   email: "email",
@@ -17,6 +24,20 @@ const INPUT_TYPE_MAP = {
   time: "time",
 };
 
+/** "pdf,docx" ←→ ".pdf,.docx" (قالب مورد انتطار accept) */
+const toAccept = (raw) => {
+  const text = String(raw || "").trim();
+  if (!text) return undefined;
+  return text
+    .split(/[,،\s]+/)
+    .filter(Boolean)
+    .map((item) => (item.startsWith(".") ? item : `.${item}`))
+    .join(",");
+};
+
+const fileNames = (value) =>
+  Array.isArray(value) ? value : String(value || "").split("،").filter(Boolean);
+
 export default function FieldControl({
   field,
   value,
@@ -25,22 +46,31 @@ export default function FieldControl({
   invalid = false,
   compact = false,
 }) {
-  const type = field.field_type;
+  const type = resolveType(field);
   const cls = `fr-input${invalid ? " is-invalid" : ""}`;
   const set = (next) => !readOnly && onChange?.(next);
 
-  if (type === "textarea")
+  /* ------------------------- جدول پرشدنی ------------------------- */
+  if (type === "matrix")
+    return (
+      <MatrixInput field={field} value={value} onChange={set} readOnly={readOnly} />
+    );
+
+  /* ------------------------- متن چندخطی ------------------------- */
+  if (type === "textarea" || type === "address")
     return (
       <textarea
         className={`fr-textarea${invalid ? " is-invalid" : ""}`}
-        rows={compact ? 2 : 4}
+        rows={type === "address" ? 2 : compact ? 2 : 4}
         value={value ?? ""}
         placeholder={field.placeholder || ""}
+        maxLength={field.max_length ? Number(field.max_length) : undefined}
         disabled={readOnly}
         onChange={(event) => set(event.target.value)}
       />
     );
 
+  /* ------------------------- لیست کشویی ------------------------- */
   if (type === "select") {
     const options = toOptions(field.choices);
     return (
@@ -60,6 +90,30 @@ export default function FieldControl({
     );
   }
 
+  /* ------------------- انتخاب چندگانهٔ لیستی ------------------- */
+  if (type === "multiselect_list") {
+    const options = toOptions(field.choices);
+    const selected = Array.isArray(value) ? value.map(String) : [];
+    return (
+      <select
+        multiple
+        className={`fr-select-multi${invalid ? " is-invalid" : ""}`}
+        value={selected}
+        disabled={readOnly}
+        onChange={(event) =>
+          set(Array.from(event.target.selectedOptions).map((option) => option.value))
+        }
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    );
+  }
+
+  /* ------------------------- تک‌انتخابی ------------------------- */
   if (type === "radio" || type === "option_row") {
     const options = toOptions(field.choices);
     const list = options.length ? options : [{ value: "", label: "بدون گزینه" }];
@@ -84,6 +138,7 @@ export default function FieldControl({
     );
   }
 
+  /* --------------- چندانتخابی تیک‌دار (checkboxes/multiselect) --------------- */
   if (MULTI_TYPES.has(type)) {
     const options = toOptions(field.choices);
     const selected = Array.isArray(value) ? value : [];
@@ -110,6 +165,7 @@ export default function FieldControl({
     );
   }
 
+  /* ------------------------- تیک تکی ------------------------- */
   if (type === "checkbox")
     return (
       <label className={`fr-option${readOnly ? " is-readonly" : ""}`}>
@@ -119,21 +175,23 @@ export default function FieldControl({
           disabled={readOnly}
           onChange={(event) => set(event.target.checked)}
         />
-        {field.default_value || "تأیید می‌کنم"}
+        {field.default_value || field.field_label || "تأیید می‌کنم"}
       </label>
     );
 
+  /* ------------------------- امتیاز ستاره‌ای ------------------------- */
   if (type === "rating") {
+    const max = Math.min(Math.max(Number(field.max_value) || 5, 1), 10);
     const current = Number(value) || 0;
     return (
       <div className="fr-rating">
-        {[1, 2, 3, 4, 5].map((star) => (
+        {Array.from({ length: max }, (_, index) => index + 1).map((star) => (
           <button
             key={star}
             type="button"
             className={star <= current ? "is-on" : ""}
             disabled={readOnly}
-            onClick={() => set(star)}
+            onClick={() => set(star === current ? "" : star)}
             aria-label={`امتیاز ${star}`}
           >
             ★
@@ -143,40 +201,79 @@ export default function FieldControl({
     );
   }
 
-  if (type === "file" || type === "multifile" || type === "spreadsheet")
+  /* ------------------------- نوار کشویی ------------------------- */
+  if (type === "slider") {
+    const min = field.min_value === "" || field.min_value == null ? 0 : Number(field.min_value);
+    const max = field.max_value === "" || field.max_value == null ? 100 : Number(field.max_value);
+    const current = value === "" || value == null ? min : Number(value);
     return (
-      <input
-        className="fr-file"
-        type="file"
-        multiple={type === "multifile"}
-        accept={field.allowed_extensions || undefined}
-        disabled={readOnly}
-        onChange={(event) =>
-          set(Array.from(event.target.files || []).map((file) => file.name).join("، "))
-        }
-      />
+      <div className="fr-slider">
+        <span className="fr-slider-range">{min}</span>
+        <input
+          type="range"
+          min={min}
+          max={max}
+          value={current}
+          disabled={readOnly}
+          onChange={(event) => set(Number(event.target.value))}
+        />
+        <span className="fr-slider-range">{max}</span>
+        <span className="fr-slider-value">{current}</span>
+      </div>
     );
+  }
 
+  /* ------------------------- فایل ------------------------- */
+  if (type === "file" || type === "multifile") {
+    const names = fileNames(value);
+    return (
+      <div className="fr-upload">
+        <input
+          className="fr-file"
+          type="file"
+          multiple={type === "multifile"}
+          accept={toAccept(field.allowed_extensions)}
+          disabled={readOnly}
+          onChange={(event) =>
+            set(Array.from(event.target.files || []).map((file) => file.name))
+          }
+        />
+        {names.length > 0 && <span className="fr-upload-names">{names.join("، ")}</span>}
+        {field.max_file_size_mb ? (
+          <span className="fr-upload-names">
+            حداکثر حجم هر فایل: {field.max_file_size_mb} مگابایت
+          </span>
+        ) : null}
+      </div>
+    );
+  }
+
+  /* ------------------------- محل امضا ------------------------- */
   if (type === "signature")
     return (
       <div className="fr-sign">
-        {readOnly ? "محل امضا" : (
-          <input
-            className="fr-input"
-            placeholder="نام و امضا"
-            value={value ?? ""}
-            onChange={(event) => set(event.target.value)}
-          />
-        )}
+        <input
+          className="fr-input"
+          placeholder="نام و امضا"
+          value={value ?? ""}
+          disabled={readOnly}
+          onChange={(event) => set(event.target.value)}
+        />
       </div>
     );
 
+  /* ------------------------- ورودی تک‌خطی ------------------------- */
+  const numeric = type === "number" || type === "decimal" || type === "currency";
   return (
     <input
       className={cls}
       type={INPUT_TYPE_MAP[type] || "text"}
       value={value ?? ""}
       placeholder={field.placeholder || ""}
+      maxLength={!numeric && field.max_length ? Number(field.max_length) : undefined}
+      min={numeric && field.min_value !== "" && field.min_value != null ? field.min_value : undefined}
+      max={numeric && field.max_value !== "" && field.max_value != null ? field.max_value : undefined}
+      step={type === "decimal" ? "any" : type === "number" ? 1 : undefined}
       disabled={readOnly}
       onChange={(event) => set(event.target.value)}
     />

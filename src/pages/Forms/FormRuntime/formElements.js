@@ -1,57 +1,78 @@
 // =====================================================================
-// رجیستری انواع عناصر فرم
+// رجیستری انواع عناصر فرم (لایهٔ اجرا)
 //
-// نکته مهم درباره سازگاری با بک‌اند:
-// هیچ ستون جدیدی به API اضافه نشده است. عناصر جدید (سربرگ سند، نوار
-// بخش، جدول ادغام‌شده، امضا و ...) با همان فیلدهای موجود ذخیره می‌شوند:
+// فهرست انواع و برچسب‌ها از fieldSchema.js می‌آید تا یک منبع حقیقت
+// داشته باشیم. این فایل فقط مجموعه‌های رفتاری و اعتبارسنجی را می‌دهد.
+//
+// سازگاری با بک‌اند: هیچ ستون جدیدی به API اضافه نشده است. عناصر
+// ساختاری (سربرگ سند، جدول ادغام‌شده، امضا و ...) با همان فیلدهای
+// موجود ذخیره می‌شوند:
 //   field_type    -> شناسه نوع عنصر (رشته)
 //   choices       -> ساختار داخلی عنصر (آرایه JSON)
 //   default_value -> مقدار/متن ثابت
-//   css_class     -> مختصات چیدمان (form-studio-x/y/w/h)
-// اگر بک‌اند field_type را با choices محدود کرده باشد، فقط باید همین
-// رشته‌ها را به لیست مجاز اضافه کند.
+//   css_class     -> مختصات چیدمان (form-studio-x/y/w/h) + نشانهٔ نوع
 // =====================================================================
+
+import { FIELD_DEFS, TYPE_ALIASES, canonicalType } from "./fieldSchema";
 
 /** عناصری که ورودی کاربر می‌گیرند (در حالت تکمیل، مقدار دارند). */
 export const INPUT_TYPES = new Set([
   "text",
   "textarea",
+  "phone",
+  "email",
+  "url",
+  "address",
   "number",
   "decimal",
   "currency",
-  "email",
-  "url",
-  "phone",
-  "national_id",
+  "slider",
+  "rating",
+  "date",
+  "datetime",
+  "time",
   "select",
   "radio",
   "option_row",
   "checkbox",
   "checkboxes",
-  "date",
-  "datetime",
-  "time",
+  "multiselect",
+  "multiselect_list",
   "file",
   "multifile",
-  "rating",
   "signature",
   "matrix",
   "sheet_table",
 ]);
 
-/** عناصر صرفاً نمایشی/چیدمانی. */
+/** عناصر صرفاً نمایشی/چیدمانی (در submission نمی‌آیند). */
 export const LAYOUT_TYPES = new Set([
   "doc_header",
-  "section_band",
-  "static_text",
+  "section",
+  "display_text",
   "divider",
   "spacer",
   "page_break",
+  // نام‌های قدیمی، برای داده‌های ذخیره‌شدهٔ قبلی
+  "section_band",
+  "static_text",
   "hidden",
 ]);
 
-export const NUMBER_TYPES = new Set(["number", "decimal", "currency", "rating"]);
-export const MULTI_TYPES = new Set(["checkboxes", "multiselect", "multiselect_list"]);
+export const NUMBER_TYPES = new Set([
+  "number",
+  "decimal",
+  "currency",
+  "slider",
+  "rating",
+]);
+
+export const MULTI_TYPES = new Set([
+  "checkboxes",
+  "multiselect",
+  "multiselect_list",
+]);
+
 export const CHOICE_TYPES = new Set([
   "select",
   "radio",
@@ -60,35 +81,34 @@ export const CHOICE_TYPES = new Set([
   "multiselect",
   "multiselect_list",
 ]);
+
 export const FILE_TYPES = new Set(["file", "multifile", "spreadsheet"]);
+
+/** انواعی که محدودیت «طول کاراکتر» برایشان معنا دارد. */
+export const TEXT_LENGTH_TYPES = new Set([
+  "text",
+  "textarea",
+  "phone",
+  "address",
+]);
 
 /**
  * پالت فرم‌ساز: [type, عنوان فارسی, گروه]
- * گروه‌ها فقط برای دسته‌بندی پالت در سایدبار استفاده می‌شوند.
+ * مستقیماً از fieldSchema ساخته می‌شود.
  */
-export const PALETTE = [
-  ["text", "متن کوتاه", "ورودی"],
-  ["textarea", "متن بلند", "ورودی"],
-  ["number", "عدد", "ورودی"],
-  ["date", "تاریخ", "ورودی"],
-  ["select", "لیست کشویی", "انتخاب"],
-  ["radio", "تک‌انتخابی", "انتخاب"],
-  ["option_row", "گزینه‌های خطی", "انتخاب"],
-  ["checkbox", "چک‌باکس", "انتخاب"],
-  ["checkboxes", "چند‌انتخابی", "انتخاب"],
-  ["rating", "امتیازدهی", "انتخاب"],
-  ["file", "بارگذاری فایل", "ورودی"],
-  ["signature", "محل امضا", "سند"],
-  ["doc_header", "سربرگ سند", "سند"],
-  ["section_band", "نوار عنوان بخش", "سند"],
-  ["static_text", "متن ثابت", "سند"],
-  ["divider", "خط جداکننده", "سند"],
-  ["sheet_table", "جدول پیشرفته", "جدول"],
-  ["matrix", "جدول ساده", "جدول"],
-  ["page_break", "شکست صفحه (چاپ)", "سند"],
-];
+export const PALETTE = FIELD_DEFS.map((def) => [
+  def.type,
+  def.label,
+  def.group,
+]);
 
-export const TYPE_LABELS = new Map(PALETTE.map(([type, label]) => [type, label]));
+export const TYPE_LABELS = new Map([
+  ...FIELD_DEFS.map((def) => [def.type, def.label]),
+  ...Object.entries(TYPE_ALIASES).map(([alias, target]) => [
+    alias,
+    FIELD_DEFS.find((def) => def.type === target)?.label || alias,
+  ]),
+]);
 
 /** نرمال‌سازی گزینه‌ها به شکل {value,label}. */
 export const toOptions = (choices) =>
@@ -102,7 +122,7 @@ export const toOptions = (choices) =>
   );
 
 // ---------------------------------------------------------------------
-// جدول پیشرفته
+// جدول ثابت سند (sheet_table)
 // ---------------------------------------------------------------------
 // هر سلول یک شیء در choices است:
 // { r, c, rs, cs, text, type, name, variant, align, tall }
@@ -168,21 +188,46 @@ export const parseSheet = (field) => {
     for (let c = 0; c < cols; c += 1)
       if (!taken[r][c]) {
         taken[r][c] = true;
-        matrix[r].push({ key: `blank-${r}-${c}`, r, c, rs: 1, cs: 1, text: "", variant: "plain", align: "right" });
+        matrix[r].push({
+          key: `blank-${r}-${c}`,
+          r,
+          c,
+          rs: 1,
+          cs: 1,
+          text: "",
+          variant: "plain",
+          align: "right",
+        });
       }
 
   matrix.forEach((row) => row.sort((a, b) => a.c - b.c));
   return { rows, cols, matrix };
 };
 
-/** یک جدول خالی برای وقتی که کاربر «جدول پیشرفته» را از پالت می‌کشد. */
+/** یک جدول خالی برای وقتی که کاربر «جدول ثابت سند» را از پالت می‌کشد. */
 export const emptySheet = (rows = 3, cols = 3) => {
   const cells = [];
   for (let c = 0; c < cols; c += 1)
-    cells.push({ r: 0, c, rs: 1, cs: 1, text: `ستون ${c + 1}`, variant: "head", align: "center" });
+    cells.push({
+      r: 0,
+      c,
+      rs: 1,
+      cs: 1,
+      text: `ستون ${c + 1}`,
+      variant: "head",
+      align: "center",
+    });
   for (let r = 1; r < rows; r += 1)
     for (let c = 0; c < cols; c += 1)
-      cells.push({ r, c, rs: 1, cs: 1, text: "", type: "text", name: `cell_${r}_${c}` });
+      cells.push({
+        r,
+        c,
+        rs: 1,
+        cs: 1,
+        text: "",
+        type: "text",
+        name: `cell_${r}_${c}`,
+      });
   return cells;
 };
 
@@ -193,27 +238,61 @@ const isEmpty = (value) =>
   value == null ||
   value === "" ||
   (Array.isArray(value) && value.length === 0) ||
-  (typeof value === "boolean" && value === false);
+  (typeof value === "boolean" && value === false) ||
+  (typeof value === "object" &&
+    !Array.isArray(value) &&
+    Object.keys(value).length === 0);
 
 export const validateField = (field, value) => {
-  if (!INPUT_TYPES.has(field.field_type)) return "";
+  const type = canonicalType(field.field_type);
+  if (!INPUT_TYPES.has(type)) return "";
   if (field.required && isEmpty(value)) return "تکمیل این فیلد الزامی است.";
   if (isEmpty(value)) return "";
 
+  // جدول پرشدنی: محدودیت روی تعداد ردیف است، نه طول متن
+  if (type === "matrix") {
+    const rows = Array.isArray(value) ? value : [];
+    const minRows = Number(field.min_value) || 0;
+    const maxRows = Number(field.max_value) || 0;
+    if (minRows && rows.length < minRows)
+      return `حداقل ${minRows} ردیف باید تکمیل شود.`;
+    if (maxRows && rows.length > maxRows)
+      return `حداکثر ${maxRows} ردیف مجاز است.`;
+    return "";
+  }
+
+  // جدول ثابت سند: اعتبارسنجی در سطح سلول انجام می‌شود
+  if (type === "sheet_table") return "";
+
+  // فیلدهای عددی: حداقل/حداکثر مقدار (نه طول کاراکتر)
+  if (NUMBER_TYPES.has(type)) {
+    const numeric = Number(value);
+    if (Number.isNaN(numeric)) return "مقدار باید عدد باشد.";
+    if (type === "number" && !Number.isInteger(numeric))
+      return "فقط عدد صحیح مجاز است.";
+    if (
+      field.min_value != null &&
+      field.min_value !== "" &&
+      numeric < Number(field.min_value)
+    )
+      return `مقدار نباید کمتر از ${field.min_value} باشد.`;
+    if (
+      field.max_value != null &&
+      field.max_value !== "" &&
+      numeric > Number(field.max_value)
+    )
+      return `مقدار نباید بیشتر از ${field.max_value} باشد.`;
+    return "";
+  }
+
   const text = Array.isArray(value) ? value.join(",") : String(value);
 
-  if (field.min_length && text.length < Number(field.min_length))
-    return `حداقل ${field.min_length} کاراکتر لازم است.`;
-  if (field.max_length && text.length > Number(field.max_length))
-    return `حداکثر ${field.max_length} کاراکتر مجاز است.`;
-
-  if (NUMBER_TYPES.has(field.field_type)) {
-    const num = Number(value);
-    if (Number.isNaN(num)) return "مقدار باید عدد باشد.";
-    if (field.min_value != null && field.min_value !== "" && num < Number(field.min_value))
-      return `مقدار نباید کمتر از ${field.min_value} باشد.`;
-    if (field.max_value != null && field.max_value !== "" && num > Number(field.max_value))
-      return `مقدار نباید بیشتر از ${field.max_value} باشد.`;
+  // حداقل/حداکثر طول فقط برای فیلدهای متنی
+  if (TEXT_LENGTH_TYPES.has(type)) {
+    if (field.min_length && text.length < Number(field.min_length))
+      return `حداقل ${field.min_length} کاراکتر لازم است.`;
+    if (field.max_length && text.length > Number(field.max_length))
+      return `حداکثر ${field.max_length} کاراکتر مجاز است.`;
   }
 
   if (field.regex_validation) {

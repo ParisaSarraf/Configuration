@@ -363,3 +363,58 @@
 @media (prefers-reduced-motion: reduce) {
   .form-studio *, .form-studio *::before, .form-studio *::after { transition-duration: .01ms !important; }
 }
+
+
+/* ---------- پالت گروه‌بندی‌شده و درایور نوع‌محور ---------- */
+.studio-library-group {
+  margin-bottom: 6px;
+}
+
+.studio-library-group h3 {
+  margin: 10px 4px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.studio-editor-typebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.studio-editor-typename {
+  font-size: 12px;
+  color: #0f172a;
+}
+
+.studio-editor-typeswitch {
+  min-width: 160px;
+}
+
+.studio-editor-hint {
+  margin: 0 0 14px;
+  font-size: 11px;
+  color: #64748b;
+}
+
+.studio-choice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.studio-matrix-col-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid #eef2f6;
+  border-radius: 8px;
+}

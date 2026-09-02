@@ -1,0 +1,178 @@
+/* =====================================================================
+   استایل عناصر تکمیلی اجرای فرم:
+   جدول پرشدنی (matrix)، اسلایدر، و بارگذاری فایل
+   ===================================================================== */
+
+/* ---------------------------- جدول پرشدنی --------------------------- */
+.fr-matrix {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.fr-matrix-table {
+  width: 100%;
+}
+
+.fr-matrix-table td,
+.fr-matrix-table th {
+  padding: 2px 4px;
+}
+
+.fr-matrix-table .fr-input,
+.fr-matrix-table .fr-select {
+  min-height: 26px;
+  padding: 2px 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 4px;
+}
+
+.fr-matrix-table .fr-input:hover,
+.fr-matrix-table .fr-select:hover {
+  border-color: var(--fr-line-soft, #cbd5e1);
+}
+
+.fr-matrix-table .fr-input:focus,
+.fr-matrix-table .fr-select:focus {
+  border-color: var(--fr-accent, #2783de);
+  background: var(--fr-field-focus, #eaf3fd);
+  outline: none;
+}
+
+.fr-matrix-index {
+  width: 34px;
+  text-align: center;
+  color: var(--fr-muted, #64748b);
+  font-size: 11px;
+}
+
+.fr-matrix-tools {
+  width: 34px;
+}
+
+.fr-matrix-remove {
+  width: 22px;
+  height: 22px;
+  line-height: 1;
+  border: 1px solid var(--fr-line-soft, #cbd5e1);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--fr-danger, #e56458);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.fr-matrix-remove:hover:not(:disabled) {
+  background: #fef2f2;
+  border-color: var(--fr-danger, #e56458);
+}
+
+.fr-matrix-remove:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.fr-matrix-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fr-matrix-add {
+  border: 1px dashed var(--fr-accent, #2783de);
+  color: var(--fr-accent, #2783de);
+  background: #fff;
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.fr-matrix-add:hover:not(:disabled) {
+  background: var(--fr-field-focus, #eaf3fd);
+}
+
+.fr-matrix-add:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-style: solid;
+}
+
+.fr-matrix-count,
+.fr-matrix-hint,
+.fr-matrix-empty {
+  font-size: 11px;
+  color: var(--fr-muted, #64748b);
+}
+
+.fr-matrix-hint {
+  text-align: center;
+  padding: 10px 4px;
+}
+
+.fr-matrix-empty {
+  border: 1px dashed var(--fr-line-soft, #cbd5e1);
+  border-radius: 6px;
+  padding: 10px;
+  text-align: center;
+}
+
+/* ------------------------------ اسلایدر ----------------------------- */
+.fr-slider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.fr-slider input[type="range"] {
+  flex: 1 1 auto;
+  accent-color: var(--fr-accent, #2783de);
+}
+
+.fr-slider-value {
+  min-width: 34px;
+  text-align: center;
+  font-weight: 700;
+  color: var(--fr-ink, #0f172a);
+}
+
+.fr-slider-range {
+  font-size: 11px;
+  color: var(--fr-muted, #64748b);
+}
+
+/* --------------------------- بارگذاری فایل -------------------------- */
+.fr-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+}
+
+.fr-upload-names {
+  font-size: 11px;
+  color: var(--fr-ink, #0f172a);
+}
+
+/* ------------------------------ چاپ -------------------------------- */
+@media print {
+  .fr-matrix-bar,
+  .fr-matrix-tools,
+  .fr-slider-range {
+    display: none !important;
+  }
+
+  .fr-matrix-table .fr-input,
+  .fr-matrix-table .fr-select {
+    border-color: transparent;
+    background: transparent;
+  }
+}
+
+body.fr-printing .fr-matrix-bar,
+body.fr-printing .fr-matrix-tools {
+  display: none !important;
+}
