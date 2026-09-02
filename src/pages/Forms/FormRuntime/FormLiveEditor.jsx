@@ -1,21 +1,31 @@
 /* eslint-disable react/prop-types */
-import { useMemo, useState } from "react";
+// =====================================================================
+// FormLiveEditor — طراحی روی خود فرم (WYSIWYG)
+//
+// بوم طراحی و خروجی نهایی یکی هستند: همان کاغذ A4، همان
+// کنترل‌ها، همان CSS چاپ. کاربر می‌تواند همانجا تایپ کند، عنوان
+// فیلد را درجا عوض کند، عرض را با ۱/۱…۱/۴ تغییر دهد، فیلد را بکشد و
+// جابه‌جا کند یا بین دو ردیف فیلد جدید اضافه کند.
+//
+// مختصات آزاد x/y دیگر دستی مدیریت نمی‌شوند؛ flowLayout آن‌ها را از
+// ترتیب + عرض حساب می‌کند، پس هیچ‌وقت هم‌پوشانی و جای خالی نمی‌ماند.
+// =====================================================================
+
+import { useMemo, useRef, useState } from "react";
 import { Element } from "./FormRenderer";
+import printForm from "./printForm";
 import {
   A4_ROWS,
   COLS,
   FULL_WIDTH_TYPES,
   ROW_UNIT,
   WIDTH_PRESETS,
-  flowLayout,
   flowRows,
-  heightOf,
   moveField,
   moveFieldTo,
   rowsToPx,
   setFieldHeight,
   setFieldWidth,
-  sortFields,
   totalRows,
 } from "./flowLayout";
 import "./form-runtime.css";
@@ -38,15 +48,9 @@ const DEFAULT_TYPES = [
   ["divider", "خط جداکننده"],
 ];
 
-/**
- * طراحی مستقیم روی خروجی نهایی فرم (WYSIWYG).
- *
- * بوم دقیقاً همان کاغذ A4 است؛ طراح فقط ترتیب، عرض و ارتفاع
- * فیلدها را تعیین می‌کند و می‌تواند همزمان داخل فیلدها تایپ کند.
- */
 export default function FormLiveEditor({
   fields = [],
-  types,
+  types = DEFAULT_TYPES,
   saving = false,
   onAdd,
   onEdit,
@@ -58,141 +62,139 @@ export default function FormLiveEditor({
   const [selectedId, setSelectedId] = useState(null);
   const [values, setValues] = useState({});
   const [paletteAt, setPaletteAt] = useState(null);
-  const [draggingId, setDraggingId] = useState(null);
+  const [dragId, setDragId] = useState(null);
   const [dropAt, setDropAt] = useState(null);
-  const [resizing, setResizing] = useState(null);
   const [chrome, setChrome] = useState(true);
+  const [resizing, setResizing] = useState(null);
 
-  const ordered = useMemo(() => sortFields(fields), [fields]);
-  const rows = useMemo(() => flowRows(ordered), [ordered]);
-  const palette = types && types.length ? types : DEFAULT_TYPES;
-  const overflow = totalRows(ordered) > A4_ROWS;
+  const rows = useMemo(() => flowRows(fields), [fields]);
+  const count = rows.reduce((sum, row) => sum + row.items.length, 0);
+  const usedRows = useMemo(() => totalRows(fields), [fields]);
+  const overflow = usedRows > A4_ROWS;
 
-  const commit = (next) => {
-    if (onPersist) onPersist(next);
-  };
+  const commit = (next) => onPersist?.(next);
+  const change = (key, next) =>
+    setValues((prev) => ({ ...prev, [key]: next }));
 
-  const dropOn = (index) => {
-    const id = draggingId;
-    setDraggingId(null);
-    setDropAt(null);
-    if (id == null) return;
-    commit(flowLayout(moveFieldTo(ordered, id, index)));
-  };
+  const rowHeight = (field) =>
+    resizing && String(resizing.id) === String(field.id) ? resizing.h : field.h;
 
   const startResize = (event, field) => {
     event.preventDefault();
     event.stopPropagation();
     const startY = event.clientY;
-    const startH = heightOf(field);
-    const nextHeight = (clientY) =>
+    const startH = field.h;
+    const compute = (clientY) =>
       Math.max(2, startH + Math.round((clientY - startY) / ROW_UNIT));
     const move = (moveEvent) =>
-      setResizing({ id: field.id, h: nextHeight(moveEvent.clientY) });
+      setResizing({ id: field.id, h: compute(moveEvent.clientY) });
     const up = (upEvent) => {
       window.removeEventListener("pointermove", move);
-      const next = nextHeight(upEvent.clientY);
+      window.removeEventListener("pointerup", up);
+      const next = compute(upEvent.clientY);
       setResizing(null);
-      if (next !== startH) commit(setFieldHeight(ordered, field.id, next));
+      if (next !== startH) commit(setFieldHeight(fields, field.id, next));
     };
     window.addEventListener("pointermove", move);
-    window.addEventListener("pointerup", up, { once: true });
+    window.addEventListener("pointerup", up);
+  };
+
+  const dropOn = (event, target) => {
+    event.preventDefault();
+    setDropAt(null);
+    if (dragId == null) return;
+    commit(moveFieldTo(fields, dragId, target));
+    setDragId(null);
   };
 
   const inserter = (index) => (
-    <div className={`fw-inserter${dropAt === `slot-${index}` ? " is-drop" : ""}`}>
+    <div
+      className={`fw-inserter fr-no-print${
+        dropAt === `slot-${index}` ? " is-drop" : ""
+      }`}
+      onDragOver={(event) => {
+        if (dragId == null) return;
+        event.preventDefault();
+        setDropAt(`slot-${index}`);
+      }}
+      onDragLeave={() =>
+        setDropAt((prev) => (prev === `slot-${index}` ? null : prev))
+      }
+      onDrop={(event) => dropOn(event, index)}
+    >
       <button
         type="button"
         className={`fw-add${paletteAt === index ? " is-open" : ""}`}
-        title="افزودن فیلد در این جایگاه"
+        title="افزودن فیلد در اینجا"
         disabled={saving}
         onClick={() => setPaletteAt(paletteAt === index ? null : index)}
       >
         +
       </button>
-      {draggingId != null ? (
-        <div
-          className="fw-slotzone"
-          onDragOver={(event) => {
-            event.preventDefault();
-            setDropAt(`slot-${index}`);
-          }}
-          onDrop={(event) => {
-            event.preventDefault();
-            dropOn(index);
-          }}
-        />
-      ) : null}
-      {paletteAt === index ? (
+      {paletteAt === index && (
         <div className="fw-palette">
-          {palette.map((item) => {
-            const [value, label] = Array.isArray(item)
-              ? item
-              : [item.value, item.label];
-            return (
-              <button
-                key={value}
-                type="button"
-                className="fw-palette-item"
-                onClick={() => {
-                  setPaletteAt(null);
-                  if (onAdd) onAdd(value, index);
-                }}
-              >
-                {label}
-              </button>
-            );
-          })}
+          {types.map(([type, label]) => (
+            <button
+              key={type}
+              type="button"
+              className="fw-palette-item"
+              onClick={() => {
+                setPaletteAt(null);
+                onAdd?.(type, index);
+              }}
+            >
+              {label}
+            </button>
+          ))}
         </div>
-      ) : null}
+      )}
     </div>
   );
 
-  const node = (item) => {
-    const field = item.field;
-    const selected = selectedId === field.id;
-    const height = resizing && resizing.id === field.id ? resizing.h : item.h;
-    const percent = (item.w / COLS) * 100;
+  const node = (field) => {
+    const selected = String(selectedId) === String(field.id);
+    const width = `${(field.w / COLS) * 100}%`;
+    const fixedWidth = FULL_WIDTH_TYPES.has(field.field_type);
     return (
       <div
-        key={field.id || field.field_name}
-        className={`fw-node${selected ? " is-selected" : ""}${
-          dropAt === item.index ? " is-drop" : ""
-        }`}
+        key={field.id}
+        className={[
+          "fw-node",
+          selected ? "is-selected" : "",
+          dropAt === field.index ? "is-drop" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
         style={{
-          flex: `0 0 ${percent}%`,
-          maxWidth: `${percent}%`,
-          height: rowsToPx(height),
+          flex: `0 0 ${width}`,
+          maxWidth: width,
+          height: rowsToPx(rowHeight(field)),
         }}
         onMouseDown={() => setSelectedId(field.id)}
-        onDoubleClick={() => onEdit && onEdit(field)}
+        onDoubleClick={() => onEdit?.(field)}
         onDragOver={(event) => {
-          if (draggingId == null) return;
+          if (dragId == null || String(dragId) === String(field.id)) return;
           event.preventDefault();
-          setDropAt(item.index);
+          setDropAt(field.index);
         }}
-        onDrop={(event) => {
-          event.preventDefault();
-          dropOn(item.index);
-        }}
+        onDragLeave={() =>
+          setDropAt((prev) => (prev === field.index ? null : prev))
+        }
+        onDrop={(event) => dropOn(event, field.index)}
       >
-        {chrome ? (
-          <div className="fw-tools" onMouseDown={(event) => event.stopPropagation()}>
+        {chrome && (
+          <div className="fw-tools fr-no-print">
             <span
               className="fw-chip fw-grab"
-              title="کشیدن و جابه‌جایی"
+              title="بکشید و جابه‌جا کنید"
               draggable
               onDragStart={(event) => {
-                setDraggingId(field.id);
+                setDragId(field.id);
                 event.dataTransfer.effectAllowed = "move";
-                try {
-                  event.dataTransfer.setData("text/plain", String(field.id));
-                } catch {
-                  // برخی مرورگرها اجازهٔ setData نمی‌دهند
-                }
+                event.dataTransfer.setData("text/plain", String(field.id));
               }}
               onDragEnd={() => {
-                setDraggingId(null);
+                setDragId(null);
                 setDropAt(null);
               }}
             >
@@ -200,57 +202,54 @@ export default function FormLiveEditor({
             </span>
             <span
               className="fw-chip fw-name"
-              title="تغییر عنوان فیلد"
+              title="عنوان فیلد — همینجا تایپ کنید"
               contentEditable
               suppressContentEditableWarning
+              onBlur={(event) =>
+                onRelabel?.(field, event.currentTarget.textContent)
+              }
               onKeyDown={(event) => {
                 if (event.key === "Enter") {
                   event.preventDefault();
                   event.currentTarget.blur();
                 }
               }}
-              onBlur={(event) => {
-                const label = String(event.currentTarget.textContent || "").trim();
-                if (label && label !== field.field_label && onRelabel)
-                  onRelabel(field, label);
-              }}
             >
               {field.field_label}
             </span>
-            {!FULL_WIDTH_TYPES.has(field.field_type) ? (
-              <>
-                <span className="fw-sep" />
-                {WIDTH_PRESETS.map((preset) => (
-                  <button
-                    key={preset.value}
-                    type="button"
-                    title={preset.label}
-                    className={`fw-chip${
-                      item.w === preset.value ? " is-active" : ""
-                    }`}
-                    onClick={() =>
-                      commit(setFieldWidth(ordered, field.id, preset.value))
-                    }
-                  >
-                    {preset.short}
-                  </button>
-                ))}
-              </>
-            ) : null}
+            {!fixedWidth && <span className="fw-sep" />}
+            {!fixedWidth &&
+              WIDTH_PRESETS.map((preset) => (
+                <button
+                  key={preset.value}
+                  type="button"
+                  className={`fw-chip${
+                    field.w === preset.value ? " is-active" : ""
+                  }`}
+                  title={preset.label}
+                  onClick={() =>
+                    commit(setFieldWidth(fields, field.id, preset.value))
+                  }
+                >
+                  {preset.short}
+                </button>
+              ))}
             <span className="fw-sep" />
             <button
               type="button"
               className="fw-chip"
               title="یک پله بالاتر"
-              onClick={() => commit(flowLayout(moveField(ordered, field.id, -1)))}
+              disabled={field.index === 0}
+              onClick={() => commit(moveField(fields, field.id, -1))}
             >
               ↑
             </button>
             <button
               type="button"
               className="fw-chip"
-              title="یک پله پایین‌تر"
-              onClick={() => commit(flowLayout(moveField(ordered, field.id, 1)))}
+              title="یک پله پایینتر"
+              disabled={field.index === count - 1}
+              onClick={() => commit(moveField(fields, field.id, 1))}
             >
               ↓
             </button>
@@ -259,15 +258,15 @@ export default function FormLiveEditor({
               className="fw-chip"
               title="تکثیر فیلد"
               disabled={saving}
-              onClick={() => onDuplicate && onDuplicate(field)}
+              onClick={() => onDuplicate?.(field, field.index)}
             >
               ⧉
             </button>
             <button
               type="button"
               className="fw-chip"
-              title="تنظیمات کامل"
-              onClick={() => onEdit && onEdit(field)}
+              title="تنطیمات کامل فیلد"
+              onClick={() => onEdit?.(field)}
             >
               ⚙
             </button>
@@ -275,81 +274,90 @@ export default function FormLiveEditor({
               type="button"
               className="fw-chip is-danger"
               title="حذف فیلد"
-              onClick={() => onDelete && onDelete(field)}
+              disabled={saving}
+              onClick={() => onDelete?.(field)}
             >
               ✕
             </button>
           </div>
-        ) : null}
+        )}
+
         <div className="fr-slot fw-body">
-          <Element field={field} values={values} onChange={setValues} />
+          <Element
+            field={field}
+            values={values}
+            errors={null}
+            onChange={change}
+            readOnly={false}
+          />
         </div>
-        {chrome ? (
+
+        {chrome && selected && (
           <span
-            className="fw-resize"
-            title="تغییر ارتفاع"
+            className="fw-resize fr-no-print"
+            title="کشیدن برای تغییر ارتفاع"
             onPointerDown={(event) => startResize(event, field)}
           />
-        ) : null}
+        )}
       </div>
     );
   };
 
+  const paperRef = useRef(null);
+
   return (
     <div className="fr-root fw-root">
-      <div className="fw-bar">
+      <div className="fw-bar fr-no-print">
         <button
           type="button"
           className={`fw-chip${chrome ? " is-active" : ""}`}
-          onClick={() => setChrome(!chrome)}
+          onClick={() => setChrome((prev) => !prev)}
         >
-          ابزارهای طراحی: {chrome ? "روشن" : "خاموش"}
+          {chrome ? "ابزارهای طراحی: روشن" : "ابزارهای طراحی: خاموش"}
         </button>
-        <button type="button" className="fw-chip" onClick={() => setValues({})}>
+        <button
+          type="button"
+          className="fw-chip"
+          onClick={() => setValues({})}
+        >
           پاک‌کردن نوشته‌های آزمایشی
         </button>
-        <button type="button" className="fw-chip" onClick={() => window.print()}>
+        <button
+          type="button"
+          className="fw-chip"
+          onClick={() => printForm(paperRef.current)}
+        >
           چاپ / PDF
         </button>
+        {overflow ? (
+          <span className="fw-bar-warn">
+            محتوا از یک برگ A4 بیشتر شده — برای ادامه، «شکست صفحه» اضافه
+            کنید.
+          </span>
+        ) : null}
         <span className="fw-bar-hint">
           با ✣ جابه‌جا کنید · عنوان را در همان نوار ابزار تایپ کنید · دوبار
-          کلیک = تنظیمات کامل · با + بین ردیف‌ها فیلد اضافه کنید
+          کلیک = تنطیمات کامل · با + بین ردیف‌ها فیلد اضافه کنید
         </span>
-        {overflow ? (
-          <span className="fw-bar-warn">فرم از یک برگ A4 بلندتر شده است</span>
-        ) : null}
       </div>
 
       <div className="fr-paper-wrap">
-        <div
-          className="fr-paper fr-print-area"
-          style={{ opacity: saving ? 0.85 : 1 }}
-        >
+        <div className="fr-paper fr-print-area" ref={paperRef}>
           <div className="fr-frame">
-            {!ordered.length ? (
+            {!count && (
               <div className="fw-empty">
-                <p>هنوز فیلدی اضافه نشده است.</p>
-                <button
-                  type="button"
-                  className="fw-palette-item"
-                  onClick={() => onAdd && onAdd("text", 0)}
-                >
-                  افزودن اولین فیلد
-                </button>
+                فرم خالی است — با دکمهٔ + اولین فیلد را اضافه کنید.
               </div>
-            ) : null}
-            {rows.map((row, rowIndex) => (
-              <div
-                className="fw-rowwrap"
-                key={row.items[0]?.field?.id || `row-${rowIndex}`}
-              >
-                {inserter(row.items[0]?.index ?? 0)}
+            )}
+            {rows.map((row) => (
+              <div className="fw-rowwrap" key={`row-${row.items[0].id}`}>
+                {chrome && inserter(row.items[0].index)}
                 <div className="fw-row" style={{ minHeight: rowsToPx(row.h) }}>
                   {row.items.map((item) => node(item))}
                 </div>
               </div>
             ))}
-            {ordered.length ? inserter(ordered.length) : null}
+            {chrome && inserter(count)}
           </div>
         </div>
       </div>

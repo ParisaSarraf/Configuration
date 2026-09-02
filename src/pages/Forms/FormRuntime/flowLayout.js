@@ -1,26 +1,31 @@
-// موتور چیدمان ردیفی (حالت «طراحی روی فرم»).
+// =====================================================================
+// flowLayout — موتور چیدمان «ساده» (ردیفی) برای طراحی روی خود فرم.
 //
-// در این مدل طراح فقط دو چیز تعیین می‌کند:
-//   ۱) ترتیب فیلدها   ۲) عرض هر فیلد (۱/۱ تا ۱/۴)
-// مختصات x/y — همان چیزی که در css_class ذخیره می‌شود — از روی
-// همین دو محاسبه می‌شود؛ پس خروجی کاملاً با حالت «چیدمان آزاد»
-// و با نمایشگر نهایی فرم سازگار است.
+// مدل قدیم: هر فیلد مختصات آزاد x/y دارد و کاربر باید جای دقیق
+// هر کارت را دستی پیدا کند (هم‌پوشانی، فاصلهٔ اضافی، بهم‌ریختگی).
+// مدل ساده: فیلدها فقط یک ترتیب دارند و هر فیلد یک «عرض»
+// (تمام‌عرض / دو‌سوم / نصف / یک‌سوم / یک‌چهارم). فیلدها کنار هم
+// می‌نشینند تا عرض ردیف پر شود، بعد خودبه‌خود به ردیف بعدی می‌روند —
+// دقیقاً مانند پرکردن یک فرم کاغذی.
+//
+// خروجی همان x/y/w/h قبلی است، پس رندرر فرم، پیش‌نمایش و خروجی
+// چاپ A4 دست‌نخورده می‌مانند و دو حالت طراحی قابل تعویض‌اند.
+// =====================================================================
 
 import { GRID } from "../FormBuilderStudio/formStudioLayout";
 
-export const COLS = GRID.cols;
-export const ROW_UNIT = GRID.rowUnit;
+export const COLS = GRID.cols; // ۱۲ ستون
+export const ROW_UNIT = GRID.rowUnit; // هر واحد ارتفاع = 8px
 
-// عرض‌های استاندارد (برحسب ستون از ۱۲)
 export const WIDTH_PRESETS = [
-  { value: 12, label: "تمام عرض", short: "۱/۱" },
+  { value: COLS, label: "تمام عرض", short: "۱/۱" },
   { value: 8, label: "دو‌سوم", short: "۲/۳" },
   { value: 6, label: "نصف عرض", short: "۱/۲" },
   { value: 4, label: "یک‌سوم", short: "۱/۳" },
   { value: 3, label: "یک‌چهارم", short: "۱/۴" },
 ];
 
-// عناصری که همیشه تمام‌عرض هستند
+// عناصر ساختاری که همیشه کل عرض برگه را می‌گیرند.
 export const FULL_WIDTH_TYPES = new Set([
   "doc_header",
   "section_band",
@@ -28,144 +33,119 @@ export const FULL_WIDTH_TYPES = new Set([
   "matrix",
   "divider",
   "page_break",
+  "static_text",
 ]);
 
-const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+const num = (value, fallback) =>
+  Number.isFinite(Number(value)) ? Number(value) : fallback;
 
-export const widthOf = (field) => {
-  if (FULL_WIDTH_TYPES.has(field?.field_type)) return COLS;
-  const raw = Number(field?.w);
-  if (!Number.isFinite(raw) || raw <= 0) return COLS;
-  return clamp(Math.round(raw), 2, COLS);
-};
+const bound = (value, min, max) => Math.min(Math.max(Math.round(value), min), max);
 
-export const heightOf = (field) => {
-  const raw = Number(field?.h);
-  if (!Number.isFinite(raw) || raw <= 0) return GRID.defaultRows;
-  return clamp(Math.round(raw), 2, 220);
-};
+export const widthOf = (field) =>
+  FULL_WIDTH_TYPES.has(field?.field_type)
+    ? COLS
+    : bound(num(field?.w, COLS), 2, COLS);
 
-/** مرتب‌سازی براساس order و در نبودش، y سپس x */
-export const sortFields = (fields = []) =>
+export const heightOf = (field) => bound(num(field?.h, 4), 2, 220);
+
+export const sortFields = (fields) =>
   (Array.isArray(fields) ? fields : [])
-    .filter(Boolean)
-    .map((field, index) => ({ ...field, __index: index }))
-    .sort((a, b) => {
-      const orderA = Number.isFinite(Number(a.order))
-        ? Number(a.order)
-        : a.__index;
-      const orderB = Number.isFinite(Number(b.order))
-        ? Number(b.order)
-        : b.__index;
-      if (orderA !== orderB) return orderA - orderB;
-      const yA = Number(a.y) || 0;
-      const yB = Number(b.y) || 0;
-      if (yA !== yB) return yA - yB;
-      return (Number(b.x) || 0) - (Number(a.x) || 0);
-    })
-    .map(({ __index, ...field }) => field);
+    .filter((field) => field && field.id != null)
+    .map((field, index) => ({ ...field, order: num(field.order, index) }))
+    .sort((a, b) => a.order - b.order);
 
 /**
- * فیلدها را به ردیف‌های ۱۲ ستونی تقسیم می‌کند.
- * خروجی: [{ y, h, used, items: [{ field, x, w, h, index }] }]
+ * ردیف‌بندی: فیلدها به ترتیب در یک ردیف کنار هم قرار می‌گیرند تا
+ * ۱۲ ستون پر شود؛ عناصر تمام‌عرض همیشه ردیف مستقل دارند.
+ * @returns آرایه‌ای از { y, h, items: [فیلدهای همان ردیف] }
  */
-export const flowRows = (fields = [], { gap = 0 } = {}) => {
-  const ordered = sortFields(fields);
+export const flowRows = (fields, { gap = 0 } = {}) => {
+  const list = sortFields(fields);
   const rows = [];
   let current = null;
-  let cursorY = 0;
 
-  ordered.forEach((field, index) => {
+  list.forEach((field, index) => {
     const w = widthOf(field);
     const h = heightOf(field);
-    const isBlock = FULL_WIDTH_TYPES.has(field.field_type) || w >= COLS;
+    const isBlock = w >= COLS;
     const needsNewRow =
       !current || isBlock || current.block || current.used + w > COLS;
 
     if (needsNewRow) {
-      if (current) cursorY += current.h + gap;
-      current = { y: cursorY, h, used: 0, items: [], block: isBlock };
+      current = { y: 0, h, used: 0, items: [], block: isBlock };
       rows.push(current);
     }
 
-    current.items.push({ field, index, x: current.used, w, h });
+    current.items.push({ ...field, w, h, x: current.used, y: 0, index });
     current.used += w;
     current.h = Math.max(current.h, h);
+  });
+
+  // مختصات عمودی را پس از معلوم‌شدن ارتفاع نهایی هر ردیف می‌نویسیم.
+  let cursor = 0;
+  rows.forEach((row) => {
+    row.y = cursor;
+    row.items.forEach((item) => {
+      item.y = cursor;
+    });
+    cursor += row.h + gap;
   });
 
   return rows;
 };
 
-/**
- * مختصات x/y/w/h و order را از روی ترتیب و عرض حساب می‌کند.
- */
-export const flowLayout = (fields = [], options = {}) => {
-  const rows = flowRows(fields, options);
-  const result = [];
-  rows.forEach((row) => {
+/** همان ردیف‌بندی، اما به شکل لیست تخت فیلدها با x/y/w/h/order نهایی. */
+export const flowLayout = (fields, options) => {
+  const flat = [];
+  flowRows(fields, options).forEach((row) => {
     row.items.forEach((item) => {
-      result.push({
-        ...item.field,
-        x: item.x,
-        y: row.y,
-        w: item.w,
-        h: row.block ? row.h : item.h,
-        order: result.length,
-      });
+      flat.push({ ...item, y: row.y });
     });
   });
-  return result;
+  return flat.map((field, order) => ({ ...field, order, index: order }));
 };
 
-/** جابه‌جایی یک فیلد به جایگاه target (ایندکس در لیست مرتب) */
-export const moveFieldTo = (fields = [], id, target) => {
-  const ordered = sortFields(fields);
-  const from = ordered.findIndex((field) => String(field.id) === String(id));
-  if (from < 0) return ordered;
-  const next = ordered.slice();
-  const [moved] = next.splice(from, 1);
-  const bounded = clamp(
-    Number.isFinite(Number(target)) ? Number(target) : next.length,
-    0,
-    next.length,
-  );
-  next.splice(bounded > from ? bounded - 1 : bounded, 0, moved);
-  return next;
+const indexOfField = (list, id) =>
+  list.findIndex((field) => String(field.id) === String(id));
+
+/** جابه‌جایی یک فیلد به جایگاه مشخص در ترتیب فرم. */
+export const moveFieldTo = (fields, id, target) => {
+  const list = sortFields(fields);
+  const index = indexOfField(list, id);
+  if (index < 0) return list;
+  const next = [...list];
+  const [item] = next.splice(index, 1);
+  const wanted = num(target, index);
+  next.splice(bound(wanted > index ? wanted - 1 : wanted, 0, next.length), 0, item);
+  return next.map((field, order) => ({ ...field, order }));
 };
 
-/** جابه‌جایی نسبی (۱+ یعنی یک پله پایین‌تر) */
-export const moveField = (fields = [], id, offset = 1) => {
-  const ordered = sortFields(fields);
-  const from = ordered.findIndex((field) => String(field.id) === String(id));
-  if (from < 0) return ordered;
-  const to = clamp(from + offset, 0, ordered.length - 1);
-  if (to === from) return ordered;
-  const next = ordered.slice();
-  const [moved] = next.splice(from, 1);
-  next.splice(to, 0, moved);
-  return next;
+/** یک پله بالا/پایین بردن فیلد. */
+export const moveField = (fields, id, offset) => {
+  const list = sortFields(fields);
+  const index = indexOfField(list, id);
+  if (index < 0) return list;
+  const step = num(offset, 0);
+  const target = index + (step > 0 ? step + 1 : step);
+  return moveFieldTo(list, id, target);
 };
 
-export const patchField = (fields = [], id, patch = {}) =>
+export const patchField = (fields, id, patch) =>
   sortFields(fields).map((field) =>
     String(field.id) === String(id) ? { ...field, ...patch } : field,
   );
 
 export const setFieldWidth = (fields, id, w) =>
-  flowLayout(patchField(fields, id, { w: clamp(Math.round(w), 2, COLS) }));
+  patchField(fields, id, { w: bound(num(w, COLS), 2, COLS) });
 
 export const setFieldHeight = (fields, id, h) =>
-  flowLayout(patchField(fields, id, { h: clamp(Math.round(h), 2, 220) }));
+  patchField(fields, id, { h: bound(num(h, 4), 2, 220) });
 
-export const rowsToPx = (rows) => Math.max(Number(rows) || 0, 0) * ROW_UNIT;
+export const rowsToPx = (rows) => Math.max(num(rows, 0), 0) * ROW_UNIT;
 
-/** ارتفاع کل فرم برحسب واحد ردیف */
-export const totalRows = (fields = []) => {
-  const rows = flowRows(fields);
-  if (!rows.length) return 0;
-  const last = rows[rows.length - 1];
-  return last.y + last.h;
-};
+/** مجموع ارتفاع فرم برحسب واحد ردیف (برای هشدار سرریز A4). */
+export const totalRows = (fields) =>
+  flowRows(fields).reduce((sum, row) => sum + row.h, 0);
 
-// ارتفاع مفید یک برگ A4 در واحد ردیف (تقریبی)
+// ارتفاع مفید یک برگ A4 با حاشیهٔ 10mm ≈ 1047px ≈ 130 واحد ردیف
 export const A4_ROWS = 130;
