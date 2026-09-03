@@ -28,13 +28,17 @@ const FormDefinitionModal = ({
 
   const onFinish = async (values) => {
     const payload = {
-      category_id: modalData.id, 
+      category_id: isEdit
+        ? (modalData?.category?.id ?? modalData?.category_id ?? null)
+        : modalData?.id,
       name: values.name,
       description: values.description,
       is_active: values.is_active ?? true,
       version: values.version,
       close_date: jalaliDateToGeorgianDate(values.close_date) || null,
       max_submissions: values.max_submissions ?? null,
+      success_message: values.success_message || "",
+      success_redirect_url: values.success_redirect_url || "",
     };
 
     try {
@@ -71,6 +75,8 @@ const FormDefinitionModal = ({
         version: modalData.version,
         close_date: georgianDateToJalaliDate(modalData.close_date),
         max_submissions: modalData.max_submissions ?? null,
+        success_message: modalData.success_message || "",
+        success_redirect_url: modalData.success_redirect_url || "",
       });
     } else {
       form.resetFields();
@@ -130,6 +136,45 @@ const FormDefinitionModal = ({
                 placeholder="توضیحات فرم..."
                 maxLength={500}
                 showCount
+              />
+            </Form.Item>
+          </Col>
+
+          <Col span={8}>
+            <Form.Item
+              name="max_submissions"
+              label="حداکثر تعداد ارسال"
+              extra="خالی بگذارید تا محدودیتی نباشد"
+            >
+              <InputNumber
+                min={1}
+                className="w-full"
+                placeholder="بدون محدودیت"
+              />
+            </Form.Item>
+          </Col>
+
+          <Col span={16}>
+            <Form.Item
+              name="success_redirect_url"
+              label="صفحهٔ مقصد پس از ارسال موفق"
+              rules={[{ type: "url", message: "نشانی معتبر وارد کنید" }]}
+            >
+              <Input
+                dir="ltr"
+                placeholder="https://example.com/thanks"
+                allowClear
+              />
+            </Form.Item>
+          </Col>
+
+          <Col span={24}>
+            <Form.Item name="success_message" label="پیغام پس از ارسال فرم">
+              <Input.TextArea
+                rows={2}
+                maxLength={300}
+                showCount
+                placeholder="فرم شما با موفقیت ثبت شد."
               />
             </Form.Item>
           </Col>

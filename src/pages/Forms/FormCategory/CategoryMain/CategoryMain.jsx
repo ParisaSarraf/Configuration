@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { useState } from "react";
 import { useFormCategoryById } from "../../../../QueryServises/formsQuery";
 import CategoryLeftSidebar from "./Components/CategoryLeftSidebar";
@@ -20,6 +19,7 @@ const CategoryMain = ({
   isOpen,
 }) => {
   const [categoryId, setCategoryId] = useState("all");
+  const [FormId, setFormId] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -46,15 +46,27 @@ const CategoryMain = ({
     openFormStudio(navigate, formDefinitionId, location.pathname);
   };
 
+  const handlePreview = (record) => {
+    setFormId(record.id);
+  };
+
   const columns = FormDefinitionCols({
     handleEdit,
-    handleView,   
+    handleView,
     refetch,
     handleCreateFormDefinitionField,
+    handlePreview,
   });
 
+  const rowSelection = {
+    type: "radio",
+    onChange: (selectedRowKeys, selectedRows) => {
+      setFormId(selectedRowKeys[0] || null);
+    },
+  };
+
   return (
-    <div className="px-6 pb-6" >
+    <div className="px-6 pb-6">
       <div
         className="
           mx-auto
@@ -62,8 +74,8 @@ const CategoryMain = ({
           h-[calc(100vh-180px)]
           max-w-[1600px]
           min-h-0
-          grid-cols-[260px_minmax(0,1fr)_300px]
-          gap-5
+          grid-cols-[260px_minmax(0,1fr)_550px]
+          gap-2
         "
       >
         {/* Left Sidebar */}
@@ -93,6 +105,7 @@ const CategoryMain = ({
               scroll={{ x: "max-content" }}
               tableLayout="auto"
               dataSource={forms}
+              rowSelection={rowSelection}
             />
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-2 text-gray-500">
@@ -107,12 +120,13 @@ const CategoryMain = ({
         </main>
 
         {/* Right Sidebar */}
-        <aside className="min-h-0 overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+        <aside className="min-h-0 overflow-y-auto rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
           <CategoryRightSidebar
             category={categories}
             refetch={refetch}
             setModal={setModal}
             modalMode={modalMode}
+            FormId={FormId}
             modalData={modalData}
             modalType={modalType}
             closeModal={closeModal}

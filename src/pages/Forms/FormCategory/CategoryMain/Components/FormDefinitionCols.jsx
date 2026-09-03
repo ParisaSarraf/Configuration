@@ -3,6 +3,7 @@ import {
   EditOutlined,
   EyeOutlined,
   FormatPainterFilled,
+  PlayCircleOutlined,
 } from "@ant-design/icons";
 import { Button, Modal, message } from "antd";
 import { useDeleteDefinition } from "../../../../../QueryServises/formsQuery";
@@ -13,6 +14,7 @@ const FormDefinitionCols = ({
   handleView,
   refetch,
   handleCreateFormDefinitionField,
+  handlePreview,
 }) => {
   const { mutateAsync: deleteCategoryDefinition } = useDeleteDefinition();
 
@@ -47,11 +49,6 @@ const FormDefinitionCols = ({
       title: "نام فرم",
       dataIndex: "name",
       key: "name",
-    },
-    {
-      title: "توضیحات",
-      dataIndex: "description",
-      key: "description",
     },
     {
       title: "تاریخ بسته شدن",
@@ -91,6 +88,13 @@ const FormDefinitionCols = ({
             className="text-blue-500"
             onClick={() => handleView(record)}
             title="جزئیات"
+          />
+          <Button
+            icon={<PlayCircleOutlined />}
+            type="text"
+            className="text-violet-500"
+            onClick={() => handlePreview(record)}
+            title="پیش‌نمایش"
           />
           <Button
             icon={<FormatPainterFilled />}

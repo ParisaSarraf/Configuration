@@ -6,6 +6,10 @@ export const formCategoriesKey = ["forms", "categories"];
 export const formDefinitionsKey = ["forms", "definitions"];
 export const formDefinitionKey = (id) => ["forms", "definitions", id];
 
+// Category and preview data is read repeatedly while navigating this screen.
+// Keep it fresh enough for normal use without issuing a request on every mount.
+const FORM_CATEGORY_CACHE_TIME = 5 * 60 * 1000;
+
 export const useFormCategories = (queryOptions) => {
   const { myAxios } = useMyAxios();
   return useQuery({
@@ -32,6 +36,9 @@ export const useFormDefinition = (id, queryOptions) => {
     queryKey: formDefinitionKey(id),
     queryFn: () => formApi.getDefinition(myAxios, id),
     enabled: Boolean(id),
+    staleTime: FORM_CATEGORY_CACHE_TIME,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
     ...queryOptions,
   });
 };
@@ -48,9 +55,10 @@ export const useCreateFormField = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload) => formApi.createField(myAxios, payload),
-    onSuccess: (_, payload) => queryClient.invalidateQueries({
-      queryKey: formDefinitionKey(payload.form_definition_id),
-    }),
+    onSuccess: (_, payload) =>
+      queryClient.invalidateQueries({
+        queryKey: formDefinitionKey(payload.form_definition_id),
+      }),
   });
 };
 
@@ -60,9 +68,10 @@ export const useUpdateFormField = () => {
   return useMutation({
     mutationFn: ({ id, payload }) => formApi.updateField(myAxios, id, payload),
     onSuccess: (_, variables) => {
-      if (variables.formDefinitionId) queryClient.invalidateQueries({
-        queryKey: formDefinitionKey(variables.formDefinitionId),
-      });
+      if (variables.formDefinitionId && variables.invalidate !== false)
+        queryClient.invalidateQueries({
+          queryKey: formDefinitionKey(variables.formDefinitionId),
+        });
     },
   });
 };
@@ -73,9 +82,10 @@ export const useDeleteFormField = () => {
   return useMutation({
     mutationFn: ({ id }) => formApi.deleteField(myAxios, id),
     onSuccess: (_, variables) => {
-      if (variables.formDefinitionId) queryClient.invalidateQueries({
-        queryKey: formDefinitionKey(variables.formDefinitionId),
-      });
+      if (variables.formDefinitionId)
+        queryClient.invalidateQueries({
+          queryKey: formDefinitionKey(variables.formDefinitionId),
+        });
     },
   });
 };
@@ -152,6 +162,10 @@ export const useFormCategoryById = (id, queryOptions) => {
             .get(`/forms/get-category-forms-by-id/${id}`)
             .then((response) => response?.data)
         : Promise.resolve(null),
+    enabled: Boolean(id),
+    staleTime: FORM_CATEGORY_CACHE_TIME,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
     ...queryOptions,
   });
 };
@@ -208,5 +222,30 @@ export const useDeleteDefinition = () => {
           return response?.data;
         });
     },
+  });
+};
+
+// ======================= form field ============================
+export const useFormDefinitionFieldByIdKey = (id) => [
+  "form",
+  "definition",
+  "field",
+  id,
+];
+export const useFormDefinitionFieldById = (id, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: useFormDefinitionFieldByIdKey(id),
+    queryFn: () =>
+      id
+        ? myAxios
+            .get(`/forms/get-form-definition/${id}`)
+            .then((response) => response?.data)
+        : Promise.resolve(null),
+    enabled: Boolean(id),
+    staleTime: FORM_CATEGORY_CACHE_TIME,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    ...queryOptions,
   });
 };

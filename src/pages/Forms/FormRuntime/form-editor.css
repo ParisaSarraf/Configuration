@@ -1,0 +1,243 @@
+/* =====================================================================
+   چرومِ «طراحی روی فرم»
+   عمداً کم‌رنگ و بی‌سروصدا تا خود فرم دیده شود؛ ابزارها فقط
+   وقتی نشانگر روی فیلد می‌رود یا فیلد انتخاب می‌شود ظاهر می‌شوند.
+   در خروجی چاپ همهٔ این لایه حذف می‌شود.
+   ===================================================================== */
+
+.fw-root {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fw-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 6px 8px;
+  background: #fff;
+  border: 1px solid var(--fr-line-soft);
+  border-radius: 6px;
+}
+.fw-bar-hint {
+  margin-inline-start: auto;
+  color: #64748b;
+  font-size: 11px;
+}
+.fw-bar-warn {
+  color: var(--fr-danger);
+  font-size: 11px;
+}
+
+.fw-rowwrap {
+  position: relative;
+}
+.fw-row {
+  display: flex;
+  align-items: stretch;
+  direction: rtl;
+}
+
+.fw-node {
+  position: relative;
+  min-width: 0;
+}
+.fw-node > .fw-body {
+  height: 100%;
+}
+.fw-node::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  outline: 1px dashed transparent;
+  outline-offset: -1px;
+}
+.fw-node:hover::after {
+  outline-color: #b6cfe8;
+}
+.fw-node.is-selected::after {
+  outline: 1.5px solid var(--fr-accent);
+}
+.fw-node.is-drop::after {
+  outline: 1.5px dashed var(--fr-accent);
+  background: rgba(39, 131, 222, 0.07);
+}
+
+.fw-tools {
+  position: absolute;
+  top: -13px;
+  inset-inline-end: 2px;
+  z-index: 6;
+  display: none;
+  align-items: center;
+  gap: 1px;
+  padding: 1px 2px;
+  background: #fff;
+  border: 1px solid var(--fr-line-soft);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+.fw-node:hover > .fw-tools,
+.fw-node.is-selected > .fw-tools {
+  display: flex;
+}
+
+.fw-chip {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: #475569;
+  font-family: inherit;
+  font-size: 10.5px;
+  line-height: 18px;
+  cursor: pointer;
+}
+.fw-chip:hover {
+  background: #eef4fb;
+  color: var(--fr-band-ink);
+}
+.fw-chip.is-active {
+  background: var(--fr-band);
+  color: var(--fr-band-ink);
+}
+.fw-chip.is-danger:hover {
+  background: #fdecea;
+  color: var(--fr-danger);
+}
+.fw-chip[disabled] {
+  opacity: 0.4;
+  cursor: default;
+}
+.fw-sep {
+  width: 1px;
+  height: 12px;
+  background: var(--fr-line-soft);
+  margin: 0 2px;
+}
+.fw-grab {
+  cursor: grab;
+}
+.fw-name {
+  max-width: 150px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  color: #334155;
+  outline: none;
+}
+.fw-name:focus {
+  background: #eaf3fd;
+  box-shadow: inset 0 0 0 1px #9ec5ee;
+}
+
+.fw-resize {
+  position: absolute;
+  inset-inline: 0;
+  bottom: -3px;
+  height: 7px;
+  cursor: ns-resize;
+}
+.fw-resize::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 2px;
+  width: 26px;
+  height: 2px;
+  margin-left: -13px;
+  border-radius: 2px;
+  background: var(--fr-accent);
+  opacity: 0.85;
+}
+
+.fw-inserter {
+  position: relative;
+  height: 9px;
+}
+.fw-inserter.is-drop {
+  background: rgba(39, 131, 222, 0.14);
+}
+.fw-add {
+  position: absolute;
+  top: -3px;
+  inset-inline-start: 50%;
+  transform: translateX(50%);
+  width: 20px;
+  height: 15px;
+  padding: 0;
+  border: 1px dashed #b6cfe8;
+  border-radius: 3px;
+  background: #fff;
+  color: var(--fr-accent);
+  font-family: inherit;
+  font-size: 11px;
+  line-height: 13px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.fw-inserter:hover .fw-add,
+.fw-add:focus,
+.fw-add.is-open {
+  opacity: 1;
+}
+
+.fw-palette {
+  position: absolute;
+  z-index: 20;
+  top: 15px;
+  inset-inline-start: 50%;
+  transform: translateX(50%);
+  width: 330px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 7px;
+  background: #fff;
+  border: 1px solid var(--fr-line-soft);
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
+}
+.fw-palette-item {
+  flex: 0 0 auto;
+  padding: 3px 8px;
+  border: 1px solid var(--fr-line-soft);
+  border-radius: 4px;
+  background: #fff;
+  color: #334155;
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+.fw-palette-item:hover {
+  border-color: var(--fr-accent);
+  background: #f2f8fe;
+  color: var(--fr-band-ink);
+}
+
+.fw-empty {
+  padding: 26px 12px;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+@media print {
+  .fw-bar,
+  .fw-tools,
+  .fw-inserter,
+  .fw-resize {
+    display: none !important;
+  }
+  .fw-node::after {
+    outline: 0 !important;
+    background: transparent !important;
+  }
+}
