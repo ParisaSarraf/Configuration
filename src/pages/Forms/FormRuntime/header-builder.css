@@ -1,0 +1,256 @@
+/* =====================================================================
+   HeaderBuilder — طراح بصری سربرگ سند و انتخاب لوگو
+   ===================================================================== */
+
+.hb {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hb-preview {
+  padding: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  direction: rtl;
+}
+
+.hb-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 680px) {
+  .hb-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.hb-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hb-field-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.hb-hint {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.hb-input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  background: #fff;
+  font: inherit;
+  font-size: 12.5px;
+  color: #0f172a;
+}
+
+.hb-input:focus {
+  outline: none;
+  border-color: #1677ff;
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.12);
+}
+
+.hb-input-value {
+  font-family: system-ui, sans-serif;
+}
+
+/* ------------------------------ لوگو ------------------------------ */
+
+.hb-logo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hb-drop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 76px;
+  padding: 8px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.hb-drop:hover,
+.hb-drop:focus-visible {
+  border-color: #1677ff;
+  background: #f5faff;
+  outline: none;
+}
+
+.hb-drop img {
+  max-height: 58px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.hb-drop-hint {
+  font-size: 11.5px;
+  line-height: 1.8;
+  color: #94a3b8;
+}
+
+.hb-logo-compact .hb-drop {
+  min-height: 58px;
+}
+
+.hb-logo-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.hb-btn {
+  padding: 4px 10px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  background: #fff;
+  font: inherit;
+  font-size: 11.5px;
+  color: #334155;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+}
+
+.hb-btn:hover {
+  border-color: #1677ff;
+  color: #1677ff;
+}
+
+.hb-btn-main {
+  border-style: dashed;
+  border-color: #1677ff;
+  color: #1677ff;
+}
+
+.hb-btn-danger:hover {
+  border-color: #e56458;
+  color: #e56458;
+}
+
+.hb-badge {
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 10.5px;
+}
+
+.hb-badge-warn {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.hb-note {
+  padding: 5px 8px;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  background: #fffbeb;
+  font-size: 11px;
+  line-height: 1.7;
+  color: #92400e;
+}
+
+.hb-error {
+  font-size: 11px;
+  color: #b91c1c;
+}
+
+/* --------------------------- ردیف‌های سربرگ --------------------------- */
+
+.hb-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hb-rows-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hb-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+}
+
+.hb-row-tools {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.hb-icon {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.hb-icon:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: #1677ff;
+}
+
+.hb-icon:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.hb-icon-danger:hover:not(:disabled) {
+  background: #fef2f2;
+  color: #e56458;
+}
+
+.hb-empty {
+  padding: 8px;
+  border: 1px dashed #e2e8f0;
+  border-radius: 6px;
+  background: #f8fafc;
+  font-size: 11.5px;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.hb-add {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-top: 2px;
+}

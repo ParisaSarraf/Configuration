@@ -67,6 +67,7 @@ const STACKED_TYPES = new Set([
   "file",
   "multifile",
   "slider",
+  "date_signature",
 ]);
 
 export function Element({ field, values, errors, onChange, readOnly }) {
@@ -78,6 +79,31 @@ export function Element({ field, values, errors, onChange, readOnly }) {
   if (type === "divider") return <div className="fr-divider" />;
   if (type === "doc_header") return <DocHeader field={field} />;
   if (type === "section") return <div className="fr-band">{field.field_label}</div>;
+
+  if (type === "logo")
+    return (
+      <div className="fr-logo">
+        {field.default_value ? (
+          <img src={field.default_value} alt={field.field_label || "لوگو"} />
+        ) : (
+          <span className="fr-logo-empty">{field.field_label || "لوگو"}</span>
+        )}
+      </div>
+    );
+
+  if (type === "form_number")
+    return (
+      <div className="fr-cell fr-plain">
+        <span className="fr-formnumber">
+          <span className="fr-formnumber-label">
+            {field.field_label || "شماره فرم"}:
+          </span>
+          <span className="fr-formnumber-value">
+            {field.default_value || "—"}
+          </span>
+        </span>
+      </div>
+    );
 
   if (type === "display_text")
     return (

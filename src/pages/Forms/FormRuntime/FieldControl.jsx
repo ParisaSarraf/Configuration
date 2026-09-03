@@ -70,6 +70,60 @@ export default function FieldControl({
       />
     );
 
+  /* -------------------- تاریخ و امضا (بلوک ترکیبی) -------------------- */
+  if (type === "date_signature") {
+    const slots = toOptions(field.choices);
+    const list = slots.length
+      ? slots
+      : [
+          { value: "date", label: "تاریخ" },
+          { value: "signature", label: "امضا" },
+        ];
+    const current =
+      value && typeof value === "object" && !Array.isArray(value) ? value : {};
+    const setSlot = (key, next) => set({ ...current, [key]: next });
+
+    return (
+      <div className="fr-datesign">
+        {list.map((slot) => {
+          const key = String(slot.value || "");
+          const label = String(slot.label || "");
+          const isDate = key.includes("date") || label.includes("تاریخ");
+          const isSign = key.includes("sign") || label.includes("امضا");
+          return (
+            <div className="fr-datesign-slot" key={key}>
+              <span className="fr-datesign-label">{label}:</span>
+              {isDate ? (
+                <DateField
+                  mode="date"
+                  value={current[key]}
+                  onChange={(next) => setSlot(key, next)}
+                  readOnly={readOnly}
+                />
+              ) : isSign ? (
+                <div className="fr-sign fr-datesign-sign">
+                  <input
+                    className="fr-input"
+                    value={current[key] ?? ""}
+                    disabled={readOnly}
+                    onChange={(event) => setSlot(key, event.target.value)}
+                  />
+                </div>
+              ) : (
+                <input
+                  className="fr-input"
+                  value={current[key] ?? ""}
+                  disabled={readOnly}
+                  onChange={(event) => setSlot(key, event.target.value)}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
   /* ------------------------- متن چندخطی ------------------------- */
   if (type === "textarea" || type === "address")
     return (

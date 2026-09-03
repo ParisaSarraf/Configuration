@@ -193,13 +193,117 @@ body.fr-printing .fr-matrix-tools {
 .fr-datefield .rmdp-container {
   width: 100% !important;
 }
-.fr-datefield input {
-  font-family: inherit;
-  font-size: 12px;
-  color: var(--fr-ink);
+/* تاریخ باید مثل یک ورودی سادهٔ فرم دیده شود: بدون کادر و بدون آیکن تقویم */
+.fr-datefield-picker > div {
+  border: 0 !important;
+  border-radius: 3px !important;
+  background: transparent !important;
+  gap: 0 !important;
+  padding: 0 !important;
+}
+.fr-datefield-picker > div > div:last-child {
+  display: none !important;
+}
+.fr-datefield input,
+.fr-datefield-picker .rmdp-input {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 2px 4px !important;
+  border: 0 !important;
+  border-radius: 3px !important;
+  background: var(--fr-field-bg) !important;
+  box-shadow: none !important;
+  color: var(--fr-ink) !important;
+  font: inherit !important;
+  font-size: 11.5px !important;
   direction: ltr;
-  text-align: center;
-  background: transparent;
+  text-align: right !important;
+}
+.fr-datefield-picker .rmdp-input:hover {
+  background: #f8fafc !important;
+}
+.fr-datefield-picker .rmdp-input:focus {
+  background: var(--fr-field-focus) !important;
+  box-shadow: inset 0 0 0 1px #9ec5ee !important;
+}
+.fr-datefield-picker .rmdp-input:disabled {
+  background: transparent !important;
+  color: var(--fr-muted) !important;
+  cursor: default;
+}
+
+/* ---------------- تاریخ و امضا / لوگو / شماره فرم ---------------- */
+.fr-datesign {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+.fr-datesign-slot {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  flex: 1 1 140px;
+  min-width: 110px;
+}
+.fr-datesign-label {
+  font-size: 11.5px;
+  color: var(--fr-muted);
+  white-space: nowrap;
+}
+.fr-datesign-slot .fr-datefield,
+.fr-datesign-slot .fr-input {
+  flex: 1 1 auto;
+}
+.fr-datesign-sign {
+  flex: 1 1 auto;
+  min-height: 34px;
+}
+
+.fr-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+.fr-logo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.fr-logo-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 34px;
+  border: 1px dashed var(--fr-line-soft);
+  border-radius: 4px;
+  color: #b8c0cc;
+  font-size: 11px;
+}
+
+.fr-formnumber {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 6px;
+  border: 1px solid var(--fr-line-soft);
+  border-radius: 4px;
+  background: #fff;
+  font-size: 11.5px;
+}
+.fr-formnumber-label {
+  color: var(--fr-muted);
+}
+.fr-formnumber-value {
+  font-family: system-ui, sans-serif;
+  font-weight: 700;
+  direction: ltr;
 }
 .fr-datefield-hint {
   font-size: 10px;

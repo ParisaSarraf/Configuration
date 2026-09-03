@@ -41,6 +41,7 @@ export const INPUT_TYPES = new Set([
   "file",
   "multifile",
   "signature",
+  "date_signature",
   "matrix",
   "sheet_table",
 ]);
@@ -53,6 +54,8 @@ export const LAYOUT_TYPES = new Set([
   "divider",
   "spacer",
   "page_break",
+  "logo",
+  "form_number",
   // نام‌های قدیمی، برای داده‌های ذخیره‌شدهٔ قبلی
   "section_band",
   "static_text",
@@ -263,6 +266,9 @@ export const validateField = (field, value) => {
 
   // جدول ثابت سند: اعتبارسنجی در سطح سلول انجام می‌شود
   if (type === "sheet_table") return "";
+
+  // تاریخ و امضا: مقدارش آبجکت چندخانه‌ای است
+  if (type === "date_signature") return "";
 
   // فیلدهای عددی: حداقل/حداکثر مقدار (نه طول کاراکتر)
   if (NUMBER_TYPES.has(type)) {

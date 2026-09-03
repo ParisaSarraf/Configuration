@@ -88,7 +88,7 @@ export const normalizeValue = (field, raw) => {
     return clean.length ? clean : null;
   }
 
-  if (type === "sheet_table") {
+  if (type === "sheet_table" || type === "date_signature") {
     const cells = raw && typeof raw === "object" ? raw : {};
     const clean = Object.entries(cells).reduce((acc, [key, cell]) => {
       if (cell === "" || cell == null || cell === false) return acc;
@@ -148,6 +148,6 @@ export const buildSubmissionPayload = ({
   attachments: Array.isArray(attachments) ? attachments : [],
 });
 
-/** فهرست تخت فیلدهای همهٔ دسته‌بندی‌ها. */
+/** ��هرست تخت فیلدهای همهٔ دسته‌بندی‌ها. */
 export const flattenFields = (categories) =>
   (categories || []).flatMap((item) => item.fields || []);

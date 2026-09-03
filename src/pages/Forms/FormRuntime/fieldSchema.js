@@ -107,6 +107,9 @@ export const FIELD_DEFS = [
   { type: "sheet_table", label: "جدول ثابت سند", hint: "جدول چاپی با ادغام سلول و امضا", group: "جدول", panels: ["sheet"] },
 
   { type: "signature", label: "محل امضا", group: "سند", panels: ["help"] },
+  { type: "date_signature", label: "تاریخ و امضا", hint: "خانهٔ تاریخ + محل امضا در یک ردیف؛ برچسب خانه‌ها در بخش گزینه‌ها قابل تغییر است", group: "سند", panels: ["help", "choices"], backend: "signature", marker: "el-datesign" },
+  { type: "logo", label: "لوگو", hint: "تصویر لوگو با نشانی دلخواه", group: "سند", panels: ["staticText"], backend: "display_text", marker: "el-logo" },
+  { type: "form_number", label: "شماره فرم", hint: "کد یا شمارهٔ سند — عنوان و مقدارش قابل تغییر است", group: "سند", panels: ["staticText"], backend: "display_text", marker: "el-formno" },
   { type: "section", label: "عنوان بخش", hint: "نوار تیتر — در submission ذخیره نمی‌شود", group: "سند", panels: [] },
   { type: "display_text", label: "متن نمایشی", hint: "فقط خواندنی", group: "سند", panels: ["staticText"] },
   { type: "doc_header", label: "سربرگ سند", group: "سند", panels: ["docheader"] },
@@ -151,6 +154,8 @@ export const DISPLAY_ONLY = new Set([
   "divider",
   "page_break",
   "spacer",
+  "logo",
+  "form_number",
 ]);
 
 /** کلیدهای مجاز برای یک نوع خاص. */
@@ -211,6 +216,11 @@ export const defaultChoicesFor = (type) => {
     return [
       { key: "code", label: "شناسه سند", value: "SY-SE-F-000" },
       { key: "rev", label: "تاریخ بازنگری", value: "۱۴۰۵/۰۱/۰۱" },
+    ];
+  if (canonical === "date_signature")
+    return [
+      { value: "date", label: "تاریخ" },
+      { value: "signature", label: "امضا" },
     ];
   if (hasPanel(canonical, "choices"))
     return [

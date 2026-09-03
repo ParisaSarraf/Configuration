@@ -142,14 +142,6 @@ export default function DateField({
           onChange={(event) => emit(jalali, event.target.value)}
         />
       )}
-
-      {!readOnly && jalali && (
-        <span className="fr-datefield-hint fr-no-print">
-          {mode === "datetime"
-            ? String(value || "").slice(0, 16).replace("T", " ")
-            : toGregorianText(jalali)}
-        </span>
-      )}
     </div>
   );
 }

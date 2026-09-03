@@ -63,10 +63,12 @@ import {
 } from "./formStudioLayout";
 import "./form-builder-studio.css";
 import "../FormRuntime/form-runtime.css";
+import "../FormRuntime/field-extras.css";
 import { EyeOutlined } from "@ant-design/icons";
 import FieldControl from "../FormRuntime/FieldControl";
 import SheetTable from "../FormRuntime/SheetTable";
 import SheetBuilder from "../FormRuntime/SheetBuilder";
+import HeaderBuilder, { LogoPicker } from "../FormRuntime/HeaderBuilder";
 import { emptySheet } from "../FormRuntime/formElements";
 import {
   AUTO_PATTERNS,
@@ -111,6 +113,9 @@ const TYPE_ICONS = {
   multifile: FileUp,
   matrix: TableIcon,
   sheet_table: TableIcon,
+  date_signature: CalendarDays,
+  form_number: Hash,
+  logo: FileUp,
 };
 
 const GROUP_TONES = {
@@ -137,6 +142,8 @@ const LAYOUT_ONLY = new Set([
   "display_text",
   "divider",
   "page_break",
+  "logo",
+  "form_number",
 ]);
 
 const TYPE_META = new Map(FIELD_TYPES.map(([type, , , tone]) => [type, tone]));
@@ -159,6 +166,9 @@ const defaultHeight = (type) => {
   if (kind === "section" || kind === "divider" || kind === "display_text")
     return 3;
   if (kind === "page_break") return 2;
+  if (kind === "form_number") return 3;
+  if (kind === "logo") return 7;
+  if (kind === "date_signature") return 5;
   if (kind === "doc_header") return 8;
   if (
     kind === "sheet_table" ||
@@ -306,6 +316,29 @@ function DocElementPreview({ field }) {
       </div>
     );
   }
+  if (type === "logo")
+    return (
+      <div className="fr-logo">
+        {field.default_value ? (
+          <img src={field.default_value} alt={field.field_label || "لوگو"} />
+        ) : (
+          <span className="fr-logo-empty">{field.field_label || "لوگو"}</span>
+        )}
+      </div>
+    );
+  if (type === "form_number")
+    return (
+      <div className="fr-cell fr-plain">
+        <span className="fr-formnumber">
+          <span className="fr-formnumber-label">
+            {field.field_label || "شماره فرم"}:
+          </span>
+          <span className="fr-formnumber-value">
+            {field.default_value || "—"}
+          </span>
+        </span>
+      </div>
+    );
   if (type === "sheet_table")
     return <SheetTable field={field} values={{}} readOnly />;
   return (
@@ -1026,7 +1059,6 @@ function Studio({ formDefinitionId }) {
       </header>
       <div className="studio-workspace">
         <aside className="studio-library">
-          <span className="studio-library-eyebrow">جعبه‌ابزار</span>
           <h2>فیلدهای فرم</h2>
           <p>برای افزودن یک نوع فیلد کلیک کنید.</p>
           {GROUPS.map((group) => (
@@ -1200,8 +1232,12 @@ function Studio({ formDefinitionId }) {
             label={
               hasPanel(activeType, "checkboxLabel")
                 ? "متن کنار تیک"
-                : hasPanel(activeType, "staticText")
-                  ? "متن نمایشی"
+                : activeType === "logo"
+                  ? "نشانی تصویر لوگو (URL)"
+                  : activeType === "form_number"
+                    ? "شماره یا کد فرم"
+                    : hasPanel(activeType, "staticText")
+                      ? "متن نمایشی"
                   : hasPanel(activeType, "docheader")
                     ? "نشانی تصویر لوگو"
                     : "مقدار پیش‌فرض"
@@ -1209,13 +1245,15 @@ function Studio({ formDefinitionId }) {
             style={
               hasPanel(activeType, "basic") ||
               hasPanel(activeType, "checkboxLabel") ||
-              hasPanel(activeType, "staticText") ||
-              hasPanel(activeType, "docheader")
+              hasPanel(activeType, "staticText")
                 ? undefined
                 : HIDE
             }
           >
-            {hasPanel(activeType, "staticText") ? (
+            {activeType === "logo" ? (
+              <LogoPicker />
+            ) : hasPanel(activeType, "staticText") &&
+              activeType !== "form_number" ? (
               <Input.TextArea rows={3} />
             ) : (
               <Input />
@@ -1289,12 +1327,25 @@ function Studio({ formDefinitionId }) {
           )}
 
           {editing && activeType === "doc_header" && (
-            <Form.Item
-              name="structureText"
-              label="محتوای سربرگ"
-              extra="هر ردیف شامل کلید، برچسب و مقدار است (قالب JSON)."
-            >
-              <Input.TextArea rows={8} style={{ fontFamily: "monospace" }} />
+            <Form.Item shouldUpdate noStyle>
+              {({ getFieldValue }) => (
+                <Form.Item
+                  name="structureText"
+                  label="سربرگ سند"
+                  extra="عنوان، لوگو و ردیف‌ها را همین‌جا تغییر دهید؛ کادر بالا همان چیزی است که چاپ می‌شود."
+                >
+                  <HeaderBuilder
+                    title={getFieldValue("field_label")}
+                    onTitle={(text) =>
+                      form.setFieldsValue({ field_label: text })
+                    }
+                    logo={getFieldValue("default_value")}
+                    onLogo={(src) =>
+                      form.setFieldsValue({ default_value: src })
+                    }
+                  />
+                </Form.Item>
+              )}
             </Form.Item>
           )}
 
