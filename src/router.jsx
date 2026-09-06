@@ -22,6 +22,8 @@ import Plan from "./pages/Plan/Plan";
 import InitialForm from "./pages/Forms/Form";
 import FormBuilderStudio from "./pages/Forms/FormBuilderStudio/FormBuilderStudio";
 import FormFiller from "./pages/Forms/FormRuntime/FormFiller";
+import Processes from "./pages/Processes/Processes";
+import ProcessBuilder from "./pages/Processes/ProcessBuilder/ProcessBuilder";
 
 const router = createBrowserRouter([
   {
@@ -200,6 +202,22 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <FormFiller />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/processes",
+    element: (
+      <ProtectedRoute>
+        <Processes />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/processes/:processId/builder",
+    element: (
+      <ProtectedRoute>
+        <ProcessBuilder />
       </ProtectedRoute>
     ),
   },

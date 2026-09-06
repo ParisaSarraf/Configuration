@@ -6,6 +6,7 @@ import {
   FormOutlined,
   LoginOutlined,
   LogoutOutlined,
+  PartitionOutlined,
   SecurityScanOutlined,
   SettingOutlined,
   UserOutlined,
@@ -188,6 +189,15 @@ const CustomHeader = ({ children }) => {
             className="!flex !items-center !gap-1.5 !border-sky-200 !bg-sky-50 !text-sky-700 hover:!bg-sky-100 hover:!border-sky-300 !font-medium !rounded-lg !shadow-none"
           >
             <span className="hidden md:inline">فرم ساز</span>
+          </Button>
+        </Tooltip>
+        <Tooltip title="فرایندساز" placement="bottom">
+          <Button
+            icon={<PartitionOutlined />}
+            onClick={() => navigate("/processes")}
+            className="!flex !items-center !gap-1.5 !border-emerald-200 !bg-emerald-50 !text-emerald-700 hover:!bg-emerald-100 hover:!border-emerald-300 !font-medium !rounded-lg !shadow-none"
+          >
+            <span className="hidden md:inline">فرایندساز</span>
           </Button>
         </Tooltip>
 
