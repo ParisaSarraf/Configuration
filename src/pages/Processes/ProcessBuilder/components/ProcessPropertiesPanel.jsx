@@ -14,8 +14,17 @@ import {
 
 const { TextArea } = Input;
 
+/**
+ * ورودی می‌تواند خروجی نرمال‌شده‌ی صفحه‌ی بیلدر ({ value, label }) باشد یا
+ * پاسخ خام سرویس سمت‌ها ({ id, name })؛ هر دو حالت پشتیبانی می‌شود.
+ */
 const groupOptions = (groups) =>
-  groups.map((group) => ({ value: group.id, label: group.name }));
+  (Array.isArray(groups) ? groups : [])
+    .map((group) => ({
+      value: group?.value ?? group?.id,
+      label: group?.label ?? group?.name ?? `سمت ${group?.value ?? group?.id}`,
+    }))
+    .filter((option) => option.value !== undefined && option.value !== null);
 
 /**
  * لیست دسترسی‌های یک موجودیت (فرایند / ایستگاه / عملیات).
@@ -49,6 +58,13 @@ const PermissionList = ({
 
     {hint ? <p className="process-panel__hint">{hint}</p> : null}
 
+    {!groupsLoading && (groups?.length ?? 0) === 0 ? (
+      <p className="process-panel__note">
+        لیست سمت‌ها خالی است. سرویس سمت‌ها (/user/role/) فقط برای کاربر staff
+        مجاز است و با کاربر عادی خطای ۴۰۳ برمی‌گرداند.
+      </p>
+    ) : null}
+
     {permissions.length === 0 ? (
       <p className="process-panel__note">هنوز دسترسی‌ای ثبت نشده است.</p>
     ) : (
@@ -61,6 +77,9 @@ const PermissionList = ({
               options={groupOptions(groups)}
               loading={groupsLoading}
               placeholder="انتخاب سمت"
+              notFoundContent={
+                groupsLoading ? "در حال دریافت سمت‌ها…" : "سمتی یافت نشد"
+              }
               showSearch
               optionFilterProp="label"
               disabled={disabled}
