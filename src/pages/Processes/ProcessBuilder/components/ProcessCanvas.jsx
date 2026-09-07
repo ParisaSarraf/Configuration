@@ -16,6 +16,10 @@ import {
 
 const SURFACE_SIZE = 6000;
 const DRAG_TYPE = "application/x-process-state-type";
+/** خمیدگی وقتی بین دو ایستگاه، ارتباط برگشت هم تعریف شده باشد. */
+const RECIPROCAL_BOW = 60;
+/** فاصله‌ی ارتباط‌های هم‌جهت تکراری بین همان دو ایستگاه. */
+const PARALLEL_SPACING = 52;
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const snap = (value) => Math.round(value / GRID_SIZE) * GRID_SIZE;
 
@@ -51,6 +55,37 @@ const ProcessCanvas = ({
       ),
     [graph],
   );
+
+  /**
+   * آفست خمیدگی هر ارتباط. اگر بین دو ایستگاه ارتباط برگشت هم وجود
+   * داشته باشد، هر دو خم می‌شوند تا خط، برچسب و ناحیه‌ی کلیکشان جدا باشد و
+   * بتوان برای هر جهت جداگانه عملیات تعریف کرد.
+   */
+  const edgeOffsets = useMemo(() => {
+    const edges = graph?.edges ?? [];
+    const directions = new Set(
+      edges.map((edge) => `${String(edge.source)}>${String(edge.target)}`),
+    );
+    const seen = new Map();
+
+    return new Map(
+      edges.map((edge) => {
+        const source = String(edge.source);
+        const target = String(edge.target);
+        const key = `${source}>${target}`;
+        const index = seen.get(key) ?? 0;
+        seen.set(key, index + 1);
+
+        const hasReciprocal =
+          source !== target && directions.has(`${target}>${source}`);
+
+        return [
+          String(edge.id),
+          (hasReciprocal ? RECIPROCAL_BOW : 0) + index * PARALLEL_SPACING,
+        ];
+      }),
+    );
+  }, [graph]);
 
   const toSurfacePoint = useCallback(
     (clientX, clientY) => {
@@ -248,7 +283,11 @@ const ProcessCanvas = ({
             const source = nodeById.get(String(edge.source));
             const target = nodeById.get(String(edge.target));
             if (!source || !target) return null;
-            const geometry = edgeGeometry(source, target);
+            const geometry = edgeGeometry(
+              source,
+              target,
+              edgeOffsets.get(String(edge.id)) ?? 0,
+            );
             const isSelected =
               selection.type === "edge" &&
               String(selection.id) === String(edge.id);
@@ -257,7 +296,14 @@ const ProcessCanvas = ({
                 key={edge.id}
                 className={`process-edge${isSelected ? " process-edge--selected" : ""}`}
               >
-                <path className="process-edge__hit" d={geometry.path} />
+                <path
+                  className="process-edge__hit"
+                  d={geometry.path}
+                  onPointerDown={(event) => {
+                    event.stopPropagation();
+                    onSelect({ type: "edge", id: edge.id });
+                  }}
+                />
                 <path
                   className="process-edge__line"
                   d={geometry.path}
@@ -282,7 +328,11 @@ const ProcessCanvas = ({
           const source = nodeById.get(String(edge.source));
           const target = nodeById.get(String(edge.target));
           if (!source || !target) return null;
-          const geometry = edgeGeometry(source, target);
+          const geometry = edgeGeometry(
+            source,
+            target,
+            edgeOffsets.get(String(edge.id)) ?? 0,
+          );
           const isSelected =
             selection.type === "edge" &&
             String(selection.id) === String(edge.id);
@@ -429,7 +479,7 @@ const ProcessCanvas = ({
         <div className="process-canvas__empty">
           <p className="process-canvas__empty-title">بوم فرایند خالی است</p>
           <p className="process-canvas__empty-hint">
-            از جعبه‌ابزار یک «ایستگاه شروع» را بکشید یا روی آن کلیک کنید.
+            از جعبه‌ابزار یک «ایستگاه شر��ع» را بکشید یا روی آن کلیک کنید.
           </p>
         </div>
       ) : null}

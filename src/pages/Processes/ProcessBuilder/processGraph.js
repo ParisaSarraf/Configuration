@@ -371,20 +371,41 @@ export const graphBounds = (nodes) => {
   return { minX, minY, maxX, maxY, width: maxX - minX, height: maxY - minY };
 };
 
-/** مسیر بزیه بین دو ایستگاه به همراه نقطه‌ی میانی برای برچسب و دکمه‌ی حذف. */
-export const edgeGeometry = (source, target) => {
+/**
+ * هندسه‌ی یک ارتباط: مسیر بزیه بین دو ایستگاه به همراه نقطه‌ی میانی برچسب.
+ *
+ * curveOffset منحنی را عمود بر خط مبدأ←مقصد خم می‌کند. چون جهت ارتباط
+ * برگشت معکوس است، بردار عمود هم معکوس می‌شود؛ بنابراین دادن آفست
+ * هم‌علامت به رفت و برگشت، آن‌ها را به دو سمت مخالف خم می‌کند و دیگر روی هم
+ * نمی‌افتند. مقدار صفر دقیقاً همان خط مستقیم قبلی است.
+ */
+export const edgeGeometry = (source, target, curveOffset = 0) => {
   const startX = source.x + NODE_WIDTH / 2;
   const startY = source.y + NODE_HEIGHT;
   const endX = target.x + NODE_WIDTH / 2;
   const endY = target.y;
 
   const distance = Math.max(48, Math.abs(endY - startY) / 2);
-  const path = `M ${startX} ${startY} C ${startX} ${startY + distance}, ${endX} ${endY - distance}, ${endX} ${endY}`;
+
+  const deltaX = endX - startX;
+  const deltaY = endY - startY;
+  const length = Math.hypot(deltaX, deltaY) || 1;
+  const normalX = (-deltaY / length) * curveOffset;
+  const normalY = (deltaX / length) * curveOffset;
+
+  const controlOneX = startX + normalX;
+  const controlOneY = startY + distance + normalY;
+  const controlTwoX = endX + normalX;
+  const controlTwoY = endY - distance + normalY;
+
+  const path = `M ${startX} ${startY} C ${controlOneX} ${controlOneY}, ${controlTwoX} ${controlTwoY}, ${endX} ${endY}`;
 
   return {
     path,
-    midX: (startX + endX) / 2,
-    midY: (startY + endY) / 2,
+    // نقطه‌ی میانی واقعی منحنی (t = 0.5) تا برچسب روی خود خط بنشیند.
+    // با curveOffset = 0 دقیقاً برابر میانه‌ی قبلی است.
+    midX: (startX + 3 * controlOneX + 3 * controlTwoX + endX) / 8,
+    midY: (startY + 3 * controlOneY + 3 * controlTwoY + endY) / 8,
     startX,
     startY,
     endX,
