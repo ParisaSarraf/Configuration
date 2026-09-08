@@ -26,13 +26,11 @@ export const MONTH_NAMES = [
 
 const fa = (v) => Number(v ?? 0).toLocaleString("fa-IR");
 
-// رشته‌های Decimal بک‌اند را به عدد تبدیل می‌کند
 const toNum = (v) =>
   v === undefined || v === null || v === "" || Number.isNaN(Number(v))
     ? null
     : Number(v);
 
-// هر سری: dataKey → پرچم «نقطه واقعی است؟»
 const SERIES = [
   {
     key: "cumulative_planned_quantity",
@@ -55,7 +53,7 @@ const REAL_FLAG_BY_KEY = SERIES.reduce((acc, s) => {
 
 const ChartTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
-  if (!label) return null; // نقطه‌ی مبدأ تولتیپ ندارد
+  if (!label) return null; 
 
   const visible = payload.filter((item) => item.value != null);
   if (!visible.length) return null;
@@ -119,7 +117,6 @@ export const MonthTick = ({ x, y, payload, data }) => {
   );
 };
 
-// نقطه‌ای که ساختگی (پرشده) است دات نمی‌گیرد
 const SeriesDot = ({ cx, cy, payload, realFlag, color }) => {
   if (cx == null || cy == null) return null;
   if (!payload?.[realFlag]) return null;
@@ -128,14 +125,10 @@ const SeriesDot = ({ cx, cy, payload, realFlag, color }) => {
   );
 };
 
-/**
- * قبل از اولین داده → 0 (کف نمودار)
- * گپ میانی → مقدار تجمعی قبلی (خط صاف، بدون افت به صفر)
- * بعد از آخرین داده → null (خط ادامه پیدا نمی‌کند)
- */
+
 const normalizeSeries = (rows, key) => {
   const firstIndex = rows.findIndex((row) => row[key] != null);
-  if (firstIndex === -1) return false; // این سری هیچ داده‌ای ندارد
+  if (firstIndex === -1) return false; 
 
   let lastIndex = firstIndex;
   rows.forEach((row, i) => {
@@ -145,7 +138,7 @@ const normalizeSeries = (rows, key) => {
   let carried = 0;
   rows.forEach((row, i) => {
     if (i < firstIndex) {
-      row[key] = 0; // کف نمودار
+      row[key] = 0; 
       return;
     }
     if (i > lastIndex) {
@@ -153,7 +146,7 @@ const normalizeSeries = (rows, key) => {
       return;
     }
     if (row[key] == null) {
-      row[key] = carried; // ادامه‌ی مقدار تجمعی
+      row[key] = carried; 
     } else {
       carried = row[key];
     }
@@ -191,7 +184,6 @@ const buildChartData = ({ periods = [], actuals = [] } = {}) => {
 
   if (!hasPlanned && !hasProduced) return rows;
 
-  // نقطه‌ی مبدأ روی محور، تا خط دقیقاً از کف و از ابتدای محور شروع شود
   return [
     {
       month: "",
