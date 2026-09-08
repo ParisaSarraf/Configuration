@@ -47,6 +47,14 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
     productionPlanId: modalData?.id,
   });
 
+  const plan = Array.isArray(data) ? data[0] : data;
+  const statusMeta = STATUS_OPTIONS.find((o) => o.value === plan?.status);
+  const progress = plan?.year_progress_percent ?? 0;
+  const periods = plan?.periods ?? [];
+  const actuals = plan?.actuals ?? [];
+  const productTitle =
+    plan?.product?.persian_title ?? plan?.product_name ?? "—";
+
   const [quickModal, setQuickModal] = useState(null); // "period" | "edit" | null
   const [periodModalState, setPeriodModalState] = useState({
     open: false,
@@ -56,7 +64,7 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
   const [actualModalState, setActualModalState] = useState({
     open: false,
     mode: "add",
-    data: null,
+    month: null,
   });
 
   const deleteActual = useDeleteProductionActual();
@@ -66,17 +74,15 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
 
   const openPeriodModal = (mode, data) =>
     setPeriodModalState({ open: true, mode, data });
-
   const closePeriodModal = () =>
     setPeriodModalState((prev) => ({ ...prev, open: false }));
 
-  const openActualModal = (mode, data) =>
+  const openActualModal = (mode, record) =>
     setActualModalState({
       open: true,
       mode,
-      data: mode === "add" ? { ...data, production_plan_id: plan?.id } : data,
+      month: record?.period_month ?? record?.production_month ?? null,
     });
-
   const closeActualModal = () =>
     setActualModalState((prev) => ({ ...prev, open: false }));
 
@@ -85,17 +91,18 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
     refetch?.();
   };
 
-  const plan = Array.isArray(data) ? data[0] : data;
-  const statusMeta = STATUS_OPTIONS.find((o) => o.value === plan?.status);
-  const progress = plan?.year_progress_percent ?? 0;
-
-  const periods = plan?.periods ?? [];
-  const actuals = plan?.actuals ?? [];
+  const actualModalData = useMemo(
+    () => ({
+      production_plan_id: plan?.id,
+      actuals,
+      focusMonth: actualModalState.month,
+    }),
+    [plan?.id, actuals, actualModalState.month]
+  );
 
   const tableRows = useMemo(() => {
     const periodByMonth = new Map(periods.map((p) => [p.period_month, p]));
     const actualByMonth = new Map(actuals.map((a) => [a.production_month, a]));
-
     const months = new Set([...periodByMonth.keys(), ...actualByMonth.keys()]);
 
     return [...months]
@@ -115,9 +122,6 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
       });
   }, [periods, actuals]);
 
-  const productTitle =
-    plan?.product?.persian_title ?? plan?.product_name ?? "—";
-
   const columns = [
     {
       title: "ماه",
@@ -136,7 +140,7 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
       title: "مقدار تولید شده",
       dataIndex: "quantity_produced",
       align: "center",
-      render: (v) => (v != null ? v.toLocaleString("fa-IR") : "—"),
+      render: (v) => (v != null ? Number(v).toLocaleString("fa-IR") : "—"),
     },
     {
       title: "وزن برنامه‌ریزی‌شده",
@@ -148,7 +152,7 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
       title: "وزن تولید شده",
       dataIndex: "produced_weight",
       align: "center",
-      render: (v) => (v != null ? v.toLocaleString("fa-IR") : "—"),
+      render: (v) => (v != null ? Number(v).toLocaleString("fa-IR") : "—"),
     },
     {
       title: "عملیات",
@@ -212,9 +216,7 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
                 size="small"
                 icon={<PlusOutlined />}
                 className="text-sky-600 border border-sky-600"
-                onClick={() =>
-                  openPeriodModal("add", { ...record, id: plan?.id })
-                }
+                onClick={() => openPeriodModal("add", { ...record, id: plan?.id })}
               >
                 ایجاد دوره
               </Button>
@@ -355,7 +357,7 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
                 size="small"
                 icon={<PlusOutlined />}
                 className="text-emerald-600 border border-emerald-600"
-                onClick={() => openActualModal("add", {})}
+                onClick={() => openActualModal("add", null)}
               >
                 ثبت تولید
               </Button>
@@ -388,7 +390,6 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
         <Skeleton active paragraph={{ rows: 6 }} />
       ) : (
         <div className="flex flex-col gap-8">
-          {/* ============ اطلاعات کلی ============ */}
           <div>
             <SectionTitle>اطلاعات کلی</SectionTitle>
             <Descriptions
@@ -397,9 +398,7 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
               column={{ xs: 1, sm: 2 }}
               labelStyle={{ fontWeight: 600, whiteSpace: "nowrap" }}
             >
-              <Descriptions.Item label="محصول">
-                {productTitle}
-              </Descriptions.Item>
+              <Descriptions.Item label="محصول">{productTitle}</Descriptions.Item>
               <Descriptions.Item label="سال">
                 {plan?.year != null ? plan.year : "—"}
               </Descriptions.Item>
@@ -411,7 +410,9 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
               </Descriptions.Item>
               <Descriptions.Item label="ایجاد کننده">
                 {plan?.created_by
-                  ? `${plan.created_by.name ?? ""} ${plan.created_by.last_name ?? ""}`.trim()
+                  ? `${plan.created_by.name ?? ""} ${
+                      plan.created_by.last_name ?? ""
+                    }`.trim()
                   : "—"}
               </Descriptions.Item>
               <Descriptions.Item label="وضعیت">
@@ -462,7 +463,6 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
 
           <Divider className="!my-0" />
 
-          {/* ============ نمودار ============ */}
           <div>
             <SectionTitle>نمودار مقادیر (برنامه / تولید)</SectionTitle>
             <Card size="small" className="rounded-xl border-slate-200">
@@ -472,12 +472,11 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
 
           <Divider className="!my-0" />
 
-          {/* ============ جدول دوره‌ها ============ */}
           <div>
             <div className="flex items-center justify-between mb-4">
               <SectionTitle>جدول دوره‌ها</SectionTitle>
             </div>
-            {periods.length === 0 ? (
+            {tableRows.length === 0 ? (
               <Empty description="دوره‌ای برای این برنامه ثبت نشده است">
                 <Button
                   type="primary"
@@ -494,7 +493,7 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
                 styles={{ body: { padding: 0 } }}
               >
                 <TableAntd
-                  rowKey="period_id"
+                  rowKey={(record) => record.period_month}
                   columns={columns}
                   dataSource={tableRows}
                   pagination={false}
@@ -505,7 +504,6 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
 
           <Divider className="!my-0" />
 
-          {/* ============ اطلاعات نهایی برنامه ============ */}
           <div>
             <SectionTitle>اطلاعات نهایی برنامه</SectionTitle>
             <Descriptions
@@ -535,6 +533,7 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
         closeModal={periodModalState.open ? closePeriodModal : closeQuickModal}
         refetch={handleQuickModalRefetch}
       />
+
       <PlanModal
         isOpen={quickModal === "edit"}
         modalMode="edit"
@@ -542,10 +541,11 @@ const PlanDetailModal = ({ isOpen, modalData, closeModal, refetch }) => {
         closeModal={closeQuickModal}
         refetch={handleQuickModalRefetch}
       />
+
       <ActualModal
         isOpen={actualModalState.open}
         modalMode={actualModalState.mode}
-        modalData={actualModalState.data}
+        modalData={actualModalData}
         closeModal={closeActualModal}
         refetch={handleQuickModalRefetch}
       />

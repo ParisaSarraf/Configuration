@@ -1,9 +1,10 @@
 import { Form, InputNumber, Spin, Tooltip, message } from "antd";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Modal from "../../../components/Modal";
 import {
   useCreateProductionActual,
   useUpdateProductionActual,
+  useDeleteProductionActual,
 } from "../../../QueryServises/PlanQuery";
 import { MONTH_NAMES } from "./PlanPeriodsChart";
 
@@ -12,23 +13,35 @@ const MONTH_OPTIONS = MONTH_NAMES.map((name, i) => ({
   label: name,
 }));
 
-const EMPTY_ROW_STATES = Array.from({ length: 12 }, () => ({
-  status: "idle", // "idle" | "loading" | "success" | "error"
-  error: null,
-}));
+const makeEmptyRowStates = () =>
+  Array.from({ length: 12 }, () => ({
+    status: "idle", // "idle" | "loading" | "success" | "error"
+    error: null,
+  }));
+
+const toNum = (v) =>
+  v === undefined || v === null || v === "" || Number.isNaN(Number(v))
+    ? null
+    : Number(v);
 
 const ActualModal = ({ isOpen, modalData, closeModal, refetch, modalMode }) => {
   const [form] = Form.useForm();
   const { mutateAsync: addActual } = useCreateProductionActual();
   const { mutateAsync: updateActual } = useUpdateProductionActual();
+  const { mutateAsync: deleteActual } = useDeleteProductionActual();
 
-  const [rowStates, setRowStates] = useState(EMPTY_ROW_STATES);
+  const [rowStates, setRowStates] = useState(makeEmptyRowStates);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const baselineRef = useRef({});
+  const focusInputRef = useRef(null);
+
   const isEdit = modalMode === "edit";
+  const focusMonth = toNum(modalData?.focusMonth);
 
   const existingByMonth = useMemo(() => {
     let actuals = [];
+
     if (Array.isArray(modalData?.actuals)) {
       actuals = modalData.actuals;
     } else if (isEdit && modalData?.production_month) {
@@ -40,31 +53,47 @@ const ActualModal = ({ isOpen, modalData, closeModal, refetch, modalMode }) => {
         },
       ];
     }
+
     return actuals.reduce((acc, a) => {
-      acc[a.production_month] = a;
+      const month = toNum(a?.production_month);
+      if (month != null) acc[month] = a;
       return acc;
     }, {});
   }, [modalData, isEdit]);
 
-  const productionPlanId = modalData?.production_plan_id ?? modalData?.id;
+  const initialValues = useMemo(() => {
+    const values = {};
+    MONTH_OPTIONS.forEach(({ value }) => {
+      values[`month_${value}`] = toNum(
+        existingByMonth[value]?.quantity_produced,
+      );
+    });
+    return values;
+  }, [existingByMonth]);
+
+  const dataKey = useMemo(() => JSON.stringify(initialValues), [initialValues]);
+
+  const productionPlanId = modalData?.production_plan_id;
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      form.resetFields();
+      setRowStates(makeEmptyRowStates());
+      baselineRef.current = {};
+      return;
+    }
 
-    const initialValues = {};
-    const initialRowStates = EMPTY_ROW_STATES.map((row) => ({ ...row }));
-
-    MONTH_OPTIONS.forEach(({ value }, i) => {
-      const existing = existingByMonth[value];
-      initialValues[`month_${value}`] = existing?.quantity_produced ?? undefined;
-      if (existing) {
-        initialRowStates[i] = { status: "success", error: null };
-      }
-    });
-
+    baselineRef.current = initialValues;
+    form.resetFields();
     form.setFieldsValue(initialValues);
-    setRowStates(initialRowStates);
-  }, [isOpen, existingByMonth, form]);
+    setRowStates(makeEmptyRowStates());
+  }, [isOpen, dataKey, form]);
+
+  useEffect(() => {
+    if (!isOpen || focusMonth == null) return;
+    const timer = setTimeout(() => focusInputRef.current?.focus(), 150);
+    return () => clearTimeout(timer);
+  }, [isOpen, focusMonth, dataKey]);
 
   const setRowState = (index, nextState) => {
     setRowStates((prev) => {
@@ -79,39 +108,61 @@ const ActualModal = ({ isOpen, modalData, closeModal, refetch, modalMode }) => {
 
     for (let i = 0; i < MONTH_OPTIONS.length; i++) {
       const monthNum = MONTH_OPTIONS[i].value;
+      const key = `month_${monthNum}`;
+      const nextValue = toNum(values[key]);
+      const prevValue = toNum(baselineRef.current[key]);
+      const existing = existingByMonth[monthNum];
 
-      if (rowStates[i].status === "success") continue;
-
-      const qty = values[`month_${monthNum}`];
-      if (qty === undefined || qty === null || qty === "") {
-        setRowState(i, { status: "idle", error: null });
+      if (nextValue === prevValue) {
+        setRowState(i, {
+          status: existing ? "success" : "idle",
+          error: null,
+        });
         continue;
       }
 
       setRowState(i, { status: "loading", error: null });
 
       try {
-        const existing = existingByMonth[monthNum];
-        if (existing) {
+        if (nextValue === null) {
+          if (existing?.id != null) {
+            await deleteActual(existing.id);
+            // await updateActual({
+            //   productionActualId: existing.id,
+            //   production_month: monthNum,
+            //   quantity_produced: null,
+            // });
+          }
+          setRowState(i, { status: "idle", error: null });
+          continue;
+        }
+
+        if (existing?.id != null) {
           await updateActual({
             productionActualId: existing.id,
             production_month: monthNum,
-            quantity_produced: qty,
+            quantity_produced: nextValue,
           });
         } else {
+          if (productionPlanId == null) {
+            throw new Error("شناسه برنامه تولید یافت نشد");
+          }
           await addActual({
             production_plan_id: productionPlanId,
             production_month: monthNum,
-            quantity_produced: qty,
+            quantity_produced: nextValue,
           });
         }
+
         setRowState(i, { status: "success", error: null });
       } catch (error) {
         const errMsg =
-          error?.response?.data?.detail ?? "خطا در ثبت این ماه";
+          error?.response?.data?.detail ??
+          error?.message ??
+          "خطا در ثبت این ماه";
         setRowState(i, { status: "error", error: errMsg });
         message.error(
-          `ثبت ${MONTH_OPTIONS[i].label} با خطا مواجه شد. مقدار را بررسی و دوباره تلاش کنید.`
+          `ثبت ${MONTH_OPTIONS[i].label} با خطا مواجه شد. مقدار را بررسی و دوباره تلاش کنید.`,
         );
         console.error(error);
         setIsSubmitting(false);
@@ -124,28 +175,29 @@ const ActualModal = ({ isOpen, modalData, closeModal, refetch, modalMode }) => {
   };
 
   const handleSubmit = async () => {
+    let values;
     try {
-      const values = await form.validateFields();
+      values = await form.validateFields();
+    } catch (err) {
+      console.warn("اعتبارسنجی فرم رد شد:", err);
+      return;
+    }
 
-      const hasAnyValue = MONTH_OPTIONS.some(
-        ({ value }) =>
-          values[`month_${value}`] !== undefined &&
-          values[`month_${value}`] !== null
-      );
+    const hasChanges = MONTH_OPTIONS.some(({ value }) => {
+      const key = `month_${value}`;
+      return toNum(values[key]) !== toNum(baselineRef.current[key]);
+    });
 
-      if (!hasAnyValue) {
-        message.warning("حداقل مقدار یک ماه را وارد کنید");
-        return;
-      }
+    if (!hasChanges) {
+      message.info("تغییری برای ذخیره وجود ندارد");
+      return;
+    }
 
-      const success = await runSubmission(values);
-      if (success) {
-        message.success("تولید واقعی با موفقیت ثبت شد");
-        refetch?.();
-        closeModal();
-      }
-    } catch {
-      // form.validateFields() rejected — inline field errors are already shown.
+    const success = await runSubmission(values);
+    if (success) {
+      message.success("تولید واقعی با موفقیت ذخیره شد");
+      refetch?.();
+      closeModal();
     }
   };
 
@@ -158,14 +210,30 @@ const ActualModal = ({ isOpen, modalData, closeModal, refetch, modalMode }) => {
       loading={isSubmitting}
     >
       <div className="p-1">
-        <Form form={form} layout="vertical">
+        <p className="mb-3 text-xs text-slate-500">
+          مقادیر ثبت‌شده از قبل پر شده‌اند. برای حذف مقدار یک ماه، فیلد آن را
+          خالی کنید.
+        </p>
+
+        <Form
+          form={form}
+          layout="vertical"
+          initialValues={initialValues}
+          preserve={false}
+        >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
             {MONTH_OPTIONS.map(({ value, label }, i) => {
               const rowState = rowStates[i];
               const rowLocked = isSubmitting || rowState.status === "loading";
+              const isFocused = focusMonth === value;
 
               return (
-                <div key={value} className="flex items-center gap-2">
+                <div
+                  key={value}
+                  className={`flex items-center gap-2 rounded-md px-1 py-0.5 ${
+                    isFocused ? "bg-emerald-50 ring-1 ring-emerald-200" : ""
+                  }`}
+                >
                   <span className="w-14 shrink-0 text-sm text-slate-600">
                     {label}
                   </span>
@@ -182,6 +250,7 @@ const ActualModal = ({ isOpen, modalData, closeModal, refetch, modalMode }) => {
                     ]}
                   >
                     <InputNumber
+                      ref={isFocused ? focusInputRef : undefined}
                       className="!w-full"
                       min={0}
                       placeholder="—"

@@ -18,7 +18,6 @@ import DetailModal from "@/components/DetailModal/DetailModal.jsx";
 import CombineFiles from "@/pages/ProductDocument/components/CombineFiles/CombineFiles.jsx";
 import { DownloadOutlined, PlusOutlined } from "@ant-design/icons";
 import ExportExcelButton from "../../components/ExportExcel/ExportExcel";
-import ZipProgressModal from "../../components/ZipProgressModal/ZipProgressModal";
 import ZipSerialProgressModal from "../../components/ZipSerialProgressModal/ZipSerialProgressModal";
 
 const ProductDocuments = () => {
