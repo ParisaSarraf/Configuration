@@ -64,19 +64,19 @@ const EditionDetailViewModal = ({
         <div className={"p-4 border rounded-xl border-blue-200 border-dashed"}>
           <SectionTitle title="فایل‌ها" />
           <InfoRow label="فایل لاگ">
-            {renderFileButton("فایل بررسی", specificLog?.file)}
+            {renderFileButton("فایل بررسی", specificLog?.file, true)}
           </InfoRow>
           {/* <InfoRow label="فایل ۱">
-                        {renderFileButton("فایل ۱", editionData?.file_1)}
+                        {renderFileButton("فایل ۱", editionData?.file_1, true)}
                     </InfoRow>
                     <InfoRow label="فایل ۲">
-                        {renderFileButton("فایل ۲", editionData?.file_2)}
+                        {renderFileButton("فایل ۲", editionData?.file_2, true)}
                     </InfoRow>
                     <InfoRow label="فایل ۳">
-                        {renderFileButton("فایل ۳", editionData?.file_3)}
+                        {renderFileButton("فایل ۳", editionData?.file_3, true)}
                     </InfoRow>
                     <InfoRow label="فایل ۴">
-                        {renderFileButton("فایل ۴", editionData?.file_4)}
+                        {renderFileButton("فایل ۴", editionData?.file_4, true)}
                     </InfoRow> */}
         </div>
       </div>

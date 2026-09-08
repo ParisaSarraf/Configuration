@@ -1,13 +1,22 @@
 import Modal from "../Modal/index.jsx";
-import { Badge, Image, Space } from "antd";
+import { Badge, Image, message, Space } from "antd";
 import { CopyOutlined, FileOutlined } from "@ant-design/icons";
 import { BASEURL } from "@/Services/axiosInstance.js";
 import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
+import { canViewUnacceptedVersion } from "@/utils/ExportFromToken.js";
 
-export const renderFileButton = (label, filePath) => {
+export const renderFileButton = (label, filePath, accessCheckRequired = false) => {
   if (!filePath) return <div className="text-gray-400">فایلی وجود ندارد</div>;
   const fullUrl = `${BASEURL.replace("/api/v1", "")}${filePath}`;
   const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(filePath);
+  const canOpenFile =
+    !accessCheckRequired || canViewUnacceptedVersion();
+  const handleFileClick = (event) => {
+    if (canOpenFile) return;
+    event.preventDefault();
+    event.stopPropagation();
+    message.error("شما اجازه مشاهده یا دانلود این فایل را ندارید");
+  };
 
   return (
     <Space className="flex flex-col">
@@ -16,6 +25,7 @@ export const renderFileButton = (label, filePath) => {
         target="_blank"
         rel="noopener noreferrer"
         style={{ color: "#1890ff" }}
+        onClick={handleFileClick}
       >
         {isImage ? (
           <Image
@@ -23,7 +33,7 @@ export const renderFileButton = (label, filePath) => {
             height={90}
             src={fullUrl}
             alt="فایل پیوست"
-            preview={true}
+            preview={canOpenFile}
           />
         ) : (
           <>
@@ -37,6 +47,7 @@ export const renderFileButton = (label, filePath) => {
         style={{ color: "#52c41a" }}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={handleFileClick}
       >
         دانلود
       </a>
@@ -287,21 +298,22 @@ const DetailModal = ({
               <SectionCard title={"فایل های پیوست"}>
                 <h1>
                   فایل غیرقابل ویرایش
-                  {renderFileButton("فایل غیرقابل ویرایش", editionData.file_1)}
+                  {renderFileButton("فایل غیرقابل ویرایش", editionData.file_1, true)}
                 </h1>
                 <h1>
                   فایل قابل ویرایش
-                  {renderFileButton("فایل قابل ویرایش", editionData.file_2)}
+                  {renderFileButton("فایل قابل ویرایش", editionData.file_2, true)}
                 </h1>
                 <h1>
                   فایل پشتیبان تولید
-                  {renderFileButton("فایل پشتیبان تولید", editionData.file_3)}
+                  {renderFileButton("فایل پشتیبان تولید", editionData.file_3, true)}
                 </h1>
                 <h1>
                   ارسال به کارفرما/پیمانکار
                   {renderFileButton(
                     "ارسال به کارفرما/پیمانکار",
                     editionData.file_4,
+                    true,
                   )}
                 </h1>
               </SectionCard>
@@ -333,21 +345,22 @@ const DetailModal = ({
               <SectionCard title={"فایل های پیوست"}>
                 <h1>
                   فایل غیرقابل ویرایش
-                  {renderFileButton("فایل غیرقابل ویرایش", editionData.file_1)}
+                  {renderFileButton("فایل غیرقابل ویرایش", editionData.file_1, true)}
                 </h1>
                 <h1>
                   فایل قابل ویرایش
-                  {renderFileButton("فایل قابل ویرایش", editionData.file_2)}
+                  {renderFileButton("فایل قابل ویرایش", editionData.file_2, true)}
                 </h1>
                 <h1>
                   فایل پشتیبان تولید
-                  {renderFileButton("فایل پشتیبان تولید", editionData.file_3)}
+                  {renderFileButton("فایل پشتیبان تولید", editionData.file_3, true)}
                 </h1>
                 <h1>
                   ارسال به کارفرما/پیمانکار
                   {renderFileButton(
                     "ارسال به کارفرما/پیمانکار",
                     editionData.file_4,
+                    true,
                   )}
                 </h1>
               </SectionCard>

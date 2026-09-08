@@ -20,6 +20,7 @@ import { useEffect, useState } from "react";
 import { BASEURL } from "@/Services/axiosInstance.js";
 import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
 import { useAllLogs } from "@/hooks/useAllLogs.js";
+import { canViewUnacceptedVersion } from "@/utils/ExportFromToken.js";
 
 const CombineFiles = ({
   isOpen,
@@ -205,6 +206,10 @@ const CombineFiles = ({
 
   const renderFiles = () => {
     if (!modalData) return <div>در حال بارگذاری...</div>;
+
+    if (!canViewUnacceptedVersion()) {
+      return <div>شما اجازه مشاهده این فایل‌ها را ندارید</div>;
+    }
 
     const files = [
       modalData?.file_1

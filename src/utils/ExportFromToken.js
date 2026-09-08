@@ -57,6 +57,9 @@ export const getAuthDataFromToken = (token) => {
 export const hasPageAccess = (page, token) =>
   getAuthDataFromToken(token)?.accessible_pages.includes(page) ?? false;
 
+export const canViewUnacceptedVersion = (token) =>
+  getAuthDataFromToken(token)?.view_unaccepted_version === true;
+
 export const isTokenExpired = (token) => {
   const expiration = getTokenField("exp", null, token);
   return expiration == null || expiration * 1000 <= Date.now();
