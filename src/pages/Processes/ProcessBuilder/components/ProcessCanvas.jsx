@@ -3,13 +3,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CloseOutlined, NodeIndexOutlined } from "@ant-design/icons";
 import { Trash2 } from "lucide-react";
 
-import { edgeGeometry } from "../processGraph";
+import { edgeGeometry, graphBounds } from "../processGraph";
 import {
   GRID_SIZE,
   MAX_ZOOM,
   MIN_ZOOM,
   NODE_HEIGHT,
   NODE_WIDTH,
+  STATE_TYPE_IDS,
   getActionType,
   getStateType,
 } from "../processSchema";
@@ -20,6 +21,9 @@ const DRAG_TYPE = "application/x-process-state-type";
 const RECIPROCAL_BOW = 60;
 /** فاصله‌ی ارتباط‌های هم‌جهت تکراری بین همان دو ایستگاه. */
 const PARALLEL_SPACING = 52;
+/** ابعاد مینی‌مپ نمای کلی فرایند. */
+const MINIMAP_WIDTH = 168;
+const MINIMAP_HEIGHT = 112;
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const snap = (value) => Math.round(value / GRID_SIZE) * GRID_SIZE;
 
@@ -39,10 +43,27 @@ const ProcessCanvas = ({
   onConnect,
   onDeleteNode,
   onDeleteEdge,
+  onDuplicateNode,
 }) => {
   const dragRef = useRef(null);
   const panRef = useRef(null);
+  /** درگِ اتصال: مبدأ، نقطه‌ی شروع و اینکه ماوس واقعاً حرکت کرده یا نه. */
+  const connectDragRef = useRef(null);
   const [pointer, setPointer] = useState(null);
+  /** منوی راست‌کلیک: مختصات نسبت به کادر بوم و هدفِ انتخاب‌شده. */
+  const [menu, setMenu] = useState(null);
+  /** اندازه‌ی کادر بوم؛ برای رسم کادر دید روی مینی‌مپ. */
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
+
+  /** محدوده‌ی نمودار و مقیاس مینی‌مپ. */
+  const minimap = useMemo(() => {
+    const bounds = graphBounds(graph?.nodes ?? []);
+    const scale = Math.min(
+      MINIMAP_WIDTH / Math.max(bounds.width, 1),
+      MINIMAP_HEIGHT / Math.max(bounds.height, 1),
+    );
+    return { ...bounds, scale };
+  }, [graph]);
 
   const nodeById = useMemo(
     () => new Map((graph?.nodes ?? []).map((node) => [String(node.id), node])),
@@ -99,6 +120,40 @@ const ProcessCanvas = ({
     [containerRef, viewport.x, viewport.y, viewport.zoom],
   );
 
+  /** بازکردن منوی راست‌کلیک در محل ماوس؛ همزمان هدف را هم انتخاب می‌کند. */
+  const openMenu = useCallback(
+    (event, target) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const rect = containerRef.current?.getBoundingClientRect();
+      setMenu({
+        x: event.clientX - (rect?.left ?? 0),
+        y: event.clientY - (rect?.top ?? 0),
+        target,
+      });
+      onSelect(target);
+    },
+    [containerRef, onSelect],
+  );
+
+  const closeMenu = useCallback(() => setMenu(null), []);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return undefined;
+
+    const update = () => {
+      const rect = container.getBoundingClientRect();
+      setCanvasSize({ width: rect.width, height: rect.height });
+    };
+
+    update();
+    if (typeof ResizeObserver === "undefined") return undefined;
+    const observer = new ResizeObserver(update);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [containerRef]);
+
   /* --------------------------- zoom / pan --------------------------- */
 
   useEffect(() => {
@@ -140,6 +195,7 @@ const ProcessCanvas = ({
   }, [containerRef, onViewportChange]);
 
   const handleBackgroundPointerDown = (event) => {
+    setMenu(null);
     if (event.button !== 0 && event.button !== 1) return;
     panRef.current = {
       startX: event.clientX,
@@ -165,7 +221,17 @@ const ProcessCanvas = ({
       }));
       return;
     }
-    if (connectFrom) setPointer(toSurfacePoint(event.clientX, event.clientY));
+    if (connectFrom) {
+      const connectDrag = connectDragRef.current;
+      if (connectDrag && !connectDrag.moved) {
+        const distance =
+          Math.abs(event.clientX - connectDrag.startX) +
+          Math.abs(event.clientY - connectDrag.startY);
+        // آستانه‌ی کوچک تا لرزش ماوس با درگ اشتباه نشود.
+        if (distance > 6) connectDrag.moved = true;
+      }
+      setPointer(toSurfacePoint(event.clientX, event.clientY));
+    }
   };
 
   const handleContainerPointerUp = (event) => {
@@ -176,6 +242,7 @@ const ProcessCanvas = ({
     if (!pan || pan.moved) return;
     // کلیک ساده روی زمینه: لغو اتصال یا بازگشت به تنزیمات خود فرایند
     if (connectFrom) {
+      connectDragRef.current = null;
       onStartConnect(null);
       setPointer(null);
       return;
@@ -190,6 +257,7 @@ const ProcessCanvas = ({
     event.stopPropagation();
 
     if (connectFrom) {
+      connectDragRef.current = null;
       onConnect(connectFrom, node.id);
       setPointer(null);
       return;
@@ -220,12 +288,23 @@ const ProcessCanvas = ({
     });
   };
 
-  const handleNodePointerUp = (event) => {
+  const handleNodePointerUp = (event, node) => {
     const drag = dragRef.current;
     dragRef.current = null;
     if (event.currentTarget.hasPointerCapture?.(event.pointerId))
       event.currentTarget.releasePointerCapture(event.pointerId);
-    if (drag?.moved) onNodeMoveEnd();
+    if (drag?.moved) {
+      onNodeMoveEnd();
+      return;
+    }
+
+    // رهاکردن درگِ اتصال روی ایستگاه مقصد، ارتباط را کامل می‌کند.
+    const connectDrag = connectDragRef.current;
+    if (node && connectDrag?.moved) {
+      connectDragRef.current = null;
+      setPointer(null);
+      onConnect(connectDrag.source, node.id);
+    }
   };
 
   const handleDrop = (event) => {
@@ -303,6 +382,9 @@ const ProcessCanvas = ({
                     event.stopPropagation();
                     onSelect({ type: "edge", id: edge.id });
                   }}
+                  onContextMenu={(event) =>
+                    openMenu(event, { type: "edge", id: edge.id })
+                  }
                 />
                 <path
                   className="process-edge__line"
@@ -351,6 +433,9 @@ const ProcessCanvas = ({
                 event.stopPropagation();
                 onSelect({ type: "edge", id: edge.id });
               }}
+              onContextMenu={(event) =>
+                openMenu(event, { type: "edge", id: edge.id })
+              }
             >
               {linkedActions.length > 0 ? (
                 <span className="process-edge-label__actions">
@@ -420,8 +505,11 @@ const ProcessCanvas = ({
               }}
               onPointerDown={(event) => handleNodePointerDown(event, node)}
               onPointerMove={handleNodePointerMove}
-              onPointerUp={handleNodePointerUp}
+              onPointerUp={(event) => handleNodePointerUp(event, node)}
               onPointerCancel={handleNodePointerUp}
+              onContextMenu={(event) =>
+                openMenu(event, { type: "node", id: node.id })
+              }
             >
               <span className={`process-node__icon ${type.tone.icon}`}>
                 <Icon />
@@ -461,7 +549,17 @@ const ProcessCanvas = ({
                 onPointerDown={(event) => {
                   event.stopPropagation();
                   onSelect({ type: "node", id: node.id });
-                  onStartConnect(isConnectSource ? null : node.id);
+                  const next = isConnectSource ? null : node.id;
+                  onStartConnect(next);
+                  // هم‌کلیک پشت‌سر‌هم کار می‌کند و هم درگ تا ایستگاه مقصد.
+                  connectDragRef.current = next
+                    ? {
+                        source: node.id,
+                        startX: event.clientX,
+                        startY: event.clientY,
+                        moved: false,
+                      }
+                    : null;
                   setPointer({
                     x: node.x + NODE_WIDTH / 2,
                     y: node.y + NODE_HEIGHT,
@@ -481,12 +579,130 @@ const ProcessCanvas = ({
           <p className="process-canvas__empty-hint">
             از جعبه‌ابزار یک «ایستگاه شر��ع» را بکشید یا روی آن کلیک کنید.
           </p>
+          <button
+            type="button"
+            className="process-canvas__empty-action"
+            onClick={() => onAddNode(STATE_TYPE_IDS.START)}
+          >
+            افزودن ایستگاه شروع
+          </button>
         </div>
       ) : null}
 
       {connectFrom ? (
         <div className="process-canvas__hint">
-          ایستگاه مقصد را انتخاب کنید · برای لغو Esc
+          روی ایستگاه مقصد کلیک کنید یا خط را روی آن رها کنید · برای لغو Esc
+        </div>
+      ) : null}
+
+      {(graph?.nodes ?? []).length > 1 ? (
+        <div
+          className="process-canvas__minimap"
+          title="نمای کلی فرایند · برای جابه‌جایی کلیک کنید"
+          style={{ width: MINIMAP_WIDTH, height: MINIMAP_HEIGHT }}
+          onPointerDown={(event) => {
+            event.stopPropagation();
+            const rect = event.currentTarget.getBoundingClientRect();
+            const graphX =
+              minimap.minX + (event.clientX - rect.left) / minimap.scale;
+            const graphY =
+              minimap.minY + (event.clientY - rect.top) / minimap.scale;
+            onViewportChange((previous) => ({
+              ...previous,
+              x: canvasSize.width / 2 - graphX * previous.zoom,
+              y: canvasSize.height / 2 - graphY * previous.zoom,
+            }));
+          }}
+        >
+          {(graph?.nodes ?? []).map((node) => {
+            const isSelected =
+              selection.type === "node" &&
+              String(selection.id) === String(node.id);
+            return (
+              <span
+                key={node.id}
+                className={`process-canvas__minimap-node${
+                  isSelected ? " process-canvas__minimap-node--selected" : ""
+                }`}
+                style={{
+                  left: (node.x - minimap.minX) * minimap.scale,
+                  top: (node.y - minimap.minY) * minimap.scale,
+                  width: Math.max(4, NODE_WIDTH * minimap.scale),
+                  height: Math.max(3, NODE_HEIGHT * minimap.scale),
+                }}
+              />
+            );
+          })}
+
+          {canvasSize.width > 0 ? (
+            <span
+              className="process-canvas__minimap-view"
+              style={{
+                left:
+                  (-viewport.x / viewport.zoom - minimap.minX) * minimap.scale,
+                top:
+                  (-viewport.y / viewport.zoom - minimap.minY) * minimap.scale,
+                width: (canvasSize.width / viewport.zoom) * minimap.scale,
+                height: (canvasSize.height / viewport.zoom) * minimap.scale,
+              }}
+            />
+          ) : null}
+        </div>
+      ) : null}
+
+      {menu ? (
+        <div
+          className="process-canvas__menu"
+          style={{ left: menu.x, top: menu.y }}
+          onPointerDown={(event) => event.stopPropagation()}
+          onContextMenu={(event) => event.preventDefault()}
+        >
+          {menu.target.type === "node" ? (
+            <>
+              <button
+                type="button"
+                className="process-canvas__menu-item"
+                onClick={() => {
+                  connectDragRef.current = null;
+                  onStartConnect(menu.target.id);
+                  closeMenu();
+                }}
+              >
+                اتصال به ایستگاه دیگر
+              </button>
+              <button
+                type="button"
+                className="process-canvas__menu-item"
+                onClick={() => {
+                  onDuplicateNode?.(menu.target.id);
+                  closeMenu();
+                }}
+              >
+                تکرار ایستگاه · Ctrl+D
+              </button>
+              <button
+                type="button"
+                className="process-canvas__menu-item process-canvas__menu-item--danger"
+                onClick={() => {
+                  onDeleteNode(menu.target.id);
+                  closeMenu();
+                }}
+              >
+                حذف ایستگاه
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              className="process-canvas__menu-item process-canvas__menu-item--danger"
+              onClick={() => {
+                onDeleteEdge(menu.target.id);
+                closeMenu();
+              }}
+            >
+              حذف ارتباط
+            </button>
+          )}
         </div>
       ) : null}
     </div>

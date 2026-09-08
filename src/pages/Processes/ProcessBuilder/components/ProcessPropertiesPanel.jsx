@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Alert, Button, Empty, Input, Select, Tag, Tooltip } from "antd";
 import { Plus, Trash2 } from "lucide-react";
 
@@ -148,6 +148,14 @@ const ProcessPropertiesPanel = ({
     );
   }, [graph, selection]);
 
+  /** تب فعال پنل: مشخصات مورد انتخاب‌شده یا مشخصات کل فرایند. */
+  const [tab, setTab] = useState("selection");
+
+  // با هر انتخاب جدید، خودبه‌خود به تب مورد انتخاب‌شده برمی‌گردد.
+  useEffect(() => {
+    setTab("selection");
+  }, [selection?.type, selection?.id]);
+
   if (!graph) return <aside className="process-panel" />;
 
   /* ------------------------------ کمکی‌ها ------------------------------ */
@@ -245,7 +253,7 @@ const ProcessPropertiesPanel = ({
 
   /* ------------------------------ ایستگاه ------------------------------ */
 
-  if (selectedNode) {
+  if (selectedNode && tab === "selection") {
     const stateType = getStateType(selectedNode.stateTypeId);
     const outgoing = graph.edges.filter(
       (edge) => String(edge.source) === String(selectedNode.id),
@@ -259,6 +267,21 @@ const ProcessPropertiesPanel = ({
         <div className="process-panel__header">
           <span className="process-panel__title">مشخصات ایستگاه</span>
           <span className="process-panel__subtitle">{stateType.label}</span>
+          <div className="process-panel__tabs">
+            <button
+              type="button"
+              className="process-panel__tab process-panel__tab--active"
+            >
+              مشخصات ایستگاه
+            </button>
+            <button
+              type="button"
+              className="process-panel__tab"
+              onClick={() => setTab("process")}
+            >
+              فرایند و عملیات‌ها
+            </button>
+          </div>
         </div>
 
         <div className="process-panel__section">
@@ -374,7 +397,7 @@ const ProcessPropertiesPanel = ({
 
   /* ------------------------------- ارتباط ------------------------------- */
 
-  if (selectedEdge) {
+  if (selectedEdge && tab === "selection") {
     const attached = selectedEdge.actions ?? [];
     const available = graph.actions.filter(
       (action) =>
@@ -388,6 +411,21 @@ const ProcessPropertiesPanel = ({
           <span className="process-panel__subtitle">
             {`${nodeName(selectedEdge.source)} ← ${nodeName(selectedEdge.target)}`}
           </span>
+          <div className="process-panel__tabs">
+            <button
+              type="button"
+              className="process-panel__tab process-panel__tab--active"
+            >
+              مشخصات ارتباط
+            </button>
+            <button
+              type="button"
+              className="process-panel__tab"
+              onClick={() => setTab("process")}
+            >
+              فرایند و عملیات‌ها
+            </button>
+          </div>
         </div>
 
         <div className="process-panel__section">
@@ -473,13 +511,46 @@ const ProcessPropertiesPanel = ({
           )}
 
           <div className="process-panel__field">
-            <label className="process-panel__label">افزودن عملیات</label>
+            <div className="process-panel__field-head">
+              <label className="process-panel__label">افزودن عملیات</label>
+              <Button
+                size="small"
+                icon={<Plus size={14} />}
+                disabled={disabled}
+                onClick={() => {
+                  // ساخت عملیات در سطح فرایند و اتصال فوری به همین ارتباط، در یک کلیک.
+                  const action = createAction({
+                    actionTypeId: ACTION_TYPES[0].id,
+                  });
+                  updateGraph((current) => ({
+                    ...current,
+                    actions: [...current.actions, action],
+                    edges: current.edges.map((edge) =>
+                      String(edge.id) === String(selectedEdge.id)
+                        ? {
+                            ...edge,
+                            actions: [
+                              ...(edge.actions ?? []),
+                              {
+                                id: `tmp-transition-action-${action.id}`,
+                                actionId: action.id,
+                              },
+                            ],
+                          }
+                        : edge,
+                    ),
+                  }));
+                }}
+              >
+                ساخت عملیات جدید
+              </Button>
+            </div>
             <Select
               value={null}
               placeholder={
-                graph.actions.length === 0
-                  ? "اول از بخش فرایند یک عملیات بسازید"
-                  : "انتخاب عملیات"
+                available.length === 0
+                  ? "عملیات جدید بسازید"
+                  : "انتخاب از عملیات‌های موجود"
               }
               disabled={disabled || available.length === 0}
               options={available.map((action) => ({
@@ -535,6 +606,23 @@ const ProcessPropertiesPanel = ({
         <span className="process-panel__subtitle">
           برای دیدن جزئیات بیشتر، یک ایستگاه یا ارتباط را انتخاب کنید.
         </span>
+        {selectedNode || selectedEdge ? (
+          <div className="process-panel__tabs">
+            <button
+              type="button"
+              className="process-panel__tab"
+              onClick={() => setTab("selection")}
+            >
+              {selectedNode ? "مشخصات ایستگاه" : "مشخصات ارتباط"}
+            </button>
+            <button
+              type="button"
+              className="process-panel__tab process-panel__tab--active"
+            >
+              فرایند و عملیات‌ها
+            </button>
+          </div>
+        ) : null}
       </div>
 
       <div className="process-panel__section">

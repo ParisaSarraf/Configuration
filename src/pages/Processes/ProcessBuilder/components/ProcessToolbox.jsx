@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { Tooltip } from "antd";
+import { Select, Tooltip } from "antd";
 
 import { STATE_TYPES } from "../processSchema";
 
@@ -9,8 +9,29 @@ const DRAG_TYPE = "application/x-process-state-type";
  * جعبه‌ابزار ایستگاه‌ها.
  * فقط همان ۵ نوع StateType موجود در بک‌اند نمایش داده می‌شود.
  */
-const ProcessToolbox = ({ onAddNode, disabled }) => (
+const ProcessToolbox = ({ onAddNode, disabled, nodes = [], onFocusNode }) => (
   <aside className="process-toolbox">
+    {nodes.length > 0 ? (
+      <div className="process-toolbox__section">
+        <p className="process-toolbox__title">جست‌وجوی ایستگاه</p>
+        <Select
+          showSearch
+          value={null}
+          className="process-toolbox__search"
+          placeholder="نام ایستگاه را بنویسید"
+          optionFilterProp="label"
+          notFoundContent="ایستگاهی با این نام پیدا نشد"
+          options={nodes.map((node) => ({
+            value: node.id,
+            label: node.name || "بدون نام",
+          }))}
+          onChange={(value) => {
+            if (value !== null && value !== undefined) onFocusNode?.(value);
+          }}
+        />
+      </div>
+    ) : null}
+
     <div className="process-toolbox__section">
       <p className="process-toolbox__title">ایستگاه‌ها</p>
       <p className="process-toolbox__hint">
@@ -54,11 +75,19 @@ const ProcessToolbox = ({ onAddNode, disabled }) => (
       <ul className="process-toolbox__shortcuts">
         <li>
           <span>اتصال دو ایستگاه</span>
-          <span className="process-toolbox__key">دکمه‌ی پایین ایستگاه</span>
+          <span className="process-toolbox__key">درگ از دکمه‌ی پایین</span>
+        </li>
+        <li>
+          <span>منوی سریع روی ایستگاه و خط</span>
+          <span className="process-toolbox__key">راست‌کلیک</span>
+        </li>
+        <li>
+          <span>تکرار ایستگاه</span>
+          <span className="process-toolbox__key">Ctrl + D</span>
         </li>
         <li>
           <span>حرکت در بوم</span>
-          <span className="process-toolbox__key">درکگ زمینه</span>
+          <span className="process-toolbox__key">درگ زمینه</span>
         </li>
         <li>
           <span>بزرگ‌نمایی</span>

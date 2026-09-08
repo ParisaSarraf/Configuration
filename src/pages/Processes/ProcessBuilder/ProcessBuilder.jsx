@@ -25,9 +25,11 @@ import { useRoleList } from "@/QueryServises/roleQuery";
 import ProcessCanvas from "./components/ProcessCanvas";
 import ProcessPropertiesPanel from "./components/ProcessPropertiesPanel";
 import ProcessToolbox from "./components/ProcessToolbox";
+import ProcessWizardModal from "./components/ProcessWizardModal";
 import {
   buildGraph,
   cloneGraph,
+  createAction,
   createEdge,
   createNode,
   graphBounds,
@@ -38,9 +40,13 @@ import {
   writeStoredPositions,
 } from "./processGraph";
 import {
+  ACTION_TYPE_IDS,
   CANVAS_PADDING,
   MAX_ZOOM,
   MIN_ZOOM,
+  NODE_HEIGHT,
+  NODE_WIDTH,
+  STATE_TYPE_IDS,
   ZOOM_STEP,
   getStateType,
 } from "./processSchema";
@@ -63,6 +69,7 @@ const Builder = ({ processId }) => {
 
   const [graph, setGraph] = useState(null);
   const [selection, setSelection] = useState(PROCESS_SELECTION);
+  const [wizardOpen, setWizardOpen] = useState(false);
   const [viewport, setViewport] = useState({ x: 0, y: 0, zoom: 1 });
   const [connectFrom, setConnectFrom] = useState(null);
   const [historyMeta, setHistoryMeta] = useState({
@@ -282,6 +289,162 @@ const Builder = ({ processId }) => {
     [updateGraph, viewport.x, viewport.y, viewport.zoom],
   );
 
+  /** چیدمان خودکار ایستگاه‌ها بر اساس مسیر فرایند، بعد نمایش کامل بوم. */
+  const handleAutoLayout = useCallback(() => {
+    const current = graphRef.current;
+    if (!current || current.nodes.length === 0) return;
+
+    // آبجکت خالی یعنی موقعیت‌های ذخیره‌شده نادیده گرفته و چیدمان از نو محاسبه شود.
+    const positioned = layoutGraph(current, {});
+    updateGraph(() => positioned);
+    writeStoredPositions(processId, positioned.nodes);
+    window.requestAnimationFrame(() => fitToScreen(positioned));
+  }, [updateGraph, fitToScreen, processId]);
+
+  /** تکرار یک ایستگاه با همان نوع و متن، کمی پایین‌تر از نسخه‌ی اصلی. */
+  const handleDuplicateNode = useCallback(
+    (nodeId) => {
+      const current = graphRef.current;
+      const source = current?.nodes.find(
+        (node) => String(node.id) === String(nodeId),
+      );
+      if (!source) return;
+
+      // دسترسی‌ها کپی نمی‌شوند؛ شناسه‌ی آن‌ها به رکورد سرور وابسته است.
+      const copy = createNode({
+        stateTypeId: source.stateTypeId,
+        x: source.x + 40,
+        y: source.y + 120,
+        name: source.name ? `${source.name} (کپی)` : "",
+      });
+      copy.description = source.description ?? "";
+
+      updateGraph((graph) => ({ ...graph, nodes: [...graph.nodes, copy] }));
+      setSelection({ type: "node", id: copy.id });
+    },
+    [updateGraph],
+  );
+
+  /** انتخاب یک ایستگاه و بردن مرکز بوم روی آن (نتیجه‌ی جست‌وجو). */
+  const handleFocusNode = useCallback((nodeId) => {
+    const current = graphRef.current;
+    const node = current?.nodes.find(
+      (item) => String(item.id) === String(nodeId),
+    );
+    if (!node) return;
+
+    setSelection({ type: "node", id: node.id });
+
+    const container = canvasRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    setViewport((previous) => ({
+      ...previous,
+      x: rect.width / 2 - (node.x + NODE_WIDTH / 2) * previous.zoom,
+      y: rect.height / 2 - (node.y + NODE_HEIGHT / 2) * previous.zoom,
+    }));
+  }, []);
+
+  /**
+   * ساخت یک مسیر خطی از ورودی ویزارد.
+   * چیزی حذف نمی‌شود؛ فقط به گراف فعلی اضافه می‌شود و ذخیره‌سازی
+   * همچنان با دکمه‌ی «ذخیره فرایند» و همان مسیر قبلی انجام می‌شود.
+   */
+  const handleWizardApply = useCallback(
+    ({ names, withApprove, withDenied }) => {
+      const current = graphRef.current;
+      if (!current || names.length < 2) return;
+
+      const hasStart = current.nodes.some(
+        (node) => Number(node.stateTypeId) === STATE_TYPE_IDS.START,
+      );
+      const baseY =
+        current.nodes.length > 0
+          ? Math.max(...current.nodes.map((node) => node.y)) + 160
+          : CANVAS_PADDING;
+
+      const created = names.map((name, index) => {
+        const stateTypeId =
+          index === 0 && !hasStart
+            ? STATE_TYPE_IDS.START
+            : index === names.length - 1
+              ? STATE_TYPE_IDS.COMPLETE
+              : STATE_TYPE_IDS.NORMAL;
+        const node = createNode({
+          stateTypeId,
+          x: CANVAS_PADDING,
+          y: baseY + index * 160,
+        });
+        node.name = name;
+        return node;
+      });
+
+      const newActions = [];
+      let approve = null;
+      let deny = null;
+
+      if (withApprove) {
+        approve = createAction({ actionTypeId: ACTION_TYPE_IDS.APPROVE });
+        approve.name = "تأیید";
+        newActions.push(approve);
+      }
+      if (withDenied) {
+        deny = createAction({ actionTypeId: ACTION_TYPE_IDS.DENY });
+        deny.name = "رد";
+        newActions.push(deny);
+      }
+
+      let deniedNode = null;
+      if (withDenied) {
+        deniedNode = createNode({
+          stateTypeId: STATE_TYPE_IDS.DENIED,
+          x: CANVAS_PADDING + 320,
+          y: baseY + 160,
+        });
+        deniedNode.name = "رد شده";
+      }
+
+      const newEdges = [];
+      created.forEach((node, index) => {
+        const next = created[index + 1];
+        if (!next) return;
+        const edge = createEdge({ source: node.id, target: next.id });
+        if (approve) {
+          edge.actions = [
+            { id: `tmp-wizard-approve-${node.id}`, actionId: approve.id },
+          ];
+        }
+        newEdges.push(edge);
+      });
+
+      if (deniedNode && deny) {
+        created.forEach((node, index) => {
+          if (index === 0 || index === created.length - 1) return;
+          const edge = createEdge({ source: node.id, target: deniedNode.id });
+          edge.actions = [
+            { id: `tmp-wizard-deny-${node.id}`, actionId: deny.id },
+          ];
+          newEdges.push(edge);
+        });
+      }
+
+      updateGraph((graph) => ({
+        ...graph,
+        nodes: [
+          ...graph.nodes,
+          ...created,
+          ...(deniedNode ? [deniedNode] : []),
+        ],
+        edges: [...graph.edges, ...newEdges],
+        actions: [...graph.actions, ...newActions],
+      }));
+
+      setWizardOpen(false);
+      setSelection(PROCESS_SELECTION);
+    },
+    [updateGraph],
+  );
+
   const handleNodeMove = useCallback(
     (nodeId, point) => {
       const current = graphRef.current;
@@ -435,6 +598,19 @@ const Builder = ({ processId }) => {
     saveMutation,
   ]);
 
+  /** Ctrl+D برای تکرار ایستگاه انتخاب‌شده. */
+  useEffect(() => {
+    const handler = (event) => {
+      if (!(event.ctrlKey || event.metaKey)) return;
+      if (String(event.key).toLowerCase() !== "d") return;
+      if (selection.type !== "node") return;
+      event.preventDefault();
+      handleDuplicateNode(selection.id);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [selection, handleDuplicateNode]);
+
   const handleBack = useCallback(() => {
     if (!isDirty) {
       navigate("/processes");
@@ -572,6 +748,17 @@ const Builder = ({ processId }) => {
               تغییرات ذخیره‌نشده
             </Tag>
           ) : null}
+          {validation.errors.length > 0 ? (
+            <Tooltip title={validation.errors.join(" · ")}>
+              <Tag
+                color="error"
+                className="process-builder__dirty-tag cursor-pointer"
+                onClick={() => setSelection(PROCESS_SELECTION)}
+              >
+                {`${validation.errors.length} خطا`}
+              </Tag>
+            </Tooltip>
+          ) : null}
         </div>
 
         <div className="process-builder__toolbar-end">
@@ -613,6 +800,22 @@ const Builder = ({ processId }) => {
               className="process-builder__icon-button"
             />
           </Tooltip>
+          <Tooltip title="ساخت قدم‌به‌قدم مسیر فرایند بدون کشیدن دستی ایستگاه‌ها">
+            <Button
+              onClick={() => setWizardOpen(true)}
+              disabled={!graph || saveMutation.isPending}
+            >
+              ساخت سریع
+            </Button>
+          </Tooltip>
+          <Tooltip title="مرتب‌سازی خودکار ایستگاه‌ها بر اساس مسیر فرایند">
+            <Button
+              onClick={handleAutoLayout}
+              disabled={!graph || graph.nodes.length === 0}
+            >
+              چیدمان خودکار
+            </Button>
+          </Tooltip>
           <Tooltip title="نمایش کامل فرایند">
             <Button
               icon={<Maximize2 size={16} />}
@@ -640,6 +843,15 @@ const Builder = ({ processId }) => {
         <ProcessToolbox
           onAddNode={handleAddNode}
           disabled={!graph || saveMutation.isPending}
+          nodes={graph?.nodes ?? []}
+          onFocusNode={handleFocusNode}
+        />
+
+        <ProcessWizardModal
+          open={wizardOpen}
+          onClose={() => setWizardOpen(false)}
+          onApply={handleWizardApply}
+          hasNodes={(graph?.nodes ?? []).length > 0}
         />
 
         <div className="process-builder__canvas-wrapper">
@@ -663,6 +875,7 @@ const Builder = ({ processId }) => {
               onNodeMove={handleNodeMove}
               onNodeMoveEnd={handleNodeMoveEnd}
               onStartConnect={setConnectFrom}
+              onDuplicateNode={handleDuplicateNode}
               onConnect={handleConnect}
               onDeleteNode={handleDeleteNode}
               onDeleteEdge={handleDeleteEdge}
