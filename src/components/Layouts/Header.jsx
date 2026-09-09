@@ -12,10 +12,10 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 import PersianDate from "persian-date";
 import { useMyAxios } from "@/hooks/useMyAxios.js";
 import { BASEURL } from "@/Services/axiosInstance.js";
-import { getUserFromToken } from "@/utils/ExportFromToken.js";
 
 const CustomHeader = ({ children }) => {
   const { handleLogout } = useMyAxios();
@@ -24,7 +24,15 @@ const CustomHeader = ({ children }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setUserData(getUserFromToken() || {});
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        const decoded = jwtDecode(token);
+        setUserData(decoded || {});
+      }
+    } catch (error) {
+      console.error("Error decoding token:", error);
+    }
 
     const intervalId = setInterval(
       () => setCurrentTime(new PersianDate()),
