@@ -22,15 +22,18 @@ import { getCurrentJalaliYear } from "./plan.utils";
 
 const fa = (v) => (v ?? 0).toLocaleString("fa-IR");
 
-const ChartTooltip = ({ active, payload, label }) => {
+const ChartTooltip = ({ active, payload, label, isCumulative }) => {
   if (!active || !payload?.length) return null;
   const visible = payload.filter((item) => item.value != null);
   if (!visible.length) return null;
+
+  const row = payload[0]?.payload ?? {};
+  const deviationPercent = isCumulative
+    ? row.cumulativePerformance
+    : row.performance;
+
   return (
-    <div
-      dir="rtl"
-      className="bg-white/95 backdrop-blur rounded-xl shadow-lg border border-slate-100 px-4 py-3 text-sm"
-    >
+    <div className="bg-white/95 backdrop-blur rounded-xl shadow-lg border border-slate-100 px-4 py-3 text-sm">
       <p className="font-bold text-slate-800 mb-2">{label}</p>
       {visible.map((item) => (
         <div key={item.dataKey} className="flex items-center gap-2 py-0.5">
@@ -42,6 +45,18 @@ const ChartTooltip = ({ active, payload, label }) => {
           <span className="font-semibold text-slate-800">{fa(item.value)}</span>
         </div>
       ))}
+
+      {deviationPercent != null ? (
+        <div className="mt-2 pt-2 border-t border-slate-100 flex items-center gap-2">
+          <span className="inline-block w-2.5 h-2.5 rounded-full bg-sky-500" />
+          <span className="text-slate-500">
+            درصد انحراف {isCumulative ? "(تجمیعی)" : "(دوره‌ای)"}:
+          </span>
+          <span className="font-semibold text-sky-700">
+            {fa(deviationPercent)}٪
+          </span>
+        </div>
+      ) : null}
     </div>
   );
 };
@@ -90,7 +105,6 @@ const YearPerformanceReport = ({
   yearPercentageOfPerformanceList,
   searchParams,
   setSearchParams,
-  onSearch,
   isFetching,
 }) => {
   const [yearInput, setYearInput] = useState(searchParams?.year ?? "");
@@ -98,6 +112,8 @@ const YearPerformanceReport = ({
 
   const [viewMode, setViewMode] = useState("cumulative"); // "cumulative" | "period"
   const isCumulative = viewMode === "cumulative";
+
+  console.log(`${yearPercentageOfPerformanceList} : year:`);
 
   const handleSearch = (yearOverride) => {
     const year = yearOverride ?? yearInput;
@@ -117,33 +133,6 @@ const YearPerformanceReport = ({
 
   const rawData = yearPercentageOfPerformanceList ?? {};
 
-  // const chartData = MONTH_NAMES.map((name, idx) => {
-  //   const monthNumber = idx + 1;
-  //   const p = rawData[monthNumber];
-
-  //   if (!p) {
-  //     return {
-  //       month: name,
-  //       cumulativePerformance: null,
-  //       planedWeight: null,
-  //       produceWeight: null,
-  //     };
-  //   }
-
-  //   return {
-  //     month: name,
-  //     cumulativePerformance: p.cumulative_performance ?? null,
-
-  //     planedWeight: isCumulative
-  //       ? (p.cumulative_planed_weight ?? 0)
-  //       : (p.sum_of_planed_weight ?? 0),
-
-  //     produceWeight: isCumulative
-  //       ? (p.cumulative_produce_weight ?? 0)
-  //       : (p.sum_of_produce_weight ?? 0),
-  //   };
-  // });
-
   const chartData = MONTH_NAMES.map((name, idx) => {
     const monthNumber = idx + 1;
     const p = rawData[monthNumber];
@@ -152,6 +141,7 @@ const YearPerformanceReport = ({
       return {
         month: name,
         cumulativePerformance: null,
+        performance: null,
         planedWeight: null,
         produceWeight: null,
       };
@@ -169,6 +159,11 @@ const YearPerformanceReport = ({
           ? p.cumulative_performance
           : null,
 
+      performance:
+        p.performance !== null && p.performance !== undefined
+          ? p.performance
+          : null,
+
       planedWeight: !hasPlannedData
         ? null
         : isCumulative
@@ -182,6 +177,14 @@ const YearPerformanceReport = ({
           : (p.sum_of_produce_weight ?? null),
     };
   });
+
+  const lastPerformancePoint = [...chartData]
+    .reverse()
+    .find(
+      (item) =>
+        item.cumulativePerformance !== null &&
+        item.cumulativePerformance !== undefined,
+    );
 
   const weightSeries = [
     {
@@ -201,7 +204,17 @@ const YearPerformanceReport = ({
       className="rounded-2xl shadow-sm border-slate-200 mt-6"
       styles={{ body: { padding: 20 } }}
     >
-      <SectionTitle>گزارش عملکرد سالانه</SectionTitle>
+      <SectionTitle>
+        گزارش عملکرد سالانه
+        {lastPerformancePoint ? (
+          <span className="inline-flex items-center gap-1.5 align-middle ms-3 rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-sm font-medium text-slate-500">
+            <span>درصد عملکرد {lastPerformancePoint.month}:</span>
+            <span className="text-base font-extrabold text-sky-700">
+              {fa(lastPerformancePoint.cumulativePerformance)}٪
+            </span>
+          </span>
+        ) : null}
+      </SectionTitle>
 
       <div className="flex items-center gap-2 mb-6 max-w-xs">
         <Input
@@ -227,7 +240,6 @@ const YearPerformanceReport = ({
         <Empty description="برای مشاهده گزارش، سال مورد نظر را جستجو کنید" />
       ) : (
         <div>
-          {/* سوییچ تجمیعی / دوره‌ای */}
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-slate-600">
               {isCumulative
@@ -281,7 +293,7 @@ const YearPerformanceReport = ({
                   {...baseAxisProps}
                 />
                 <Tooltip
-                  content={<ChartTooltip />}
+                  content={<ChartTooltip isCumulative={isCumulative} />}
                   cursor={{ fill: "#f1f5f9" }}
                 />
                 <Legend
