@@ -26,6 +26,18 @@ const ChartTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   const visible = payload.filter((item) => item.value != null);
   if (!visible.length) return null;
+
+  // درصد انحراف = (محقق‌شده − برنامه‌ریزی‌شده) ÷ برنامه‌ریزی‌شده
+  // مقادیر از همان ردیف نمودار خوانده می‌شود، پس با حالت تجمیعی/دوره‌ای هماهنگ است.
+  const row = payload[0]?.payload ?? {};
+  const planned = row.planedWeight;
+  const produced = row.produceWeight;
+  const hasDeviation =
+    planned != null && produced != null && Number(planned) !== 0;
+  const deviation = hasDeviation
+    ? ((produced - planned) / planned) * 100
+    : null;
+
   return (
     <div
       className="bg-white/95 backdrop-blur rounded-xl shadow-lg border border-slate-100 px-4 py-3 text-sm"
@@ -41,6 +53,23 @@ const ChartTooltip = ({ active, payload, label }) => {
           <span className="font-semibold text-slate-800">{fa(item.value)}</span>
         </div>
       ))}
+
+      {hasDeviation ? (
+        <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-100">
+          <span className="text-slate-500">درصد انحراف:</span>
+          <span
+            className={`font-bold ${
+              deviation > 0
+                ? "text-emerald-600"
+                : deviation < 0
+                  ? "text-rose-600"
+                  : "text-slate-800"
+            }`}
+          >
+            {fa(Number(deviation.toFixed(1)))}٪
+          </span>
+        </div>
+      ) : null}
     </div>
   );
 };
@@ -157,7 +186,6 @@ const YearPerformanceReport = ({
     };
   });
 
-  // آخرین ماهی که در داده‌های همین سال، درصد عملکرد ثبت‌شده دارد.
   const lastPerformancePoint = [...chartData]
     .reverse()
     .find(
