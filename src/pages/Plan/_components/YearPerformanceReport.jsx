@@ -27,7 +27,6 @@ const ChartTooltip = ({ active, payload, label, isCumulative }) => {
   const visible = payload.filter((item) => item.value != null);
   if (!visible.length) return null;
 
-  // مقادیر مستقیماً از پاسخ API خوانده می‌شوند (هیچ محاسبه‌ای انجام نمی‌شود)
   const row = payload[0]?.payload ?? {};
   const deviationPercent = isCumulative
     ? row.cumulativePerformance
@@ -160,7 +159,6 @@ const YearPerformanceReport = ({
           ? p.cumulative_performance
           : null,
 
-      // درصد انحراف دوره‌ای، همان مقدار performance در پاسخ API
       performance:
         p.performance !== null && p.performance !== undefined
           ? p.performance
