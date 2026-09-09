@@ -28,7 +28,6 @@ const ChartTooltip = ({ active, payload, label }) => {
   if (!visible.length) return null;
   return (
     <div
-      dir="rtl"
       className="bg-white/95 backdrop-blur rounded-xl shadow-lg border border-slate-100 px-4 py-3 text-sm"
     >
       <p className="font-bold text-slate-800 mb-2">{label}</p>
@@ -90,7 +89,6 @@ const YearPerformanceReport = ({
   yearPercentageOfPerformanceList,
   searchParams,
   setSearchParams,
-  onSearch,
   isFetching,
 }) => {
   const [yearInput, setYearInput] = useState(searchParams?.year ?? "");
@@ -98,6 +96,9 @@ const YearPerformanceReport = ({
 
   const [viewMode, setViewMode] = useState("cumulative"); // "cumulative" | "period"
   const isCumulative = viewMode === "cumulative";
+
+  console.log(`${yearPercentageOfPerformanceList} : year:`);
+  
 
   const handleSearch = (yearOverride) => {
     const year = yearOverride ?? yearInput;
@@ -116,33 +117,6 @@ const YearPerformanceReport = ({
   }, []);
 
   const rawData = yearPercentageOfPerformanceList ?? {};
-
-  // const chartData = MONTH_NAMES.map((name, idx) => {
-  //   const monthNumber = idx + 1;
-  //   const p = rawData[monthNumber];
-
-  //   if (!p) {
-  //     return {
-  //       month: name,
-  //       cumulativePerformance: null,
-  //       planedWeight: null,
-  //       produceWeight: null,
-  //     };
-  //   }
-
-  //   return {
-  //     month: name,
-  //     cumulativePerformance: p.cumulative_performance ?? null,
-
-  //     planedWeight: isCumulative
-  //       ? (p.cumulative_planed_weight ?? 0)
-  //       : (p.sum_of_planed_weight ?? 0),
-
-  //     produceWeight: isCumulative
-  //       ? (p.cumulative_produce_weight ?? 0)
-  //       : (p.sum_of_produce_weight ?? 0),
-  //   };
-  // });
 
   const chartData = MONTH_NAMES.map((name, idx) => {
     const monthNumber = idx + 1;
@@ -183,6 +157,15 @@ const YearPerformanceReport = ({
     };
   });
 
+  // آخرین ماهی که در داده‌های همین سال، درصد عملکرد ثبت‌شده دارد.
+  const lastPerformancePoint = [...chartData]
+    .reverse()
+    .find(
+      (item) =>
+        item.cumulativePerformance !== null &&
+        item.cumulativePerformance !== undefined,
+    );
+
   const weightSeries = [
     {
       dataKey: "planedWeight",
@@ -201,7 +184,17 @@ const YearPerformanceReport = ({
       className="rounded-2xl shadow-sm border-slate-200 mt-6"
       styles={{ body: { padding: 20 } }}
     >
-      <SectionTitle>گزارش عملکرد سالانه</SectionTitle>
+      <SectionTitle>
+        گزارش عملکرد سالانه
+        {lastPerformancePoint ? (
+          <span className="inline-flex items-center gap-1.5 align-middle ms-3 rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-sm font-medium text-slate-500">
+            <span>درصد عملکرد {lastPerformancePoint.month}:</span>
+            <span className="text-base font-extrabold text-sky-700">
+              {fa(lastPerformancePoint.cumulativePerformance)}٪
+            </span>
+          </span>
+        ) : null}
+      </SectionTitle>
 
       <div className="flex items-center gap-2 mb-6 max-w-xs">
         <Input
@@ -227,7 +220,6 @@ const YearPerformanceReport = ({
         <Empty description="برای مشاهده گزارش، سال مورد نظر را جستجو کنید" />
       ) : (
         <div>
-          {/* سوییچ تجمیعی / دوره‌ای */}
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-slate-600">
               {isCumulative
