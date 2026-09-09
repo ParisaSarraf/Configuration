@@ -22,26 +22,19 @@ import { getCurrentJalaliYear } from "./plan.utils";
 
 const fa = (v) => (v ?? 0).toLocaleString("fa-IR");
 
-const ChartTooltip = ({ active, payload, label }) => {
+const ChartTooltip = ({ active, payload, label, isCumulative }) => {
   if (!active || !payload?.length) return null;
   const visible = payload.filter((item) => item.value != null);
   if (!visible.length) return null;
 
-  // درصد انحراف = (محقق‌شده − برنامه‌ریزی‌شده) ÷ برنامه‌ریزی‌شده
-  // مقادیر از همان ردیف نمودار خوانده می‌شود، پس با حالت تجمیعی/دوره‌ای هماهنگ است.
+  // مقادیر مستقیماً از پاسخ API خوانده می‌شوند (هیچ محاسبه‌ای انجام نمی‌شود)
   const row = payload[0]?.payload ?? {};
-  const planned = row.planedWeight;
-  const produced = row.produceWeight;
-  const hasDeviation =
-    planned != null && produced != null && Number(planned) !== 0;
-  const deviation = hasDeviation
-    ? ((produced - planned) / planned) * 100
-    : null;
+  const deviationPercent = isCumulative
+    ? row.cumulativePerformance
+    : row.performance;
 
   return (
-    <div
-      className="bg-white/95 backdrop-blur rounded-xl shadow-lg border border-slate-100 px-4 py-3 text-sm"
-    >
+    <div className="bg-white/95 backdrop-blur rounded-xl shadow-lg border border-slate-100 px-4 py-3 text-sm">
       <p className="font-bold text-slate-800 mb-2">{label}</p>
       {visible.map((item) => (
         <div key={item.dataKey} className="flex items-center gap-2 py-0.5">
@@ -54,19 +47,14 @@ const ChartTooltip = ({ active, payload, label }) => {
         </div>
       ))}
 
-      {hasDeviation ? (
-        <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-100">
-          <span className="text-slate-500">درصد انحراف:</span>
-          <span
-            className={`font-bold ${
-              deviation > 0
-                ? "text-emerald-600"
-                : deviation < 0
-                  ? "text-rose-600"
-                  : "text-slate-800"
-            }`}
-          >
-            {fa(Number(deviation.toFixed(1)))}٪
+      {deviationPercent != null ? (
+        <div className="mt-2 pt-2 border-t border-slate-100 flex items-center gap-2">
+          <span className="inline-block w-2.5 h-2.5 rounded-full bg-sky-500" />
+          <span className="text-slate-500">
+            درصد انحراف {isCumulative ? "(تجمیعی)" : "(دوره‌ای)"}:
+          </span>
+          <span className="font-semibold text-sky-700">
+            {fa(deviationPercent)}٪
           </span>
         </div>
       ) : null}
@@ -127,7 +115,6 @@ const YearPerformanceReport = ({
   const isCumulative = viewMode === "cumulative";
 
   console.log(`${yearPercentageOfPerformanceList} : year:`);
-  
 
   const handleSearch = (yearOverride) => {
     const year = yearOverride ?? yearInput;
@@ -155,6 +142,7 @@ const YearPerformanceReport = ({
       return {
         month: name,
         cumulativePerformance: null,
+        performance: null,
         planedWeight: null,
         produceWeight: null,
       };
@@ -170,6 +158,12 @@ const YearPerformanceReport = ({
         p.cumulative_performance !== null &&
         p.cumulative_performance !== undefined
           ? p.cumulative_performance
+          : null,
+
+      // درصد انحراف دوره‌ای، همان مقدار performance در پاسخ API
+      performance:
+        p.performance !== null && p.performance !== undefined
+          ? p.performance
           : null,
 
       planedWeight: !hasPlannedData
@@ -301,7 +295,7 @@ const YearPerformanceReport = ({
                   {...baseAxisProps}
                 />
                 <Tooltip
-                  content={<ChartTooltip />}
+                  content={<ChartTooltip isCumulative={isCumulative} />}
                   cursor={{ fill: "#f1f5f9" }}
                 />
                 <Legend
