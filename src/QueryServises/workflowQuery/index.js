@@ -16,7 +16,6 @@ export const useProcessList = (queryOptions) => {
   });
 };
 
-// پاسخ get-process-info-by-id به صورت آرایه (many=True) برگردانده می‌شود.
 export const useProcessInfo = (id, queryOptions) => {
   const { myAxios } = useMyAxios();
   return useQuery({
@@ -27,7 +26,6 @@ export const useProcessInfo = (id, queryOptions) => {
   });
 };
 
-// اتصال عملیات‌ها به ارتباط‌ها در پاسخ get-process-info-by-id نیست و از این API خوانده می‌شود.
 export const useTransitionActions = (queryOptions) => {
   const { myAxios } = useMyAxios();
   return useQuery({
@@ -42,6 +40,14 @@ export const useCreateProcess = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload) => workflowApi.createProcess(myAxios, payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: processListKey }),
+  });
+};
+export const useCreateProcessPermission = () => {
+  const { myAxios } = useMyAxios();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload) => workflowApi.createProcessPermission(myAxios, payload),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: processListKey }),
   });
 };
@@ -61,6 +67,29 @@ export const useUpdateProcess = () => {
   });
 };
 
+export const useUpdateProcessPermission = () => {
+  const { myAxios } = useMyAxios();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ processId, ...payload }) =>
+      workflowApi.updateProcessPermission(myAxios, processId, payload),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: processListKey });
+      queryClient.invalidateQueries({
+        queryKey: processInfoKey(variables.processId),
+      });
+    },
+  });
+};
+
+export const useDeleteProcessPermission = () => {
+  const { myAxios } = useMyAxios();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (processId) => workflowApi.deleteProcessPermission(myAxios, processId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: processListKey }),
+  });
+};
 export const useDeleteProcess = () => {
   const { myAxios } = useMyAxios();
   const queryClient = useQueryClient();

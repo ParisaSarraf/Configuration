@@ -1,5 +1,3 @@
-// لایه ارتباط با APIهای اپلیکیشن workflow در بک‌اند.
-// آدرس‌ها دقیقاً مطابق apps/workflow/urls.py هستند (بدون هیچ endpoint فرضی).
 const ENDPOINTS = Object.freeze({
   processes: "/workflow/get-process/",
   addProcess: "/workflow/add-process/",
@@ -75,6 +73,8 @@ export const workflowApi = Object.freeze({
     post(client, ENDPOINTS.addProcessPermission, payload, signal),
   deleteProcessPermission: (client, id, signal) =>
     remove(client, `/workflow/delete-process-permission/${id}`, signal),
+  updateProcessPermission: (client, id, payload, signal) =>
+    put(client, `/workflow/update-process-permission/${id}`, payload, signal),
 
   createStatePermission: (client, payload, signal) =>
     post(client, ENDPOINTS.addStatePermission, payload, signal),

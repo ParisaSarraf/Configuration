@@ -6,8 +6,6 @@ export const formCategoriesKey = ["forms", "categories"];
 export const formDefinitionsKey = ["forms", "definitions"];
 export const formDefinitionKey = (id) => ["forms", "definitions", id];
 
-// Category and preview data is read repeatedly while navigating this screen.
-// Keep it fresh enough for normal use without issuing a request on every mount.
 const FORM_CATEGORY_CACHE_TIME = 5 * 60 * 1000;
 
 export const useFormCategories = (queryOptions) => {
@@ -21,7 +19,6 @@ export const useFormCategories = (queryOptions) => {
 
 export const useFormDefinitions = (queryOptions) => {
   const { myAxios } = useMyAxios();
-
   return useQuery({
     queryKey: formDefinitionsKey,
     queryFn: () => formApi.getDefinitions(myAxios),
@@ -196,6 +193,7 @@ export const useUpdateFormDefinition = () => {
     },
   });
 };
+
 
 export const useFormDefinitionByIdKey = (id) => ["form", "definition", id];
 export const useFormDefinitionById = (id, queryOptions) => {
