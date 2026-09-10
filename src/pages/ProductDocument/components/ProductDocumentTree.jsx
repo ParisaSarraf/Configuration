@@ -202,7 +202,9 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
         key: `edition-${edition.id}`,
         value: `edition-${edition.id}`,
         title: (
-          <div className={`flex flex-row justify-between items-center w-full ${edition?.is_active ? "text-sky-500" : "text-black"}`}>
+          <div
+            className={`flex flex-row justify-between items-center w-full ${edition?.is_active ? "text-sky-500" : "text-black"}`}
+          >
             <span className={`w-full gap-2 `}>
               {edition.edition_full} -
               <FiberManualRecordIcon
@@ -325,21 +327,32 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
   };
 
   return (
-    <Tree
-      className="custom-product-tree"
-      // mode="tree"
-      data={treeData}
-      isLoading={isLoading}
-      isError={isError}
-      showLine={true}
-      checkable={false}
-      showIcon={false}
-      blockNode
-      rightClickMenuItems={rightClickMenu}
-      onRightClickAction={handleRightClickAction}
-      expandedKeys={expandedKeys}
-      onExpand={handleExpand}
-  />
+    <>
+      {isLoading || isError ? (
+        <div className="flex justify-center items-center min-h-[160px]">
+          {isLoading ? (
+            <span className="text-slate-500">در حال بارگذاری...</span>
+          ) : (
+            <span className="text-red-500">خطا در بارگذاری داده‌ها</span>
+          )}
+        </div>
+      ) : (
+        <Tree
+          className="custom-product-tree"
+          data={treeData}
+          isLoading={isLoading}
+          isError={isError}
+          showLine={true}
+          checkable={false}
+          showIcon={false}
+          blockNode
+          rightClickMenuItems={rightClickMenu}
+          onRightClickAction={handleRightClickAction}
+          expandedKeys={expandedKeys}
+          onExpand={handleExpand}
+        />
+      )}
+    </>
   );
 };
 

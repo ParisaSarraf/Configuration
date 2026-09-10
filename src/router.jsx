@@ -24,6 +24,7 @@ import FormBuilderStudio from "./pages/Forms/FormBuilderStudio/FormBuilderStudio
 import FormFiller from "./pages/Forms/FormRuntime/FormFiller";
 import Processes from "./pages/Processes/Processes";
 import ProcessBuilder from "./pages/Processes/ProcessBuilder/ProcessBuilder";
+import ProcessMaker from "./pages/ProcessMaker/ProcessMaker";
 
 const router = createBrowserRouter([
   {
@@ -218,6 +219,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <ProcessBuilder />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/cartable-process-maker",
+    element: (
+      <ProtectedRoute>
+        <ProcessMaker />
       </ProtectedRoute>
     ),
   },

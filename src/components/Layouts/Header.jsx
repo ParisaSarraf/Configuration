@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Avatar, Badge, Button, Divider, Dropdown, Tooltip } from "antd";
+import { Avatar, Badge, Divider, Dropdown, Tooltip } from "antd";
 import {
   AppstoreOutlined,
   CalendarOutlined,
@@ -81,6 +81,14 @@ const CustomHeader = ({ children }) => {
       onClick: () => navigate("/my-work"),
       className:
         "!rounded-lg !my-0.5 !py-2.5 !px-3 transition-colors hover:!bg-sky-50",
+    },
+    {
+      key: "cartable-process-maker",
+      label: <span className="text-orange-700 font-medium">کارتابل فرآیندساز</span>,
+      icon: <FormOutlined className="text-orange-600" />,
+      onClick: () => navigate("/cartable-process-maker"),
+      className:
+        "!rounded-lg !my-0.5 !py-2.5 !px-3 transition-colors hover:!bg-orange-50",
     },
     {
       key: "change-password",
@@ -182,24 +190,27 @@ const CustomHeader = ({ children }) => {
 
       {/* Right cluster: actions */}
       <div className="flex items-center gap-2 sm:gap-3">
-        <Tooltip title="فرم ساز" placement="bottom">
-          <Button
-            icon={<FormOutlined />}
-            onClick={() => navigate("/forms")}
-            className="!flex !items-center !gap-1.5 !border-sky-200 !bg-sky-50 !text-sky-700 hover:!bg-sky-100 hover:!border-sky-300 !font-medium !rounded-lg !shadow-none"
-          >
-            <span className="hidden md:inline">فرم ساز</span>
-          </Button>
-        </Tooltip>
-        <Tooltip title="فرایندساز" placement="bottom">
-          <Button
-            icon={<PartitionOutlined />}
-            onClick={() => navigate("/processes")}
-            className="!flex !items-center !gap-1.5 !border-emerald-200 !bg-emerald-50 !text-emerald-700 hover:!bg-emerald-100 hover:!border-emerald-300 !font-medium !rounded-lg !shadow-none"
-          >
-            <span className="hidden md:inline">فرایندساز</span>
-          </Button>
-        </Tooltip>
+        <div className="flex items-center rounded-lg ring-1 ring-slate-200 bg-slate-50/60 overflow-hidden">
+          <Tooltip title="فرم ساز" placement="bottom">
+            <button
+              onClick={() => navigate("/forms")}
+              className="flex items-center gap-1.5 px-3 h-8 text-sm font-medium text-slate-600 hover:bg-white hover:text-sky-600 transition-colors"
+            >
+              <FormOutlined />
+              <span className="hidden md:inline">فرم ساز</span>
+            </button>
+          </Tooltip>
+          <div className="w-px h-5 bg-slate-200" />
+          <Tooltip title="فرایندساز" placement="bottom">
+            <button
+              onClick={() => navigate("/processes")}
+              className="flex items-center gap-1.5 px-3 h-8 text-sm font-medium text-slate-600 hover:bg-white hover:text-emerald-600 transition-colors"
+            >
+              <PartitionOutlined />
+              <span className="hidden md:inline">فرایندساز</span>
+            </button>
+          </Tooltip>
+        </div>
 
         <Divider type="vertical" className="!h-6 !m-0" />
 
