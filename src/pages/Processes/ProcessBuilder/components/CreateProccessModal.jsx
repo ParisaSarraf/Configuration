@@ -113,11 +113,7 @@ const CreateProccessModal = ({
             </Col>
             {modalMode === "create" && (
               <Col span={12}>
-                <Form.Item
-                  name="form_definition"
-                  label="تعریف فرم"
-                  
-                >
+                <Form.Item name="form_definition" label="تعریف فرم">
                   <Select
                     showSearch
                     placeholder="یک فرم را انتخاب کنید"
