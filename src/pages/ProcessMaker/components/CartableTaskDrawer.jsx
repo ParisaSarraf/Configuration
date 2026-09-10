@@ -1,16 +1,3 @@
-/* eslint-disable react/prop-types */
-// =====================================================================
-// کشوی کار کارتابل: «مشاهده‌ی فرم → تکمیل → ارسال»
-//
-// همان رندرر فرم‌ساز (FormRenderer) در حالت mode="fill" استفاده می‌شود؛
-// پس کاربر دقیقاً همان چیزی را می‌بیند که طراح فرم ساخته و چاپ می‌شود.
-//
-// APIهای واقعی مورد استفاده:
-//   GET  /forms/get-form-definition/<id>   → فیلدهای فرم (useFormDefinitionFieldById)
-//   GET  /workflow/get-process-info-by-id/<id> → ایستگاه‌ها و عملیات فرایند
-//   POST /forms/add-form-submission/       → ارسال نهایی (useCreateFormSubmission)
-// =====================================================================
-
 import { useEffect, useMemo, useState } from "react";
 import {
   Alert,
@@ -72,7 +59,6 @@ const CartableTaskDrawer = ({
 
   const [done, setDone] = useState(null);
 
-  // با هر بار باز شدن کشو، فرم از نو mount می‌شود تا مقادیر کار قبلی نماند.
   const [renderToken, setRenderToken] = useState(0);
   useEffect(() => {
     if (!open) return;
@@ -80,7 +66,6 @@ const CartableTaskDrawer = ({
     setRenderToken((prev) => prev + 1);
   }, [open, formDefinitionId]);
 
-  // پاسخ API گاهی آرایه و گاهی یک آبجکت است (مثل FormFiller).
   const categories = useMemo(() => {
     const data = formQuery.data;
     return Array.isArray(data) ? data : data ? [data] : [];
@@ -89,8 +74,7 @@ const CartableTaskDrawer = ({
   const definition = categories[0] || {};
   const fields = useMemo(() => flattenFields(categories), [categories]);
 
-  // خلاصه‌ی گردش کار: ایستگاه شروع و ایستگاه‌های بعدی، تا کاربر بداند
-  // فرمی که ارسال می‌کند به کجا می‌رود.
+
   const workflow = useMemo(() => {
     const info = pickProcessInfo(processInfoQuery.data);
     if (!info) return null;

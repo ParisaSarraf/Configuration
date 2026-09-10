@@ -1,24 +1,3 @@
-// =====================================================================
-// کارتابل فرآیندساز  —  مسیر: /cartable-process-maker
-//
-// جریان کار کاربر:
-//   ۱) فهرست کارهای کارتابل (فرایندهایی که فرم دارند) را می‌بیند
-//   ۲) روی «مشاهده و تکمیل فرم» می‌زند → فرم دقیقاً مطابق فرم‌ساز باز می‌شود
-//   ۳) فرم را پر می‌کند و با دکمهٔ «ارسال به فرایند» ارسال می‌کند
-//
-// APIهای واقعی مورد استفاده (همان‌هایی که الان در پروژه هستند):
-//   GET  /workflow/get-process/                → فهرست فرایندها + form_definition هر فرایند
-//   GET  /workflow/get-process-info-by-id/<id> → ایستگاه‌ها و عملیات فرایند
-//   GET  /forms/get-form-definition/<id>       → فیلدهای فرم
-//   POST /forms/add-form-submission/           → ثبت پاسخ فرم
-//
-// محدودیت فعلی بک‌اند: endpointی برای «نمونهٔ در جریانِ فرایند» (process instance)،
-// «اجرای عملیات تأیید/رد» و «فهرست submissionها» وجود ندارد؛ بنابراین:
-//   • تب «کارهای من» از فرایندهای فرم‌دار ساخته می‌شود
-//   • تب «ارسال‌شده‌ها» رسید ارسال‌های موفق را از localStorage می‌خواند
-//     (فایل cartableStore.js — با افزودن API فهرست submission فقط همین یک منبع عوض می‌شود)
-// =====================================================================
-
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -63,7 +42,6 @@ const asArray = (value) => {
   return [];
 };
 
-/** یکسان‌سازی متن فارسی برای جستجو (ی/ي ، ک/ك ، نیم‌فاصله). */
 const normalize = (value) =>
   String(value ?? "")
     .replace(/[\u064A\u0649]/g, "\u06CC")
@@ -73,7 +51,6 @@ const normalize = (value) =>
     .trim()
     .toLowerCase();
 
-/** شناسهٔ کاربر جاری از توکن (برای submiter_id در پایلود ارسال). */
 const readCurrentUser = () => {
   try {
     const token = window.localStorage.getItem("accessToken");
@@ -132,7 +109,6 @@ const ProcessMakerCartable = () => {
 
   const processes = useMemo(() => asArray(listQuery.data), [listQuery.data]);
 
-  // کارهای کارتابل = فرایندهایی که فرم به آن‌ها وصل شده است.
   const todoItems = useMemo(
     () => processes.filter((item) => Boolean(item?.form_definition?.id)),
     [processes],
