@@ -83,6 +83,14 @@ const CustomHeader = ({ children }) => {
         "!rounded-lg !my-0.5 !py-2.5 !px-3 transition-colors hover:!bg-sky-50",
     },
     {
+      key: "cartable-process-maker",
+      label: <span className="text-orange-700 font-medium">کارتابل فرآیندساز</span>,
+      icon: <FormOutlined className="text-orange-600" />,
+      onClick: () => navigate("/cartable-process-maker"),
+      className:
+        "!rounded-lg !my-0.5 !py-2.5 !px-3 transition-colors hover:!bg-orange-50",
+    },
+    {
       key: "change-password",
       label: (
         <span className="text-violet-700 font-medium">تغییر رمز عبور</span>
