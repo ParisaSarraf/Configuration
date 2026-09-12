@@ -19,6 +19,51 @@ const put = (client, endpoint, payload, signal) =>
 const remove = (client, endpoint, signal) =>
   client.delete(endpoint, { signal }).then((response) => response.data);
 
+const flipFormData = (payload) => {
+  const raw = payload?.form_data;
+  if (typeof raw === "string") {
+    try {
+      return { ...payload, form_data: JSON.parse(raw) };
+    } catch {
+      return null;
+    }
+  }
+
+  if (raw && typeof raw === "object")
+    return { ...payload, form_data: JSON.stringify(raw) };
+
+  return null;
+};
+
+const withoutSubmitter = (payload) => {
+  if (payload?.submitter_id == null) return null;
+  const next = { ...payload };
+  delete next.submitter_id;
+  return next;
+};
+
+
+const createSubmission = async (client, payload, signal) => {
+  const attempts = [
+    payload,
+    flipFormData(payload),
+    withoutSubmitter(payload),
+  ].filter(Boolean);
+
+  let lastError;
+
+  for (const attempt of attempts) {
+    try {
+      return await post(client, ENDPOINTS.submission, attempt, signal);
+    } catch (error) {
+      if (error?.response?.status !== 400) throw error;
+      lastError = error;
+    }
+  }
+
+  throw lastError;
+};
+
 export const formApi = Object.freeze({
   createCategory: (client, payload, signal) =>
     post(client, ENDPOINTS.category, payload, signal),
@@ -44,8 +89,7 @@ export const formApi = Object.freeze({
   deleteField: (client, id, signal) =>
     remove(client, `/forms/delete-form-field/${id}`, signal),
 
-  createSubmission: (client, payload, signal) =>
-    post(client, ENDPOINTS.submission, payload, signal),
+  createSubmission,
 });
 
 export { ENDPOINTS as FORM_ENDPOINTS };

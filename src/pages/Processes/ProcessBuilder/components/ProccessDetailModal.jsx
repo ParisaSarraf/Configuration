@@ -226,14 +226,18 @@ const ProccessDetailModal = ({ modalData, isOpen, closeModal }) => {
             notFoundContent={
               groupsQuery.isLoading ? "در حال بارگذاری..." : "گروهی یافت نشد"
             }
-            onChange={(value) => setDraft((prev) => ({ ...prev, group: value }))}
+            onChange={(value) =>
+              setDraft((prev) => ({ ...prev, group: value }))
+            }
           />
         ) : (
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
               {getGranteeName(record)}
             </span>
-            <Tag>{GRANTEE_LABELS[record?.grantee_type] ?? record?.grantee_type}</Tag>
+            <Tag>
+              {GRANTEE_LABELS[record?.grantee_type] ?? record?.grantee_type}
+            </Tag>
           </div>
         ),
     },
@@ -267,7 +271,9 @@ const ProccessDetailModal = ({ modalData, isOpen, closeModal }) => {
         }
         return (
           <Tag color={record?.permission_type === "edit" ? "blue" : "default"}>
-            {PERMISSION_LABELS[record?.permission_type] ?? record?.permission_type ?? "—"}
+            {PERMISSION_LABELS[record?.permission_type] ??
+              record?.permission_type ??
+              "—"}
           </Tag>
         );
       },
@@ -350,7 +356,12 @@ const ProccessDetailModal = ({ modalData, isOpen, closeModal }) => {
   ];
 
   return (
-    <Modal isOpen={isOpen} onClose={closeModal} title="جزئیات فرآیند">
+    <Modal
+      isOpen={isOpen}
+      onClose={closeModal}
+      title="جزئیات فرآیند"
+      footer={null}
+    >
       <div className="flex flex-col gap-4 p-1">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
@@ -385,7 +396,10 @@ const ProccessDetailModal = ({ modalData, isOpen, closeModal }) => {
           <Alert
             type="error"
             showIcon
-            message={getApiErrorMessage(infoQuery.error, "دریافت اطلاعات فرایند انجام نشد.")}
+            message={getApiErrorMessage(
+              infoQuery.error,
+              "دریافت اطلاعات فرایند انجام نشد.",
+            )}
             action={
               <Button size="small" onClick={() => infoQuery.refetch()}>
                 تلاش مجدد
@@ -395,12 +409,7 @@ const ProccessDetailModal = ({ modalData, isOpen, closeModal }) => {
         ) : null}
 
         {formDefinition ? (
-          <Descriptions
-            title="فرم متصل"
-            size="small"
-            bordered
-            column={2}
-          >
+          <Descriptions title="فرم متصل" size="small" bordered column={2}>
             <Descriptions.Item label="نام فرم">
               {formDefinition.name || "—"}
             </Descriptions.Item>
@@ -428,7 +437,10 @@ const ProccessDetailModal = ({ modalData, isOpen, closeModal }) => {
           <Alert
             type="warning"
             showIcon
-            message={getApiErrorMessage(groupsQuery.error, "دریافت لیست گروه‌ها انجام نشد.")}
+            message={getApiErrorMessage(
+              groupsQuery.error,
+              "دریافت لیست گروه‌ها انجام نشد.",
+            )}
             action={
               <Button size="small" onClick={() => groupsQuery.refetch()}>
                 تلاش مجدد
@@ -445,14 +457,20 @@ const ProccessDetailModal = ({ modalData, isOpen, closeModal }) => {
           loading={infoQuery.isLoading}
           pagination={false}
           scroll={{ x: "max-content" }}
-          rowClassName={(record) => (record?.isNew ? "bg-blue-50 dark:bg-slate-800" : "")}
+          rowClassName={(record) =>
+            record?.isNew ? "bg-blue-50 dark:bg-slate-800" : ""
+          }
           locale={{
             emptyText: (
               <div className="flex flex-col items-center gap-2 py-8">
                 <p className="m-0 text-sm text-slate-600 dark:text-slate-300">
                   برای این فرایند دسترسی‌ای ثبت نشده است
                 </p>
-                <Button type="primary" icon={<PlusOutlined />} onClick={startAdd}>
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={startAdd}
+                >
                   افزودن دسترسی
                 </Button>
               </div>

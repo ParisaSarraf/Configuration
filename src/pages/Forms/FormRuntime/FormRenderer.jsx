@@ -1,14 +1,4 @@
-/* eslint-disable react/prop-types */
-// =====================================================================
-// FormRenderer — رندرر مشترک برای سه حالت:
-//   mode="design"  فقط نمایش (داخل فرم‌ساز)
-//   mode="preview" پیش‌نمایش تعاملی — کاربر تایپ می‌کند، چیزی ذخیره نمی‌شود
-//   mode="fill"    تکمیل واقعی فرم و ارسال
-// خروجی چاپ A4 هم از همین کامپوننت می‌آید، پس پیش‌نمایش دقیقاً همان
-// چیزی است که چاپ می‌شود.
-// =====================================================================
-
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { GRID, normalizeFields } from "../FormBuilderStudio/formStudioLayout";
 import { INPUT_TYPES, validateAll } from "./formElements";
 import { resolveType } from "./fieldSchema";
@@ -23,7 +13,6 @@ const keyOf = (field) => field.field_name || String(field.id);
 const sortByOrder = (fields) =>
   [...(fields || [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-/** فیلدهایی که واقعاً مقدار دارند (برای اعتبارسنجی و پیلود). */
 export const inputFieldsOf = (categories) =>
   (categories || [])
     .flatMap((item) => item.fields || [])
@@ -54,7 +43,6 @@ function DocHeader({ field }) {
   );
 }
 
-/** عناصری که عنوان بالای ورودی می‌نشیند (نه کنار آن). */
 const STACKED_TYPES = new Set([
   "textarea",
   "address",
@@ -180,6 +168,7 @@ function Section({ item, values, errors, onChange, readOnly }) {
 export default function FormRenderer({
   categories = [],
   mode = "preview",
+  initialValues = null,
   showToolbar = true,
   framed = true,
   onSubmit,
@@ -187,16 +176,27 @@ export default function FormRenderer({
   submitLabel = "ثبت فرم",
   paperRef,
 }) {
-  // برای چاپ، دقیقاً همین گرهٔ کاغذ به printForm داده می‌شود.
   const localPaper = useRef(null);
   const paper = paperRef || localPaper;
-  const [interactive, setInteractive] = useState(mode !== "design");
+  const [interactive, setInteractive] = useState(
+    mode === "preview" || mode === "fill",
+  );
   const [device, setDevice] = useState("a4"); // a4 | fluid | mobile
-  const [values, setValues] = useState({});
+  const [values, setValues] = useState(() => initialValues || {});
   const [errors, setErrors] = useState({});
   const [notice, setNotice] = useState("");
 
   const readOnly = !interactive;
+  const viewing = mode === "view";
+
+  const appliedInitial = useRef(initialValues);
+  useEffect(() => {
+    if (!initialValues || appliedInitial.current === initialValues) return;
+    appliedInitial.current = initialValues;
+    setValues(initialValues);
+    setErrors({});
+    setNotice("");
+  }, [initialValues]);
 
   const allFields = useMemo(() => inputFieldsOf(categories), [categories]);
 
@@ -230,13 +230,15 @@ export default function FormRenderer({
     <div className="fr-root">
       {showToolbar && (
         <div className="fr-toolbar fr-no-print">
-          <button
-            type="button"
-            className={`fr-chip${interactive ? " is-active" : ""}`}
-            onClick={() => setInteractive((prev) => !prev)}
-          >
-            {interactive ? "حالت تعاملی: روشن" : "حالت تعاملی: خاموش"}
-          </button>
+          {!viewing && (
+            <button
+              type="button"
+              className={`fr-chip${interactive ? " is-active" : ""}`}
+              onClick={() => setInteractive((prev) => !prev)}
+            >
+              {interactive ? "حالت تعاملی: روشن" : "حالت تعاملی: خاموش"}
+            </button>
+          )}
           <button
             type="button"
             className={`fr-chip${device === "a4" ? " is-active" : ""}`}
@@ -265,21 +267,25 @@ export default function FormRenderer({
             {notice || `${filledCount} از ${allFields.length} فیلد تکمیل شده`}
           </span>
 
-          <button type="button" className="fr-chip" onClick={check} disabled={readOnly}>
-            بررسی اعتبارسنجی
-          </button>
-          <button
-            type="button"
-            className="fr-chip"
-            onClick={() => {
-              setValues({});
-              setErrors({});
-              setNotice("");
-            }}
-            disabled={readOnly}
-          >
-            پاک‌کردن
-          </button>
+          {!viewing && (
+            <button type="button" className="fr-chip" onClick={check} disabled={readOnly}>
+              بررسی اعتبارسنجی
+            </button>
+          )}
+          {!viewing && (
+            <button
+              type="button"
+              className="fr-chip"
+              onClick={() => {
+                setValues({});
+                setErrors({});
+                setNotice("");
+              }}
+              disabled={readOnly}
+            >
+              پاک‌کردن
+            </button>
+          )}
           <button
             type="button"
             className="fr-chip"

@@ -1,25 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
+import { Alert, App, Button, Empty, Result, Skeleton, Space, Tag } from "antd";
 import {
-  Alert,
-  App,
-  Button,
-  Drawer,
-  Empty,
-  Result,
-  Skeleton,
-  Space,
-  Tag,
-} from "antd";
-import {
-  CloseOutlined,
   FileTextOutlined,
   PartitionOutlined,
-  SendOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import FormRenderer from "@/pages/Forms/FormRuntime/FormRenderer";
 import {
+  buildFormData,
   buildSubmissionPayload,
   flattenFields,
+  resolveSubmitterId,
 } from "@/pages/Forms/FormRuntime/submission";
 import {
   useCreateFormSubmission,
@@ -32,14 +23,43 @@ import {
   isStartStateType,
 } from "@/pages/Processes/ProcessBuilder/processSchema";
 import { getApiErrorMessage } from "@/Services/forms/formUtils";
+import { getUserFromToken } from "@/utils/ExportFromToken";
+import Modal from "../../../components/Modal";
 
 const asArray = (value) => {
   if (Array.isArray(value)) return value;
   if (Array.isArray(value?.results)) return value.results;
   return [];
-};  
+};
 
-const CartableTaskDrawer = ({
+const looksLikeFormDefinition = (record) =>
+  Boolean(
+    record &&
+    (Array.isArray(record.fields) ||
+      "enable_auto_save" in record ||
+      "max_submissions" in record ||
+      "success_message" in record ||
+      "version" in record),
+  );
+
+const resolveFormDefinitionId = (record) => {
+  if (!record) return null;
+  const nested = record.form_definition;
+  if (nested && typeof nested === "object") return nested.id ?? null;
+  if (typeof nested === "number" || typeof nested === "string") return nested;
+  if (record.form_definition_id != null) return record.form_definition_id;
+  if (looksLikeFormDefinition(record)) return record.id ?? null;
+  return null;
+};
+
+const resolveProcessId = (record) => {
+  if (!record) return null;
+  if (looksLikeFormDefinition(record))
+    return record.process?.id ?? record.process_id ?? null;
+  return record.id ?? null;
+};
+
+const CartableTaskModal = ({
   open,
   process: processItem,
   submitterId,
@@ -47,19 +67,30 @@ const CartableTaskDrawer = ({
   onSubmitted,
 }) => {
   const { message } = App.useApp();
-  const formDefinitionId = processItem?.form_definition?.id ?? null;
+
+  const formDefinitionId = useMemo(
+    () => resolveFormDefinitionId(processItem),
+    [processItem],
+  );
+  const processId = useMemo(() => resolveProcessId(processItem), [processItem]);
+
+  const submitter = useMemo(
+    () => resolveSubmitterId(submitterId),
+    [submitterId],
+  );
+  const submitterName = useMemo(() => getUserFromToken()?.displayName, []);
 
   const formQuery = useFormDefinitionFieldById(formDefinitionId, {
     enabled: Boolean(open && formDefinitionId),
   });
-  const processInfoQuery = useProcessInfo(processItem?.id, {
-    enabled: Boolean(open && processItem?.id),
+  const processInfoQuery = useProcessInfo(processId, {
+    enabled: Boolean(open && processId),
   });
   const createSubmission = useCreateFormSubmission();
 
   const [done, setDone] = useState(null);
-
   const [renderToken, setRenderToken] = useState(0);
+
   useEffect(() => {
     if (!open) return;
     setDone(null);
@@ -68,12 +99,13 @@ const CartableTaskDrawer = ({
 
   const categories = useMemo(() => {
     const data = formQuery.data;
-    return Array.isArray(data) ? data : data ? [data] : [];
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.results)) return data.results;
+    return data ? [data] : [];
   }, [formQuery.data]);
 
   const definition = categories[0] || {};
   const fields = useMemo(() => flattenFields(categories), [categories]);
-
 
   const workflow = useMemo(() => {
     const info = pickProcessInfo(processInfoQuery.data);
@@ -88,27 +120,42 @@ const CartableTaskDrawer = ({
     };
   }, [processInfoQuery.data]);
 
+  const formTitle =
+    definition.name ||
+    processItem?.form_definition?.name ||
+    processItem?.name ||
+    "بدون فرم";
+
   const submit = async (values) => {
     try {
+      const formData = buildFormData(fields, values);
+      if (!Object.keys(formData).length) {
+        message.warning("داده‌ای برای ارسال وجود ندارد؛ ابتدا فرم را پر کنید.");
+        return;
+      }
       const payload = buildSubmissionPayload({
         formDefinitionId,
-        definition,
         fields,
         values,
-        submitterId,
+        submitterId: submitter,
       });
+
       const response = await createSubmission.mutateAsync(payload);
       const messageText =
         definition.success_message || "فرم شما با موفقیت ارسال شد.";
+
       setDone(messageText);
       onSubmitted?.({
         submissionId: response?.id ?? null,
-        processId: processItem?.id ?? null,
+        processId,
         processName: processItem?.name || "",
         formDefinitionId,
-        formName: definition.name || processItem?.form_definition?.name || "",
+        formName: formTitle,
+        submitterId: submitter,
+        submitterName: submitterName || "",
         stateName: workflow?.startState?.name || "",
-        fieldCount: Object.keys(payload.form_data || {}).length,
+        fieldCount: Object.keys(formData).length,
+        formData,
       });
       message.success(messageText);
     } catch (error) {
@@ -121,7 +168,7 @@ const CartableTaskDrawer = ({
       return (
         <Empty
           className="py-16"
-          description="برای این فرایند فرمی تعیین نشده است؛ ابتدا در فرایندساز یک «تعریف فرم» به آن وصل کنید."
+          description="شناسهٔ فرم پیدا نشد؛ رکورد انتخاب‌شده نه تعریف فرم است و نه فرمی به آن وصل شده است."
         />
       );
 
@@ -172,39 +219,55 @@ const CartableTaskDrawer = ({
         />
       );
 
+    if (!fields.length)
+      return (
+        <Empty
+          className="py-16"
+          description="این فرم هیچ فیلدی ندارد؛ ابتدا در «استودیو ساخت فرم» فیلد اضافه کنید."
+        />
+      );
+
+    const showWorkflowBox =
+      Boolean(workflow?.startState || workflow?.actions?.length) ||
+      Boolean(definition.description);
+
     return (
       <>
-        <div className="mb-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
-            <PartitionOutlined className="text-orange-500" />
-            <span className="font-semibold">مسیر گردش کار:</span>
-            {workflow?.startState ? (
-              <Tag color="green">
-                {workflow.startState.name} (
-                {getStateTypeLabel(
-                  workflow.startState?.state_type?.id ??
-                    workflow.startState?.state_type_id,
+        {showWorkflowBox ? (
+          <div className="mb-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
+            {workflow ? (
+              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                <PartitionOutlined className="text-orange-500" />
+                <span className="font-semibold">مسیر گردش کار:</span>
+                {workflow.startState ? (
+                  <Tag color="green">
+                    {workflow.startState.name} (
+                    {getStateTypeLabel(
+                      workflow.startState?.state_type?.id ??
+                        workflow.startState?.state_type_id,
+                    )}
+                    )
+                  </Tag>
+                ) : (
+                  <span>ایستگاه شروع تعیین نشده است.</span>
                 )}
-                )
-              </Tag>
-            ) : (
-              <span>ایستگاه شروع تعیین نشده است.</span>
-            )}
-            {workflow?.actions?.length ? (
-              <>
-                <span className="font-semibold">عملیات فرایند:</span>
-                {workflow.actions.slice(0, 5).map((action) => (
-                  <Tag key={action.id}>{action.name}</Tag>
-                ))}
-              </>
+                {workflow.actions?.length ? (
+                  <>
+                    <span className="font-semibold">عملیات فرایند:</span>
+                    {workflow.actions.slice(0, 5).map((action) => (
+                      <Tag key={action.id}>{action.name}</Tag>
+                    ))}
+                  </>
+                ) : null}
+              </div>
+            ) : null}
+            {definition.description ? (
+              <p className="mt-2 mb-0 text-xs leading-6 text-slate-500 dark:text-slate-400">
+                {definition.description}
+              </p>
             ) : null}
           </div>
-          {definition.description ? (
-            <p className="mt-2 mb-0 text-xs leading-6 text-slate-500 dark:text-slate-400">
-              {definition.description}
-            </p>
-          ) : null}
-        </div>
+        ) : null}
 
         {definition.is_active === false ? (
           <Alert
@@ -218,8 +281,12 @@ const CartableTaskDrawer = ({
         <FormRenderer
           key={`${formDefinitionId}-${renderToken}`}
           categories={categories}
+          definition={definition}
+          fields={fields}
           mode="fill"
-          submitLabel="ارسال به فرایند"
+          readOnly={false}
+          disabled={false}
+          submitLabel={processId ? "ارسال به فرایند" : "ثبت و ارسال فرم"}
           submitting={createSubmission.isPending}
           onSubmit={submit}
         />
@@ -228,33 +295,31 @@ const CartableTaskDrawer = ({
   };
 
   return (
-    <Drawer
-      open={open}
+    <Modal
+      isOpen={open}
+      size="min(1100px, 96vw)"
       onClose={onClose}
-      width="min(1100px, 96vw)"
       destroyOnClose
-      closeIcon={<CloseOutlined />}
+      footer={null}
       title={
-        <div className="flex flex-col gap-1">
-          <span className="text-base font-bold text-slate-800 dark:text-slate-100">
-            {processItem?.name || "کار کارتابل"}
-          </span>
+        <div className="flex w-full flex-col gap-1">
+ 
           <span className="flex items-center gap-2 text-xs font-normal text-slate-500">
             <FileTextOutlined />
-            {processItem?.form_definition?.name || "بدون فرم"}
+            {formTitle}
             {definition.version ? <Tag>نسخه {definition.version}</Tag> : null}
+            <Tag icon={<UserOutlined />} color={submitter ? "blue" : "default"}>
+              {submitter
+                ? `ارسال‌کننده: ${submitterName || submitter}`
+                : "بدون شناسهٔ کاربر (ثبت به‌نام ادمین)"}
+            </Tag>
           </span>
         </div>
       }
-      extra={
-        <Tag icon={<SendOutlined />} color="orange">
-          تکمیل و ارسال فرم
-        </Tag>
-      }
     >
       {renderBody()}
-    </Drawer>
+    </Modal>
   );
 };
 
-export default CartableTaskDrawer;
+export default CartableTaskModal;
