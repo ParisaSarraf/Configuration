@@ -350,7 +350,7 @@ const ProccessDetailModal = ({ modalData, isOpen, closeModal }) => {
   ];
 
   return (
-    <Modal isOpen={isOpen} onClose={closeModal} title="جزئیات فرآیند">
+    <Modal isOpen={isOpen} onClose={closeModal} title="جزئیات فرآیند" footer={null}>
       <div className="flex flex-col gap-4 p-1">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
