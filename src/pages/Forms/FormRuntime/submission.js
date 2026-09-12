@@ -14,7 +14,8 @@
 // قرارداد اندپوینت POST /forms/add-form-submission/ :
 //   { form_definition_id: number, submitter_id?: number, form_data: string }
 //   • submitter_id اختیاری است؛ اگر نفرستیم سرور ثبت را به ادمین نسبت می‌دهد
-//   • form_data رشتهٔ JSON است (طبق Swagger)
+//   • form_data آبجکت فرستاده می‌شود (بک‌اند JSONField است)؛ اگر سرور
+//     رشته بخواهد، لایهٔ formApi خودش همان درخواست را رشته‌ای می‌فرستد
 // =====================================================================
 
 import { DISPLAY_ONLY, canonicalType } from "./fieldSchema";
@@ -166,14 +167,14 @@ export const resolveSubmitterId = (submitterId, token) => {
  * @param {Array}    args.fields           فیلدهای تخت‌شدهٔ فرم
  * @param {object}   args.values           مقادیر خام رندرر
  * @param {number}  [args.submitterId]     اگر ندهید از توکن خوانده می‌شود
- * @param {boolean} [args.stringifyFormData=true] طبق Swagger رشتهٔ JSON می‌رود
+ * @param {boolean} [args.stringifyFormData=false] اگر true بدهید رشتهٔ JSON می‌رود
  */
 export const buildSubmissionPayload = ({
   formDefinitionId,
   fields,
   values,
   submitterId,
-  stringifyFormData = true,
+  stringifyFormData = false,
 }) => {
   const formData = buildFormData(fields, values);
   const submitter = resolveSubmitterId(submitterId);

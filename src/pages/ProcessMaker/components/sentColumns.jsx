@@ -1,8 +1,8 @@
-import { Button, Tag } from "antd";
+import { Button, Tag, Tooltip } from "antd";
 import { georgianDateTimeToJalaliDateTime } from "@utils/timeTool.jsx";
-import { EditOutlined, EyeOutlined } from "@ant-design/icons";
+import { EyeOutlined } from "@ant-design/icons";
 
-const sentColumns = ({ page, pageSize = 8 }) => [
+const sentColumns = ({ page, pageSize = 8, onView }) => [
   {
     title: "ردیف",
     key: "index",
@@ -20,6 +20,13 @@ const sentColumns = ({ page, pageSize = 8 }) => [
     dataIndex: "formName",
     key: "formName",
     render: (value) => <Tag color="blue">{value || "—"}</Tag>,
+  },
+  {
+    title: "ارسال‌کننده",
+    key: "submitter",
+    render: (_value, record) =>
+      record?.submitterName ||
+      (record?.submitterId ? `#${record.submitterId}` : "ادمین"),
   },
   {
     title: "ایستگاه شروع",
@@ -48,15 +55,25 @@ const sentColumns = ({ page, pageSize = 8 }) => [
     key: "operations",
     width: 220,
     align: "left",
-    render: (_value, record) => (
-      <Button
-        type="primary"
-        icon={<EyeOutlined />}
-        // onClick={() => setActiveProcess(record)}
-      >
-        مشاهده فرم ثبت شده
-      </Button>
-    ),
+    render: (_value, record) => {
+      const hasData = Boolean(
+        record?.formData && Object.keys(record.formData).length,
+      );
+
+      return (
+        <Tooltip
+          title={hasData ? "" : "مقادیر این ارسال در این مرورگر ذخیره نشده است"}
+        >
+          <Button
+            type="primary"
+            icon={<EyeOutlined />}
+            onClick={() => onView?.(record)}
+          >
+            مشاهده فرم ثبت شده
+          </Button>
+        </Tooltip>
+      );
+    },
   },
 ];
 

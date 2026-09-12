@@ -152,8 +152,11 @@ const CartableTaskModal = ({
         formDefinitionId,
         formName: formTitle,
         submitterId: submitter,
+        submitterName: submitterName || "",
         stateName: workflow?.startState?.name || "",
         fieldCount: Object.keys(formData).length,
+        // خودِ مقادیر ثبت‌شده؛ با همین رسید، فرم پرشده بعداً قابل مشاهده است
+        formData,
       });
       message.success(messageText);
     } catch (error) {

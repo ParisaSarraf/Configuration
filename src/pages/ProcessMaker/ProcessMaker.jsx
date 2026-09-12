@@ -7,10 +7,11 @@ import {
   InboxOutlined,
   ReloadOutlined,
 } from "@ant-design/icons";
-import { jwtDecode } from "jwt-decode";
 import Header from "@/components/Layouts/Header.jsx";
 import { getApiErrorMessage } from "@/Services/forms/formUtils";
+import { getUserFromToken } from "@/utils/ExportFromToken";
 import CartableTaskModal from "./components/CartableTaskModal";
+import CartableSubmissionModal from "./components/CartableSubmissionModal";
 import { appendSentItem, clearSentItems, loadSentItems } from "./cartableStore";
 import { TableAntd } from "../../components/TableAntd/TableAntd";
 import todoColumns from "./components/todoColumns";
@@ -27,6 +28,7 @@ const TABS = Object.freeze({
 
 const MODAL_TYPES = Object.freeze({
   CARTABLE_TASK: "cartableTask",
+  CARTABLE_SUBMISSION: "cartableSubmission",
 });
 
 const asArray = (value) => {
@@ -44,21 +46,13 @@ const normalize = (value) =>
     .trim()
     .toLowerCase();
 
+/** کاربر جاری از همان توکنی که submitter_id هم از آن خوانده می‌شود. */
 const readCurrentUser = () => {
-  try {
-    const token = window.localStorage.getItem("accessToken");
-    if (!token) return { id: null, name: "کاربر" };
-    const decoded = jwtDecode(token) || {};
-    return {
-      id: decoded.user_id ?? decoded.id ?? decoded.pk ?? null,
-      name:
-        decoded.name && decoded.last_name
-          ? `${decoded.name} ${decoded.last_name}`
-          : decoded.name || decoded.username || "کاربر",
-    };
-  } catch {
-    return { id: null, name: "کاربر" };
-  }
+  const user = getUserFromToken();
+  return {
+    id: user?.user_id ?? user?.id ?? null,
+    name: user?.displayName || "کاربر",
+  };
 };
 
 const ProcessMakerCartable = () => {
@@ -75,7 +69,7 @@ const ProcessMakerCartable = () => {
   const [sentItems, setSentItems] = useState([]);
 
   useEffect(() => {
-    setSentItems(loadSentItems(currentUser.id));
+    setSentItems(loadSentItems(currentUser.id) ?? []);
   }, [currentUser.id]);
 
   useEffect(() => {
@@ -107,9 +101,12 @@ const ProcessMakerCartable = () => {
   }, [todoItems, search]);
 
   const filteredSent = useMemo(() => {
+    // محافظت لایه‌دوم: اگر روزی مقدار نامعتبری در state بنشیند،
+    // جدول خالی می‌شود ولی صفحه سفید نمی‌شود.
+    const list = Array.isArray(sentItems) ? sentItems : [];
     const term = normalize(search);
-    if (!term) return sentItems;
-    return sentItems.filter(
+    if (!term) return list;
+    return list.filter(
       (item) =>
         normalize(item?.processName).includes(term) ||
         normalize(item?.formName).includes(term),
@@ -117,7 +114,7 @@ const ProcessMakerCartable = () => {
   }, [sentItems, search]);
 
   const handleSubmitted = (receipt) => {
-    setSentItems(appendSentItem(currentUser.id, receipt));
+    setSentItems(appendSentItem(currentUser.id, receipt) ?? []);
   };
 
   const handleClearSent = () => {
@@ -128,7 +125,7 @@ const ProcessMakerCartable = () => {
       okText: "پاک کن",
       cancelText: "انصراف",
       onOk: () => {
-        setSentItems(clearSentItems(currentUser.id));
+        setSentItems(clearSentItems(currentUser.id) ?? []);
         message.success("تاریخچه پاک شد.");
       },
     });
@@ -142,8 +139,16 @@ const ProcessMakerCartable = () => {
     });
   };
 
+  const openSubmissionModal = (record) => {
+    setModal({
+      type: MODAL_TYPES.CARTABLE_SUBMISSION,
+      mode: "view",
+      data: record,
+    });
+  };
+
   const isTodo = tab === TABS.TODO;
-  const dataSource = isTodo ? filteredTodo : filteredSent;
+  const dataSource = (isTodo ? filteredTodo : filteredSent) || [];
 
   const todoCols = useMemo(
     () =>
@@ -155,7 +160,12 @@ const ProcessMakerCartable = () => {
     [page],
   );
   const sentCols = useMemo(
-    () => sentColumns({ page, pageSize: PAGE_SIZE }),
+    () =>
+      sentColumns({
+        page,
+        pageSize: PAGE_SIZE,
+        onView: openSubmissionModal,
+      }),
     [page],
   );
 
@@ -234,7 +244,7 @@ const ProcessMakerCartable = () => {
                 <Button
                   danger
                   onClick={handleClearSent}
-                  disabled={!sentItems.length}
+                  disabled={!sentItems?.length}
                 >
                   پاک‌کردن تاریخچه
                 </Button>
@@ -300,6 +310,14 @@ const ProcessMakerCartable = () => {
           submitterId={currentUser.id}
           onClose={closeModal}
           onSubmitted={handleSubmitted}
+        />
+      )}
+
+      {modalType === MODAL_TYPES.CARTABLE_SUBMISSION && (
+        <CartableSubmissionModal
+          open={isOpen}
+          submission={modalData}
+          onClose={closeModal}
         />
       )}
     </div>
