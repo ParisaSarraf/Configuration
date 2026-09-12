@@ -19,6 +19,37 @@ const put = (client, endpoint, payload, signal) =>
 const remove = (client, endpoint, signal) =>
   client.delete(endpoint, { signal }).then((response) => response.data);
 
+/**
+ * ثبت فرم.
+ * طبق Swagger مقدار form_data رشتهٔ JSON است، ولی اگر بک‌اند روی
+ * JSONField باشد، همان درخواست یک‌بار دیگر با آبجکت فرستاده می‌شود
+ * تا نیاز به دست‌کاری در فرانت نباشد.
+ */
+const createSubmission = async (client, payload, signal) => {
+  try {
+    return await post(client, ENDPOINTS.submission, payload, signal);
+  } catch (error) {
+    const canRetryAsObject =
+      error?.response?.status === 400 && typeof payload?.form_data === "string";
+
+    if (!canRetryAsObject) throw error;
+
+    let parsed;
+    try {
+      parsed = JSON.parse(payload.form_data);
+    } catch {
+      throw error;
+    }
+
+    return post(
+      client,
+      ENDPOINTS.submission,
+      { ...payload, form_data: parsed },
+      signal,
+    );
+  }
+};
+
 export const formApi = Object.freeze({
   createCategory: (client, payload, signal) =>
     post(client, ENDPOINTS.category, payload, signal),
@@ -44,8 +75,7 @@ export const formApi = Object.freeze({
   deleteField: (client, id, signal) =>
     remove(client, `/forms/delete-form-field/${id}`, signal),
 
-  createSubmission: (client, payload, signal) =>
-    post(client, ENDPOINTS.submission, payload, signal),
+  createSubmission,
 });
 
 export { ENDPOINTS as FORM_ENDPOINTS };

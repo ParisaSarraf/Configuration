@@ -10,6 +10,11 @@
 //   • جدول ثابت سند = آبجکت { کلیدخانه: مقدار } زیر نام خود فیلد
 //   • عناصر نمایشی (عنوان بخش، خط، سربرگ، شکست صفحه) اصلاً نمی‌آیند
 //   • فیلدهای خالی حذف می‌شوند تا جدول گزارش پر از رشتهٔ خالی نشود
+//
+// قرارداد اندپوینت POST /forms/add-form-submission/ :
+//   { form_definition_id: number, submitter_id?: number, form_data: string }
+//   • submitter_id اختیاری است؛ اگر نفرستیم سرور ثبت را به ادمین نسبت می‌دهد
+//   • form_data رشتهٔ JSON است (طبق Swagger)
 // =====================================================================
 
 import { DISPLAY_ONLY, canonicalType } from "./fieldSchema";
@@ -18,6 +23,7 @@ import {
   jalaliDateTimeToGeorgianDateTime,
   jalaliDateToGeorgianDate,
 } from "../../../utils/timeTool";
+import { getAuthDataFromToken } from "../../../utils/ExportFromToken";
 
 const JALALI_DATE = /^\d{4}\/\d{1,2}\/\d{1,2}/;
 
@@ -122,7 +128,7 @@ export const normalizeValue = (field, raw) => {
   return typeof raw === "string" ? raw.trim() : raw;
 };
 
-/** مقادیر خام رندرر ← آبجکت form_data نهایی. */
+/** مقادیر خام رندرر ← آبجکت form_data نهایی (کلید = field_name هر فیلد). */
 export const buildFormData = (fields, values) =>
   (fields || []).reduce((data, field) => {
     const key = field.field_name || String(field.id || "");
@@ -132,22 +138,54 @@ export const buildFormData = (fields, values) =>
     return { ...data, [key]: normalized };
   }, {});
 
-/** پیلود کامل برای /forms/add-form-submission/ */
+const toPositiveInt = (raw) => {
+  if (raw == null || raw === "") return null;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+};
+
+/**
+ * شناسهٔ پرکنندهٔ فرم.
+ * اولویت: مقداری که صریح پاس داده شده ← user_id داخل access token.
+ * اگر هیچ‌کدام نبود null برمی‌گرداند و کلید submitter_id در پیلود نمی‌آید
+ * (اجباری نیست؛ سرور در این حالت ثبت را به ادمین نسبت می‌دهد).
+ */
+export const resolveSubmitterId = (submitterId, token) => {
+  const explicit = toPositiveInt(submitterId);
+  if (explicit != null) return explicit;
+
+  const auth = getAuthDataFromToken(token);
+  return toPositiveInt(auth?.user_id ?? auth?.id);
+};
+
+/**
+ * پیلود کامل برای /forms/add-form-submission/
+ *
+ * @param {object}   args
+ * @param {number}   args.formDefinitionId شناسهٔ تعریف فرم (همان id اصلی)
+ * @param {Array}    args.fields           فیلدهای تخت‌شدهٔ فرم
+ * @param {object}   args.values           مقادیر خام رندرر
+ * @param {number}  [args.submitterId]     اگر ندهید از توکن خوانده می‌شود
+ * @param {boolean} [args.stringifyFormData=true] طبق Swagger رشتهٔ JSON می‌رود
+ */
 export const buildSubmissionPayload = ({
   formDefinitionId,
-  definition,
   fields,
   values,
   submitterId,
-  attachments = [],
-}) => ({
-  form_definition_id: Number(formDefinitionId) || null,
-  form_version: definition?.version ?? null,
-  submiter_id: submitterId ? Number(submitterId) : null,
-  form_data: buildFormData(fields, values),
-  attachments: Array.isArray(attachments) ? attachments : [],
-});
+  stringifyFormData = true,
+}) => {
+  const formData = buildFormData(fields, values);
+  const submitter = resolveSubmitterId(submitterId);
 
-/** ��هرست تخت فیلدهای همهٔ دسته‌بندی‌ها. */
+  return {
+    form_definition_id: Number(formDefinitionId) || null,
+    // اختیاری: کلید فقط وقتی کاربر شناسایی شد فرستاده می‌شود
+    ...(submitter != null ? { submitter_id: submitter } : {}),
+    form_data: stringifyFormData ? JSON.stringify(formData) : formData,
+  };
+};
+
+/** فهرست تخت فیلدهای همهٔ دسته‌بندی‌ها. */
 export const flattenFields = (categories) =>
   (categories || []).flatMap((item) => item.fields || []);

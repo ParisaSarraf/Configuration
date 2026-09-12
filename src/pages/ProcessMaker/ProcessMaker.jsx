@@ -1,39 +1,32 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Alert,
-  App,
-  Button,
-  ConfigProvider,
-  Empty,
-  Input,
-  Segmented,
-  Table,
-  Tag,
-  Tooltip,
-} from "antd";
+import { Alert, App, Button, Empty, Input, Segmented, Tooltip } from "antd";
 import {
   ArrowRightOutlined,
   CheckCircleOutlined,
-  ClockCircleOutlined,
-  EditOutlined,
-  FileTextOutlined,
   InboxOutlined,
   ReloadOutlined,
 } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 import Header from "@/components/Layouts/Header.jsx";
-import { useProcessList } from "@/QueryServises/workflowQuery";
 import { getApiErrorMessage } from "@/Services/forms/formUtils";
-import { georgianDateTimeToJalaliDateTime } from "@utils/timeTool.jsx";
-import CartableTaskDrawer from "./components/CartableTaskDrawer";
+import CartableTaskModal from "./components/CartableTaskModal";
 import { appendSentItem, clearSentItems, loadSentItems } from "./cartableStore";
+import { TableAntd } from "../../components/TableAntd/TableAntd";
+import todoColumns from "./components/todoColumns";
+import sentColumns from "./components/sentColumns";
+import { useFormDefinitions } from "../../QueryServises/formsQuery";
+import useModal from "../../hooks/useModal";
 
 const PAGE_SIZE = 8;
 
 const TABS = Object.freeze({
   TODO: "todo",
   SENT: "sent",
+});
+
+const MODAL_TYPES = Object.freeze({
+  CARTABLE_TASK: "cartableTask",
 });
 
 const asArray = (value) => {
@@ -68,35 +61,17 @@ const readCurrentUser = () => {
   }
 };
 
-const StatCard = ({ icon, label, value, tone }) => (
-  <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-    <span
-      className={`flex h-10 w-10 items-center justify-center rounded-xl text-lg ${tone}`}
-    >
-      {icon}
-    </span>
-    <div className="flex flex-col">
-      <span className="text-xs text-slate-500 dark:text-slate-400">
-        {label}
-      </span>
-      <span className="text-lg font-extrabold text-slate-800 dark:text-slate-100">
-        {value}
-      </span>
-    </div>
-  </div>
-);
-
 const ProcessMakerCartable = () => {
   const navigate = useNavigate();
   const { message, modal } = App.useApp();
+  const { isOpen, modalType, modalData, setModal, closeModal } = useModal();
 
   const currentUser = useMemo(readCurrentUser, []);
-  const listQuery = useProcessList();
+  const formDefinitionsQuery = useFormDefinitions();
 
   const [tab, setTab] = useState(TABS.TODO);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [activeProcess, setActiveProcess] = useState(null);
   const [sentItems, setSentItems] = useState([]);
 
   useEffect(() => {
@@ -107,13 +82,18 @@ const ProcessMakerCartable = () => {
     setPage(1);
   }, [search, tab]);
 
-  const processes = useMemo(() => asArray(listQuery.data), [listQuery.data]);
-
-  const todoItems = useMemo(
-    () => processes.filter((item) => Boolean(item?.form_definition?.id)),
-    [processes],
+  const forms = useMemo(
+    () => asArray(formDefinitionsQuery.data),
+    [formDefinitionsQuery.data],
   );
-  const withoutFormCount = Math.max(processes.length - todoItems.length, 0);
+
+  const todoItems = forms;
+
+  const activeFormsCount = useMemo(
+    () => forms.filter((f) => f?.is_active).length,
+    [forms],
+  );
+  const inactiveFormsCount = Math.max(forms.length - activeFormsCount, 0);
 
   const filteredTodo = useMemo(() => {
     const term = normalize(search);
@@ -121,7 +101,8 @@ const ProcessMakerCartable = () => {
     return todoItems.filter(
       (item) =>
         normalize(item?.name).includes(term) ||
-        normalize(item?.form_definition?.name).includes(term),
+        normalize(item?.description).includes(term) ||
+        normalize(item?.category?.name).includes(term),
     );
   }, [todoItems, search]);
 
@@ -153,120 +134,33 @@ const ProcessMakerCartable = () => {
     });
   };
 
-  const todoColumns = useMemo(
-    () => [
-      {
-        title: "ردیف",
-        key: "index",
-        width: 72,
-        render: (_value, _record, index) => (
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-xs font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-            {(page - 1) * PAGE_SIZE + index + 1}
-          </span>
-        ),
-      },
-      {
-        title: "نام فرایند",
-        dataIndex: "name",
-        key: "name",
-        render: (value) => (
-          <span className="text-[15px] font-semibold text-slate-800 dark:text-slate-100">
-            {value || "بدون نام"}
-          </span>
-        ),
-      },
-      {
-        title: "فرم مرتبط",
-        key: "form",
-        render: (_value, record) => (
-          <Tooltip title={record?.form_definition?.description || ""}>
-            <Tag icon={<FileTextOutlined />} color="blue">
-              {record?.form_definition?.name || "—"}
-            </Tag>
-          </Tooltip>
-        ),
-      },
-      {
-        title: "وضعیت فرم",
-        key: "status",
-        width: 120,
-        render: (_value, record) =>
-          record?.form_definition?.is_active === false ? (
-            <Tag color="default">غیرفعال</Tag>
-          ) : (
-            <Tag color="green">فعال</Tag>
-          ),
-      },
-      {
-        title: "عملیات",
-        key: "operations",
-        width: 220,
-        align: "left",
-        render: (_value, record) => (
-          <Button
-            type="primary"
-            icon={<EditOutlined />}
-            onClick={() => setActiveProcess(record)}
-          >
-            مشاهده و تکمیل فرم
-          </Button>
-        ),
-      },
-    ],
-    [page],
-  );
-
-  const sentColumns = useMemo(
-    () => [
-      {
-        title: "ردیف",
-        key: "index",
-        width: 72,
-        render: (_value, _record, index) => (page - 1) * PAGE_SIZE + index + 1,
-      },
-      {
-        title: "فرایند",
-        dataIndex: "processName",
-        key: "processName",
-        render: (value) => value || "—",
-      },
-      {
-        title: "فرم",
-        dataIndex: "formName",
-        key: "formName",
-        render: (value) => <Tag color="blue">{value || "—"}</Tag>,
-      },
-      {
-        title: "ایستگاه شروع",
-        dataIndex: "stateName",
-        key: "stateName",
-        render: (value) => (value ? <Tag color="green">{value}</Tag> : "—"),
-      },
-      {
-        title: "تعداد فیلد تکمیل‌شده",
-        dataIndex: "fieldCount",
-        key: "fieldCount",
-        width: 160,
-      },
-      {
-        title: "زمان ارسال",
-        dataIndex: "sentAt",
-        key: "sentAt",
-        render: (value) => (
-          <Tag color="purple">
-            {value ? georgianDateTimeToJalaliDateTime(value) : "—"}
-          </Tag>
-        ),
-      },
-    ],
-    [page],
-  );
+  const openTaskModal = (record) => {
+    setModal({
+      type: MODAL_TYPES.CARTABLE_TASK,
+      mode: "add",
+      data: record,
+    });
+  };
 
   const isTodo = tab === TABS.TODO;
   const dataSource = isTodo ? filteredTodo : filteredSent;
 
+  const todoCols = useMemo(
+    () =>
+      todoColumns({
+        page,
+        setActiveProcess: openTaskModal,
+        pageSize: PAGE_SIZE,
+      }),
+    [page],
+  );
+  const sentCols = useMemo(
+    () => sentColumns({ page, pageSize: PAGE_SIZE }),
+    [page],
+  );
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950" dir="rtl">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <Header />
 
       <div className="mx-auto max-w-screen-xl p-4 sm:p-6">
@@ -286,7 +180,7 @@ const ProcessMakerCartable = () => {
                 کارتابل فرآیندساز
               </h1>
               <p className="mt-1 mb-0 text-xs leading-7 text-orange-50 sm:text-sm">
-                {currentUser.name} عزیز، فرم هر فرایند را باز کنید، تکمیل کنید و
+                {currentUser.name} عزیز، فرم مورد نظر را باز کنید، تکمیل کنید و
                 به گردش کار بفرستید.
               </p>
             </div>
@@ -310,32 +204,11 @@ const ProcessMakerCartable = () => {
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <StatCard
-            icon={<InboxOutlined />}
-            label="فرم‌های قابل تکمیل"
-            value={todoItems.length}
-            tone="bg-orange-50 text-orange-600"
-          />
-          <StatCard
-            icon={<CheckCircleOutlined />}
-            label="ارسال‌شده‌های من"
-            value={sentItems.length}
-            tone="bg-emerald-50 text-emerald-600"
-          />
-          <StatCard
-            icon={<ClockCircleOutlined />}
-            label="فرایندهای بدون فرم"
-            value={withoutFormCount}
-            tone="bg-slate-100 text-slate-600"
-          />
-        </div>
-
         <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 dark:border-slate-800 dark:bg-slate-900">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-baseline gap-2">
               <h2 className="m-0 text-base font-bold text-slate-800 dark:text-slate-100">
-                {isTodo ? "فهرست کارهای کارتابل" : "رسید ارسال‌های من"}
+                {isTodo ? "فهرست فرم‌های قابل تکمیل" : "رسید ارسال‌های من"}
               </h2>
               <span className="text-xs text-slate-500 dark:text-slate-400">
                 {dataSource.length} مورد
@@ -344,17 +217,17 @@ const ProcessMakerCartable = () => {
             <div className="flex flex-wrap items-center gap-2">
               <Input.Search
                 allowClear
-                placeholder="جستجوی نام فرایند یا فرم"
+                placeholder="جستجوی نام فرم، توضیحات یا دسته‌بندی"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                style={{ width: 260 }}
+                style={{ width: 280 }}
               />
               {isTodo ? (
                 <Tooltip title="بارگذاری مجدد">
                   <Button
                     icon={<ReloadOutlined />}
-                    loading={listQuery.isFetching}
-                    onClick={() => listQuery.refetch()}
+                    loading={formDefinitionsQuery.isFetching}
+                    onClick={() => formDefinitionsQuery.refetch()}
                   />
                 </Tooltip>
               ) : (
@@ -369,36 +242,38 @@ const ProcessMakerCartable = () => {
             </div>
           </div>
 
-          {isTodo && listQuery.isError ? (
+          {isTodo && formDefinitionsQuery.isError ? (
             <Alert
               type="error"
               showIcon
               className="mb-4"
               message={getApiErrorMessage(
-                listQuery.error,
-                "دریافت کارهای کارتابل انجام نشد.",
+                formDefinitionsQuery.error,
+                "دریافت لیست فرم‌ها انجام نشد.",
               )}
               action={
-                <Button size="small" onClick={() => listQuery.refetch()}>
+                <Button
+                  size="small"
+                  onClick={() => formDefinitionsQuery.refetch()}
+                >
                   تلاش مجدد
                 </Button>
               }
             />
           ) : null}
 
-          <Table
+          <TableAntd
             rowKey={(record) =>
               isTodo
                 ? record.id
                 : `${record.processId}-${record.submissionId ?? record.sentAt}`
             }
-            columns={isTodo ? todoColumns : sentColumns}
+            columns={isTodo ? todoCols : sentCols}
             dataSource={dataSource}
-            loading={isTodo && listQuery.isLoading}
+            loading={isTodo && formDefinitionsQuery.isLoading}
             pagination={{
               current: page,
               pageSize: PAGE_SIZE,
-              hideOnSinglePage: true,
               onChange: setPage,
             }}
             scroll={{ x: "max-content" }}
@@ -408,42 +283,29 @@ const ProcessMakerCartable = () => {
                   className="py-10"
                   description={
                     isTodo
-                      ? "کاری در کارتابل شما نیست؛ برای شروع، در فرایندساز به هر فرایند یک فرم وصل کنید."
+                      ? "فرمی برای تکمیل موجود نیست."
                       : "هنوز فرمی ارسال نکرده‌اید."
                   }
-                >
-                  {isTodo ? (
-                    <Button
-                      type="primary"
-                      onClick={() => navigate("/processes")}
-                    >
-                      رفتن به فرایندساز
-                    </Button>
-                  ) : null}
-                </Empty>
+                />
               ),
             }}
           />
         </div>
       </div>
 
-      <CartableTaskDrawer
-        open={Boolean(activeProcess)}
-        process={activeProcess}
-        submitterId={currentUser.id}
-        onClose={() => setActiveProcess(null)}
-        onSubmitted={handleSubmitted}
-      />
+      {modalType === MODAL_TYPES.CARTABLE_TASK && (
+        <CartableTaskModal
+          open={isOpen}
+          process={modalData}
+          submitterId={currentUser.id}
+          onClose={closeModal}
+          onSubmitted={handleSubmitted}
+        />
+      )}
     </div>
   );
 };
 
-const ProcessMaker = () => (
-  <ConfigProvider direction="rtl">
-    <App>
-      <ProcessMakerCartable />
-    </App>
-  </ConfigProvider>
-);
+const ProcessMaker = () => <ProcessMakerCartable />;
 
 export default ProcessMaker;
