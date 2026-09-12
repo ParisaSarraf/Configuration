@@ -3,7 +3,6 @@ import { Alert, App, Button, Empty, Result, Skeleton, Space, Tag } from "antd";
 import {
   FileTextOutlined,
   PartitionOutlined,
-  SendOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import FormRenderer from "@/pages/Forms/FormRuntime/FormRenderer";
@@ -33,11 +32,6 @@ const asArray = (value) => {
   return [];
 };
 
-/**
- * رکورد کارتابل دو شکل دارد:
- *  ۱) رکورد «فرایند» که فرمش در form_definition آمده است
- *  ۲) رکورد «تعریف فرم» (خروجی useFormDefinitions در کارتابل)
- */
 const looksLikeFormDefinition = (record) =>
   Boolean(
     record &&
@@ -80,7 +74,6 @@ const CartableTaskModal = ({
   );
   const processId = useMemo(() => resolveProcessId(processItem), [processItem]);
 
-  // پرکنندهٔ فرم: prop ← وگرنه user_id داخل access token
   const submitter = useMemo(
     () => resolveSubmitterId(submitterId),
     [submitterId],
@@ -134,30 +127,18 @@ const CartableTaskModal = ({
     "بدون فرم";
 
   const submit = async (values) => {
-    console.log("=== submit called ===");
-    console.log("raw values:", values);
-    console.log("typeof values:", typeof values);
-    console.log("isArray:", Array.isArray(values));
     try {
       const formData = buildFormData(fields, values);
       if (!Object.keys(formData).length) {
         message.warning("داده‌ای برای ارسال وجود ندارد؛ ابتدا فرم را پر کنید.");
         return;
       }
-      console.log("formData:", formData);
-      console.log("typeof formData:", typeof formData);
-
       const payload = buildSubmissionPayload({
         formDefinitionId,
         fields,
         values,
         submitterId: submitter,
       });
-
-      console.log("payload:", payload);
-      console.log("payload.form_data:", payload.form_data);
-      console.log("typeof payload.form_data:", typeof payload.form_data);
-      console.log("JSON.stringify payload:", JSON.stringify(payload));
 
       const response = await createSubmission.mutateAsync(payload);
       const messageText =
@@ -320,14 +301,7 @@ const CartableTaskModal = ({
       footer={null}
       title={
         <div className="flex w-full flex-col gap-1">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-base font-bold text-slate-800 dark:text-slate-100">
-              {processItem?.name || "کار کارتابل"}
-            </span>
-            <Tag icon={<SendOutlined />} color="orange" className="!m-0">
-              تکمیل و ارسال فرم
-            </Tag>
-          </div>
+ 
           <span className="flex items-center gap-2 text-xs font-normal text-slate-500">
             <FileTextOutlined />
             {formTitle}
