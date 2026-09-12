@@ -19,10 +19,8 @@ const put = (client, endpoint, payload, signal) =>
 const remove = (client, endpoint, signal) =>
   client.delete(endpoint, { signal }).then((response) => response.data);
 
-/** آبجکت ↔ رشتهٔ JSON برای form_data (قالب دوم برای تلاش مجدد). */
 const flipFormData = (payload) => {
   const raw = payload?.form_data;
-
   if (typeof raw === "string") {
     try {
       return { ...payload, form_data: JSON.parse(raw) };
@@ -37,7 +35,6 @@ const flipFormData = (payload) => {
   return null;
 };
 
-/** همان پیلود بدون submitter_id (اختیاری است؛ سرور به ادمین نسبت می‌دهد). */
 const withoutSubmitter = (payload) => {
   if (payload?.submitter_id == null) return null;
   const next = { ...payload };
@@ -45,13 +42,7 @@ const withoutSubmitter = (payload) => {
   return next;
 };
 
-/**
- * ثبت فرم.
- * Swagger می‌گوید form_data رشته است، ولی بک‌اند در عمل JSONField است؛
- * پس ترتیب تلاش این است: همان پیلود ← قالب دیگر form_data ← بدون
- * submitter_id. فقط روی خطای 400 تلاش بعدی انجام می‌شود؛ خطاهای
- * دیگر (401، 500، قطع شبکه) بی‌درنگ بالا می‌روند.
- */
+
 const createSubmission = async (client, payload, signal) => {
   const attempts = [
     payload,

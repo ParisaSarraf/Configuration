@@ -129,7 +129,6 @@ export const normalizeValue = (field, raw) => {
   return typeof raw === "string" ? raw.trim() : raw;
 };
 
-/** مقادیر خام رندرر ← آبجکت form_data نهایی (کلید = field_name هر فیلد). */
 export const buildFormData = (fields, values) =>
   (fields || []).reduce((data, field) => {
     const key = field.field_name || String(field.id || "");
@@ -145,12 +144,7 @@ const toPositiveInt = (raw) => {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 };
 
-/**
- * شناسهٔ پرکنندهٔ فرم.
- * اولویت: مقداری که صریح پاس داده شده ← user_id داخل access token.
- * اگر هیچ‌کدام نبود null برمی‌گرداند و کلید submitter_id در پیلود نمی‌آید
- * (اجباری نیست؛ سرور در این حالت ثبت را به ادمین نسبت می‌دهد).
- */
+
 export const resolveSubmitterId = (submitterId, token) => {
   const explicit = toPositiveInt(submitterId);
   if (explicit != null) return explicit;
@@ -181,12 +175,10 @@ export const buildSubmissionPayload = ({
 
   return {
     form_definition_id: Number(formDefinitionId) || null,
-    // اختیاری: کلید فقط وقتی کاربر شناسایی شد فرستاده می‌شود
     ...(submitter != null ? { submitter_id: submitter } : {}),
     form_data: stringifyFormData ? JSON.stringify(formData) : formData,
   };
 };
 
-/** فهرست تخت فیلدهای همهٔ دسته‌بندی‌ها. */
 export const flattenFields = (categories) =>
   (categories || []).flatMap((item) => item.fields || []);

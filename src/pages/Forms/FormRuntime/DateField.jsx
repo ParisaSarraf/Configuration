@@ -1,21 +1,3 @@
-/* eslint-disable react/prop-types */
-// =====================================================================
-// DateField — تمام تاریخ‌های فرم از همین یک جا می‌آیند.
-//
-//  • تقویم/ظاهر: همان DatePicker خود پروژه
-//    (src/components/DatePicker/index.jsx — react-multi-date-picker با
-//     تقویم persian و زبان persian_fa)
-//  • تبدیل شمسی ↔ میلادی: فقط و فقط با توابع utils/timeTool
-//    (georgianDateToJalaliDate / jalaliDateToGeorgianDate /
-//     jalaliDateTimeToGeorgianDateTime / georgianDateTimeToTime /
-//     getValidTimeFromTimeString)
-//  • قاعدهٔ ثابت: کاربر شمسی می‌بیند و شمسی انتخاب می‌کند،
-//    اما مقداری که در submission ذخیره می‌شود همیشه میلادی ISO است:
-//        date      → "YYYY-MM-DD"
-//        datetime  → "YYYY-MM-DDTHH:mm:ss"
-//        time      → "HH:mm"
-// =====================================================================
-
 import DatepickerCustom from "../../../components/DatePicker/index.jsx";
 import {
   georgianDateToJalaliDate,
@@ -28,20 +10,17 @@ import {
 const JALALI = /^\d{4}\/\d{1,2}\/\d{1,2}$/;
 const GREGORIAN = /^\d{4}-\d{2}-\d{2}$/;
 
-/** moment برای ورودی نامعتبر رشتهٔ "Invalid date" می‌دهد؛ ردش می‌کنیم. */
 const ok = (text) =>
   text && !String(text).includes("Invalid") ? String(text) : "";
 
-/** مقدار ذخیره‌شده (میلادی) ← رشتهٔ شمسی برای نمایش در تقویم */
 export const toJalaliText = (stored) => {
   const raw = String(stored || "").trim().slice(0, 10);
   if (!raw) return "";
-  if (JALALI.test(raw)) return raw; // از قبل شمسی ذخیره شده بود
+  if (JALALI.test(raw)) return raw;
   if (!GREGORIAN.test(raw)) return "";
   return ok(georgianDateToJalaliDate(raw));
 };
 
-/** رشتهٔ شمسی تقویم → تاریخ میلادی ISO */
 export const toGregorianText = (jalali) => {
   const raw = String(jalali || "").trim();
   if (!raw) return "";
@@ -49,7 +28,6 @@ export const toGregorianText = (jalali) => {
   return ok(jalaliDateToGeorgianDate(raw));
 };
 
-/** ساعت را از مقدار ذخیره‌شده درمی‌آورد (هم "HH:mm" هم ISO کامل) */
 const timeOf = (stored) => {
   const raw = String(stored || "").trim();
   if (!raw) return "";
@@ -57,7 +35,6 @@ const timeOf = (stored) => {
   return ok(georgianDateTimeToTime(raw)).slice(0, 5);
 };
 
-/** DateObject خروجی تقویم → "YYYY/MM/DD" شمسی با ارقام لاتین */
 const pickedToJalali = (picked) => {
   if (!picked) return "";
   if (typeof picked === "string") return picked.trim();
