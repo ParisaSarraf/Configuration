@@ -1,100 +1,103 @@
-import { useMemo } from "react";
-import { Alert, Empty, Skeleton, Tag } from "antd";
+/* eslint-disable react/prop-types */
+// =====================================================================
+// مودال جزئیات ارسال — فرم را دقیقاً مثل زمان تکمیل نشان می‌دهد
+// (FormRenderer با mode="view") و مقادیر ثبت‌شده را درون همان فیلدها
+// می‌نشاند.
+// =====================================================================
+
+import { useEffect, useMemo, useState } from "react";
+import { Alert, Collapse, Empty, Select, Skeleton, Tag } from "antd";
 import {
   ClockCircleOutlined,
   FileDoneOutlined,
+  PaperClipOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import FormRenderer from "@/pages/Forms/FormRuntime/FormRenderer";
-import { flattenFields } from "@/pages/Forms/FormRuntime/submission";
-import { useFormDefinitionFieldById } from "@/QueryServises/formsQuery";
+import {
+  useFormDefinitions,
+  useFormSubmisionById,
+} from "@/QueryServises/formsQuery";
 import { getApiErrorMessage } from "@/Services/forms/formUtils";
 import { georgianDateTimeToJalaliDateTime } from "@utils/timeTool.jsx";
+import {
+  guessFormDefinitionId,
+  normalizeApiItem,
+  readFormData,
+  resolveFormDefinitionId,
+} from "@/Services/forms/submissionValues";
 import Modal from "../../../components/Modal";
+import SubmissionFormView from "./SubmissionFormView";
 
+const asList = (value) =>
+  Array.isArray(value)
+    ? value
+    : Array.isArray(value?.results)
+      ? value.results
+      : [];
 
-const parseFormData = (raw) => {
-  if (!raw) return null;
-  if (typeof raw === "object")
-    return Array.isArray(raw) || !Object.keys(raw).length ? null : raw;
+const CartableSubmissionModal = ({
+  open,
+  submission,
+  onClose,
+  formDefinitions,
+}) => {
+  const submissionId = submission?.id ?? null;
+  const [manualFormId, setManualFormId] = useState(null);
 
-  try {
-    const parsed = JSON.parse(String(raw));
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed)
-      ? parsed
-      : null;
-  } catch {
-    return null;
-  }
-};
+  useEffect(() => {
+    setManualFormId(null);
+  }, [submissionId]);
 
-const asText = (value) => {
-  if (value == null || value === "") return "—";
-  if (typeof value === "boolean") return value ? "بله" : "خیر";
-  if (Array.isArray(value))
-    return value.length
-      ? value
-          .map((item) =>
-            typeof item === "object" ? JSON.stringify(item) : item,
-          )
-          .join("، ")
-      : "—";
-  if (typeof value === "object") return JSON.stringify(value);
-  return String(value);
-};
-
-const CartableSubmissionModal = ({ open, submission, onClose }) => {
-  const formDefinitionId = submission?.formDefinitionId ?? null;
-
-  const values = useMemo(
-    () => parseFormData(submission?.formData),
-    [submission?.formData],
-  );
-
-  const formQuery = useFormDefinitionFieldById(formDefinitionId, {
-    enabled: Boolean(open && formDefinitionId && values),
+  const submissionQuery = useFormSubmisionById(submissionId, {
+    enabled: Boolean(open && submissionId),
   });
 
-  const categories = useMemo(() => {
-    const data = formQuery.data;
-    if (Array.isArray(data)) return data;
-    if (Array.isArray(data?.results)) return data.results;
-    return data ? [data] : [];
-  }, [formQuery.data]);
+  // این اندپوینت آرایهٔ تک‌عضوی می‌دهد → نرمال‌سازی لازم است
+  const detail = useMemo(
+    () =>
+      normalizeApiItem(submissionQuery.data) ?? normalizeApiItem(submission),
+    [submissionQuery.data, submission],
+  );
 
-  const definition = categories[0] || {};
-  const fields = useMemo(() => flattenFields(categories), [categories]);
+  const formData = useMemo(() => readFormData(detail), [detail]);
+  const submitter = detail?.submitter ?? null;
+  const createdAt = detail?.created_at ?? null;
+  const attachments = Array.isArray(detail?.file_attachments)
+    ? detail.file_attachments
+    : [];
 
-  const renderRawTable = () => {
-    const labelOf = new Map(
-      fields.map((field) => [
-        field.field_name || String(field.id),
-        field.field_label || field.field_name,
-      ]),
+  // ۱) شناسهٔ فرم از خود ارسال (اگر بک‌اند بدهد)
+  const explicitFormId = useMemo(
+    () =>
+      resolveFormDefinitionId(detail) ?? resolveFormDefinitionId(submission),
+    [detail, submission],
+  );
+
+  // ۲) وگرنه از روی کلیدهای form_data حدس می‌زنیم
+  const definitionsQuery = useFormDefinitions({
+    enabled: Boolean(open && !explicitFormId && !formDefinitions),
+  });
+
+  const definitions = useMemo(
+    () => asList(formDefinitions ?? definitionsQuery.data),
+    [formDefinitions, definitionsQuery.data],
+  );
+
+  const guessedFormId = useMemo(
+    () =>
+      explicitFormId ? null : guessFormDefinitionId(definitions, formData),
+    [explicitFormId, definitions, formData],
+  );
+
+  // ۳) در نهایت انتخاب دستی کاربر
+  const formId = explicitFormId ?? guessedFormId ?? manualFormId;
+
+  const formTitle = useMemo(() => {
+    const found = definitions.find(
+      (item) => Number(item?.id) === Number(formId),
     );
-
-    return (
-      <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800">
-        <table className="w-full text-sm">
-          <tbody>
-            {Object.entries(values || {}).map(([key, value]) => (
-              <tr
-                key={key}
-                className="border-b border-slate-100 last:border-0 dark:border-slate-800"
-              >
-                <th className="w-1/3 bg-slate-50 p-3 text-right font-semibold text-slate-600 dark:bg-slate-900 dark:text-slate-300">
-                  {labelOf.get(key) || key}
-                </th>
-                <td className="p-3 text-slate-800 dark:text-slate-100">
-                  {asText(value)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
-  };
+    return found?.name || detail?.form_title || detail?.form_name || "";
+  }, [definitions, formId, detail]);
 
   const renderBody = () => {
     if (!submission)
@@ -105,40 +108,117 @@ const CartableSubmissionModal = ({ open, submission, onClose }) => {
         />
       );
 
-    if (!values)
+    if (submissionQuery.isLoading)
+      return <Skeleton active paragraph={{ rows: 10 }} />;
+
+    if (submissionQuery.isError)
       return (
-        <Empty
-          className="py-16"
-          description="مقادیر این ارسال در این مرورگر ذخیره نشده است؛ رسیدهای بعدی کامل نمایش داده می‌شوند."
+        <Alert
+          type="error"
+          showIcon
+          message={getApiErrorMessage(
+            submissionQuery.error,
+            "دریافت جزئیات این ارسال انجام نشد.",
+          )}
         />
       );
 
-    if (formQuery.isLoading)
-      return <Skeleton active paragraph={{ rows: 10 }} />;
-
-    if (formQuery.isError || !fields.length)
+    if (!Object.keys(formData).length && !attachments.length)
       return (
-        <>
-          <Alert
-            type="warning"
-            showIcon
-            className="mb-4"
-            message={getApiErrorMessage(
-              formQuery.error,
-              "قالب فرم در دسترس نیست؛ فقط مقادیر ثبت‌شده نمایش داده می‌شود.",
-            )}
-          />
-          {renderRawTable()}
-        </>
+        <Empty
+          className="py-16"
+          description="مقداری برای این ارسال ثبت نشده است."
+        />
       );
 
     return (
-      <FormRenderer
-        key={`${formDefinitionId}-${submission?.submissionId ?? submission?.sentAt}`}
-        categories={categories}
-        mode="view"
-        initialValues={values}
-      />
+      <div className="space-y-4">
+        {!formId ? (
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-950/40">
+            <p className="mb-2 text-xs leading-6 text-amber-800 dark:text-amber-200">
+              پاسخ این ارسال شناسهٔ فرم ندارد و از روی کلیدها هم قابل تشخیص
+              نبود. فرم مربوطه را انتخاب کنید تا همان فرم پرشده نمایش داده شود.
+            </p>
+            <Select
+              className="w-full sm:w-80"
+              placeholder="انتخاب فرم"
+              value={manualFormId ?? undefined}
+              onChange={setManualFormId}
+              loading={definitionsQuery.isLoading}
+              showSearch
+              optionFilterProp="label"
+              options={definitions.map((item) => ({
+                value: item?.id,
+                label: item?.name || `فرم #${item?.id}`,
+              }))}
+            />
+          </div>
+        ) : null}
+
+        <SubmissionFormView
+          formDefinitionId={formId}
+          formData={formData}
+          enabled={Boolean(open)}
+        />
+
+        {attachments.length ? (
+          <div className="rounded-2xl border border-slate-200 p-3 dark:border-slate-800">
+            <p className="mb-2 text-xs font-bold text-slate-600 dark:text-slate-300">
+              پیوست‌ها
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {attachments.map((file, index) => {
+                const name =
+                  file?.name ||
+                  file?.file_name ||
+                  file?.title ||
+                  `فایل ${index + 1}`;
+                const href = file?.file || file?.url || file?.path || null;
+                return href ? (
+                  <a
+                    key={file?.id ?? `${name}-${index}`}
+                    href={href}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <Tag icon={<PaperClipOutlined />} color="gold">
+                      {name}
+                    </Tag>
+                  </a>
+                ) : (
+                  <Tag
+                    key={file?.id ?? `${name}-${index}`}
+                    icon={<PaperClipOutlined />}
+                    color="gold"
+                  >
+                    {name}
+                  </Tag>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
+
+        <Collapse
+          ghost
+          size="small"
+          items={[
+            {
+              key: "raw",
+              label: (
+                <span className="text-xs text-slate-500">
+                  مقادیر خام ثبت‌شده (JSON)
+                </span>
+              ),
+              children: (
+                <pre className="max-h-64 overflow-auto rounded-xl bg-slate-900 p-3 text-left text-xs text-slate-100">
+                  {JSON.stringify(formData, null, 2)}
+                </pre>
+              ),
+            },
+          ]}
+        />
+      </div>
     );
   };
 
@@ -153,28 +233,28 @@ const CartableSubmissionModal = ({ open, submission, onClose }) => {
         <div className="flex w-full flex-col gap-1">
           <span className="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-slate-100">
             <FileDoneOutlined className="text-orange-500" />
-            {submission?.formName || definition.name || "فرم ثبت‌شده"}
+            جزئیات ارسال #{submissionId}
+            {formTitle ? (
+              <span className="text-xs font-normal text-slate-400">
+                — {formTitle}
+              </span>
+            ) : null}
           </span>
           <span className="flex flex-wrap items-center gap-2 text-xs font-normal text-slate-500">
-            {submission?.processName ? (
-              <Tag color="geekblue">{submission.processName}</Tag>
-            ) : null}
-            {submission?.stateName ? (
-              <Tag color="green">{submission.stateName}</Tag>
-            ) : null}
             <Tag icon={<UserOutlined />} color="blue">
-              {submission?.submitterName ||
-                (submission?.submitterId
-                  ? `#${submission.submitterId}`
-                  : "ثبت به‌نام ادمین")}
+              {submitter?.name ||
+                submitter?.username ||
+                (submitter?.id ? `#${submitter.id}` : "—")}
             </Tag>
-            {submission?.sentAt ? (
+            {createdAt ? (
               <Tag icon={<ClockCircleOutlined />} color="purple">
-                {georgianDateTimeToJalaliDateTime(submission.sentAt)}
+                {georgianDateTimeToJalaliDateTime(createdAt)}
               </Tag>
             ) : null}
-            {submission?.submissionId ? (
-              <Tag>شماره ثبت: {submission.submissionId}</Tag>
+            {attachments.length ? (
+              <Tag icon={<PaperClipOutlined />} color="gold">
+                {attachments.length} پیوست
+              </Tag>
             ) : null}
           </span>
         </div>

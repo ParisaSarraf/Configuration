@@ -194,7 +194,6 @@ export const useUpdateFormDefinition = () => {
   });
 };
 
-
 export const useFormDefinitionByIdKey = (id) => ["form", "definition", id];
 export const useFormDefinitionById = (id, queryOptions) => {
   const { myAxios } = useMyAxios();
@@ -244,6 +243,41 @@ export const useFormDefinitionFieldById = (id, queryOptions) => {
     staleTime: FORM_CATEGORY_CACHE_TIME,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
+    ...queryOptions,
+  });
+};
+
+// ========================= Submission ===============================
+export const useFormSubmissionByIdKey = (id) => [
+  "form",
+  "submission",
+  "field",
+  id,
+];
+export const useFormSubmisionById = (id, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: useFormSubmissionByIdKey(id),
+    queryFn: () =>
+      id
+        ? myAxios
+            .get(`/forms/get-form-submission-by-id/${id}`)
+            .then((response) => response?.data)
+        : Promise.resolve(null),
+    enabled: Boolean(id),
+    staleTime: FORM_CATEGORY_CACHE_TIME,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    ...queryOptions,
+  });
+};
+
+
+export const useFormSubmisions = (queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: formDefinitionsKey,
+    queryFn: () => formApi.getSubmissions(myAxios),
     ...queryOptions,
   });
 };

@@ -1,23 +1,3 @@
-// =====================================================================
-// ساختار دادهٔ submission
-//
-// قاعده‌های ثابت (برای گزارش‌گیری بعدی در بک‌اند):
-//   • کلید هر مقدار = field_name (نام فنی پایدار)؛ نه عنوان، نه id
-//   • عدد به‌صورت number ذخیره می‌شود، نه رشته
-//   • تاریخ/زمان ISO (YYYY-MM-DD ، HH:mm ، ISO-8601)
-//   • چندانتخابی = آرایهٔ value گزینه‌ها (نه label)
-//   • جدول پرشدنی = آرایه‌ای از ردیف‌ها { کلیدستون: مقدار }
-//   • جدول ثابت سند = آبجکت { کلیدخانه: مقدار } زیر نام خود فیلد
-//   • عناصر نمایشی (عنوان بخش، خط، سربرگ، شکست صفحه) اصلاً نمی‌آیند
-//   • فیلدهای خالی حذف می‌شوند تا جدول گزارش پر از رشتهٔ خالی نشود
-//
-// قرارداد اندپوینت POST /forms/add-form-submission/ :
-//   { form_definition_id: number, submitter_id?: number, form_data: string }
-//   • submitter_id اختیاری است؛ اگر نفرستیم سرور ثبت را به ادمین نسبت می‌دهد
-//   • form_data آبجکت فرستاده می‌شود (بک‌اند JSONField است)؛ اگر سرور
-//     رشته بخواهد، لایهٔ formApi خودش همان درخواست را رشته‌ای می‌فرستد
-// =====================================================================
-
 import { DISPLAY_ONLY, canonicalType } from "./fieldSchema";
 import { MULTI_TYPES } from "./formElements";
 import {
@@ -31,11 +11,6 @@ const JALALI_DATE = /^\d{4}\/\d{1,2}\/\d{1,2}/;
 const ok = (text) =>
   text && !String(text).includes("Invalid") ? String(text) : "";
 
-/**
- * مقدار تاریخ همیشه میلادی ذخیره می‌شود. تقویم خودش میلادی
- * می‌دهد، ولی اگر جایی مقدار شمسی مانده بود (مقدار پیش‌فرض یا
- * دادهٔ قدیمی)، همین‌جا با timeTool تبدیل می‌شود.
- */
 const toGregorianISO = (text, type) => {
   if (!JALALI_DATE.test(text)) return text;
   const [datePart, timePart] = text.split(/[T ]/);
@@ -66,7 +41,6 @@ const isBlank = (value) =>
     !Array.isArray(value) &&
     Object.keys(value).length === 0);
 
-/** یک مقدار خام را به قالب نهایی ذخیره تبدیل می‌کند. */
 export const normalizeValue = (field, raw) => {
   const type = canonicalType(field?.field_type);
 

@@ -10,40 +10,40 @@ const sentColumns = ({ page, pageSize = 8, onView }) => [
     render: (_value, _record, index) => (page - 1) * pageSize + index + 1,
   },
   {
-    title: "فرایند",
-    dataIndex: "processName",
-    key: "processName",
-    render: (value) => value || "—",
-  },
-  {
-    title: "فرم",
-    dataIndex: "formName",
-    key: "formName",
-    render: (value) => <Tag color="blue">{value || "—"}</Tag>,
+    title: "شناسه ارسال",
+    dataIndex: "id",
+    key: "id",
+    width: 100,
+    render: (value) => <Tag color="blue">#{value}</Tag>,
   },
   {
     title: "ارسال‌کننده",
     key: "submitter",
     render: (_value, record) =>
-      record?.submitterName ||
-      (record?.submitterId ? `#${record.submitterId}` : "ادمین"),
-  },
-  {
-    title: "ایستگاه شروع",
-    dataIndex: "stateName",
-    key: "stateName",
-    render: (value) => (value ? <Tag color="green">{value}</Tag> : "—"),
+      record?.submitter?.name ||
+      record?.submitter?.username ||
+      (record?.submitter?.id ? `#${record.submitter.id}` : "—"),
   },
   {
     title: "تعداد فیلد تکمیل‌شده",
-    dataIndex: "fieldCount",
     key: "fieldCount",
     width: 160,
+    render: (_value, record) =>
+      Object.keys(record?.form_data ?? {}).length,
+  },
+  {
+    title: "پیوست‌ها",
+    key: "attachments",
+    width: 100,
+    render: (_value, record) =>
+      Array.isArray(record?.file_attachments)
+        ? record.file_attachments.length
+        : 0,
   },
   {
     title: "زمان ارسال",
-    dataIndex: "sentAt",
-    key: "sentAt",
+    dataIndex: "created_at",
+    key: "created_at",
     render: (value) => (
       <Tag color="purple">
         {value ? georgianDateTimeToJalaliDateTime(value) : "—"}
@@ -57,19 +57,16 @@ const sentColumns = ({ page, pageSize = 8, onView }) => [
     align: "left",
     render: (_value, record) => {
       const hasData = Boolean(
-        record?.formData && Object.keys(record.formData).length,
+        record?.form_data && Object.keys(record.form_data).length,
       );
-
       return (
-        <Tooltip
-          title={hasData ? "" : "مقادیر این ارسال در این مرورگر ذخیره نشده است"}
-        >
+        <Tooltip title={hasData ? "" : "داده‌ای برای این ارسال موجود نیست"}>
           <Button
             type="primary"
             icon={<EyeOutlined />}
             onClick={() => onView?.(record)}
           >
-            مشاهده فرم ثبت شده
+            مشاهده فرم ثبت‌شده
           </Button>
         </Tooltip>
       );

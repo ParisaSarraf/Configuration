@@ -5,6 +5,7 @@ const ENDPOINTS = Object.freeze({
   definitions: "/forms/get-form-definition/",
   field: "/forms/add-form-field/",
   submission: "/forms/add-form-submission/",
+  submissions: "/forms/get-form-submission/",
 });
 
 const get = (client, endpoint, signal) =>
@@ -41,7 +42,6 @@ const withoutSubmitter = (payload) => {
   delete next.submitter_id;
   return next;
 };
-
 
 const createSubmission = async (client, payload, signal) => {
   const attempts = [
@@ -90,6 +90,8 @@ export const formApi = Object.freeze({
     remove(client, `/forms/delete-form-field/${id}`, signal),
 
   createSubmission,
+  getSubmissions: (client, signal) =>
+    get(client, ENDPOINTS.submissions, signal),
 });
 
 export { ENDPOINTS as FORM_ENDPOINTS };
