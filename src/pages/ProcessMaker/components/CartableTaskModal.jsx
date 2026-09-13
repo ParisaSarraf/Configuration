@@ -16,7 +16,10 @@ import {
   useCreateFormSubmission,
   useFormDefinitionFieldById,
 } from "@/QueryServises/formsQuery";
-import { useProcessInfo } from "@/QueryServises/workflowQuery";
+import {
+  useCreateRequest,
+  useProcessInfo,
+} from "@/QueryServises/workflowQuery";
 import { pickProcessInfo } from "@/pages/Processes/ProcessBuilder/processGraph";
 import {
   getStateTypeLabel,
@@ -87,6 +90,7 @@ const CartableTaskModal = ({
     enabled: Boolean(open && processId),
   });
   const createSubmission = useCreateFormSubmission();
+  const createRequest = useCreateRequest();
 
   const [done, setDone] = useState(null);
   const [renderToken, setRenderToken] = useState(0);
@@ -141,12 +145,36 @@ const CartableTaskModal = ({
       });
 
       const response = await createSubmission.mutateAsync(payload);
+      const submissionId = response?.id ?? null;
+
+      // ثبت درخواست فرایند روی سرور تا همین ارسال در «ارسال‌شده‌ها»
+      // همیشه قابل بازیابی باشد (فرم + مقادیر + ایستگاه)؛ بدون ذخیرهٔ محلی.
+      let requestId = null;
+      if (processId && submissionId) {
+        try {
+          const createdRequest = await createRequest.mutateAsync({
+            process_id: processId,
+            form_submission_id: submissionId,
+            title: formTitle,
+            ...(submitter ? { created_by_id: submitter } : {}),
+          });
+          requestId = createdRequest?.id ?? null;
+        } catch (error) {
+          message.warning(
+            getApiErrorMessage(
+              error,
+              "فرم ثبت شد، اما ثبت درخواست در فرایند انجام نشد.",
+            ),
+          );
+        }
+      }
       const messageText =
         definition.success_message || "فرم شما با موفقیت ارسال شد.";
 
       setDone(messageText);
       onSubmitted?.({
-        submissionId: response?.id ?? null,
+        submissionId,
+        requestId,
         processId,
         processName: processItem?.name || "",
         formDefinitionId,
@@ -303,7 +331,6 @@ const CartableTaskModal = ({
       footer={null}
       title={
         <div className="flex w-full flex-col gap-1">
- 
           <span className="flex items-center gap-2 text-xs font-normal text-slate-500">
             <FileTextOutlined />
             {formTitle}

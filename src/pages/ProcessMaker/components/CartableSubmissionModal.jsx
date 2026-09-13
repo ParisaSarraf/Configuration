@@ -1,213 +1,208 @@
-import { useEffect, useMemo, useState } from "react";
-import { Alert, Collapse, Empty, Select, Skeleton, Tag } from "antd";
+import { useMemo } from "react";
+import { Alert, Empty, Skeleton, Space, Tag } from "antd";
 import {
   ClockCircleOutlined,
-  FileDoneOutlined,
+  FileTextOutlined,
   PaperClipOutlined,
+  PartitionOutlined,
   UserOutlined,
 } from "@ant-design/icons";
+import FormRenderer from "@/pages/Forms/FormRuntime/FormRenderer";
+import { flattenFields } from "@/pages/Forms/FormRuntime/submission";
 import {
+  useFormDefinitionFieldById,
   useFormDefinitions,
+  useFormDefinitionsWithFields,
   useFormSubmisionById,
 } from "@/QueryServises/formsQuery";
+import {
+  asArray,
+  categoriesOf,
+  findFormIdBySubmission,
+  firstItem,
+  hydrateValues,
+} from "@/Services/forms/submissionView";
 import { getApiErrorMessage } from "@/Services/forms/formUtils";
 import { georgianDateTimeToJalaliDateTime } from "@utils/timeTool.jsx";
-import {
-  guessFormDefinitionId,
-  normalizeApiItem,
-  readFormData,
-  resolveFormDefinitionId,
-} from "@/Services/forms/submissionValues";
 import Modal from "../../../components/Modal";
-import SubmissionFormView from "./SubmissionFormView";
+import "./cartable-form-view.css";
 
-const asList = (value) =>
-  Array.isArray(value)
-    ? value
-    : Array.isArray(value?.results)
-      ? value.results
-      : [];
+const attachmentName = (item) => {
+  if (!item) return "";
+  if (typeof item === "string") return item.split("/").pop();
+  const raw =
+    item.name ??
+    item.file_name ??
+    item.file ??
+    item.attachment ??
+    item.url ??
+    "";
+  return String(raw).split("/").pop();
+};
 
-const CartableSubmissionModal = ({
-  open,
-  submission,
-  onClose,
-  formDefinitions,
-}) => {
-  const submissionId = submission?.id ?? null;
-  const [manualFormId, setManualFormId] = useState(null);
+const jalali = (value) => {
+  if (!value) return "—";
+  const text = georgianDateTimeToJalaliDateTime(String(value));
+  return text && !String(text).includes("Invalid") ? text : "—";
+};
 
-  useEffect(() => {
-    setManualFormId(null);
-  }, [submissionId]);
+/**
+ * نمایش «فرم پرشده» در بخش ارسال‌شده‌های کارتابل.
+ *
+ * مسیر داده دقیقاً معکوس مسیر پرکردن فرم است و کاملاً سمت سرور:
+ *   /workflow/get-request/  →  process.form_definition  →  /forms/get-form-definition/<id>
+ *   → همان FormRenderer با mode="view" و initialValues
+ *
+ * هیچ مقداری در مرورگر ذخیره نمی‌شود؛ پاک کردن کش روی داده اثری ندارد.
+ */
+const CartableSubmissionModal = ({ open, record, submission, onClose }) => {
+  const row = record ?? submission ?? null;
+  const submissionId = row?.submissionId ?? row?.id ?? null;
 
-  const submissionQuery = useFormSubmisionById(submissionId, {
-    enabled: Boolean(open && submissionId),
+  // اگر ردیف از فهرست درخواست‌ها آمده باشد، form_data همراهش هست
+  const needsDetail = Boolean(open && submissionId && !row?.formData);
+  const detailQuery = useFormSubmisionById(submissionId, {
+    enabled: needsDetail,
+  });
+  const detail = useMemo(() => firstItem(detailQuery.data), [detailQuery.data]);
+
+  const formData = row?.formData ?? detail?.form_data ?? null;
+  const submitter = row?.submitter ?? detail?.submitter ?? null;
+  const createdAt = row?.createdAt ?? detail?.created_at ?? null;
+  const attachments = useMemo(() => {
+    const list = row?.attachments?.length
+      ? row.attachments
+      : (detail?.file_attachments ?? []);
+    return Array.isArray(list) ? list : [];
+  }, [row?.attachments, detail?.file_attachments]);
+
+  // شناسهٔ فرم در حالت عادی از process.form_definition خودِ درخواست می‌آید
+  const linkedFormId = row?.formDefinitionId ?? null;
+
+  // ارسال‌های قدیمی که به درخواست وصل نیستند: فرمشان از سرور پیدا می‌شود
+  const needsLookup = Boolean(open && submissionId && !linkedFormId);
+  const definitionsQuery = useFormDefinitions({ enabled: needsLookup });
+  const definitionIds = useMemo(() => {
+    if (!needsLookup) return [];
+    return asArray(definitionsQuery.data)
+      .map((item) => item?.id)
+      .filter(Boolean);
+  }, [needsLookup, definitionsQuery.data]);
+
+  const lookupQueries = useFormDefinitionsWithFields(definitionIds);
+  const lookupLoading =
+    needsLookup &&
+    (definitionsQuery.isLoading ||
+      lookupQueries.some((query) => query.isLoading));
+  const lookupFormId = findFormIdBySubmission(
+    lookupQueries.map((query) => query.data),
+    submissionId,
+  );
+
+  const formDefinitionId = linkedFormId ?? lookupFormId ?? null;
+
+  const formQuery = useFormDefinitionFieldById(formDefinitionId, {
+    enabled: Boolean(open && formDefinitionId),
   });
 
-  const detail = useMemo(
-    () =>
-      normalizeApiItem(submissionQuery.data) ?? normalizeApiItem(submission),
-    [submissionQuery.data, submission],
+  // همان ساختاری که موقع پرکردن فرم به FormRenderer داده می‌شود
+  const categories = useMemo(
+    () => categoriesOf(formQuery.data),
+    [formQuery.data],
+  );
+  const definition = categories[0] ?? null;
+  const fields = useMemo(() => flattenFields(categories), [categories]);
+  const values = useMemo(
+    () => hydrateValues(fields, formData),
+    [fields, formData],
   );
 
-  const formData = useMemo(() => readFormData(detail), [detail]);
-  const submitter = detail?.submitter ?? null;
-  const createdAt = detail?.created_at ?? null;
-  const attachments = Array.isArray(detail?.file_attachments)
-    ? detail.file_attachments
-    : [];
+  const filledCount = row?.fieldCount ?? Object.keys(formData ?? {}).length;
 
-  const explicitFormId = useMemo(
-    () =>
-      resolveFormDefinitionId(detail) ?? resolveFormDefinitionId(submission),
-    [detail, submission],
+  const title = (
+    <Space size={6} wrap>
+      <span className="font-bold">
+        {definition?.name || `جزئیات ارسال #${submissionId ?? "—"}`}
+      </span>
+      {submissionId ? <Tag color="blue">ارسال #{submissionId}</Tag> : null}
+      {row?.processName ? (
+        <Tag icon={<PartitionOutlined />} color="geekblue">
+          {row.processName}
+        </Tag>
+      ) : null}
+      {row?.stateName ? <Tag color="purple">{row.stateName}</Tag> : null}
+      <Tag icon={<UserOutlined />}>
+        {submitter?.name || submitter?.username || "نامشخص"}
+      </Tag>
+      <Tag icon={<ClockCircleOutlined />}>{jalali(createdAt)}</Tag>
+      <Tag icon={<FileTextOutlined />}>{filledCount} فیلد تکمیل‌شده</Tag>
+    </Space>
   );
-
-  const definitionsQuery = useFormDefinitions({
-    enabled: Boolean(open && !explicitFormId && !formDefinitions),
-  });
-
-  const definitions = useMemo(
-    () => asList(formDefinitions ?? definitionsQuery.data),
-    [formDefinitions, definitionsQuery.data],
-  );
-
-  const guessedFormId = useMemo(
-    () =>
-      explicitFormId ? null : guessFormDefinitionId(definitions, formData),
-    [explicitFormId, definitions, formData],
-  );
-
-
-  const formId = explicitFormId ?? guessedFormId ?? manualFormId;
-
-  const formTitle = useMemo(() => {
-    const found = definitions.find(
-      (item) => Number(item?.id) === Number(formId),
-    );
-    return found?.name || detail?.form_title || detail?.form_name || "";
-  }, [definitions, formId, detail]);
 
   const renderBody = () => {
-    if (!submission)
-      return (
-        <Empty
-          className="py-16"
-          description="رسیدی برای نمایش انتخاب نشده است."
-        />
-      );
+    if (!row) return <Empty description="رسیدی برای نمایش انتخاب نشده است." />;
 
-    if (submissionQuery.isLoading)
-      return <Skeleton active paragraph={{ rows: 10 }} />;
+    if (needsDetail && detailQuery.isLoading)
+      return <Skeleton active paragraph={{ rows: 8 }} />;
 
-    if (submissionQuery.isError)
+    if (needsDetail && detailQuery.isError)
       return (
         <Alert
           type="error"
           showIcon
-          message={getApiErrorMessage(
-            submissionQuery.error,
-            "دریافت جزئیات این ارسال انجام نشد.",
-          )}
+          message="دریافت جزئیات این ارسال انجام نشد."
+          description={getApiErrorMessage(detailQuery.error)}
         />
       );
 
-    if (!Object.keys(formData).length && !attachments.length)
+    if (lookupLoading) return <Skeleton active paragraph={{ rows: 8 }} />;
+
+    if (!formDefinitionId)
       return (
-        <Empty
-          className="py-16"
-          description="مقداری برای این ارسال ثبت نشده است."
+        <Alert
+          type="warning"
+          showIcon
+          message="فرم این ارسال روی سرور مشخص نیست."
+          description="این رکورد به هیچ درخواست فرایندی وصل نیست؛ برای ارسال‌های جدید که از کارتابل فرستاده می‌شوند، فرم خودبه‌خود بازسازی می‌شود."
         />
       );
+
+    if (formQuery.isLoading) return <Skeleton active paragraph={{ rows: 8 }} />;
+
+    if (formQuery.isError)
+      return (
+        <Alert
+          type="error"
+          showIcon
+          message="دریافت ساختار فرم انجام نشد."
+          description={getApiErrorMessage(formQuery.error)}
+        />
+      );
+
+    if (!fields.length) return <Empty description="این فرم هیچ فیلدی ندارد." />;
 
     return (
-      <div className="space-y-4">
-        {!formId ? (
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-950/40">
-            <p className="mb-2 text-xs leading-6 text-amber-800 dark:text-amber-200">
-              پاسخ این ارسال شناسهٔ فرم ندارد و از روی کلیدها هم قابل تشخیص
-              نبود. فرم مربوطه را انتخاب کنید تا همان فرم پرشده نمایش داده شود.
-            </p>
-            <Select
-              className="w-full sm:w-80"
-              placeholder="انتخاب فرم"
-              value={manualFormId ?? undefined}
-              onChange={setManualFormId}
-              loading={definitionsQuery.isLoading}
-              showSearch
-              optionFilterProp="label"
-              options={definitions.map((item) => ({
-                value: item?.id,
-                label: item?.name || `فرم #${item?.id}`,
-              }))}
-            />
-          </div>
-        ) : null}
-
-        <SubmissionFormView
-          formDefinitionId={formId}
-          formData={formData}
-          enabled={Boolean(open)}
-        />
-
+      <div className="flex flex-col gap-3">
         {attachments.length ? (
-          <div className="rounded-2xl border border-slate-200 p-3 dark:border-slate-800">
-            <p className="mb-2 text-xs font-bold text-slate-600 dark:text-slate-300">
-              پیوست‌ها
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {attachments.map((file, index) => {
-                const name =
-                  file?.name ||
-                  file?.file_name ||
-                  file?.title ||
-                  `فایل ${index + 1}`;
-                const href = file?.file || file?.url || file?.path || null;
-                return href ? (
-                  <a
-                    key={file?.id ?? `${name}-${index}`}
-                    href={href}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <Tag icon={<PaperClipOutlined />} color="gold">
-                      {name}
-                    </Tag>
-                  </a>
-                ) : (
-                  <Tag
-                    key={file?.id ?? `${name}-${index}`}
-                    icon={<PaperClipOutlined />}
-                    color="gold"
-                  >
-                    {name}
-                  </Tag>
-                );
-              })}
-            </div>
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <PaperClipOutlined />
+            <span className="font-semibold">پیوست‌ها:</span>
+            {attachments.map((item, index) => (
+              <Tag key={`${attachmentName(item)}-${index}`}>
+                {attachmentName(item) || `پیوست ${index + 1}`}
+              </Tag>
+            ))}
           </div>
         ) : null}
 
-        <Collapse
-          ghost
-          size="small"
-          items={[
-            {
-              key: "raw",
-              label: (
-                <span className="text-xs text-slate-500">
-                  مقادیر خام ثبت‌شده (JSON)
-                </span>
-              ),
-              children: (
-                <pre className="max-h-64 overflow-auto rounded-xl bg-slate-900 p-3 text-left text-xs text-slate-100">
-                  {JSON.stringify(formData, null, 2)}
-                </pre>
-              ),
-            },
-          ]}
-        />
+        <div className="cartable-form-view">
+          <FormRenderer
+            key={`submission-${submissionId}-form-${formDefinitionId}`}
+            categories={categories}
+            mode="view"
+            initialValues={values}
+          />
+        </div>
       </div>
     );
   };
@@ -215,40 +210,11 @@ const CartableSubmissionModal = ({
   return (
     <Modal
       isOpen={open}
-      size="min(1100px, 96vw)"
       onClose={onClose}
+      title={title}
+      size="min(1240px, 98vw)"
       destroyOnClose
       footer={null}
-      title={
-        <div className="flex w-full flex-col gap-1">
-          <span className="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-slate-100">
-            <FileDoneOutlined className="text-orange-500" />
-            جزئیات ارسال #{submissionId}
-            {formTitle ? (
-              <span className="text-xs font-normal text-slate-400">
-                — {formTitle}
-              </span>
-            ) : null}
-          </span>
-          <span className="flex flex-wrap items-center gap-2 text-xs font-normal text-slate-500">
-            <Tag icon={<UserOutlined />} color="blue">
-              {submitter?.name ||
-                submitter?.username ||
-                (submitter?.id ? `#${submitter.id}` : "—")}
-            </Tag>
-            {createdAt ? (
-              <Tag icon={<ClockCircleOutlined />} color="purple">
-                {georgianDateTimeToJalaliDateTime(createdAt)}
-              </Tag>
-            ) : null}
-            {attachments.length ? (
-              <Tag icon={<PaperClipOutlined />} color="gold">
-                {attachments.length} پیوست
-              </Tag>
-            ) : null}
-          </span>
-        </div>
-      }
     >
       {renderBody()}
     </Modal>

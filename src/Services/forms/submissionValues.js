@@ -1,10 +1,10 @@
 // =====================================================================
-// کمک‌کارهای «نمایش فرم پرشده»
+// کمک‌کارهای «نمایش فرم پرشده» در کارتابل
 //
-// این فایل دقیقاً معکوسِ کاری است که
+// این فایل دقیقاً معکوس کاری است که
 // src/pages/Forms/FormRuntime/submission.js هنگام ثبت انجام می‌دهد:
 // آنجا مقادیر رندرر به form_data تبدیل می‌شوند، اینجا form_data به همان
-// شکلی که FormRenderer/FieldControl می‌فهمند برمی‌گردد.
+// شکلی برمی‌گردد که FormRenderer / FieldControl می‌فهمند.
 // =====================================================================
 
 import {
@@ -12,6 +12,14 @@ import {
   resolveType,
 } from "@/pages/Forms/FormRuntime/fieldSchema";
 import { MULTI_TYPES } from "@/pages/Forms/FormRuntime/formElements";
+
+const has = (collection, value) => {
+  if (collection instanceof Set) return collection.has(value);
+  if (Array.isArray(collection)) return collection.includes(value);
+  return false;
+};
+
+/* ------------------------- نرمال‌سازی پاسخ API ------------------------- */
 
 /** بعضی اندپوینت‌ها (مثل get-form-submission-by-id) آرایهٔ تک‌عضوی می‌دهند. */
 export const normalizeApiItem = (payload) => {
@@ -23,6 +31,12 @@ export const normalizeApiItem = (payload) => {
     return payload;
   }
   return null;
+};
+
+export const asArray = (payload) => {
+  if (Array.isArray(payload)) return payload.filter(Boolean);
+  if (Array.isArray(payload?.results)) return payload.results.filter(Boolean);
+  return payload && typeof payload === "object" ? [payload] : [];
 };
 
 /** پاسخ get-form-definition/{id} گاهی آرایه و گاهی یک آبجکت است. */
@@ -45,7 +59,7 @@ export const flattenFields = (categories) =>
 /** همان کلیدی که FormRenderer با آن مقدار هر فیلد را می‌خواند. */
 export const keyOf = (field) => field?.field_name || String(field?.id ?? "");
 
-const parsed = (raw) => {
+const parsedJson = (raw) => {
   if (typeof raw !== "string") return raw;
   const text = raw.trim();
   if (!text.startsWith("{") && !text.startsWith("[")) return raw;
@@ -56,11 +70,21 @@ const parsed = (raw) => {
   }
 };
 
-/** form_data ممکن است رشتهٔ JSON باشد (بک‌اند هر دو حالت را قبول می‌کند). */
+/** form_data ممکن است آبجکت یا رشتهٔ JSON باشد (بک‌اند هر دو را قبول دارد). */
 export const readFormData = (detail) => {
-  const raw = parsed(detail?.form_data ?? null);
+  const raw = parsedJson(detail?.form_data ?? null);
   return raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
 };
+
+/* --------------------------- برگرداندن مقادیر --------------------------- */
+
+const TRUTHY = new Set(["1", "true", "on", "yes", "بله", "دارد", "✓"]);
+
+const splitList = (raw) =>
+  String(raw)
+    .split(/[،,]|\r?\n/)
+    .map((item) => item.trim())
+    .filter(Boolean);
 
 const fileNamesOf = (raw) => {
   const list = Array.isArray(raw) ? raw : [raw];
@@ -68,82 +92,85 @@ const fileNamesOf = (raw) => {
     .map((item) => {
       if (!item) return "";
       if (typeof item === "string") return item;
-      return String(
-        item.name ?? item.file_name ?? item.title ?? item.file ?? "",
-      );
+      return item.name || item.file_name || item.title || item.file || "";
     })
-    .map((name) => name.trim())
     .filter(Boolean);
 };
 
-/** یک مقدار ذخیره‌شده را به شکل مورد انتظار FieldControl برمی‌گرداند. */
+const asText = (raw) => {
+  if (raw == null) return "";
+  if (Array.isArray(raw)) return raw.map((item) => asText(item)).join("، ");
+  if (typeof raw === "boolean") return raw ? "بله" : "خیر";
+  if (typeof raw === "object") return JSON.stringify(raw);
+  return String(raw);
+};
+
+/** یک مقدار ذخیره‌شده را به شکل مورد انتظار همان نوع فیلد برمی‌گرداند. */
 export const hydrateValue = (field, raw) => {
   const type = resolveType(field);
+  const value = parsedJson(raw);
 
-  if (DISPLAY_ONLY.has(type)) return undefined;
-  if (raw === undefined || raw === null) return undefined;
+  if (has(MULTI_TYPES, type))
+    return Array.isArray(value) ? value.map(asText) : splitList(asText(value));
 
-  if (type === "checkbox") return Boolean(raw);
-
-  if (MULTI_TYPES.has(type)) {
-    const list = Array.isArray(raw) ? raw : [raw];
-    return list
-      .map((item) =>
-        item && typeof item === "object"
-          ? (item.value ?? item.label ?? "")
-          : item,
-      )
-      .filter((item) => item !== "" && item != null)
-      .map(String);
+  if (type === "checkbox") {
+    if (typeof value === "boolean") return value;
+    return TRUTHY.has(
+      String(value ?? "")
+        .trim()
+        .toLowerCase(),
+    ) || String(value ?? "").trim() === "بله"
+      ? true
+      : false;
   }
 
-  // امضا در ثبت به شکل { kind, value, signed_at } ذخیره می‌شود
-  if (type === "signature")
-    return raw && typeof raw === "object"
-      ? String(raw.value ?? "")
-      : String(raw);
+  if (type === "file" || type === "multifile" || type === "spreadsheet")
+    return fileNamesOf(value);
 
-  // فایل‌ها به شکل [{ name }] ذخیره می‌شوند و کنترل، آرایهٔ نام می‌خواهد
-  if (type === "file" || type === "multifile") return fileNamesOf(raw);
+  if (type === "signature") {
+    if (value && typeof value === "object")
+      return asText(value.value ?? value.text ?? value.name ?? "");
+    return asText(value);
+  }
 
-  if (type === "matrix") return Array.isArray(raw) ? raw : [];
+  // امضا+تاریخ و ماتریس به شکل آبجکت ذخیره می‌شوند و همان‌طور مصرف می‌شوند.
+  if (type === "date_signature" || type === "matrix")
+    return value && typeof value === "object" ? value : {};
 
-  if (type === "sheet_table" || type === "date_signature")
-    return raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
+  if (
+    type === "number" ||
+    type === "decimal" ||
+    type === "currency" ||
+    type === "slider" ||
+    type === "rating"
+  )
+    return value === "" || value == null ? "" : Number(value);
 
-  // تاریخ/تاریخ‌وساعت میلادی ذخیره می‌شود و خودِ DateField آن را شمسی نشان می‌دهد
-  return raw;
+  // تاریخ‌ها دست‌نخورده می‌مانند؛ DateField خودش میلادی را شمسی نشان می‌دهد.
+  return asText(value);
 };
 
 /**
- * مقادیر آمادهٔ initialValues برای FormRenderer.
- *
- * نکته: خروجی از روی form_data خام ساخته می‌شود تا کلیدهای تخت
- * (مثل سلول‌های «جدول ثابت سند») هم سر جای خودشان رندر شوند.
+ * مقدار هر فیلد فرم را از form_data برمی‌دارد.
+ * کلیدهای تخت (سلول‌های «جدول ثابت سند») هم حفظ می‌شوند، چون
+ * SheetTable مقدارها را با نام سلول از همین آبجکت می‌خواند.
  */
 export const hydrateSubmissionValues = (categories, formData) => {
-  const data = formData && typeof formData === "object" ? formData : {};
-  const values = { ...data };
+  const source = formData && typeof formData === "object" ? formData : {};
+  const values = { ...source };
 
   flattenFields(categories).forEach((field) => {
-    const name = field?.field_name ? String(field.field_name) : "";
-    const id = field?.id != null ? String(field.id) : "";
-    const raw =
-      name && name in data
-        ? data[name]
-        : id && id in data
-          ? data[id]
-          : undefined;
-    const next = hydrateValue(field, raw);
-    if (next === undefined) return;
-
+    const type = resolveType(field);
+    if (has(DISPLAY_ONLY, type)) return;
     const key = keyOf(field);
-    if (key) values[key] = next;
-    if (id && id !== key && id in data) values[id] = next;
+    if (!key || !(key in source)) return;
+    values[key] = hydrateValue(field, source[key]);
   });
 
   return values;
 };
+
+/* ----------------------- پیدا کردن فرمِ این ارسال ----------------------- */
 
 const FORM_ID_KEYS = [
   "form_definition_id",
@@ -152,68 +179,145 @@ const FORM_ID_KEYS = [
   "definition_id",
   "definition",
   "form_id",
-  "form",
   "formId",
+  "form",
 ];
 
-const toId = (value) => {
-  const id = Number(value);
-  return Number.isFinite(id) && id > 0 ? id : null;
-};
-
-/** شناسهٔ تعریف فرم را از رکورد ارسال بیرون می‌کشد (هر نامی که بک‌اند بدهد). */
-export const resolveFormDefinitionId = (detail) => {
-  if (!detail || typeof detail !== "object") return null;
-
+/** شناسهٔ فرم را از خود رکورد ارسال بیرون می‌کشد (اگر بک‌اند فرستاده باشد). */
+export const resolveFormDefinitionId = (record) => {
+  if (!record || typeof record !== "object") return null;
   for (const key of FORM_ID_KEYS) {
-    const value = detail[key];
-    const direct = toId(value);
-    if (direct) return direct;
-    if (value && typeof value === "object") {
-      const nested = toId(value.id ?? value.pk ?? value.form_definition_id);
-      if (nested) return nested;
+    const value = record[key];
+    if (value == null) continue;
+    if (typeof value === "object") {
+      if (value.id != null) return value.id;
+      continue;
     }
+    if (typeof value === "number") return value;
+    const text = String(value).trim();
+    if (/^\d+$/.test(text)) return Number(text);
   }
   return null;
 };
 
-const collectFieldNames = (node, acc = new Set(), depth = 0) => {
-  if (!node || depth > 6) return acc;
-  if (Array.isArray(node)) {
-    node.forEach((item) => collectFieldNames(item, acc, depth + 1));
-    return acc;
-  }
-  if (typeof node !== "object") return acc;
-  if (node.field_name) acc.add(String(node.field_name));
-  Object.values(node).forEach((value) => {
-    if (value && typeof value === "object")
-      collectFieldNames(value, acc, depth + 1);
-  });
-  return acc;
+/** همهٔ field_name های یک تعریف فرم (شامل سلول‌های جدول سند). */
+const fieldNamesOf = (definition) => {
+  const names = new Set();
+  const walk = (node, depth) => {
+    if (!node || depth > 6) return;
+    if (Array.isArray(node)) {
+      node.forEach((item) => walk(item, depth + 1));
+      return;
+    }
+    if (typeof node !== "object") return;
+    if (typeof node.field_name === "string" && node.field_name)
+      names.add(node.field_name);
+    if (typeof node.name === "string" && node.r != null) names.add(node.name);
+    if (Array.isArray(node.fields)) walk(node.fields, depth + 1);
+    if (Array.isArray(node.categories)) walk(node.categories, depth + 1);
+    if (Array.isArray(node.choices)) walk(node.choices, depth + 1);
+  };
+  walk(definition, 0);
+  return names;
 };
 
 /**
- * اگر پاسخ ارسال شناسهٔ فرم نداشت، از روی کلیدهای form_data حدس می‌زنیم؛
- * کلیدها همان field_name های تعریف فرم‌اند، پس تطبیق قابل اتکاست.
+ * تا وقتی بک‌اند form_definition_id را برنگرداند، فرم را از روی
+ * هم‌پوشانی کلیدهای form_data با field_name های هر فرم حدس می‌زنیم.
  */
-export const guessFormDefinitionId = (definitions, formData) => {
+export const matchFormDefinitionId = (definitions, formData) => {
   const keys = Object.keys(formData || {});
   if (!keys.length) return null;
 
-  const list = Array.isArray(definitions)
-    ? definitions
-    : asCategories(definitions);
   let best = null;
-
-  list.forEach((definition) => {
-    const id = toId(definition?.id ?? definition?.form_definition_id);
-    if (!id) return;
-    const names = collectFieldNames(definition);
+  asArray(definitions).forEach((definition) => {
+    const id = definition?.id;
+    if (id == null) return;
+    const names = fieldNamesOf(definition);
     if (!names.size) return;
-    const score = keys.filter((key) => names.has(key)).length;
-    if (score && (!best || score > best.score)) best = { id, score };
+    const score = keys.reduce(
+      (sum, key) => (names.has(key) ? sum + 1 : sum),
+      0,
+    );
+    if (!best || score > best.score) best = { id, score };
   });
 
   if (!best) return null;
   return best.score >= Math.min(2, keys.length) ? best.id : null;
+};
+
+/* ------------- ساخت فرم موقت از خود مقادیر (آخرین راه) ------------- */
+
+const RANDOM_SUFFIX = /[-_][a-z0-9]*\d[a-z0-9]*$/i;
+const DATETIME = /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}/;
+const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
+const JALALI_DATE = /^\d{4}\/\d{1,2}\/\d{1,2}$/;
+const TIME_ONLY = /^\d{1,2}:\d{2}(:\d{2})?$/;
+
+const humanize = (key) => {
+  const text = String(key)
+    .replace(RANDOM_SUFFIX, "")
+    .replace(/[-_]+/g, " ")
+    .trim();
+  return text || String(key);
+};
+
+const guessType = (value) => {
+  if (typeof value === "boolean") return "checkbox";
+  const text = asText(value);
+  if (DATETIME.test(text)) return "datetime";
+  if (DATE_ONLY.test(text) || JALALI_DATE.test(text)) return "date";
+  if (TIME_ONLY.test(text)) return "time";
+  if (text.length > 80 || text.includes("\n")) return "textarea";
+  return "text";
+};
+
+const layoutToken = (x, y, w, h) =>
+  `form-studio-x:${x} form-studio-y:${y} form-studio-w:${w} form-studio-h:${h}`;
+
+/**
+ * اگر ساختار اصلی فرم در دسترس نباشد، از کلیدهای form_data یک فرم
+ * موقت می‌سازیم تا همان رندرر، «برچسب + مقدار» را در جای خودش نشان دهد.
+ */
+export const synthesizeCategories = (formData, label = "مقادیر ثبت‌شده") => {
+  const keys = Object.keys(formData || {});
+  if (!keys.length) return [];
+
+  let x = 0;
+  let y = 0;
+  let rowHeight = 0;
+
+  const fields = keys.map((key, index) => {
+    const type = guessType(formData[key]);
+    const w = type === "textarea" ? 12 : 6;
+    const h = type === "textarea" ? 12 : 7;
+
+    if (x + w > 12) {
+      x = 0;
+      y += rowHeight + 2;
+      rowHeight = 0;
+    }
+
+    const field = {
+      id: `submission-field-${index + 1}`,
+      field_name: key,
+      field_label: humanize(key),
+      field_type: type,
+      is_required: false,
+      order: index,
+      css_class: layoutToken(x, y, w, h),
+    };
+
+    x += w;
+    rowHeight = Math.max(rowHeight, h);
+    if (x >= 12) {
+      x = 0;
+      y += rowHeight + 2;
+      rowHeight = 0;
+    }
+
+    return field;
+  });
+
+  return [{ id: "submission-view", name: label, fields }];
 };

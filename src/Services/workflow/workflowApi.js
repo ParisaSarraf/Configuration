@@ -10,6 +10,11 @@ const ENDPOINTS = Object.freeze({
   addProcessPermission: "/workflow/add-process-permission/",
   addStatePermission: "/workflow/add-state-permission/",
   addActionPermission: "/workflow/add-action-permission/",
+  requests: "/workflow/get-request/",
+  requestById: "/workflow/get-request-by-id/",
+  requestsNeedUserAction: "/workflow/get-requests-need-user-action/",
+  processRequests: "/workflow/get-process-requests-by-id/",
+  addRequest: "/workflow/add-request/",
 });
 
 const get = (client, endpoint, signal) =>
@@ -67,6 +72,17 @@ export const workflowApi = Object.freeze({
     post(client, ENDPOINTS.addTransitionAction, payload, signal),
   deleteTransitionAction: (client, id, signal) =>
     remove(client, `/workflow/delete-transition-action/${id}`, signal),
+
+  // ---------- Request (درخواست‌های فرایند) ----------
+  getRequests: (client, signal) => get(client, ENDPOINTS.requests, signal),
+  getRequestById: (client, id, signal) =>
+    get(client, `${ENDPOINTS.requestById}${id}`, signal),
+  getRequestsNeedUserAction: (client, signal) =>
+    get(client, ENDPOINTS.requestsNeedUserAction, signal),
+  getProcessRequests: (client, id, signal) =>
+    get(client, `${ENDPOINTS.processRequests}${id}`, signal),
+  createRequest: (client, payload, signal) =>
+    post(client, ENDPOINTS.addRequest, payload, signal),
 
   // ---------- Permissions ----------
   createProcessPermission: (client, payload, signal) =>

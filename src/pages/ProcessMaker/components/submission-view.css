@@ -1,13 +1,17 @@
 /* =====================================================================
-   نمای فقط-خواندنی ارسال‌ها
-   کنترل‌های FormRenderer در mode="view" غیرفعال‌اند؛ این استایل‌ها فقط
-   خوانایی و ظاهر چاپی را حفظ می‌کنند و به کلاس‌های fr-* تکیه دارند.
+   نمای «فرم پرشده» در کارتابل
+
+   دقیقاً همان استایل‌های form-runtime.css استفاده می‌شود؛ اینجا فقط
+   ورودی‌های غیرفعال را خوانا می‌کنیم تا فرم مثل یک برگهٔ پرشده دیده شود.
    ===================================================================== */
 
-.fr-view .fr-input:disabled,
-.fr-view .fr-textarea:disabled,
-.fr-view .fr-select:disabled,
-.fr-view .fr-select-multi:disabled {
+.fr-view .fr-input,
+.fr-view .fr-textarea,
+.fr-view .fr-select,
+.fr-view .fr-select-multi,
+.fr-view input,
+.fr-view textarea,
+.fr-view select {
   background: #fff;
   color: #0f172a;
   -webkit-text-fill-color: #0f172a;
@@ -15,16 +19,17 @@
   cursor: default;
 }
 
-.fr-view .fr-option.is-readonly,
-.fr-view .fr-rating button:disabled,
-.fr-view input[type="checkbox"]:disabled,
-.fr-view input[type="radio"]:disabled,
-.fr-view input[type="range"]:disabled {
+.fr-view input:disabled,
+.fr-view textarea:disabled,
+.fr-view select:disabled,
+.fr-view [readonly] {
+  background: #fff;
+  color: #0f172a;
+  -webkit-text-fill-color: #0f172a;
   opacity: 1;
-  cursor: default;
 }
 
-/* دکمهٔ انتخاب فایل در نمای ارسال بی‌معنی است؛ فقط نام فایل‌ها بماند */
+/* دکمهٔ انتخاب فایل در نمای خواندنی معنا ندارد */
 .fr-view .fr-upload .fr-file {
   display: none;
 }
@@ -33,12 +38,25 @@
   font-weight: 600;
 }
 
-/* حالت تیره */
-.dark .fr-view .fr-input:disabled,
-.dark .fr-view .fr-textarea:disabled,
-.dark .fr-view .fr-select:disabled,
-.dark .fr-view .fr-select-multi:disabled {
-  background: #0f172a;
+.fr-view .fr-option {
+  cursor: default;
+}
+
+.fr-view .fr-error {
+  display: none;
+}
+
+.dark .fr-view .fr-input,
+.dark .fr-view .fr-textarea,
+.dark .fr-view .fr-select,
+.dark .fr-view .fr-select-multi,
+.dark .fr-view input,
+.dark .fr-view textarea,
+.dark .fr-view select,
+.dark .fr-view input:disabled,
+.dark .fr-view textarea:disabled,
+.dark .fr-view select:disabled {
+  background: #0b1220;
   color: #e2e8f0;
   -webkit-text-fill-color: #e2e8f0;
 }

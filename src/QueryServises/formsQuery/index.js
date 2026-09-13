@@ -1,10 +1,16 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueries,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useMyAxios } from "../../hooks/useMyAxios";
 import { formApi } from "../../Services/forms/formApi";
 
 export const formCategoriesKey = ["forms", "categories"];
 export const formDefinitionsKey = ["forms", "definitions"];
 export const formDefinitionKey = (id) => ["forms", "definitions", id];
+export const formSubmissionsKey = ["forms", "submissions"];
 
 const FORM_CATEGORY_CACHE_TIME = 5 * 60 * 1000;
 
@@ -247,6 +253,28 @@ export const useFormDefinitionFieldById = (id, queryOptions) => {
   });
 };
 
+/**
+ * چند تعریف فرم را با همان کلید کشِ useFormDefinitionFieldById می‌خواند.
+ * برای پیدا کردن فرمِ ارسال‌های قدیمی (بدون درخواست فرایند) از خودِ سرور.
+ */
+export const useFormDefinitionsWithFields = (ids, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQueries({
+    queries: (ids ?? []).map((id) => ({
+      queryKey: useFormDefinitionFieldByIdKey(id),
+      queryFn: () =>
+        myAxios
+          .get(`/forms/get-form-definition/${id}`)
+          .then((response) => response?.data),
+      enabled: Boolean(id),
+      staleTime: FORM_CATEGORY_CACHE_TIME,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      ...queryOptions,
+    })),
+  });
+};
+
 // ========================= Submission ===============================
 export const useFormSubmissionByIdKey = (id) => [
   "form",
@@ -272,11 +300,10 @@ export const useFormSubmisionById = (id, queryOptions) => {
   });
 };
 
-
 export const useFormSubmisions = (queryOptions) => {
   const { myAxios } = useMyAxios();
   return useQuery({
-    queryKey: formDefinitionsKey,
+    queryKey: formSubmissionsKey,
     queryFn: () => formApi.getSubmissions(myAxios),
     ...queryOptions,
   });

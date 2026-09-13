@@ -19,6 +19,11 @@ import {
   useFormDefinitions,
   useFormSubmisions,
 } from "../../QueryServises/formsQuery";
+import { useRequests } from "../../QueryServises/workflowQuery";
+import {
+  sentRowsFromRequests,
+  sentRowsFromSubmissions,
+} from "@/Services/forms/submissionView";
 import useModal from "../../hooks/useModal";
 
 const PAGE_SIZE = 8;
@@ -65,6 +70,8 @@ const ProcessMakerCartable = () => {
   const formDefinitionsQuery = useFormDefinitions();
 
   const formSubmissionQuery = useFormSubmisions();
+  // درخواست‌های فرایند: منبع اصلی رسیدها (همراه شناسهٔ فرم و مقادیر)
+  const requestsQuery = useRequests();
 
   const [tab, setTab] = useState(TABS.TODO);
   const [search, setSearch] = useState("");
@@ -94,26 +101,45 @@ const ProcessMakerCartable = () => {
   }, [todoItems, search]);
 
   // ---------- ارسال‌شده‌ها (SENT) ----------
-  const submissions = useMemo(
-    () => asArray(formSubmissionQuery.data),
-    [formSubmissionQuery.data],
+  const requestRows = useMemo(
+    () => sentRowsFromRequests(requestsQuery.data),
+    [requestsQuery.data],
+  );
+
+  // ارسال‌هایی که هنوز به درخواست فرایند وصل نشده‌اند (رکوردهای قدیمی)
+  const legacyRows = useMemo(
+    () =>
+      sentRowsFromSubmissions(
+        formSubmissionQuery.data,
+        new Set(requestRows.map((row) => row.submissionId).filter(Boolean)),
+      ),
+    [formSubmissionQuery.data, requestRows],
+  );
+
+  const sentRows = useMemo(
+    () => [...requestRows, ...legacyRows],
+    [requestRows, legacyRows],
   );
 
   const filteredSent = useMemo(() => {
-    const list = submissions;
     const term = normalize(search);
-    if (!term) return list;
-    return list.filter((item) => {
-      const submitterName = item?.submitter?.name ?? "";
-      const submitterUsername = item?.submitter?.username ?? "";
-      const formValues = Object.values(item?.form_data ?? {}).join(" ");
+    if (!term) return sentRows;
+    return sentRows.filter((row) => {
+      const values = Object.values(row?.formData ?? {})
+        .map((value) =>
+          value && typeof value === "object" ? JSON.stringify(value) : value,
+        )
+        .join(" ");
       return (
-        normalize(submitterName).includes(term) ||
-        normalize(submitterUsername).includes(term) ||
-        normalize(formValues).includes(term)
+        normalize(row?.submitter?.name).includes(term) ||
+        normalize(row?.submitter?.username).includes(term) ||
+        normalize(row?.processName).includes(term) ||
+        normalize(row?.stateName).includes(term) ||
+        normalize(row?.title).includes(term) ||
+        normalize(values).includes(term)
       );
     });
-  }, [submissions, search]);
+  }, [sentRows, search]);
 
   // ---------- مودال‌ها ----------
   const openTaskModal = (record) => {
@@ -133,6 +159,7 @@ const ProcessMakerCartable = () => {
   };
 
   const handleSubmitted = () => {
+    requestsQuery.refetch();
     formSubmissionQuery.refetch();
     setTab(TABS.SENT);
   };
@@ -166,21 +193,22 @@ const ProcessMakerCartable = () => {
     if (isTodo) {
       formDefinitionsQuery.refetch();
     } else {
+      requestsQuery.refetch();
       formSubmissionQuery.refetch();
     }
   };
 
   const isRefreshing = isTodo
     ? formDefinitionsQuery.isFetching
-    : formSubmissionQuery.isFetching;
+    : requestsQuery.isFetching || formSubmissionQuery.isFetching;
 
   const isLoading = isTodo
     ? formDefinitionsQuery.isLoading
-    : formSubmissionQuery.isLoading;
+    : requestsQuery.isLoading || formSubmissionQuery.isLoading;
 
   const hasError = isTodo
     ? formDefinitionsQuery.isError
-    : formSubmissionQuery.isError;
+    : requestsQuery.isError || formSubmissionQuery.isError;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
@@ -271,7 +299,7 @@ const ProcessMakerCartable = () => {
               message={getApiErrorMessage(
                 isTodo
                   ? formDefinitionsQuery.error
-                  : formSubmissionQuery.error,
+                  : (requestsQuery.error ?? formSubmissionQuery.error),
                 isTodo
                   ? "دریافت لیست فرم‌ها انجام نشد."
                   : "دریافت ارسال‌ها انجام نشد.",
@@ -285,9 +313,7 @@ const ProcessMakerCartable = () => {
           ) : null}
 
           <TableAntd
-            rowKey={(record) =>
-              isTodo ? `todo-${record.id}` : `sent-${record.id}`
-            }
+            rowKey={(record) => (isTodo ? `todo-${record.id}` : record.rowKey)}
             columns={isTodo ? todoCols : sentCols}
             dataSource={dataSource}
             loading={isLoading}
@@ -327,7 +353,7 @@ const ProcessMakerCartable = () => {
       {modalType === MODAL_TYPES.CARTABLE_SUBMISSION && (
         <CartableSubmissionModal
           open={isOpen}
-          submission={modalData}
+          record={modalData}
           onClose={closeModal}
         />
       )}
