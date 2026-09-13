@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Alert, App, Button, Empty, Input, Segmented, Tooltip } from "antd";
+import { Alert, Button, Empty, Input, Segmented, Tooltip } from "antd";
 import {
   ArrowRightOutlined,
   CheckCircleOutlined,

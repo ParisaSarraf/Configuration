@@ -1,10 +1,3 @@
-/* eslint-disable react/prop-types */
-// =====================================================================
-// مودال جزئیات ارسال — فرم را دقیقاً مثل زمان تکمیل نشان می‌دهد
-// (FormRenderer با mode="view") و مقادیر ثبت‌شده را درون همان فیلدها
-// می‌نشاند.
-// =====================================================================
-
 import { useEffect, useMemo, useState } from "react";
 import { Alert, Collapse, Empty, Select, Skeleton, Tag } from "antd";
 import {
@@ -52,7 +45,6 @@ const CartableSubmissionModal = ({
     enabled: Boolean(open && submissionId),
   });
 
-  // این اندپوینت آرایهٔ تک‌عضوی می‌دهد → نرمال‌سازی لازم است
   const detail = useMemo(
     () =>
       normalizeApiItem(submissionQuery.data) ?? normalizeApiItem(submission),
@@ -66,14 +58,12 @@ const CartableSubmissionModal = ({
     ? detail.file_attachments
     : [];
 
-  // ۱) شناسهٔ فرم از خود ارسال (اگر بک‌اند بدهد)
   const explicitFormId = useMemo(
     () =>
       resolveFormDefinitionId(detail) ?? resolveFormDefinitionId(submission),
     [detail, submission],
   );
 
-  // ۲) وگرنه از روی کلیدهای form_data حدس می‌زنیم
   const definitionsQuery = useFormDefinitions({
     enabled: Boolean(open && !explicitFormId && !formDefinitions),
   });
@@ -89,7 +79,7 @@ const CartableSubmissionModal = ({
     [explicitFormId, definitions, formData],
   );
 
-  // ۳) در نهایت انتخاب دستی کاربر
+
   const formId = explicitFormId ?? guessedFormId ?? manualFormId;
 
   const formTitle = useMemo(() => {
