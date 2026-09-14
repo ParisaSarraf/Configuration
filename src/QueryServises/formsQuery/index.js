@@ -100,6 +100,41 @@ export const useCreateFormSubmission = () => {
   });
 };
 
+/** یک پیوست: POST /forms/add-form-submission-attachment/ (multipart) */
+export const useAddFormSubmissionAttachment = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: ({ submissionId, fieldId, file, onUploadProgress }) =>
+      formApi.addSubmissionAttachment(
+        myAxios,
+        { submissionId, fieldId, file },
+        undefined,
+        onUploadProgress,
+      ),
+  });
+};
+
+/** چند پیوست پشت‌سرهم؛ خروجی { uploaded, failed } */
+export const useUploadSubmissionAttachments = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: ({ submissionId, entries, onProgress }) =>
+      formApi.uploadSubmissionAttachments(myAxios, {
+        submissionId,
+        entries,
+        onProgress,
+      }),
+  });
+};
+
+/** حذف پیوست: DELETE /forms/delete-form-submission-attachment/{id} */
+export const useDeleteFormSubmissionAttachment = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: (id) => formApi.deleteSubmissionAttachment(myAxios, id),
+  });
+};
+
 // ========================================== new =====================================
 export const useFormCategoryKey = ["lists", "form", " category"];
 export const useFormCategoryList = (queryOptions) => {

@@ -5,7 +5,6 @@ const { TextArea } = Input;
 
 const DEFAULT_STATIONS = "ثبت درخواست\nبررسی مدیر\nپایان";
 
-
 const ProcessWizardModal = ({ open, onClose, onApply, hasNodes }) => {
   const [step, setStep] = useState(0);
   const [stations, setStations] = useState(DEFAULT_STATIONS);

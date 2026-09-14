@@ -16,10 +16,19 @@ import { Alert, Button, ConfigProvider, Empty, Result, Spin, message } from "ant
 import {
   useCreateFormSubmission,
   useFormDefinitionFieldById,
+  useUploadSubmissionAttachments,
 } from "../../../QueryServises/formsQuery";
-import { getApiErrorMessage } from "../../../Services/forms/formUtils";
+import {
+  extractEntityId,
+  getApiErrorMessage,
+} from "../../../Services/forms/formUtils";
 import FormRenderer from "./FormRenderer";
-import { buildSubmissionPayload, flattenFields } from "./submission";
+import {
+  buildSubmissionPayload,
+  checkFileLimits,
+  collectFileEntries,
+  flattenFields,
+} from "./submission";
 import "./form-runtime.css";
 
 export default function FormFiller() {
@@ -28,6 +37,7 @@ export default function FormFiller() {
   const { data, isLoading, isError } =
     useFormDefinitionFieldById(formDefinitionId);
   const createSubmission = useCreateFormSubmission();
+  const uploadAttachments = useUploadSubmissionAttachments();
   const [done, setDone] = useState(null);
 
   // پاسخ API گاهی آرایه و گاهی یک آبجکت است
@@ -40,13 +50,45 @@ export default function FormFiller() {
 
   const submit = async (values) => {
     try {
+      // محدودیت پسوند/حجم فایل‌ها پیش از ارسال بررسی می‌شود.
+      const fileProblems = checkFileLimits(fields, values);
+      if (fileProblems.length) {
+        message.error(fileProblems[0]);
+        return;
+      }
+      const fileEntries = collectFileEntries(fields, values);
+
       const payload = buildSubmissionPayload({
         formDefinitionId,
         definition,
         fields,
         values,
       });
-      await createSubmission.mutateAsync(payload);
+      const response = await createSubmission.mutateAsync(payload);
+      const submissionId = extractEntityId(response) ?? response?.id ?? null;
+
+      // فایل‌ها با اندپوینت اختصاصی پیوست ارسال می‌شوند (multipart).
+      if (fileEntries.length) {
+        const ready = fileEntries.filter((entry) => entry.fieldId);
+        if (!submissionId) {
+          message.warning(
+            "فرم ثبت شد، اما شناسهٔ ارسال برنگشت و پیوست‌ها ارسال نشدند.",
+          );
+        } else if (ready.length) {
+          const { failed } = await uploadAttachments.mutateAsync({
+            submissionId,
+            entries: ready,
+          });
+          if (failed.length)
+            message.warning(
+              getApiErrorMessage(
+                failed[0].error,
+                `ارسال ${failed.length} پیوست انجام نشد.`,
+              ),
+            );
+        }
+      }
+
       setDone(definition.success_message || "فرم شما با موفقیت ثبت شد.");
       const target = definition.success_redirect_url;
       if (target)
@@ -118,7 +160,7 @@ export default function FormFiller() {
         <FormRenderer
           categories={categories}
           mode="fill"
-          submitting={createSubmission.isPending}
+          submitting={createSubmission.isPending || uploadAttachments.isPending}
           onSubmit={submit}
         />
       </div>
