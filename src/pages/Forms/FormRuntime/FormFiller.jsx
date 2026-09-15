@@ -1,15 +1,3 @@
-/* eslint-disable react/prop-types */
-// =====================================================================
-// صفحهٔ تکمیل فرم توسط کاربر نهایی: /forms/:formDefinitionId/fill
-//
-// همان رندرری که در پیش‌نمایش و چاپ استفاده می‌شود، اینجا در حالت
-// mode="fill" اجرا می‌شود؛ پس خروجی دقیقاً همان چیزی است که طراح دیده.
-//
-// پس از ارسال موفق:
-//   success_message      -> پیغام نمایشی
-//   success_redirect_url -> صفحهٔ مقصد
-// =====================================================================
-
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Alert, Button, ConfigProvider, Empty, Result, Spin, message } from "antd";
@@ -35,7 +23,6 @@ export default function FormFiller() {
   const submitForm = useSubmitForm();
   const [done, setDone] = useState(null);
 
-  // پاسخ API گاهی آرایه و گاهی یک آبجکت است
   const categories = useMemo(
     () => (Array.isArray(data) ? data : data ? [data] : []),
     [data],
@@ -45,14 +32,12 @@ export default function FormFiller() {
 
   const submit = async (values) => {
     try {
-      // بررسی فیلدهای فایل (اجباری بودن، شناسه، پسوند و حجم) پیش از هر درخواستی.
       const fileProblems = validateFiles(fields, values);
       if (fileProblems.length) {
         message.error(fileProblems[0]);
         return;
       }
 
-      // فایل‌ها هیچ‌وقت داخل پیلود JSON نمی‌روند؛ جداگانه جمع می‌شوند.
       const files = collectFileEntries(fields, values);
       const payload = buildSubmissionPayload({
         formDefinitionId,
@@ -61,8 +46,6 @@ export default function FormFiller() {
         values,
       });
 
-      // مرحلهٔ ۱ ثبت فرم (JSON) و مرحلهٔ ۲ آپلود پیوست‌ها با id ِ برگشته،
-      // هر دو داخل submitForm انجام می‌شوند.
       const { submissionId, failed, skipped } = await submitForm.mutateAsync({
         payload,
         files,
