@@ -13,14 +13,21 @@ const FormCategory = () => {
     isOpen,
   } = useModal();
 
-const { data, refetch } = useFormCategoryList();
+  const { data, refetch } = useFormCategoryList();
 
-const category = data ?? [];
+  const category = data ?? [];
+
+  const totalForms = category.reduce(
+    (sum, item) => sum + (Number(item?.number_of_forms) || 0),
+    0,
+  );
 
   return (
-    <div className="min-h-screen bg-[#f7f8fa]">
+    <div className="min-h-screen bg-gradient-to-b from-indigo-50 via-slate-50 to-sky-50 px-6 pt-6 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
       <CategoryHeader
         refetch={refetch}
+        totalCategories={category.length}
+        totalForms={totalForms}
         setModal={setModal}
         modalMode={modalMode}
         modalData={modalData}

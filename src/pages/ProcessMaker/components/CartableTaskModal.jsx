@@ -9,15 +9,14 @@ import FormRenderer from "@/pages/Forms/FormRuntime/FormRenderer";
 import {
   buildFormData,
   buildSubmissionPayload,
-  checkFileLimits,
   collectFileEntries,
   flattenFields,
   resolveSubmitterId,
+  validateFiles,
 } from "@/pages/Forms/FormRuntime/submission";
 import {
-  useCreateFormSubmission,
   useFormDefinitionFieldById,
-  useUploadSubmissionAttachments,
+  useSubmitForm,
 } from "@/QueryServises/formsQuery";
 import {
   useCreateRequest,
@@ -28,10 +27,7 @@ import {
   getStateTypeLabel,
   isStartStateType,
 } from "@/pages/Processes/ProcessBuilder/processSchema";
-import {
-  extractEntityId,
-  getApiErrorMessage,
-} from "@/Services/forms/formUtils";
+import { getApiErrorMessage } from "@/Services/forms/formUtils";
 import { getUserFromToken } from "@/utils/ExportFromToken";
 import Modal from "../../../components/Modal";
 
@@ -95,8 +91,7 @@ const CartableTaskModal = ({
   const processInfoQuery = useProcessInfo(processId, {
     enabled: Boolean(open && processId),
   });
-  const createSubmission = useCreateFormSubmission();
-  const uploadAttachments = useUploadSubmissionAttachments();
+  const submitForm = useSubmitForm();
   const createRequest = useCreateRequest();
 
   const [done, setDone] = useState(null);
@@ -139,17 +134,18 @@ const CartableTaskModal = ({
 
   const submit = async (values) => {
     try {
-      // فایل‌ها داخل پیلود JSON فرم نمی‌روند؛ بعد از ساخته‌شدن submission
-      // یک‌به‌یک با اندپوینت اختصاصی پیوست آپلود می‌شوند.
-      const fileProblems = checkFileLimits(fields, values);
+      // بررسی فیلدهای فایل (اجباری بودن، شناسه، پسوند و حجم) پیش از هر درخواستی.
+      const fileProblems = validateFiles(fields, values);
       if (fileProblems.length) {
         message.error(fileProblems[0]);
         return;
       }
-      const fileEntries = collectFileEntries(fields, values);
+
+      // فایل‌ها هیچ‌وقت داخل پیلود JSON نمی‌روند؛ جداگانه جمع می‌شوند.
+      const files = collectFileEntries(fields, values);
 
       const formData = buildFormData(fields, values);
-      if (!Object.keys(formData).length && !fileEntries.length) {
+      if (!Object.keys(formData).length && !files.length) {
         message.warning("داده‌ای برای ارسال وجود ندارد؛ ابتدا فرم را پر کنید.");
         return;
       }
@@ -161,38 +157,31 @@ const CartableTaskModal = ({
         submitterId: submitter,
       });
 
-      const response = await createSubmission.mutateAsync(payload);
-      const submissionId = extractEntityId(response) ?? response?.id ?? null;
+      // مرحلهٔ ۱: POST /forms/add-form-submission/ بدون فایل (JSON)
+      // مرحلهٔ ۲: با همان id ِ برگشته از پاسخ، هر فایل به
+      //          POST /forms/add-form-submission-attachment/ (multipart)
+      const { submissionId, uploaded, failed, skipped } =
+        await submitForm.mutateAsync({ payload, files });
 
-      let attachmentCount = 0;
-      if (fileEntries.length) {
-        const ready = fileEntries.filter((entry) => entry.fieldId);
-        const skipped = fileEntries.length - ready.length;
+      const attachmentCount = uploaded?.length ?? 0;
 
-        if (!submissionId) {
-          message.warning(
-            "فرم ثبت شد، اما شناسهٔ ارسال برنگشت و پیوست‌ها ارسال نشدند.",
-          );
-        } else if (ready.length) {
-          const { uploaded, failed } = await uploadAttachments.mutateAsync({
-            submissionId,
-            entries: ready,
-          });
-          attachmentCount = uploaded.length;
-          if (failed.length)
-            message.warning(
-              getApiErrorMessage(
-                failed[0].error,
-                `ارسال ${failed.length} پیوست انجام نشد.`,
-              ),
-            );
-        }
+      if (files.length && !submissionId)
+        message.warning(
+          "فرم ثبت شد، اما شناسهٔ ارسال در پاسخ سرور نبود و پیوست‌ها ارسال نشدند.",
+        );
 
-        if (skipped)
-          message.warning(
-            "برخی فیلدهای فایل شناسهٔ معتبر ندارند و پیوستشان ارسال نشد.",
-          );
-      }
+      if (failed?.length)
+        message.warning(
+          getApiErrorMessage(
+            failed[0].error,
+            `ارسال ${failed.length} پیوست انجام نشد.`,
+          ),
+        );
+
+      if (skipped?.length && submissionId)
+        message.warning(
+          `${skipped.length} فایل ارسال نشد؛ فیلد مربوطه شناسهٔ معتبری روی سرور ندارد.`,
+        );
 
       // ثبت درخواست فرایند روی سرور تا همین ارسال در «ارسال‌شده‌ها»
       // همیشه قابل بازیابی باشد (فرم + مقادیر + ایستگاه)؛ بدون ذخیرهٔ محلی.
@@ -363,7 +352,7 @@ const CartableTaskModal = ({
           readOnly={false}
           disabled={false}
           submitLabel={processId ? "ارسال به فرایند" : "ثبت و ارسال فرم"}
-          submitting={createSubmission.isPending || uploadAttachments.isPending}
+          submitting={submitForm.isPending}
           onSubmit={submit}
         />
       </>

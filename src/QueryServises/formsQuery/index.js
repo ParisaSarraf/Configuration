@@ -100,6 +100,30 @@ export const useCreateFormSubmission = () => {
   });
 };
 
+/**
+ * ارسال کامل فرم در یک mutation (همان مسیر دومرحله‌ای رسمی):
+ *   1) POST /forms/add-form-submission/            — JSON، بدون هیچ فایلی
+ *   2) با id ِ برگشته از پاسخ مرحلهٔ ۱:
+ *      POST /forms/add-form-submission-attachment/ — multipart، به‌ازای هر فایل
+ *
+ * mutateAsync({ payload, files, onProgress })
+ *   payload: خروجی buildSubmissionPayload (فیلدهای فایل داخلش نیست)
+ *   files:   خروجی collectFileEntries -> [{ fieldId, fieldName, fieldLabel, file }]
+ *
+ * خروجی: { submissionId, response, uploaded, failed, skipped }
+ */
+export const useSubmitForm = () => {
+  const { myAxios } = useMyAxios();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ payload, files, onProgress }) =>
+      formApi.submitForm(myAxios, { payload, files, onProgress }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: formSubmissionsKey });
+    },
+  });
+};
+
 /** یک پیوست: POST /forms/add-form-submission-attachment/ (multipart) */
 export const useAddFormSubmissionAttachment = () => {
   const { myAxios } = useMyAxios();
