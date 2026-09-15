@@ -14,12 +14,17 @@ import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Alert, Button, ConfigProvider, Empty, Result, Spin, message } from "antd";
 import {
-  useCreateFormSubmission,
   useFormDefinitionFieldById,
+  useSubmitForm,
 } from "../../../QueryServises/formsQuery";
 import { getApiErrorMessage } from "../../../Services/forms/formUtils";
 import FormRenderer from "./FormRenderer";
-import { buildSubmissionPayload, flattenFields } from "./submission";
+import {
+  buildSubmissionPayload,
+  collectFileEntries,
+  flattenFields,
+  validateFiles,
+} from "./submission";
 import "./form-runtime.css";
 
 export default function FormFiller() {
@@ -27,7 +32,7 @@ export default function FormFiller() {
   const navigate = useNavigate();
   const { data, isLoading, isError } =
     useFormDefinitionFieldById(formDefinitionId);
-  const createSubmission = useCreateFormSubmission();
+  const submitForm = useSubmitForm();
   const [done, setDone] = useState(null);
 
   // پاسخ API گاهی آرایه و گاهی یک آبجکت است
@@ -40,13 +45,47 @@ export default function FormFiller() {
 
   const submit = async (values) => {
     try {
+      // بررسی فیلدهای فایل (اجباری بودن، شناسه، پسوند و حجم) پیش از هر درخواستی.
+      const fileProblems = validateFiles(fields, values);
+      if (fileProblems.length) {
+        message.error(fileProblems[0]);
+        return;
+      }
+
+      // فایل‌ها هیچ‌وقت داخل پیلود JSON نمی‌روند؛ جداگانه جمع می‌شوند.
+      const files = collectFileEntries(fields, values);
       const payload = buildSubmissionPayload({
         formDefinitionId,
         definition,
         fields,
         values,
       });
-      await createSubmission.mutateAsync(payload);
+
+      // مرحلهٔ ۱ ثبت فرم (JSON) و مرحلهٔ ۲ آپلود پیوست‌ها با id ِ برگشته،
+      // هر دو داخل submitForm انجام می‌شوند.
+      const { submissionId, failed, skipped } = await submitForm.mutateAsync({
+        payload,
+        files,
+      });
+
+      if (files.length && !submissionId)
+        message.warning(
+          "فرم ثبت شد، اما شناسهٔ ارسال در پاسخ سرور نبود و پیوست‌ها ارسال نشدند.",
+        );
+
+      if (failed?.length)
+        message.warning(
+          getApiErrorMessage(
+            failed[0].error,
+            `ارسال ${failed.length} پیوست انجام نشد.`,
+          ),
+        );
+
+      if (skipped?.length && submissionId)
+        message.warning(
+          `${skipped.length} فایل ارسال نشد؛ فیلد مربوطه شناسهٔ معتبری روی سرور ندارد.`,
+        );
+
       setDone(definition.success_message || "فرم شما با موفقیت ثبت شد.");
       const target = definition.success_redirect_url;
       if (target)
@@ -118,7 +157,7 @@ export default function FormFiller() {
         <FormRenderer
           categories={categories}
           mode="fill"
-          submitting={createSubmission.isPending}
+          submitting={submitForm.isPending}
           onSubmit={submit}
         />
       </div>

@@ -36,8 +36,21 @@ const toAccept = (raw) => {
     .join(",");
 };
 
-const fileNames = (value) =>
-  Array.isArray(value) ? value : String(value || "").split("،").filter(Boolean);
+/** نام فایل‌ها برای نمایش؛ مقدار می‌تواند File، توصیف‌گر سرور یا رشته باشد. */
+const fileNames = (value) => {
+  const list = Array.isArray(value)
+    ? value
+    : value == null || value === ""
+      ? []
+      : [value];
+  return list
+    .map((item) =>
+      typeof item === "string"
+        ? item
+        : (item?.name ?? item?.file_name ?? item?.originFileObj?.name ?? ""),
+    )
+    .filter(Boolean);
+};
 
 export default function FieldControl({
   field,
@@ -302,9 +315,12 @@ export default function FieldControl({
           multiple={type === "multifile"}
           accept={toAccept(field.allowed_extensions)}
           disabled={readOnly}
-          onChange={(event) =>
-            set(Array.from(event.target.files || []).map((file) => file.name))
-          }
+          onChange={(event) => {
+            // خودِ آبجکت File نگه داشته می‌شود تا پس از ثبت فرم با اندپوینت
+            // /forms/add-form-submission-attachment/ آپلود شود.
+            const picked = Array.from(event.target.files || []);
+            set(type === "multifile" ? picked : picked.slice(0, 1));
+          }}
         />
         {names.length > 0 && <span className="fr-upload-names">{names.join("، ")}</span>}
         {field.max_file_size_mb ? (

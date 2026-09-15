@@ -1,13 +1,58 @@
 import { Button, Modal, Tooltip } from "antd";
 import { DeleteOutlined, FormOutlined, EditOutlined } from "@ant-design/icons";
-import { FolderOpen, Folder, Layers3, Plus } from "lucide-react";
+import { FolderOpen, Folder, Plus } from "lucide-react";
 import FormCategoryModal from "../../FormCategoryModal";
 import { useDeleteFormCategory } from "../../../../../QueryServises/formsQuery";
 import FormDefinitionModal from "../../../FormDefinition/Components/FormDefinitionModal";
 
+// پالت رنگی برای متمایز شدن دسته‌بندی‌ها
+const PALETTE = [
+  {
+    idle: "bg-sky-50 text-sky-600",
+    active: "bg-gradient-to-br from-sky-500 to-sky-600 text-white",
+    row: "bg-sky-50/80 ring-1 ring-sky-200",
+    text: "text-sky-800",
+    badge: "bg-sky-600 text-white",
+  },
+  {
+    idle: "bg-violet-50 text-violet-600",
+    active: "bg-gradient-to-br from-violet-500 to-violet-600 text-white",
+    row: "bg-violet-50/80 ring-1 ring-violet-200",
+    text: "text-violet-800",
+    badge: "bg-violet-600 text-white",
+  },
+  {
+    idle: "bg-emerald-50 text-emerald-600",
+    active: "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white",
+    row: "bg-emerald-50/80 ring-1 ring-emerald-200",
+    text: "text-emerald-800",
+    badge: "bg-emerald-600 text-white",
+  },
+  {
+    idle: "bg-amber-50 text-amber-600",
+    active: "bg-gradient-to-br from-amber-500 to-orange-500 text-white",
+    row: "bg-amber-50/80 ring-1 ring-amber-200",
+    text: "text-amber-800",
+    badge: "bg-amber-500 text-white",
+  },
+  {
+    idle: "bg-pink-50 text-pink-600",
+    active: "bg-gradient-to-br from-pink-500 to-rose-500 text-white",
+    row: "bg-pink-50/80 ring-1 ring-pink-200",
+    text: "text-pink-800",
+    badge: "bg-pink-500 text-white",
+  },
+  {
+    idle: "bg-teal-50 text-teal-600",
+    active: "bg-gradient-to-br from-teal-500 to-cyan-500 text-white",
+    row: "bg-teal-50/80 ring-1 ring-teal-200",
+    text: "text-teal-800",
+    badge: "bg-teal-500 text-white",
+  },
+];
+
 const CategoryLeftSidebar = ({
   category = [],
-  definitions = [],
   refetch,
   isOpen,
   setModal,
@@ -21,7 +66,6 @@ const CategoryLeftSidebar = ({
   const { mutateAsync: deleteCategory } = useDeleteFormCategory();
 
   const categories = category ?? [];
-  const forms = definitions ?? [];
 
   const handleDelete = (item) => {
     Modal.confirm({
@@ -65,47 +109,37 @@ const CategoryLeftSidebar = ({
   return (
     <>
       <aside className="flex h-full min-h-0 w-full flex-col">
-        <div className="mb-3 flex shrink-0 items-center justify-between border-b border-gray-100 pb-3">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-              <Layers3 size={16} />
+        <Button
+          type="primary"
+          icon={<Plus size={15} />}
+          onClick={() =>
+            setModal({
+              mode: "add",
+              data: null,
+              type: "createCategory",
+            })
+          }
+          className="!mb-3 !flex !h-9 !w-full !items-center !justify-center !gap-1 !rounded-xl !border-none !bg-gradient-to-l !from-sky-600 !to-indigo-600 !text-xs !font-bold shadow-sm hover:!opacity-90"
+        >
+          دسته‌بندی جدید
+        </Button>
+
+        <div className="min-h-0 flex-1 space-y-1.5 overflow-y-auto pl-0.5">
+          {categories.length === 0 && (
+            <div className="rounded-xl border border-dashed border-sky-200 bg-sky-50/50 p-4 text-center text-[11px] text-sky-500">
+              هنوز دسته‌بندی‌ای ساخته نشده است.
             </div>
+          )}
 
-            <div>
-              <h2 className="text-xs font-bold text-gray-800">دسته‌بندی‌ها</h2>
-
-              <p className="text-[10px] text-gray-400">
-                مدیریت دسته‌بندی فرم‌ها
-              </p>
-            </div>
-          </div>
-
-          <Tooltip title="دسته‌بندی جدید">
-            <Button
-              type="primary"
-              size="small"
-              icon={<Plus size={14} />}
-              onClick={() =>
-                setModal({
-                  mode: "add",
-                  data: null,
-                  type: "createCategory",
-                })
-              }
-              className="!flex !h-7 !w-7 !items-center !justify-center !p-0"
-            />
-          </Tooltip>
-        </div>
-
-        <div className="min-h-0 flex-1 space-y-1 overflow-y-auto">
-          {categories.map((item) => {
+          {categories.map((item, index) => {
             const isActive = String(categoryId) === String(item.id);
+            const color = PALETTE[index % PALETTE.length];
 
             return (
               <div
                 key={item.id}
-                className={`group flex items-center rounded-lg transition ${
-                  isActive ? "bg-blue-50" : "hover:bg-gray-50"
+                className={`group flex items-center rounded-xl transition ${
+                  isActive ? color.row : "hover:bg-slate-50"
                 }`}
               >
                 <Tooltip
@@ -119,10 +153,8 @@ const CategoryLeftSidebar = ({
                     className="flex min-w-0 flex-1 items-center gap-2 px-2 py-2 text-right"
                   >
                     <span
-                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${
-                        isActive
-                          ? "bg-blue-100 text-blue-600"
-                          : "bg-gray-100 text-gray-500"
+                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg shadow-sm ${
+                        isActive ? color.active : color.idle
                       }`}
                     >
                       {isActive ? (
@@ -133,8 +165,10 @@ const CategoryLeftSidebar = ({
                     </span>
 
                     <span
-                      className={`min-w-0 flex-1 truncate text-xs font-medium ${
-                        isActive ? "text-blue-700" : "text-gray-700"
+                      className={`min-w-0 flex-1 truncate text-xs ${
+                        isActive
+                          ? `font-bold ${color.text}`
+                          : "font-medium text-slate-700"
                       }`}
                     >
                       {item.name}
@@ -154,7 +188,7 @@ const CategoryLeftSidebar = ({
                       type="text"
                       size="small"
                       icon={<FormOutlined />}
-                      className="!h-6 !w-6 !p-0 !text-gray-400 hover:!bg-green-50 hover:!text-green-600"
+                      className="!h-6 !w-6 !rounded-lg !p-0 !text-slate-400 hover:!bg-emerald-100 hover:!text-emerald-600"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleForm(item);
@@ -167,7 +201,7 @@ const CategoryLeftSidebar = ({
                       type="text"
                       size="small"
                       icon={<EditOutlined />}
-                      className="!h-6 !w-6 !p-0 !text-gray-400 hover:!bg-blue-50 hover:!text-blue-600"
+                      className="!h-6 !w-6 !rounded-lg !p-0 !text-slate-400 hover:!bg-sky-100 hover:!text-sky-600"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleEdit(item);
@@ -181,7 +215,7 @@ const CategoryLeftSidebar = ({
                       danger
                       size="small"
                       icon={<DeleteOutlined />}
-                      className="!h-6 !w-6 !p-0"
+                      className="!h-6 !w-6 !rounded-lg !p-0 hover:!bg-rose-100"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDelete(item);
@@ -191,10 +225,8 @@ const CategoryLeftSidebar = ({
                 </div>
 
                 <span
-                  className={`flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-2 mx-2 text-[10px] ${
-                    isActive
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-500"
+                  className={`mx-2 flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-2 text-[10px] font-bold ${
+                    isActive ? color.badge : "bg-slate-100 text-slate-500"
                   }`}
                 >
                   {item.number_of_forms}

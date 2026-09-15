@@ -6,6 +6,10 @@ import { syncProcessGraph } from "../../Services/workflow/workflowPayloads";
 export const processListKey = ["workflow", "processes"];
 export const processInfoKey = (id) => ["workflow", "process", id];
 export const transitionActionsKey = ["workflow", "transition-actions"];
+export const requestsKey = ["workflow", "requests"];
+export const requestKey = (id) => ["workflow", "request", id];
+export const requestsNeedActionKey = ["workflow", "requests", "need-action"];
+export const processRequestsKey = (id) => ["workflow", "process-requests", id];
 
 export const useProcessList = (queryOptions) => {
   const { myAxios } = useMyAxios();
@@ -35,20 +39,76 @@ export const useTransitionActions = (queryOptions) => {
   });
 };
 
+// ---------- درخواست‌های فرایند (Request) ----------
+// منبع رسمی «ارسال‌شده‌ها»: هر درخواست شامل فرایند (و شناسهٔ فرم)،
+// ایستگاه جاری و form_submission با مقادیر پرشدهٔ کاربر است.
+export const useRequests = (queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: requestsKey,
+    queryFn: () => workflowApi.getRequests(myAxios),
+    ...queryOptions,
+  });
+};
+
+export const useRequestById = (id, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: requestKey(id),
+    queryFn: () => workflowApi.getRequestById(myAxios, id),
+    enabled: Boolean(id),
+    ...queryOptions,
+  });
+};
+
+export const useRequestsNeedUserAction = (queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: requestsNeedActionKey,
+    queryFn: () => workflowApi.getRequestsNeedUserAction(myAxios),
+    ...queryOptions,
+  });
+};
+
+export const useProcessRequests = (processId, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: processRequestsKey(processId),
+    queryFn: () => workflowApi.getProcessRequests(myAxios, processId),
+    enabled: Boolean(processId),
+    ...queryOptions,
+  });
+};
+
+export const useCreateRequest = () => {
+  const { myAxios } = useMyAxios();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload) => workflowApi.createRequest(myAxios, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: requestsKey });
+      queryClient.invalidateQueries({ queryKey: requestsNeedActionKey });
+    },
+  });
+};
+
 export const useCreateProcess = () => {
   const { myAxios } = useMyAxios();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload) => workflowApi.createProcess(myAxios, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: processListKey }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: processListKey }),
   });
 };
 export const useCreateProcessPermission = () => {
   const { myAxios } = useMyAxios();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload) => workflowApi.createProcessPermission(myAxios, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: processListKey }),
+    mutationFn: (payload) =>
+      workflowApi.createProcessPermission(myAxios, payload),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: processListKey }),
   });
 };
 
@@ -86,8 +146,10 @@ export const useDeleteProcessPermission = () => {
   const { myAxios } = useMyAxios();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (processId) => workflowApi.deleteProcessPermission(myAxios, processId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: processListKey }),
+    mutationFn: (processId) =>
+      workflowApi.deleteProcessPermission(myAxios, processId),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: processListKey }),
   });
 };
 export const useDeleteProcess = () => {
@@ -95,7 +157,8 @@ export const useDeleteProcess = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (processId) => workflowApi.deleteProcess(myAxios, processId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: processListKey }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: processListKey }),
   });
 };
 

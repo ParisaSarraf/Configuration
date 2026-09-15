@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Alert, App, Button, Empty, Input, Segmented, Tooltip } from "antd";
+import { Alert, Button, Empty, Input, Segmented, Tooltip } from "antd";
 import {
   ArrowRightOutlined,
   CheckCircleOutlined,
@@ -12,11 +12,18 @@ import { getApiErrorMessage } from "@/Services/forms/formUtils";
 import { getUserFromToken } from "@/utils/ExportFromToken";
 import CartableTaskModal from "./components/CartableTaskModal";
 import CartableSubmissionModal from "./components/CartableSubmissionModal";
-import { appendSentItem, clearSentItems, loadSentItems } from "./cartableStore";
 import { TableAntd } from "../../components/TableAntd/TableAntd";
 import todoColumns from "./components/todoColumns";
 import sentColumns from "./components/sentColumns";
-import { useFormDefinitions } from "../../QueryServises/formsQuery";
+import {
+  useFormDefinitions,
+  useFormSubmisions,
+} from "../../QueryServises/formsQuery";
+import { useRequests } from "../../QueryServises/workflowQuery";
+import {
+  sentRowsFromRequests,
+  sentRowsFromSubmissions,
+} from "@/Services/forms/submissionView";
 import useModal from "../../hooks/useModal";
 
 const PAGE_SIZE = 8;
@@ -46,7 +53,6 @@ const normalize = (value) =>
     .trim()
     .toLowerCase();
 
-/** کاربر جاری از همان توکنی که submitter_id هم از آن خوانده می‌شود. */
 const readCurrentUser = () => {
   const user = getUserFromToken();
   return {
@@ -57,37 +63,31 @@ const readCurrentUser = () => {
 
 const ProcessMakerCartable = () => {
   const navigate = useNavigate();
-  const { message, modal } = App.useApp();
   const { isOpen, modalType, modalData, setModal, closeModal } = useModal();
 
   const currentUser = useMemo(readCurrentUser, []);
+
   const formDefinitionsQuery = useFormDefinitions();
+
+  const formSubmissionQuery = useFormSubmisions();
+  // درخواست‌های فرایند: منبع اصلی رسیدها (همراه شناسهٔ فرم و مقادیر)
+  const requestsQuery = useRequests();
 
   const [tab, setTab] = useState(TABS.TODO);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [sentItems, setSentItems] = useState([]);
-
-  useEffect(() => {
-    setSentItems(loadSentItems(currentUser.id) ?? []);
-  }, [currentUser.id]);
 
   useEffect(() => {
     setPage(1);
   }, [search, tab]);
 
+  // ---------- فرم‌های قابل تکمیل (TODO) ----------
   const forms = useMemo(
     () => asArray(formDefinitionsQuery.data),
     [formDefinitionsQuery.data],
   );
 
   const todoItems = forms;
-
-  const activeFormsCount = useMemo(
-    () => forms.filter((f) => f?.is_active).length,
-    [forms],
-  );
-  const inactiveFormsCount = Math.max(forms.length - activeFormsCount, 0);
 
   const filteredTodo = useMemo(() => {
     const term = normalize(search);
@@ -100,37 +100,48 @@ const ProcessMakerCartable = () => {
     );
   }, [todoItems, search]);
 
+  // ---------- ارسال‌شده‌ها (SENT) ----------
+  const requestRows = useMemo(
+    () => sentRowsFromRequests(requestsQuery.data),
+    [requestsQuery.data],
+  );
+
+  // ارسال‌هایی که هنوز به درخواست فرایند وصل نشده‌اند (رکوردهای قدیمی)
+  const legacyRows = useMemo(
+    () =>
+      sentRowsFromSubmissions(
+        formSubmissionQuery.data,
+        new Set(requestRows.map((row) => row.submissionId).filter(Boolean)),
+      ),
+    [formSubmissionQuery.data, requestRows],
+  );
+
+  const sentRows = useMemo(
+    () => [...requestRows, ...legacyRows],
+    [requestRows, legacyRows],
+  );
+
   const filteredSent = useMemo(() => {
-    // محافظت لایه‌دوم: اگر روزی مقدار نامعتبری در state بنشیند،
-    // جدول خالی می‌شود ولی صفحه سفید نمی‌شود.
-    const list = Array.isArray(sentItems) ? sentItems : [];
     const term = normalize(search);
-    if (!term) return list;
-    return list.filter(
-      (item) =>
-        normalize(item?.processName).includes(term) ||
-        normalize(item?.formName).includes(term),
-    );
-  }, [sentItems, search]);
-
-  const handleSubmitted = (receipt) => {
-    setSentItems(appendSentItem(currentUser.id, receipt) ?? []);
-  };
-
-  const handleClearSent = () => {
-    modal.confirm({
-      title: "پاک‌کردن تاریخچه",
-      content:
-        "این فهرست فقط رسید ارسال‌های شما در این مرورگر است و فرم‌های ثبت‌شده در سرور حذف نمی‌شوند.",
-      okText: "پاک کن",
-      cancelText: "انصراف",
-      onOk: () => {
-        setSentItems(clearSentItems(currentUser.id) ?? []);
-        message.success("تاریخچه پاک شد.");
-      },
+    if (!term) return sentRows;
+    return sentRows.filter((row) => {
+      const values = Object.values(row?.formData ?? {})
+        .map((value) =>
+          value && typeof value === "object" ? JSON.stringify(value) : value,
+        )
+        .join(" ");
+      return (
+        normalize(row?.submitter?.name).includes(term) ||
+        normalize(row?.submitter?.username).includes(term) ||
+        normalize(row?.processName).includes(term) ||
+        normalize(row?.stateName).includes(term) ||
+        normalize(row?.title).includes(term) ||
+        normalize(values).includes(term)
+      );
     });
-  };
+  }, [sentRows, search]);
 
+  // ---------- مودال‌ها ----------
   const openTaskModal = (record) => {
     setModal({
       type: MODAL_TYPES.CARTABLE_TASK,
@@ -147,6 +158,13 @@ const ProcessMakerCartable = () => {
     });
   };
 
+  const handleSubmitted = () => {
+    requestsQuery.refetch();
+    formSubmissionQuery.refetch();
+    setTab(TABS.SENT);
+  };
+
+  // ---------- ستون‌ها ----------
   const isTodo = tab === TABS.TODO;
   const dataSource = (isTodo ? filteredTodo : filteredSent) || [];
 
@@ -159,6 +177,7 @@ const ProcessMakerCartable = () => {
       }),
     [page],
   );
+
   const sentCols = useMemo(
     () =>
       sentColumns({
@@ -168,6 +187,28 @@ const ProcessMakerCartable = () => {
       }),
     [page],
   );
+
+  // ---------- رفرش دستی ----------
+  const handleRefresh = () => {
+    if (isTodo) {
+      formDefinitionsQuery.refetch();
+    } else {
+      requestsQuery.refetch();
+      formSubmissionQuery.refetch();
+    }
+  };
+
+  const isRefreshing = isTodo
+    ? formDefinitionsQuery.isFetching
+    : requestsQuery.isFetching || formSubmissionQuery.isFetching;
+
+  const isLoading = isTodo
+    ? formDefinitionsQuery.isLoading
+    : requestsQuery.isLoading || formSubmissionQuery.isLoading;
+
+  const hasError = isTodo
+    ? formDefinitionsQuery.isError
+    : requestsQuery.isError || formSubmissionQuery.isError;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
@@ -183,6 +224,7 @@ const ProcessMakerCartable = () => {
           بازگشت به صفحه قبل
         </Button>
 
+        {/* ---------- هدر ---------- */}
         <div className="overflow-hidden rounded-2xl bg-gradient-to-l from-orange-500 to-amber-600 p-5 shadow-sm sm:p-7">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -214,6 +256,7 @@ const ProcessMakerCartable = () => {
           </div>
         </div>
 
+        {/* ---------- جدول ---------- */}
         <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 dark:border-slate-800 dark:bg-slate-900">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-baseline gap-2">
@@ -224,48 +267,45 @@ const ProcessMakerCartable = () => {
                 {dataSource.length} مورد
               </span>
             </div>
+
             <div className="flex flex-wrap items-center gap-2">
               <Input.Search
                 allowClear
-                placeholder="جستجوی نام فرم، توضیحات یا دسته‌بندی"
+                placeholder={
+                  isTodo
+                    ? "جستجوی نام فرم، توضیحات یا دسته‌بندی"
+                    : "جستجوی ارسال‌کننده یا مقدار فیلدها"
+                }
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 style={{ width: 280 }}
               />
-              {isTodo ? (
-                <Tooltip title="بارگذاری مجدد">
-                  <Button
-                    icon={<ReloadOutlined />}
-                    loading={formDefinitionsQuery.isFetching}
-                    onClick={() => formDefinitionsQuery.refetch()}
-                  />
-                </Tooltip>
-              ) : (
+
+              <Tooltip title="بارگذاری مجدد">
                 <Button
-                  danger
-                  onClick={handleClearSent}
-                  disabled={!sentItems?.length}
-                >
-                  پاک‌کردن تاریخچه
-                </Button>
-              )}
+                  icon={<ReloadOutlined />}
+                  loading={isRefreshing}
+                  onClick={handleRefresh}
+                />
+              </Tooltip>
             </div>
           </div>
 
-          {isTodo && formDefinitionsQuery.isError ? (
+          {hasError ? (
             <Alert
               type="error"
               showIcon
               className="mb-4"
               message={getApiErrorMessage(
-                formDefinitionsQuery.error,
-                "دریافت لیست فرم‌ها انجام نشد.",
+                isTodo
+                  ? formDefinitionsQuery.error
+                  : (requestsQuery.error ?? formSubmissionQuery.error),
+                isTodo
+                  ? "دریافت لیست فرم‌ها انجام نشد."
+                  : "دریافت ارسال‌ها انجام نشد.",
               )}
               action={
-                <Button
-                  size="small"
-                  onClick={() => formDefinitionsQuery.refetch()}
-                >
+                <Button size="small" onClick={handleRefresh}>
                   تلاش مجدد
                 </Button>
               }
@@ -273,14 +313,10 @@ const ProcessMakerCartable = () => {
           ) : null}
 
           <TableAntd
-            rowKey={(record) =>
-              isTodo
-                ? record.id
-                : `${record.processId}-${record.submissionId ?? record.sentAt}`
-            }
+            rowKey={(record) => (isTodo ? `todo-${record.id}` : record.rowKey)}
             columns={isTodo ? todoCols : sentCols}
             dataSource={dataSource}
-            loading={isTodo && formDefinitionsQuery.isLoading}
+            loading={isLoading}
             pagination={{
               current: page,
               pageSize: PAGE_SIZE,
@@ -303,6 +339,7 @@ const ProcessMakerCartable = () => {
         </div>
       </div>
 
+      {/* ---------- مودال‌ها ---------- */}
       {modalType === MODAL_TYPES.CARTABLE_TASK && (
         <CartableTaskModal
           open={isOpen}
@@ -316,7 +353,7 @@ const ProcessMakerCartable = () => {
       {modalType === MODAL_TYPES.CARTABLE_SUBMISSION && (
         <CartableSubmissionModal
           open={isOpen}
-          submission={modalData}
+          record={modalData}
           onClose={closeModal}
         />
       )}

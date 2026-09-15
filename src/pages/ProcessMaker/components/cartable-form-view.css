@@ -1,0 +1,56 @@
+/**
+ * نمای «فرم پرشده» در کارتابل.
+ * همان استایل‌های fr-* فرم اصلی استفاده می‌شود؛ اینجا فقط دو کار انجام می‌دهیم:
+ *  ۱) کاغذ A4 (۲۱۰mm) را داخل مودال تمام‌عرض می‌کنیم تا چیدمان بهم نریزد.
+ *  ۲) فیلدهای غیرفعال را مثل فیلد پرشدهٔ خوانا نشان می‌دهیم، نه خاکستریِ محو.
+ */
+
+.cartable-form-view .fr-paper {
+  width: 100%;
+  min-height: 0;
+  box-shadow: none;
+}
+
+.cartable-form-view .fr-paper-wrap {
+  padding: 0;
+}
+
+.cartable-form-view .fr-input:disabled,
+.cartable-form-view .fr-textarea:disabled,
+.cartable-form-view .fr-select:disabled,
+.cartable-form-view .fr-timeinput:disabled,
+.cartable-form-view .fr-datefield input:disabled {
+  background: #ffffff;
+  color: #0f172a;
+  -webkit-text-fill-color: #0f172a;
+  opacity: 1;
+  cursor: default;
+}
+
+.cartable-form-view .fr-option.is-readonly {
+  cursor: default;
+  opacity: 1;
+}
+
+/* در حالت خواندنی پیام خطا و دکمهٔ بارگذاری معنا ندارند */
+.cartable-form-view .fr-error {
+  display: none;
+}
+
+.cartable-form-view .fr-upload .fr-file {
+  display: none;
+}
+
+.cartable-form-view .fr-upload-names {
+  font-weight: 600;
+}
+
+.dark .cartable-form-view .fr-input:disabled,
+.dark .cartable-form-view .fr-textarea:disabled,
+.dark .cartable-form-view .fr-select:disabled,
+.dark .cartable-form-view .fr-timeinput:disabled,
+.dark .cartable-form-view .fr-datefield input:disabled {
+  background: transparent;
+  color: #e2e8f0;
+  -webkit-text-fill-color: #e2e8f0;
+}

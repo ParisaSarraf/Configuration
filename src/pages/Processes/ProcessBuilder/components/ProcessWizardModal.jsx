@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { useState } from "react";
 import { Alert, Button, Checkbox, Input, Modal, Steps } from "antd";
 
@@ -6,12 +5,6 @@ const { TextArea } = Input;
 
 const DEFAULT_STATIONS = "ثبت درخواست\nبررسی مدیر\nپایان";
 
-/**
- * ویزارد ساخت سریع یک مسیر خطی.
- *
- * این کامپوننت فقط ورودی کاربر را جمع می‌کند و به onApply می‌دهد؛
- * ساخت گراف و ذخیره‌سازی همان‌جایی انجام می‌شود که قبلاً انجام می‌شد.
- */
 const ProcessWizardModal = ({ open, onClose, onApply, hasNodes }) => {
   const [step, setStep] = useState(0);
   const [stations, setStations] = useState(DEFAULT_STATIONS);

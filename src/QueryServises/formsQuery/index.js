@@ -1,10 +1,16 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueries,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useMyAxios } from "../../hooks/useMyAxios";
 import { formApi } from "../../Services/forms/formApi";
 
 export const formCategoriesKey = ["forms", "categories"];
 export const formDefinitionsKey = ["forms", "definitions"];
 export const formDefinitionKey = (id) => ["forms", "definitions", id];
+export const formSubmissionsKey = ["forms", "submissions"];
 
 const FORM_CATEGORY_CACHE_TIME = 5 * 60 * 1000;
 
@@ -91,6 +97,65 @@ export const useCreateFormSubmission = () => {
   const { myAxios } = useMyAxios();
   return useMutation({
     mutationFn: (payload) => formApi.createSubmission(myAxios, payload),
+  });
+};
+
+/**
+ * ارسال کامل فرم در یک mutation (همان مسیر دومرحله‌ای رسمی):
+ *   1) POST /forms/add-form-submission/            — JSON، بدون هیچ فایلی
+ *   2) با id ِ برگشته از پاسخ مرحلهٔ ۱:
+ *      POST /forms/add-form-submission-attachment/ — multipart، به‌ازای هر فایل
+ *
+ * mutateAsync({ payload, files, onProgress })
+ *   payload: خروجی buildSubmissionPayload (فیلدهای فایل داخلش نیست)
+ *   files:   خروجی collectFileEntries -> [{ fieldId, fieldName, fieldLabel, file }]
+ *
+ * خروجی: { submissionId, response, uploaded, failed, skipped }
+ */
+export const useSubmitForm = () => {
+  const { myAxios } = useMyAxios();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ payload, files, onProgress }) =>
+      formApi.submitForm(myAxios, { payload, files, onProgress }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: formSubmissionsKey });
+    },
+  });
+};
+
+/** یک پیوست: POST /forms/add-form-submission-attachment/ (multipart) */
+export const useAddFormSubmissionAttachment = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: ({ submissionId, fieldId, file, onUploadProgress }) =>
+      formApi.addSubmissionAttachment(
+        myAxios,
+        { submissionId, fieldId, file },
+        undefined,
+        onUploadProgress,
+      ),
+  });
+};
+
+/** چند پیوست پشت‌سرهم؛ خروجی { uploaded, failed } */
+export const useUploadSubmissionAttachments = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: ({ submissionId, entries, onProgress }) =>
+      formApi.uploadSubmissionAttachments(myAxios, {
+        submissionId,
+        entries,
+        onProgress,
+      }),
+  });
+};
+
+/** حذف پیوست: DELETE /forms/delete-form-submission-attachment/{id} */
+export const useDeleteFormSubmissionAttachment = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: (id) => formApi.deleteSubmissionAttachment(myAxios, id),
   });
 };
 
@@ -194,7 +259,6 @@ export const useUpdateFormDefinition = () => {
   });
 };
 
-
 export const useFormDefinitionByIdKey = (id) => ["form", "definition", id];
 export const useFormDefinitionById = (id, queryOptions) => {
   const { myAxios } = useMyAxios();
@@ -244,6 +308,62 @@ export const useFormDefinitionFieldById = (id, queryOptions) => {
     staleTime: FORM_CATEGORY_CACHE_TIME,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
+    ...queryOptions,
+  });
+};
+
+/**
+ * چند تعریف فرم را با همان کلید کشِ useFormDefinitionFieldById می‌خواند.
+ * برای پیدا کردن فرمِ ارسال‌های قدیمی (بدون درخواست فرایند) از خودِ سرور.
+ */
+export const useFormDefinitionsWithFields = (ids, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQueries({
+    queries: (ids ?? []).map((id) => ({
+      queryKey: useFormDefinitionFieldByIdKey(id),
+      queryFn: () =>
+        myAxios
+          .get(`/forms/get-form-definition/${id}`)
+          .then((response) => response?.data),
+      enabled: Boolean(id),
+      staleTime: FORM_CATEGORY_CACHE_TIME,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      ...queryOptions,
+    })),
+  });
+};
+
+// ========================= Submission ===============================
+export const useFormSubmissionByIdKey = (id) => [
+  "form",
+  "submission",
+  "field",
+  id,
+];
+export const useFormSubmisionById = (id, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: useFormSubmissionByIdKey(id),
+    queryFn: () =>
+      id
+        ? myAxios
+            .get(`/forms/get-form-submission-by-id/${id}`)
+            .then((response) => response?.data)
+        : Promise.resolve(null),
+    enabled: Boolean(id),
+    staleTime: FORM_CATEGORY_CACHE_TIME,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    ...queryOptions,
+  });
+};
+
+export const useFormSubmisions = (queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: formSubmissionsKey,
+    queryFn: () => formApi.getSubmissions(myAxios),
     ...queryOptions,
   });
 };

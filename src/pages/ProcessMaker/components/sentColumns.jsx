@@ -1,79 +1,115 @@
 import { Button, Tag, Tooltip } from "antd";
+import { EyeOutlined, PaperClipOutlined } from "@ant-design/icons";
 import { georgianDateTimeToJalaliDateTime } from "@utils/timeTool.jsx";
-import { EyeOutlined } from "@ant-design/icons";
 
-const sentColumns = ({ page, pageSize = 8, onView }) => [
+const jalali = (value) => {
+  if (!value) return "—";
+  const text = georgianDateTimeToJalaliDateTime(String(value));
+  return text && !String(text).includes("Invalid") ? text : "—";
+};
+
+/**
+ * ستون‌های جدول «ارسال‌شده‌ها».
+ * ردیف‌ها خروجی sentRowsFromRequests / sentRowsFromSubmissions هستند
+ * (هر دو مستقیماً از سرور).
+ */
+const sentColumns = ({ page = 1, pageSize = 8, onView }) => [
   {
     title: "ردیف",
     key: "index",
-    width: 72,
+    width: 64,
+    align: "center",
     render: (_value, _record, index) => (page - 1) * pageSize + index + 1,
   },
   {
     title: "فرایند",
-    dataIndex: "processName",
-    key: "processName",
-    render: (value) => value || "—",
+    key: "process",
+    render: (_value, record) =>
+      record?.processName ? (
+        <div className="flex flex-col">
+          <span className="font-semibold">{record.processName}</span>
+          {record?.title ? (
+            <span className="text-xs opacity-70">{record.title}</span>
+          ) : null}
+        </div>
+      ) : (
+        <span className="opacity-60">بدون فرایند</span>
+      ),
   },
   {
-    title: "فرم",
-    dataIndex: "formName",
-    key: "formName",
-    render: (value) => <Tag color="blue">{value || "—"}</Tag>,
+    title: "ایستگاه جاری",
+    key: "state",
+    width: 150,
+    align: "center",
+    render: (_value, record) =>
+      record?.stateName ? (
+        <Tag color="purple">{record.stateName}</Tag>
+      ) : (
+        <span className="opacity-60">—</span>
+      ),
+  },
+  {
+    title: "شناسهٔ ارسال",
+    dataIndex: "submissionId",
+    key: "submissionId",
+    width: 110,
+    align: "center",
+    render: (value) => <Tag color="blue">#{value ?? "—"}</Tag>,
   },
   {
     title: "ارسال‌کننده",
     key: "submitter",
+    width: 160,
     render: (_value, record) =>
-      record?.submitterName ||
-      (record?.submitterId ? `#${record.submitterId}` : "ادمین"),
+      record?.submitter?.name || record?.submitter?.username || "نامشخص",
   },
   {
-    title: "ایستگاه شروع",
-    dataIndex: "stateName",
-    key: "stateName",
-    render: (value) => (value ? <Tag color="green">{value}</Tag> : "—"),
-  },
-  {
-    title: "تعداد فیلد تکمیل‌شده",
+    title: "فیلد تکمیل‌شده",
     dataIndex: "fieldCount",
     key: "fieldCount",
-    width: 160,
+    width: 130,
+    align: "center",
+    render: (value) => value ?? 0,
+  },
+  {
+    title: "پیوست‌ها",
+    key: "attachments",
+    width: 110,
+    align: "center",
+    render: (_value, record) => {
+      const count = record?.attachments?.length ?? 0;
+      if (!count) return <span className="opacity-60">—</span>;
+      return (
+        <Tag icon={<PaperClipOutlined />} color="gold">
+          {count}
+        </Tag>
+      );
+    },
   },
   {
     title: "زمان ارسال",
-    dataIndex: "sentAt",
-    key: "sentAt",
-    render: (value) => (
-      <Tag color="purple">
-        {value ? georgianDateTimeToJalaliDateTime(value) : "—"}
-      </Tag>
-    ),
+    key: "createdAt",
+    width: 170,
+    align: "center",
+    render: (_value, record) => jalali(record?.createdAt),
   },
   {
     title: "عملیات",
-    key: "operations",
-    width: 220,
-    align: "left",
-    render: (_value, record) => {
-      const hasData = Boolean(
-        record?.formData && Object.keys(record.formData).length,
-      );
-
-      return (
-        <Tooltip
-          title={hasData ? "" : "مقادیر این ارسال در این مرورگر ذخیره نشده است"}
+    key: "actions",
+    width: 190,
+    align: "center",
+    render: (_value, record) => (
+      <Tooltip title="همان فرم با مقادیر ثبت‌شده نمایش داده می‌شود">
+        <Button
+          type="primary"
+          size="small"
+          icon={<EyeOutlined />}
+          onClick={() => onView?.(record)}
         >
-          <Button
-            type="primary"
-            icon={<EyeOutlined />}
-            onClick={() => onView?.(record)}
-          >
-            مشاهده فرم ثبت شده
-          </Button>
-        </Tooltip>
-      );
-    },
+          مشاهدهٔ فرم پرشده
+        </Button>
+      </Tooltip>
+    ),
   },
 ];
 

@@ -1,23 +1,3 @@
-// =====================================================================
-// ساختار دادهٔ submission
-//
-// قاعده‌های ثابت (برای گزارش‌گیری بعدی در بک‌اند):
-//   • کلید هر مقدار = field_name (نام فنی پایدار)؛ نه عنوان، نه id
-//   • عدد به‌صورت number ذخیره می‌شود، نه رشته
-//   • تاریخ/زمان ISO (YYYY-MM-DD ، HH:mm ، ISO-8601)
-//   • چندانتخابی = آرایهٔ value گزینه‌ها (نه label)
-//   • جدول پرشدنی = آرایه‌ای از ردیف‌ها { کلیدستون: مقدار }
-//   • جدول ثابت سند = آبجکت { کلیدخانه: مقدار } زیر نام خود فیلد
-//   • عناصر نمایشی (عنوان بخش، خط، سربرگ، شکست صفحه) اصلاً نمی‌آیند
-//   • فیلدهای خالی حذف می‌شوند تا جدول گزارش پر از رشتهٔ خالی نشود
-//
-// قرارداد اندپوینت POST /forms/add-form-submission/ :
-//   { form_definition_id: number, submitter_id?: number, form_data: string }
-//   • submitter_id اختیاری است؛ اگر نفرستیم سرور ثبت را به ادمین نسبت می‌دهد
-//   • form_data آبجکت فرستاده می‌شود (بک‌اند JSONField است)؛ اگر سرور
-//     رشته بخواهد، لایهٔ formApi خودش همان درخواست را رشته‌ای می‌فرستد
-// =====================================================================
-
 import { DISPLAY_ONLY, canonicalType } from "./fieldSchema";
 import { MULTI_TYPES } from "./formElements";
 import {
@@ -31,11 +11,6 @@ const JALALI_DATE = /^\d{4}\/\d{1,2}\/\d{1,2}/;
 const ok = (text) =>
   text && !String(text).includes("Invalid") ? String(text) : "";
 
-/**
- * مقدار تاریخ همیشه میلادی ذخیره می‌شود. تقویم خودش میلادی
- * می‌دهد، ولی اگر جایی مقدار شمسی مانده بود (مقدار پیش‌فرض یا
- * دادهٔ قدیمی)، همین‌جا با timeTool تبدیل می‌شود.
- */
 const toGregorianISO = (text, type) => {
   if (!JALALI_DATE.test(text)) return text;
   const [datePart, timePart] = text.split(/[T ]/);
@@ -66,7 +41,47 @@ const isBlank = (value) =>
     !Array.isArray(value) &&
     Object.keys(value).length === 0);
 
-/** یک مقدار خام را به قالب نهایی ذخیره تبدیل می‌کند. */
+/* ------------------------------- فایل‌ها ------------------------------- */
+// مقدار فیلدهای فایل در رندرر، خودِ آبجکت File مرورگر است (نه فقط نام فایل)
+// تا بعد از ساخته‌شدن submission بتوان آن را با اندپوینت اختصاصی فرستاد:
+//   POST /forms/add-form-submission-attachment/ (submission_id, field_id, file)
+
+const isBrowserFile = (value) =>
+  typeof File !== "undefined" && value instanceof File;
+
+/** از هر شکلی (File، {originFileObj}، {file}) خودِ File را بیرون می‌کشد. */
+export const toRawFile = (item) => {
+  if (isBrowserFile(item)) return item;
+  const nested = item?.originFileObj ?? item?.file;
+  return isBrowserFile(nested) ? nested : null;
+};
+
+/** مقدار خام یک فیلد فایل را به آرایه تبدیل می‌کند (رشته‌های قدیمی هم پشتیبانی می‌شوند). */
+export const fileItemsOf = (raw) => {
+  if (Array.isArray(raw))
+    return raw.filter((item) => item != null && item !== "");
+  if (raw == null || raw === "") return [];
+  if (typeof raw === "string")
+    return raw
+      .split("،")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  return [raw];
+};
+
+/** فقط فایل‌های واقعیِ انتخاب‌شدهٔ کاربر (آمادهٔ آپلود). */
+export const realFilesOf = (raw) =>
+  fileItemsOf(raw).map(toRawFile).filter(Boolean);
+
+/** آنچه در form_data ذخیره می‌شود؛ خودِ فایل جداگانه آپلود می‌شود. */
+export const fileDescriptor = (file) => ({
+  name: file.name,
+  size: file.size,
+  type: file.type || "application/octet-stream",
+});
+
+const FILE_FIELD_TYPES = new Set(["file", "multifile"]);
+
 export const normalizeValue = (field, raw) => {
   const type = canonicalType(field?.field_type);
 
@@ -110,14 +125,17 @@ export const normalizeValue = (field, raw) => {
     return { kind: "typed", value: text, signed_at: new Date().toISOString() };
   }
 
-  if (type === "file" || type === "multifile") {
-    const names = Array.isArray(raw)
-      ? raw
-      : String(raw || "")
-          .split("،")
-          .map((item) => item.trim())
-          .filter(Boolean);
-    return names.length ? names.map((name) => ({ name })) : null;
+  if (FILE_FIELD_TYPES.has(type)) {
+    // فقط فراداده در form_data می‌ماند؛ بایت‌های فایل با اندپوینت پیوست می‌روند.
+    const items = fileItemsOf(raw)
+      .map((item) => {
+        const file = toRawFile(item);
+        if (file) return fileDescriptor(file);
+        if (typeof item === "string") return { name: item };
+        return item && typeof item === "object" ? item : null;
+      })
+      .filter(Boolean);
+    return items.length ? items : null;
   }
 
   if (type === "date" || type === "datetime") {
@@ -129,14 +147,174 @@ export const normalizeValue = (field, raw) => {
   return typeof raw === "string" ? raw.trim() : raw;
 };
 
-export const buildFormData = (fields, values) =>
+/**
+ * ساخت form_data برای اندپوینت ثبت فرم (JSON).
+ *
+ * مهم: فیلدهای فایل به‌صورت پیش‌فرض حذف می‌شوند؛ سرور مقدار این فیلدها را
+ * با FileField اعتبارسنجی می‌کند و هر مقدار غیرفایلی (مثل نام یا فرادادهٔ JSON)
+ * باعث خطای 400 با پیام زیر می‌شود:
+ *   "The submitted data was not a file. Check the encoding type on the form."
+ * بنابراین فایل‌ها فقط با اندپوینت /forms/add-form-submission-attachment/ می‌روند.
+ */
+/**
+ * هر مقداری را به رشته (داخل "") تبدیل می‌کند — مانند بدنهٔ سالمی که در Swagger کار می‌کند:
+ *   "form_data": { "field-mu2hbmxq": "345678" }
+ *
+ *   "23"                     ← متن / عدد / بولین
+ *   "گزینه ۱، گزینه ۲"       ← چندانتخابی
+ *   "report.pdf، scan.jpg"   ← فیلدهای فایل (فقط نام فایل)
+ *   "{...}"                  ← ساختارهای مرکب (ماتریس، جدول، امضا) به‌صورت JSON رشته‌شده
+ */
+export const toStringValue = (value) => {
+  if (value == null) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean")
+    return String(value);
+
+  if (Array.isArray(value))
+    return value
+      .map((item) => {
+        if (item == null) return "";
+        // فرادادهٔ فایل ← فقط نام فایل
+        if (typeof item === "object")
+          return String(item.name ?? item.file_name ?? JSON.stringify(item));
+        return String(item);
+      })
+      .filter(Boolean)
+      .join("، ");
+
+  if (typeof value === "object") {
+    if (value.name || value.file_name)
+      return String(value.name ?? value.file_name);
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return String(value);
+    }
+  }
+
+  return String(value);
+};
+
+/**
+ * ساخت form_data برای POST /forms/add-form-submission/
+ *
+ * خروجی یک آبجکت تخت است که مقدار همهٔ کلیدهایش رشته است؛
+ * فیلدهای فایل فقط «نام فایل» می‌دهند و بایت‌های فایل در مرحلهٔ دوم می‌روند:
+ *   POST /forms/add-form-submission-attachment/ (submission_id, field_id, file)
+ */
+export const buildFormData = (
+  fields,
+  values,
+  { includeFiles = true, stringifyValues = true } = {},
+) =>
   (fields || []).reduce((data, field) => {
     const key = field.field_name || String(field.id || "");
     if (!key) return data;
+
+    const isFile = FILE_FIELD_TYPES.has(canonicalType(field?.field_type));
+    if (isFile && !includeFiles) return data;
+
     const normalized = normalizeValue(field, values?.[key]);
     if (normalized === undefined || isBlank(normalized)) return data;
-    return { ...data, [key]: normalized };
+
+    if (isFile) {
+      const names = toStringValue(normalized);
+      return names ? { ...data, [key]: names } : data;
+    }
+
+    const output = stringifyValues ? toStringValue(normalized) : normalized;
+    if (output === "") return data;
+    return { ...data, [key]: output };
   }, {});
+
+/**
+ * فایل‌های واقعیِ آمادهٔ آپلود برای اندپوینت پیوست.
+ * خروجی: [{ fieldId, fieldName, fieldLabel, file }]
+ * fieldId همان id فیلد در سرور است (پارامتر field_id اندپوینت).
+ */
+export const collectFileEntries = (fields, values) =>
+  (fields || []).flatMap((field) => {
+    if (!FILE_FIELD_TYPES.has(canonicalType(field?.field_type))) return [];
+    const key = field.field_name || String(field.id || "");
+    const fieldId = Number(field.id);
+    return realFilesOf(values?.[key]).map((file) => ({
+      fieldId: Number.isFinite(fieldId) && fieldId > 0 ? fieldId : null,
+      fieldName: key,
+      fieldLabel: field.field_label || key,
+      file,
+    }));
+  });
+
+/** آیا این فیلد، فیلد فایل است؟ */
+export const isFileField = (field) =>
+  FILE_FIELD_TYPES.has(canonicalType(field?.field_type));
+
+/** همهٔ فیلدهای فایلِ فرم. */
+export const fileFieldsOf = (fields) => (fields || []).filter(isFileField);
+
+/**
+ * بررسی خودِ فیلدهای فایل پیش از ارسال:
+ *   - فیلد فایل اجباری که خالی مانده است
+ *   - فیلد فایلی که id عددی معتبر ندارد (بدون field_id نمی‌توان پیوست فرستاد)
+ * این دو حالت قبلاً بی‌صدا رد می‌شدند و کاربر پیام موفقیت می‌دید،
+ * در حالی که فایلش هیچ‌وقت به سرور نرفته بود.
+ */
+export const checkFileFields = (fields, values) =>
+  fileFieldsOf(fields).flatMap((field) => {
+    const key = field.field_name || String(field.id || "");
+    const label = field.field_label || key;
+    const files = realFilesOf(values?.[key]);
+    const problems = [];
+
+    if (field.is_required && !files.length)
+      problems.push(`«${label}»: انتخاب فایل الزامی است.`);
+
+    const fieldId = Number(field.id);
+    if (files.length && !(Number.isFinite(fieldId) && fieldId > 0))
+      problems.push(
+        `«${label}»: این فیلد شناسهٔ معتبری روی سرور ندارد؛ ابتدا فرم را ذخیره/همگام کنید تا فایل قابل ارسال شود.`,
+      );
+
+    return problems;
+  });
+
+/** بررسی پسوند و حجم مجاز پیش از آپلود، بر اساس تنظیمات خودِ فیلد. */
+export const checkFileLimits = (fields, values) =>
+  (fields || []).flatMap((field) => {
+    if (!FILE_FIELD_TYPES.has(canonicalType(field?.field_type))) return [];
+    const key = field.field_name || String(field.id || "");
+    const label = field.field_label || key;
+    const allowed = String(field.allowed_extensions || "")
+      .split(/[,،\s]+/)
+      .filter(Boolean)
+      .map((item) => item.replace(/^\./, "").toLowerCase());
+    const maxMb = Number(field.max_file_size_mb) || 0;
+    const maxBytes = maxMb > 0 ? maxMb * 1024 * 1024 : 0;
+
+    return realFilesOf(values?.[key]).flatMap((file) => {
+      const extension = String(file.name || "").split(".").pop().toLowerCase();
+      const problems = [];
+      if (allowed.length && !allowed.includes(extension))
+        problems.push(
+          `«${label}»: پسوند فایل «${file.name}» مجاز نیست (مجاز: ${allowed.join("، ")}).`,
+        );
+      if (maxBytes && file.size > maxBytes)
+        problems.push(
+          `«${label}»: حجم فایل «${file.name}» از ${maxMb} مگابایت بیشتر است.`,
+        );
+      return problems;
+    });
+  });
+
+/**
+ * همهٔ بررسی‌های مربوط به فایل‌ها در یک تابع؛ خروجی آرایهٔ پیام‌های خطاست.
+ * پیش از هر درخواستی به سرور صدا زده می‌شود.
+ */
+export const validateFiles = (fields, values) => [
+  ...checkFileFields(fields, values),
+  ...checkFileLimits(fields, values),
+];
 
 const toPositiveInt = (raw) => {
   if (raw == null || raw === "") return null;
@@ -153,24 +331,22 @@ export const resolveSubmitterId = (submitterId, token) => {
   return toPositiveInt(auth?.user_id ?? auth?.id);
 };
 
-/**
- * پیلود کامل برای /forms/add-form-submission/
- *
- * @param {object}   args
- * @param {number}   args.formDefinitionId شناسهٔ تعریف فرم (همان id اصلی)
- * @param {Array}    args.fields           فیلدهای تخت‌شدهٔ فرم
- * @param {object}   args.values           مقادیر خام رندرر
- * @param {number}  [args.submitterId]     اگر ندهید از توکن خوانده می‌شود
- * @param {boolean} [args.stringifyFormData=false] اگر true بدهید رشتهٔ JSON می‌رود
- */
+
+export const STRINGIFY_FORM_DATA = false;
+
 export const buildSubmissionPayload = ({
   formDefinitionId,
   fields,
   values,
   submitterId,
-  stringifyFormData = false,
+  stringifyFormData = STRINGIFY_FORM_DATA,
+  includeFiles = true,
+  stringifyValues = true,
 }) => {
-  const formData = buildFormData(fields, values);
+  const formData = buildFormData(fields, values, {
+    includeFiles,
+    stringifyValues,
+  });
   const submitter = resolveSubmitterId(submitterId);
 
   return {
