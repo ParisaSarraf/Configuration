@@ -17,9 +17,9 @@ import {
 
 const SURFACE_SIZE = 6000;
 const DRAG_TYPE = "application/x-process-state-type";
-/** خمیدگی وقتی بین دو ایستگاه، ارتباط برگشت هم تعریف شده باشد. */
+/** خمیدگی وقتی بین دو مرحله، مسیر برگشت هم تعریف شده باشد. */
 const RECIPROCAL_BOW = 60;
-/** فاصله‌ی ارتباط‌های هم‌جهت تکراری بین همان دو ایستگاه. */
+/** فاصله‌ی مسیرهای هم‌جهت تکراری بین همان دو مرحله. */
 const PARALLEL_SPACING = 52;
 /** ابعاد مینی‌مپ نمای کلی فرایند. */
 const MINIMAP_WIDTH = 168;
@@ -44,7 +44,14 @@ const ProcessCanvas = ({
   onDeleteNode,
   onDeleteEdge,
   onDuplicateNode,
+  onAddEdgeAction,
+  onRenameNode,
+  onOpenWizard,
 }) => {
+  // ویرایش نام روی خود بوم؛ فقط حالت نمایشی است و دادهٔ گراف را تغییر نمی‌دهد.
+  const [editingNodeId, setEditingNodeId] = useState(null);
+  const [draftName, setDraftName] = useState("");
+
   const dragRef = useRef(null);
   const panRef = useRef(null);
   /** درگِ اتصال: مبدأ، نقطه‌ی شروع و اینکه ماوس واقعاً حرکت کرده یا نه. */
@@ -78,9 +85,9 @@ const ProcessCanvas = ({
   );
 
   /**
-   * آفست خمیدگی هر ارتباط. اگر بین دو ایستگاه ارتباط برگشت هم وجود
+   * آفست خمیدگی هر مسیر. اگر بین دو مرحله مسیر برگشت هم وجود
    * داشته باشد، هر دو خم می‌شوند تا خط، برچسب و ناحیه‌ی کلیکشان جدا باشد و
-   * بتوان برای هر جهت جداگانه عملیات تعریف کرد.
+   * بتوان برای هر جهت جداگانه دکمه تعریف کرد.
    */
   const edgeOffsets = useMemo(() => {
     const edges = graph?.edges ?? [];
@@ -298,7 +305,7 @@ const ProcessCanvas = ({
       return;
     }
 
-    // رهاکردن درگِ اتصال روی ایستگاه مقصد، ارتباط را کامل می‌کند.
+    // رهاکردن درگِ اتصال روی مرحله مقصد، مسیر را کامل می‌کند.
     const connectDrag = connectDragRef.current;
     if (node && connectDrag?.moved) {
       connectDragRef.current = null;
@@ -405,7 +412,7 @@ const ProcessCanvas = ({
           ) : null}
         </svg>
 
-        {/* برچسب ارتباط‌ها: عملیات‌های متصل به هر انتقال */}
+        {/* برچسب مسیرها: دکمه‌های متصل به هر انتقال */}
         {(graph?.edges ?? []).map((edge) => {
           const source = nodeById.get(String(edge.source));
           const target = nodeById.get(String(edge.target));
@@ -460,14 +467,24 @@ const ProcessCanvas = ({
                   ) : null}
                 </span>
               ) : (
-                <span className="process-edge-label__warning">بدون عملیات</span>
+                <button
+                  type="button"
+                  className="process-edge-label__warning process-edge-label__warning--action"
+                  title="افزودن دکمه تأیید یا رد به این مسیر"
+                  onPointerDown={(event) => event.stopPropagation()}
+                  onClick={(event) =>
+                    openMenu(event, { type: "edge", id: edge.id })
+                  }
+                >
+                  بدون دکمه · افزودن
+                </button>
               )}
 
               {isSelected ? (
                 <button
                   type="button"
                   className="process-edge-label__delete"
-                  title="حذف ارتباط"
+                  title="حذف مسیر"
                   onPointerDown={(event) => event.stopPropagation()}
                   onClick={(event) => {
                     event.stopPropagation();
@@ -488,6 +505,15 @@ const ProcessCanvas = ({
             selection.type === "node" &&
             String(selection.id) === String(node.id);
           const isConnectSource = String(connectFrom) === String(node.id);
+          // در حالت اتصال، مقصدهای مجاز برجسته می‌شوند.
+          const isConnectTarget =
+            Boolean(connectFrom) && String(connectFrom) !== String(node.id);
+          const isOrphan = !(graph?.edges ?? []).some(
+            (edge) =>
+              String(edge.source) === String(node.id) ||
+              String(edge.target) === String(node.id),
+          );
+          const isEditing = String(editingNodeId) === String(node.id);
 
           return (
             <div
@@ -495,6 +521,8 @@ const ProcessCanvas = ({
               className={`process-node ${type.tone.node}${
                 isSelected ? " process-node--selected" : ""
               }${isConnectSource ? " process-node--connect-source" : ""}${
+                isConnectTarget ? " process-node--connect-target" : ""
+              }${isOrphan ? " process-node--orphan" : ""}${
                 type.shape === "pill" ? " process-node--pill" : ""
               }`}
               style={{
@@ -510,14 +538,43 @@ const ProcessCanvas = ({
               onContextMenu={(event) =>
                 openMenu(event, { type: "node", id: node.id })
               }
+              onDoubleClick={(event) => {
+                event.stopPropagation();
+                setEditingNodeId(node.id);
+                setDraftName(node.name ?? "");
+              }}
             >
               <span className={`process-node__icon ${type.tone.icon}`}>
                 <Icon />
               </span>
               <span className="process-node__body">
-                <span className="process-node__name">
-                  {node.name || "بدون نام"}
-                </span>
+                {isEditing ? (
+                  <input
+                    className="process-node__name-input"
+                    value={draftName}
+                    autoFocus
+                    onPointerDown={(event) => event.stopPropagation()}
+                    onChange={(event) => setDraftName(event.target.value)}
+                    onBlur={() => {
+                      onRenameNode?.(node.id, draftName);
+                      setEditingNodeId(null);
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        onRenameNode?.(node.id, draftName);
+                        setEditingNodeId(null);
+                      }
+                      if (event.key === "Escape") setEditingNodeId(null);
+                    }}
+                  />
+                ) : (
+                  <span
+                    className="process-node__name"
+                    title="برای تغییر نام، دوبار کلیک کنید"
+                  >
+                    {node.name || "بدون نام"}
+                  </span>
+                )}
                 <span className={`process-node__chip ${type.tone.chip}`}>
                   {type.shortLabel}
                 </span>
@@ -527,7 +584,7 @@ const ProcessCanvas = ({
                 <button
                   type="button"
                   className="process-node__delete"
-                  title="حذف ایستگاه"
+                  title="حذف مرحله"
                   onPointerDown={(event) => event.stopPropagation()}
                   onClick={(event) => {
                     event.stopPropagation();
@@ -543,15 +600,15 @@ const ProcessCanvas = ({
                 className="process-node__handle"
                 title={
                   isConnectSource
-                    ? "برای پایان اتصال، روی ایستگاه مقصد کلیک کنید"
-                    : "ایجاد ارتباط از این ایستگاه"
+                    ? "برای پایان اتصال، روی مرحله مقصد کلیک کنید"
+                    : "ایجاد مسیر از این مرحله"
                 }
                 onPointerDown={(event) => {
                   event.stopPropagation();
                   onSelect({ type: "node", id: node.id });
                   const next = isConnectSource ? null : node.id;
                   onStartConnect(next);
-                  // هم‌کلیک پشت‌سر‌هم کار می‌کند و هم درگ تا ایستگاه مقصد.
+                  // هم‌کلیک پشت‌سر‌هم کار می‌کند و هم درگ تا مرحله مقصد.
                   connectDragRef.current = next
                     ? {
                         source: node.id,
@@ -577,21 +634,34 @@ const ProcessCanvas = ({
         <div className="process-canvas__empty">
           <p className="process-canvas__empty-title">بوم فرایند خالی است</p>
           <p className="process-canvas__empty-hint">
-            از جعبه‌ابزار یک «ایستگاه شر��ع» را بکشید یا روی آن کلیک کنید.
+            یکی از این دو راه را انتخاب کنید؛ هر دو را بعداً می‌توانید تغییر
+            دهید.
           </p>
-          <button
-            type="button"
-            className="process-canvas__empty-action"
-            onClick={() => onAddNode(STATE_TYPE_IDS.START)}
-          >
-            افزودن ایستگاه شروع
-          </button>
+          <div className="process-canvas__empty-actions">
+            <button
+              type="button"
+              className="process-canvas__empty-action process-canvas__empty-action--primary"
+              onClick={() => onOpenWizard?.()}
+            >
+              ساخت با الگوی تأیید/رد
+            </button>
+            <button
+              type="button"
+              className="process-canvas__empty-action"
+              onClick={() => onAddNode(STATE_TYPE_IDS.START)}
+            >
+              شروع دستی
+            </button>
+          </div>
+          <p className="process-canvas__empty-note">
+            الگو، مراحل و دکمه‌های تأیید و رد را یک‌جا می‌سازد.
+          </p>
         </div>
       ) : null}
 
       {connectFrom ? (
         <div className="process-canvas__hint">
-          روی ایستگاه مقصد کلیک کنید یا خط را روی آن رها کنید · برای لغو Esc
+          روی مرحله مقصد کلیک کنید یا خط را روی آن رها کنید · برای لغو Esc
         </div>
       ) : null}
 
@@ -668,7 +738,7 @@ const ProcessCanvas = ({
                   closeMenu();
                 }}
               >
-                اتصال به ایستگاه دیگر
+                اتصال به مرحله دیگر
               </button>
               <button
                 type="button"
@@ -678,7 +748,7 @@ const ProcessCanvas = ({
                   closeMenu();
                 }}
               >
-                تکرار ایستگاه · Ctrl+D
+                تکرار مرحله · Ctrl+D
               </button>
               <button
                 type="button"
@@ -688,20 +758,42 @@ const ProcessCanvas = ({
                   closeMenu();
                 }}
               >
-                حذف ایستگاه
+                حذف مرحله
               </button>
             </>
           ) : (
-            <button
-              type="button"
-              className="process-canvas__menu-item process-canvas__menu-item--danger"
-              onClick={() => {
-                onDeleteEdge(menu.target.id);
-                closeMenu();
-              }}
-            >
-              حذف ارتباط
-            </button>
+            <>
+              <button
+                type="button"
+                className="process-canvas__menu-item"
+                onClick={() => {
+                  onAddEdgeAction?.(menu.target.id, "approve");
+                  closeMenu();
+                }}
+              >
+                افزودن دکمه‌ی تأیید
+              </button>
+              <button
+                type="button"
+                className="process-canvas__menu-item"
+                onClick={() => {
+                  onAddEdgeAction?.(menu.target.id, "deny");
+                  closeMenu();
+                }}
+              >
+                افزودن دکمه‌ی رد
+              </button>
+              <button
+                type="button"
+                className="process-canvas__menu-item process-canvas__menu-item--danger"
+                onClick={() => {
+                  onDeleteEdge(menu.target.id);
+                  closeMenu();
+                }}
+              >
+                حذف مسیر
+              </button>
+            </>
           )}
         </div>
       ) : null}

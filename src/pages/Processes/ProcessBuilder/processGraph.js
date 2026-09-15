@@ -71,7 +71,10 @@ const mapNode = (state) => ({
   id: state?.id,
   name: state?.name ?? "",
   description: state?.description ?? "",
-  stateTypeId: toNumber(state?.state_type?.id ?? state?.state_type_id ?? state?.state_type) ?? STATE_TYPE_IDS.NORMAL,
+  stateTypeId:
+    toNumber(
+      state?.state_type?.id ?? state?.state_type_id ?? state?.state_type,
+    ) ?? STATE_TYPE_IDS.NORMAL,
   permissions: asArray(state?.state_permissions).map(mapPermission),
   x: 0,
   y: 0,
@@ -79,8 +82,16 @@ const mapNode = (state) => ({
 
 const mapEdge = (transition) => ({
   id: transition?.id,
-  source: toNumber(transition?.current_state?.id ?? transition?.current_state_id ?? transition?.current_state),
-  target: toNumber(transition?.next_state?.id ?? transition?.next_state_id ?? transition?.next_state),
+  source: toNumber(
+    transition?.current_state?.id ??
+      transition?.current_state_id ??
+      transition?.current_state,
+  ),
+  target: toNumber(
+    transition?.next_state?.id ??
+      transition?.next_state_id ??
+      transition?.next_state,
+  ),
   actions: [],
 });
 
@@ -88,7 +99,10 @@ const mapAction = (action) => ({
   id: action?.id,
   name: action?.name ?? "",
   description: action?.description ?? "",
-  actionTypeId: toNumber(action?.action_type?.id ?? action?.action_type_id ?? action?.action_type) ?? 1,
+  actionTypeId:
+    toNumber(
+      action?.action_type?.id ?? action?.action_type_id ?? action?.action_type,
+    ) ?? 1,
   permissions: asArray(action?.action_permissions).map(mapActionPermission),
 });
 
@@ -112,12 +126,23 @@ export const buildGraph = (infoPayload, transitionActions) => {
 
   asArray(transitionActions).forEach((item) => {
     const linkedProcessId = toNumber(
-      item?.transition?.process?.id ?? item?.transition?.process ?? item?.process_id
+      item?.transition?.process?.id ??
+        item?.transition?.process ??
+        item?.process_id,
     );
-    if (linkedProcessId !== null && processId !== null && linkedProcessId !== processId) return;
+    if (
+      linkedProcessId !== null &&
+      processId !== null &&
+      linkedProcessId !== processId
+    )
+      return;
 
-    const transitionId = toNumber(item?.transition?.id ?? item?.transition_id ?? item?.transition);
-    const actionId = toNumber(item?.action?.id ?? item?.action_id ?? item?.action);
+    const transitionId = toNumber(
+      item?.transition?.id ?? item?.transition_id ?? item?.transition,
+    );
+    const actionId = toNumber(
+      item?.action?.id ?? item?.action_id ?? item?.action,
+    );
     const edge = edgeById.get(transitionId);
     if (!edge || actionId === null) return;
     if (edge.actions.some((link) => link.actionId === actionId)) return;
@@ -146,8 +171,14 @@ export const emptyGraph = (processId, name = "") => ({
 
 export const cloneGraph = (graph) => ({
   ...graph,
-  nodes: graph.nodes.map((node) => ({ ...node, permissions: node.permissions.map((p) => ({ ...p })) })),
-  edges: graph.edges.map((edge) => ({ ...edge, actions: edge.actions.map((a) => ({ ...a })) })),
+  nodes: graph.nodes.map((node) => ({
+    ...node,
+    permissions: node.permissions.map((p) => ({ ...p })),
+  })),
+  edges: graph.edges.map((edge) => ({
+    ...edge,
+    actions: edge.actions.map((a) => ({ ...a })),
+  })),
   actions: graph.actions.map((action) => ({
     ...action,
     permissions: action.permissions.map((p) => ({ ...p })),
@@ -157,7 +188,13 @@ export const cloneGraph = (graph) => ({
 
 const permissionSignature = (list) =>
   list
-    .map((item) => [item.permissionType ?? "", item.granteeType ?? "", item.groupId ?? ""].join("|"))
+    .map((item) =>
+      [
+        item.permissionType ?? "",
+        item.granteeType ?? "",
+        item.groupId ?? "",
+      ].join("|"),
+    )
     .sort()
     .join(",");
 
@@ -177,7 +214,7 @@ export const graphSignature = (graph) => {
           trimmed(node.description),
           Number(node.stateTypeId),
           permissionSignature(node.permissions),
-        ].join("|")
+        ].join("|"),
       )
       .sort(),
     edges: graph.edges
@@ -189,7 +226,7 @@ export const graphSignature = (graph) => {
             .map((link) => String(link.actionId))
             .sort()
             .join("+"),
-        ].join("|")
+        ].join("|"),
       )
       .sort(),
     actions: graph.actions
@@ -200,17 +237,24 @@ export const graphSignature = (graph) => {
           trimmed(action.description),
           Number(action.actionTypeId),
           action.permissions
-            .map((item) => [item.granteeType ?? "", item.groupId ?? ""].join("|"))
+            .map((item) =>
+              [item.granteeType ?? "", item.groupId ?? ""].join("|"),
+            )
             .sort()
             .join(","),
-        ].join("|")
+        ].join("|"),
       )
       .sort(),
     permissions: permissionSignature(graph.permissions),
   });
 };
 
-export const createNode = ({ stateTypeId, x = CANVAS_PADDING, y = CANVAS_PADDING, name = "" }) => ({
+export const createNode = ({
+  stateTypeId,
+  x = CANVAS_PADDING,
+  y = CANVAS_PADDING,
+  name = "",
+}) => ({
   id: nextTempId("state"),
   name,
   description: "",
@@ -227,15 +271,24 @@ export const createEdge = ({ source, target }) => ({
   actions: [],
 });
 
-export const createAction = ({ actionTypeId, name = "", description = "" }) => ({
+// توضیحات در بک‌اند اجباری است؛ پس اگر خالی باشد از نام دکمه ساخته می‌شود
+// تا کاربر با خطای اجباری‌بودن توضیحات روبرو نشود. مقدار قابل ویرایش است.
+export const createAction = ({
+  actionTypeId,
+  name = "",
+  description = "",
+}) => ({
   id: nextTempId("action"),
   name,
-  description,
+  description: description || (name ? `دکمه «${name}» در این مرحله.` : ""),
   actionTypeId: toNumber(actionTypeId) ?? 1,
   permissions: [],
 });
 
-export const createPermission = ({ permissionType = "view", groupId = null }) => ({
+export const createPermission = ({
+  permissionType = "view",
+  groupId = null,
+}) => ({
   id: nextTempId("permission"),
   permissionType,
   granteeType: DEFAULT_GRANTEE_TYPE,
@@ -250,14 +303,17 @@ export const findEdge = (graph, edgeId) =>
   graph?.edges.find((edge) => String(edge.id) === String(edgeId)) ?? null;
 
 export const findAction = (graph, actionId) =>
-  graph?.actions.find((action) => String(action.id) === String(actionId)) ?? null;
+  graph?.actions.find((action) => String(action.id) === String(actionId)) ??
+  null;
 
 /* ------------------------------- مختصات ------------------------------- */
 
 export const readStoredPositions = (processId) => {
   if (!processId || typeof window === "undefined") return {};
   try {
-    const raw = window.localStorage.getItem(`${POSITIONS_STORAGE_PREFIX}${processId}`);
+    const raw = window.localStorage.getItem(
+      `${POSITIONS_STORAGE_PREFIX}${processId}`,
+    );
     const parsed = raw ? JSON.parse(raw) : null;
     return parsed && typeof parsed === "object" ? parsed : {};
   } catch {
@@ -269,12 +325,13 @@ export const writeStoredPositions = (processId, nodes) => {
   if (!processId || typeof window === "undefined") return;
   try {
     const positions = nodes.reduce((acc, node) => {
-      if (!isTempId(node.id)) acc[node.id] = { x: Math.round(node.x), y: Math.round(node.y) };
+      if (!isTempId(node.id))
+        acc[node.id] = { x: Math.round(node.x), y: Math.round(node.y) };
       return acc;
     }, {});
     window.localStorage.setItem(
       `${POSITIONS_STORAGE_PREFIX}${processId}`,
-      JSON.stringify(positions)
+      JSON.stringify(positions),
     );
   } catch {
     /* ذخیره مختصات اختیاری است و خطای آن نباید بوم را خراب کند. */
@@ -282,7 +339,7 @@ export const writeStoredPositions = (processId, nodes) => {
 };
 
 /**
- * چیدمان خودکار لایه‌ای (از ایستگاه شروع به پایین) برای گرافی که مختصات ندارد.
+ * چیدمان خودکار لایه‌ای (از مرحله شروع به پایین) برای گرافی که مختصات ندارد.
  * مختصات ذخیره‌شده‌ی کاربر بر چیدمان خودکار اولویت دارد.
  */
 export const layoutGraph = (graph, storedPositions = {}) => {
@@ -335,7 +392,10 @@ export const layoutGraph = (graph, storedPositions = {}) => {
     buckets.get(level).push(node);
   });
 
-  const widest = Math.max(1, ...Array.from(buckets.values(), (bucket) => bucket.length));
+  const widest = Math.max(
+    1,
+    ...Array.from(buckets.values(), (bucket) => bucket.length),
+  );
   const rowWidth = widest * NODE_WIDTH + (widest - 1) * SIBLING_GAP;
 
   const nodes = graph.nodes.map((node) => {
@@ -347,7 +407,8 @@ export const layoutGraph = (graph, storedPositions = {}) => {
     const level = levels.get(node.id) ?? 0;
     const bucket = buckets.get(level) ?? [node];
     const index = bucket.indexOf(node);
-    const bucketWidth = bucket.length * NODE_WIDTH + (bucket.length - 1) * SIBLING_GAP;
+    const bucketWidth =
+      bucket.length * NODE_WIDTH + (bucket.length - 1) * SIBLING_GAP;
     const offset = CANVAS_PADDING + (rowWidth - bucketWidth) / 2;
 
     return {
@@ -362,7 +423,14 @@ export const layoutGraph = (graph, storedPositions = {}) => {
 
 export const graphBounds = (nodes) => {
   if (!nodes.length) {
-    return { minX: 0, minY: 0, maxX: NODE_WIDTH, maxY: NODE_HEIGHT, width: NODE_WIDTH, height: NODE_HEIGHT };
+    return {
+      minX: 0,
+      minY: 0,
+      maxX: NODE_WIDTH,
+      maxY: NODE_HEIGHT,
+      width: NODE_WIDTH,
+      height: NODE_HEIGHT,
+    };
   }
   const minX = Math.min(...nodes.map((node) => node.x));
   const minY = Math.min(...nodes.map((node) => node.y));
@@ -372,9 +440,9 @@ export const graphBounds = (nodes) => {
 };
 
 /**
- * هندسه‌ی یک ارتباط: مسیر بزیه بین دو ایستگاه به همراه نقطه‌ی میانی برچسب.
+ * هندسه‌ی یک مسیر: مسیر بزیه بین دو مرحله به همراه نقطه‌ی میانی برچسب.
  *
- * curveOffset منحنی را عمود بر خط مبدأ←مقصد خم می‌کند. چون جهت ارتباط
+ * curveOffset منحنی را عمود بر خط مبدأ←مقصد خم می‌کند. چون جهت مسیر
  * برگشت معکوس است، بردار عمود هم معکوس می‌شود؛ بنابراین دادن آفست
  * هم‌علامت به رفت و برگشت، آن‌ها را به دو سمت مخالف خم می‌کند و دیگر روی هم
  * نمی‌افتند. مقدار صفر دقیقاً همان خط مستقیم قبلی است.
@@ -417,11 +485,11 @@ export const edgeGeometry = (source, target, curveOffset = 0) => {
 
 /**
  * اعتبارسنجی فرایند بر اساس قوانین واقعی بک‌اند:
- *  - نبود ایستگاه شروع → add-request خطای «فرایند دارای مرحله اغازین نمی باشد» می‌دهد
- *  - name ایستگاه و name/description عملیات در مدل بک‌اند اجباری هستند
- *  - درخواست فقط وقتی جلو می‌رود که عملیات‌های یک انتقال کامل شوند
- *    → انتقال بدون عملیات، درخواست را متوقف می‌کند
- *  - برای دیدن/انجام عملیات، دسترسی سمت‌ها لازم است
+ *  - نبود مرحله شروع → add-request خطای «فرایند دارای مرحله اغازین نمی باشد» می‌دهد
+ *  - name مرحله و name/description دکمه در مدل بک‌اند اجباری هستند
+ *  - درخواست فقط وقتی جلو می‌رود که دکمه‌های یک انتقال کامل شوند
+ *    → انتقال بدون دکمه، درخواست را متوقف می‌کند
+ *  - برای دیدن/انجام دکمه، دسترسی سمت‌ها لازم است
  */
 export const validateGraph = (graph) => {
   const errors = [];
@@ -430,81 +498,106 @@ export const validateGraph = (graph) => {
   if (!graph) return { errors, warnings };
 
   if (!trimmed(graph.name)) errors.push("نام فرایند الزامی است.");
-  if (graph.nodes.length === 0) errors.push("فرایند باید حداقل یک ایستگاه داشته باشد.");
+  if (graph.nodes.length === 0)
+    errors.push("فرایند باید حداقل یک مرحله داشته باشد.");
 
-  const startNodes = graph.nodes.filter((node) => isStartStateType(node.stateTypeId));
+  const startNodes = graph.nodes.filter((node) =>
+    isStartStateType(node.stateTypeId),
+  );
   if (graph.nodes.length > 0 && startNodes.length === 0) {
-    errors.push("فرایند ایستگاه شروع ندارد؛ بدون آن امکان ایجاد درخواست وجود ندارد.");
+    errors.push(
+      "فرایند مرحله شروع ندارد؛ بدون آن امکان ایجاد درخواست وجود ندارد.",
+    );
   }
   if (startNodes.length > 1) {
-    warnings.push("بیش از یک ایستگاه شروع دارید؛ درخواست فقط از یکی از آن‌ها آغاز می‌شود.");
+    warnings.push(
+      "بیش از یک مرحله شروع دارید؛ درخواست فقط از یکی از آن‌ها آغاز می‌شود.",
+    );
   }
 
   const completeNodes = graph.nodes.filter(
-    (node) => Number(node.stateTypeId) === STATE_TYPE_IDS.COMPLETE
+    (node) => Number(node.stateTypeId) === STATE_TYPE_IDS.COMPLETE,
   );
   if (graph.nodes.length > 0 && completeNodes.length === 0) {
-    warnings.push("فرایند ایستگاه پایان ندارد؛ درخواست‌ها هیچ‌وقت تکمیل نمی‌شوند.");
+    warnings.push(
+      "فرایند مرحله پایان ندارد؛ درخواست‌ها هیچ‌وقت تکمیل نمی‌شوند.",
+    );
   }
 
   graph.nodes.forEach((node) => {
-    if (!trimmed(node.name)) errors.push("نام همه‌ی ایستگاه‌ها باید پر شود.");
-    if (trimmed(node.name).length > 255) errors.push(`نام ایستگاه «${node.name}» بیش از ۲۵۵ کاراکتر است.`);
+    if (!trimmed(node.name)) errors.push("نام همه‌ی مراحل باید پر شود.");
+    if (trimmed(node.name).length > 255)
+      errors.push(`نام مرحله «${node.name}» بیش از ۲۵۵ کاراکتر است.`);
   });
 
   const nodeIds = new Set(graph.nodes.map((node) => String(node.id)));
   const seenEdges = new Set();
 
   graph.edges.forEach((edge) => {
-    if (!nodeIds.has(String(edge.source)) || !nodeIds.has(String(edge.target))) {
-      errors.push("یک ارتباط ناقص است و به ایستگاه موجود متصل نیست.");
+    if (
+      !nodeIds.has(String(edge.source)) ||
+      !nodeIds.has(String(edge.target))
+    ) {
+      errors.push("یک مسیر ناقص است و به مرحله موجود متصل نیست.");
       return;
     }
     if (String(edge.source) === String(edge.target)) {
-      errors.push("ارتباط باید بین دو ایستگاه متفاوت باشد.");
+      errors.push("مسیر باید بین دو مرحله متفاوت باشد.");
       return;
     }
     const key = `${edge.source}->${edge.target}`;
     if (seenEdges.has(key)) {
-      warnings.push("بین دو ایستگاه ارتباط تکراری وجود دارد.");
+      warnings.push("بین دو مرحله مسیر تکراری وجود دارد.");
     }
     seenEdges.add(key);
 
     if (edge.actions.length === 0) {
       warnings.push(
-        "برای یک ارتباط هیچ عملیاتی تعریف نشده؛ درخواست در آن مرحله قابل پیشروی نیست."
+        "برای یک مسیر هیچ دکمه‌ای تعریف نشده؛ درخواست در آن مرحله قابل پیشروی نیست.",
       );
     }
   });
 
   graph.nodes.forEach((node) => {
-    const hasOutgoing = graph.edges.some((edge) => String(edge.source) === String(node.id));
-    const hasIncoming = graph.edges.some((edge) => String(edge.target) === String(node.id));
+    const hasOutgoing = graph.edges.some(
+      (edge) => String(edge.source) === String(node.id),
+    );
+    const hasIncoming = graph.edges.some(
+      (edge) => String(edge.target) === String(node.id),
+    );
 
     if (!hasOutgoing && !isTerminalStateType(node.stateTypeId)) {
-      warnings.push(`ایستگاه «${node.name || "بی‌نام"}» ارتباط خروجی ندارد.`);
+      warnings.push(`مرحله «${node.name || "بی‌نام"}» مسیر خروجی ندارد.`);
     }
     if (!hasIncoming && !isStartStateType(node.stateTypeId)) {
-      warnings.push(`ایستگاه «${node.name || "بی‌نام"}» ارتباط ورودی ندارد و در دسترس قرار نمی‌گیرد.`);
+      warnings.push(
+        `مرحله «${node.name || "بی‌نام"}» مسیر ورودی ندارد و در دسترس قرار نمی‌گیرد.`,
+      );
     }
   });
 
   graph.actions.forEach((action) => {
-    if (!trimmed(action.name)) errors.push("نام همه‌ی عملیات‌ها باید پر شود.");
+    if (!trimmed(action.name)) errors.push("نام همه‌ی دکمه‌ها باید پر شود.");
     if (!trimmed(action.description)) {
-      errors.push(`توضیحات عملیات «${action.name || "بی‌نام"}» الزامی است.`);
+      errors.push(`توضیحات دکمه «${action.name || "بی‌نام"}» الزامی است.`);
     }
     if (action.permissions.length === 0) {
-      warnings.push(`عملیات «${action.name || "بی‌نام"}» به هیچ سمتی داده نشده است.`);
+      warnings.push(
+        `دکمه «${action.name || "بی‌نام"}» به هیچ سمتی داده نشده است.`,
+      );
     }
   });
 
   const usedActionIds = new Set(
-    graph.edges.flatMap((edge) => edge.actions.map((link) => String(link.actionId)))
+    graph.edges.flatMap((edge) =>
+      edge.actions.map((link) => String(link.actionId)),
+    ),
   );
   graph.actions.forEach((action) => {
     if (!usedActionIds.has(String(action.id))) {
-      warnings.push(`عملیات «${action.name || "بی‌نام"}» به هیچ ارتباطی وصل نشده است.`);
+      warnings.push(
+        `دکمه «${action.name || "بی‌نام"}» به هیچ مسیری وصل نشده است.`,
+      );
     }
   });
 
@@ -516,20 +609,26 @@ export const validateGraph = (graph) => {
   graph.nodes.forEach((node) => {
     node.permissions.forEach((permission) => {
       if (permission.granteeType === "group" && !permission.groupId) {
-        errors.push(`برای دسترسی ایستگاه «${node.name || "بی‌نام"}» باید سمت انتخاب شود.`);
+        errors.push(
+          `برای دسترسی مرحله «${node.name || "بی‌نام"}» باید سمت انتخاب شود.`,
+        );
       }
     });
   });
   graph.actions.forEach((action) => {
     action.permissions.forEach((permission) => {
       if (permission.granteeType === "group" && !permission.groupId) {
-        errors.push(`برای دسترسی عملیات «${action.name || "بی‌نام"}» باید سمت انتخاب شود.`);
+        errors.push(
+          `برای دسترسی دکمه «${action.name || "بی‌نام"}» باید سمت انتخاب شود.`,
+        );
       }
     });
   });
 
   if (graph.permissions.length === 0) {
-    warnings.push("برای هیچ سمتی دسترسی فرایند تعریف نشده؛ کاربران عادی آن را نمی‌بینند.");
+    warnings.push(
+      "برای هیچ سمتی دسترسی فرایند تعریف نشده؛ کاربران عادی آن را نمی‌بینند.",
+    );
   }
 
   return {
