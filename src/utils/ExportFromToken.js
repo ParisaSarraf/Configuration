@@ -60,6 +60,9 @@ export const hasPageAccess = (page, token) =>
 export const canViewUnacceptedVersion = (token) =>
   getAuthDataFromToken(token)?.view_unaccepted_version === true;
 
+export const canViewDocumentFiles = (state, token) =>
+  Number(state) === 40 || canViewUnacceptedVersion(token);
+
 export const isTokenExpired = (token) => {
   const expiration = getTokenField("exp", null, token);
   return expiration == null || expiration * 1000 <= Date.now();

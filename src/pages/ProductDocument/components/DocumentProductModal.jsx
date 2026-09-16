@@ -28,8 +28,6 @@ const DocumentProductModal = ({
     useUpdateProductDocument();
   const { data: documentList } = useDocumentList();
 
-  
-
   useEffect(() => {
     if (modalMode === "edit" && modalData) {
       form.setFieldsValue({

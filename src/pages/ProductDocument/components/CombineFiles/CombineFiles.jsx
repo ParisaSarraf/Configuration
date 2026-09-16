@@ -20,7 +20,7 @@ import { useEffect, useState } from "react";
 import { BASEURL } from "@/Services/axiosInstance.js";
 import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
 import { useAllLogs } from "@/hooks/useAllLogs.js";
-import { canViewUnacceptedVersion } from "@/utils/ExportFromToken.js";
+import { canViewDocumentFiles } from "@/utils/ExportFromToken.js";
 
 const CombineFiles = ({
   isOpen,
@@ -56,10 +56,11 @@ const CombineFiles = ({
   );
 
   useEffect(() => {
-    if (modalData?.state) {
-      setCurrentState(modalData.state);
-    }
-  }, [modalData]);
+    const editionState = modalType === "SpecificAutomationFiles"
+      ? modalData?.editions?.[0]?.state
+      : modalData?.state;
+    setCurrentState(editionState == null ? null : Number(editionState));
+  }, [modalData, modalType]);
 
   useEffect(() => {
     if (modalData) {
@@ -207,7 +208,7 @@ const CombineFiles = ({
   const renderFiles = () => {
     if (!modalData) return <div>در حال بارگذاری...</div>;
 
-    if (!canViewUnacceptedVersion()) {
+    if (!canViewDocumentFiles(currentState)) {
       return <div>شما اجازه مشاهده این فایل‌ها را ندارید</div>;
     }
 
@@ -287,22 +288,22 @@ const CombineFiles = ({
           <Row gutter={16}>
             <Col span={6}>
               <Form.Item label={"فایل غیرقابل ویرایش"} name="file_1">
-                <FileUploader maxCount={1} />
+                <FileUploader maxCount={1} documentState={currentState} />
               </Form.Item>
             </Col>
             <Col span={6}>
               <Form.Item label={"قابل ویرایش"} name="file_2">
-                <FileUploader maxCount={1} />
+                <FileUploader maxCount={1} documentState={currentState} />
               </Form.Item>
             </Col>
             <Col span={6}>
               <Form.Item label={"فایل پشتیبان تولید"} name="file_3">
-                <FileUploader maxCount={1} />
+                <FileUploader maxCount={1} documentState={currentState} />
               </Form.Item>
             </Col>
             <Col span={6}>
               <Form.Item label={"ارسال به کارفرما/پیمانکار"} name="file_4">
-                <FileUploader maxCount={1} />
+                <FileUploader maxCount={1} documentState={currentState} />
               </Form.Item>
             </Col>
           </Row>

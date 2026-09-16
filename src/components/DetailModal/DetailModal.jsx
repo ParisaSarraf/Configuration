@@ -3,14 +3,14 @@ import { Badge, Image, message, Space } from "antd";
 import { CopyOutlined, FileOutlined } from "@ant-design/icons";
 import { BASEURL } from "@/Services/axiosInstance.js";
 import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
-import { canViewUnacceptedVersion } from "@/utils/ExportFromToken.js";
+import { canViewDocumentFiles } from "@/utils/ExportFromToken.js";
 
-export const renderFileButton = (label, filePath, accessCheckRequired = false) => {
+export const renderFileButton = (label, filePath, accessCheckRequired = false, documentState) => {
   if (!filePath) return <div className="text-gray-400">فایلی وجود ندارد</div>;
   const fullUrl = `${BASEURL.replace("/api/v1", "")}${filePath}`;
   const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(filePath);
   const canOpenFile =
-    !accessCheckRequired || canViewUnacceptedVersion();
+    !accessCheckRequired || canViewDocumentFiles(documentState);
   const handleFileClick = (event) => {
     if (canOpenFile) return;
     event.preventDefault();
@@ -298,15 +298,15 @@ const DetailModal = ({
               <SectionCard title={"فایل های پیوست"}>
                 <h1>
                   فایل غیرقابل ویرایش
-                  {renderFileButton("فایل غیرقابل ویرایش", editionData.file_1, true)}
+                  {renderFileButton("فایل غیرقابل ویرایش", editionData.file_1, true, editionData.state)}
                 </h1>
                 <h1>
                   فایل قابل ویرایش
-                  {renderFileButton("فایل قابل ویرایش", editionData.file_2, true)}
+                  {renderFileButton("فایل قابل ویرایش", editionData.file_2, true, editionData.state)}
                 </h1>
                 <h1>
                   فایل پشتیبان تولید
-                  {renderFileButton("فایل پشتیبان تولید", editionData.file_3, true)}
+                  {renderFileButton("فایل پشتیبان تولید", editionData.file_3, true, editionData.state)}
                 </h1>
                 <h1>
                   ارسال به کارفرما/پیمانکار
@@ -314,6 +314,7 @@ const DetailModal = ({
                     "ارسال به کارفرما/پیمانکار",
                     editionData.file_4,
                     true,
+                    editionData.state,
                   )}
                 </h1>
               </SectionCard>
@@ -345,15 +346,15 @@ const DetailModal = ({
               <SectionCard title={"فایل های پیوست"}>
                 <h1>
                   فایل غیرقابل ویرایش
-                  {renderFileButton("فایل غیرقابل ویرایش", editionData.file_1, true)}
+                  {renderFileButton("فایل غیرقابل ویرایش", editionData.file_1, true, editionData.state)}
                 </h1>
                 <h1>
                   فایل قابل ویرایش
-                  {renderFileButton("فایل قابل ویرایش", editionData.file_2, true)}
+                  {renderFileButton("فایل قابل ویرایش", editionData.file_2, true, editionData.state)}
                 </h1>
                 <h1>
                   فایل پشتیبان تولید
-                  {renderFileButton("فایل پشتیبان تولید", editionData.file_3, true)}
+                  {renderFileButton("فایل پشتیبان تولید", editionData.file_3, true, editionData.state)}
                 </h1>
                 <h1>
                   ارسال به کارفرما/پیمانکار
@@ -361,6 +362,7 @@ const DetailModal = ({
                     "ارسال به کارفرما/پیمانکار",
                     editionData.file_4,
                     true,
+                    editionData.state,
                   )}
                 </h1>
               </SectionCard>

@@ -1,9 +1,9 @@
 import { Button, Image, Upload } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { useEffect, useMemo, useState } from "react";
-import { canViewUnacceptedVersion } from "@/utils/ExportFromToken.js";
+import { canViewDocumentFiles } from "@/utils/ExportFromToken.js";
 
-const FileUploader = ({ value = [], onChange, maxFiles = 1 }) => {
+const FileUploader = ({ value = [], onChange, maxFiles = 1, documentState }) => {
   const [fileList, setFileList] = useState([]);
 
   const normalizedValue = useMemo(() => {
@@ -44,7 +44,7 @@ const FileUploader = ({ value = [], onChange, maxFiles = 1 }) => {
       reader.readAsDataURL(file);
     });
 
-  const isRestricted = (file) => Boolean(file.url) && !canViewUnacceptedVersion();
+  const isRestricted = (file) => Boolean(file.url) && !canViewDocumentFiles(documentState);
 
   const handlePreview = async (file) => {
     if (isRestricted(file)) return; 
