@@ -28,15 +28,17 @@ const DocumentProductModal = ({
     useUpdateProductDocument();
   const { data: documentList } = useDocumentList();
 
+  
+
   useEffect(() => {
     if (modalMode === "edit" && modalData) {
       form.setFieldsValue({
         is_reportable: modalData?.is_reportable,
         title: modalData?.title,
-        document_id: modalData?.documentId
+        document_id: modalData?.document?.id
           ? {
-              value: modalData?.documentId,
-              label: modalData?.documentTitle,
+              value: modalData.document.id,
+              label: modalData.document.title,
             }
           : null,
         survey_date: georgianDateToJalaliDate(modalData?.survey_date),
