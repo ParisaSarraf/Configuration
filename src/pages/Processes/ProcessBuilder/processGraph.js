@@ -67,6 +67,13 @@ const mapActionPermission = (item) => ({
   groupName: item?.group?.name ?? "",
 });
 
+const mapLockRule = (item) => ({
+  id: item?.id,
+  formFieldId: toNumber(
+    item?.form_field?.id ?? item?.form_field_id ?? item?.field?.id ?? item?.field_id ?? item?.form_field,
+  ),
+});
+
 const mapNode = (state) => ({
   id: state?.id,
   name: state?.name ?? "",
@@ -76,6 +83,8 @@ const mapNode = (state) => ({
       state?.state_type?.id ?? state?.state_type_id ?? state?.state_type,
     ) ?? STATE_TYPE_IDS.NORMAL,
   permissions: asArray(state?.state_permissions).map(mapPermission),
+  lockedFieldRules: asArray(state?.form_field_lock_rules ?? state?.locked_fields ?? state?.field_lock_rules).map(mapLockRule).filter((rule) => rule.formFieldId !== null),
+  lockedFieldIds: asArray(state?.form_field_lock_rules ?? state?.locked_fields ?? state?.field_lock_rules).map(mapLockRule).map((rule) => rule.formFieldId).filter((id) => id !== null),
   x: 0,
   y: 0,
 });
@@ -153,6 +162,9 @@ export const buildGraph = (infoPayload, transitionActions) => {
   return {
     id: processId,
     name: info.name ?? "",
+    formDefinitionId:
+      toNumber(info.form_definition?.id ?? info.form_definition_id ?? info.form_definition) ?? null,
+    formFields: asArray(info.form_definition?.fields),
     nodes,
     edges: edges.filter((edge) => edge.source !== null && edge.target !== null),
     actions,
@@ -174,6 +186,8 @@ export const cloneGraph = (graph) => ({
   nodes: graph.nodes.map((node) => ({
     ...node,
     permissions: node.permissions.map((p) => ({ ...p })),
+    lockedFieldRules: (node.lockedFieldRules ?? []).map((r) => ({ ...r })),
+    lockedFieldIds: [...(node.lockedFieldIds ?? [])],
   })),
   edges: graph.edges.map((edge) => ({
     ...edge,
@@ -214,6 +228,7 @@ export const graphSignature = (graph) => {
           trimmed(node.description),
           Number(node.stateTypeId),
           permissionSignature(node.permissions),
+          (node.lockedFieldIds ?? []).map(String).sort().join(","),
         ].join("|"),
       )
       .sort(),

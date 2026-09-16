@@ -130,7 +130,7 @@ export function Element({ field, values, errors, onChange, readOnly }) {
   );
 }
 
-function Section({ item, values, errors, onChange, readOnly }) {
+function Section({ item, values, errors, onChange, readOnly, lockedFieldIds }) {
   const fields = normalizeFields(sortByOrder(item.fields));
   if (!fields.length) return null;
   return (
@@ -155,7 +155,7 @@ function Section({ item, values, errors, onChange, readOnly }) {
             values={values}
             errors={errors}
             onChange={onChange}
-            readOnly={readOnly}
+            readOnly={readOnly || lockedFieldIds.has(String(field.id))}
           />
         </div>
       ))}
@@ -175,6 +175,7 @@ export default function FormRenderer({
   submitting = false,
   submitLabel = "ثبت فرم",
   paperRef,
+  lockedFieldIds = [],
 }) {
   const localPaper = useRef(null);
   const paper = paperRef || localPaper;
@@ -188,6 +189,10 @@ export default function FormRenderer({
 
   const readOnly = !interactive;
   const viewing = mode === "view";
+  const lockedIds = useMemo(
+    () => new Set((lockedFieldIds || []).map((id) => String(id))),
+    [lockedFieldIds],
+  );
 
   const appliedInitial = useRef(initialValues);
   useEffect(() => {
@@ -317,6 +322,7 @@ export default function FormRenderer({
                 errors={errors}
                 onChange={change}
                 readOnly={readOnly}
+                lockedFieldIds={lockedIds}
               />
             ))}
           </div>

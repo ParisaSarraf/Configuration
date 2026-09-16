@@ -9,6 +9,7 @@ const ENDPOINTS = Object.freeze({
   addTransitionAction: "/workflow/add-transition-action/",
   addProcessPermission: "/workflow/add-process-permission/",
   addStatePermission: "/workflow/add-state-permission/",
+  addFormFieldLockRule: "/workflow/add-form-field-lock-rule/",
   addActionPermission: "/workflow/add-action-permission/",
   requests: "/workflow/get-request/",
   requestById: "/workflow/get-request-by-id/",
@@ -96,6 +97,12 @@ export const workflowApi = Object.freeze({
     post(client, ENDPOINTS.addStatePermission, payload, signal),
   deleteStatePermission: (client, id, signal) =>
     remove(client, `/workflow/delete-state-permission/${id}`, signal),
+  createFormFieldLockRule: (client, payload, signal) =>
+    post(client, ENDPOINTS.addFormFieldLockRule, payload, signal),
+  deleteFormFieldLockRule: (client, id, signal) =>
+    remove(client, `/workflow/delete-form-field-lock-rule/${id}`, signal),
+  getLockedFieldsByRequestId: (client, id, signal) =>
+    get(client, `/workflow/get-locked-field-by-request-id/${id}`, signal),
 
   createActionPermission: (client, payload, signal) =>
     post(client, ENDPOINTS.addActionPermission, payload, signal),

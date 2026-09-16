@@ -22,6 +22,7 @@ import {
   firstItem,
   hydrateValues,
 } from "@/Services/forms/submissionView";
+import { useLockedFieldsByRequestId } from "@/QueryServises/workflowQuery";
 import { getApiErrorMessage } from "@/Services/forms/formUtils";
 import { georgianDateTimeToJalaliDateTime } from "@utils/timeTool.jsx";
 import Modal from "../../../components/Modal";
@@ -39,6 +40,15 @@ const attachmentName = (item) => {
     "";
   return String(raw).split("/").pop();
 };
+
+
+const lockedFieldIdOf = (item) =>
+  item?.form_field?.id ??
+  item?.form_field_id ??
+  item?.field?.id ??
+  item?.field_id ??
+  item?.id ??
+  null;
 
 const jalali = (value) => {
   if (!value) return "—";
@@ -58,6 +68,7 @@ const jalali = (value) => {
 const CartableSubmissionModal = ({ open, record, submission, onClose }) => {
   const row = record ?? submission ?? null;
   const submissionId = row?.submissionId ?? row?.id ?? null;
+  const requestId = row?.requestId ?? null;
 
   // اگر ردیف از فهرست درخواست‌ها آمده باشد، form_data همراهش هست
   const needsDetail = Boolean(open && submissionId && !row?.formData);
@@ -104,6 +115,9 @@ const CartableSubmissionModal = ({ open, record, submission, onClose }) => {
   const formQuery = useFormDefinitionFieldById(formDefinitionId, {
     enabled: Boolean(open && formDefinitionId),
   });
+  const lockedFieldsQuery = useLockedFieldsByRequestId(requestId, {
+    enabled: Boolean(open && requestId),
+  });
 
   // همان ساختاری که موقع پرکردن فرم به FormRenderer داده می‌شود
   const categories = useMemo(
@@ -116,6 +130,11 @@ const CartableSubmissionModal = ({ open, record, submission, onClose }) => {
     () => hydrateValues(fields, formData),
     [fields, formData],
   );
+  const lockedFieldIds = useMemo(() => {
+    const payload = lockedFieldsQuery.data;
+    const list = Array.isArray(payload) ? payload : (payload?.results ?? []);
+    return list.map(lockedFieldIdOf).filter((id) => id !== null && id !== undefined);
+  }, [lockedFieldsQuery.data]);
 
   const filledCount = row?.fieldCount ?? Object.keys(formData ?? {}).length;
 
@@ -201,6 +220,7 @@ const CartableSubmissionModal = ({ open, record, submission, onClose }) => {
             categories={categories}
             mode="view"
             initialValues={values}
+            lockedFieldIds={lockedFieldIds}
           />
         </div>
       </div>

@@ -72,6 +72,11 @@ export const statePermissionPayload = (stateId, permission) => ({
   grantee_type: permission.granteeType,
 });
 
+export const fieldLockRulePayload = (stateId, fieldId) => ({
+  state_id: Number(stateId),
+  form_field_id: Number(fieldId),
+});
+
 export const actionPermissionPayload = (actionId, permission) => ({
   action_id: Number(actionId),
   grantee_type: permission.granteeType,
@@ -90,6 +95,7 @@ const emptyPlan = () => ({
   links: { created: [], deleted: [] },
   processPermissions: { created: [], deleted: [] },
   statePermissions: { created: [], deleted: [] },
+  fieldLockRules: { created: [], deleted: [] },
   actionPermissions: { created: [], deleted: [] },
 });
 
@@ -234,6 +240,18 @@ export const buildSavePlan = (initial, current) => {
     );
   });
 
+  current.nodes.forEach((node) => {
+    const before = initialNodes.get(String(node.id));
+    const initialLocks = new Set((before?.lockedFieldRules ?? []).map((rule) => String(rule.formFieldId)));
+    const currentLocks = new Set((node.lockedFieldIds ?? []).map(String));
+    currentLocks.forEach((fieldId) => {
+      if (!initialLocks.has(fieldId)) plan.fieldLockRules.created.push({ stateId: node.id, fieldId });
+    });
+    (before?.lockedFieldRules ?? []).forEach((rule) => {
+      if (!currentLocks.has(String(rule.formFieldId))) plan.fieldLockRules.deleted.push(rule.id);
+    });
+  });
+
   return plan;
 };
 
@@ -246,6 +264,7 @@ export const planChangeCount = (plan) => {
     plan.links,
     plan.processPermissions,
     plan.statePermissions,
+    plan.fieldLockRules,
     plan.actionPermissions,
   ];
   return (
@@ -341,6 +360,12 @@ export const syncProcessGraph = async (client, { processId, plan }) => {
       statePermissionPayload(resolveId(stateIds, ownerId), permission),
     );
 
+  for (const { stateId, fieldId } of plan.fieldLockRules.created)
+    await workflowApi.createFormFieldLockRule(
+      client,
+      fieldLockRulePayload(resolveId(stateIds, stateId), fieldId),
+    );
+
   for (const { ownerId, permission } of plan.actionPermissions.created)
     await workflowApi.createActionPermission(
       client,
@@ -354,6 +379,8 @@ export const syncProcessGraph = async (client, { processId, plan }) => {
     await workflowApi.deleteActionPermission(client, id);
   for (const id of plan.statePermissions.deleted)
     await workflowApi.deleteStatePermission(client, id);
+  for (const id of plan.fieldLockRules.deleted)
+    await workflowApi.deleteFormFieldLockRule(client, id);
   for (const id of plan.processPermissions.deleted)
     await workflowApi.deleteProcessPermission(client, id);
   for (const id of plan.transitions.deleted)
