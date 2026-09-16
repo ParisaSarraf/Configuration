@@ -36,9 +36,9 @@ export const STATE_TYPES = Object.freeze([
   {
     id: STATE_TYPE_IDS.START,
     key: "start",
-    label: "ایستگاه شروع",
+    label: "مرحله شروع",
     shortLabel: "شروع",
-    hint: "نقطه‌ی آغاز فرایند؛ درخواست از این ایستگاه وارد می‌شود.",
+    hint: "نقطه‌ی آغاز فرایند؛ درخواست از این مرحله وارد می‌شود.",
     Icon: PlayCircleOutlined,
     shape: "pill",
     stroke: "#059669",
@@ -51,7 +51,7 @@ export const STATE_TYPES = Object.freeze([
   {
     id: STATE_TYPE_IDS.NORMAL,
     key: "normal",
-    label: "ایستگاه عادی",
+    label: "مرحله عادی",
     shortLabel: "عادی",
     hint: "مرحله‌ی کاری میانی مانند بررسی کارشناس یا تأیید مدیر.",
     Icon: ProfileOutlined,
@@ -66,9 +66,9 @@ export const STATE_TYPES = Object.freeze([
   {
     id: STATE_TYPE_IDS.COMPLETE,
     key: "complete",
-    label: "ایستگاه پایان",
+    label: "مرحله پایان",
     shortLabel: "پایان",
-    hint: "درخواست پس از رسیدن به این ایستگاه خاتمه‌یافته تلقی می‌شود.",
+    hint: "درخواست پس از رسیدن به این مرحله خاتمه‌یافته تلقی می‌شود.",
     Icon: CheckCircleOutlined,
     shape: "pill",
     stroke: "#2563eb",
@@ -81,7 +81,7 @@ export const STATE_TYPES = Object.freeze([
   {
     id: STATE_TYPE_IDS.DENIED,
     key: "denied",
-    label: "ایستگاه رد شده",
+    label: "مرحله رد شده",
     shortLabel: "رد شده",
     hint: "پایان فرایند با نتیجه‌ی رد درخواست.",
     Icon: CloseCircleOutlined,
@@ -96,7 +96,7 @@ export const STATE_TYPES = Object.freeze([
   {
     id: STATE_TYPE_IDS.CANCELLED,
     key: "cancelled",
-    label: "ایستگاه لغو شده",
+    label: "مرحله لغو شده",
     shortLabel: "لغو شده",
     hint: "پایان فرایند با لغو درخواست.",
     Icon: StopOutlined,
@@ -207,7 +207,7 @@ export const getPermissionTypeLabel = (value) =>
 export const getGranteeTypeLabel = (value) =>
   GRANTEE_TYPES.find((item) => item.value === value)?.label ?? value;
 
-// ایستگاه‌های پایانی: پایان، رد شده، لغو شده
+// مراحل پایانی: پایان، رد شده، لغو شده
 export const TERMINAL_STATE_TYPE_IDS = Object.freeze([
   STATE_TYPE_IDS.COMPLETE,
   STATE_TYPE_IDS.DENIED,

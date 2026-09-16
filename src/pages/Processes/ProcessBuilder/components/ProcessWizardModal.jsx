@@ -5,6 +5,16 @@ const { TextArea } = Input;
 
 const DEFAULT_STATIONS = "ثبت درخواست\nبررسی مدیر\nپایان";
 
+// الگوهای آماده‌ی پرکاربرد؛ فقط متن همین جعبه را پر می‌کنند.
+const TEMPLATES = [
+  { label: "تأیید یک‌مرحله‌ای", value: "ثبت درخواست\nبررسی مدیر\nپایان" },
+  {
+    label: "تأیید دومرحله‌ای",
+    value: "ثبت درخواست\nبررسی کارشناس\nتأیید مدیر\nپایان",
+  },
+  { label: "ثبت ← بررسی ← پایان", value: "ثبت\nبررسی\nپایان" },
+];
+
 const ProcessWizardModal = ({ open, onClose, onApply, hasNodes }) => {
   const [step, setStep] = useState(0);
   const [stations, setStations] = useState(DEFAULT_STATIONS);
@@ -65,26 +75,42 @@ const ProcessWizardModal = ({ open, onClose, onApply, hasNodes }) => {
         size="small"
         current={step}
         className="process-wizard__steps"
-        items={[{ title: "ایستگاه‌ها" }, { title: "عملیات‌ها" }]}
+        items={[{ title: "مراحل" }, { title: "دکمه‌ها" }]}
       />
 
       {step === 0 ? (
         <div className="process-wizard__body">
           <p className="process-wizard__hint">
-            نام هر مرحله را در یک خط بنویسید؛ به همین ترتیب به هم وصل
-            می‌شوند. خط اول ایستگاه شروع و خط آخر ایستگاه پایان در نظر گرفته
-            می‌شود.
+            نام هر مرحله را در یک خط بنویسید؛ به همین ترتیب به هم وصل می‌شوند.
+            خط اول مرحله شروع و خط آخر مرحله پایان در نظر گرفته می‌شود.
           </p>
+          <div className="process-wizard__templates">
+            <span className="process-wizard__templates-label">
+              از یک الگوی آماده شروع کنید:
+            </span>
+            <div className="process-wizard__template-list">
+              {TEMPLATES.map((template) => (
+                <Button
+                  key={template.label}
+                  size="small"
+                  className="process-wizard__template"
+                  onClick={() => setStations(template.value)}
+                >
+                  {template.label}
+                </Button>
+              ))}
+            </div>
+          </div>
           <TextArea
             rows={7}
             value={stations}
             onChange={(event) => setStations(event.target.value)}
-            placeholder="هر خط، یک ایستگاه"
+            placeholder="هر خط، یک مرحله"
           />
           <p className="process-wizard__count">
             {names.length < 2
-              ? "دست‌کم دو ایستگاه لازم است."
-              : `${names.length} ایستگاه ساخته می‌شود.`}
+              ? "دست‌کم دو مرحله لازم است."
+              : `${names.length} مرحله ساخته می‌شود.`}
           </p>
         </div>
       ) : (
@@ -93,13 +119,13 @@ const ProcessWizardModal = ({ open, onClose, onApply, hasNodes }) => {
             checked={withApprove}
             onChange={(event) => setWithApprove(event.target.checked)}
           >
-            عملیات «تأیید» روی همه‌ی ارتباط‌های مسیر ساخته شود
+            دکمه «تأیید» روی همه‌ی مسیرهای ساخته‌شده قرار بگیرد
           </Checkbox>
           <Checkbox
             checked={withDenied}
             onChange={(event) => setWithDenied(event.target.checked)}
           >
-            ایستگاه «رد شده» با عملیات «رد» هم اضافه شود
+            مرحله «رد شده» با دکمه «رد» هم اضافه شود
           </Checkbox>
 
           <Alert
@@ -107,7 +133,7 @@ const ProcessWizardModal = ({ open, onClose, onApply, hasNodes }) => {
             showIcon
             className="process-wizard__note"
             message="چیزی روی سرور ذخیره نمی‌شود"
-            description="این مرحله‌ها فقط روی بوم ساخته می‌شوند. برای ثبت، مانند قبل دکمه‌ی «ذخیره فرایند» را بزنید."
+            description="این مراحل فقط روی بوم ساخته می‌شوند. برای ثبت، مانند قبل دکمه‌ی «ذخیره فرایند» را بزنید."
           />
 
           {hasNodes ? (
@@ -115,8 +141,8 @@ const ProcessWizardModal = ({ open, onClose, onApply, hasNodes }) => {
               type="warning"
               showIcon
               className="process-wizard__note"
-              message="ایستگاه‌های فعلی پاک نمی‌شوند"
-              description="مسیر جدید به فرایند فعلی اضافه می‌شود. اگر قبلاً ایستگاه شروع دارید، خط اول به عنوان ایستگاه عادی ساخته می‌شود."
+              message="مراحل فعلی پاک نمی‌شوند"
+              description="مسیر جدید به فرایند فعلی اضافه می‌شود. اگر قبلاً مرحله شروع دارید، خط اول به عنوان مرحله عادی ساخته می‌شود."
             />
           ) : null}
         </div>

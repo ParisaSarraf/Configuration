@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Alert, Button, Empty, Input, Select, Tag, Tooltip } from "antd";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react";
 
 import { createAction, createPermission } from "../processGraph";
+import { issueJumpLabel } from "../processIssues";
 import {
   ACTION_TYPES,
   DEFAULT_GRANTEE_TYPE,
@@ -27,7 +28,7 @@ const groupOptions = (groups) =>
     .filter((option) => option.value !== undefined && option.value !== null);
 
 /**
- * لیست دسترسی‌های یک موجودیت (فرایند / ایستگاه / عملیات).
+ * لیست دسترسی‌های یک موجودیت (فرایند / مرحله / دکمه).
  * فیلدها دقیقاً همان فیلدهای serializer بک‌اند هستند:
  * process/state → group_id + permission_type + grantee_type
  * action → group_id + grantee_type (این مدل permission_type ندارد)
@@ -60,8 +61,8 @@ const PermissionList = ({
 
     {!groupsLoading && (groups?.length ?? 0) === 0 ? (
       <p className="process-panel__note">
-        لیست سمت‌ها خالی است. سرویس سمت‌ها (/user/role/) فقط برای کاربر staff
-        مجاز است و با کاربر عادی خطای ۴۰۳ برمی‌گرداند.
+        لیست سمت‌ها در دسترس شما نیست. برای تعیین دسترسی، از مدیر سیستم بخواهید
+        دسترسی مدیریت سمت‌ها را برای شما فعال کند.
       </p>
     ) : null}
 
@@ -130,6 +131,9 @@ const ProcessPropertiesPanel = ({
   updateGraph,
   onDeleteNode,
   onDeleteEdge,
+  onAddEdgeAction,
+  onFocusNode,
+  issueTargets,
   disabled,
 }) => {
   const selectedNode = useMemo(() => {
@@ -150,6 +154,8 @@ const ProcessPropertiesPanel = ({
 
   /** تب فعال پنل: مشخصات مورد انتخاب‌شده یا مشخصات کل فرایند. */
   const [tab, setTab] = useState("selection");
+  // فهرست بلند هشدارها پیش‌فرض خلاصه است تا پنل دیوار متن نشود.
+  const [showAllWarnings, setShowAllWarnings] = useState(false);
 
   // با هر انتخاب جدید، خودبه‌خود به تب مورد انتخاب‌شده برمی‌گردد.
   useEffect(() => {
@@ -246,12 +252,38 @@ const ProcessPropertiesPanel = ({
       ),
   });
 
+  /**
+   * هر خطا/هشدار، اگر محل مشخصی داشته باشد، کلیک‌پذیر می‌شود.
+   * همان مورد متمرکز می‌شود. متن پیام‌ها دست‌نخورده است.
+   */
+  const renderIssue = (text) => {
+    const target = issueTargets?.get?.(text) ?? null;
+    if (!target) return <li key={text}>{text}</li>;
+    return (
+      <li key={text}>
+        <button
+          type="button"
+          className="process-panel__issue-link"
+          onClick={() => {
+            if (target.type === "node") onFocusNode?.(target.id);
+            else onSelect?.(target);
+          }}
+        >
+          <span>{text}</span>
+          <span className="process-panel__issue-jump">
+            {issueJumpLabel(target)}
+          </span>
+        </button>
+      </li>
+    );
+  };
+
   const nodeName = (nodeId) => {
     const node = graph.nodes.find((item) => String(item.id) === String(nodeId));
     return node?.name || "بدون نام";
   };
 
-  /* ------------------------------ ایستگاه ------------------------------ */
+  /* ------------------------------ مرحله ------------------------------ */
 
   if (selectedNode && tab === "selection") {
     const stateType = getStateType(selectedNode.stateTypeId);
@@ -265,21 +297,21 @@ const ProcessPropertiesPanel = ({
     return (
       <aside className="process-panel">
         <div className="process-panel__header">
-          <span className="process-panel__title">مشخصات ایستگاه</span>
+          <span className="process-panel__title">مشخصات مرحله</span>
           <span className="process-panel__subtitle">{stateType.label}</span>
           <div className="process-panel__tabs">
             <button
               type="button"
               className="process-panel__tab process-panel__tab--active"
             >
-              مشخصات ایستگاه
+              مشخصات مرحله
             </button>
             <button
               type="button"
               className="process-panel__tab"
               onClick={() => setTab("process")}
             >
-              فرایند و عملیات‌ها
+              فرایند و دکمه‌ها
             </button>
           </div>
         </div>
@@ -287,7 +319,7 @@ const ProcessPropertiesPanel = ({
         <div className="process-panel__section">
           <div className="process-panel__field">
             <label className="process-panel__label">
-              نام ایستگاه <span className="process-panel__required">*</span>
+              نام مرحله <span className="process-panel__required">*</span>
             </label>
             <Input
               value={selectedNode.name}
@@ -322,7 +354,7 @@ const ProcessPropertiesPanel = ({
           </div>
 
           <div className="process-panel__field">
-            <label className="process-panel__label">نوع ایستگاه</label>
+            <label className="process-panel__label">نوع مرحله</label>
             <Select
               value={selectedNode.stateTypeId}
               disabled={disabled}
@@ -343,13 +375,13 @@ const ProcessPropertiesPanel = ({
           groups={groups}
           groupsLoading={groupsLoading}
           disabled={disabled}
-          hint="دسترسی مشاهده برای دیدن درخواست‌های این ایستگاه و دسترسی ویرایش برای تکمیل فرم در این ایستگاه لازم است."
+          hint="دسترسی مشاهده برای دیدن درخواست‌های این مرحله و دسترسی ویرایش برای تکمیل فرم در این مرحله لازم است."
           {...permissionHandlers("node", selectedNode.id)}
         />
 
         <div className="process-panel__section">
           <div className="process-panel__section-head">
-            <span className="process-panel__section-title">ارتباط‌ها</span>
+            <span className="process-panel__section-title">مسیرها</span>
           </div>
 
           <div className="process-panel__meta">
@@ -359,7 +391,7 @@ const ProcessPropertiesPanel = ({
 
           {[...incoming, ...outgoing].length === 0 ? (
             <p className="process-panel__note">
-              برای ایجاد ارتباط، از دایره‌ی پایین کارت ایستگاه استفاده کنید.
+              برای ایجاد مسیر، از دایره‌ی پایین کارت مرحله استفاده کنید.
             </p>
           ) : (
             [...incoming, ...outgoing].map((edge) => (
@@ -373,7 +405,7 @@ const ProcessPropertiesPanel = ({
                   {`${nodeName(edge.source)} ← ${nodeName(edge.target)}`}
                 </span>
                 <span className="process-panel__action-usage">
-                  {`${(edge.actions ?? []).length} عملیات`}
+                  {`${(edge.actions ?? []).length} دکمه`}
                 </span>
               </button>
             ))
@@ -388,14 +420,14 @@ const ProcessPropertiesPanel = ({
             disabled={disabled}
             onClick={() => onDeleteNode(selectedNode.id)}
           >
-            حذف ایستگاه
+            حذف مرحله
           </Button>
         </div>
       </aside>
     );
   }
 
-  /* ------------------------------- ارتباط ------------------------------- */
+  /* ------------------------------- مسیر ------------------------------- */
 
   if (selectedEdge && tab === "selection") {
     const attached = selectedEdge.actions ?? [];
@@ -407,7 +439,7 @@ const ProcessPropertiesPanel = ({
     return (
       <aside className="process-panel">
         <div className="process-panel__header">
-          <span className="process-panel__title">مشخصات ارتباط</span>
+          <span className="process-panel__title">مشخصات مسیر</span>
           <span className="process-panel__subtitle">
             {`${nodeName(selectedEdge.source)} ← ${nodeName(selectedEdge.target)}`}
           </span>
@@ -416,21 +448,21 @@ const ProcessPropertiesPanel = ({
               type="button"
               className="process-panel__tab process-panel__tab--active"
             >
-              مشخصات ارتباط
+              مشخصات مسیر
             </button>
             <button
               type="button"
               className="process-panel__tab"
               onClick={() => setTab("process")}
             >
-              فرایند و عملیات‌ها
+              فرایند و دکمه‌ها
             </button>
           </div>
         </div>
 
         <div className="process-panel__section">
           <div className="process-panel__field">
-            <label className="process-panel__label">ایستگاه مبدأ</label>
+            <label className="process-panel__label">مرحله مبدأ</label>
             <Select
               value={selectedEdge.source}
               disabled={disabled}
@@ -438,12 +470,14 @@ const ProcessPropertiesPanel = ({
                 value: node.id,
                 label: node.name || "بدون نام",
               }))}
-              onChange={(value) => patchEdge(selectedEdge.id, { source: value })}
+              onChange={(value) =>
+                patchEdge(selectedEdge.id, { source: value })
+              }
             />
           </div>
 
           <div className="process-panel__field">
-            <label className="process-panel__label">ایستگاه مقصد</label>
+            <label className="process-panel__label">مرحله مقصد</label>
             <Select
               value={selectedEdge.target}
               disabled={disabled}
@@ -451,28 +485,50 @@ const ProcessPropertiesPanel = ({
                 value: node.id,
                 label: node.name || "بدون نام",
               }))}
-              onChange={(value) => patchEdge(selectedEdge.id, { target: value })}
+              onChange={(value) =>
+                patchEdge(selectedEdge.id, { target: value })
+              }
             />
           </div>
 
           <p className="process-panel__hint">
-            مدل بک‌اند برای ارتباط فقط فرایند، ایستگاه مبدأ و ایستگاه مقصد دارد؛
-            برچسب یا شرط ذخیره نمی‌شود.
+            برای هر مسیر فقط مرحله مبدأ و مقصد ذخیره می‌شود؛ برچسب یا شرط ذخیره
+            نمی‌شود.
           </p>
         </div>
 
         <div className="process-panel__section">
           <div className="process-panel__section-head">
-            <span className="process-panel__section-title">عملیات این ارتباط</span>
+            <span className="process-panel__section-title">دکمه این مسیر</span>
           </div>
 
           <p className="process-panel__hint">
-            درخواست فقط وقتی به ایستگاه بعد می‌رود که همه‌ی عملیات‌های این ارتباط انجام
-            شود.
+            درخواست فقط وقتی به مرحله بعد می‌رود که همه‌ی دکمه‌های این مسیر
+            انجام شود.
           </p>
 
+          {/* پرتکرارترین کار، در یک کلیک. */}
+          <div className="process-panel__quick-actions">
+            <Button
+              size="small"
+              icon={<ThumbsUp size={14} />}
+              disabled={disabled}
+              onClick={() => onAddEdgeAction?.(selectedEdge.id, "approve")}
+            >
+              افزودن دکمه‌ی تأیید
+            </Button>
+            <Button
+              size="small"
+              icon={<ThumbsDown size={14} />}
+              disabled={disabled}
+              onClick={() => onAddEdgeAction?.(selectedEdge.id, "deny")}
+            >
+              افزودن دکمه‌ی رد
+            </Button>
+          </div>
+
           {attached.length === 0 ? (
-            <p className="process-panel__note">عملیاتی متصل نشده است.</p>
+            <p className="process-panel__note">دکمه‌ای متصل نشده است.</p>
           ) : (
             attached.map((link) => {
               const action = graph.actions.find(
@@ -483,12 +539,12 @@ const ProcessPropertiesPanel = ({
               return (
                 <div className="process-panel__action-card" key={link.id}>
                   <div className="process-panel__action-head">
-                    <span>{action?.name || "عملیات حذف‌شده"}</span>
+                    <span>{action?.name || "دکمه حذف‌شده"}</span>
                     <div className="flex items-center gap-1">
                       <Tag className="process-panel__action-tag">
                         {actionType.label}
                       </Tag>
-                      <Tooltip title="حذف عملیات از این ارتباط">
+                      <Tooltip title="حذف دکمه از این مسیر">
                         <Button
                           size="small"
                           danger
@@ -512,15 +568,16 @@ const ProcessPropertiesPanel = ({
 
           <div className="process-panel__field">
             <div className="process-panel__field-head">
-              <label className="process-panel__label">افزودن عملیات</label>
+              <label className="process-panel__label">افزودن دکمه</label>
               <Button
                 size="small"
                 icon={<Plus size={14} />}
                 disabled={disabled}
                 onClick={() => {
-                  // ساخت عملیات در سطح فرایند و اتصال فوری به همین ارتباط، در یک کلیک.
+                  // ساخت دکمه در سطح فرایند و اتصال فوری به همین مسیر، در یک کلیک.
                   const action = createAction({
                     actionTypeId: ACTION_TYPES[0].id,
+                    name: ACTION_TYPES[0].label,
                   });
                   updateGraph((current) => ({
                     ...current,
@@ -542,15 +599,15 @@ const ProcessPropertiesPanel = ({
                   }));
                 }}
               >
-                ساخت عملیات جدید
+                ساخت دکمه جدید
               </Button>
             </div>
             <Select
               value={null}
               placeholder={
                 available.length === 0
-                  ? "عملیات جدید بسازید"
-                  : "انتخاب از عملیات‌های موجود"
+                  ? "دکمه جدید بسازید"
+                  : "انتخاب از دکمه‌های موجود"
               }
               disabled={disabled || available.length === 0}
               options={available.map((action) => ({
@@ -564,7 +621,9 @@ const ProcessPropertiesPanel = ({
                     { id: undefined, actionId: value },
                   ].map((item) => ({
                     ...item,
-                    id: item.id ?? `tmp-transition-action-${value}-${attached.length}`,
+                    id:
+                      item.id ??
+                      `tmp-transition-action-${value}-${attached.length}`,
                   })),
                 })
               }
@@ -580,7 +639,7 @@ const ProcessPropertiesPanel = ({
             disabled={disabled}
             onClick={() => onDeleteEdge(selectedEdge.id)}
           >
-            حذف ارتباط
+            حذف مسیر
           </Button>
         </div>
       </aside>
@@ -604,7 +663,7 @@ const ProcessPropertiesPanel = ({
       <div className="process-panel__header">
         <span className="process-panel__title">مشخصات فرایند</span>
         <span className="process-panel__subtitle">
-          برای دیدن جزئیات بیشتر، یک ایستگاه یا ارتباط را انتخاب کنید.
+          برای دیدن جزئیات بیشتر، یک مرحله یا مسیر را انتخاب کنید.
         </span>
         {selectedNode || selectedEdge ? (
           <div className="process-panel__tabs">
@@ -613,13 +672,13 @@ const ProcessPropertiesPanel = ({
               className="process-panel__tab"
               onClick={() => setTab("selection")}
             >
-              {selectedNode ? "مشخصات ایستگاه" : "مشخصات ارتباط"}
+              {selectedNode ? "مشخصات مرحله" : "مشخصات مسیر"}
             </button>
             <button
               type="button"
               className="process-panel__tab process-panel__tab--active"
             >
-              فرایند و عملیات‌ها
+              فرایند و دکمه‌ها
             </button>
           </div>
         ) : null}
@@ -642,15 +701,15 @@ const ProcessPropertiesPanel = ({
             }
           />
           <span className="process-panel__hint">
-            مدل Process در بک‌اند فقط فیلد نام دارد؛ وضعیت، نسخه یا توضیحات ذخیره
+            برای فرایند فقط نام ذخیره می‌شود؛ وضعیت، نسخه یا توضیحات ذخیره
             نمی‌شود.
           </span>
         </div>
 
         <div className="process-panel__meta">
-          <span>{`${graph.nodes.length} ایستگاه`}</span>
-          <span>{`${graph.edges.length} ارتباط`}</span>
-          <span>{`${graph.actions.length} عملیات`}</span>
+          <span>{`${graph.nodes.length} مرحله`}</span>
+          <span>{`${graph.edges.length} مسیر`}</span>
+          <span>{`${graph.actions.length} دکمه`}</span>
         </div>
       </div>
 
@@ -663,10 +722,8 @@ const ProcessPropertiesPanel = ({
               showIcon
               message="قبل از ذخیره باید اصلاح شود"
               description={
-                <ul>
-                  {validation.errors.map((error) => (
-                    <li key={error}>{error}</li>
-                  ))}
+                <ul className="process-panel__issue-list">
+                  {validation.errors.map((error) => renderIssue(error))}
                 </ul>
               }
             />
@@ -679,11 +736,26 @@ const ProcessPropertiesPanel = ({
               showIcon
               message="هشدارها"
               description={
-                <ul>
-                  {validation.warnings.map((warning) => (
-                    <li key={warning}>{warning}</li>
-                  ))}
-                </ul>
+                <>
+                  <ul className="process-panel__issue-list">
+                    {(showAllWarnings
+                      ? validation.warnings
+                      : validation.warnings.slice(0, 3)
+                    ).map((warning) => renderIssue(warning))}
+                  </ul>
+                  {validation.warnings.length > 3 ? (
+                    <Button
+                      type="link"
+                      size="small"
+                      className="process-panel__issue-toggle"
+                      onClick={() => setShowAllWarnings((prev) => !prev)}
+                    >
+                      {showAllWarnings
+                        ? "خلاصه‌ی هشدارها"
+                        : `نمایش ${validation.warnings.length - 3} هشدار دیگر`}
+                    </Button>
+                  ) : null}
+                </>
               }
             />
           ) : null}
@@ -695,13 +767,13 @@ const ProcessPropertiesPanel = ({
         groups={groups}
         groupsLoading={groupsLoading}
         disabled={disabled}
-        hint="دسترسی مشاهده برای دیدن فرایند و دسترسی ویرایش برای مدیریت اجزای آن (ایستگاه، ارتباط، عملیات) لازم است."
+        hint="دسترسی مشاهده برای دیدن فرایند و دسترسی ویرایش برای مدیریت اجزای آن (مرحله، مسیر، دکمه) لازم است."
         {...permissionHandlers("process", graph.id)}
       />
 
       <div className="process-panel__section">
         <div className="process-panel__section-head">
-          <span className="process-panel__section-title">عملیات‌های فرایند</span>
+          <span className="process-panel__section-title">دکمه‌های فرایند</span>
           <Button
             size="small"
             icon={<Plus size={14} />}
@@ -711,19 +783,22 @@ const ProcessPropertiesPanel = ({
                 ...current,
                 actions: [
                   ...current.actions,
-                  createAction({ actionTypeId: ACTION_TYPES[0].id }),
+                  createAction({
+                    actionTypeId: ACTION_TYPES[0].id,
+                    name: ACTION_TYPES[0].label,
+                  }),
                 ],
               }))
             }
           >
-            عملیات جدید
+            دکمه جدید
           </Button>
         </div>
 
         {graph.actions.length === 0 ? (
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description="عملیاتی تعریف نشده است"
+            description="دکمه‌ای تعریف نشده است"
           />
         ) : (
           <div className="process-panel__actions">
@@ -737,9 +812,9 @@ const ProcessPropertiesPanel = ({
                       {actionType.label}
                     </Tag>
                     <span className="process-panel__action-usage">
-                      {`در ${usageCount(action.id)} ارتباط`}
+                      {`در ${usageCount(action.id)} مسیر`}
                     </span>
-                    <Tooltip title="حذف عملیات">
+                    <Tooltip title="حذف دکمه">
                       <Button
                         size="small"
                         danger
@@ -802,7 +877,7 @@ const ProcessPropertiesPanel = ({
                   </div>
 
                   <div className="process-panel__field">
-                    <label className="process-panel__label">نوع عملیات</label>
+                    <label className="process-panel__label">نوع دکمه</label>
                     <Select
                       value={action.actionTypeId}
                       disabled={disabled}
@@ -822,7 +897,7 @@ const ProcessPropertiesPanel = ({
                     groupsLoading={groupsLoading}
                     disabled={disabled}
                     withType={false}
-                    hint="مشخص می‌کند چه سمت‌هایی می‌توانند این عملیات را انجام دهند."
+                    hint="مشخص می‌کند چه سمت‌هایی می‌توانند این دکمه را انجام دهند."
                     {...permissionHandlers("action", action.id, false)}
                   />
                 </div>

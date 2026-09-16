@@ -134,14 +134,12 @@ const CartableTaskModal = ({
 
   const submit = async (values) => {
     try {
-      // بررسی فیلدهای فایل (اجباری بودن، شناسه، پسوند و حجم) پیش از هر درخواستی.
       const fileProblems = validateFiles(fields, values);
       if (fileProblems.length) {
         message.error(fileProblems[0]);
         return;
       }
 
-      // فایل‌ها هیچ‌وقت داخل پیلود JSON نمی‌روند؛ جداگانه جمع می‌شوند.
       const files = collectFileEntries(fields, values);
 
       const formData = buildFormData(fields, values);
@@ -157,9 +155,7 @@ const CartableTaskModal = ({
         submitterId: submitter,
       });
 
-      // مرحلهٔ ۱: POST /forms/add-form-submission/ بدون فایل (JSON)
-      // مرحلهٔ ۲: با همان id ِ برگشته از پاسخ، هر فایل به
-      //          POST /forms/add-form-submission-attachment/ (multipart)
+
       const { submissionId, uploaded, failed, skipped } =
         await submitForm.mutateAsync({ payload, files });
 
@@ -183,8 +179,7 @@ const CartableTaskModal = ({
           `${skipped.length} فایل ارسال نشد؛ فیلد مربوطه شناسهٔ معتبری روی سرور ندارد.`,
         );
 
-      // ثبت درخواست فرایند روی سرور تا همین ارسال در «ارسال‌شده‌ها»
-      // همیشه قابل بازیابی باشد (فرم + مقادیر + ایستگاه)؛ بدون ذخیرهٔ محلی.
+
       let requestId = null;
       if (processId && submissionId) {
         try {

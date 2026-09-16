@@ -1,14 +1,23 @@
 /* eslint-disable react/prop-types */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { App, Button, ConfigProvider, Empty, Spin, Tag, Tooltip } from "antd";
+import {
+  App,
+  Button,
+  ConfigProvider,
+  Dropdown,
+  Empty,
+  Spin,
+  Tag,
+  Tooltip,
+} from "antd";
 import {
   RedoOutlined,
   UndoOutlined,
   ZoomInOutlined,
   ZoomOutOutlined,
 } from "@ant-design/icons";
-import { ArrowRight, Maximize2, Save } from "lucide-react";
+import { ArrowRight, Maximize2, Save, Wand2 } from "lucide-react";
 
 import { getApiErrorMessage } from "@/Services/forms/formUtils";
 import {
@@ -50,6 +59,7 @@ import {
   ZOOM_STEP,
   getStateType,
 } from "./processSchema";
+import { buildIssueTargets } from "./processIssues";
 import "./process-builder.css";
 
 const HISTORY_LIMIT = 50;
@@ -264,7 +274,20 @@ const Builder = ({ processId }) => {
 
   const validation = useMemo(() => validateGraph(graph), [graph]);
 
-  /* ------------------------------ عملیات ------------------------------ */
+  /** نقشه‌ی «پیام خطا → محل مشکل» برای پرش مستقیم روی بوم. */
+  const issueTargets = useMemo(() => buildIssueTargets(graph), [graph]);
+
+  /** تعداد تغییراتی که دکمه‌ی ذخیره ارسال خواهد کرد (همان پلن ذخیره). */
+  const changeCount = useMemo(() => {
+    if (!graph || !baselineRef.current) return 0;
+    try {
+      return planChangeCount(buildSavePlan(baselineRef.current, graph));
+    } catch {
+      return 0;
+    }
+  }, [graph]);
+
+  /* ------------------------------ دکمه ------------------------------ */
 
   const handleAddNode = useCallback(
     (stateTypeId, position) => {
@@ -283,13 +306,16 @@ const Builder = ({ processId }) => {
         y: Math.round(point?.y ?? CANVAS_PADDING),
         name: getStateType(stateTypeId).shortLabel,
       });
-      updateGraph((current) => ({ ...current, nodes: [...current.nodes, node] }));
+      updateGraph((current) => ({
+        ...current,
+        nodes: [...current.nodes, node],
+      }));
       setSelection({ type: "node", id: node.id });
     },
     [updateGraph, viewport.x, viewport.y, viewport.zoom],
   );
 
-  /** چیدمان خودکار ایستگاه‌ها بر اساس مسیر فرایند، بعد نمایش کامل بوم. */
+  /** چیدمان خودکار مراحل بر اساس مسیر فرایند، بعد نمایش کامل بوم. */
   const handleAutoLayout = useCallback(() => {
     const current = graphRef.current;
     if (!current || current.nodes.length === 0) return;
@@ -301,7 +327,7 @@ const Builder = ({ processId }) => {
     window.requestAnimationFrame(() => fitToScreen(positioned));
   }, [updateGraph, fitToScreen, processId]);
 
-  /** تکرار یک ایستگاه با همان نوع و متن، کمی پایین‌تر از نسخه‌ی اصلی. */
+  /** تکرار یک مرحله با همان نوع و متن، کمی پایین‌تر از نسخه‌ی اصلی. */
   const handleDuplicateNode = useCallback(
     (nodeId) => {
       const current = graphRef.current;
@@ -325,7 +351,7 @@ const Builder = ({ processId }) => {
     [updateGraph],
   );
 
-  /** انتخاب یک ایستگاه و بردن مرکز بوم روی آن (نتیجه‌ی جست‌وجو). */
+  /** انتخاب یک مرحله و بردن مرکز بوم روی آن (نتیجه‌ی جست‌وجو). */
   const handleFocusNode = useCallback((nodeId) => {
     const current = graphRef.current;
     const node = current?.nodes.find(
@@ -445,6 +471,85 @@ const Builder = ({ processId }) => {
     [updateGraph],
   );
 
+  /** تغییر نام مرحله از روی بوم (دوبار کلیک) — همان فیلد name گراف. */
+  const handleRenameNode = useCallback(
+    (nodeId, name) => {
+      const next = (name ?? "").trim();
+      updateGraph((state) => ({
+        ...state,
+        nodes: state.nodes.map((node) =>
+          String(node.id) === String(nodeId) ? { ...node, name: next } : node,
+        ),
+      }));
+    },
+    [updateGraph],
+  );
+
+  /**
+   * افزودن دکمه‌ی تأیید/رد به یک مسیر در یک کلیک.
+   * اگر دکمه‌ای با همان نوع و نام قبلاً ساخته شده باشد، همان استفاده می‌شود.
+   */
+  const handleAddEdgeAction = useCallback(
+    (edgeId, kind) => {
+      const current = graphRef.current;
+      const edge = current?.edges.find(
+        (item) => String(item.id) === String(edgeId),
+      );
+      if (!current || !edge) return;
+
+      const preset =
+        kind === "deny"
+          ? {
+              actionTypeId: ACTION_TYPE_IDS.DENY,
+              name: "رد",
+              description: "رد درخواست در این مرحله.",
+            }
+          : {
+              actionTypeId: ACTION_TYPE_IDS.APPROVE,
+              name: "تأیید",
+              description: "تأیید این مرحله و رفتن به مرحله‌ی بعد.",
+            };
+
+      const existing = current.actions.find(
+        (action) =>
+          Number(action.actionTypeId) === preset.actionTypeId &&
+          (action.name ?? "").trim() === preset.name,
+      );
+      const action = existing ?? createAction(preset);
+
+      if (
+        (edge.actions ?? []).some(
+          (link) => String(link.actionId) === String(action.id),
+        )
+      ) {
+        message.info("این دکمه از قبل روی این مسیر هست.");
+        setSelection({ type: "edge", id: edgeId });
+        return;
+      }
+
+      updateGraph((state) => ({
+        ...state,
+        actions: existing ? state.actions : [...state.actions, action],
+        edges: state.edges.map((item) =>
+          String(item.id) === String(edgeId)
+            ? {
+                ...item,
+                actions: [
+                  ...(item.actions ?? []),
+                  {
+                    id: `tmp-transition-action-${action.id}-${(item.actions ?? []).length}`,
+                    actionId: action.id,
+                  },
+                ],
+              }
+            : item,
+        ),
+      }));
+      setSelection({ type: "edge", id: edgeId });
+    },
+    [message, updateGraph],
+  );
+
   const handleNodeMove = useCallback(
     (nodeId, point) => {
       const current = graphRef.current;
@@ -471,7 +576,7 @@ const Builder = ({ processId }) => {
       setConnectFrom(null);
       if (!sourceId || !targetId) return;
       if (String(sourceId) === String(targetId)) {
-        message.warning("ارتباط باید بین دو ایستگاه متفاوت باشد.");
+        message.warning("مسیر باید بین دو مرحله متفاوت باشد.");
         return;
       }
       const current = graphRef.current;
@@ -482,7 +587,7 @@ const Builder = ({ processId }) => {
             String(edge.target) === String(targetId),
         )
       ) {
-        message.warning("این ارتباط از قبل وجود دارد.");
+        message.warning("این مسیر از قبل وجود دارد.");
         return;
       }
       const edge = createEdge({ source: sourceId, target: targetId });
@@ -556,7 +661,7 @@ const Builder = ({ processId }) => {
           processId: Number(processId),
           plan,
         });
-        // مختصات ایستگاه‌های تازه ساخته‌شده را به شناسه‌ی واقعی منتقل می‌کنیم.
+        // مختصات مراحل تازه ساخته‌شده را به شناسه‌ی واقعی منتقل می‌کنیم.
         const stateIds = result?.stateIds;
         const remapped = current.nodes.map((node) => {
           const realId = stateIds?.get?.(String(node.id));
@@ -590,15 +695,9 @@ const Builder = ({ processId }) => {
     }
 
     await run();
-  }, [
-    message,
-    modal,
-    processId,
-    reloadFromServer,
-    saveMutation,
-  ]);
+  }, [message, modal, processId, reloadFromServer, saveMutation]);
 
-  /** Ctrl+D برای تکرار ایستگاه انتخاب‌شده. */
+  /** Ctrl+D برای تکرار مرحله انتخاب‌شده. */
   useEffect(() => {
     const handler = (event) => {
       if (!(event.ctrlKey || event.metaKey)) return;
@@ -739,7 +838,7 @@ const Builder = ({ processId }) => {
             </span>
             <span className="process-builder__subtitle">
               {graph
-                ? `${graph.nodes.length} ایستگاه · ${graph.edges.length} ارتباط · ${graph.actions.length} عملیات`
+                ? `${graph.nodes.length} مرحله · ${graph.edges.length} مسیر · ${graph.actions.length} دکمه`
                 : "در حال بارگذاری…"}
             </span>
           </div>
@@ -800,29 +899,40 @@ const Builder = ({ processId }) => {
               className="process-builder__icon-button"
             />
           </Tooltip>
-          <Tooltip title="ساخت قدم‌به‌قدم مسیر فرایند بدون کشیدن دستی ایستگاه‌ها">
+          <Tooltip title="ساخت قدم‌به‌قدم مسیر فرایند با الگوهای آماده">
             <Button
+              type="primary"
+              ghost
+              icon={<Wand2 size={16} />}
               onClick={() => setWizardOpen(true)}
               disabled={!graph || saveMutation.isPending}
+              className="process-builder__wizard-button"
             >
               ساخت سریع
             </Button>
           </Tooltip>
-          <Tooltip title="مرتب‌سازی خودکار ایستگاه‌ها بر اساس مسیر فرایند">
-            <Button
-              onClick={handleAutoLayout}
-              disabled={!graph || graph.nodes.length === 0}
-            >
-              چیدمان خودکار
-            </Button>
-          </Tooltip>
-          <Tooltip title="نمایش کامل فرایند">
-            <Button
-              icon={<Maximize2 size={16} />}
-              onClick={() => fitToScreen()}
-              className="process-builder__icon-button"
-            />
-          </Tooltip>
+
+          {/* ابزارهای نمایشی در یک منو جمع شده‌اند تا نوار بالا شلوغ نباشد. */}
+          <Dropdown
+            trigger={["click"]}
+            menu={{
+              items: [
+                {
+                  key: "layout",
+                  label: "چیدمان خودکار مراحل",
+                  disabled: !graph || graph.nodes.length === 0,
+                  onClick: handleAutoLayout,
+                },
+                {
+                  key: "fit",
+                  label: "نمایش کامل فرایند",
+                  onClick: () => fitToScreen(),
+                },
+              ],
+            }}
+          >
+            <Button icon={<Maximize2 size={16} />}>نمایش</Button>
+          </Dropdown>
 
           <span className="process-builder__divider" />
 
@@ -834,7 +944,7 @@ const Builder = ({ processId }) => {
             onClick={handleSave}
             className="process-builder__save"
           >
-            ذخیره فرایند
+            {changeCount > 0 ? `ذخیره ${changeCount} تغییر` : "ذخیره فرایند"}
           </Button>
         </div>
       </header>
@@ -879,6 +989,9 @@ const Builder = ({ processId }) => {
               onConnect={handleConnect}
               onDeleteNode={handleDeleteNode}
               onDeleteEdge={handleDeleteEdge}
+              onAddEdgeAction={handleAddEdgeAction}
+              onRenameNode={handleRenameNode}
+              onOpenWizard={() => setWizardOpen(true)}
             />
           )}
           {saveMutation.isPending ? (
@@ -898,6 +1011,9 @@ const Builder = ({ processId }) => {
           updateGraph={updateGraph}
           onDeleteNode={handleDeleteNode}
           onDeleteEdge={handleDeleteEdge}
+          onAddEdgeAction={handleAddEdgeAction}
+          onFocusNode={handleFocusNode}
+          issueTargets={issueTargets}
           disabled={saveMutation.isPending}
         />
       </div>
