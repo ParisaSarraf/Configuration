@@ -7,6 +7,7 @@ import {
   Form,
   Input,
   message,
+  Select,
   Popover,
   Row,
   Steps,
@@ -18,7 +19,10 @@ import { useUpdateProductDocumentEdition } from "@/QueryServises/productDocument
 import { usePatchDocumentEditionLog } from "@/QueryServises/productDocumentEditionLogQuery";
 import { useEffect, useState } from "react";
 import { BASEURL } from "@/Services/axiosInstance.js";
-import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
+import {
+  addMonthsToCurrentGregorianDate,
+  georgianDateToJalaliDate,
+} from "@utils/timeTool.jsx";
 import { useAllLogs } from "@/hooks/useAllLogs.js";
 import { canViewDocumentFiles } from "@/utils/ExportFromToken.js";
 
@@ -34,6 +38,7 @@ const CombineFiles = ({
   const [form] = Form.useForm();
   const [currentState, setCurrentState] = useState(null);
   const [comment, setComment] = useState("");
+  const [reviewPeriod, setReviewPeriod] = useState(null);
 
   const ProductDocumentId = modalData?.editions?.[0]?.id;
   const { isPending: isUpdating, mutateAsync: updateProductDocumentEdition } =
@@ -47,6 +52,10 @@ const CombineFiles = ({
       ? modalData?.editions?.[0]?.id
       : modalData?.id;
   const { data: logList = [] } = useAllLogs(editionId);
+
+  const currentSurveyDate = modalType === "SpecificAutomationFiles"
+    ? modalData?.editions?.[0]?.survey_date || modalData?.survey_date
+    : modalData?.survey_date;
 
   const stateSteps = [
     { value: 10, label: "تعریف سند" },
@@ -164,8 +173,39 @@ const CombineFiles = ({
   const handleNextStep = async () => {
     if (currentStepIndex >= stateSteps?.length - 1) return;
     const nextState = stateSteps[currentStepIndex + 1].value;
+    const shouldSetSurveyDate = currentState === 20 && nextState === 30;
+    const nextSurveyDate = shouldSetSurveyDate
+      ? addMonthsToCurrentGregorianDate(reviewPeriod)
+      : undefined;
+
+    if (shouldSetSurveyDate && !reviewPeriod) {
+      message.warning("لطفاً بازه بازبینی سند را انتخاب کنید");
+      return;
+    }
 
     try {
+      if (shouldSetSurveyDate) {
+        const fileSource =
+          modalType === "SpecificAutomationFiles"
+            ? modalData?.editions?.[0] || {}
+            : modalData;
+        await updateProductDocumentEdition({
+          documentId:
+            modalType === "SpecificAutomationFiles"
+              ? ProductDocumentId
+              : modalData?.id,
+          product_document_id:
+            modalType === "SpecificAutomationFiles"
+              ? ProductDocumentId
+              : modalData?.product_document_id?.id,
+          edition: fileSource.edition,
+          description: fileSource.description,
+          reasons_editing_id: fileSource.reasons_editing?.id ?? fileSource.reasons_editing,
+          is_active: fileSource.is_active ?? true,
+          survey_date: nextSurveyDate,
+        });
+      }
+
       await updateState({
         id:
           modalType === "SpecificAutomationFiles"
@@ -177,6 +217,7 @@ const CombineFiles = ({
       message.success("مرحله با موفقیت بروزرسانی شد");
       setCurrentState(nextState);
       setComment("");
+      setReviewPeriod(null);
     } catch (error) {
       console.error(error);
       message.error(error?.response?.data?.detail || "خطا در بروزرسانی مرحله");
@@ -212,7 +253,11 @@ const CombineFiles = ({
   const renderFiles = () => {
     if (!modalData) return <div>در حال بارگذاری...</div>;
 
-    if (!canViewDocumentFiles(currentState)) {
+    const surveyDate = modalType === "SpecificAutomationFiles"
+      ? modalData?.editions?.[0]?.survey_date || modalData?.survey_date
+      : modalData?.survey_date;
+
+    if (!canViewDocumentFiles(currentState, undefined, surveyDate)) {
       return <div>شما اجازه مشاهده این فایل‌ها را ندارید</div>;
     }
 
@@ -292,22 +337,22 @@ const CombineFiles = ({
           <Row gutter={16}>
             <Col span={6}>
               <Form.Item label={"فایل غیرقابل ویرایش"} name="file_1">
-                <FileUploader maxCount={1} documentState={currentState} />
+                <FileUploader maxCount={1} documentState={currentState} surveyDate={currentSurveyDate} />
               </Form.Item>
             </Col>
             <Col span={6}>
               <Form.Item label={"قابل ویرایش"} name="file_2">
-                <FileUploader maxCount={1} documentState={currentState} />
+                <FileUploader maxCount={1} documentState={currentState} surveyDate={currentSurveyDate} />
               </Form.Item>
             </Col>
             <Col span={6}>
               <Form.Item label={"فایل پشتیبان تولید"} name="file_3">
-                <FileUploader maxCount={1} documentState={currentState} />
+                <FileUploader maxCount={1} documentState={currentState} surveyDate={currentSurveyDate} />
               </Form.Item>
             </Col>
             <Col span={6}>
               <Form.Item label={"ارسال به کارفرما/پیمانکار"} name="file_4">
-                <FileUploader maxCount={1} documentState={currentState} />
+                <FileUploader maxCount={1} documentState={currentState} surveyDate={currentSurveyDate} />
               </Form.Item>
             </Col>
           </Row>
@@ -446,6 +491,30 @@ const CombineFiles = ({
             </Col>
 
             <Col span={24}>
+              {currentState === 20 && (
+                <Form.Item
+                  label="بازه بازبینی"
+                  required
+                  validateStatus={!reviewPeriod ? "warning" : undefined}
+                  help={!reviewPeriod ? "برای رفتن از مرحله تهیه به تایید، بازه بازبینی را انتخاب کنید" : undefined}
+                >
+                  <Select
+                    value={reviewPeriod}
+                    onChange={setReviewPeriod}
+                    placeholder="انتخاب بازه بازبینی"
+                    options={[
+                      { value: 1, label: "۱ ماه" },
+                      { value: 3, label: "۳ ماه" },
+                      { value: 6, label: "۶ ماه" },
+                      { value: 12, label: "۱۲ ماه" },
+                    ]}
+                    disabled={isPatching || isUpdating}
+                  />
+                </Form.Item>
+              )}
+            </Col>
+
+            <Col span={24}>
               <Form.Item label="توضیح" layout={"vertical"}>
                 <Input.TextArea
                   value={comment}
@@ -479,6 +548,7 @@ const CombineFiles = ({
                 onClick={handleNextStep}
                 disabled={
                   !comment ||
+                  (currentState === 20 && !reviewPeriod) ||
                   currentStepIndex >= stateSteps?.length - 1 ||
                   isPatching
                 }

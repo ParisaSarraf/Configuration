@@ -3,7 +3,7 @@ import { UploadOutlined } from "@ant-design/icons";
 import { useEffect, useMemo, useState } from "react";
 import { canViewDocumentFiles } from "@/utils/ExportFromToken.js";
 
-const FileUploader = ({ value = [], onChange, maxFiles = 1, documentState }) => {
+const FileUploader = ({ value = [], onChange, maxFiles = 1, maxCount, documentState, surveyDate }) => {
   const [fileList, setFileList] = useState([]);
 
   const normalizedValue = useMemo(() => {
@@ -17,7 +17,8 @@ const FileUploader = ({ value = [], onChange, maxFiles = 1, documentState }) => 
   }, [normalizedValue]);
 
   const handleChange = async (info) => {
-    const updatedFileList = info.fileList.slice(0, maxFiles);
+    const limit = maxCount ?? maxFiles;
+    const updatedFileList = info.fileList.slice(0, limit);
 
     const processedFiles = await Promise.all(
       updatedFileList.map(async (file) => {
@@ -44,7 +45,7 @@ const FileUploader = ({ value = [], onChange, maxFiles = 1, documentState }) => 
       reader.readAsDataURL(file);
     });
 
-  const isRestricted = (file) => Boolean(file.url) && !canViewDocumentFiles(documentState);
+  const isRestricted = (file) => Boolean(file.url) && !canViewDocumentFiles(documentState, undefined, surveyDate);
 
   const handlePreview = async (file) => {
     if (isRestricted(file)) return; 
@@ -69,7 +70,7 @@ const FileUploader = ({ value = [], onChange, maxFiles = 1, documentState }) => 
         onPreview={handlePreview}
         beforeUpload={() => false}
       >
-        {fileList.length < maxFiles && (
+        {fileList.length < (maxCount ?? maxFiles) && (
           <Button icon={<UploadOutlined />}>آپلود فایل</Button>
         )}
       </Upload>

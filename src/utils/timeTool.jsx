@@ -159,3 +159,21 @@ export const isDateAfterDate = (date, comparedDate = getCurrentJalaliDateTime())
 	const isAfter = moment(date, 'jYYYY/jMM/jDDTHH:mm').isAfter(moment(comparedDate, 'jYYYY/jMM/jDDTHH:mm'));
 	return isAfter;
 };
+
+export function addMonthsToCurrentGregorianDate(months) {
+	return moment().add(Number(months) || 0, 'months').format('YYYY-MM-DD');
+}
+
+export function getSurveyDateStatus(enDate, warningDays = 10) {
+	if (!isGeorgianDateValid(enDate)) return 'none';
+	const today = moment().startOf('day');
+	const target = moment(enDate).startOf('day');
+	const diffInDays = target.diff(today, 'days');
+	if (diffInDays < 0) return 'expired';
+	if (diffInDays <= warningDays) return 'warning';
+	return 'valid';
+}
+
+export function isSurveyDateExpired(enDate) {
+	return getSurveyDateStatus(enDate) === 'expired';
+}

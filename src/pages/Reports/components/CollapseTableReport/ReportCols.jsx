@@ -4,7 +4,7 @@ import {
   CheckOutlined,
 } from "@ant-design/icons";
 import { Button, Tag } from "antd";
-import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
+import { georgianDateToJalaliDate, getSurveyDateStatus } from "@utils/timeTool.jsx";
 
 const ReportCol = ({ handleShowDetailEdition, handleAutomationFiles }) => {
   return [
@@ -89,7 +89,10 @@ const ReportCol = ({ handleShowDetailEdition, handleAutomationFiles }) => {
       key: "survey_date",
       width: 100,
       render: (record) => {
-        return <Tag color={"green"}>{georgianDateToJalaliDate(record)}</Tag>;
+        const status = getSurveyDateStatus(record);
+        const color = status === "expired" ? "red" : status === "warning" ? "orange" : "green";
+        const label = status === "expired" ? "گذشته" : status === "warning" ? "کمتر از ۱۰ روز" : null;
+        return <Tag color={color}>{georgianDateToJalaliDate(record)}{label ? ` - ${label}` : ""}</Tag>;
       },
     },
     {

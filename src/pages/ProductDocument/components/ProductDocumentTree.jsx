@@ -14,6 +14,7 @@ import {
 } from "../../../QueryServises/productDocumentQuery";
 import { useEffect, useMemo, useState } from "react";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import { getSurveyDateStatus } from "@utils/timeTool.jsx";
 
 const LOCAL_STORAGE_KEY = "productDocumentTreeExpandedKeys";
 const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
@@ -203,7 +204,15 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
         value: `edition-${edition.id}`,
         title: (
           <div
-            className={`flex flex-row justify-between items-center w-full ${edition?.is_active ? "text-sky-500" : "text-black"}`}
+            className={`flex flex-row justify-between items-center w-full ${
+              getSurveyDateStatus(edition?.survey_date) === "expired"
+                ? "text-red-600 font-bold"
+                : getSurveyDateStatus(edition?.survey_date) === "warning"
+                  ? "text-orange-500 font-semibold"
+                  : edition?.is_active
+                    ? "text-sky-500"
+                    : "text-black"
+            }`}
           >
             <span className={`w-full gap-2 `}>
               {edition.edition_full} -
@@ -222,6 +231,12 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
                 }
               />
               {edition.reasons_editing}
+              {getSurveyDateStatus(edition?.survey_date) === "warning" && (
+                <span className="mr-2 text-xs text-orange-500">(نزدیک بازبینی)</span>
+              )}
+              {getSurveyDateStatus(edition?.survey_date) === "expired" && (
+                <span className="mr-2 text-xs text-red-600">(گذشته از بازبینی)</span>
+              )}
             </span>
             <Space>
               <Button

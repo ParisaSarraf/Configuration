@@ -115,7 +115,7 @@ const DocumentsTable = ({ documents, onEdit, onDelete, onView }) => {
               target="_blank"
               rel="noopener noreferrer"
               onClick={(event) => {
-                if (!canViewDocumentFiles(record.editionData?.state)) {
+                if (!canViewDocumentFiles(record.editionData?.state, undefined, record.editionData?.survey_date || record.logData?.survey_date)) {
                   event.preventDefault();
                   showAccessError();
                 }

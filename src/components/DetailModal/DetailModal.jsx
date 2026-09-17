@@ -5,12 +5,12 @@ import { BASEURL } from "@/Services/axiosInstance.js";
 import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
 import { canViewDocumentFiles } from "@/utils/ExportFromToken.js";
 
-export const renderFileButton = (label, filePath, accessCheckRequired = false, documentState) => {
+export const renderFileButton = (label, filePath, accessCheckRequired = false, documentState, surveyDate) => {
   if (!filePath) return <div className="text-gray-400">فایلی وجود ندارد</div>;
   const fullUrl = `${BASEURL.replace("/api/v1", "")}${filePath}`;
   const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(filePath);
   const canOpenFile =
-    !accessCheckRequired || canViewDocumentFiles(documentState);
+    !accessCheckRequired || canViewDocumentFiles(documentState, undefined, surveyDate);
   const handleFileClick = (event) => {
     if (canOpenFile) return;
     event.preventDefault();

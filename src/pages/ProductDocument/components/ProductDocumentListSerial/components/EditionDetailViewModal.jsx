@@ -64,7 +64,7 @@ const EditionDetailViewModal = ({
         <div className={"p-4 border rounded-xl border-blue-200 border-dashed"}>
           <SectionTitle title="فایل‌ها" />
           <InfoRow label="فایل لاگ">
-            {renderFileButton("فایل بررسی", specificLog?.file, true, editionData?.editionData?.state)}
+            {renderFileButton("فایل بررسی", specificLog?.file, true, editionData?.editionData?.state, editionData?.editionData?.survey_date || specificLog?.survey_date)}
           </InfoRow>
           {/* <InfoRow label="فایل ۱">
                         {renderFileButton("فایل ۱", editionData?.file_1, true)}
