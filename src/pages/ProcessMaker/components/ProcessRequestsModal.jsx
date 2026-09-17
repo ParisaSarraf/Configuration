@@ -271,16 +271,7 @@ const ProcessRequestsModal = ({ open, process, onClose, onViewSubmission }) => {
         </div>
 
         <div className="grid gap-4 p-5 lg:grid-cols-[1fr_360px]">
-          <div className="flex flex-col gap-4">
             {renderTransition(record)}
-            <div>
-              <div className="mb-2 flex items-center gap-2 text-sm font-black text-slate-700 dark:text-slate-200">
-                <FileTextOutlined />
-                داده‌های ثبت‌شده فرم
-              </div>
-              {renderFormData(record)}
-            </div>
-          </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
             <Descriptions column={1} size="small" colon={false}>

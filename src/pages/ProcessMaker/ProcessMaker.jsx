@@ -80,6 +80,7 @@ const ProcessMakerCartable = () => {
   const [tab, setTab] = useState(TABS.TODO);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [submissionPreview, setSubmissionPreview] = useState(null);
 
   useEffect(() => {
     setPage(1);
@@ -169,6 +170,11 @@ const ProcessMakerCartable = () => {
   };
 
   const openSubmissionModal = (record) => {
+    if (modalType === MODAL_TYPES.PROCESS_REQUESTS) {
+      setSubmissionPreview(record);
+      return;
+    }
+
     setModal({
       type: MODAL_TYPES.CARTABLE_SUBMISSION,
       mode: "view",
@@ -176,12 +182,22 @@ const ProcessMakerCartable = () => {
     });
   };
 
+  const closeSubmissionPreview = () => {
+    setSubmissionPreview(null);
+  };
+
   const openProcessRequestsModal = (record) => {
+    setSubmissionPreview(null);
     setModal({
       type: MODAL_TYPES.PROCESS_REQUESTS,
       mode: "view",
       data: record,
     });
+  };
+
+  const closeProcessRequestsModal = () => {
+    setSubmissionPreview(null);
+    closeModal();
   };
 
   const handleSubmitted = () => {
@@ -430,8 +446,17 @@ const ProcessMakerCartable = () => {
         <ProcessRequestsModal
           open={isOpen}
           process={modalData}
-          onClose={closeModal}
+          onClose={closeProcessRequestsModal}
           onViewSubmission={openSubmissionModal}
+        />
+      )}
+
+      {modalType === MODAL_TYPES.PROCESS_REQUESTS && submissionPreview && (
+        <CartableSubmissionModal
+          open={Boolean(submissionPreview)}
+          record={submissionPreview}
+          onClose={closeSubmissionPreview}
+          zIndex={1200}
         />
       )}
     </div>
