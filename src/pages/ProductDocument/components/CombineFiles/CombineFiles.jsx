@@ -42,7 +42,11 @@ const CombineFiles = ({
   const { mutateAsync: updateState, isPending: isPatching } =
     usePatchDocumentEditionLog();
 
-  const { data: logList = [] } = useAllLogs(modalData?.id);
+  const editionId =
+    modalType === "SpecificAutomationFiles"
+      ? modalData?.editions?.[0]?.id
+      : modalData?.id;
+  const { data: logList = [] } = useAllLogs(editionId);
 
   const stateSteps = [
     { value: 10, label: "تعریف سند" },
