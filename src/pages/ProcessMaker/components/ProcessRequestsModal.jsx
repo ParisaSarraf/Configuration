@@ -49,7 +49,7 @@ const processRequestRowsFromResponse = (payload, fallbackProcess) =>
       });
     });
 
-const ProcessRequestsModal = ({ open, process, onClose }) => {
+const ProcessRequestsModal = ({ open, process, onClose, onViewSubmission }) => {
   const processId = process?.id ?? null;
   const query = useProcessRequests(processId, {
     enabled: Boolean(open && processId),
@@ -67,8 +67,9 @@ const ProcessRequestsModal = ({ open, process, onClose }) => {
       processRequestColumns({
         page: 1,
         pageSize: Math.max(rows.length, 1),
+        onView: onViewSubmission,
       }),
-    [rows.length],
+    [onViewSubmission, rows.length],
   );
 
   const title = `درخواست‌های ${process?.name || "فرآیند"}`;
