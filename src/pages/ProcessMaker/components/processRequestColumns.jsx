@@ -72,14 +72,14 @@ const processRequestColumns = ({ page = 1, pageSize = 8 }) => [
     width: 160,
     render: (_value, record) => fullName(record.submitter),
   },
-  {
-    title: "فیلدها",
-    dataIndex: "fieldCount",
-    key: "fieldCount",
-    width: 90,
-    align: "center",
-    render: (value) => value ?? 0,
-  },
+  // {
+  //   title: "فیلدها",
+  //   dataIndex: "fieldCount",
+  //   key: "fieldCount",
+  //   width: 90,
+  //   align: "center",
+  //   render: (value) => value ?? 0,
+  // },
   {
     title: "پیوست‌ها",
     key: "attachments",
@@ -98,28 +98,28 @@ const processRequestColumns = ({ page = 1, pageSize = 8 }) => [
     align: "center",
     render: (_value, record) => jalali(record?.createdAt),
   },
-  {
-    title: "مقادیر فرم",
-    key: "formData",
-    width: 220,
-    render: (_value, record) => {
-      const entries = Object.entries(record?.formData ?? {});
-      if (!entries.length) return <span className="opacity-60">—</span>;
-      return (
-        <div className="flex max-w-[260px] flex-col gap-1">
-          {entries.slice(0, 3).map(([key, value]) => (
-            <div key={key} className="truncate text-xs">
-              <span className="font-semibold">{key}: </span>
-              <span>{typeof value === "object" ? JSON.stringify(value) : String(value)}</span>
-            </div>
-          ))}
-          {entries.length > 3 ? (
-            <span className="text-xs opacity-60">+{entries.length - 3} مقدار دیگر</span>
-          ) : null}
-        </div>
-      );
-    },
-  },
+  // {
+  //   title: "مقادیر فرم",
+  //   key: "formData",
+  //   width: 220,
+  //   render: (_value, record) => {
+  //     const entries = Object.entries(record?.formData ?? {});
+  //     if (!entries.length) return <span className="opacity-60">—</span>;
+  //     return (
+  //       <div className="flex max-w-[260px] flex-col gap-1">
+  //         {entries.slice(0, 3).map(([key, value]) => (
+  //           <div key={key} className="truncate text-xs">
+  //             <span className="font-semibold">{key}: </span>
+  //             <span>{typeof value === "object" ? JSON.stringify(value) : String(value)}</span>
+  //           </div>
+  //         ))}
+  //         {entries.length > 3 ? (
+  //           <span className="text-xs opacity-60">+{entries.length - 3} مقدار دیگر</span>
+  //         ) : null}
+  //       </div>
+  //     );
+  //   },
+  // },
 ];
 
 export default processRequestColumns;

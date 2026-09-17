@@ -9,12 +9,18 @@ import processRequestColumns from "./processRequestColumns";
 const asArray = (value) => {
   if (Array.isArray(value)) return value;
   if (Array.isArray(value?.results)) return value.results;
-  return [];
+  if (Array.isArray(value?.data)) return value.data;
+  return value ? [value] : [];
+};
+
+const unwrapPayload = (payload) => {
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload?.results)) return payload.results;
+  return payload;
 };
 
 const processRequestRowsFromResponse = (payload, fallbackProcess) =>
-  asArray(payload)
-    .flatMap((process) => asArray(process))
+  asArray(unwrapPayload(payload))
     .flatMap((process) => {
       const requests = asArray(process?.requests);
       return requests.map((request) => {
@@ -49,9 +55,11 @@ const ProcessRequestsModal = ({ open, process, onClose }) => {
     enabled: Boolean(open && processId),
   });
 
+  const responseData = useMemo(() => unwrapPayload(query.data), [query.data]);
+
   const rows = useMemo(
-    () => processRequestRowsFromResponse(query.data, process),
-    [query.data, process],
+    () => processRequestRowsFromResponse(responseData, process),
+    [responseData, process],
   );
 
   const columns = useMemo(
@@ -69,8 +77,7 @@ const ProcessRequestsModal = ({ open, process, onClose }) => {
     if (!processId)
       return <Empty description="شناسهٔ فرآیند برای دریافت درخواست‌ها پیدا نشد." />;
 
-    if (query.isLoading || query.isFetching)
-      return <Skeleton active paragraph={{ rows: 8 }} />;
+    if (query.isLoading) return <Skeleton active paragraph={{ rows: 8 }} />;
 
     if (query.isError)
       return (
@@ -87,6 +94,7 @@ const ProcessRequestsModal = ({ open, process, onClose }) => {
         rowKey={(record) => record.rowKey}
         columns={columns}
         dataSource={rows}
+        loading={query.isFetching}
         pagination={{ pageSize: 8 }}
         scroll={{ x: "max-content" }}
         locale={{
