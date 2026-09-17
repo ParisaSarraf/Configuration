@@ -1951,3 +1951,9 @@
     background: var(--pb-bg);
   }
 }
+
+.process-panel__checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

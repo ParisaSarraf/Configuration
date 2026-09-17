@@ -150,7 +150,7 @@ const AddProductDocumentListSerialLogModal = ({
             </Col>
             <Col span={24}>
               <Form.Item label="بارگذاری فایل" name="file">
-                <FileUploader maxCount={1} />
+                <FileUploader maxCount={1} documentState={modalData?.editionData?.state ?? modalData?.data?.product_document_edition?.state} />
               </Form.Item>
             </Col>
           </Row>

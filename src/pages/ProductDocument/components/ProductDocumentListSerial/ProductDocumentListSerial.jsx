@@ -17,7 +17,7 @@ import { DeleteOutlined, EyeFilled } from "@ant-design/icons";
 import { BASEURL } from "@/Services/axiosInstance.js";
 import { TableAntd } from "../../../../components/TableAntd/TableAntd";
 import { georgianDateToJalaliDate } from "../../../../utils/timeTool";
-import { canViewUnacceptedVersion } from "@/utils/ExportFromToken.js";
+import { canViewDocumentFiles } from "@/utils/ExportFromToken.js";
 
 const showAccessError = () =>
   message.error("شما اجازه مشاهده این فایل را ندارید");
@@ -108,14 +108,14 @@ const DocumentsTable = ({ documents, onEdit, onDelete, onView }) => {
         title: "فایل",
         dataIndex: ["logData", "file"],
         key: "log_file",
-        render: (fileUrl) =>
+        render: (fileUrl, record) =>
           fileUrl ? (
             <a
               href={`${BASEURL.replace("/api/v1", "")}${fileUrl}`}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(event) => {
-                if (!canViewUnacceptedVersion()) {
+                if (!canViewDocumentFiles(record.editionData?.state)) {
                   event.preventDefault();
                   showAccessError();
                 }

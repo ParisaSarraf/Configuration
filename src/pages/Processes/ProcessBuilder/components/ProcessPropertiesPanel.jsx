@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Button, Empty, Input, Select, Tag, Tooltip } from "antd";
+import { Alert, Button, Checkbox, Empty, Input, Select, Tag, Tooltip } from "antd";
 import { Plus, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react";
 
 import { createAction, createPermission } from "../processGraph";
@@ -19,6 +19,15 @@ const { TextArea } = Input;
  * ورودی می‌تواند خروجی نرمال‌شده‌ی صفحه‌ی بیلدر ({ value, label }) باشد یا
  * پاسخ خام سرویس سمت‌ها ({ id, name })؛ هر دو حالت پشتیبانی می‌شود.
  */
+
+const fieldOptions = (fields) =>
+  (Array.isArray(fields) ? fields : [])
+    .map((field) => ({
+      value: field?.id,
+      label: field?.field_label || field?.label || field?.field_name || `فیلد ${field?.id}`,
+    }))
+    .filter((option) => option.value !== undefined && option.value !== null);
+
 const groupOptions = (groups) =>
   (Array.isArray(groups) ? groups : [])
     .map((group) => ({
@@ -378,6 +387,33 @@ const ProcessPropertiesPanel = ({
           hint="دسترسی مشاهده برای دیدن درخواست‌های این مرحله و دسترسی ویرایش برای تکمیل فرم در این مرحله لازم است."
           {...permissionHandlers("node", selectedNode.id)}
         />
+
+        <div className="process-panel__section">
+          <div className="process-panel__section-head">
+            <span className="process-panel__section-title">فیلدهای قفل‌شده فرم</span>
+          </div>
+          <p className="process-panel__hint">
+            فیلدهایی که اینجا انتخاب شوند، وقتی درخواست در این مرحله باشد در فرم درخواست غیرفعال می‌شوند.
+          </p>
+          {fieldOptions(graph.formFields).length === 0 ? (
+            <p className="process-panel__note">برای این فرایند فیلدی پیدا نشد.</p>
+          ) : (
+            <Checkbox.Group
+              className="process-panel__checkbox-list"
+              value={(selectedNode.lockedFieldIds ?? []).map(String)}
+              disabled={disabled}
+              options={fieldOptions(graph.formFields).map((option) => ({
+                ...option,
+                value: String(option.value),
+              }))}
+              onChange={(values) =>
+                patchNode(selectedNode.id, {
+                  lockedFieldIds: values.map((value) => Number(value)),
+                })
+              }
+            />
+          )}
+        </div>
 
         <div className="process-panel__section">
           <div className="process-panel__section-head">
