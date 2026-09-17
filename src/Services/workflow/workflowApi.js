@@ -16,6 +16,7 @@ const ENDPOINTS = Object.freeze({
   requestsNeedUserAction: "/workflow/get-requests-need-user-action/",
   processRequests: "/workflow/get-process-requests-by-id/",
   addRequest: "/workflow/add-request/",
+  doAction: "/workflow/do-action/"
 });
 
 const get = (client, endpoint, signal) =>
@@ -84,6 +85,8 @@ export const workflowApi = Object.freeze({
     get(client, `${ENDPOINTS.processRequests}${id}`, signal),
   createRequest: (client, payload, signal) =>
     post(client, ENDPOINTS.addRequest, payload, signal),
+  doAction: (client, payload, signal) =>
+    post(client, ENDPOINTS.doAction, payload, signal),
 
   // ---------- Permissions ----------
   createProcessPermission: (client, payload, signal) =>

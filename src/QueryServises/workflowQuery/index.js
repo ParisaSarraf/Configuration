@@ -104,6 +104,19 @@ export const useCreateRequest = () => {
   });
 };
 
+export const useDoAction = () => {
+  const { myAxios } = useMyAxios();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload) => workflowApi.doAction(myAxios, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: requestsKey });
+      queryClient.invalidateQueries({ queryKey: requestsNeedActionKey });
+      queryClient.invalidateQueries({ queryKey: ["workflow", "process-requests"] });
+    },
+  });
+};
+
 export const useCreateProcess = () => {
   const { myAxios } = useMyAxios();
   const queryClient = useQueryClient();
