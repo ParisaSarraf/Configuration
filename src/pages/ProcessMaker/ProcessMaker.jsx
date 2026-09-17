@@ -270,19 +270,19 @@ const ProcessMakerCartable = () => {
           type="text"
           icon={<ArrowRightOutlined />}
           onClick={() => navigate(-1)}
-          className="mb-4 flex items-center text-slate-600 hover:!text-orange-600 dark:text-slate-300"
+          className="mb-4 flex items-center text-slate-600 hover:!text-blue-600 dark:text-slate-300"
         >
           بازگشت به صفحه قبل
         </Button>
 
         {/* ---------- هدر ---------- */}
-        <div className="overflow-hidden rounded-2xl bg-gradient-to-l from-orange-500 to-amber-600 p-5 shadow-sm sm:p-7">
+        <div className="overflow-hidden rounded-2xl bg-gradient-to-l from-blue-500 to-sky-600 p-5 shadow-sm sm:p-7">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <h1 className="text-xl font-extrabold text-white sm:text-2xl">
                 کارتابل فرآیندساز
               </h1>
-              <p className="mt-1 mb-0 text-xs leading-7 text-orange-50 sm:text-sm">
+              <p className="mt-1 mb-0 text-xs leading-7 text-blue-50 sm:text-sm">
                 {currentUser.name} عزیز، فرم مورد نظر را باز کنید، تکمیل کنید و
                 به گردش کار بفرستید.
               </p>
