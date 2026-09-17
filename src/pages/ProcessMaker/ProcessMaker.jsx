@@ -15,11 +15,11 @@ import CartableSubmissionModal from "./components/CartableSubmissionModal";
 import { TableAntd } from "../../components/TableAntd/TableAntd";
 import todoColumns from "./components/todoColumns";
 import sentColumns from "./components/sentColumns";
+import { useFormSubmisions } from "../../QueryServises/formsQuery";
 import {
-  useFormDefinitions,
-  useFormSubmisions,
-} from "../../QueryServises/formsQuery";
-import { useRequests } from "../../QueryServises/workflowQuery";
+  useProcessList,
+  useRequests,
+} from "../../QueryServises/workflowQuery";
 import {
   sentRowsFromRequests,
   sentRowsFromSubmissions,
@@ -67,10 +67,9 @@ const ProcessMakerCartable = () => {
 
   const currentUser = useMemo(readCurrentUser, []);
 
-  const formDefinitionsQuery = useFormDefinitions();
+  const processListQuery = useProcessList();
 
   const formSubmissionQuery = useFormSubmisions();
-  // درخواست‌های فرایند: منبع اصلی رسیدها (همراه شناسهٔ فرم و مقادیر)
   const requestsQuery = useRequests();
 
   const [tab, setTab] = useState(TABS.TODO);
@@ -81,13 +80,15 @@ const ProcessMakerCartable = () => {
     setPage(1);
   }, [search, tab]);
 
-  // ---------- فرم‌های قابل تکمیل (TODO) ----------
-  const forms = useMemo(
-    () => asArray(formDefinitionsQuery.data),
-    [formDefinitionsQuery.data],
+  // ---------- فرایندهای قابل شروع (TODO) ----------
+  // دیتای تب «کارهای من» از API فرایند خوانده می‌شود، نه لیست فرم‌ها.
+  // هر رکورد process در CartableTaskModal به فرم مرتبطش resolve می‌شود.
+  const processes = useMemo(
+    () => asArray(processListQuery.data),
+    [processListQuery.data],
   );
 
-  const todoItems = forms;
+  const todoItems = processes;
 
   const filteredTodo = useMemo(() => {
     const term = normalize(search);
@@ -96,7 +97,8 @@ const ProcessMakerCartable = () => {
       (item) =>
         normalize(item?.name).includes(term) ||
         normalize(item?.description).includes(term) ||
-        normalize(item?.category?.name).includes(term),
+        normalize(item?.form_definition?.name).includes(term) ||
+        normalize(item?.form_definition?.description).includes(term),
     );
   }, [todoItems, search]);
 
@@ -106,7 +108,6 @@ const ProcessMakerCartable = () => {
     [requestsQuery.data],
   );
 
-  // ارسال‌هایی که هنوز به درخواست فرایند وصل نشده‌اند (رکوردهای قدیمی)
   const legacyRows = useMemo(
     () =>
       sentRowsFromSubmissions(
@@ -191,7 +192,7 @@ const ProcessMakerCartable = () => {
   // ---------- رفرش دستی ----------
   const handleRefresh = () => {
     if (isTodo) {
-      formDefinitionsQuery.refetch();
+      processListQuery.refetch();
     } else {
       requestsQuery.refetch();
       formSubmissionQuery.refetch();
@@ -199,15 +200,15 @@ const ProcessMakerCartable = () => {
   };
 
   const isRefreshing = isTodo
-    ? formDefinitionsQuery.isFetching
+    ? processListQuery.isFetching
     : requestsQuery.isFetching || formSubmissionQuery.isFetching;
 
   const isLoading = isTodo
-    ? formDefinitionsQuery.isLoading
+    ? processListQuery.isLoading
     : requestsQuery.isLoading || formSubmissionQuery.isLoading;
 
   const hasError = isTodo
-    ? formDefinitionsQuery.isError
+    ? processListQuery.isError
     : requestsQuery.isError || formSubmissionQuery.isError;
 
   return (
@@ -261,7 +262,7 @@ const ProcessMakerCartable = () => {
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-baseline gap-2">
               <h2 className="m-0 text-base font-bold text-slate-800 dark:text-slate-100">
-                {isTodo ? "فهرست فرم‌های قابل تکمیل" : "رسید ارسال‌های من"}
+                {isTodo ? "فهرست فرایندهای قابل شروع" : "رسید ارسال‌های من"}
               </h2>
               <span className="text-xs text-slate-500 dark:text-slate-400">
                 {dataSource.length} مورد
@@ -273,7 +274,7 @@ const ProcessMakerCartable = () => {
                 allowClear
                 placeholder={
                   isTodo
-                    ? "جستجوی نام فرم، توضیحات یا دسته‌بندی"
+                    ? "جستجوی نام فرایند یا فرم"
                     : "جستجوی ارسال‌کننده یا مقدار فیلدها"
                 }
                 value={search}
@@ -298,10 +299,10 @@ const ProcessMakerCartable = () => {
               className="mb-4"
               message={getApiErrorMessage(
                 isTodo
-                  ? formDefinitionsQuery.error
+                  ? processListQuery.error
                   : (requestsQuery.error ?? formSubmissionQuery.error),
                 isTodo
-                  ? "دریافت لیست فرم‌ها انجام نشد."
+                  ? "دریافت لیست فرایندها انجام نشد."
                   : "دریافت ارسال‌ها انجام نشد.",
               )}
               action={
@@ -313,7 +314,7 @@ const ProcessMakerCartable = () => {
           ) : null}
 
           <TableAntd
-            rowKey={(record) => (isTodo ? `todo-${record.id}` : record.rowKey)}
+            rowKey={(record) => (isTodo ? `process-${record.id}` : record.rowKey)}
             columns={isTodo ? todoCols : sentCols}
             dataSource={dataSource}
             loading={isLoading}
@@ -329,7 +330,7 @@ const ProcessMakerCartable = () => {
                   className="py-10"
                   description={
                     isTodo
-                      ? "فرمی برای تکمیل موجود نیست."
+                      ? "فرایندی برای شروع موجود نیست."
                       : "هنوز فرمی ارسال نکرده‌اید."
                   }
                 />
