@@ -180,27 +180,26 @@ const CartableTaskModal = ({
         );
 
 
-      let requestId = null;
-      if (processId && submissionId) {
-        try {
-          const createdRequest = await createRequest.mutateAsync({
-            process_id: processId,
-            form_submission_id: submissionId,
-            title: formTitle,
-            ...(submitter ? { created_by_id: submitter } : {}),
-          });
-          requestId = createdRequest?.id ?? null;
-        } catch (error) {
-          message.warning(
-            getApiErrorMessage(
-              error,
-              "فرم ثبت شد، اما ثبت درخواست در فرایند انجام نشد.",
-            ),
-          );
-        }
+      if (!processId) {
+        throw new Error("شناسهٔ فرایند پیدا نشد؛ امکان ثبت درخواست وجود ندارد.");
       }
+
+      if (!submissionId) {
+        throw new Error("شناسهٔ ارسال فرم از سرور دریافت نشد؛ امکان ثبت درخواست وجود ندارد.");
+      }
+
+      // بعد از ثبت موفق submission، مطابق Swagger درخواست فرایند هم ساخته می‌شود:
+      // POST /api/v1/workflow/add-request/
+      // { process_id, form_submission_id, title }
+      const createdRequest = await createRequest.mutateAsync({
+        process_id: Number(processId),
+        form_submission_id: Number(submissionId),
+        title: formTitle,
+      });
+      const requestId = createdRequest?.id ?? null;
+
       const messageText =
-        definition.success_message || "فرم شما با موفقیت ارسال شد.";
+        definition.success_message || "فرم و درخواست فرایند با موفقیت ثبت شدند.";
 
       setDone(messageText);
       onSubmitted?.({
