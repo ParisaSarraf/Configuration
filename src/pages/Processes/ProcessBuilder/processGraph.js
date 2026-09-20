@@ -530,12 +530,13 @@ export const validateGraph = (graph) => {
     );
   }
 
-  const completeNodes = graph.nodes.filter(
-    (node) => Number(node.stateTypeId) === STATE_TYPE_IDS.COMPLETE,
+  // هر سه نوع «پایان»، «رد شده» و «لغو شده» پایان‌دهنده‌ی فرایند هستند.
+  const terminalNodes = graph.nodes.filter((node) =>
+    isTerminalStateType(node.stateTypeId),
   );
-  if (graph.nodes.length > 0 && completeNodes.length === 0) {
+  if (graph.nodes.length > 0 && terminalNodes.length === 0) {
     warnings.push(
-      "فرایند مرحله پایان ندارد؛ درخواست‌ها هیچ‌وقت تکمیل نمی‌شوند.",
+      "فرایند مرحله پایانی ندارد؛ درخواست‌ها هیچ‌وقت خاتمه پیدا نمی‌کنند.",
     );
   }
 
