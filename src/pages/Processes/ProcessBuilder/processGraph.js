@@ -78,6 +78,67 @@ const mapLockRule = (item) => ({
   ),
 });
 
+const processLockStates = (payload, processId) => {
+  const unwrapped = payload?.data ?? payload?.results ?? payload;
+  const roots = Array.isArray(unwrapped)
+    ? unwrapped
+    : unwrapped
+      ? [unwrapped]
+      : [];
+  return roots
+    .filter((item) => {
+      const itemProcessId = toNumber(
+        item?.id ?? item?.process_id ?? item?.process,
+      );
+      return (
+        processId === null ||
+        itemProcessId === null ||
+        itemProcessId === processId
+      );
+    })
+    .flatMap((item) =>
+      asArray(item?.process_states ?? item?.states ?? item?.process_state),
+    );
+};
+
+const lockRulesOf = (state) =>
+  asArray(
+    state?.field_lock_rules ??
+      state?.form_field_lock_rules ??
+      state?.locked_fields,
+  )
+    .map(mapLockRule)
+    .filter((rule) => rule.formFieldId !== null);
+
+const mergeProcessLocks = (nodes, payload, processId) => {
+  const states = processLockStates(payload, processId);
+  if (states.length === 0) return nodes;
+  const rulesByStateId = new Map(
+    states.map((state) => [String(state?.id), lockRulesOf(state)]),
+  );
+  return nodes.map((node) => {
+    const rules = rulesByStateId.get(String(node.id));
+    if (!rulesByStateId.has(String(node.id))) return node;
+    return {
+      ...node,
+      lockedFieldRules: rules,
+      lockedFieldIds: rules.map((rule) => rule.formFieldId),
+    };
+  });
+};
+
+const lockedFormFields = (payload, processId) =>
+  processLockStates(payload, processId)
+    .flatMap((state) =>
+      asArray(
+        state?.field_lock_rules ??
+          state?.form_field_lock_rules ??
+          state?.locked_fields,
+      ),
+    )
+    .map((rule) => rule?.form_field ?? rule?.field)
+    .filter(Boolean);
+
 const mapNode = (state) => ({
   id: state?.id,
   name: state?.name ?? "",
@@ -87,21 +148,8 @@ const mapNode = (state) => ({
       state?.state_type?.id ?? state?.state_type_id ?? state?.state_type,
     ) ?? STATE_TYPE_IDS.NORMAL,
   permissions: asArray(state?.state_permissions).map(mapPermission),
-  lockedFieldRules: asArray(
-    state?.form_field_lock_rules ??
-      state?.locked_fields ??
-      state?.field_lock_rules,
-  )
-    .map(mapLockRule)
-    .filter((rule) => rule.formFieldId !== null),
-  lockedFieldIds: asArray(
-    state?.form_field_lock_rules ??
-      state?.locked_fields ??
-      state?.field_lock_rules,
-  )
-    .map(mapLockRule)
-    .map((rule) => rule.formFieldId)
-    .filter((id) => id !== null),
+  lockedFieldRules: lockRulesOf(state),
+  lockedFieldIds: lockRulesOf(state).map((rule) => rule.formFieldId),
   x: 0,
   y: 0,
 });
@@ -138,12 +186,20 @@ const mapAction = (action) => ({
  * @param {object|Array} infoPayload پاسخ get-process-info-by-id
  * @param {Array} transitionActions پاسخ get-transition-action
  */
-export const buildGraph = (infoPayload, transitionActions) => {
+export const buildGraph = (
+  infoPayload,
+  transitionActions,
+  processLocks = null,
+) => {
   const info = pickProcessInfo(infoPayload);
   if (!info) return null;
 
   const processId = toNumber(info.id);
-  const nodes = asArray(info.process_states).map(mapNode);
+  const nodes = mergeProcessLocks(
+    asArray(info.process_states).map(mapNode),
+    processLocks,
+    processId,
+  );
   const edges = asArray(info.process_transitions).map(mapEdge);
   const actions = asArray(info.process_actions).map(mapAction);
   const permissions = asArray(info.process_permissions).map(mapPermission);
@@ -185,7 +241,14 @@ export const buildGraph = (infoPayload, transitionActions) => {
           info.form_definition_id ??
           info.form_definition,
       ) ?? null,
-    formFields: asArray(info.form_definition?.fields),
+    formFields: [
+      ...asArray(info.form_definition?.fields),
+      ...lockedFormFields(processLocks, processId),
+    ].filter(
+      (field, index, fields) =>
+        fields.findIndex((item) => String(item?.id) === String(field?.id)) ===
+        index,
+    ),
     nodes,
     edges: edges.filter((edge) => edge.source !== null && edge.target !== null),
     actions,

@@ -16,7 +16,7 @@ const ENDPOINTS = Object.freeze({
   requestsNeedUserAction: "/workflow/get-requests-need-user-action/",
   processRequests: "/workflow/get-process-requests-by-id/",
   addRequest: "/workflow/add-request/",
-  doAction: "/workflow/do-action/"
+  doAction: "/workflow/do-action/",
 });
 
 const get = (client, endpoint, signal) =>
@@ -106,6 +106,8 @@ export const workflowApi = Object.freeze({
     remove(client, `/workflow/delete-form-field-lock-rule/${id}`, signal),
   getLockedFieldsByRequestId: (client, id, signal) =>
     get(client, `/workflow/get-locked-field-by-request-id/${id}`, signal),
+  getLockedFieldsByProcessId: (client, id, signal) =>
+    get(client, `/workflow/get-locked-field-by-process-id/${id}`, signal),
 
   createActionPermission: (client, payload, signal) =>
     post(client, ENDPOINTS.addActionPermission, payload, signal),

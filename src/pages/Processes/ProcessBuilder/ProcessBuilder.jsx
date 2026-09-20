@@ -26,6 +26,7 @@ import {
   reapplySavePlan,
 } from "@/Services/workflow/workflowPayloads";
 import {
+  useLockedFieldsByProcessId,
   useProcessInfo,
   useProcessRequests,
   useSaveProcessGraph,
@@ -134,6 +135,7 @@ const Builder = ({ processId }) => {
 
   const infoQuery = useProcessInfo(processId);
   const linksQuery = useTransitionActions();
+  const processLocksQuery = useLockedFieldsByProcessId(processId);
   const processRequestsQuery = useProcessRequests(processId);
   const groupsQuery = useRoleList();
   const saveMutation = useSaveProcessGraph();
@@ -291,10 +293,19 @@ const Builder = ({ processId }) => {
 
   useEffect(() => {
     if (graph) return;
-    if (infoQuery.isFetching || linksQuery.isFetching) return;
-    if (!infoQuery.data || !linksQuery.data) return;
+    if (
+      infoQuery.isFetching ||
+      linksQuery.isFetching ||
+      processLocksQuery.isFetching
+    )
+      return;
+    if (!infoQuery.data || !linksQuery.data || !processLocksQuery.data) return;
 
-    const built = buildGraph(infoQuery.data, linksQuery.data);
+    const built = buildGraph(
+      infoQuery.data,
+      linksQuery.data,
+      processLocksQuery.data,
+    );
     if (!built) return;
 
     const positioned = layoutGraph(built, readStoredPositions(processId));
@@ -314,6 +325,8 @@ const Builder = ({ processId }) => {
     infoQuery.isFetching,
     linksQuery.data,
     linksQuery.isFetching,
+    processLocksQuery.data,
+    processLocksQuery.isFetching,
     processId,
     syncHistoryMeta,
   ]);
@@ -682,11 +695,16 @@ const Builder = ({ processId }) => {
 
   const reloadFromServer = useCallback(
     async (pendingPlan = null) => {
-      const [infoResult, linksResult] = await Promise.all([
+      const [infoResult, linksResult, locksResult] = await Promise.all([
         infoQuery.refetch(),
         linksQuery.refetch(),
+        processLocksQuery.refetch(),
       ]);
-      const freshGraph = buildGraph(infoResult.data, linksResult.data);
+      const freshGraph = buildGraph(
+        infoResult.data,
+        linksResult.data,
+        locksResult.data,
+      );
       if (!freshGraph) throw new Error("نسخه‌ی تازه‌ی فرایند دریافت نشد.");
 
       const positioned = layoutGraph(
@@ -713,6 +731,7 @@ const Builder = ({ processId }) => {
       fitToScreen,
       infoQuery,
       linksQuery,
+      processLocksQuery,
       processId,
       syncHistoryMeta,
     ],
@@ -910,16 +929,20 @@ const Builder = ({ processId }) => {
   /* ------------------------------ رندر ------------------------------ */
 
   const isLoading =
-    (infoQuery.isLoading || linksQuery.isLoading || !graph) &&
+    (infoQuery.isLoading ||
+      linksQuery.isLoading ||
+      processLocksQuery.isLoading ||
+      !graph) &&
     !infoQuery.isError &&
-    !linksQuery.isError;
+    !linksQuery.isError &&
+    !processLocksQuery.isError;
 
-  if (infoQuery.isError || linksQuery.isError) {
+  if (infoQuery.isError || linksQuery.isError || processLocksQuery.isError) {
     return (
       <div className="process-builder process-builder--center">
         <Empty
           description={getApiErrorMessage(
-            infoQuery.error || linksQuery.error,
+            infoQuery.error || linksQuery.error || processLocksQuery.error,
             "دریافت اطلاعات فرایند با مشکل مواجه شد",
           )}
         >
@@ -930,6 +953,7 @@ const Builder = ({ processId }) => {
               onClick={() => {
                 infoQuery.refetch();
                 linksQuery.refetch();
+                processLocksQuery.refetch();
               }}
             >
               تلاش مجدد
