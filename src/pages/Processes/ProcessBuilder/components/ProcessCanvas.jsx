@@ -719,6 +719,84 @@ const ProcessCanvas = ({
           ) : null}
         </div>
       ) : null}
+
+      {menu ? (
+        <div
+          className="process-canvas__menu"
+          style={{ left: menu.x, top: menu.y }}
+          onPointerDown={(event) => event.stopPropagation()}
+          onContextMenu={(event) => event.preventDefault()}
+        >
+          {menu.target.type === "node" ? (
+            <>
+              <button
+                type="button"
+                className="process-canvas__menu-item"
+                onClick={() => {
+                  connectDragRef.current = null;
+                  onStartConnect(menu.target.id);
+                  closeMenu();
+                }}
+              >
+                اتصال به مرحله دیگر
+              </button>
+              <button
+                type="button"
+                className="process-canvas__menu-item"
+                onClick={() => {
+                  onDuplicateNode?.(menu.target.id);
+                  closeMenu();
+                }}
+              >
+                تکرار مرحله · Ctrl+D
+              </button>
+              <button
+                type="button"
+                className="process-canvas__menu-item process-canvas__menu-item--danger"
+                onClick={() => {
+                  onDeleteNode(menu.target.id);
+                  closeMenu();
+                }}
+              >
+                حذف مرحله
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                className="process-canvas__menu-item"
+                onClick={() => {
+                  onAddEdgeAction?.(menu.target.id, "approve");
+                  closeMenu();
+                }}
+              >
+                افزودن عملیات تأیید
+              </button>
+              <button
+                type="button"
+                className="process-canvas__menu-item"
+                onClick={() => {
+                  onAddEdgeAction?.(menu.target.id, "deny");
+                  closeMenu();
+                }}
+              >
+                افزودن عملیات رد
+              </button>
+              <button
+                type="button"
+                className="process-canvas__menu-item process-canvas__menu-item--danger"
+                onClick={() => {
+                  onDeleteEdge(menu.target.id);
+                  closeMenu();
+                }}
+              >
+                حذف مسیر
+              </button>
+            </>
+          )}
+        </div>
+      ) : null}
     </div>
   );
 };

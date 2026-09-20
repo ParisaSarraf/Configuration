@@ -23,9 +23,11 @@ import { getApiErrorMessage } from "@/Services/forms/formUtils";
 import {
   buildSavePlan,
   planChangeCount,
+  reapplySavePlan,
 } from "@/Services/workflow/workflowPayloads";
 import {
   useProcessInfo,
+  useProcessRequests,
   useSaveProcessGraph,
   useTransitionActions,
 } from "@/QueryServises/workflowQuery";
@@ -58,6 +60,7 @@ import {
   STATE_TYPE_IDS,
   ZOOM_STEP,
   getStateType,
+  isTerminalStateType,
 } from "./processSchema";
 import { buildIssueTargets } from "./processIssues";
 import "./process-builder.css";
@@ -66,6 +69,48 @@ const HISTORY_LIMIT = 50;
 const PROCESS_SELECTION = { type: "process", id: null };
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+const asArray = (value) => (Array.isArray(value) ? value : []);
+
+const processRequestsOf = (payload) => {
+  const data = payload?.data ?? payload?.results ?? payload;
+  return asArray(data).flatMap((item) =>
+    Array.isArray(item?.requests)
+      ? item.requests
+      : item?.current_state || item?.current_state_id
+        ? [item]
+        : [],
+  );
+};
+
+const requestIsTerminal = (request) => {
+  const type = request?.current_state?.state_type;
+  const typeId =
+    type?.id ??
+    request?.current_state?.state_type_id ??
+    request?.current_state_type_id;
+  if (typeId !== undefined && typeId !== null)
+    return isTerminalStateType(typeId);
+
+  const label = String(type?.name ?? request?.state_type ?? "")
+    .trim()
+    .toLowerCase();
+  return [
+    "complete",
+    "completed",
+    "denied",
+    "rejected",
+    "cancelled",
+    "canceled",
+    "پایان",
+    "تکمیل شده",
+    "رد شده",
+    "لغو شده",
+  ].some((terminalLabel) => label.includes(terminalLabel));
+};
+
+const hasOpenProcessRequests = (payload) =>
+  processRequestsOf(payload).some((request) => !requestIsTerminal(request));
 
 const Builder = ({ processId }) => {
   const navigate = useNavigate();
@@ -89,6 +134,7 @@ const Builder = ({ processId }) => {
 
   const infoQuery = useProcessInfo(processId);
   const linksQuery = useTransitionActions();
+  const processRequestsQuery = useProcessRequests(processId);
   const groupsQuery = useRoleList();
   const saveMutation = useSaveProcessGraph();
 
@@ -100,6 +146,11 @@ const Builder = ({ processId }) => {
       label: group?.name ?? `سمت ${group?.id}`,
     }));
   }, [groupsQuery.data]);
+
+  const hasOpenRequests = useMemo(
+    () => hasOpenProcessRequests(processRequestsQuery.data),
+    [processRequestsQuery.data],
+  );
 
   /* --------------------------- تاریخچه و state --------------------------- */
 
@@ -629,18 +680,62 @@ const Builder = ({ processId }) => {
     [updateGraph],
   );
 
-  const reloadFromServer = useCallback(async () => {
-    await Promise.all([infoQuery.refetch(), linksQuery.refetch()]);
-    baselineRef.current = null;
-    historyRef.current = { past: [], future: [] };
-    syncHistoryMeta();
-    applyGraph(null);
-  }, [applyGraph, infoQuery, linksQuery, syncHistoryMeta]);
+  const reloadFromServer = useCallback(
+    async (pendingPlan = null) => {
+      const [infoResult, linksResult] = await Promise.all([
+        infoQuery.refetch(),
+        linksQuery.refetch(),
+      ]);
+      const freshGraph = buildGraph(infoResult.data, linksResult.data);
+      if (!freshGraph) throw new Error("نسخه‌ی تازه‌ی فرایند دریافت نشد.");
+
+      const positioned = layoutGraph(
+        freshGraph,
+        readStoredPositions(processId),
+      );
+      baselineRef.current = cloneGraph(positioned);
+      const nextGraph =
+        pendingPlan && planChangeCount(pendingPlan) > 0
+          ? reapplySavePlan(positioned, pendingPlan)
+          : positioned;
+
+      historyRef.current = { past: [], future: [] };
+      coalesceRef.current = { key: null, at: 0 };
+      syncHistoryMeta();
+      setSelection(PROCESS_SELECTION);
+      setConnectFrom(null);
+      applyGraph(nextGraph);
+      window.requestAnimationFrame(() => fitToScreen(nextGraph));
+      return nextGraph;
+    },
+    [
+      applyGraph,
+      fitToScreen,
+      infoQuery,
+      linksQuery,
+      processId,
+      syncHistoryMeta,
+    ],
+  );
 
   const handleSave = useCallback(async () => {
     const current = graphRef.current;
     const baseline = baselineRef.current;
     if (!current || !baseline || saveMutation.isPending) return;
+
+    const requestsResult = await processRequestsQuery.refetch();
+    if (requestsResult.isError) {
+      message.error(
+        "امکان بررسی درخواست‌های باز وجود ندارد؛ برای جلوگیری از تغییر اشتباه، ذخیره انجام نشد.",
+      );
+      return;
+    }
+    if (hasOpenProcessRequests(requestsResult.data)) {
+      message.error(
+        "این فرایند درخواست باز دارد و تا رسیدن همه‌ی درخواست‌ها به مرحله پایانی قابل ویرایش نیست.",
+      );
+      return;
+    }
 
     const { errors, warnings } = validateGraph(current);
     if (errors.length > 0) {
@@ -661,14 +756,31 @@ const Builder = ({ processId }) => {
           processId: Number(processId),
           plan,
         });
-        // مختصات مراحل تازه ساخته‌شده را به شناسه‌ی واقعی منتقل می‌کنیم.
+        // مختصات مراحل موفق را به شناسه‌ی واقعی منتقل می‌کنیم تا در تلاش بعدی
+        // دوباره ساخته نشوند.
         const stateIds = result?.stateIds;
         const remapped = current.nodes.map((node) => {
           const realId = stateIds?.get?.(String(node.id));
           return realId ? { ...node, id: realId } : node;
         });
         writeStoredPositions(processId, remapped);
-        message.success("فرایند ذخیره شد.");
+
+        if ((result?.errors ?? []).length > 0) {
+          await reloadFromServer(result.failedPlan);
+          message.warning(
+            `${result.succeededCount} مورد ذخیره شد و ${result.errors.length} مورد ناموفق برای تلاش بعدی باقی ماند.`,
+          );
+          const firstFailure = result.errors[0];
+          message.error(
+            `${firstFailure.label}: ${getApiErrorMessage(
+              firstFailure.error,
+              "ذخیره این مورد با مشکل مواجه شد",
+            )}`,
+          );
+          return;
+        }
+
+        message.success("همه‌ی تغییرات فرایند ذخیره شد.");
         await reloadFromServer();
       } catch (error) {
         message.error(
@@ -695,7 +807,14 @@ const Builder = ({ processId }) => {
     }
 
     await run();
-  }, [message, modal, processId, reloadFromServer, saveMutation]);
+  }, [
+    message,
+    modal,
+    processId,
+    processRequestsQuery,
+    reloadFromServer,
+    saveMutation,
+  ]);
 
   /** Ctrl+D برای تکرار مرحله انتخاب‌شده. */
   useEffect(() => {
@@ -847,6 +966,13 @@ const Builder = ({ processId }) => {
               تغییرات ذخیره‌نشده
             </Tag>
           ) : null}
+          {hasOpenRequests ? (
+            <Tooltip title="تا زمانی که درخواست‌ها به مرحله پایانی نرسیده‌اند، ساختار فرایند قابل تغییر نیست.">
+              <Tag color="error" className="process-builder__dirty-tag">
+                ویرایش قفل است · درخواست باز
+              </Tag>
+            </Tooltip>
+          ) : null}
           {validation.errors.length > 0 ? (
             <Tooltip title={validation.errors.join(" · ")}>
               <Tag
@@ -905,7 +1031,7 @@ const Builder = ({ processId }) => {
               ghost
               icon={<Wand2 size={16} />}
               onClick={() => setWizardOpen(true)}
-              disabled={!graph || saveMutation.isPending}
+              disabled={!graph || saveMutation.isPending || hasOpenRequests}
               className="process-builder__wizard-button"
             >
               ساخت سریع
@@ -952,7 +1078,7 @@ const Builder = ({ processId }) => {
       <div className="process-builder__body">
         <ProcessToolbox
           onAddNode={handleAddNode}
-          disabled={!graph || saveMutation.isPending}
+          disabled={!graph || saveMutation.isPending || hasOpenRequests}
           nodes={graph?.nodes ?? []}
           onFocusNode={handleFocusNode}
         />
@@ -994,6 +1120,14 @@ const Builder = ({ processId }) => {
               onOpenWizard={() => setWizardOpen(true)}
             />
           )}
+          {hasOpenRequests && !isLoading ? (
+            <div className="process-builder__locked-canvas" role="status">
+              <div className="process-builder__locked-message">
+                <strong>ویرایش فرایند قفل است</strong>
+                <span>این فرایند حداقل یک درخواست باز دارد.</span>
+              </div>
+            </div>
+          ) : null}
           {saveMutation.isPending ? (
             <div className="process-builder__saving">
               <Spin size="small" /> <span>در حال ذخیره…</span>
@@ -1014,7 +1148,7 @@ const Builder = ({ processId }) => {
           onAddEdgeAction={handleAddEdgeAction}
           onFocusNode={handleFocusNode}
           issueTargets={issueTargets}
-          disabled={saveMutation.isPending}
+          disabled={saveMutation.isPending || hasOpenRequests}
         />
       </div>
     </div>

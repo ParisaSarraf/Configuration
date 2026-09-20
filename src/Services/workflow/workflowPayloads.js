@@ -85,7 +85,8 @@ export const actionPermissionPayload = (actionId, permission) => ({
 
 // ---------- diff ----------
 
-const byId = (list = []) => new Map(list.map((item) => [String(item.id), item]));
+const byId = (list = []) =>
+  new Map(list.map((item) => [String(item.id), item]));
 
 const emptyPlan = () => ({
   processName: null,
@@ -104,8 +105,7 @@ const diffPermissions = (initialList, currentList, ownerId, bucket) => {
   const current = byId(currentList);
 
   currentList.forEach((permission) => {
-    if (isTempId(permission.id))
-      bucket.created.push({ ownerId, permission });
+    if (isTempId(permission.id)) bucket.created.push({ ownerId, permission });
   });
   initial.forEach((permission, id) => {
     if (!current.has(id)) bucket.deleted.push(permission.id);
@@ -242,13 +242,17 @@ export const buildSavePlan = (initial, current) => {
 
   current.nodes.forEach((node) => {
     const before = initialNodes.get(String(node.id));
-    const initialLocks = new Set((before?.lockedFieldRules ?? []).map((rule) => String(rule.formFieldId)));
+    const initialLocks = new Set(
+      (before?.lockedFieldRules ?? []).map((rule) => String(rule.formFieldId)),
+    );
     const currentLocks = new Set((node.lockedFieldIds ?? []).map(String));
     currentLocks.forEach((fieldId) => {
-      if (!initialLocks.has(fieldId)) plan.fieldLockRules.created.push({ stateId: node.id, fieldId });
+      if (!initialLocks.has(fieldId))
+        plan.fieldLockRules.created.push({ stateId: node.id, fieldId });
     });
     (before?.lockedFieldRules ?? []).forEach((rule) => {
-      if (!currentLocks.has(String(rule.formFieldId))) plan.fieldLockRules.deleted.push(rule.id);
+      if (!currentLocks.has(String(rule.formFieldId)))
+        plan.fieldLockRules.deleted.push(rule.id);
     });
   });
 
@@ -280,6 +284,100 @@ export const planChangeCount = (plan) => {
   );
 };
 
+/**
+ * تغییراتی که در ذخیره‌ی جزئی خطا خورده‌اند را دوباره روی نسخه‌ی تازه‌ی سرور
+ * اعمال می‌کند؛ به این ترتیب موارد موفق تکرار نمی‌شوند و فقط موارد ناموفق
+ * برای تلاش بعدی در حالت «ذخیره‌نشده» باقی می‌مانند.
+ */
+export const reapplySavePlan = (serverGraph, plan) => {
+  if (!serverGraph || !plan || planChangeCount(plan) === 0) return serverGraph;
+  const next = JSON.parse(JSON.stringify(serverGraph));
+  const sameId = (left, right) => String(left) === String(right);
+  const upsert = (list, item) => {
+    const index = list.findIndex((entry) => sameId(entry.id, item.id));
+    if (index >= 0) list[index] = { ...list[index], ...item };
+    else list.push(item);
+  };
+  const removeIds = (list, ids) =>
+    list.filter((item) => !ids.some((id) => sameId(item.id, id)));
+
+  if (plan.processName) next.name = plan.processName;
+
+  plan.states.created.forEach((item) => upsert(next.nodes, item));
+  plan.states.updated.forEach((item) => upsert(next.nodes, item));
+  next.nodes = removeIds(next.nodes, plan.states.deleted);
+
+  plan.transitions.created.forEach((item) => upsert(next.edges, item));
+  plan.transitions.updated.forEach((item) => upsert(next.edges, item));
+  next.edges = removeIds(next.edges, plan.transitions.deleted);
+
+  plan.actions.created.forEach((item) => upsert(next.actions, item));
+  plan.actions.updated.forEach((item) => upsert(next.actions, item));
+  next.actions = removeIds(next.actions, plan.actions.deleted);
+
+  plan.links.created.forEach(({ edgeId, actionId }) => {
+    const edge = next.edges.find((item) => sameId(item.id, edgeId));
+    if (!edge) return;
+    edge.actions = edge.actions ?? [];
+    if (!edge.actions.some((item) => sameId(item.actionId, actionId))) {
+      edge.actions.push({ id: nextTempId("transition-action"), actionId });
+    }
+  });
+  next.edges.forEach((edge) => {
+    edge.actions = removeIds(edge.actions ?? [], plan.links.deleted);
+  });
+
+  plan.processPermissions.created.forEach(({ permission }) =>
+    upsert(next.permissions, permission),
+  );
+  next.permissions = removeIds(
+    next.permissions ?? [],
+    plan.processPermissions.deleted,
+  );
+
+  plan.statePermissions.created.forEach(({ ownerId, permission }) => {
+    const node = next.nodes.find((item) => sameId(item.id, ownerId));
+    if (node) upsert(node.permissions, permission);
+  });
+  next.nodes.forEach((node) => {
+    node.permissions = removeIds(
+      node.permissions ?? [],
+      plan.statePermissions.deleted,
+    );
+  });
+
+  plan.fieldLockRules.created.forEach(({ stateId, fieldId }) => {
+    const node = next.nodes.find((item) => sameId(item.id, stateId));
+    if (!node) return;
+    node.lockedFieldIds = node.lockedFieldIds ?? [];
+    if (!node.lockedFieldIds.some((id) => sameId(id, fieldId)))
+      node.lockedFieldIds.push(fieldId);
+  });
+  next.nodes.forEach((node) => {
+    const deletedFieldIds = (node.lockedFieldRules ?? [])
+      .filter((rule) =>
+        plan.fieldLockRules.deleted.some((id) => sameId(rule.id, id)),
+      )
+      .map((rule) => rule.formFieldId);
+    node.lockedFieldIds = (node.lockedFieldIds ?? []).filter(
+      (id) => !deletedFieldIds.some((fieldId) => sameId(id, fieldId)),
+    );
+  });
+
+  plan.actionPermissions.created.forEach(({ ownerId, permission }) => {
+    const action = next.actions.find((item) => sameId(item.id, ownerId));
+    if (action) upsert(action.permissions, permission);
+  });
+  next.actions.forEach((action) => {
+    action.permissions = removeIds(
+      action.permissions ?? [],
+      plan.actionPermissions.deleted,
+    );
+  });
+
+  return next;
+};
+
 // ---------- sync ----------
 
 const resolveId = (map, id) => Number(map.get(String(id)) ?? id);
@@ -293,102 +391,246 @@ export const syncProcessGraph = async (client, { processId, plan }) => {
   const stateIds = new Map();
   const actionIds = new Map();
   const transitionIds = new Map();
+  const errors = [];
+  const failedPlan = emptyPlan();
+  let succeededCount = 0;
+  let attemptedCount = 0;
+
+  const remapId = (map, id) => map.get(String(id)) ?? id;
+  const requireServerId = (map, id, label) => {
+    const value = remapId(map, id);
+    if (isTempId(value) || !Number.isFinite(Number(value)))
+      throw new Error(`وابستگی «${label}» هنوز ذخیره نشده است.`);
+    return Number(value);
+  };
+
+  const attempt = async (label, task, onSuccess, onFailure) => {
+    attemptedCount += 1;
+    try {
+      const result = await task();
+      succeededCount += 1;
+      onSuccess?.(result);
+      return result;
+    } catch (error) {
+      errors.push({ label, error });
+      onFailure?.(error);
+      return null;
+    }
+  };
 
   if (plan.processName)
-    await workflowApi.updateProcess(client, processId, { name: plan.processName });
-
-  for (const node of plan.states.created) {
-    const created = await workflowApi.createState(
-      client,
-      statePayload(node, processId),
+    await attempt(
+      "نام فرایند",
+      () =>
+        workflowApi.updateProcess(client, processId, {
+          name: plan.processName,
+        }),
+      null,
+      () => {
+        failedPlan.processName = plan.processName;
+      },
     );
-    stateIds.set(String(node.id), created?.id);
-  }
+
+  for (const node of plan.states.created)
+    await attempt(
+      `ساخت مرحله «${node.name || "بی‌نام"}»`,
+      () => workflowApi.createState(client, statePayload(node, processId)),
+      (created) => stateIds.set(String(node.id), created?.id),
+      () => failedPlan.states.created.push(node),
+    );
+
   for (const node of plan.states.updated)
-    await workflowApi.updateState(client, node.id, stateUpdatePayload(node));
+    await attempt(
+      `ویرایش مرحله «${node.name || node.id}»`,
+      () => workflowApi.updateState(client, node.id, stateUpdatePayload(node)),
+      null,
+      () => failedPlan.states.updated.push(node),
+    );
 
   for (const edge of plan.transitions.created) {
-    const created = await workflowApi.createTransition(
-      client,
-      transitionPayload(
-        processId,
-        resolveId(stateIds, edge.source),
-        resolveId(stateIds, edge.target),
-      ),
+    const pendingEdge = {
+      ...edge,
+      source: remapId(stateIds, edge.source),
+      target: remapId(stateIds, edge.target),
+    };
+    await attempt(
+      "ساخت مسیر",
+      () =>
+        workflowApi.createTransition(
+          client,
+          transitionPayload(
+            processId,
+            requireServerId(stateIds, edge.source, "مرحله مبدأ"),
+            requireServerId(stateIds, edge.target, "مرحله مقصد"),
+          ),
+        ),
+      (created) => transitionIds.set(String(edge.id), created?.id),
+      () => failedPlan.transitions.created.push(pendingEdge),
     );
-    transitionIds.set(String(edge.id), created?.id);
   }
-  for (const edge of plan.transitions.updated)
-    await workflowApi.updateTransition(
-      client,
-      edge.id,
-      transitionPayload(
-        processId,
-        resolveId(stateIds, edge.source),
-        resolveId(stateIds, edge.target),
-      ),
+
+  for (const edge of plan.transitions.updated) {
+    const pendingEdge = {
+      ...edge,
+      source: remapId(stateIds, edge.source),
+      target: remapId(stateIds, edge.target),
+    };
+    await attempt(
+      `ویرایش مسیر ${edge.id}`,
+      () =>
+        workflowApi.updateTransition(
+          client,
+          edge.id,
+          transitionPayload(
+            processId,
+            requireServerId(stateIds, edge.source, "مرحله مبدأ"),
+            requireServerId(stateIds, edge.target, "مرحله مقصد"),
+          ),
+        ),
+      null,
+      () => failedPlan.transitions.updated.push(pendingEdge),
+    );
+  }
+
+  for (const action of plan.actions.created)
+    await attempt(
+      `ساخت عملیات «${action.name || "بی‌نام"}»`,
+      () => workflowApi.createAction(client, actionPayload(action, processId)),
+      (created) => actionIds.set(String(action.id), created?.id),
+      () => failedPlan.actions.created.push(action),
     );
 
-  for (const action of plan.actions.created) {
-    const created = await workflowApi.createAction(
-      client,
-      actionPayload(action, processId),
-    );
-    actionIds.set(String(action.id), created?.id);
-  }
   for (const action of plan.actions.updated)
-    await workflowApi.updateAction(client, action.id, actionUpdatePayload(action));
-
-  for (const link of plan.links.created)
-    await workflowApi.createTransitionAction(
-      client,
-      transitionActionPayload(
-        resolveId(actionIds, link.actionId),
-        resolveId(transitionIds, link.edgeId),
-      ),
+    await attempt(
+      `ویرایش عملیات «${action.name || action.id}»`,
+      () =>
+        workflowApi.updateAction(
+          client,
+          action.id,
+          actionUpdatePayload(action),
+        ),
+      null,
+      () => failedPlan.actions.updated.push(action),
     );
 
-  for (const { permission } of plan.processPermissions.created)
-    await workflowApi.createProcessPermission(
-      client,
-      processPermissionPayload(processId, permission),
+  for (const link of plan.links.created) {
+    const pendingLink = {
+      edgeId: remapId(transitionIds, link.edgeId),
+      actionId: remapId(actionIds, link.actionId),
+    };
+    await attempt(
+      "اتصال عملیات به مسیر",
+      () =>
+        workflowApi.createTransitionAction(
+          client,
+          transitionActionPayload(
+            requireServerId(actionIds, link.actionId, "عملیات"),
+            requireServerId(transitionIds, link.edgeId, "مسیر"),
+          ),
+        ),
+      null,
+      () => failedPlan.links.created.push(pendingLink),
+    );
+  }
+
+  for (const item of plan.processPermissions.created)
+    await attempt(
+      "افزودن دسترسی فرایند",
+      () =>
+        workflowApi.createProcessPermission(
+          client,
+          processPermissionPayload(processId, item.permission),
+        ),
+      null,
+      () => failedPlan.processPermissions.created.push(item),
     );
 
-  for (const { ownerId, permission } of plan.statePermissions.created)
-    await workflowApi.createStatePermission(
-      client,
-      statePermissionPayload(resolveId(stateIds, ownerId), permission),
+  for (const item of plan.statePermissions.created) {
+    const pending = { ...item, ownerId: remapId(stateIds, item.ownerId) };
+    await attempt(
+      "افزودن دسترسی مرحله",
+      () =>
+        workflowApi.createStatePermission(
+          client,
+          statePermissionPayload(
+            requireServerId(stateIds, item.ownerId, "مرحله"),
+            item.permission,
+          ),
+        ),
+      null,
+      () => failedPlan.statePermissions.created.push(pending),
     );
+  }
 
-  for (const { stateId, fieldId } of plan.fieldLockRules.created)
-    await workflowApi.createFormFieldLockRule(
-      client,
-      fieldLockRulePayload(resolveId(stateIds, stateId), fieldId),
+  for (const item of plan.fieldLockRules.created) {
+    const pending = { ...item, stateId: remapId(stateIds, item.stateId) };
+    await attempt(
+      "قفل‌کردن فیلد مرحله",
+      () =>
+        workflowApi.createFormFieldLockRule(
+          client,
+          fieldLockRulePayload(
+            requireServerId(stateIds, item.stateId, "مرحله"),
+            item.fieldId,
+          ),
+        ),
+      null,
+      () => failedPlan.fieldLockRules.created.push(pending),
     );
+  }
 
-  for (const { ownerId, permission } of plan.actionPermissions.created)
-    await workflowApi.createActionPermission(
-      client,
-      actionPermissionPayload(resolveId(actionIds, ownerId), permission),
+  for (const item of plan.actionPermissions.created) {
+    const pending = { ...item, ownerId: remapId(actionIds, item.ownerId) };
+    await attempt(
+      "افزودن دسترسی عملیات",
+      () =>
+        workflowApi.createActionPermission(
+          client,
+          actionPermissionPayload(
+            requireServerId(actionIds, item.ownerId, "عملیات"),
+            item.permission,
+          ),
+        ),
+      null,
+      () => failedPlan.actionPermissions.created.push(pending),
     );
+  }
 
-  // --- حذف‌ها ---
-  for (const id of plan.links.deleted)
-    await workflowApi.deleteTransitionAction(client, id);
-  for (const id of plan.actionPermissions.deleted)
-    await workflowApi.deleteActionPermission(client, id);
-  for (const id of plan.statePermissions.deleted)
-    await workflowApi.deleteStatePermission(client, id);
-  for (const id of plan.fieldLockRules.deleted)
-    await workflowApi.deleteFormFieldLockRule(client, id);
-  for (const id of plan.processPermissions.deleted)
-    await workflowApi.deleteProcessPermission(client, id);
-  for (const id of plan.transitions.deleted)
-    await workflowApi.deleteTransition(client, id);
-  for (const id of plan.actions.deleted)
-    await workflowApi.deleteAction(client, id);
-  for (const id of plan.states.deleted)
-    await workflowApi.deleteState(client, id);
+  const deletions = [
+    ["links", "حذف اتصال عملیات", workflowApi.deleteTransitionAction],
+    [
+      "actionPermissions",
+      "حذف دسترسی عملیات",
+      workflowApi.deleteActionPermission,
+    ],
+    ["statePermissions", "حذف دسترسی مرحله", workflowApi.deleteStatePermission],
+    ["fieldLockRules", "حذف قفل فیلد", workflowApi.deleteFormFieldLockRule],
+    [
+      "processPermissions",
+      "حذف دسترسی فرایند",
+      workflowApi.deleteProcessPermission,
+    ],
+    ["transitions", "حذف مسیر", workflowApi.deleteTransition],
+    ["actions", "حذف عملیات", workflowApi.deleteAction],
+    ["states", "حذف مرحله", workflowApi.deleteState],
+  ];
+  for (const [bucketName, label, removeItem] of deletions) {
+    for (const id of plan[bucketName].deleted)
+      await attempt(
+        `${label} ${id}`,
+        () => removeItem(client, id),
+        null,
+        () => failedPlan[bucketName].deleted.push(id),
+      );
+  }
 
-  return { stateIds, actionIds, transitionIds };
+  return {
+    stateIds,
+    actionIds,
+    transitionIds,
+    errors,
+    failedPlan,
+    succeededCount,
+    attemptedCount,
+  };
 };
