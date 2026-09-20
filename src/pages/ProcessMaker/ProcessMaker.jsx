@@ -19,10 +19,7 @@ import sentColumns from "./components/sentColumns";
 import processColumns from "./components/processColumns";
 import ProcessRequestsModal from "./components/ProcessRequestsModal";
 import { useFormSubmisions } from "../../QueryServises/formsQuery";
-import {
-  useProcessList,
-  useRequests,
-} from "../../QueryServises/workflowQuery";
+import { useProcessList, useRequests } from "../../QueryServises/workflowQuery";
 import {
   sentRowsFromRequests,
   sentRowsFromSubmissions,
@@ -72,15 +69,34 @@ const ProcessMakerCartable = () => {
 
   const currentUser = useMemo(readCurrentUser, []);
 
-  const processListQuery = useProcessList();
-
-  const formSubmissionQuery = useFormSubmisions();
-  const requestsQuery = useRequests();
-
   const [tab, setTab] = useState(TABS.TODO);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [submissionPreview, setSubmissionPreview] = useState(null);
+
+  const processTabIsVisible = tab === TABS.TODO || tab === TABS.PROCESSES;
+  const sentTabIsVisible = tab === TABS.SENT;
+  const permissionSensitiveQueryOptions = {
+    retry: false,
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  };
+
+  // فقط APIهای مورد نیاز تب فعال اجرا می‌شوند؛ قبلاً هر سه درخواست با هم
+  // اجرا و هر خطای 403 نیز چند بار retry می‌شد.
+  const processListQuery = useProcessList({
+    ...permissionSensitiveQueryOptions,
+    enabled: processTabIsVisible,
+  });
+  const formSubmissionQuery = useFormSubmisions({
+    ...permissionSensitiveQueryOptions,
+    enabled: sentTabIsVisible,
+  });
+  const requestsQuery = useRequests({
+    ...permissionSensitiveQueryOptions,
+    enabled: sentTabIsVisible,
+  });
 
   useEffect(() => {
     setPage(1);
@@ -211,11 +227,7 @@ const ProcessMakerCartable = () => {
   const isSent = tab === TABS.SENT;
   const isProcesses = tab === TABS.PROCESSES;
   const dataSource =
-    (isTodo
-      ? filteredTodo
-      : isSent
-        ? filteredSent
-        : filteredProcesses) || [];
+    (isTodo ? filteredTodo : isSent ? filteredSent : filteredProcesses) || [];
 
   const todoCols = useMemo(
     () =>
@@ -276,6 +288,23 @@ const ProcessMakerCartable = () => {
     : isSent
       ? requestsQuery.isError || formSubmissionQuery.isError
       : processListQuery.isError;
+
+  const activeError = isTodo
+    ? processListQuery.error
+    : isSent
+      ? (requestsQuery.error ?? formSubmissionQuery.error)
+      : processListQuery.error;
+  const isForbidden = Number(activeError?.response?.status) === 403;
+  const errorMessage = isForbidden
+    ? isSent
+      ? "شما دسترسی مشاهده ارسال‌ها و درخواست‌های فرایند را ندارید."
+      : "شما دسترسی مشاهده فرایندها را ندارید."
+    : getApiErrorMessage(
+        activeError,
+        isSent
+          ? "دریافت ارسال‌ها انجام نشد."
+          : "دریافت لیست فرایندها انجام نشد.",
+      );
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
@@ -374,18 +403,7 @@ const ProcessMakerCartable = () => {
               type="error"
               showIcon
               className="mb-4"
-              message={getApiErrorMessage(
-                isTodo
-                  ? processListQuery.error
-                  : isSent
-                    ? (requestsQuery.error ?? formSubmissionQuery.error)
-                    : processListQuery.error,
-                isTodo
-                  ? "دریافت لیست فرایندها انجام نشد."
-                  : isSent
-                    ? "دریافت ارسال‌ها انجام نشد."
-                    : "دریافت لیست فرایندها انجام نشد.",
-              )}
+              message={errorMessage}
               action={
                 <Button size="small" onClick={handleRefresh}>
                   تلاش مجدد
@@ -395,7 +413,9 @@ const ProcessMakerCartable = () => {
           ) : null}
 
           <TableAntd
-            rowKey={(record) => record.rowKey || (isTodo ? `process-${record.id}` : record.id)}
+            rowKey={(record) =>
+              record.rowKey || (isTodo ? `process-${record.id}` : record.id)
+            }
             columns={isTodo ? todoCols : isSent ? sentCols : processCols}
             dataSource={dataSource}
             loading={isLoading}
