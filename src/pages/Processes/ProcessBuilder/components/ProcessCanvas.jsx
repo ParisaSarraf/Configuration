@@ -87,7 +87,7 @@ const ProcessCanvas = ({
   /**
    * آفست خمیدگی هر مسیر. اگر بین دو مرحله مسیر برگشت هم وجود
    * داشته باشد، هر دو خم می‌شوند تا خط، برچسب و ناحیه‌ی کلیکشان جدا باشد و
-   * بتوان برای هر جهت جداگانه دکمه تعریف کرد.
+   * بتوان برای هر جهت جداگانه عملیات تعریف کرد.
    */
   const edgeOffsets = useMemo(() => {
     const edges = graph?.edges ?? [];
@@ -412,7 +412,7 @@ const ProcessCanvas = ({
           ) : null}
         </svg>
 
-        {/* برچسب مسیرها: دکمه‌های متصل به هر انتقال */}
+        {/* برچسب مسیرها: عملیاتی متصل به هر انتقال */}
         {(graph?.edges ?? []).map((edge) => {
           const source = nodeById.get(String(edge.source));
           const target = nodeById.get(String(edge.target));
@@ -470,13 +470,13 @@ const ProcessCanvas = ({
                 <button
                   type="button"
                   className="process-edge-label__warning process-edge-label__warning--action"
-                  title="افزودن دکمه تأیید یا رد به این مسیر"
+                  title="افزودن عملیات به این مسیر"
                   onPointerDown={(event) => event.stopPropagation()}
                   onClick={(event) =>
                     openMenu(event, { type: "edge", id: edge.id })
                   }
                 >
-                  بدون دکمه · افزودن
+                  بدون عملیات · افزودن
                 </button>
               )}
 
@@ -654,7 +654,7 @@ const ProcessCanvas = ({
             </button>
           </div>
           <p className="process-canvas__empty-note">
-            الگو، مراحل و دکمه‌های تأیید و رد را یک‌جا می‌سازد.
+            الگو، مراحل و عملیاتی تأیید و رد را یک‌جا می‌سازد.
           </p>
         </div>
       ) : null}
@@ -717,84 +717,6 @@ const ProcessCanvas = ({
               }}
             />
           ) : null}
-        </div>
-      ) : null}
-
-      {menu ? (
-        <div
-          className="process-canvas__menu"
-          style={{ left: menu.x, top: menu.y }}
-          onPointerDown={(event) => event.stopPropagation()}
-          onContextMenu={(event) => event.preventDefault()}
-        >
-          {menu.target.type === "node" ? (
-            <>
-              <button
-                type="button"
-                className="process-canvas__menu-item"
-                onClick={() => {
-                  connectDragRef.current = null;
-                  onStartConnect(menu.target.id);
-                  closeMenu();
-                }}
-              >
-                اتصال به مرحله دیگر
-              </button>
-              <button
-                type="button"
-                className="process-canvas__menu-item"
-                onClick={() => {
-                  onDuplicateNode?.(menu.target.id);
-                  closeMenu();
-                }}
-              >
-                تکرار مرحله · Ctrl+D
-              </button>
-              <button
-                type="button"
-                className="process-canvas__menu-item process-canvas__menu-item--danger"
-                onClick={() => {
-                  onDeleteNode(menu.target.id);
-                  closeMenu();
-                }}
-              >
-                حذف مرحله
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                type="button"
-                className="process-canvas__menu-item"
-                onClick={() => {
-                  onAddEdgeAction?.(menu.target.id, "approve");
-                  closeMenu();
-                }}
-              >
-                افزودن دکمه‌ی تأیید
-              </button>
-              <button
-                type="button"
-                className="process-canvas__menu-item"
-                onClick={() => {
-                  onAddEdgeAction?.(menu.target.id, "deny");
-                  closeMenu();
-                }}
-              >
-                افزودن دکمه‌ی رد
-              </button>
-              <button
-                type="button"
-                className="process-canvas__menu-item process-canvas__menu-item--danger"
-                onClick={() => {
-                  onDeleteEdge(menu.target.id);
-                  closeMenu();
-                }}
-              >
-                حذف مسیر
-              </button>
-            </>
-          )}
         </div>
       ) : null}
     </div>

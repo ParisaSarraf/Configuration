@@ -70,7 +70,11 @@ const mapActionPermission = (item) => ({
 const mapLockRule = (item) => ({
   id: item?.id,
   formFieldId: toNumber(
-    item?.form_field?.id ?? item?.form_field_id ?? item?.field?.id ?? item?.field_id ?? item?.form_field,
+    item?.form_field?.id ??
+      item?.form_field_id ??
+      item?.field?.id ??
+      item?.field_id ??
+      item?.form_field,
   ),
 });
 
@@ -83,8 +87,21 @@ const mapNode = (state) => ({
       state?.state_type?.id ?? state?.state_type_id ?? state?.state_type,
     ) ?? STATE_TYPE_IDS.NORMAL,
   permissions: asArray(state?.state_permissions).map(mapPermission),
-  lockedFieldRules: asArray(state?.form_field_lock_rules ?? state?.locked_fields ?? state?.field_lock_rules).map(mapLockRule).filter((rule) => rule.formFieldId !== null),
-  lockedFieldIds: asArray(state?.form_field_lock_rules ?? state?.locked_fields ?? state?.field_lock_rules).map(mapLockRule).map((rule) => rule.formFieldId).filter((id) => id !== null),
+  lockedFieldRules: asArray(
+    state?.form_field_lock_rules ??
+      state?.locked_fields ??
+      state?.field_lock_rules,
+  )
+    .map(mapLockRule)
+    .filter((rule) => rule.formFieldId !== null),
+  lockedFieldIds: asArray(
+    state?.form_field_lock_rules ??
+      state?.locked_fields ??
+      state?.field_lock_rules,
+  )
+    .map(mapLockRule)
+    .map((rule) => rule.formFieldId)
+    .filter((id) => id !== null),
   x: 0,
   y: 0,
 });
@@ -163,7 +180,11 @@ export const buildGraph = (infoPayload, transitionActions) => {
     id: processId,
     name: info.name ?? "",
     formDefinitionId:
-      toNumber(info.form_definition?.id ?? info.form_definition_id ?? info.form_definition) ?? null,
+      toNumber(
+        info.form_definition?.id ??
+          info.form_definition_id ??
+          info.form_definition,
+      ) ?? null,
     formFields: asArray(info.form_definition?.fields),
     nodes,
     edges: edges.filter((edge) => edge.source !== null && edge.target !== null),
@@ -286,7 +307,7 @@ export const createEdge = ({ source, target }) => ({
   actions: [],
 });
 
-// توضیحات در بک‌اند اجباری است؛ پس اگر خالی باشد از نام دکمه ساخته می‌شود
+// توضیحات در بک‌اند اجباری است؛ پس اگر خالی باشد از نام عملیات ساخته می‌شود
 // تا کاربر با خطای اجباری‌بودن توضیحات روبرو نشود. مقدار قابل ویرایش است.
 export const createAction = ({
   actionTypeId,
@@ -295,7 +316,7 @@ export const createAction = ({
 }) => ({
   id: nextTempId("action"),
   name,
-  description: description || (name ? `دکمه «${name}» در این مرحله.` : ""),
+  description: description || (name ? `عملیات «${name}» در این مرحله.` : ""),
   actionTypeId: toNumber(actionTypeId) ?? 1,
   permissions: [],
 });
@@ -501,10 +522,10 @@ export const edgeGeometry = (source, target, curveOffset = 0) => {
 /**
  * اعتبارسنجی فرایند بر اساس قوانین واقعی بک‌اند:
  *  - نبود مرحله شروع → add-request خطای «فرایند دارای مرحله اغازین نمی باشد» می‌دهد
- *  - name مرحله و name/description دکمه در مدل بک‌اند اجباری هستند
- *  - درخواست فقط وقتی جلو می‌رود که دکمه‌های یک انتقال کامل شوند
- *    → انتقال بدون دکمه، درخواست را متوقف می‌کند
- *  - برای دیدن/انجام دکمه، دسترسی سمت‌ها لازم است
+ *  - name مرحله و name/description عملیات در مدل بک‌اند اجباری هستند
+ *  - درخواست فقط وقتی جلو می‌رود که عملیاتی یک انتقال کامل شوند
+ *    → انتقال بدون عملیات، درخواست را متوقف می‌کند
+ *  - برای دیدن/انجام عملیات، دسترسی سمت‌ها لازم است
  */
 export const validateGraph = (graph) => {
   const errors = [];
@@ -530,7 +551,7 @@ export const validateGraph = (graph) => {
     );
   }
 
-  // هر سه نوع «پایان»، «رد شده» و «لغو شده» پایان‌دهنده‌ی فرایند هستند.
+  // پایان، رد شده و لغو شده هر سه پایان‌دهنده‌ی فرایند هستند.
   const terminalNodes = graph.nodes.filter((node) =>
     isTerminalStateType(node.stateTypeId),
   );
@@ -569,7 +590,7 @@ export const validateGraph = (graph) => {
 
     if (edge.actions.length === 0) {
       warnings.push(
-        "برای یک مسیر هیچ دکمه‌ای تعریف نشده؛ درخواست در آن مرحله قابل پیشروی نیست.",
+        "برای یک مسیر هیچ عملیاتی تعریف نشده؛ درخواست در آن مرحله قابل پیشروی نیست.",
       );
     }
   });
@@ -593,13 +614,13 @@ export const validateGraph = (graph) => {
   });
 
   graph.actions.forEach((action) => {
-    if (!trimmed(action.name)) errors.push("نام همه‌ی دکمه‌ها باید پر شود.");
+    if (!trimmed(action.name)) errors.push("نام همه‌ی عملیات باید پر شود.");
     if (!trimmed(action.description)) {
-      errors.push(`توضیحات دکمه «${action.name || "بی‌نام"}» الزامی است.`);
+      errors.push(`توضیحات عملیات «${action.name || "بی‌نام"}» الزامی است.`);
     }
     if (action.permissions.length === 0) {
       warnings.push(
-        `دکمه «${action.name || "بی‌نام"}» به هیچ سمتی داده نشده است.`,
+        `عملیات «${action.name || "بی‌نام"}» به هیچ سمتی داده نشده است.`,
       );
     }
   });
@@ -612,7 +633,7 @@ export const validateGraph = (graph) => {
   graph.actions.forEach((action) => {
     if (!usedActionIds.has(String(action.id))) {
       warnings.push(
-        `دکمه «${action.name || "بی‌نام"}» به هیچ مسیری وصل نشده است.`,
+        `عملیات «${action.name || "بی‌نام"}» به هیچ مسیری وصل نشده است.`,
       );
     }
   });
@@ -635,7 +656,7 @@ export const validateGraph = (graph) => {
     action.permissions.forEach((permission) => {
       if (permission.granteeType === "group" && !permission.groupId) {
         errors.push(
-          `برای دسترسی دکمه «${action.name || "بی‌نام"}» باید سمت انتخاب شود.`,
+          `برای دسترسی عملیات «${action.name || "بی‌نام"}» باید سمت انتخاب شود.`,
         );
       }
     });

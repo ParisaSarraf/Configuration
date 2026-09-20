@@ -287,7 +287,7 @@ const Builder = ({ processId }) => {
     }
   }, [graph]);
 
-  /* ------------------------------ دکمه ------------------------------ */
+  /* ------------------------------ عملیات ------------------------------ */
 
   const handleAddNode = useCallback(
     (stateTypeId, position) => {
@@ -486,8 +486,8 @@ const Builder = ({ processId }) => {
   );
 
   /**
-   * افزودن دکمه‌ی تأیید/رد به یک مسیر در یک کلیک.
-   * اگر دکمه‌ای با همان نوع و نام قبلاً ساخته شده باشد، همان استفاده می‌شود.
+   * افزودن عملیات  تأیید/رد به یک مسیر در یک کلیک.
+   * اگر عملیاتی با همان نوع و نام قبلاً ساخته شده باشد، همان استفاده می‌شود.
    */
   const handleAddEdgeAction = useCallback(
     (edgeId, kind) => {
@@ -522,7 +522,7 @@ const Builder = ({ processId }) => {
           (link) => String(link.actionId) === String(action.id),
         )
       ) {
-        message.info("این دکمه از قبل روی این مسیر هست.");
+        message.info("این عملیات از قبل روی این مسیر هست.");
         setSelection({ type: "edge", id: edgeId });
         return;
       }
@@ -838,7 +838,7 @@ const Builder = ({ processId }) => {
             </span>
             <span className="process-builder__subtitle">
               {graph
-                ? `${graph.nodes.length} مرحله · ${graph.edges.length} مسیر · ${graph.actions.length} دکمه`
+                ? `${graph.nodes.length} مرحله · ${graph.edges.length} مسیر · ${graph.actions.length} عملیات`
                 : "در حال بارگذاری…"}
             </span>
           </div>

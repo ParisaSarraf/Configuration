@@ -75,7 +75,7 @@ const ProcessWizardModal = ({ open, onClose, onApply, hasNodes }) => {
         size="small"
         current={step}
         className="process-wizard__steps"
-        items={[{ title: "مراحل" }, { title: "دکمه‌ها" }]}
+        items={[{ title: "مراحل" }, { title: "عملیات" }]}
       />
 
       {step === 0 ? (
@@ -119,13 +119,13 @@ const ProcessWizardModal = ({ open, onClose, onApply, hasNodes }) => {
             checked={withApprove}
             onChange={(event) => setWithApprove(event.target.checked)}
           >
-            دکمه «تأیید» روی همه‌ی مسیرهای ساخته‌شده قرار بگیرد
+            عملیات «تأیید» روی همه‌ی مسیرهای ساخته‌شده قرار بگیرد
           </Checkbox>
           <Checkbox
             checked={withDenied}
             onChange={(event) => setWithDenied(event.target.checked)}
           >
-            مرحله «رد شده» با دکمه «رد» هم اضافه شود
+            مرحله «رد شده» با عملیات «رد» هم اضافه شود
           </Checkbox>
 
           <Alert

@@ -58,7 +58,7 @@ export const buildIssueTargets = (graph) => {
 
     if ((edge.actions ?? []).length === 0) {
       remember(
-        "برای یک مسیر هیچ دکمه‌ای تعریف نشده؛ درخواست در آن مرحله قابل پیشروی نیست.",
+        "برای یک مسیر هیچ عملیاتی تعریف نشده؛ درخواست در آن مرحله قابل پیشروی نیست.",
         edgeTarget(edge),
       );
     }
@@ -86,7 +86,7 @@ export const buildIssueTargets = (graph) => {
     }
   });
 
-  // مشکلات مربوط به دکمه‌ها را به اولین مسیری که آن دکمه رویش نشسته
+  // مشکلات مربوط به عملیات را به اولین مسیری که آن عملیات رویش نشسته
   // وصل می‌کنیم تا کاربر بداند کدام مرحله از فرایند منظور است.
   const edgeOfAction = new Map();
   graph.edges.forEach((edge) => {
@@ -102,15 +102,18 @@ export const buildIssueTargets = (graph) => {
     if (!edge) return;
 
     if (!trimmed(action.description)) {
-      remember(`توضیحات دکمه «${label}» الزامی است.`, edgeTarget(edge));
+      remember(`توضیحات عملیات «${label}» الزامی است.`, edgeTarget(edge));
     }
     if ((action.permissions ?? []).length === 0) {
-      remember(`دکمه «${label}» به هیچ سمتی داده نشده است.`, edgeTarget(edge));
+      remember(
+        `عملیات «${label}» به هیچ سمتی داده نشده است.`,
+        edgeTarget(edge),
+      );
     }
     (action.permissions ?? []).forEach((permission) => {
       if (permission.granteeType === "group" && !permission.groupId) {
         remember(
-          `برای دسترسی دکمه «${label}» باید سمت انتخاب شود.`,
+          `برای دسترسی عملیات «${label}» باید سمت انتخاب شود.`,
           edgeTarget(edge),
         );
       }
@@ -120,7 +123,7 @@ export const buildIssueTargets = (graph) => {
   return targets;
 };
 
-/** برچسب کوتاه دکمه‌ی پرش، بر اساس نوع محل مشکل. */
+/** برچسب کوتاه عملیات  پرش، بر اساس نوع محل مشکل. */
 export const issueJumpLabel = (target) => {
   if (!target) return "";
   return target.type === "edge" ? "نمایش مسیر" : "نمایش مرحله";
