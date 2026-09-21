@@ -13,8 +13,8 @@
 .fr-view textarea,
 .fr-view select {
   background: #fff;
-  color: #0f172a;
-  -webkit-text-fill-color: #0f172a;
+  color: #172033;
+  -webkit-text-fill-color: #172033;
   opacity: 1;
   cursor: default;
 }
@@ -24,8 +24,8 @@
 .fr-view select:disabled,
 .fr-view [readonly] {
   background: #fff;
-  color: #0f172a;
-  -webkit-text-fill-color: #0f172a;
+  color: #172033;
+  -webkit-text-fill-color: #172033;
   opacity: 1;
 }
 
@@ -56,7 +56,7 @@
 .dark .fr-view input:disabled,
 .dark .fr-view textarea:disabled,
 .dark .fr-view select:disabled {
-  background: #0b1220;
-  color: #e2e8f0;
-  -webkit-text-fill-color: #e2e8f0;
+  background: #172033;
+  color: #E3E8EF;
+  -webkit-text-fill-color: #E3E8EF;
 }

@@ -130,7 +130,7 @@ export default function FormFiller() {
             {definition.name || "تکمیل فرم"}
           </h1>
           {definition.description ? (
-            <p style={{ fontSize: 12, color: "#64748b", margin: "4px 0 0" }}>
+            <p style={{ fontSize: 12, color: "#667085", margin: "4px 0 0" }}>
               {definition.description}
             </p>
           ) : null}

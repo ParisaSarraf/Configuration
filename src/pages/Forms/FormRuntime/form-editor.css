@@ -23,7 +23,7 @@
 }
 .fw-bar-hint {
   margin-inline-start: auto;
-  color: #64748b;
+  color: #667085;
   font-size: 11px;
 }
 .fw-bar-warn {
@@ -56,7 +56,7 @@
   outline-offset: -1px;
 }
 .fw-node:hover::after {
-  outline-color: #b6cfe8;
+  outline-color: #DCE5FF;
 }
 .fw-node.is-selected::after {
   outline: 1.5px solid var(--fr-accent);
@@ -92,7 +92,7 @@
   border: 0;
   border-radius: 3px;
   background: transparent;
-  color: #475569;
+  color: #475467;
   font-family: inherit;
   font-size: 10.5px;
   line-height: 18px;
@@ -107,7 +107,7 @@
   color: var(--fr-band-ink);
 }
 .fw-chip.is-danger:hover {
-  background: #fdecea;
+  background: #FFF0F0;
   color: var(--fr-danger);
 }
 .fw-chip[disabled] {
@@ -129,12 +129,12 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   font-weight: 600;
-  color: #334155;
+  color: #344054;
   outline: none;
 }
 .fw-name:focus {
-  background: #eaf3fd;
-  box-shadow: inset 0 0 0 1px #9ec5ee;
+  background: #EEF2FF;
+  box-shadow: inset 0 0 0 1px #AFC0FF;
 }
 
 .fw-resize {
@@ -172,7 +172,7 @@
   width: 20px;
   height: 15px;
   padding: 0;
-  border: 1px dashed #b6cfe8;
+  border: 1px dashed #DCE5FF;
   border-radius: 3px;
   background: #fff;
   color: var(--fr-accent);
@@ -211,7 +211,7 @@
   border: 1px solid var(--fr-line-soft);
   border-radius: 4px;
   background: #fff;
-  color: #334155;
+  color: #344054;
   font-family: inherit;
   font-size: 11px;
   cursor: pointer;
@@ -225,7 +225,7 @@
 .fw-empty {
   padding: 26px 12px;
   text-align: center;
-  color: #94a3b8;
+  color: #98A2B3;
   font-size: 12px;
 }
 

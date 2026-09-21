@@ -3,11 +3,11 @@
   --studio-canvas-dot: rgba(109, 90, 224, 0.14);
   --studio-surface: #ffffff;
   --studio-panel: #faf9ff;
-  --studio-primary: #6d5ae0;
+  --studio-primary: #315CFF;
   --studio-primary-strong: #5a46d6;
-  --studio-primary-soft: #eeebfd;
-  --studio-accent: #ff7a59;
-  --studio-accent-soft: #fff1ec;
+  --studio-primary-soft: #EEF2FF;
+  --studio-accent: #D97706;
+  --studio-accent-soft: #FFF5E8;
   --studio-border: #e4e1f5;
   --studio-text: #201c34;
   --studio-muted: #79749a;
@@ -21,14 +21,14 @@
    same way a form field's data type is often color-coded, so the
    canvas reads as a set of distinct pieces rather than identical grey
    boxes stacked on top of each other. */
-.tone-violet { --tone: #6d5ae0; --tone-soft: #eeebfd; }
+.tone-violet { --tone: #315CFF; --tone-soft: #EEF2FF; }
 .tone-indigo { --tone: #4c5fd5; --tone-soft: #ecefff; }
 .tone-teal   { --tone: #11998e; --tone-soft: #e4faf7; }
-.tone-amber  { --tone: #d98c1f; --tone-soft: #fdf1de; }
-.tone-rose   { --tone: #d0447a; --tone-soft: #fdeaf2; }
+.tone-amber  { --tone: #d98c1f; --tone-soft: #FFF5E8; }
+.tone-rose   { --tone: #d0447a; --tone-soft: #FFF0F0; }
 .tone-sky    { --tone: #2f8fd1; --tone-soft: #e7f4fd; }
 .tone-slate  { --tone: #5b6478; --tone-soft: #eef0f4; }
-.tone-gold   { --tone: #b8890a; --tone-soft: #fbf1dc; }
+.tone-gold   { --tone: #b8890a; --tone-soft: #FFF5E8; }
 .tone-cyan   { --tone: #0e8fa3; --tone-soft: #e3f6f9; }
 
 .form-studio {
@@ -115,7 +115,7 @@
   align-items: center;
   gap: 10px;
   overflow: hidden;
-  color: #3a3555;
+  color: #172033;
   background: transparent;
   border-color: transparent;
   box-shadow: none;
@@ -240,7 +240,7 @@
   min-width: 0;
   padding: 0;
   overflow: hidden;
-  color: #2a2545;
+  color: #172033;
   background: transparent;
   border: 0;
   font-size: 13px;
@@ -254,7 +254,7 @@
 
 .studio-field-actions { display: flex; align-items: center; flex: 0 0 auto; }
 .studio-field-actions .ant-btn { width: 26px; height: 26px; color: #b3aecf; border-radius: 7px; }
-.studio-field-actions .ant-btn:hover { color: var(--studio-danger) !important; background: #fdeef4 !important; }
+.studio-field-actions .ant-btn:hover { color: var(--studio-danger) !important; background: #FFF0F0 !important; }
 
 .studio-field-body {
   flex: 1 1 auto;
@@ -273,7 +273,7 @@
 .studio-field-body .ant-input, .studio-field-body .ant-input-number, .studio-field-body .ant-select-selector, .studio-field-body .ant-btn {
   color: #75708f !important;
   background: #f8f7fc !important;
-  border-color: #e7e4f4 !important;
+  border-color: #E3E8EF !important;
   box-shadow: none !important;
   border-radius: 8px !important;
 }
@@ -337,13 +337,13 @@
 .ant-drawer-content:has(.ant-form[dir="rtl"]) .ant-drawer-body { padding: 22px 20px 30px; }
 .ant-drawer-content:has(.ant-form[dir="rtl"]) .ant-drawer-extra .ant-btn-primary { height: 36px; background: var(--studio-primary); font-size: 12px; font-weight: 600; border-radius: 8px; box-shadow: 0 5px 12px rgba(109, 90, 224, .22); }
 .ant-drawer-content:has(.ant-form[dir="rtl"]) .ant-form-item { margin-bottom: 18px; }
-.ant-drawer-content:has(.ant-form[dir="rtl"]) .ant-form-item-label > label { color: #3a3555; font-size: 12px; font-weight: 650; }
+.ant-drawer-content:has(.ant-form[dir="rtl"]) .ant-form-item-label > label { color: #172033; font-size: 12px; font-weight: 650; }
 .ant-drawer-content:has(.ant-form[dir="rtl"]) .ant-form-item-extra { margin-top: 5px; color: var(--studio-muted); font-size: 10px; }
 .ant-drawer-content:has(.ant-form[dir="rtl"]) .ant-input, .ant-drawer-content:has(.ant-form[dir="rtl"]) .ant-input-number, .ant-drawer-content:has(.ant-form[dir="rtl"]) .ant-select-selector { min-height: 38px; background: var(--studio-surface); border-color: #d9d5ee; border-radius: 8px; }
 .ant-drawer-content:has(.ant-form[dir="rtl"]) .ant-input:hover, .ant-drawer-content:has(.ant-form[dir="rtl"]) .ant-input-number:hover, .ant-drawer-content:has(.ant-form[dir="rtl"]) .ant-select:hover .ant-select-selector { border-color: var(--tone, #b3a8f0); }
 .ant-drawer-content:has(.ant-form[dir="rtl"]) .ant-input:focus, .ant-drawer-content:has(.ant-form[dir="rtl"]) .ant-input-focused, .ant-drawer-content:has(.ant-form[dir="rtl"]) .ant-input-number-focused, .ant-drawer-content:has(.ant-form[dir="rtl"]) .ant-select-focused .ant-select-selector { border-color: var(--studio-primary) !important; box-shadow: 0 0 0 3px var(--studio-primary-soft) !important; }
 
-.ant-message .ant-message-notice-content { padding: 10px 14px; color: #2a2545; font-size: 12px; font-weight: 550; border: 1px solid #e7e4f4; border-radius: 10px; box-shadow: var(--studio-shadow-md); }
+.ant-message .ant-message-notice-content { padding: 10px 14px; color: #172033; font-size: 12px; font-weight: 550; border: 1px solid #E3E8EF; border-radius: 10px; box-shadow: var(--studio-shadow-md); }
 
 /* ---------- Responsive ---------- */
 
@@ -374,7 +374,7 @@
   margin: 10px 4px 4px;
   font-size: 11px;
   font-weight: 700;
-  color: #64748b;
+  color: #667085;
 }
 
 .studio-editor-typebar {
@@ -384,14 +384,14 @@
   gap: 8px;
   padding: 6px 10px;
   margin-bottom: 6px;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
+  background: #F5F7FA;
+  border: 1px solid #E3E8EF;
   border-radius: 8px;
 }
 
 .studio-editor-typename {
   font-size: 12px;
-  color: #0f172a;
+  color: #172033;
 }
 
 .studio-editor-typeswitch {
@@ -401,7 +401,7 @@
 .studio-editor-hint {
   margin: 0 0 14px;
   font-size: 11px;
-  color: #64748b;
+  color: #667085;
 }
 
 .studio-choice-list {

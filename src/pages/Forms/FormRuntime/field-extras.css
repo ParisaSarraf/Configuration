@@ -31,20 +31,20 @@
 
 .fr-matrix-table .fr-input:hover,
 .fr-matrix-table .fr-select:hover {
-  border-color: var(--fr-line-soft, #cbd5e1);
+  border-color: var(--fr-line-soft, #CFD7E3);
 }
 
 .fr-matrix-table .fr-input:focus,
 .fr-matrix-table .fr-select:focus {
-  border-color: var(--fr-accent, #2783de);
-  background: var(--fr-field-focus, #eaf3fd);
+  border-color: var(--fr-accent, #315CFF);
+  background: var(--fr-field-focus, #EEF2FF);
   outline: none;
 }
 
 .fr-matrix-index {
   width: 34px;
   text-align: center;
-  color: var(--fr-muted, #64748b);
+  color: var(--fr-muted, #667085);
   font-size: 11px;
 }
 
@@ -56,17 +56,17 @@
   width: 22px;
   height: 22px;
   line-height: 1;
-  border: 1px solid var(--fr-line-soft, #cbd5e1);
+  border: 1px solid var(--fr-line-soft, #CFD7E3);
   border-radius: 4px;
   background: #fff;
-  color: var(--fr-danger, #e56458);
+  color: var(--fr-danger, #DC4C4C);
   cursor: pointer;
   font-size: 14px;
 }
 
 .fr-matrix-remove:hover:not(:disabled) {
-  background: #fef2f2;
-  border-color: var(--fr-danger, #e56458);
+  background: #FFF0F0;
+  border-color: var(--fr-danger, #DC4C4C);
 }
 
 .fr-matrix-remove:disabled {
@@ -81,8 +81,8 @@
 }
 
 .fr-matrix-add {
-  border: 1px dashed var(--fr-accent, #2783de);
-  color: var(--fr-accent, #2783de);
+  border: 1px dashed var(--fr-accent, #315CFF);
+  color: var(--fr-accent, #315CFF);
   background: #fff;
   border-radius: 6px;
   padding: 3px 10px;
@@ -91,7 +91,7 @@
 }
 
 .fr-matrix-add:hover:not(:disabled) {
-  background: var(--fr-field-focus, #eaf3fd);
+  background: var(--fr-field-focus, #EEF2FF);
 }
 
 .fr-matrix-add:disabled {
@@ -104,7 +104,7 @@
 .fr-matrix-hint,
 .fr-matrix-empty {
   font-size: 11px;
-  color: var(--fr-muted, #64748b);
+  color: var(--fr-muted, #667085);
 }
 
 .fr-matrix-hint {
@@ -113,7 +113,7 @@
 }
 
 .fr-matrix-empty {
-  border: 1px dashed var(--fr-line-soft, #cbd5e1);
+  border: 1px dashed var(--fr-line-soft, #CFD7E3);
   border-radius: 6px;
   padding: 10px;
   text-align: center;
@@ -129,19 +129,19 @@
 
 .fr-slider input[type="range"] {
   flex: 1 1 auto;
-  accent-color: var(--fr-accent, #2783de);
+  accent-color: var(--fr-accent, #315CFF);
 }
 
 .fr-slider-value {
   min-width: 34px;
   text-align: center;
   font-weight: 700;
-  color: var(--fr-ink, #0f172a);
+  color: var(--fr-ink, #172033);
 }
 
 .fr-slider-range {
   font-size: 11px;
-  color: var(--fr-muted, #64748b);
+  color: var(--fr-muted, #667085);
 }
 
 /* --------------------------- بارگذاری فایل -------------------------- */
@@ -154,7 +154,7 @@
 
 .fr-upload-names {
   font-size: 11px;
-  color: var(--fr-ink, #0f172a);
+  color: var(--fr-ink, #172033);
 }
 
 /* ------------------------------ چاپ -------------------------------- */
@@ -221,11 +221,11 @@ body.fr-printing .fr-matrix-tools {
   text-align: right !important;
 }
 .fr-datefield-picker .rmdp-input:hover {
-  background: #f8fafc !important;
+  background: #F8FAFC !important;
 }
 .fr-datefield-picker .rmdp-input:focus {
   background: var(--fr-field-focus) !important;
-  box-shadow: inset 0 0 0 1px #9ec5ee !important;
+  box-shadow: inset 0 0 0 1px #AFC0FF !important;
 }
 .fr-datefield-picker .rmdp-input:disabled {
   background: transparent !important;
@@ -283,7 +283,7 @@ body.fr-printing .fr-matrix-tools {
   min-height: 34px;
   border: 1px dashed var(--fr-line-soft);
   border-radius: 4px;
-  color: #b8c0cc;
+  color: #CFD7E3;
   font-size: 11px;
 }
 

@@ -21,8 +21,8 @@
 .cartable-form-view .fr-timeinput:disabled,
 .cartable-form-view .fr-datefield input:disabled {
   background: #ffffff;
-  color: #0f172a;
-  -webkit-text-fill-color: #0f172a;
+  color: #172033;
+  -webkit-text-fill-color: #172033;
   opacity: 1;
   cursor: default;
 }
@@ -51,6 +51,6 @@
 .dark .cartable-form-view .fr-timeinput:disabled,
 .dark .cartable-form-view .fr-datefield input:disabled {
   background: transparent;
-  color: #e2e8f0;
-  -webkit-text-fill-color: #e2e8f0;
+  color: #E3E8EF;
+  -webkit-text-fill-color: #E3E8EF;
 }

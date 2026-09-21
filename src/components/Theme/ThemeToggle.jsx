@@ -1,12 +1,14 @@
 import { Switch } from 'antd';
 import { useEffect, useState } from 'react';
+import { MoonOutlined, SunOutlined } from '@ant-design/icons';
 
 const ThemeToggle = () => {
     const [isDark, setIsDark] = useState(false);
 
     useEffect(() => {
         const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
+        const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
             document.documentElement.classList.add('dark');
             setIsDark(true);
         }
@@ -24,14 +26,15 @@ const ThemeToggle = () => {
     };
 
     return (
-        <div className="flex items-center gap-2 px-4 ">
+        <div className="theme-toggle flex items-center gap-2 px-2">
+            <SunOutlined className={!isDark ? 'is-active' : ''}/>
             <Switch
-                size='default'
+                size='small'
                 checked={isDark}
                 onChange={toggleTheme}
-            // checkedChildren="🌙"
-            // unCheckedChildren="☀️"
+                aria-label={isDark ? 'فعال‌کردن حالت روشن' : 'فعال‌کردن حالت تاریک'}
             />
+            <MoonOutlined className={isDark ? 'is-active' : ''}/>
         </div>
     );
 };

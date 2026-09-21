@@ -10,8 +10,8 @@
 
 .hb-preview {
   padding: 10px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: #F8FAFC;
+  border: 1px solid #E3E8EF;
   border-radius: 8px;
   direction: rtl;
 }
@@ -37,28 +37,28 @@
 .hb-field-label {
   font-size: 12px;
   font-weight: 700;
-  color: #334155;
+  color: #344054;
 }
 
 .hb-hint {
   font-size: 11px;
-  color: #94a3b8;
+  color: #98A2B3;
 }
 
 .hb-input {
   width: 100%;
   padding: 6px 8px;
-  border: 1px solid #d9d9d9;
+  border: 1px solid #E3E8EF;
   border-radius: 6px;
   background: #fff;
   font: inherit;
   font-size: 12.5px;
-  color: #0f172a;
+  color: #172033;
 }
 
 .hb-input:focus {
   outline: none;
-  border-color: #1677ff;
+  border-color: #315CFF;
   box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.12);
 }
 
@@ -80,7 +80,7 @@
   justify-content: center;
   min-height: 76px;
   padding: 8px;
-  border: 1px dashed #cbd5e1;
+  border: 1px dashed #CFD7E3;
   border-radius: 8px;
   background: #fff;
   text-align: center;
@@ -92,7 +92,7 @@
 
 .hb-drop:hover,
 .hb-drop:focus-visible {
-  border-color: #1677ff;
+  border-color: #315CFF;
   background: #f5faff;
   outline: none;
 }
@@ -106,7 +106,7 @@
 .hb-drop-hint {
   font-size: 11.5px;
   line-height: 1.8;
-  color: #94a3b8;
+  color: #98A2B3;
 }
 
 .hb-logo-compact .hb-drop {
@@ -122,12 +122,12 @@
 
 .hb-btn {
   padding: 4px 10px;
-  border: 1px solid #d9d9d9;
+  border: 1px solid #E3E8EF;
   border-radius: 6px;
   background: #fff;
   font: inherit;
   font-size: 11.5px;
-  color: #334155;
+  color: #344054;
   cursor: pointer;
   transition:
     border-color 0.15s,
@@ -135,37 +135,37 @@
 }
 
 .hb-btn:hover {
-  border-color: #1677ff;
-  color: #1677ff;
+  border-color: #315CFF;
+  color: #315CFF;
 }
 
 .hb-btn-main {
   border-style: dashed;
-  border-color: #1677ff;
-  color: #1677ff;
+  border-color: #315CFF;
+  color: #315CFF;
 }
 
 .hb-btn-danger:hover {
-  border-color: #e56458;
-  color: #e56458;
+  border-color: #DC4C4C;
+  color: #DC4C4C;
 }
 
 .hb-badge {
   padding: 2px 7px;
   border-radius: 999px;
-  background: #f1f5f9;
-  color: #64748b;
+  background: #F5F7FA;
+  color: #667085;
   font-size: 10.5px;
 }
 
 .hb-badge-warn {
-  background: #fef3c7;
+  background: #FFF5E8;
   color: #92400e;
 }
 
 .hb-note {
   padding: 5px 8px;
-  border: 1px solid #fde68a;
+  border: 1px solid #F2D2A8;
   border-radius: 6px;
   background: #fffbeb;
   font-size: 11px;
@@ -175,7 +175,7 @@
 
 .hb-error {
   font-size: 11px;
-  color: #b91c1c;
+  color: #DC4C4C;
 }
 
 /* --------------------------- ردیف‌های سربرگ --------------------------- */
@@ -216,15 +216,15 @@
   border: 1px solid transparent;
   border-radius: 6px;
   background: transparent;
-  color: #64748b;
+  color: #667085;
   font-size: 14px;
   line-height: 1;
   cursor: pointer;
 }
 
 .hb-icon:hover:not(:disabled) {
-  background: #f1f5f9;
-  color: #1677ff;
+  background: #F5F7FA;
+  color: #315CFF;
 }
 
 .hb-icon:disabled {
@@ -233,17 +233,17 @@
 }
 
 .hb-icon-danger:hover:not(:disabled) {
-  background: #fef2f2;
-  color: #e56458;
+  background: #FFF0F0;
+  color: #DC4C4C;
 }
 
 .hb-empty {
   padding: 8px;
-  border: 1px dashed #e2e8f0;
+  border: 1px dashed #E3E8EF;
   border-radius: 6px;
-  background: #f8fafc;
+  background: #F8FAFC;
   font-size: 11.5px;
-  color: #94a3b8;
+  color: #98A2B3;
   text-align: center;
 }
 

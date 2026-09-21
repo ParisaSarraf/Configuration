@@ -1,383 +1,383 @@
 import { useEffect, useMemo, useState } from "react";
 import { Alert, App, Button, Empty, Result, Skeleton, Space, Tag } from "antd";
 import {
-  FileTextOutlined,
-  PartitionOutlined,
-  UserOutlined,
+ FileTextOutlined,
+ PartitionOutlined,
+ UserOutlined,
 } from "@ant-design/icons";
 import FormRenderer from "@/pages/Forms/FormRuntime/FormRenderer";
 import {
-  buildFormData,
-  buildSubmissionPayload,
-  collectFileEntries,
-  flattenFields,
-  resolveSubmitterId,
-  validateFiles,
+ buildFormData,
+ buildSubmissionPayload,
+ collectFileEntries,
+ flattenFields,
+ resolveSubmitterId,
+ validateFiles,
 } from "@/pages/Forms/FormRuntime/submission";
 import {
-  useFormDefinitionFieldById,
-  useSubmitForm,
+ useFormDefinitionFieldById,
+ useSubmitForm,
 } from "@/QueryServises/formsQuery";
 import {
-  useCreateRequest,
-  useProcessInfo,
+ useCreateRequest,
+ useProcessInfo,
 } from "@/QueryServises/workflowQuery";
 import { pickProcessInfo } from "@/pages/Processes/ProcessBuilder/processGraph";
 import {
-  getStateTypeLabel,
-  isStartStateType,
+ getStateTypeLabel,
+ isStartStateType,
 } from "@/pages/Processes/ProcessBuilder/processSchema";
 import { getApiErrorMessage } from "@/Services/forms/formUtils";
 import { getUserFromToken } from "@/utils/ExportFromToken";
 import Modal from "../../../components/Modal";
 
 const asArray = (value) => {
-  if (Array.isArray(value)) return value;
-  if (Array.isArray(value?.results)) return value.results;
-  return [];
+ if (Array.isArray(value)) return value;
+ if (Array.isArray(value?.results)) return value.results;
+ return [];
 };
 
 const looksLikeFormDefinition = (record) =>
-  Boolean(
-    record &&
-    (Array.isArray(record.fields) ||
-      "enable_auto_save" in record ||
-      "max_submissions" in record ||
-      "success_message" in record ||
-      "version" in record),
-  );
+ Boolean(
+ record &&
+ (Array.isArray(record.fields) ||
+ "enable_auto_save" in record ||
+ "max_submissions" in record ||
+ "success_message" in record ||
+ "version" in record),
+ );
 
 const resolveFormDefinitionId = (record) => {
-  if (!record) return null;
-  const nested = record.form_definition;
-  if (nested && typeof nested === "object") return nested.id ?? null;
-  if (typeof nested === "number" || typeof nested === "string") return nested;
-  if (record.form_definition_id != null) return record.form_definition_id;
-  if (looksLikeFormDefinition(record)) return record.id ?? null;
-  return null;
+ if (!record) return null;
+ const nested = record.form_definition;
+ if (nested && typeof nested === "object") return nested.id ?? null;
+ if (typeof nested === "number" || typeof nested === "string") return nested;
+ if (record.form_definition_id != null) return record.form_definition_id;
+ if (looksLikeFormDefinition(record)) return record.id ?? null;
+ return null;
 };
 
 const resolveProcessId = (record) => {
-  if (!record) return null;
-  if (looksLikeFormDefinition(record))
-    return record.process?.id ?? record.process_id ?? null;
-  return record.id ?? null;
+ if (!record) return null;
+ if (looksLikeFormDefinition(record))
+ return record.process?.id ?? record.process_id ?? null;
+ return record.id ?? null;
 };
 
 const CartableTaskModal = ({
-  open,
-  process: processItem,
-  submitterId,
-  onClose,
-  onSubmitted,
+ open,
+ process: processItem,
+ submitterId,
+ onClose,
+ onSubmitted,
 }) => {
-  const { message } = App.useApp();
+ const { message } = App.useApp();
 
-  const formDefinitionId = useMemo(
-    () => resolveFormDefinitionId(processItem),
-    [processItem],
-  );
-  const processId = useMemo(() => resolveProcessId(processItem), [processItem]);
+ const formDefinitionId = useMemo(
+ () => resolveFormDefinitionId(processItem),
+ [processItem],
+ );
+ const processId = useMemo(() => resolveProcessId(processItem), [processItem]);
 
-  const submitter = useMemo(
-    () => resolveSubmitterId(submitterId),
-    [submitterId],
-  );
-  const submitterName = useMemo(() => getUserFromToken()?.displayName, []);
+ const submitter = useMemo(
+ () => resolveSubmitterId(submitterId),
+ [submitterId],
+ );
+ const submitterName = useMemo(() => getUserFromToken()?.displayName, []);
 
-  const formQuery = useFormDefinitionFieldById(formDefinitionId, {
-    enabled: Boolean(open && formDefinitionId),
-  });
-  const processInfoQuery = useProcessInfo(processId, {
-    enabled: Boolean(open && processId),
-  });
-  const submitForm = useSubmitForm();
-  const createRequest = useCreateRequest();
+ const formQuery = useFormDefinitionFieldById(formDefinitionId, {
+ enabled: Boolean(open && formDefinitionId),
+ });
+ const processInfoQuery = useProcessInfo(processId, {
+ enabled: Boolean(open && processId),
+ });
+ const submitForm = useSubmitForm();
+ const createRequest = useCreateRequest();
 
-  const [done, setDone] = useState(null);
-  const [renderToken, setRenderToken] = useState(0);
+ const [done, setDone] = useState(null);
+ const [renderToken, setRenderToken] = useState(0);
 
-  useEffect(() => {
-    if (!open) return;
-    setDone(null);
-    setRenderToken((prev) => prev + 1);
-  }, [open, formDefinitionId]);
+ useEffect(() => {
+ if (!open) return;
+ setDone(null);
+ setRenderToken((prev) => prev + 1);
+ }, [open, formDefinitionId]);
 
-  const categories = useMemo(() => {
-    const data = formQuery.data;
-    if (Array.isArray(data)) return data;
-    if (Array.isArray(data?.results)) return data.results;
-    return data ? [data] : [];
-  }, [formQuery.data]);
+ const categories = useMemo(() => {
+ const data = formQuery.data;
+ if (Array.isArray(data)) return data;
+ if (Array.isArray(data?.results)) return data.results;
+ return data ? [data] : [];
+ }, [formQuery.data]);
 
-  const definition = categories[0] || {};
-  const fields = useMemo(() => flattenFields(categories), [categories]);
+ const definition = categories[0] || {};
+ const fields = useMemo(() => flattenFields(categories), [categories]);
 
-  const workflow = useMemo(() => {
-    const info = pickProcessInfo(processInfoQuery.data);
-    if (!info) return null;
-    const states = asArray(info.process_states);
-    return {
-      startState: states.find((state) =>
-        isStartStateType(state?.state_type?.id ?? state?.state_type_id),
-      ),
-      states,
-      actions: asArray(info.process_actions),
-    };
-  }, [processInfoQuery.data]);
+ const workflow = useMemo(() => {
+ const info = pickProcessInfo(processInfoQuery.data);
+ if (!info) return null;
+ const states = asArray(info.process_states);
+ return {
+ startState: states.find((state) =>
+ isStartStateType(state?.state_type?.id ?? state?.state_type_id),
+ ),
+ states,
+ actions: asArray(info.process_actions),
+ };
+ }, [processInfoQuery.data]);
 
-  const formTitle =
-    definition.name ||
-    processItem?.form_definition?.name ||
-    processItem?.name ||
-    "بدون فرم";
+ const formTitle =
+ definition.name ||
+ processItem?.form_definition?.name ||
+ processItem?.name ||
+ "بدون فرم";
 
-  const submit = async (values) => {
-    try {
-      const fileProblems = validateFiles(fields, values);
-      if (fileProblems.length) {
-        message.error(fileProblems[0]);
-        return;
-      }
+ const submit = async (values) => {
+ try {
+ const fileProblems = validateFiles(fields, values);
+ if (fileProblems.length) {
+ message.error(fileProblems[0]);
+ return;
+ }
 
-      const files = collectFileEntries(fields, values);
+ const files = collectFileEntries(fields, values);
 
-      const formData = buildFormData(fields, values);
-      if (!Object.keys(formData).length && !files.length) {
-        message.warning("داده‌ای برای ارسال وجود ندارد؛ ابتدا فرم را پر کنید.");
-        return;
-      }
+ const formData = buildFormData(fields, values);
+ if (!Object.keys(formData).length && !files.length) {
+ message.warning("داده‌ای برای ارسال وجود ندارد؛ ابتدا فرم را پر کنید.");
+ return;
+ }
 
-      const payload = buildSubmissionPayload({
-        formDefinitionId,
-        fields,
-        values,
-        submitterId: submitter,
-      });
-
-
-      const { submissionId, uploaded, failed, skipped } =
-        await submitForm.mutateAsync({ payload, files });
-
-      const attachmentCount = uploaded?.length ?? 0;
-
-      if (files.length && !submissionId)
-        message.warning(
-          "فرم ثبت شد، اما شناسهٔ ارسال در پاسخ سرور نبود و پیوست‌ها ارسال نشدند.",
-        );
-
-      if (failed?.length)
-        message.warning(
-          getApiErrorMessage(
-            failed[0].error,
-            `ارسال ${failed.length} پیوست انجام نشد.`,
-          ),
-        );
-
-      if (skipped?.length && submissionId)
-        message.warning(
-          `${skipped.length} فایل ارسال نشد؛ فیلد مربوطه شناسهٔ معتبری روی سرور ندارد.`,
-        );
+ const payload = buildSubmissionPayload({
+ formDefinitionId,
+ fields,
+ values,
+ submitterId: submitter,
+ });
 
 
-      if (!processId) {
-        throw new Error("شناسهٔ فرایند پیدا نشد؛ امکان ثبت درخواست وجود ندارد.");
-      }
+ const { submissionId, uploaded, failed, skipped } =
+ await submitForm.mutateAsync({ payload, files });
 
-      if (!submissionId) {
-        throw new Error("شناسهٔ ارسال فرم از سرور دریافت نشد؛ امکان ثبت درخواست وجود ندارد.");
-      }
+ const attachmentCount = uploaded?.length ?? 0;
 
-      // بعد از ثبت موفق submission، مطابق Swagger درخواست فرایند هم ساخته می‌شود:
-      // POST /api/v1/workflow/add-request/
-      // { process_id, form_submission_id, title }
-      const createdRequest = await createRequest.mutateAsync({
-        process_id: Number(processId),
-        form_submission_id: Number(submissionId),
-        title: formTitle,
-      });
-      const requestId = createdRequest?.id ?? null;
+ if (files.length && !submissionId)
+ message.warning(
+ "فرم ثبت شد، اما شناسهٔ ارسال در پاسخ سرور نبود و پیوست‌ها ارسال نشدند.",
+ );
 
-      const messageText =
-        definition.success_message || "فرم و درخواست فرایند با موفقیت ثبت شدند.";
+ if (failed?.length)
+ message.warning(
+ getApiErrorMessage(
+ failed[0].error,
+ `ارسال ${failed.length} پیوست انجام نشد.`,
+ ),
+ );
 
-      setDone(messageText);
-      onSubmitted?.({
-        submissionId,
-        requestId,
-        processId,
-        processName: processItem?.name || "",
-        formDefinitionId,
-        formName: formTitle,
-        submitterId: submitter,
-        submitterName: submitterName || "",
-        stateName: workflow?.startState?.name || "",
-        fieldCount: Object.keys(formData).length,
-        attachmentCount,
-        formData,
-      });
-      message.success(messageText);
-    } catch (error) {
-      message.error(getApiErrorMessage(error, "ارسال فرم انجام نشد."));
-    }
-  };
+ if (skipped?.length && submissionId)
+ message.warning(
+ `${skipped.length} فایل ارسال نشد؛ فیلد مربوطه شناسهٔ معتبری روی سرور ندارد.`,
+ );
 
-  const renderBody = () => {
-    if (!formDefinitionId)
-      return (
-        <Empty
-          className="py-16"
-          description="شناسهٔ فرم پیدا نشد؛ رکورد انتخاب‌شده نه تعریف فرم است و نه فرمی به آن وصل شده است."
-        />
-      );
 
-    if (formQuery.isLoading)
-      return <Skeleton active paragraph={{ rows: 10 }} />;
+ if (!processId) {
+ throw new Error("شناسهٔ فرایند پیدا نشد؛ امکان ثبت درخواست وجود ندارد.");
+ }
 
-    if (formQuery.isError || !categories.length)
-      return (
-        <Alert
-          type="error"
-          showIcon
-          message={getApiErrorMessage(
-            formQuery.error,
-            "فرم این فرایند یافت نشد یا در دسترس نیست.",
-          )}
-          action={
-            <Button size="small" onClick={() => formQuery.refetch()}>
-              تلاش مجدد
-            </Button>
-          }
-        />
-      );
+ if (!submissionId) {
+ throw new Error("شناسهٔ ارسال فرم از سرور دریافت نشد؛ امکان ثبت درخواست وجود ندارد.");
+ }
 
-    if (done)
-      return (
-        <Result
-          status="success"
-          title={done}
-          subTitle={
-            workflow?.startState?.name
-              ? `درخواست در ایستگاه «${workflow.startState.name}» ثبت شد.`
-              : "درخواست شما ثبت شد."
-          }
-          extra={
-            <Space>
-              <Button
-                type="primary"
-                onClick={() => {
-                  setDone(null);
-                  setRenderToken((prev) => prev + 1);
-                }}
-              >
-                ارسال یک درخواست دیگر
-              </Button>
-              <Button onClick={onClose}>بازگشت به کارتابل</Button>
-            </Space>
-          }
-        />
-      );
+ // بعد از ثبت موفق submission، مطابق Swagger درخواست فرایند هم ساخته می‌شود:
+ // POST /api/v1/workflow/add-request/
+ // { process_id, form_submission_id, title }
+ const createdRequest = await createRequest.mutateAsync({
+ process_id: Number(processId),
+ form_submission_id: Number(submissionId),
+ title: formTitle,
+ });
+ const requestId = createdRequest?.id ?? null;
 
-    if (!fields.length)
-      return (
-        <Empty
-          className="py-16"
-          description="این فرم هیچ فیلدی ندارد؛ ابتدا در «استودیو ساخت فرم» فیلد اضافه کنید."
-        />
-      );
+ const messageText =
+ definition.success_message || "فرم و درخواست فرایند با موفقیت ثبت شدند.";
 
-    const showWorkflowBox =
-      Boolean(workflow?.startState || workflow?.actions?.length) ||
-      Boolean(definition.description);
+ setDone(messageText);
+ onSubmitted?.({
+ submissionId,
+ requestId,
+ processId,
+ processName: processItem?.name || "",
+ formDefinitionId,
+ formName: formTitle,
+ submitterId: submitter,
+ submitterName: submitterName || "",
+ stateName: workflow?.startState?.name || "",
+ fieldCount: Object.keys(formData).length,
+ attachmentCount,
+ formData,
+ });
+ message.success(messageText);
+ } catch (error) {
+ message.error(getApiErrorMessage(error, "ارسال فرم انجام نشد."));
+ }
+ };
 
-    return (
-      <>
-        {showWorkflowBox ? (
-          <div className="mb-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
-            {workflow ? (
-              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
-                <PartitionOutlined className="text-orange-500" />
-                <span className="font-semibold">مسیر گردش کار:</span>
-                {workflow.startState ? (
-                  <Tag color="green">
-                    {workflow.startState.name} (
-                    {getStateTypeLabel(
-                      workflow.startState?.state_type?.id ??
-                        workflow.startState?.state_type_id,
-                    )}
-                    )
-                  </Tag>
-                ) : (
-                  <span>ایستگاه شروع تعیین نشده است.</span>
-                )}
-                {workflow.actions?.length ? (
-                  <>
-                    <span className="font-semibold">عملیات فرایند:</span>
-                    {workflow.actions.slice(0, 5).map((action) => (
-                      <Tag key={action.id}>{action.name}</Tag>
-                    ))}
-                  </>
-                ) : null}
-              </div>
-            ) : null}
-            {definition.description ? (
-              <p className="mt-2 mb-0 text-xs leading-6 text-slate-500 dark:text-slate-400">
-                {definition.description}
-              </p>
-            ) : null}
-          </div>
-        ) : null}
+ const renderBody = () => {
+ if (!formDefinitionId)
+ return (
+ <Empty
+ className="py-16"
+ description="شناسهٔ فرم پیدا نشد؛ رکورد انتخاب‌شده نه تعریف فرم است و نه فرمی به آن وصل شده است."
+ />
+ );
 
-        {definition.is_active === false ? (
-          <Alert
-            type="warning"
-            showIcon
-            className="mb-4"
-            message="این فرم غیرفعال است و ممکن است ارسال آن از سوی سرور پذیرفته نشود."
-          />
-        ) : null}
+ if (formQuery.isLoading)
+ return <Skeleton active paragraph={{ rows: 10 }} />;
 
-        <FormRenderer
-          key={`${formDefinitionId}-${renderToken}`}
-          categories={categories}
-          definition={definition}
-          fields={fields}
-          mode="fill"
-          readOnly={false}
-          disabled={false}
-          submitLabel={processId ? "ارسال به فرایند" : "ثبت و ارسال فرم"}
-          submitting={submitForm.isPending}
-          onSubmit={submit}
-        />
-      </>
-    );
-  };
+ if (formQuery.isError || !categories.length)
+ return (
+ <Alert
+ type="error"
+ showIcon
+ message={getApiErrorMessage(
+ formQuery.error,
+ "فرم این فرایند یافت نشد یا در دسترس نیست.",
+ )}
+ action={
+ <Button size="small" onClick={() => formQuery.refetch()}>
+ تلاش مجدد
+ </Button>
+ }
+ />
+ );
 
-  return (
-    <Modal
-      isOpen={open}
-      size="min(1100px, 96vw)"
-      onClose={onClose}
-      destroyOnClose
-      footer={null}
-      title={
-        <div className="flex w-full flex-col gap-1">
-          <span className="flex items-center gap-2 text-xs font-normal text-slate-500">
-            <FileTextOutlined />
-            {formTitle}
-            {definition.version ? <Tag>نسخه {definition.version}</Tag> : null}
-            <Tag icon={<UserOutlined />} color={submitter ? "blue" : "default"}>
-              {submitter
-                ? `ارسال‌کننده: ${submitterName || submitter}`
-                : "بدون شناسهٔ کاربر (ثبت به‌نام ادمین)"}
-            </Tag>
-          </span>
-        </div>
-      }
-    >
-      {renderBody()}
-    </Modal>
-  );
+ if (done)
+ return (
+ <Result
+ status="success"
+ title={done}
+ subTitle={
+ workflow?.startState?.name
+ ? `درخواست در ایستگاه «${workflow.startState.name}» ثبت شد.`
+ : "درخواست شما ثبت شد."
+ }
+ extra={
+ <Space>
+ <Button
+ type="primary"
+ onClick={() => {
+ setDone(null);
+ setRenderToken((prev) => prev + 1);
+ }}
+ >
+ ارسال یک درخواست دیگر
+ </Button>
+ <Button onClick={onClose}>بازگشت به کارتابل</Button>
+ </Space>
+ }
+ />
+ );
+
+ if (!fields.length)
+ return (
+ <Empty
+ className="py-16"
+ description="این فرم هیچ فیلدی ندارد؛ ابتدا در «استودیو ساخت فرم» فیلد اضافه کنید."
+ />
+ );
+
+ const showWorkflowBox =
+ Boolean(workflow?.startState || workflow?.actions?.length) ||
+ Boolean(definition.description);
+
+ return (
+ <>
+ {showWorkflowBox ? (
+ <div className="mb-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 ">
+ {workflow ? (
+ <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 ">
+ <PartitionOutlined className="text-amber-500" />
+ <span className="font-semibold">مسیر گردش کار:</span>
+ {workflow.startState ? (
+ <Tag color="green">
+ {workflow.startState.name} (
+ {getStateTypeLabel(
+ workflow.startState?.state_type?.id ??
+ workflow.startState?.state_type_id,
+ )}
+ )
+ </Tag>
+ ) : (
+ <span>ایستگاه شروع تعیین نشده است.</span>
+ )}
+ {workflow.actions?.length ? (
+ <>
+ <span className="font-semibold">عملیات فرایند:</span>
+ {workflow.actions.slice(0, 5).map((action) => (
+ <Tag key={action.id}>{action.name}</Tag>
+ ))}
+ </>
+ ) : null}
+ </div>
+ ) : null}
+ {definition.description ? (
+ <p className="mt-2 mb-0 text-xs leading-6 text-slate-500 ">
+ {definition.description}
+ </p>
+ ) : null}
+ </div>
+ ) : null}
+
+ {definition.is_active === false ? (
+ <Alert
+ type="warning"
+ showIcon
+ className="mb-4"
+ message="این فرم غیرفعال است و ممکن است ارسال آن از سوی سرور پذیرفته نشود."
+ />
+ ) : null}
+
+ <FormRenderer
+ key={`${formDefinitionId}-${renderToken}`}
+ categories={categories}
+ definition={definition}
+ fields={fields}
+ mode="fill"
+ readOnly={false}
+ disabled={false}
+ submitLabel={processId ? "ارسال به فرایند" : "ثبت و ارسال فرم"}
+ submitting={submitForm.isPending}
+ onSubmit={submit}
+ />
+ </>
+ );
+ };
+
+ return (
+ <Modal
+ isOpen={open}
+ size="min(1100px, 96vw)"
+ onClose={onClose}
+ destroyOnClose
+ footer={null}
+ title={
+ <div className="flex w-full flex-col gap-1">
+ <span className="flex items-center gap-2 text-xs font-normal text-slate-500">
+ <FileTextOutlined />
+ {formTitle}
+ {definition.version ? <Tag>نسخه {definition.version}</Tag> : null}
+ <Tag icon={<UserOutlined />} color={submitter ? "blue" : "default"}>
+ {submitter
+ ? `ارسال‌کننده: ${submitterName || submitter}`
+ : "بدون شناسهٔ کاربر (ثبت به‌نام ادمین)"}
+ </Tag>
+ </span>
+ </div>
+ }
+ >
+ {renderBody()}
+ </Modal>
+ );
 };
 
 export default CartableTaskModal;

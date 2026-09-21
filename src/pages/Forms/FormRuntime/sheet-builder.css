@@ -8,7 +8,7 @@
   flex-direction: column;
   gap: 8px;
   font-size: 12px;
-  color: #1f2937;
+  color: #172033;
 }
 
 /* ---------- نوار ابزار ---------- */
@@ -21,30 +21,30 @@
 .sb-size {
   font-size: 11px;
   font-weight: 700;
-  color: #6b7280;
+  color: #667085;
   margin-inline-end: 2px;
 }
 .sb-btn {
   height: 26px;
   padding: 0 9px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #E3E8EF;
   border-radius: 7px;
   background: #fff;
-  color: #4b5563;
+  color: #475467;
   font: inherit;
   font-size: 11px;
   cursor: pointer;
   transition: background .15s, border-color .15s, color .15s;
 }
-.sb-btn:hover { border-color: #cbd5e1; background: #f8fafc; }
-.sb-btn.is-active { border-color: #2783de; background: #eaf3fd; color: #1e3a5f; }
-.sb-btn.is-primary { border-color: #2783de; background: #2783de; color: #fff; }
+.sb-btn:hover { border-color: #CFD7E3; background: #F8FAFC; }
+.sb-btn.is-active { border-color: #315CFF; background: #EEF2FF; color: #2447D8; }
+.sb-btn.is-primary { border-color: #315CFF; background: #315CFF; color: #fff; }
 .sb-btn.is-primary:hover { background: #1f6cbf; }
-.sb-btn.is-ghost { border-style: dashed; color: #64748b; }
+.sb-btn.is-ghost { border-style: dashed; color: #667085; }
 .sb-sep {
   width: 1px;
   height: 16px;
-  background: #e5e7eb;
+  background: #E3E8EF;
   margin: 0 2px;
 }
 
@@ -54,27 +54,27 @@
   flex-direction: column;
   gap: 6px;
   padding: 8px;
-  background: #f8fafc;
-  border: 1px dashed #cbd5e1;
+  background: #F8FAFC;
+  border: 1px dashed #CFD7E3;
   border-radius: 8px;
 }
 .sb-paste-input {
   width: 100%;
   padding: 6px 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #E3E8EF;
   border-radius: 6px;
   font: inherit;
   font-size: 11.5px;
   resize: vertical;
 }
-.sb-paste-input:focus { outline: none; border-color: #2783de; }
+.sb-paste-input:focus { outline: none; border-color: #315CFF; }
 
 /* ---------- جدول ---------- */
 .sb-wrap {
   overflow: auto;
   padding: 6px;
-  background: #f8fafc;
-  border: 1px solid #e5e7eb;
+  background: #F8FAFC;
+  border: 1px solid #E3E8EF;
   border-radius: 8px;
 }
 .sb-table {
@@ -85,15 +85,15 @@
 }
 .sb-table th,
 .sb-table td {
-  border: 1px solid #cbd5e1;
+  border: 1px solid #CFD7E3;
   padding: 0;
 }
 
-.sb-corner { width: 34px; background: #f1f5f9; }
+.sb-corner { width: 34px; background: #F5F7FA; }
 .sb-colhead,
 .sb-rowhead {
-  background: #f1f5f9;
-  color: #64748b;
+  background: #F5F7FA;
+  color: #667085;
   font-size: 10px;
   font-weight: 700;
   white-space: nowrap;
@@ -109,14 +109,14 @@
   border: 0;
   border-radius: 4px;
   background: transparent;
-  color: #94a3b8;
+  color: #98A2B3;
   font: inherit;
   font-size: 12px;
   line-height: 1;
   cursor: pointer;
 }
-.sb-mini:hover { background: #e2e8f0; color: #334155; }
-.sb-mini.is-danger:hover { background: #fee2e2; color: #b91c1c; }
+.sb-mini:hover { background: #E3E8EF; color: #344054; }
+.sb-mini.is-danger:hover { background: #FFF0F0; color: #DC4C4C; }
 .sb-mini[disabled] { opacity: .35; cursor: not-allowed; }
 
 /* ---------- خانه‌ها ---------- */
@@ -126,9 +126,9 @@
   vertical-align: middle;
   cursor: pointer;
 }
-.sb-cell.is-head { background: #dbe6f3; }
-.sb-cell.is-sub { background: #f1f5f9; }
-.sb-cell.is-selected { box-shadow: inset 0 0 0 2px #2783de; }
+.sb-cell.is-head { background: #DCE5FF; }
+.sb-cell.is-sub { background: #F5F7FA; }
+.sb-cell.is-selected { box-shadow: inset 0 0 0 2px #315CFF; }
 
 .sb-cell-input {
   width: 100%;
@@ -141,10 +141,10 @@
   color: inherit;
   text-align: inherit;
 }
-.sb-cell.is-head .sb-cell-input { font-weight: 700; color: #1e3a5f; text-align: center; }
+.sb-cell.is-head .sb-cell-input { font-weight: 700; color: #2447D8; text-align: center; }
 .sb-cell.is-sub .sb-cell-input { font-weight: 600; }
-.sb-cell.is-input .sb-cell-input { color: #94a3b8; font-style: italic; }
-.sb-cell-input:focus { outline: none; background: #eaf3fd; }
+.sb-cell.is-input .sb-cell-input { color: #98A2B3; font-style: italic; }
+.sb-cell-input:focus { outline: none; background: #EEF2FF; }
 
 .sb-tag {
   position: absolute;
@@ -153,7 +153,7 @@
   padding: 0 3px;
   border-radius: 4px;
   background: rgba(148, 163, 184, .16);
-  color: #64748b;
+  color: #667085;
   font-size: 8.5px;
   line-height: 12px;
   pointer-events: none;
@@ -170,7 +170,7 @@
   gap: 8px;
   padding: 10px;
   background: #fff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #E3E8EF;
   border-radius: 8px;
 }
 .sb-row {
@@ -179,42 +179,42 @@
   flex-wrap: wrap;
   gap: 6px;
 }
-.sb-row-title { font-size: 11.5px; font-weight: 700; color: #1e3a5f; }
+.sb-row-title { font-size: 11.5px; font-weight: 700; color: #2447D8; }
 .sb-row-label {
   min-width: 54px;
   font-size: 11px;
-  color: #6b7280;
+  color: #667085;
 }
 .sb-chips { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
 .sb-chip {
   height: 24px;
   padding: 0 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #E3E8EF;
   border-radius: 999px;
   background: #fff;
-  color: #4b5563;
+  color: #475467;
   font: inherit;
   font-size: 11px;
   cursor: pointer;
   transition: background .15s, border-color .15s, color .15s;
 }
-.sb-chip:hover { border-color: #cbd5e1; background: #f8fafc; }
-.sb-chip.is-active { border-color: #2783de; background: #2783de; color: #fff; }
+.sb-chip:hover { border-color: #CFD7E3; background: #F8FAFC; }
+.sb-chip.is-active { border-color: #315CFF; background: #315CFF; color: #fff; }
 .sb-chip[disabled] { opacity: .4; cursor: not-allowed; }
 
 .sb-field {
   flex: 1 1 120px;
   height: 26px;
   padding: 0 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #E3E8EF;
   border-radius: 6px;
   font: inherit;
   font-size: 11.5px;
 }
 .sb-field-sm { flex: 0 0 80px; }
-.sb-field:focus { outline: none; border-color: #2783de; }
+.sb-field:focus { outline: none; border-color: #315CFF; }
 
-.sb-hint { margin: 0; font-size: 10.5px; line-height: 1.7; color: #94a3b8; }
+.sb-hint { margin: 0; font-size: 10.5px; line-height: 1.7; color: #98A2B3; }
 
 /* ---------- حالت خالی ---------- */
 .sb-empty {
@@ -222,10 +222,10 @@
   flex-direction: column;
   gap: 8px;
   padding: 14px;
-  background: #f8fafc;
-  border: 1px dashed #cbd5e1;
+  background: #F8FAFC;
+  border: 1px dashed #CFD7E3;
   border-radius: 8px;
   text-align: center;
 }
-.sb-empty p { margin: 0; font-size: 11.5px; color: #6b7280; }
+.sb-empty p { margin: 0; font-size: 11.5px; color: #667085; }
 .sb-empty .sb-chips { justify-content: center; }

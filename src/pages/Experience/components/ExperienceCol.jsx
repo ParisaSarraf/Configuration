@@ -4,171 +4,171 @@ import {BASEURL} from "../../../Services/axiosInstance";
 import {useState} from "react";
 
 const ExperienceCol = ({
-                           handleDelete, handleEdit, handleShowDetail, userData,
-                           setFilter
-                       }) => {
-    const [selectedUsers, setSelectedUsers] = useState([]);
+ handleDelete, handleEdit, handleShowDetail, userData,
+ setFilter
+ }) => {
+ const [selectedUsers, setSelectedUsers] = useState([]);
 
-    return [
-        {
-            title: 'ردیف',
-            key: 'index',
-            render: (_, __, index) => index + 1,
-        },
-        {
-            title: 'حوزه',
-            dataIndex: ['precinct', 'title'],
-            key: 'precinct',
-            render: (_, record) => record.precinct?.title || 'ندارد'
-        },
-        {
-            title: 'متن تجربه',
-            dataIndex: 'experiment_text',
-            key: 'experiment_text',
-            render: (text) => text || 'ندارد'
-        },
-        {
-            title: 'کاربر ثبت کننده',
-            dataIndex: 'user',
-            key: 'username',
-            filterDropdown: () => (
-                <div className="p-2">
-                    <Select
-                        className="w-full"
-                        allowClear
-                        mode="multiple"
-                        value={selectedUsers}
-                        onChange={(value) => {
-                            setSelectedUsers(value);
-                        }}
-                    >
-                        {userData?.map((t) => (
-                            <Select.Option key={t.id} value={t.id}>
-                                {`${t.name} ${t.last_name || ''}`}
-                            </Select.Option>
-                        ))}
-                    </Select>
-                    <div className="w-full flex flex-row justify-between text-right mt-2">
-                        <Button
-                            type="primary"
-                            size="small"
-                            onClick={() => {
-                                setFilter((prev) => ({
-                                    ...prev,
-                                    user_id: selectedUsers,
-                                }));
-                            }}
-                        >
-                            اعمال
-                        </Button>
-                        <Button
-                            size="small"
-                            onClick={() => {
-                                setSelectedUsers([]);
-                                setFilter((prev) => ({
-                                    ...prev,
-                                    user_id: undefined,
-                                }));
-                            }}
-                        >
-                            ریست
-                        </Button>
-                    </div>
-                </div>
-            ),
-            render: (user) => (
-                user ? `${user.name || ''} ${user.last_name || ''}`.trim() || 'ندارد' : 'ندارد'
-            )
-        },
-        {
-            title: 'تاریخ ثبت',
-            dataIndex: 'registration_date',
-            key: 'registration_date',
-            render: (text) => text || 'ندارد'
-        },
-        {
-            title: 'کد محصول',
-            dataIndex: 'code',
-            key: 'code',
-            render: (text) => text || 'ندارد'
-        },
-        {
-            title: 'فایل پیوست',
-            dataIndex: 'file',
-            key: 'file',
-            render: (file) => {
-                if (!file) return "فایلی وجود ندارد";
-                const url = `${BASEURL.replace("/api/v1", "")}${file}`;
-                const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(file);
-                return (
-                    <Space>
-                        <a
-                            href={url}
-                            // target="_blank"
-                            rel="noopener noreferrer"
-                            style={{color: "#1890ff"}}
-                        >
-                            {isImage ? (
-                                <Image
-                                    width={50}
-                                    height={30}
-                                    src={url}
-                                    alt="فایل پیوست"
-                                    preview={false}
-                                />
-                            ) : (
-                                "مشاهده فایل"
-                            )}
-                        </a>
-                        <a
-                            href={url}
-                            target="_blank"
-                            download
-                            style={{color: "#52c41a"}}
-                        >
-                            دانلود
-                        </a>
-                    </Space>
-                );
-            }
-        }
-        ,
-        {
-            title: 'عملیات',
-            key: 'actions',
-            render: (_, record) => (
-                <Space>
-                    <Tooltip title="ویرایش">
-                        <Button
-                            title="ویرایش"
-                            icon={<EditOutlined/>}
-                            className="text-green-500 border-green-500"
-                            onClick={() => handleEdit(record)}
-                            size="small"
-                        />
-                    </Tooltip>
-                    <Tooltip title="حذف">
-                        <Button
-                            title="حذف"
-                            icon={<DeleteOutlined/>}
-                            danger
-                            onClick={() => handleDelete(record?.id)}
-                            size="small"
-                        />
-                    </Tooltip>
-                    <Tooltip title="نمایش جزئیات">
-                        <Button
-                            title="نمایش جزئیات"
-                            icon={<EyeFilled/>}
-                            className="text-sky-500 border-sky-500"
-                            onClick={() => handleShowDetail(record)}
-                            size="small"
-                        />
-                    </Tooltip>
-                </Space>
-            )
-        }
-    ]
+ return [
+ {
+ title: 'ردیف',
+ key: 'index',
+ render: (_, __, index) => index + 1,
+ },
+ {
+ title: 'حوزه',
+ dataIndex: ['precinct', 'title'],
+ key: 'precinct',
+ render: (_, record) => record.precinct?.title || 'ندارد'
+ },
+ {
+ title: 'متن تجربه',
+ dataIndex: 'experiment_text',
+ key: 'experiment_text',
+ render: (text) => text || 'ندارد'
+ },
+ {
+ title: 'کاربر ثبت کننده',
+ dataIndex: 'user',
+ key: 'username',
+ filterDropdown: () => (
+ <div className="p-2">
+ <Select
+ className="w-full"
+ allowClear
+ mode="multiple"
+ value={selectedUsers}
+ onChange={(value) => {
+ setSelectedUsers(value);
+ }}
+ >
+ {userData?.map((t) => (
+ <Select.Option key={t.id} value={t.id}>
+ {`${t.name} ${t.last_name || ''}`}
+ </Select.Option>
+ ))}
+ </Select>
+ <div className="w-full flex flex-row justify-between text-right mt-2">
+ <Button
+ type="primary"
+ size="small"
+ onClick={() => {
+ setFilter((prev) => ({
+ ...prev,
+ user_id: selectedUsers,
+ }));
+ }}
+ >
+ اعمال
+ </Button>
+ <Button
+ size="small"
+ onClick={() => {
+ setSelectedUsers([]);
+ setFilter((prev) => ({
+ ...prev,
+ user_id: undefined,
+ }));
+ }}
+ >
+ ریست
+ </Button>
+ </div>
+ </div>
+ ),
+ render: (user) => (
+ user ? `${user.name || ''} ${user.last_name || ''}`.trim() || 'ندارد' : 'ندارد'
+ )
+ },
+ {
+ title: 'تاریخ ثبت',
+ dataIndex: 'registration_date',
+ key: 'registration_date',
+ render: (text) => text || 'ندارد'
+ },
+ {
+ title: 'کد محصول',
+ dataIndex: 'code',
+ key: 'code',
+ render: (text) => text || 'ندارد'
+ },
+ {
+ title: 'فایل پیوست',
+ dataIndex: 'file',
+ key: 'file',
+ render: (file) => {
+ if (!file) return "فایلی وجود ندارد";
+ const url = `${BASEURL.replace("/api/v1", "")}${file}`;
+ const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(file);
+ return (
+ <Space>
+ <a
+ href={url}
+ // target="_blank"
+ rel="noopener noreferrer"
+ style={{color: "#315CFF"}}
+ >
+ {isImage ? (
+ <Image
+ width={50}
+ height={30}
+ src={url}
+ alt="فایل پیوست"
+ preview={false}
+ />
+ ) : (
+ "مشاهده فایل"
+ )}
+ </a>
+ <a
+ href={url}
+ target="_blank"
+ download
+ style={{color: "#16A36A"}}
+ >
+ دانلود
+ </a>
+ </Space>
+ );
+ }
+ }
+ ,
+ {
+ title: 'عملیات',
+ key: 'actions',
+ render: (_, record) => (
+ <Space>
+ <Tooltip title="ویرایش">
+ <Button
+ title="ویرایش"
+ icon={<EditOutlined/>}
+ className="text-emerald-500 border-emerald-500"
+ onClick={() => handleEdit(record)}
+ size="small"
+ />
+ </Tooltip>
+ <Tooltip title="حذف">
+ <Button
+ title="حذف"
+ icon={<DeleteOutlined/>}
+ danger
+ onClick={() => handleDelete(record?.id)}
+ size="small"
+ />
+ </Tooltip>
+ <Tooltip title="نمایش جزئیات">
+ <Button
+ title="نمایش جزئیات"
+ icon={<EyeFilled/>}
+ className="text-blue-500 border-blue-500"
+ onClick={() => handleShowDetail(record)}
+ size="small"
+ />
+ </Tooltip>
+ </Space>
+ )
+ }
+ ]
 }
 
 export default ExperienceCol

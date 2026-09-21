@@ -4,8 +4,19 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        Main: "#2B3B50",
-        Box: "#EEF7F8",
+        Main: "#172033",
+        Box: "#EEF2FF",
+        brand: {
+          DEFAULT: "#315CFF",
+          hover: "#2447D8",
+          soft: "#EEF2FF",
+        },
+        semantic: {
+          success: "#16A36A",
+          warning: "#D97706",
+          error: "#DC4C4C",
+          info: "#315CFF",
+        },
         light: {
           primary: "#f3f4f6",
           secondary: "#e5e7eb",
@@ -27,6 +38,22 @@ module.exports = {
       },
       fontFamily: {
         vazir: ["Vazir", "sans-serif"],
+      },
+      borderRadius: {
+        sm: "6px",
+        DEFAULT: "8px",
+        md: "10px",
+        lg: "12px",
+        xl: "12px",
+        "2xl": "12px",
+        "3xl": "12px",
+        full: "9999px",
+      },
+      boxShadow: {
+        sm: "0 1px 2px rgba(16, 24, 40, 0.05)",
+        DEFAULT: "0 1px 2px rgba(16, 24, 40, 0.05), 0 4px 12px rgba(16, 24, 40, 0.04)",
+        lg: "0 1px 2px rgba(16, 24, 40, 0.05), 0 8px 24px rgba(16, 24, 40, 0.07)",
+        xl: "0 1px 2px rgba(16, 24, 40, 0.05), 0 8px 24px rgba(16, 24, 40, 0.07)",
       },
       screens: {
         xs: "425px",

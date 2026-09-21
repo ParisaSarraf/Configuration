@@ -3,51 +3,51 @@ import {Button} from "antd";
 import {georgianDateToJalaliDate} from "@utils/timeTool.jsx";
 
 export const SerialListCol = (handleEditProductSerial, handleDeleteProductSerial) => [
-    {
-        title: 'ردیف',
-        render: (text, record, index) => index + 1,
-        width: 70,
-    },
-    {
-        title: 'سریال',
-        dataIndex: 'full_serial',
-        key: 'full_serial',
-        width: 200,
-    },
-    {
-        title: 'کارفرما',
-        dataIndex: ['contractor','name'],
-        key: 'contractor',
-    },
-    {
-        title: 'تاریخ',
-        dataIndex: 'date',
-        key: 'date',
-        width: 150,
-        render: (record) => {
-            return (
-                <>{georgianDateToJalaliDate(record) || 'تاریخ ندارد'}</>
-            )
-        },
-    },
-    {
-        title: 'عملیات',
-        width: 120,
-        render: (text, record) => (
-            <div className="flex flex-row gap-2 justify-center">
-                <Button
-                    icon={<EditOutlined/>}
-                    className="border border-green-600 text-green-600"
-                    onClick={() => handleEditProductSerial(record)}
-                    size="small"
-                />
-                <Button
-                    icon={<DeleteOutlined/>}
-                    danger
-                    onClick={() => handleDeleteProductSerial(record.id)}
-                    size="small"
-                />
-            </div>
-        ),
-    },
+ {
+ title: 'ردیف',
+ render: (text, record, index) => index + 1,
+ width: 70,
+ },
+ {
+ title: 'سریال',
+ dataIndex: 'full_serial',
+ key: 'full_serial',
+ width: 200,
+ },
+ {
+ title: 'کارفرما',
+ dataIndex: ['contractor','name'],
+ key: 'contractor',
+ },
+ {
+ title: 'تاریخ',
+ dataIndex: 'date',
+ key: 'date',
+ width: 150,
+ render: (record) => {
+ return (
+ <>{georgianDateToJalaliDate(record) || 'تاریخ ندارد'}</>
+ )
+ },
+ },
+ {
+ title: 'عملیات',
+ width: 120,
+ render: (text, record) => (
+ <div className="flex flex-row gap-2 justify-center">
+ <Button
+ icon={<EditOutlined/>}
+ className="border border-emerald-600 text-emerald-600"
+ onClick={() => handleEditProductSerial(record)}
+ size="small"
+ />
+ <Button
+ icon={<DeleteOutlined/>}
+ danger
+ onClick={() => handleDeleteProductSerial(record.id)}
+ size="small"
+ />
+ </div>
+ ),
+ },
 ];
