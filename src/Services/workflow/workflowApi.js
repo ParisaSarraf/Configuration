@@ -79,6 +79,8 @@ export const workflowApi = Object.freeze({
   getRequests: (client, signal) => get(client, ENDPOINTS.requests, signal),
   getRequestById: (client, id, signal) =>
     get(client, `${ENDPOINTS.requestById}${id}`, signal),
+  getRequestPathById: (client, id, signal) =>
+    get(client, `/workflow/get-request-path-by-id/${id}`, signal),
   getRequestsNeedUserAction: (client, signal) =>
     get(client, ENDPOINTS.requestsNeedUserAction, signal),
   getProcessRequests: (client, id, signal) =>

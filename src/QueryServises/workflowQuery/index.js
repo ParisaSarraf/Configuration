@@ -8,6 +8,7 @@ export const processInfoKey = (id) => ["workflow", "process", id];
 export const transitionActionsKey = ["workflow", "transition-actions"];
 export const requestsKey = ["workflow", "requests"];
 export const requestKey = (id) => ["workflow", "request", id];
+export const requestPathKey = (id) => ["workflow", "request", id, "path"];
 export const requestsNeedActionKey = ["workflow", "requests", "need-action"];
 export const processRequestsKey = (id) => ["workflow", "process-requests", id];
 export const lockedFieldsByRequestKey = (id) => [
@@ -73,6 +74,18 @@ export const useRequestById = (id, queryOptions) => {
   });
 };
 
+export const useRequestPathById = (id, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: requestPathKey(id),
+    queryFn: () => workflowApi.getRequestPathById(myAxios, id),
+    enabled: Boolean(id),
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
+    ...queryOptions,
+  });
+};
+
 export const useRequestsNeedUserAction = (queryOptions) => {
   const { myAxios } = useMyAxios();
   return useQuery({
@@ -131,12 +144,16 @@ export const useDoAction = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload) => workflowApi.doAction(myAxios, payload),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: requestsKey });
       queryClient.invalidateQueries({ queryKey: requestsNeedActionKey });
       queryClient.invalidateQueries({
         queryKey: ["workflow", "process-requests"],
       });
+      if (variables?.request_id)
+        queryClient.invalidateQueries({
+          queryKey: requestPathKey(variables.request_id),
+        });
     },
   });
 };
