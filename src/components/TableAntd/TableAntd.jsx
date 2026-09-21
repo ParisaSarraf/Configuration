@@ -1,4 +1,6 @@
-import { Table } from "antd";
+import { Alert, Button, Empty, Table } from "antd";
+import { ReloadOutlined } from "@ant-design/icons";
+import { getApiErrorMessage } from "@/Services/forms/formUtils";
 
 export const TableAntd = ({
   columns,
@@ -19,7 +21,23 @@ export const TableAntd = ({
   scroll,
   tableLayout,
   expandedRowRender,
+  error,
+  onRetry,
+  emptyText = "اطلاعاتی برای نمایش وجود ندارد",
 }) => {
+  if (error) {
+    return (
+      <Alert
+        className={`table-state ${className}`}
+        type="error"
+        showIcon
+        message="دریافت اطلاعات ناموفق بود"
+        description={getApiErrorMessage(error, "ارتباط با سامانه برقرار نشد. لطفاً دوباره تلاش کنید.")}
+        action={onRetry ? <Button size="small" icon={<ReloadOutlined />} onClick={onRetry}>تلاش دوباره</Button> : null}
+      />
+    );
+  }
+
   return (
     <div className={`rtl-table ${className}`}>
       <Table
@@ -35,7 +53,12 @@ export const TableAntd = ({
         loading={loading}
         rowKey={rowKey}
         expandedRowRender={expandedRowRender}
-        locale={{ filterConfirm: "اعمال", filterReset: "ریست" } || locale}
+        locale={{
+          filterConfirm: "اعمال",
+          filterReset: "ریست",
+          emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={emptyText} />,
+          ...locale,
+        }}
         expandable={expandable}
         rowSelection={rowSelection}
         pagination={

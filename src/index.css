@@ -450,3 +450,355 @@ body {
 .studio-context-menu li.is-danger:hover {
   background: #fdeaea;
 }
+
+
+/* =========================================================
+   RESPONSIVE UI FOUNDATION
+   Visual-only safeguards shared by every route.
+   ========================================================= */
+
+:root {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  --app-gutter: clamp(8px, 1.4vw, 16px);
+  --app-radius: 8px;
+  --app-border: #e6e5e3;
+}
+
+html {
+  min-width: 320px;
+  overflow: hidden;
+}
+
+body,
+#root {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+img,
+svg,
+canvas,
+video {
+  max-width: 100%;
+}
+
+button,
+a,
+[role="button"],
+.ant-btn,
+.ant-input,
+.ant-select-selector,
+.ant-picker {
+  touch-action: manipulation;
+}
+
+.app-shell,
+.app-shell > *,
+.app-main,
+.app-main > *,
+.ant-layout,
+.ant-layout-content,
+.ant-card,
+.ant-card-body,
+.ant-form,
+.ant-row,
+.ant-col {
+  min-width: 0;
+}
+
+.app-main > :first-child {
+  max-width: 100%;
+}
+
+.app-icon-button {
+  display: inline-flex;
+  min-width: 36px;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-fallback {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #f9f8f7;
+}
+
+.async-state,
+.table-state {
+  width: 100%;
+  margin-block: 8px;
+}
+
+.async-state {
+  min-height: 120px;
+  padding: 20px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  background: #fff;
+}
+
+.async-state__label {
+  display: block;
+  margin-bottom: 14px;
+  color: #7d7a75;
+  font-size: 13px;
+}
+
+/* Ant Design: dense but readable defaults */
+.ant-card .ant-card-head,
+.ant-collapse > .ant-collapse-item > .ant-collapse-header {
+  min-height: 42px;
+}
+
+.ant-card .ant-card-body {
+  padding: clamp(10px, 1.5vw, 16px);
+}
+
+.ant-form-item {
+  margin-bottom: 12px;
+}
+
+.ant-form-item-label > label {
+  line-height: 1.35;
+  white-space: normal;
+}
+
+.ant-input,
+.ant-input-number,
+.ant-picker,
+.ant-select,
+.ant-select-selector,
+.ant-cascader-picker {
+  max-width: 100%;
+}
+
+.ant-space {
+  max-width: 100%;
+}
+
+.ant-space-wrap {
+  row-gap: 8px !important;
+}
+
+/* Tables own their overflow; the page never does. */
+.rtl-table,
+.ant-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.rtl-table {
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.rtl-table .ant-table {
+  min-width: max(640px, 100%);
+  font-size: 13px;
+}
+
+.rtl-table .ant-table-cell,
+.ant-table-wrapper .ant-table-cell {
+  padding: 7px 9px !important;
+  overflow-wrap: anywhere;
+}
+
+.ant-table-wrapper .ant-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-block: 12px 4px;
+}
+
+/* Modals stay inside the viewport at every size. */
+.ant-modal-root .ant-modal-wrap {
+  overflow-x: hidden;
+}
+
+.ant-modal-root .ant-modal {
+  max-width: calc(100vw - 24px);
+  padding-bottom: 12px;
+}
+
+.ant-modal-root .ant-modal-content {
+  max-height: calc(100dvh - 24px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ant-modal-root .ant-modal-body {
+  min-height: 0;
+  max-width: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.ant-modal-root .ant-modal-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ant-modal-root .ant-modal-footer .ant-btn + .ant-btn {
+  margin-inline-start: 0;
+}
+
+/* Charts scale to their container instead of forcing page width. */
+.recharts-wrapper,
+.recharts-surface,
+.MuiChartsSurface-root,
+[class*="MuiCharts"] {
+  max-width: 100% !important;
+}
+
+/* Existing transfer widget: wrap and fluid-size without changing behavior. */
+.transfer-container {
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px;
+}
+
+.transfer-box {
+  width: min(100%, 240px);
+  flex: 1 1 190px;
+  padding: 12px;
+}
+
+.uniform-form-item {
+  height: auto;
+  min-height: 36px;
+}
+
+.image-container {
+  height: clamp(200px, 38vh, 350px);
+}
+
+@media (max-width: 767px) {
+  .app-header {
+    min-height: 52px;
+  }
+
+  .app-main {
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
+
+  .app-icon-button,
+  .ant-btn:not(.ant-btn-sm),
+  .ant-pagination-item,
+  .ant-pagination-prev,
+  .ant-pagination-next {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .ant-card .ant-card-head {
+    padding-inline: 12px;
+  }
+
+  .ant-form-item-row {
+    display: block;
+  }
+
+  .ant-form-item-label,
+  .uniform-form-item .ant-form-item-label,
+  .uniform-form-item .ant-form-item-control {
+    width: 100% !important;
+    max-width: 100% !important;
+    text-align: right;
+  }
+
+  .ant-form-item-label {
+    padding-bottom: 4px !important;
+  }
+
+  .ant-input-number,
+  .ant-picker,
+  .ant-select {
+    width: 100% !important;
+  }
+
+  .ant-modal-root .ant-modal {
+    top: 12px;
+    margin: 0 auto;
+    max-width: calc(100vw - 16px);
+  }
+
+  .ant-modal-root .ant-modal-content {
+    max-height: calc(100dvh - 24px);
+    padding: 12px;
+  }
+
+  .ant-modal-root .ant-modal-header {
+    margin-bottom: 10px;
+  }
+
+  .ant-drawer-content-wrapper {
+    max-width: 92vw !important;
+  }
+
+  .ant-tabs-nav-wrap {
+    overflow-x: auto !important;
+    scrollbar-width: none;
+  }
+
+  .ant-tabs-nav-wrap::-webkit-scrollbar {
+    display: none;
+  }
+
+  .custom-tabs .ant-tabs-nav-list {
+    justify-content: flex-start;
+  }
+
+  .rtl-table .ant-table {
+    min-width: 600px;
+  }
+
+  .ant-table-wrapper .ant-table-pagination {
+    justify-content: center;
+  }
+
+  .ant-table-wrapper .ant-pagination-options-quick-jumper {
+    display: none;
+  }
+
+  .studio-context-menu {
+    max-width: calc(100vw - 24px);
+  }
+}
+
+@media (min-width: 1920px) {
+  .app-main {
+    padding-inline: clamp(16px, 2vw, 40px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid #2783de;
+  outline-offset: 2px;
+}

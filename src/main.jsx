@@ -4,12 +4,15 @@ import App from './App.jsx'
 import './index.css'
 import QueryProvider from './Services/reactQueryProvider.jsx'
 import {App as AntApp} from 'antd';
+import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary.jsx'
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
         <QueryProvider>
             <AntApp>
-                <App/>
+                <ErrorBoundary>
+                    <App/>
+                </ErrorBoundary>
             </AntApp>
         </QueryProvider>
     </StrictMode>,

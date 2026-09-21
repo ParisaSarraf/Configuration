@@ -189,7 +189,7 @@ const CustomHeader = ({ children }) => {
     : null;
 
   return (
-    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/70 rounded-xl my-2 mx-2 flex items-center justify-between h-14 shadow-sm ring-1 ring-slate-100 px-3 sm:px-4">
+    <header className="app-header sticky top-0 z-40 bg-white/90 backdrop-blur-md supports-[backdrop-filter]:bg-white/75 rounded-lg m-2 flex items-center justify-between min-h-12 shadow-sm ring-1 ring-slate-100 px-2 sm:px-3">
       {/* Left cluster: sidebar toggle + brand */}
       <div className="flex items-center gap-2 sm:gap-3 min-w-0">
         {children}
@@ -200,7 +200,7 @@ const CustomHeader = ({ children }) => {
       </div>
 
       {/* Right cluster: actions */}
-      <div className="flex items-center gap-2 sm:gap-3">
+      <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
         {builderAccess.formBuilder || builderAccess.processBuilder ? (
           <>
             <div className="flex items-center rounded-lg ring-1 ring-slate-200 bg-slate-50/60 overflow-hidden">
@@ -240,7 +240,7 @@ const CustomHeader = ({ children }) => {
           placement="bottomLeft"
           arrow
           dropdownRender={(menu) => (
-            <div className="bg-white rounded-xl shadow-xl mt-2 border border-slate-100 overflow-hidden min-w-[260px]">
+            <div className="bg-white rounded-xl shadow-xl mt-2 border border-slate-100 overflow-hidden w-[min(280px,calc(100vw-24px))]">
               {menu}
               <Divider style={{ margin: 0 }} />
               {customDropdownFooter}
@@ -248,7 +248,7 @@ const CustomHeader = ({ children }) => {
           )}
         >
           <button
-            className="flex items-center gap-2 cursor-pointer rounded-lg px-1.5 py-1 transition-colors hover:bg-slate-50"
+            className="app-icon-button flex items-center gap-2 cursor-pointer rounded-lg px-1.5 transition-colors hover:bg-slate-50"
             aria-label="User menu"
           >
             <Badge

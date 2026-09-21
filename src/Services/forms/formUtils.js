@@ -3,9 +3,15 @@ export const getApiErrorMessage = (
   fallback = "خطایی در ارتباط با سرور رخ داد.",
 ) => {
   const status = Number(error?.response?.status);
+  if (!error?.response)
+    return "ارتباط با سرور برقرار نشد. اتصال اینترنت را بررسی کرده و دوباره تلاش کنید.";
   if (status === 401)
     return "نشست کاربری شما معتبر نیست؛ لطفاً دوباره وارد سامانه شوید.";
   if (status === 403) return "شما دسترسی لازم برای انجام این عملیات را ندارید.";
+  if (status === 404) return "اطلاعات درخواستی پیدا نشد یا دیگر در دسترس نیست.";
+  if (status === 408) return "زمان پاسخ‌گویی سرور به پایان رسید؛ لطفاً دوباره تلاش کنید.";
+  if (status === 429) return "تعداد درخواست‌ها زیاد است؛ کمی صبر کنید و دوباره تلاش کنید.";
+  if (status >= 500) return "سرویس موقتاً در دسترس نیست؛ لطفاً چند لحظه دیگر دوباره تلاش کنید.";
 
   const data = error?.response?.data;
   if (typeof data === "string" && data.trim()) return data;
@@ -18,7 +24,7 @@ export const getApiErrorMessage = (
       return `${field}: ${Array.isArray(value) ? value.join("، ") : String(value)}`;
     }
   }
-  return error?.message || fallback;
+  return fallback;
 };
 
 export const extractEntityId = (response) => {

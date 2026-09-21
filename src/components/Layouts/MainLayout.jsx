@@ -7,10 +7,12 @@ import {useProductContext} from '../../Services/Context/ProductContext';
 
 const MainLayout = () => {
     const {currentProduct} = useProductContext();
-    const [isSidebarOpen, setSidebarOpen] = useState(true);
+    const [isSidebarOpen, setSidebarOpen] = useState(
+        () => typeof window !== 'undefined' && window.innerWidth >= 1024
+    );
 
     return (
-        <div className="h-screen bg-slate-100 flex font-sans" dir="rtl">
+        <div className="app-shell h-[100dvh] bg-slate-100 flex font-sans" dir="rtl">
             {isSidebarOpen && (
                 <div
                     onClick={() => setSidebarOpen(false)}
@@ -25,10 +27,10 @@ const MainLayout = () => {
                     flex h-full flex-col bg-white shadow-lg
                     overflow-hidden
                     transition-all duration-300 ease-in-out
-                    w-72
+                    w-[min(82vw,18rem)]
                     ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}
                     lg:translate-x-0
-                    ${isSidebarOpen ? 'lg:w-96' : 'lg:w-0'}
+                    ${isSidebarOpen ? 'lg:w-80 xl:w-96' : 'lg:w-0'}
                 `}
             >
                 <div className="flex-1 overflow-hidden">
@@ -37,22 +39,22 @@ const MainLayout = () => {
 
             </aside>
 
-            <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="min-w-0 flex-1 flex flex-col overflow-hidden">
                 <CustomHeader>
                     <button
                         onClick={() => setSidebarOpen(!isSidebarOpen)}
-                        className="p-2 text-xl text-slate-700 rounded-full hover:bg-slate-100 transition-colors"
+                        className="app-icon-button text-lg text-slate-700 rounded-lg hover:bg-slate-100 transition-colors"
                         aria-label="Toggle sidebar"
                     >
                         {isSidebarOpen ? <MenuFoldOutlined/> : <MenuUnfoldOutlined/>}
                     </button>
                 </CustomHeader>
 
-                <main className="flex-1 p-4 md:p-6 overflow-y-auto">
+                <main className="app-main flex-1 min-w-0 p-2 sm:p-3 lg:p-4 overflow-y-auto overflow-x-hidden">
                     {currentProduct ? (
                         <Outlet context={{product: currentProduct}}/>
                     ) : (
-                        <div className="flex items-center justify-center h-full text-slate-500 text-xl">
+                        <div className="flex items-center justify-center h-full px-4 text-center text-slate-500 text-base sm:text-lg">
                             <p>برای شروع، یک محصول را از لیست انتخاب کنید</p>
                         </div>
                     )}

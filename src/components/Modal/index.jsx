@@ -13,6 +13,7 @@ const Modal = ({
   footer,
   mode = "add",
   className,
+  styles,
   ...rest
 }) => {
   const dragRef = useRef(null);
@@ -51,6 +52,10 @@ const Modal = ({
     <MDL
       open={isOpen}
       width={size}
+      styles={{
+        body: { maxHeight: "min(72dvh, 760px)", overflowY: "auto", overflowX: "hidden" },
+        ...styles,
+      }}
       title={
         <div
           className="drag-handle"
