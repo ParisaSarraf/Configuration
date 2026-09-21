@@ -163,23 +163,24 @@ const GoodsCategories = () => {
   }, [activeTab]);
 
   return (
-    <div className="w-full flex flex-col rounded-2xl overflow-hidden shadow-xl bg-white border border-gray-100 font-sans">
-      <div className="bg-white p-6 pb-4 border-b border-gray-100">
+    <div className="system-module w-full flex flex-col overflow-hidden font-sans">
+      <div className="system-module__hero p-4 sm:p-5 pb-4">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
           <div>
-            <h1 className="text-2xl font-extrabold text-slate-800 tracking-tight">
+            <div className="section-eyebrow">مرکز فرمان محصول</div>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
               مدیریت یکپارچه محصول
             </h1>
-            <p className="text-slate-400 text-sm mt-1 font-medium">
+            <p className="text-slate-500 text-xs sm:text-sm mt-1 font-medium">
               پنل نظارت و کنترل فرآیندهای سیستمی
             </p>
           </div>
 
           <button
             onClick={() => setShowAccessDetails(!showAccessDetails)}
-            className={`group flex items-center gap-3 px-5 py-2.5 rounded-xl border transition-all duration-300 w-full md:w-auto justify-between md:justify-start ${
+            className={`access-profile group flex items-center gap-3 px-4 py-2 rounded-xl border transition-all duration-300 w-full md:w-auto justify-between md:justify-start ${
               showAccessDetails
-                ? "bg-slate-800 text-white border-slate-800 shadow-lg"
+                ? "bg-slate-900 text-white border-slate-900 shadow-sm"
                 : "bg-white text-slate-600 border-slate-200 hover:border-blue-400 hover:text-blue-600"
             }`}
           >
@@ -210,7 +211,7 @@ const GoodsCategories = () => {
               : "max-h-0 opacity-0 mt-0"
           }`}
         >
-          <div className="bg-slate-800 rounded-2xl p-5 text-white shadow-inner relative overflow-hidden">
+          <div className="access-card rounded-xl p-4 sm:p-5 text-white relative overflow-hidden">
             <div className="absolute top-0 left-0 w-32 h-32 bg-blue-500 rounded-full blur-[80px] opacity-20"></div>
             <div className="absolute bottom-0 right-0 w-40 h-40 bg-purple-500 rounded-full blur-[80px] opacity-20"></div>
 
@@ -267,19 +268,19 @@ const GoodsCategories = () => {
       </div>
 
       <div
-        className="relative border-b border-gray-200 bg-gray-50"
+        className="module-tabs relative"
         ref={tabsContainerRef}
       >
-        <div className="flex overflow-x-auto scrollbar-hide py-3 px-4">
+        <div className="flex overflow-x-auto scrollbar-hide gap-1.5 p-2">
           {tabs.map((tab, index) => (
             <button
               key={tab.id}
               ref={(el) => (tabRefs.current[index] = el)}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-shrink-0 flex items-center px-4 py-2.5 mx-1 rounded-lg transition-all duration-300 ${
+              className={`module-tab flex-shrink-0 flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
                 activeTab === tab.id
-                  ? `${tab.color} shadow-sm font-medium`
-                  : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
+                  ? "module-tab--active font-semibold"
+                  : "text-slate-500 hover:text-slate-800"
               }`}
             >
               <span className="ml-2">{tab.icon}</span>
@@ -299,7 +300,7 @@ const GoodsCategories = () => {
         />
       </div>
 
-      <div className="p-6 bg-slate-50 min-h-[500px]">
+      <div className="module-content p-2 sm:p-4 min-h-[500px]">
         <div className="animate-fade-in-up">
           {tabs.find((tab) => tab.id === activeTab)?.content}
         </div>

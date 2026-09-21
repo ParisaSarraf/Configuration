@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button, Form, message, Modal, Spin } from "antd";
-import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
+import { ApartmentOutlined, CloudSyncOutlined, PlusOutlined } from "@ant-design/icons";
 import {
   useRootProduct,
   useUpdateWarehouseStock,
@@ -125,28 +125,33 @@ const Products = () => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-white p-4">
-      <div className="flex justify-between items-center pb-4 border-b border-slate-200">
-        <h2 className="text-lg font-semibold text-slate-800">محصولات</h2>
-        <div className="flex flex-row gap-2">
+    <div className="product-panel h-full flex flex-col p-3">
+      <div className="product-panel__header flex justify-between items-center pb-3">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span className="product-panel__icon"><ApartmentOutlined /></span>
+          <div className="min-w-0">
+            <h2 className="m-0 text-sm font-bold text-slate-800">ساختار محصولات</h2>
+            <p className="m-0 mt-0.5 text-[10px] text-slate-400">انتخاب و مدیریت محصول</p>
+          </div>
+        </div>
+        <div className="flex flex-row gap-1.5">
           <Button
             type="primary"
-            shape="round"
+            className="sidebar-action"
             onClick={() => setModal({ mode: "add" })}
             icon={<PlusOutlined />}
             title="افزودن محصول"
           />
           <Button
-            type="primary"
-            shape="round"
+            className="sidebar-action"
             onClick={handleUpdateWarehouseStock}
-            icon={<ReloadOutlined />}
+            icon={<CloudSyncOutlined />}
             title="بروزرسانی موجودی انبار"
           />
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto mt-4 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto mt-3 custom-scrollbar">
         {isFetching ? <ProductListSkeleton /> : renderContent()}
       </div>
 

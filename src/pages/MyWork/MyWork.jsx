@@ -91,10 +91,10 @@ const MyWork = () => {
   )?.children;
 
   return (
-    <div className="min-h-screen bg-slate-50" dir="rtl">
+    <div className="system-page min-h-screen" dir="rtl">
       <Header />
-      <div className="p-4 sm:p-6 lg:p-8 max-w-screen-2xl mx-auto">
-        <header className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+      <div className="p-3 sm:p-5 lg:p-7 max-w-screen-2xl mx-auto">
+        <header className="page-hero flex flex-col md:flex-row justify-between items-stretch md:items-end gap-4 mb-5">
           <div>
             <Button
               type="text"
@@ -105,21 +105,22 @@ const MyWork = () => {
               بازگشت به صفحه اصلی
             </Button>
             <div className="w-full flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              <span className="section-eyebrow">میز کار شخصی</span>
+              <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
                 کارتابل <span className="text-sky-600">{userName}</span>
               </h1>
-              <div className="flex items-center gap-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl px-5 py-3 shadow-sm border border-blue-100">
-                <span className="text-lg font-semibold text-slate-700">
+              <div className="performance-badge flex items-center gap-3 rounded-xl px-4 py-2 border">
+                <span className="text-sm font-semibold text-slate-600">
                   درصد عملکرد:
                 </span>
-                <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                <span className="text-lg font-extrabold text-blue-700">
                   {performanceData?.[0]?.avg_performance}٪
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="bg-slate-100 p-1 flex items-center gap-1 rounded-xl border border-slate-200">
+          <div className="work-tabs p-1 flex items-center gap-1 rounded-xl border border-slate-200 overflow-x-auto">
             {items.map((item) => (
               <button
                 key={item.key}
@@ -134,7 +135,7 @@ const MyWork = () => {
           </div>
         </header>
 
-        <main className="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
+        <main className="settings-content bg-white rounded-xl border border-slate-200 p-3 sm:p-5">
           <div>{activeComponent}</div>
         </main>
       </div>

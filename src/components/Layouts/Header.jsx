@@ -189,14 +189,18 @@ const CustomHeader = ({ children }) => {
     : null;
 
   return (
-    <header className="app-header sticky top-0 z-40 bg-white/90 backdrop-blur-md supports-[backdrop-filter]:bg-white/75 rounded-lg m-2 flex items-center justify-between min-h-12 shadow-sm ring-1 ring-slate-100 px-2 sm:px-3">
+    <header className="app-header sticky top-0 z-40 m-2 flex items-center justify-between min-h-14 px-2 sm:px-3">
       {/* Left cluster: sidebar toggle + brand */}
       <div className="flex items-center gap-2 sm:gap-3 min-w-0">
         {children}
-        <Divider type="vertical" className="hidden sm:block !h-6 !m-0" />
-        <span className="hidden sm:block font-bold tracking-tight text-slate-800 truncate">
-          مسیر
-        </span>
+        <Divider type="vertical" className="hidden sm:block !h-7 !m-0" />
+        <div className="hidden sm:flex items-center gap-2.5 min-w-0">
+          <span className="brand-mark"><PartitionOutlined /></span>
+          <div className="min-w-0 leading-tight">
+            <strong className="block text-sm text-slate-800 truncate">مسیر</strong>
+            <span className="block text-[10px] text-slate-400 truncate">سامانه مدیریت یکپارچه</span>
+          </div>
+        </div>
       </div>
 
       {/* Right cluster: actions */}

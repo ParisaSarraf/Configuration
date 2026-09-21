@@ -135,9 +135,9 @@ const Setting = () => {
     const activeComponent = settingItems.find(item => item.key === activeKey)?.children;
 
     return (
-        <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8" dir="rtl">
+        <div className="system-page min-h-screen p-3 sm:p-5 lg:p-7" dir="rtl">
             <div className="max-w-screen-2xl mx-auto">
-                <header className="mb-8">
+                <header className="page-heading mb-5">
                     <Button
                         type="text"
                         icon={<ArrowRightOutlined/>}
@@ -146,22 +146,23 @@ const Setting = () => {
                     >
                         بازگشت به صفحه اصلی
                     </Button>
-                    <div>
-                        <h1 className="text-3xl font-bold text-slate-900">تنظیمات داده‌های پایه</h1>
-                        <p className="mt-2 text-base text-slate-600">
+                    <div className="page-hero">
+                        <span className="section-eyebrow">پیکربندی سامانه</span>
+                        <h1 className="text-2xl font-extrabold text-slate-900">تنظیمات داده‌های پایه</h1>
+                        <p className="mt-2 text-sm text-slate-500">
                             در این بخش می‌توانید اطلاعات پایه‌ای و تنظیمات کلی سیستم را مدیریت کنید.
                         </p>
                     </div>
                 </header>
 
-                <main className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-8">
-                    <div className="md:col-span-1 bg-white rounded-xl shadow-lg border border-slate-200 p-4 h-fit">
+                <main className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    <div className="settings-nav md:col-span-1 bg-white rounded-xl border border-slate-200 p-2 h-fit">
                         <ul className="space-y-1">
                             {settingItems.map(item => (
                                 <li key={item.key}>
                                     <button
                                         onClick={() => setActiveKey(item.key)}
-                                        className={`w-full flex items-center gap-3 p-3 rounded-lg text-right transition-colors duration-200 ${
+                                        className={`settings-nav__item w-full flex items-center gap-3 p-2.5 rounded-lg text-right transition-colors duration-200 ${
                                             activeKey === item.key
                                                 ? item.colorScheme.active
                                                 : item.colorScheme.inactive
@@ -176,8 +177,8 @@ const Setting = () => {
                     </div>
 
                     <div
-                        className="md:col-span-3 lg:col-span-4 bg-white rounded-xl shadow-lg border border-slate-200 min-h-[60vh]">
-                        <div className="p-6">
+                        className="settings-content md:col-span-3 lg:col-span-4 bg-white rounded-xl border border-slate-200 min-h-[60vh]">
+                        <div className="p-3 sm:p-5">
                             {activeComponent}
                         </div>
                     </div>

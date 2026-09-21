@@ -186,10 +186,10 @@ const ProcessesList = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950" dir="rtl">
+    <div className="system-page min-h-screen dark:bg-slate-950" dir="rtl">
       <Header />
 
-      <div className="mx-auto max-w-screen-xl p-4 sm:p-6">
+      <div className="mx-auto max-w-screen-xl p-3 sm:p-5 lg:p-7">
         <Button
           type="text"
           icon={<ArrowRightOutlined />}
@@ -199,13 +199,14 @@ const ProcessesList = () => {
           بازگشت به صفحه قبل
         </Button>
 
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-l from-Main to-slate-700 p-5 shadow-sm sm:p-7 dark:border-slate-800">
+        <div className="process-hero overflow-hidden rounded-2xl border p-5 sm:p-7 dark:border-slate-800">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h1 className="text-xl font-extrabold text-white sm:text-2xl">
+              <span className="process-hero__eyebrow">اتوماسیون گردش کار</span>
+              <h1 className="text-xl font-extrabold text-slate-900 sm:text-2xl">
                 فرایندها
               </h1>
-              <p className="mt-1 text-xs leading-7 text-slate-200 sm:text-sm">
+              <p className="mt-1 text-xs leading-7 text-slate-500 sm:text-sm">
                 گردش کار درخواست‌ها را در سه مرحله‌ی ساده بسازید و مدیریت کنید.
               </p>
             </div>
@@ -215,14 +216,15 @@ const ProcessesList = () => {
               onClick={() =>
                 setModal({ mode: "create", data: null, type: "CreateProccess" })
               }
-              className="!h-11 !border-none !bg-white !font-semibold !text-Main hover:!bg-slate-100"
+              type="primary"
+              className="!h-10 !font-semibold"
             >
               ثبت فرایند جدید
             </Button>
           </div>
         </div>
 
-        <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 dark:border-slate-800 dark:bg-slate-900">
+        <div className="settings-content mt-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-baseline gap-2">
               <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">

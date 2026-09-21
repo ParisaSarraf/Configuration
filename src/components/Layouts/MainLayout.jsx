@@ -12,7 +12,7 @@ const MainLayout = () => {
     );
 
     return (
-        <div className="app-shell h-[100dvh] bg-slate-100 flex font-sans" dir="rtl">
+        <div className="app-shell h-[100dvh] flex gap-0 lg:gap-2 lg:p-2 font-sans" dir="rtl">
             {isSidebarOpen && (
                 <div
                     onClick={() => setSidebarOpen(false)}
@@ -24,7 +24,7 @@ const MainLayout = () => {
             <aside
                 className={`
                     fixed lg:relative inset-y-0 right-0 z-40
-                    flex h-full flex-col bg-white shadow-lg
+                    app-sidebar flex h-full flex-col bg-white
                     overflow-hidden
                     transition-all duration-300 ease-in-out
                     w-[min(82vw,18rem)]
@@ -39,7 +39,7 @@ const MainLayout = () => {
 
             </aside>
 
-            <div className="min-w-0 flex-1 flex flex-col overflow-hidden">
+            <div className="app-workspace min-w-0 flex-1 flex flex-col overflow-hidden lg:rounded-2xl">
                 <CustomHeader>
                     <button
                         onClick={() => setSidebarOpen(!isSidebarOpen)}

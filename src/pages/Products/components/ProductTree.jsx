@@ -213,8 +213,8 @@ const ProductTree = ({
 
   return (
     <>
-      <div className="mb-3 flex items-center gap-2 rounded-lg bg-slate-100 p-1.5">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-white shadow-sm">
+      <div className="product-search mb-3 flex items-center gap-2 p-1.5">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-white ring-1 ring-slate-200">
           <SearchOutlined className="text-sm text-slate-500" />
         </div>
         <Input.Search
@@ -232,8 +232,8 @@ const ProductTree = ({
       [&_.ant-input]:placeholder:text-xs
       [&_.ant-input-search-button]:!h-8
       [&_.ant-input-search-button]:!rounded-md
-      [&_.ant-input-search-button]:!bg-slate-800
-      [&_.ant-input-search-button]:hover:!bg-slate-700
+      [&_.ant-input-search-button]:!bg-blue-600
+      [&_.ant-input-search-button]:hover:!bg-blue-700
     "
         />
       </div>
