@@ -1,4 +1,4 @@
-import { Button, Card } from "antd";
+import { Button, Card, message } from "antd";
 import useModal from "../../hooks/useModal";
 import { useProductContext } from "../../Services/Context/ProductContext";
 import DocumentProductModal from "./components/DocumentProductModal";
@@ -19,6 +19,8 @@ import CombineFiles from "@/pages/ProductDocument/components/CombineFiles/Combin
 import { DownloadOutlined, PlusOutlined } from "@ant-design/icons";
 import ExportExcelButton from "../../components/ExportExcel/ExportExcel";
 import ZipSerialProgressModal from "../../components/ZipSerialProgressModal/ZipSerialProgressModal";
+import { canViewUnacceptedVersion } from "@/utils/ExportFromToken.js";
+import { isSurveyDateExpired } from "@/utils/timeTool.jsx";
 
 const ProductDocuments = () => {
   const { currentProduct } = useProductContext();
@@ -28,7 +30,7 @@ const ProductDocuments = () => {
   const [serialId, setSerialId] = useState(null);
   const [serialLabel, setSerialLabel] = useState("");
   const [zipTask, setZipTask] = useState(null);
-  const { refetch: refetchSerialId } =
+  const { data: serialDocumentData, refetch: refetchSerialId } =
     useProductDocumentEditionLogsBySerialById(serialId);
   const { mutateAsync: exportExcel, isLoading: isExporting } =
     useExportExcelSerial();
@@ -38,6 +40,16 @@ const ProductDocuments = () => {
   useEffect(() => {
     setSerialId(null);
   }, [currentProduct?.id]);
+
+  const hasExpiredDocument = serialDocumentData?.some((product) =>
+    product?.documents?.some((document) =>
+      document?.editions?.some((edition) =>
+        isSurveyDateExpired(edition?.survey_date),
+      ),
+    ),
+  );
+  const isZipDownloadRestricted =
+    Boolean(hasExpiredDocument) && !canViewUnacceptedVersion();
 
   return (
     <Card title={` اسناد ${currentProduct?.name || ""}`}>
@@ -98,9 +110,15 @@ const ProductDocuments = () => {
                   title="دانلود فایل ZIP"
                   icon={<DownloadOutlined />}
                   loading={isRequestingZip}
-                  disabled={!serialId}
+                  disabled={!serialId || isZipDownloadRestricted}
                   onClick={() => {
                     if (!serialId) return;
+                    if (isZipDownloadRestricted) {
+                      message.error(
+                        "به دلیل وجود سند منقضی، اجازه دانلود فایل ZIP را ندارید",
+                      );
+                      return;
+                    }
                     createZip(serialId, {
                       onSuccess: (res) => {
                         setZipTask({ uuid: res.uuid, fileName: serialLabel });

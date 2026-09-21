@@ -44,6 +44,8 @@ const ProductDocumentEditionModal = ({
       description: values.description,
       reasons_editing_id: values.reasons_editing_id,
       is_active: values.is_active,
+      state: modalData?.state,
+      survey_date: modalData?.survey_date,
     };
     try {
       if (modalMode === "edition") {

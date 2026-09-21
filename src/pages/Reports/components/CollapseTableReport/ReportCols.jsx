@@ -4,7 +4,10 @@ import {
   CheckOutlined,
 } from "@ant-design/icons";
 import { Button, Tag } from "antd";
-import { georgianDateToJalaliDate, getSurveyDateStatus } from "@utils/timeTool.jsx";
+import {
+  georgianDateToJalaliDate,
+  getSurveyDateStatus,
+} from "@utils/timeTool.jsx";
 
 const ReportCol = ({ handleShowDetailEdition, handleAutomationFiles }) => {
   return [
@@ -85,14 +88,30 @@ const ReportCol = ({ handleShowDetailEdition, handleAutomationFiles }) => {
     },
     {
       title: "تاریخ بازبینی",
-      dataIndex: ["survey_date"],
       key: "survey_date",
-      width: 100,
-      render: (record) => {
-        const status = getSurveyDateStatus(record);
-        const color = status === "expired" ? "red" : status === "warning" ? "orange" : "green";
-        const label = status === "expired" ? "گذشته" : status === "warning" ? "کمتر از ۱۰ روز" : null;
-        return <Tag color={color}>{georgianDateToJalaliDate(record)}{label ? ` - ${label}` : ""}</Tag>;
+      width: 150,
+      render: (_, record) => {
+        const surveyDate =
+          record?.editions?.[0]?.survey_date ?? record?.survey_date;
+        const status = getSurveyDateStatus(surveyDate);
+        if (status === "none") return <Tag>ثبت نشده</Tag>;
+        const color =
+          status === "expired"
+            ? "red"
+            : status === "warning"
+              ? "orange"
+              : "green";
+        const label =
+          status === "expired"
+            ? "منقضی شده"
+            : status === "warning"
+              ? "کمتر از ۱۰ روز"
+              : "معتبر";
+        return (
+          <Tag color={color}>
+            {georgianDateToJalaliDate(surveyDate)} - {label}
+          </Tag>
+        );
       },
     },
     {

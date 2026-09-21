@@ -57,13 +57,18 @@ export const getAuthDataFromToken = (token) => {
 export const hasPageAccess = (page, token) =>
   getAuthDataFromToken(token)?.accessible_pages.includes(page) ?? false;
 
-export const canViewUnacceptedVersion = (token) =>
-  getAuthDataFromToken(token)?.view_unaccepted_version === true;
+export const canViewUnacceptedVersion = (token) => {
+  const value = getAuthDataFromToken(token)?.view_unaccepted_version;
+  return value === true || value === 1 || value === "1" || value === "true";
+};
 
 export const canViewDocumentFiles = (state, token, surveyDate) => {
   const hasUnacceptedAccess = canViewUnacceptedVersion(token);
   const isApproved = Number(state) === 40;
-  const isExpired = surveyDate ? new Date(surveyDate).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0) : false;
+  const isExpired = surveyDate
+    ? new Date(surveyDate).setHours(0, 0, 0, 0) <
+      new Date().setHours(0, 0, 0, 0)
+    : false;
 
   if (isExpired && !hasUnacceptedAccess) return false;
   return isApproved || hasUnacceptedAccess;

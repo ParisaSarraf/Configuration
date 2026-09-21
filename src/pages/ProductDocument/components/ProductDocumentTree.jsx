@@ -232,10 +232,14 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
               />
               {edition.reasons_editing}
               {getSurveyDateStatus(edition?.survey_date) === "warning" && (
-                <span className="mr-2 text-xs text-orange-500">(نزدیک بازبینی)</span>
+                <span className="mr-2 text-xs text-orange-500">
+                  (نزدیک بازبینی)
+                </span>
               )}
               {getSurveyDateStatus(edition?.survey_date) === "expired" && (
-                <span className="mr-2 text-xs text-red-600">(گذشته از بازبینی)</span>
+                <span className="mr-2 text-xs text-red-600">
+                  (گذشته از بازبینی)
+                </span>
               )}
             </span>
             <Space>

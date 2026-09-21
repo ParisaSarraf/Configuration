@@ -5,18 +5,33 @@ import { BASEURL } from "@/Services/axiosInstance.js";
 import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
 import { canViewDocumentFiles } from "@/utils/ExportFromToken.js";
 
-export const renderFileButton = (label, filePath, accessCheckRequired = false, documentState, surveyDate) => {
+export const renderFileButton = (
+  label,
+  filePath,
+  accessCheckRequired = false,
+  documentState,
+  surveyDate,
+) => {
   if (!filePath) return <div className="text-gray-400">فایلی وجود ندارد</div>;
   const fullUrl = `${BASEURL.replace("/api/v1", "")}${filePath}`;
   const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(filePath);
   const canOpenFile =
-    !accessCheckRequired || canViewDocumentFiles(documentState, undefined, surveyDate);
+    !accessCheckRequired ||
+    canViewDocumentFiles(documentState, undefined, surveyDate);
   const handleFileClick = (event) => {
     if (canOpenFile) return;
     event.preventDefault();
     event.stopPropagation();
     message.error("شما اجازه مشاهده یا دانلود این فایل را ندارید");
   };
+
+  if (!canOpenFile) {
+    return (
+      <div className="text-gray-500">
+        این فایل منقضی یا تاییدنشده است و دسترسی مشاهده آن را ندارید
+      </div>
+    );
+  }
 
   return (
     <Space className="flex flex-col">
@@ -292,21 +307,42 @@ const DetailModal = ({
                 </div>
                 <div className="flex justify-between py-1">
                   <span className="text-gray-500">وضعیت</span>
-                  <Badge status={editionData.is_active ? "success" : "danger"} text={editionData.is_active ? "فعال" : "غیرفعال"} />
+                  <Badge
+                    status={editionData.is_active ? "success" : "danger"}
+                    text={editionData.is_active ? "فعال" : "غیرفعال"}
+                  />
                 </div>
               </SectionCard>
               <SectionCard title={"فایل های پیوست"}>
                 <h1>
                   فایل غیرقابل ویرایش
-                  {renderFileButton("فایل غیرقابل ویرایش", editionData.file_1, true, editionData.state)}
+                  {renderFileButton(
+                    "فایل غیرقابل ویرایش",
+                    editionData.file_1,
+                    true,
+                    editionData.state,
+                    editionData.survey_date,
+                  )}
                 </h1>
                 <h1>
                   فایل قابل ویرایش
-                  {renderFileButton("فایل قابل ویرایش", editionData.file_2, true, editionData.state)}
+                  {renderFileButton(
+                    "فایل قابل ویرایش",
+                    editionData.file_2,
+                    true,
+                    editionData.state,
+                    editionData.survey_date,
+                  )}
                 </h1>
                 <h1>
                   فایل پشتیبان تولید
-                  {renderFileButton("فایل پشتیبان تولید", editionData.file_3, true, editionData.state)}
+                  {renderFileButton(
+                    "فایل پشتیبان تولید",
+                    editionData.file_3,
+                    true,
+                    editionData.state,
+                    editionData.survey_date,
+                  )}
                 </h1>
                 <h1>
                   ارسال به کارفرما/پیمانکار
@@ -315,6 +351,7 @@ const DetailModal = ({
                     editionData.file_4,
                     true,
                     editionData.state,
+                    editionData.survey_date,
                   )}
                 </h1>
               </SectionCard>
@@ -346,15 +383,33 @@ const DetailModal = ({
               <SectionCard title={"فایل های پیوست"}>
                 <h1>
                   فایل غیرقابل ویرایش
-                  {renderFileButton("فایل غیرقابل ویرایش", editionData.file_1, true, editionData.state)}
+                  {renderFileButton(
+                    "فایل غیرقابل ویرایش",
+                    editionData.file_1,
+                    true,
+                    editionData.state,
+                    editionData.survey_date,
+                  )}
                 </h1>
                 <h1>
                   فایل قابل ویرایش
-                  {renderFileButton("فایل قابل ویرایش", editionData.file_2, true, editionData.state)}
+                  {renderFileButton(
+                    "فایل قابل ویرایش",
+                    editionData.file_2,
+                    true,
+                    editionData.state,
+                    editionData.survey_date,
+                  )}
                 </h1>
                 <h1>
                   فایل پشتیبان تولید
-                  {renderFileButton("فایل پشتیبان تولید", editionData.file_3, true, editionData.state)}
+                  {renderFileButton(
+                    "فایل پشتیبان تولید",
+                    editionData.file_3,
+                    true,
+                    editionData.state,
+                    editionData.survey_date,
+                  )}
                 </h1>
                 <h1>
                   ارسال به کارفرما/پیمانکار
@@ -363,6 +418,7 @@ const DetailModal = ({
                     editionData.file_4,
                     true,
                     editionData.state,
+                    editionData.survey_date,
                   )}
                 </h1>
               </SectionCard>

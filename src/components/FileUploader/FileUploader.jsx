@@ -1,9 +1,16 @@
-import { Button, Image, Upload } from "antd";
+import { Button, Image, message, Upload } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { useEffect, useMemo, useState } from "react";
 import { canViewDocumentFiles } from "@/utils/ExportFromToken.js";
 
-const FileUploader = ({ value = [], onChange, maxFiles = 1, maxCount, documentState, surveyDate }) => {
+const FileUploader = ({
+  value = [],
+  onChange,
+  maxFiles = 1,
+  maxCount,
+  documentState,
+  surveyDate,
+}) => {
   const [fileList, setFileList] = useState([]);
 
   const normalizedValue = useMemo(() => {
@@ -30,7 +37,7 @@ const FileUploader = ({ value = [], onChange, maxFiles = 1, maxCount, documentSt
           };
         }
         return file;
-      })
+      }),
     );
 
     setFileList(processedFiles);
@@ -45,10 +52,17 @@ const FileUploader = ({ value = [], onChange, maxFiles = 1, maxCount, documentSt
       reader.readAsDataURL(file);
     });
 
-  const isRestricted = (file) => Boolean(file.url) && !canViewDocumentFiles(documentState, undefined, surveyDate);
+  const isRestricted = (file) =>
+    Boolean(file.url) &&
+    !canViewDocumentFiles(documentState, undefined, surveyDate);
 
   const handlePreview = async (file) => {
-    if (isRestricted(file)) return; 
+    if (isRestricted(file)) {
+      message.error(
+        "این فایل منقضی یا تاییدنشده است و دسترسی مشاهده آن را ندارید",
+      );
+      return;
+    }
 
     if (file.url) {
       window.open(file.url, "_blank");
@@ -68,6 +82,15 @@ const FileUploader = ({ value = [], onChange, maxFiles = 1, maxCount, documentSt
         fileList={fileList}
         onChange={handleChange}
         onPreview={handlePreview}
+        itemRender={(originNode, file) =>
+          isRestricted(file) ? (
+            <div className="text-gray-500 py-2">
+              فایل موجود است؛ مشاهده و دانلود برای شما مجاز نیست
+            </div>
+          ) : (
+            originNode
+          )
+        }
         beforeUpload={() => false}
       >
         {fileList.length < (maxCount ?? maxFiles) && (

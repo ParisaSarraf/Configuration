@@ -39,23 +39,28 @@ const CombineFiles = ({
   const [currentState, setCurrentState] = useState(null);
   const [comment, setComment] = useState("");
   const [reviewPeriod, setReviewPeriod] = useState(null);
+  const [surveyDate, setSurveyDate] = useState(null);
 
-  const ProductDocumentId = modalData?.editions?.[0]?.id;
+  const editionRecord =
+    modalType === "SpecificAutomationFiles"
+      ? modalData?.editions?.[0]
+      : modalData;
+  const editionId = editionRecord?.id;
+  const productDocumentId =
+    editionRecord?.product_document_id?.id ??
+    editionRecord?.product_document_id ??
+    modalData?.product_document_id?.id ??
+    modalData?.product_document_id ??
+    (modalType === "SpecificAutomationFiles" ? modalData?.id : undefined);
   const { isPending: isUpdating, mutateAsync: updateProductDocumentEdition } =
     useUpdateProductDocumentEdition();
 
   const { mutateAsync: updateState, isPending: isPatching } =
     usePatchDocumentEditionLog();
 
-  const editionId =
-    modalType === "SpecificAutomationFiles"
-      ? modalData?.editions?.[0]?.id
-      : modalData?.id;
   const { data: logList = [] } = useAllLogs(editionId);
 
-  const currentSurveyDate = modalType === "SpecificAutomationFiles"
-    ? modalData?.editions?.[0]?.survey_date || modalData?.survey_date
-    : modalData?.survey_date;
+  const currentSurveyDate = surveyDate;
 
   const stateSteps = [
     { value: 10, label: "تعریف سند" },
@@ -69,10 +74,20 @@ const CombineFiles = ({
   );
 
   useEffect(() => {
-    const editionState = modalType === "SpecificAutomationFiles"
-      ? modalData?.editions?.[0]?.state
-      : modalData?.state;
+    const editionState =
+      modalType === "SpecificAutomationFiles"
+        ? modalData?.editions?.[0]?.state
+        : modalData?.state;
     setCurrentState(editionState == null ? null : Number(editionState));
+    setSurveyDate(
+      modalType === "SpecificAutomationFiles"
+        ? modalData?.editions?.[0]?.survey_date ||
+            modalData?.survey_date ||
+            null
+        : modalData?.survey_date || null,
+    );
+    setReviewPeriod(null);
+    setComment("");
   }, [modalData, modalType]);
 
   useEffect(() => {
@@ -138,25 +153,27 @@ const CombineFiles = ({
         : modalData;
 
     const payload = {
-      product_document_id:
-        modalType === "SpecificAutomationFiles"
-          ? ProductDocumentId
-          : modalData?.product_document_id?.id,
+      product_document_id: productDocumentId,
       edition: values.edition,
       file_1: values.file_1?.[0]?.originFileObj,
       file_2: values.file_2?.[0]?.originFileObj,
       file_3: values.file_3?.[0]?.originFileObj,
       file_4: values.file_4?.[0]?.originFileObj,
       description: values.description,
+      reasons_editing_id:
+        fileSource.reasons_editing?.id ??
+        fileSource.reasons_editing_id ??
+        (typeof fileSource.reasons_editing === "number"
+          ? fileSource.reasons_editing
+          : undefined),
       is_active: fileSource.is_active ?? true,
+      state: currentState,
+      survey_date: currentSurveyDate,
     };
 
     try {
       await updateProductDocumentEdition({
-        documentId:
-          modalType === "SpecificAutomationFiles"
-            ? ProductDocumentId
-            : modalData?.id,
+        documentId: editionId,
         ...payload,
       });
       message.success("نسخه با موفقیت ویرایش شد");
@@ -190,32 +207,27 @@ const CombineFiles = ({
             ? modalData?.editions?.[0] || {}
             : modalData;
         await updateProductDocumentEdition({
-          documentId:
-            modalType === "SpecificAutomationFiles"
-              ? ProductDocumentId
-              : modalData?.id,
-          product_document_id:
-            modalType === "SpecificAutomationFiles"
-              ? ProductDocumentId
-              : modalData?.product_document_id?.id,
+          documentId: editionId,
+          product_document_id: productDocumentId,
           edition: fileSource.edition,
           description: fileSource.description,
-          reasons_editing_id: fileSource.reasons_editing?.id ?? fileSource.reasons_editing,
+          reasons_editing_id:
+            fileSource.reasons_editing?.id ?? fileSource.reasons_editing_id,
           is_active: fileSource.is_active ?? true,
+          state: nextState,
           survey_date: nextSurveyDate,
         });
       }
 
       await updateState({
-        id:
-          modalType === "SpecificAutomationFiles"
-            ? ProductDocumentId
-            : modalData?.id,
+        id: editionId,
         state: nextState,
         comment: comment,
       });
       message.success("مرحله با موفقیت بروزرسانی شد");
       setCurrentState(nextState);
+      if (nextSurveyDate) setSurveyDate(nextSurveyDate);
+      await refetch();
       setComment("");
       setReviewPeriod(null);
     } catch (error) {
@@ -230,10 +242,7 @@ const CombineFiles = ({
 
     try {
       await updateState({
-        id:
-          modalType === "SpecificAutomationFiles"
-            ? ProductDocumentId
-            : modalData?.id,
+        id: editionId,
         state: prevState,
         comment: comment,
       });
@@ -243,6 +252,7 @@ const CombineFiles = ({
         }" منتقل شد`,
       );
       setCurrentState(prevState);
+      await refetch();
       setComment("");
     } catch (error) {
       console.error(error);
@@ -253,41 +263,39 @@ const CombineFiles = ({
   const renderFiles = () => {
     if (!modalData) return <div>در حال بارگذاری...</div>;
 
-    const surveyDate = modalType === "SpecificAutomationFiles"
-      ? modalData?.editions?.[0]?.survey_date || modalData?.survey_date
-      : modalData?.survey_date;
+    const fileSource = editionRecord || {};
 
-    if (!canViewDocumentFiles(currentState, undefined, surveyDate)) {
+    if (!canViewDocumentFiles(currentState, undefined, currentSurveyDate)) {
       return <div>شما اجازه مشاهده این فایل‌ها را ندارید</div>;
     }
 
     const files = [
-      modalData?.file_1
+      fileSource?.file_1
         ? {
             uid: "-1",
             name: "فایل غیرقابل ویرایش",
-            url: BASEURL.replace("/api/v1", "") + modalData.file_1,
+            url: BASEURL.replace("/api/v1", "") + fileSource.file_1,
           }
         : null,
-      modalData?.file_2
+      fileSource?.file_2
         ? {
             uid: "-2",
             name: "قابل ویرایش",
-            url: BASEURL.replace("/api/v1", "") + modalData.file_2,
+            url: BASEURL.replace("/api/v1", "") + fileSource.file_2,
           }
         : null,
-      modalData?.file_3
+      fileSource?.file_3
         ? {
             uid: "-3",
             name: "فایل پشتیبان تولید",
-            url: BASEURL.replace("/api/v1", "") + modalData.file_3,
+            url: BASEURL.replace("/api/v1", "") + fileSource.file_3,
           }
         : null,
-      modalData?.file_4
+      fileSource?.file_4
         ? {
             uid: "-4",
             name: "ارسال به کارفرما/پیمانکار",
-            url: BASEURL.replace("/api/v1", "") + modalData.file_4,
+            url: BASEURL.replace("/api/v1", "") + fileSource.file_4,
           }
         : null,
     ].filter(Boolean);
@@ -337,22 +345,38 @@ const CombineFiles = ({
           <Row gutter={16}>
             <Col span={6}>
               <Form.Item label={"فایل غیرقابل ویرایش"} name="file_1">
-                <FileUploader maxCount={1} documentState={currentState} surveyDate={currentSurveyDate} />
+                <FileUploader
+                  maxCount={1}
+                  documentState={currentState}
+                  surveyDate={currentSurveyDate}
+                />
               </Form.Item>
             </Col>
             <Col span={6}>
               <Form.Item label={"قابل ویرایش"} name="file_2">
-                <FileUploader maxCount={1} documentState={currentState} surveyDate={currentSurveyDate} />
+                <FileUploader
+                  maxCount={1}
+                  documentState={currentState}
+                  surveyDate={currentSurveyDate}
+                />
               </Form.Item>
             </Col>
             <Col span={6}>
               <Form.Item label={"فایل پشتیبان تولید"} name="file_3">
-                <FileUploader maxCount={1} documentState={currentState} surveyDate={currentSurveyDate} />
+                <FileUploader
+                  maxCount={1}
+                  documentState={currentState}
+                  surveyDate={currentSurveyDate}
+                />
               </Form.Item>
             </Col>
             <Col span={6}>
               <Form.Item label={"ارسال به کارفرما/پیمانکار"} name="file_4">
-                <FileUploader maxCount={1} documentState={currentState} surveyDate={currentSurveyDate} />
+                <FileUploader
+                  maxCount={1}
+                  documentState={currentState}
+                  surveyDate={currentSurveyDate}
+                />
               </Form.Item>
             </Col>
           </Row>
@@ -496,7 +520,11 @@ const CombineFiles = ({
                   label="بازه بازبینی"
                   required
                   validateStatus={!reviewPeriod ? "warning" : undefined}
-                  help={!reviewPeriod ? "برای رفتن از مرحله تهیه به تایید، بازه بازبینی را انتخاب کنید" : undefined}
+                  help={
+                    !reviewPeriod
+                      ? "برای رفتن از مرحله تهیه به تایید، بازه بازبینی را انتخاب کنید"
+                      : undefined
+                  }
                 >
                   <Select
                     value={reviewPeriod}
@@ -550,7 +578,8 @@ const CombineFiles = ({
                   !comment ||
                   (currentState === 20 && !reviewPeriod) ||
                   currentStepIndex >= stateSteps?.length - 1 ||
-                  isPatching
+                  isPatching ||
+                  isUpdating
                 }
                 loading={isPatching}
               >
