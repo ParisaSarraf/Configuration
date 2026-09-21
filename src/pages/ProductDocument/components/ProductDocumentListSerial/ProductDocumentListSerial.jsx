@@ -12,17 +12,19 @@ import {
 import { useProductSerialById } from "@/QueryServises/productSerialQuery/index.js";
 import { useProductDocumentEditionLogsBySerialById } from "@/QueryServises/productDocumentQuery/index.js";
 import { ProductDocumentListSerialCol } from "./components/ProductDocumentListSerialCol";
-import { useDeleteProductEditionlog } from "@/QueryServises/productDocumentEditionLogQuery/index.js";
-import { DeleteOutlined, EyeFilled } from "@ant-design/icons";
+import {
+  useDeleteProductEditionlog,
+  usePatchDocumentEditionLog,
+} from "@/QueryServises/productDocumentEditionLogQuery/index.js";
+import { DeleteOutlined, EyeFilled, CheckCircleOutlined } from "@ant-design/icons";
 import { BASEURL } from "@/Services/axiosInstance.js";
 import { TableAntd } from "../../../../components/TableAntd/TableAntd";
-import { georgianDateToJalaliDate } from "../../../../utils/timeTool";
 import { canViewDocumentFiles } from "@/utils/ExportFromToken.js";
 
 const showAccessError = () =>
   message.error("شما اجازه مشاهده این فایل را ندارید");
 
-const DocumentsTable = ({ documents, onEdit, onDelete, onView }) => {
+const DocumentsTable = ({ documents, onDelete, onView, onConfirm }) => {
   const documentData = useMemo(() => {
     const flatData = [];
 
@@ -82,27 +84,11 @@ const DocumentsTable = ({ documents, onEdit, onDelete, onView }) => {
   const documentColumns = useMemo(
     () => [
       {
-        title: "عنوان سند",
-        dataIndex: "title",
-        key: "title",
-        onCell: (record) => ({ rowSpan: record.docRowSpan }),
-        render: (_, record) => (record ? record.document?.full_code : "--"),
-      },
-      {
-        title: "نسخه",
+        title: "کد سند",
         key: "edition_full_code",
         onCell: (record) => ({ rowSpan: record.editionRowSpan }),
         render: (_, record) =>
           record.editionData?.full_code ? record.editionData?.full_code : "--",
-      },
-      {
-        title: "تاریخ تهیه",
-        key: "edition_survey_date",
-        onCell: (record) => ({ rowSpan: record.editionRowSpan }),
-        render: (_, record) =>
-          record.logData?.survey_date
-            ? georgianDateToJalaliDate(record.logData?.survey_date)
-            : "--",
       },
       {
         title: "فایل",
@@ -151,11 +137,19 @@ const DocumentsTable = ({ documents, onEdit, onDelete, onView }) => {
                   onClick={() => onView(record)}
                 />
               </Tooltip>
+              <Tooltip title="تایید اسناد">
+                <Button
+                  size="small"
+                  icon={<CheckCircleOutlined />}
+                  className="text-green-500 border-green-500"
+                  onClick={() => onConfirm(record)}
+                />
+              </Tooltip>
             </Space>
           ) : null,
       },
     ],
-    [onEdit, onDelete, onView],
+    [onDelete, onView, onConfirm],
   );
 
   return (
@@ -180,6 +174,7 @@ const ProductDocumentListSerial = ({
 }) => {
   const { data: ProductSerialList } = useProductSerialById(currentProduct?.id);
   const { mutateAsync: deleteProductEditionlog } = useDeleteProductEditionlog();
+  const { mutateAsync: updateDocumentState } = usePatchDocumentEditionLog();
   const { data: ProductDocumentData, refetch: refetchProductDocumentData } =
     useProductDocumentEditionLogsBySerialById(serialId);
 
@@ -249,16 +244,59 @@ const ProductDocumentListSerial = ({
     [deleteProductEditionlog, refetchProductDocumentData],
   );
 
+
+  const handleConfirmDocument = useCallback(
+    (record) => {
+      const editionId = record?.editionData?.id;
+
+      if (!editionId) {
+        message.error("نسخه سند برای تایید پیدا نشد");
+        return;
+      }
+
+      Modal.confirm({
+        title: "تایید اسناد",
+        content: "آیا از تایید این سند مطمئن هستید؟",
+        okText: "بله، تایید شود",
+        cancelText: "خیر، منصرف شدم",
+        async onOk() {
+          try {
+            await updateDocumentState({
+              id: editionId,
+              state: 30,
+              comment: "تایید سند از کارتابل شخصی",
+            });
+            message.success("سند با موفقیت تایید شد");
+            await refetchProductDocumentData();
+          } catch (error) {
+            console.error(error);
+            message.error(
+              error?.response?.data?.detail ||
+                error?.detail ||
+                "خطا در تایید سند",
+            );
+          }
+        },
+      });
+    },
+    [updateDocumentState, refetchProductDocumentData],
+  );
+
   const expandedRowRender = useCallback(
     (productRecord) => (
       <DocumentsTable
         documents={productRecord.documents}
-        onEdit={handleEditLogEdition}
         onDelete={handleDeleteLogEdition}
         onView={handleShowDetailEdiotnLog}
+        onConfirm={handleConfirmDocument}
       />
     ),
-    [handleEditLogEdition, handleDeleteLogEdition, handleShowDetailEdiotnLog],
+    [
+      handleEditLogEdition,
+      handleDeleteLogEdition,
+      handleShowDetailEdiotnLog,
+      handleConfirmDocument,
+    ],
   );
 
   const handleSerialChange = useCallback(

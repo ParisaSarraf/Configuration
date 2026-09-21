@@ -1446,7 +1446,6 @@
   color: #fdba74;
 }
 
-
 /* =====================================================================
    polish layer — visual refinement only
    ===================================================================== */
@@ -1473,7 +1472,7 @@
   --pb-grid: #e9eef7;
   --pb-edge: #a8b4c7;
   --pb-shadow-sm: 0 2px 8px rgba(31, 47, 75, 0.06);
-  --pb-shadow-md: 0 10px 26px rgba(31, 47, 75, 0.10);
+  --pb-shadow-md: 0 10px 26px rgba(31, 47, 75, 0.1);
   --pb-shadow-lg: 0 18px 44px rgba(31, 47, 75, 0.15);
 }
 
@@ -1482,7 +1481,9 @@
   padding: 0 24px;
   border-bottom-color: #dde5f0;
   background: linear-gradient(180deg, #ffffff 0%, #fafdff 100%);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9), 0 5px 18px rgba(45, 63, 91, 0.04);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9),
+    0 5px 18px rgba(45, 63, 91, 0.04);
 }
 
 .process-builder__toolbar-start,
@@ -1578,7 +1579,7 @@
   border: none;
   border-radius: 10px;
   background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-  box-shadow: 0 6px 14px rgba(79, 70, 229, 0.20);
+  box-shadow: 0 6px 14px rgba(79, 70, 229, 0.2);
   font-weight: 700;
 }
 
@@ -1591,7 +1592,12 @@
 .process-builder__body {
   gap: 14px;
   padding: 18px;
-  background: radial-gradient(circle at 15% 0%, #ffffff 0, #f3f6fb 42%, #eef3fa 100%);
+  background: radial-gradient(
+    circle at 15% 0%,
+    #ffffff 0,
+    #f3f6fb 42%,
+    #eef3fa 100%
+  );
 }
 
 .process-builder__canvas-wrapper,
@@ -1682,8 +1688,12 @@
 
 .process-canvas {
   background-color: #fbfdff;
-  background-image: radial-gradient(#dbe4f0 1px, transparent 1px), linear-gradient(180deg, rgba(246, 249, 255, 0.55), rgba(255, 255, 255, 0.1));
-  background-size: 24px 24px, 100% 100%;
+  background-image:
+    radial-gradient(#dbe4f0 1px, transparent 1px),
+    linear-gradient(180deg, rgba(246, 249, 255, 0.55), rgba(255, 255, 255, 0.1));
+  background-size:
+    24px 24px,
+    100% 100%;
 }
 
 .process-canvas__empty {
@@ -1728,7 +1738,9 @@
 
 .process-node--selected,
 .process-node--connect-source {
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.14), 0 8px 20px rgba(43, 59, 87, 0.12);
+  box-shadow:
+    0 0 0 4px rgba(99, 102, 241, 0.14),
+    0 8px 20px rgba(43, 59, 87, 0.12);
 }
 
 .process-node__icon {
@@ -1767,7 +1779,9 @@
 
 .process-edge-label--selected {
   border-color: #8b91ff;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.13), 0 4px 10px rgba(41, 56, 83, 0.08);
+  box-shadow:
+    0 0 0 3px rgba(99, 102, 241, 0.13),
+    0 4px 10px rgba(41, 56, 83, 0.08);
 }
 
 .process-edge-label__chip {
@@ -1882,7 +1896,7 @@
   --pb-grid: #23314c;
   --pb-edge: #7c8ead;
   --pb-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.22);
-  --pb-shadow-md: 0 10px 26px rgba(0, 0, 0, 0.30);
+  --pb-shadow-md: 0 10px 26px rgba(0, 0, 0, 0.3);
   --pb-shadow-lg: 0 18px 44px rgba(0, 0, 0, 0.44);
 }
 
@@ -1892,12 +1906,19 @@
 }
 
 .dark .process-builder__body {
-  background: radial-gradient(circle at 15% 0%, #18243a 0, #0d1422 55%, #0b1220 100%);
+  background: radial-gradient(
+    circle at 15% 0%,
+    #18243a 0,
+    #0d1422 55%,
+    #0b1220 100%
+  );
 }
 
 .dark .process-canvas {
   background-color: #111b2b;
-  background-image: radial-gradient(#263653 1px, transparent 1px), linear-gradient(180deg, rgba(17, 27, 43, 0.75), rgba(20, 29, 45, 0.25));
+  background-image:
+    radial-gradient(#263653 1px, transparent 1px),
+    linear-gradient(180deg, rgba(17, 27, 43, 0.75), rgba(20, 29, 45, 0.25));
 }
 
 .dark .process-toolbox,
@@ -1956,4 +1977,36 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+/* فرایند دارای درخواست باز فقط قابل مشاهده است و بوم نباید ویرایش شود. */
+.process-builder__locked-canvas {
+  position: absolute;
+  z-index: 35;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 16px;
+  border-radius: inherit;
+  background: rgba(248, 250, 252, 0.28);
+  cursor: not-allowed;
+}
+
+.process-builder__locked-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(520px, calc(100% - 32px));
+  padding: 9px 14px;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.97);
+  color: #991b1b;
+  box-shadow: 0 4px 14px rgba(127, 29, 29, 0.09);
+  font-size: 12px;
+}
+
+.process-builder__locked-message span {
+  color: #7f1d1d;
 }

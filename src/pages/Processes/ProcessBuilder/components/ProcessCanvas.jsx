@@ -87,7 +87,7 @@ const ProcessCanvas = ({
   /**
    * آفست خمیدگی هر مسیر. اگر بین دو مرحله مسیر برگشت هم وجود
    * داشته باشد، هر دو خم می‌شوند تا خط، برچسب و ناحیه‌ی کلیکشان جدا باشد و
-   * بتوان برای هر جهت جداگانه دکمه تعریف کرد.
+   * بتوان برای هر جهت جداگانه عملیات تعریف کرد.
    */
   const edgeOffsets = useMemo(() => {
     const edges = graph?.edges ?? [];
@@ -412,7 +412,7 @@ const ProcessCanvas = ({
           ) : null}
         </svg>
 
-        {/* برچسب مسیرها: دکمه‌های متصل به هر انتقال */}
+        {/* برچسب مسیرها: عملیاتی متصل به هر انتقال */}
         {(graph?.edges ?? []).map((edge) => {
           const source = nodeById.get(String(edge.source));
           const target = nodeById.get(String(edge.target));
@@ -470,13 +470,13 @@ const ProcessCanvas = ({
                 <button
                   type="button"
                   className="process-edge-label__warning process-edge-label__warning--action"
-                  title="افزودن دکمه تأیید یا رد به این مسیر"
+                  title="افزودن عملیات به این مسیر"
                   onPointerDown={(event) => event.stopPropagation()}
                   onClick={(event) =>
                     openMenu(event, { type: "edge", id: edge.id })
                   }
                 >
-                  بدون دکمه · افزودن
+                  بدون عملیات · افزودن
                 </button>
               )}
 
@@ -654,7 +654,7 @@ const ProcessCanvas = ({
             </button>
           </div>
           <p className="process-canvas__empty-note">
-            الگو، مراحل و دکمه‌های تأیید و رد را یک‌جا می‌سازد.
+            الگو، مراحل و عملیاتی تأیید و رد را یک‌جا می‌سازد.
           </p>
         </div>
       ) : null}
@@ -771,7 +771,7 @@ const ProcessCanvas = ({
                   closeMenu();
                 }}
               >
-                افزودن دکمه‌ی تأیید
+                افزودن عملیات تأیید
               </button>
               <button
                 type="button"
@@ -781,7 +781,7 @@ const ProcessCanvas = ({
                   closeMenu();
                 }}
               >
-                افزودن دکمه‌ی رد
+                افزودن عملیات رد
               </button>
               <button
                 type="button"

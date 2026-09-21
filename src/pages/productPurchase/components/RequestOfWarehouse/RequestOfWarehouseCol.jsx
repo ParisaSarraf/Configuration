@@ -1,4 +1,4 @@
-import { Form, Input } from "antd";
+import { Form, Input, Tag } from "antd";
 
 const RequestOfWarehouseCol = () => {
   return [
@@ -11,6 +11,16 @@ const RequestOfWarehouseCol = () => {
       title: "کد محصول",
       dataIndex: "code",
       key: "code",
+    },
+    {
+      title: "وضعیت",
+      dataIndex: "status",
+      key: "status",
+      render: (status) => (
+        <Tag color={status === "active" ? "green" : "default"}>
+          {status === "active" ? "فعال" : "غیرفعال"}
+        </Tag>
+      ),
     },
     {
       title: "تعداد کل",
@@ -42,8 +52,9 @@ const RequestOfWarehouseCol = () => {
           <Input
             type="number"
             min={0}
-            placeholder="تعداد را وارد کنید"
+            placeholder={record.status === "active" ? "تعداد را وارد کنید" : "غیرفعال"}
             step="0.01"
+            disabled={record.status !== "active"}
           />
         </Form.Item>
       ),

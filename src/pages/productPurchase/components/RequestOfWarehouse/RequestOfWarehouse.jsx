@@ -49,7 +49,9 @@ const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType, currentPr
         if (purchaseData?.length) {
             form.setFieldsValue({
                 confirmed_number: Object.fromEntries(
-                    purchaseData.map((item) => [item.id, item.quantity]),
+                    purchaseData
+                        .filter((item) => item.status === "active")
+                        .map((item) => [item.id, item.quantity]),
                 ),
             });
         } else {
@@ -64,7 +66,11 @@ const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType, currentPr
             // mount نیستند) برگردانده شود، نه فقط فیلدهای صفحه‌ی جاری.
             const values = form.getFieldsValue(true);
             const confirmedNumbers = values.confirmed_number || {};
-            const validProductIds = new Set((purchaseData || []).map((item) => item.id));
+            const validProductIds = new Set(
+                (purchaseData || [])
+                    .filter((item) => item.status === "active")
+                    .map((item) => item.id),
+            );
             const payloads = Object.entries(confirmedNumbers)
                 .filter(([productId, number]) =>
                     validProductIds.has(Number(productId)) &&
@@ -96,7 +102,9 @@ const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType, currentPr
         if (!purchaseData?.length) return;
         form.setFieldsValue({
             confirmed_number: Object.fromEntries(
-                purchaseData.map((item) => [item.id, 0]),
+                purchaseData
+                    .filter((item) => item.status === "active")
+                    .map((item) => [item.id, 0]),
             ),
         });
     };

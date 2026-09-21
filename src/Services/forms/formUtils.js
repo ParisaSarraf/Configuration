@@ -2,6 +2,11 @@ export const getApiErrorMessage = (
   error,
   fallback = "خطایی در ارتباط با سرور رخ داد.",
 ) => {
+  const status = Number(error?.response?.status);
+  if (status === 401)
+    return "نشست کاربری شما معتبر نیست؛ لطفاً دوباره وارد سامانه شوید.";
+  if (status === 403) return "شما دسترسی لازم برای انجام این عملیات را ندارید.";
+
   const data = error?.response?.data;
   if (typeof data === "string" && data.trim()) return data;
   if (typeof data?.detail === "string") return data.detail;
@@ -17,7 +22,18 @@ export const getApiErrorMessage = (
 };
 
 export const extractEntityId = (response) => {
-  const candidates = [response?.id, response?.pk, response?.data?.id, response?.data?.pk, response?.result?.id, response?.result?.pk, response?.[0]?.id, response?.[0]?.pk, response?.data?.result?.id, response?.data?.result?.pk];
+  const candidates = [
+    response?.id,
+    response?.pk,
+    response?.data?.id,
+    response?.data?.pk,
+    response?.result?.id,
+    response?.result?.pk,
+    response?.[0]?.id,
+    response?.[0]?.pk,
+    response?.data?.result?.id,
+    response?.data?.result?.pk,
+  ];
   const value = candidates.find(
     (candidate) => candidate !== undefined && candidate !== null,
   );

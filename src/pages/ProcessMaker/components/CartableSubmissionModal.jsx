@@ -22,7 +22,11 @@ import {
   firstItem,
   hydrateValues,
 } from "@/Services/forms/submissionView";
-import { useLockedFieldsByRequestId } from "@/QueryServises/workflowQuery";
+import {
+  useLockedFieldsByRequestId,
+  useRequestPathById,
+} from "@/QueryServises/workflowQuery";
+import RequestPathGraph from "./RequestPathGraph";
 import { getApiErrorMessage } from "@/Services/forms/formUtils";
 import { georgianDateTimeToJalaliDateTime } from "@utils/timeTool.jsx";
 import Modal from "../../../components/Modal";
@@ -40,7 +44,6 @@ const attachmentName = (item) => {
     "";
   return String(raw).split("/").pop();
 };
-
 
 const lockedFieldIdOf = (item) =>
   item?.form_field?.id ??
@@ -118,6 +121,10 @@ const CartableSubmissionModal = ({ open, record, submission, onClose }) => {
   const lockedFieldsQuery = useLockedFieldsByRequestId(requestId, {
     enabled: Boolean(open && requestId),
   });
+  const requestPathQuery = useRequestPathById(requestId, {
+    enabled: Boolean(open && requestId),
+    retry: false,
+  });
 
   // همان ساختاری که موقع پرکردن فرم به FormRenderer داده می‌شود
   const categories = useMemo(
@@ -133,7 +140,9 @@ const CartableSubmissionModal = ({ open, record, submission, onClose }) => {
   const lockedFieldIds = useMemo(() => {
     const payload = lockedFieldsQuery.data;
     const list = Array.isArray(payload) ? payload : (payload?.results ?? []);
-    return list.map(lockedFieldIdOf).filter((id) => id !== null && id !== undefined);
+    return list
+      .map(lockedFieldIdOf)
+      .filter((id) => id !== null && id !== undefined);
   }, [lockedFieldsQuery.data]);
 
   const filledCount = row?.fieldCount ?? Object.keys(formData ?? {}).length;
@@ -236,7 +245,12 @@ const CartableSubmissionModal = ({ open, record, submission, onClose }) => {
       destroyOnClose
       footer={null}
     >
-      {renderBody()}
+      <div className="flex flex-col gap-4">
+        {requestId ? (
+          <RequestPathGraph query={requestPathQuery} requestId={requestId} />
+        ) : null}
+        {renderBody()}
+      </div>
     </Modal>
   );
 };

@@ -70,9 +70,74 @@ const mapActionPermission = (item) => ({
 const mapLockRule = (item) => ({
   id: item?.id,
   formFieldId: toNumber(
-    item?.form_field?.id ?? item?.form_field_id ?? item?.field?.id ?? item?.field_id ?? item?.form_field,
+    item?.form_field?.id ??
+      item?.form_field_id ??
+      item?.field?.id ??
+      item?.field_id ??
+      item?.form_field,
   ),
 });
+
+const processLockStates = (payload, processId) => {
+  const unwrapped = payload?.data ?? payload?.results ?? payload;
+  const roots = Array.isArray(unwrapped)
+    ? unwrapped
+    : unwrapped
+      ? [unwrapped]
+      : [];
+  return roots
+    .filter((item) => {
+      const itemProcessId = toNumber(
+        item?.id ?? item?.process_id ?? item?.process,
+      );
+      return (
+        processId === null ||
+        itemProcessId === null ||
+        itemProcessId === processId
+      );
+    })
+    .flatMap((item) =>
+      asArray(item?.process_states ?? item?.states ?? item?.process_state),
+    );
+};
+
+const lockRulesOf = (state) =>
+  asArray(
+    state?.field_lock_rules ??
+      state?.form_field_lock_rules ??
+      state?.locked_fields,
+  )
+    .map(mapLockRule)
+    .filter((rule) => rule.formFieldId !== null);
+
+const mergeProcessLocks = (nodes, payload, processId) => {
+  const states = processLockStates(payload, processId);
+  if (states.length === 0) return nodes;
+  const rulesByStateId = new Map(
+    states.map((state) => [String(state?.id), lockRulesOf(state)]),
+  );
+  return nodes.map((node) => {
+    const rules = rulesByStateId.get(String(node.id));
+    if (!rulesByStateId.has(String(node.id))) return node;
+    return {
+      ...node,
+      lockedFieldRules: rules,
+      lockedFieldIds: rules.map((rule) => rule.formFieldId),
+    };
+  });
+};
+
+const lockedFormFields = (payload, processId) =>
+  processLockStates(payload, processId)
+    .flatMap((state) =>
+      asArray(
+        state?.field_lock_rules ??
+          state?.form_field_lock_rules ??
+          state?.locked_fields,
+      ),
+    )
+    .map((rule) => rule?.form_field ?? rule?.field)
+    .filter(Boolean);
 
 const mapNode = (state) => ({
   id: state?.id,
@@ -83,8 +148,8 @@ const mapNode = (state) => ({
       state?.state_type?.id ?? state?.state_type_id ?? state?.state_type,
     ) ?? STATE_TYPE_IDS.NORMAL,
   permissions: asArray(state?.state_permissions).map(mapPermission),
-  lockedFieldRules: asArray(state?.form_field_lock_rules ?? state?.locked_fields ?? state?.field_lock_rules).map(mapLockRule).filter((rule) => rule.formFieldId !== null),
-  lockedFieldIds: asArray(state?.form_field_lock_rules ?? state?.locked_fields ?? state?.field_lock_rules).map(mapLockRule).map((rule) => rule.formFieldId).filter((id) => id !== null),
+  lockedFieldRules: lockRulesOf(state),
+  lockedFieldIds: lockRulesOf(state).map((rule) => rule.formFieldId),
   x: 0,
   y: 0,
 });
@@ -121,12 +186,20 @@ const mapAction = (action) => ({
  * @param {object|Array} infoPayload پاسخ get-process-info-by-id
  * @param {Array} transitionActions پاسخ get-transition-action
  */
-export const buildGraph = (infoPayload, transitionActions) => {
+export const buildGraph = (
+  infoPayload,
+  transitionActions,
+  processLocks = null,
+) => {
   const info = pickProcessInfo(infoPayload);
   if (!info) return null;
 
   const processId = toNumber(info.id);
-  const nodes = asArray(info.process_states).map(mapNode);
+  const nodes = mergeProcessLocks(
+    asArray(info.process_states).map(mapNode),
+    processLocks,
+    processId,
+  );
   const edges = asArray(info.process_transitions).map(mapEdge);
   const actions = asArray(info.process_actions).map(mapAction);
   const permissions = asArray(info.process_permissions).map(mapPermission);
@@ -163,8 +236,19 @@ export const buildGraph = (infoPayload, transitionActions) => {
     id: processId,
     name: info.name ?? "",
     formDefinitionId:
-      toNumber(info.form_definition?.id ?? info.form_definition_id ?? info.form_definition) ?? null,
-    formFields: asArray(info.form_definition?.fields),
+      toNumber(
+        info.form_definition?.id ??
+          info.form_definition_id ??
+          info.form_definition,
+      ) ?? null,
+    formFields: [
+      ...asArray(info.form_definition?.fields),
+      ...lockedFormFields(processLocks, processId),
+    ].filter(
+      (field, index, fields) =>
+        fields.findIndex((item) => String(item?.id) === String(field?.id)) ===
+        index,
+    ),
     nodes,
     edges: edges.filter((edge) => edge.source !== null && edge.target !== null),
     actions,
@@ -286,7 +370,7 @@ export const createEdge = ({ source, target }) => ({
   actions: [],
 });
 
-// توضیحات در بک‌اند اجباری است؛ پس اگر خالی باشد از نام دکمه ساخته می‌شود
+// توضیحات در بک‌اند اجباری است؛ پس اگر خالی باشد از نام عملیات ساخته می‌شود
 // تا کاربر با خطای اجباری‌بودن توضیحات روبرو نشود. مقدار قابل ویرایش است.
 export const createAction = ({
   actionTypeId,
@@ -295,7 +379,7 @@ export const createAction = ({
 }) => ({
   id: nextTempId("action"),
   name,
-  description: description || (name ? `دکمه «${name}» در این مرحله.` : ""),
+  description: description || (name ? `عملیات «${name}» در این مرحله.` : ""),
   actionTypeId: toNumber(actionTypeId) ?? 1,
   permissions: [],
 });
@@ -501,10 +585,10 @@ export const edgeGeometry = (source, target, curveOffset = 0) => {
 /**
  * اعتبارسنجی فرایند بر اساس قوانین واقعی بک‌اند:
  *  - نبود مرحله شروع → add-request خطای «فرایند دارای مرحله اغازین نمی باشد» می‌دهد
- *  - name مرحله و name/description دکمه در مدل بک‌اند اجباری هستند
- *  - درخواست فقط وقتی جلو می‌رود که دکمه‌های یک انتقال کامل شوند
- *    → انتقال بدون دکمه، درخواست را متوقف می‌کند
- *  - برای دیدن/انجام دکمه، دسترسی سمت‌ها لازم است
+ *  - name مرحله و name/description عملیات در مدل بک‌اند اجباری هستند
+ *  - درخواست فقط وقتی جلو می‌رود که عملیاتی یک انتقال کامل شوند
+ *    → انتقال بدون عملیات، درخواست را متوقف می‌کند
+ *  - برای دیدن/انجام عملیات، دسترسی سمت‌ها لازم است
  */
 export const validateGraph = (graph) => {
   const errors = [];
@@ -530,12 +614,13 @@ export const validateGraph = (graph) => {
     );
   }
 
-  const completeNodes = graph.nodes.filter(
-    (node) => Number(node.stateTypeId) === STATE_TYPE_IDS.COMPLETE,
+  // پایان، رد شده و لغو شده هر سه پایان‌دهنده‌ی فرایند هستند.
+  const terminalNodes = graph.nodes.filter((node) =>
+    isTerminalStateType(node.stateTypeId),
   );
-  if (graph.nodes.length > 0 && completeNodes.length === 0) {
+  if (graph.nodes.length > 0 && terminalNodes.length === 0) {
     warnings.push(
-      "فرایند مرحله پایان ندارد؛ درخواست‌ها هیچ‌وقت تکمیل نمی‌شوند.",
+      "فرایند مرحله پایانی ندارد؛ درخواست‌ها هیچ‌وقت خاتمه پیدا نمی‌کنند.",
     );
   }
 
@@ -568,7 +653,7 @@ export const validateGraph = (graph) => {
 
     if (edge.actions.length === 0) {
       warnings.push(
-        "برای یک مسیر هیچ دکمه‌ای تعریف نشده؛ درخواست در آن مرحله قابل پیشروی نیست.",
+        "برای یک مسیر هیچ عملیاتی تعریف نشده؛ درخواست در آن مرحله قابل پیشروی نیست.",
       );
     }
   });
@@ -592,13 +677,13 @@ export const validateGraph = (graph) => {
   });
 
   graph.actions.forEach((action) => {
-    if (!trimmed(action.name)) errors.push("نام همه‌ی دکمه‌ها باید پر شود.");
+    if (!trimmed(action.name)) errors.push("نام همه‌ی عملیات باید پر شود.");
     if (!trimmed(action.description)) {
-      errors.push(`توضیحات دکمه «${action.name || "بی‌نام"}» الزامی است.`);
+      errors.push(`توضیحات عملیات «${action.name || "بی‌نام"}» الزامی است.`);
     }
     if (action.permissions.length === 0) {
       warnings.push(
-        `دکمه «${action.name || "بی‌نام"}» به هیچ سمتی داده نشده است.`,
+        `عملیات «${action.name || "بی‌نام"}» به هیچ سمتی داده نشده است.`,
       );
     }
   });
@@ -611,7 +696,7 @@ export const validateGraph = (graph) => {
   graph.actions.forEach((action) => {
     if (!usedActionIds.has(String(action.id))) {
       warnings.push(
-        `دکمه «${action.name || "بی‌نام"}» به هیچ مسیری وصل نشده است.`,
+        `عملیات «${action.name || "بی‌نام"}» به هیچ مسیری وصل نشده است.`,
       );
     }
   });
@@ -634,7 +719,7 @@ export const validateGraph = (graph) => {
     action.permissions.forEach((permission) => {
       if (permission.granteeType === "group" && !permission.groupId) {
         errors.push(
-          `برای دسترسی دکمه «${action.name || "بی‌نام"}» باید سمت انتخاب شود.`,
+          `برای دسترسی عملیات «${action.name || "بی‌نام"}» باید سمت انتخاب شود.`,
         );
       }
     });

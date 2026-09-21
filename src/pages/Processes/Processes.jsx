@@ -12,6 +12,7 @@ import {
 } from "antd";
 import {
   ArrowRightOutlined,
+  BarChartOutlined,
   DeleteOutlined,
   EditOutlined,
   PlusOutlined,
@@ -20,9 +21,7 @@ import {
   ThunderboltOutlined,
 } from "@ant-design/icons";
 import Header from "@/components/Layouts/Header.jsx";
-import {
-  getApiErrorMessage,
-} from "@/Services/forms/formUtils";
+import { getApiErrorMessage } from "@/Services/forms/formUtils";
 import {
   useDeleteProcess,
   useProcessList,
@@ -30,6 +29,7 @@ import {
 import ProccessDetailModal from "./ProcessBuilder/components/ProccessDetailModal";
 import useModal from "../../hooks/useModal";
 import CreateProccessModal from "./ProcessBuilder/components/CreateProccessModal";
+import ProcessDashboardModal from "./components/ProcessDashboardModal";
 
 const PAGE_SIZE = 8;
 
@@ -110,7 +110,7 @@ const ProcessesList = () => {
       {
         title: "عملیات",
         key: "operations",
-        width: 340,
+        width: 430,
         align: "left",
         render: (_value, record) => (
           <div className="flex items-center gap-2">
@@ -121,6 +121,21 @@ const ProcessesList = () => {
             >
               شروع فرایندساز
             </Button>
+
+            <Tooltip title="داشبورد فرایند">
+              <Button
+                icon={<BarChartOutlined />}
+                onClick={() =>
+                  setModal({
+                    mode: "view",
+                    data: record,
+                    type: "ProcessDashboard",
+                  })
+                }
+              >
+                داشبورد
+              </Button>
+            </Tooltip>
 
             <Tooltip title="ویرایش نام فرایند">
               <Button
@@ -282,7 +297,13 @@ const ProcessesList = () => {
                     type="primary"
                     icon={<PlusOutlined />}
                     className="mt-2"
-                    onClick={() => setIsCreateOpen(true)}
+                    onClick={() =>
+                      setModal({
+                        mode: "create",
+                        data: null,
+                        type: "CreateProccess",
+                      })
+                    }
                   >
                     ثبت فرایند جدید
                   </Button>
@@ -305,6 +326,11 @@ const ProcessesList = () => {
         modalMode={modalMode}
         isOpen={modalType === "ProccessDetail" && isOpen}
         closeModal={closeModal}
+      />
+      <ProcessDashboardModal
+        process={modalData}
+        open={modalType === "ProcessDashboard" && isOpen}
+        onClose={closeModal}
       />
     </div>
   );

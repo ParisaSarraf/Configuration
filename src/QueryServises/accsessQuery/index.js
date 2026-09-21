@@ -7,9 +7,7 @@ export const useAccessList = (queryOptions) => {
   return useQuery({
     queryKey: useAccessListKey(),
     queryFn: () =>
-      id
-        ? myAxios.get("/user/get-access/").then((response) => response?.data)
-        : Promise.resolve(null),
+      myAxios.get("/user/get-access/").then((response) => response?.data),
     ...queryOptions,
   });
 };
@@ -68,7 +66,7 @@ export const useUnAccessProductsByUserAndRoleId = (params) => {
 
       try {
         const response = await myAxios.get(
-          `/user/get-unaccessed-products-by-user-and-role/${params.user_id}/${params.role_id}`
+          `/user/get-unaccessed-products-by-user-and-role/${params.user_id}/${params.role_id}`,
         );
         return response.data;
       } catch (error) {

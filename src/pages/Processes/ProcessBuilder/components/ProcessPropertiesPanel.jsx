@@ -1,6 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Button, Checkbox, Empty, Input, Select, Tag, Tooltip } from "antd";
-import { Plus, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react";
+import {
+  Alert,
+  Button,
+  Checkbox,
+  Empty,
+  Input,
+  Select,
+  Tag,
+  Tooltip,
+} from "antd";
+import { Plus, Trash2 } from "lucide-react";
 
 import { createAction, createPermission } from "../processGraph";
 import { issueJumpLabel } from "../processIssues";
@@ -24,7 +33,11 @@ const fieldOptions = (fields) =>
   (Array.isArray(fields) ? fields : [])
     .map((field) => ({
       value: field?.id,
-      label: field?.field_label || field?.label || field?.field_name || `فیلد ${field?.id}`,
+      label:
+        field?.field_label ||
+        field?.label ||
+        field?.field_name ||
+        `فیلد ${field?.id}`,
     }))
     .filter((option) => option.value !== undefined && option.value !== null);
 
@@ -37,7 +50,7 @@ const groupOptions = (groups) =>
     .filter((option) => option.value !== undefined && option.value !== null);
 
 /**
- * لیست دسترسی‌های یک موجودیت (فرایند / مرحله / دکمه).
+ * لیست دسترسی‌های یک موجودیت (فرایند / مرحله / عملیات).
  * فیلدها دقیقاً همان فیلدهای serializer بک‌اند هستند:
  * process/state → group_id + permission_type + grantee_type
  * action → group_id + grantee_type (این مدل permission_type ندارد)
@@ -140,7 +153,6 @@ const ProcessPropertiesPanel = ({
   updateGraph,
   onDeleteNode,
   onDeleteEdge,
-  onAddEdgeAction,
   onFocusNode,
   issueTargets,
   disabled,
@@ -320,7 +332,7 @@ const ProcessPropertiesPanel = ({
               className="process-panel__tab"
               onClick={() => setTab("process")}
             >
-              فرایند و دکمه‌ها
+              فرایند و عملیات
             </button>
           </div>
         </div>
@@ -390,13 +402,18 @@ const ProcessPropertiesPanel = ({
 
         <div className="process-panel__section">
           <div className="process-panel__section-head">
-            <span className="process-panel__section-title">فیلدهای قفل‌شده فرم</span>
+            <span className="process-panel__section-title">
+              فیلدهای قفل‌شده فرم
+            </span>
           </div>
           <p className="process-panel__hint">
-            فیلدهایی که اینجا انتخاب شوند، وقتی درخواست در این مرحله باشد در فرم درخواست غیرفعال می‌شوند.
+            فیلدهایی که اینجا انتخاب شوند، وقتی درخواست در این مرحله باشد در فرم
+            درخواست غیرفعال می‌شوند.
           </p>
           {fieldOptions(graph.formFields).length === 0 ? (
-            <p className="process-panel__note">برای این فرایند فیلدی پیدا نشد.</p>
+            <p className="process-panel__note">
+              برای این فرایند فیلدی پیدا نشد.
+            </p>
           ) : (
             <Checkbox.Group
               className="process-panel__checkbox-list"
@@ -441,7 +458,7 @@ const ProcessPropertiesPanel = ({
                   {`${nodeName(edge.source)} ← ${nodeName(edge.target)}`}
                 </span>
                 <span className="process-panel__action-usage">
-                  {`${(edge.actions ?? []).length} دکمه`}
+                  {`${(edge.actions ?? []).length} عملیات`}
                 </span>
               </button>
             ))
@@ -491,7 +508,7 @@ const ProcessPropertiesPanel = ({
               className="process-panel__tab"
               onClick={() => setTab("process")}
             >
-              فرایند و دکمه‌ها
+              فرایند و عملیات
             </button>
           </div>
         </div>
@@ -535,115 +552,194 @@ const ProcessPropertiesPanel = ({
 
         <div className="process-panel__section">
           <div className="process-panel__section-head">
-            <span className="process-panel__section-title">دکمه این مسیر</span>
+            <span className="process-panel__section-title">
+              عملیات این مسیر
+            </span>
+            <Button
+              size="small"
+              icon={<Plus size={14} />}
+              disabled={disabled}
+              onClick={() => {
+                const action = createAction({
+                  actionTypeId: ACTION_TYPES[0].id,
+                  name: "عملیات جدید",
+                });
+                updateGraph((current) => ({
+                  ...current,
+                  actions: [...current.actions, action],
+                  edges: current.edges.map((edge) =>
+                    String(edge.id) === String(selectedEdge.id)
+                      ? {
+                          ...edge,
+                          actions: [
+                            ...(edge.actions ?? []),
+                            {
+                              id: `tmp-transition-action-${action.id}`,
+                              actionId: action.id,
+                            },
+                          ],
+                        }
+                      : edge,
+                  ),
+                }));
+              }}
+            >
+              عملیات جدید
+            </Button>
           </div>
 
           <p className="process-panel__hint">
-            درخواست فقط وقتی به مرحله بعد می‌رود که همه‌ی دکمه‌های این مسیر
-            انجام شود.
+            عملیات این مسیر را اضافه یا حذف کنید و نام، نوع، توضیحات و دسترسی هر
+            عملیات را همین‌جا تغییر دهید.
           </p>
 
-          {/* پرتکرارترین کار، در یک کلیک. */}
-          <div className="process-panel__quick-actions">
-            <Button
-              size="small"
-              icon={<ThumbsUp size={14} />}
-              disabled={disabled}
-              onClick={() => onAddEdgeAction?.(selectedEdge.id, "approve")}
-            >
-              افزودن دکمه‌ی تأیید
-            </Button>
-            <Button
-              size="small"
-              icon={<ThumbsDown size={14} />}
-              disabled={disabled}
-              onClick={() => onAddEdgeAction?.(selectedEdge.id, "deny")}
-            >
-              افزودن دکمه‌ی رد
-            </Button>
-          </div>
-
           {attached.length === 0 ? (
-            <p className="process-panel__note">دکمه‌ای متصل نشده است.</p>
+            <p className="process-panel__note">
+              عملیاتی به این مسیر متصل نشده است.
+            </p>
           ) : (
             attached.map((link) => {
               const action = graph.actions.find(
                 (item) => String(item.id) === String(link.actionId),
               );
-              const actionType = getActionType(action?.actionTypeId);
+
+              if (!action) {
+                return (
+                  <div className="process-panel__action-card" key={link.id}>
+                    <div className="process-panel__action-head">
+                      <span>عملیات حذف‌شده</span>
+                      <Button
+                        size="small"
+                        danger
+                        icon={<Trash2 size={13} />}
+                        disabled={disabled}
+                        onClick={() =>
+                          patchEdge(selectedEdge.id, {
+                            actions: attached.filter(
+                              (item) => String(item.id) !== String(link.id),
+                            ),
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                );
+              }
+
+              const actionType = getActionType(action.actionTypeId);
+              const actionUsageCount = graph.edges.reduce(
+                (total, edge) =>
+                  total +
+                  (edge.actions ?? []).filter(
+                    (item) => String(item.actionId) === String(action.id),
+                  ).length,
+                0,
+              );
 
               return (
                 <div className="process-panel__action-card" key={link.id}>
                   <div className="process-panel__action-head">
-                    <span>{action?.name || "دکمه حذف‌شده"}</span>
-                    <div className="flex items-center gap-1">
-                      <Tag className="process-panel__action-tag">
-                        {actionType.label}
-                      </Tag>
-                      <Tooltip title="حذف دکمه از این مسیر">
-                        <Button
-                          size="small"
-                          danger
-                          icon={<Trash2 size={13} />}
-                          disabled={disabled}
-                          onClick={() =>
-                            patchEdge(selectedEdge.id, {
-                              actions: attached.filter(
-                                (item) => String(item.id) !== String(link.id),
-                              ),
-                            })
-                          }
-                        />
-                      </Tooltip>
-                    </div>
+                    <Tag className="process-panel__action-tag">
+                      {actionType.label}
+                    </Tag>
+                    <span className="process-panel__action-usage">
+                      {actionUsageCount > 1
+                        ? `مشترک در ${actionUsageCount} مسیر`
+                        : "ویژه این مسیر"}
+                    </span>
+                    <Tooltip title="حذف عملیات از این مسیر">
+                      <Button
+                        size="small"
+                        danger
+                        icon={<Trash2 size={13} />}
+                        disabled={disabled}
+                        onClick={() =>
+                          patchEdge(selectedEdge.id, {
+                            actions: attached.filter(
+                              (item) => String(item.id) !== String(link.id),
+                            ),
+                          })
+                        }
+                      />
+                    </Tooltip>
                   </div>
+
+                  <div className="process-panel__field">
+                    <label className="process-panel__label">
+                      نام عملیات{" "}
+                      <span className="process-panel__required">*</span>
+                    </label>
+                    <Input
+                      value={action.name}
+                      maxLength={255}
+                      disabled={disabled}
+                      placeholder="مانند: تأیید مدیر"
+                      onChange={(event) =>
+                        patchAction(
+                          action.id,
+                          { name: event.target.value },
+                          { history: false },
+                        )
+                      }
+                    />
+                  </div>
+
+                  <div className="process-panel__field">
+                    <label className="process-panel__label">نوع عملیات</label>
+                    <Select
+                      value={action.actionTypeId}
+                      disabled={disabled}
+                      options={ACTION_TYPES.map((item) => ({
+                        value: item.id,
+                        label: item.label,
+                      }))}
+                      onChange={(value) =>
+                        patchAction(action.id, { actionTypeId: value })
+                      }
+                    />
+                  </div>
+
+                  <div className="process-panel__field">
+                    <label className="process-panel__label">
+                      توضیحات <span className="process-panel__required">*</span>
+                    </label>
+                    <TextArea
+                      value={action.description}
+                      rows={2}
+                      disabled={disabled}
+                      placeholder="شرح نتیجه‌ی اجرای این عملیات"
+                      onChange={(event) =>
+                        patchAction(
+                          action.id,
+                          { description: event.target.value },
+                          { history: false },
+                        )
+                      }
+                    />
+                  </div>
+
+                  <PermissionList
+                    permissions={action.permissions ?? []}
+                    groups={groups}
+                    groupsLoading={groupsLoading}
+                    disabled={disabled}
+                    withType={false}
+                    hint="مشخص می‌کند چه سمت‌هایی می‌توانند این عملیات را انجام دهند."
+                    {...permissionHandlers("action", action.id, false)}
+                  />
                 </div>
               );
             })
           )}
 
           <div className="process-panel__field">
-            <div className="process-panel__field-head">
-              <label className="process-panel__label">افزودن دکمه</label>
-              <Button
-                size="small"
-                icon={<Plus size={14} />}
-                disabled={disabled}
-                onClick={() => {
-                  // ساخت دکمه در سطح فرایند و اتصال فوری به همین مسیر، در یک کلیک.
-                  const action = createAction({
-                    actionTypeId: ACTION_TYPES[0].id,
-                    name: ACTION_TYPES[0].label,
-                  });
-                  updateGraph((current) => ({
-                    ...current,
-                    actions: [...current.actions, action],
-                    edges: current.edges.map((edge) =>
-                      String(edge.id) === String(selectedEdge.id)
-                        ? {
-                            ...edge,
-                            actions: [
-                              ...(edge.actions ?? []),
-                              {
-                                id: `tmp-transition-action-${action.id}`,
-                                actionId: action.id,
-                              },
-                            ],
-                          }
-                        : edge,
-                    ),
-                  }));
-                }}
-              >
-                ساخت دکمه جدید
-              </Button>
-            </div>
+            <label className="process-panel__label">اتصال عملیات موجود</label>
             <Select
               value={null}
               placeholder={
                 available.length === 0
-                  ? "دکمه جدید بسازید"
-                  : "انتخاب از دکمه‌های موجود"
+                  ? "عملیات دیگری برای اتصال وجود ندارد"
+                  : "انتخاب از عملیات موجود"
               }
               disabled={disabled || available.length === 0}
               options={available.map((action) => ({
@@ -654,13 +750,11 @@ const ProcessPropertiesPanel = ({
                 patchEdge(selectedEdge.id, {
                   actions: [
                     ...attached,
-                    { id: undefined, actionId: value },
-                  ].map((item) => ({
-                    ...item,
-                    id:
-                      item.id ??
-                      `tmp-transition-action-${value}-${attached.length}`,
-                  })),
+                    {
+                      id: `tmp-transition-action-${value}-${attached.length}`,
+                      actionId: value,
+                    },
+                  ],
                 })
               }
             />
@@ -714,7 +808,7 @@ const ProcessPropertiesPanel = ({
               type="button"
               className="process-panel__tab process-panel__tab--active"
             >
-              فرایند و دکمه‌ها
+              فرایند و عملیات
             </button>
           </div>
         ) : null}
@@ -745,7 +839,7 @@ const ProcessPropertiesPanel = ({
         <div className="process-panel__meta">
           <span>{`${graph.nodes.length} مرحله`}</span>
           <span>{`${graph.edges.length} مسیر`}</span>
-          <span>{`${graph.actions.length} دکمه`}</span>
+          <span>{`${graph.actions.length} عملیات`}</span>
         </div>
       </div>
 
@@ -803,13 +897,13 @@ const ProcessPropertiesPanel = ({
         groups={groups}
         groupsLoading={groupsLoading}
         disabled={disabled}
-        hint="دسترسی مشاهده برای دیدن فرایند و دسترسی ویرایش برای مدیریت اجزای آن (مرحله، مسیر، دکمه) لازم است."
+        hint="دسترسی مشاهده برای دیدن فرایند و دسترسی ویرایش برای مدیریت اجزای آن (مرحله، مسیر، عملیات) لازم است."
         {...permissionHandlers("process", graph.id)}
       />
 
       <div className="process-panel__section">
         <div className="process-panel__section-head">
-          <span className="process-panel__section-title">دکمه‌های فرایند</span>
+          <span className="process-panel__section-title">عملیاتی فرایند</span>
           <Button
             size="small"
             icon={<Plus size={14} />}
@@ -827,14 +921,14 @@ const ProcessPropertiesPanel = ({
               }))
             }
           >
-            دکمه جدید
+            عملیات جدید
           </Button>
         </div>
 
         {graph.actions.length === 0 ? (
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description="دکمه‌ای تعریف نشده است"
+            description="عملیاتی تعریف نشده است"
           />
         ) : (
           <div className="process-panel__actions">
@@ -850,7 +944,7 @@ const ProcessPropertiesPanel = ({
                     <span className="process-panel__action-usage">
                       {`در ${usageCount(action.id)} مسیر`}
                     </span>
-                    <Tooltip title="حذف دکمه">
+                    <Tooltip title="حذف عملیات">
                       <Button
                         size="small"
                         danger
@@ -913,7 +1007,7 @@ const ProcessPropertiesPanel = ({
                   </div>
 
                   <div className="process-panel__field">
-                    <label className="process-panel__label">نوع دکمه</label>
+                    <label className="process-panel__label">نوع عملیات</label>
                     <Select
                       value={action.actionTypeId}
                       disabled={disabled}
@@ -933,7 +1027,7 @@ const ProcessPropertiesPanel = ({
                     groupsLoading={groupsLoading}
                     disabled={disabled}
                     withType={false}
-                    hint="مشخص می‌کند چه سمت‌هایی می‌توانند این دکمه را انجام دهند."
+                    hint="مشخص می‌کند چه سمت‌هایی می‌توانند این عملیات را انجام دهند."
                     {...permissionHandlers("action", action.id, false)}
                   />
                 </div>

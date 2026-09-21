@@ -5,12 +5,30 @@ import { syncProcessGraph } from "../../Services/workflow/workflowPayloads";
 
 export const processListKey = ["workflow", "processes"];
 export const processInfoKey = (id) => ["workflow", "process", id];
+export const processStateReportKey = (id) => [
+  "workflow",
+  "process",
+  id,
+  "state-request-counts",
+];
 export const transitionActionsKey = ["workflow", "transition-actions"];
 export const requestsKey = ["workflow", "requests"];
 export const requestKey = (id) => ["workflow", "request", id];
+export const requestPathKey = (id) => ["workflow", "request", id, "path"];
 export const requestsNeedActionKey = ["workflow", "requests", "need-action"];
 export const processRequestsKey = (id) => ["workflow", "process-requests", id];
-export const lockedFieldsByRequestKey = (id) => ["workflow", "request", id, "locked-fields"];
+export const lockedFieldsByRequestKey = (id) => [
+  "workflow",
+  "request",
+  id,
+  "locked-fields",
+];
+export const lockedFieldsByProcessKey = (id) => [
+  "workflow",
+  "process",
+  id,
+  "locked-fields",
+];
 
 export const useProcessList = (queryOptions) => {
   const { myAxios } = useMyAxios();
@@ -27,6 +45,18 @@ export const useProcessInfo = (id, queryOptions) => {
     queryKey: processInfoKey(id),
     queryFn: () => workflowApi.getProcessInfo(myAxios, id),
     enabled: Boolean(id),
+    ...queryOptions,
+  });
+};
+
+export const useProcessStateRequestCounts = (id, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: processStateReportKey(id),
+    queryFn: () => workflowApi.getProcessStateRequestCounts(myAxios, id),
+    enabled: Boolean(id),
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
     ...queryOptions,
   });
 };
@@ -62,6 +92,18 @@ export const useRequestById = (id, queryOptions) => {
   });
 };
 
+export const useRequestPathById = (id, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: requestPathKey(id),
+    queryFn: () => workflowApi.getRequestPathById(myAxios, id),
+    enabled: Boolean(id),
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
+    ...queryOptions,
+  });
+};
+
 export const useRequestsNeedUserAction = (queryOptions) => {
   const { myAxios } = useMyAxios();
   return useQuery({
@@ -81,13 +123,24 @@ export const useProcessRequests = (processId, queryOptions) => {
   });
 };
 
-
 export const useLockedFieldsByRequestId = (id, queryOptions) => {
   const { myAxios } = useMyAxios();
   return useQuery({
     queryKey: lockedFieldsByRequestKey(id),
     queryFn: () => workflowApi.getLockedFieldsByRequestId(myAxios, id),
     enabled: Boolean(id),
+    ...queryOptions,
+  });
+};
+
+export const useLockedFieldsByProcessId = (id, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: lockedFieldsByProcessKey(id),
+    queryFn: () => workflowApi.getLockedFieldsByProcessId(myAxios, id),
+    enabled: Boolean(id),
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
     ...queryOptions,
   });
 };
@@ -109,10 +162,16 @@ export const useDoAction = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload) => workflowApi.doAction(myAxios, payload),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: requestsKey });
       queryClient.invalidateQueries({ queryKey: requestsNeedActionKey });
-      queryClient.invalidateQueries({ queryKey: ["workflow", "process-requests"] });
+      queryClient.invalidateQueries({
+        queryKey: ["workflow", "process-requests"],
+      });
+      if (variables?.request_id)
+        queryClient.invalidateQueries({
+          queryKey: requestPathKey(variables.request_id),
+        });
     },
   });
 };
@@ -199,6 +258,9 @@ export const useSaveProcessGraph = () => {
         queryKey: processInfoKey(variables.processId),
       });
       queryClient.invalidateQueries({ queryKey: transitionActionsKey });
+      queryClient.invalidateQueries({
+        queryKey: lockedFieldsByProcessKey(variables.processId),
+      });
       queryClient.invalidateQueries({ queryKey: processListKey });
     },
   });
