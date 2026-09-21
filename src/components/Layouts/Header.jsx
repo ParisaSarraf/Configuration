@@ -16,12 +16,21 @@ import { jwtDecode } from "jwt-decode";
 import PersianDate from "persian-date";
 import { useMyAxios } from "@/hooks/useMyAxios.js";
 import { BASEURL } from "@/Services/axiosInstance.js";
+import { useAccessList } from "@/QueryServises/accsessQuery";
+import { resolveBuilderAccess } from "@/Services/access/builderAccess";
 
 const CustomHeader = ({ children }) => {
   const { handleLogout } = useMyAxios();
   const [currentTime, setCurrentTime] = useState(new PersianDate());
   const [userData, setUserData] = useState({});
   const navigate = useNavigate();
+  const accessQuery = useAccessList({
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    retry: false,
+  });
+  const builderAccess = resolveBuilderAccess(userData, accessQuery.data);
 
   useEffect(() => {
     try {
@@ -84,7 +93,9 @@ const CustomHeader = ({ children }) => {
     },
     {
       key: "cartable-process-maker",
-      label: <span className="text-orange-700 font-medium">کارتابل فرآیندساز</span>,
+      label: (
+        <span className="text-orange-700 font-medium">کارتابل فرآیندساز</span>
+      ),
       icon: <FormOutlined className="text-orange-600" />,
       onClick: () => navigate("/cartable-process-maker"),
       className:
@@ -190,29 +201,38 @@ const CustomHeader = ({ children }) => {
 
       {/* Right cluster: actions */}
       <div className="flex items-center gap-2 sm:gap-3">
-        <div className="flex items-center rounded-lg ring-1 ring-slate-200 bg-slate-50/60 overflow-hidden">
-          <Tooltip title="فرم ساز" placement="bottom">
-            <button
-              onClick={() => navigate("/forms")}
-              className="flex items-center gap-1.5 px-3 h-8 text-sm font-medium text-slate-600 hover:bg-white hover:text-sky-600 transition-colors"
-            >
-              <FormOutlined />
-              <span className="hidden md:inline">فرم ساز</span>
-            </button>
-          </Tooltip>
-          <div className="w-px h-5 bg-slate-200" />
-          <Tooltip title="فرایندساز" placement="bottom">
-            <button
-              onClick={() => navigate("/processes")}
-              className="flex items-center gap-1.5 px-3 h-8 text-sm font-medium text-slate-600 hover:bg-white hover:text-emerald-600 transition-colors"
-            >
-              <PartitionOutlined />
-              <span className="hidden md:inline">فرایندساز</span>
-            </button>
-          </Tooltip>
-        </div>
-
-        <Divider type="vertical" className="!h-6 !m-0" />
+        {builderAccess.formBuilder || builderAccess.processBuilder ? (
+          <>
+            <div className="flex items-center rounded-lg ring-1 ring-slate-200 bg-slate-50/60 overflow-hidden">
+              {builderAccess.formBuilder ? (
+                <Tooltip title="فرم ساز" placement="bottom">
+                  <button
+                    onClick={() => navigate("/forms")}
+                    className="flex items-center gap-1.5 px-3 h-8 text-sm font-medium text-slate-600 hover:bg-white hover:text-sky-600 transition-colors"
+                  >
+                    <FormOutlined />
+                    <span className="hidden md:inline">فرم ساز</span>
+                  </button>
+                </Tooltip>
+              ) : null}
+              {builderAccess.formBuilder && builderAccess.processBuilder ? (
+                <div className="w-px h-5 bg-slate-200" />
+              ) : null}
+              {builderAccess.processBuilder ? (
+                <Tooltip title="فرایندساز" placement="bottom">
+                  <button
+                    onClick={() => navigate("/processes")}
+                    className="flex items-center gap-1.5 px-3 h-8 text-sm font-medium text-slate-600 hover:bg-white hover:text-emerald-600 transition-colors"
+                  >
+                    <PartitionOutlined />
+                    <span className="hidden md:inline">فرایندساز</span>
+                  </button>
+                </Tooltip>
+              ) : null}
+            </div>
+            <Divider type="vertical" className="!h-6 !m-0" />
+          </>
+        ) : null}
 
         <Dropdown
           menu={{ items: menuItems }}
