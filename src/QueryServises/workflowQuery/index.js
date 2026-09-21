@@ -5,6 +5,12 @@ import { syncProcessGraph } from "../../Services/workflow/workflowPayloads";
 
 export const processListKey = ["workflow", "processes"];
 export const processInfoKey = (id) => ["workflow", "process", id];
+export const processStateReportKey = (id) => [
+  "workflow",
+  "process",
+  id,
+  "state-request-counts",
+];
 export const transitionActionsKey = ["workflow", "transition-actions"];
 export const requestsKey = ["workflow", "requests"];
 export const requestKey = (id) => ["workflow", "request", id];
@@ -39,6 +45,18 @@ export const useProcessInfo = (id, queryOptions) => {
     queryKey: processInfoKey(id),
     queryFn: () => workflowApi.getProcessInfo(myAxios, id),
     enabled: Boolean(id),
+    ...queryOptions,
+  });
+};
+
+export const useProcessStateRequestCounts = (id, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: processStateReportKey(id),
+    queryFn: () => workflowApi.getProcessStateRequestCounts(myAxios, id),
+    enabled: Boolean(id),
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
     ...queryOptions,
   });
 };

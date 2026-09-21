@@ -36,6 +36,12 @@ export const workflowApi = Object.freeze({
   getProcesses: (client, signal) => get(client, ENDPOINTS.processes, signal),
   getProcessInfo: (client, id, signal) =>
     get(client, `${ENDPOINTS.processInfo}${id}`, signal),
+  getProcessStateRequestCounts: (client, id, signal) =>
+    get(
+      client,
+      `/workflow/get-process-report-get-number-of-request-in-states/${id}`,
+      signal,
+    ),
   createProcess: (client, payload, signal) =>
     post(client, ENDPOINTS.addProcess, payload, signal),
   updateProcess: (client, id, payload, signal) =>
