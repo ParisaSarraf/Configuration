@@ -10,5 +10,7 @@ export const useAllLogs = (id) => {
 
     const isLoading = results.some((r) => r.isLoading);
 
-    return {data, isLoading};
+    const refetch = () => Promise.allSettled(results.map((result) => result.refetch()));
+
+    return { data, isLoading, refetch };
 };

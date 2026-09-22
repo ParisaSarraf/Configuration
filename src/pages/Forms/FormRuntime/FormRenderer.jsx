@@ -100,11 +100,33 @@ export function Element({ field, values, errors, onChange, readOnly }) {
       </div>
     );
 
-  /* ---- جدول ثابت سند ---- */
-  if (type === "sheet_table")
-    return <SheetTable field={field} values={values} onChange={onChange} readOnly={readOnly} />;
-
   const key = keyOf(field);
+
+  /* ---- جدول ثابت سند ---- */
+  if (type === "sheet_table") {
+    const rawTableValues = values?.[key];
+    const tableValues =
+      rawTableValues &&
+      typeof rawTableValues === "object" &&
+      !Array.isArray(rawTableValues)
+        ? rawTableValues
+        : {};
+
+    return (
+      <SheetTable
+        field={field}
+        values={tableValues}
+        readOnly={readOnly}
+        onChange={(cellKey, nextValue) =>
+          onChange?.(key, {
+            ...tableValues,
+            [cellKey]: nextValue,
+          })
+        }
+      />
+    );
+  }
+
   const error = errors?.[key];
   const stacked = STACKED_TYPES.has(type) || Boolean(field.help_text);
 

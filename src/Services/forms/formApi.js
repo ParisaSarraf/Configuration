@@ -170,8 +170,11 @@ export const cleanSubmissionPayload = (payload) => {
   const formData = Object.fromEntries(
     Object.entries(data)
       .filter(([, value]) => value !== undefined && !looksLikeFileValue(value))
-      // مقدارِ هر فیلد باید رشته باشد (داخل "")
-      .map(([key, value]) => [key, asText(value)])
+      // Keep table/matrix values as nested JSON; stringify only scalar values.
+      .map(([key, value]) => [
+        key,
+        value && typeof value === "object" ? value : asText(value),
+      ])
       .filter(([, value]) => value !== ""),
   );
 

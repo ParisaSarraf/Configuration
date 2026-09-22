@@ -168,6 +168,12 @@ export const toStringValue = (value) => {
   return String(value);
 };
 
+const STRUCTURED_VALUE_TYPES = new Set([
+  "matrix",
+  "sheet_table",
+  "date_signature",
+]);
+
 export const buildFormData = (
   fields,
   values,
@@ -177,7 +183,8 @@ export const buildFormData = (
     const key = field.field_name || String(field.id || "");
     if (!key) return data;
 
-    const isFile = FILE_FIELD_TYPES.has(canonicalType(field?.field_type));
+    const type = canonicalType(field?.field_type);
+    const isFile = FILE_FIELD_TYPES.has(type);
     if (isFile && !includeFiles) return data;
 
     const normalized = normalizeValue(field, values?.[key]);
@@ -186,6 +193,11 @@ export const buildFormData = (
     if (isFile) {
       const names = toStringValue(normalized);
       return names ? { ...data, [key]: names } : data;
+    }
+
+    // Structured controls must remain real JSON values, not escaped strings.
+    if (STRUCTURED_VALUE_TYPES.has(type)) {
+      return { ...data, [key]: normalized };
     }
 
     const output = stringifyValues ? toStringValue(normalized) : normalized;
