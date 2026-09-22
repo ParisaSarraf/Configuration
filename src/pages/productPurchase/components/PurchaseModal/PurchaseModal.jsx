@@ -24,7 +24,8 @@ const PurchaseModal = ({isOpen, modalMode, modalData, closeModal, currentProduct
 
     const onFinish = async (values) => {
         const payload = {
-            product_id: currentProduct?.id,
+            ...(modalMode === "add" && {product_id: currentProduct?.id}),
+            ...(modalMode === "edit" && {product: currentProduct?.id}),
             purchase_type: values.purchase_type,
             quantity: values.quantity,
             charge_percentage: values.charge_percentage,
