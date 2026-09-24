@@ -103,7 +103,7 @@ const ProcessMakerCartable = () => {
   }, [search, tab]);
 
   // ---------- فرایندهای قابل شروع (TODO) ----------
-  // دیتای تب «کارهای من» از API فرایند خوانده می‌شود، نه لیست فرم‌ها.
+  // دیتای تب «درخواست ها» از API فرایند خوانده می‌شود، نه لیست فرم‌ها.
   // هر رکورد process در CartableTaskModal به فرم مرتبطش resolve می‌شود.
   const processes = useMemo(
     () => asArray(processListQuery.data),
@@ -338,7 +338,7 @@ const ProcessMakerCartable = () => {
               onChange={setTab}
               options={[
                 {
-                  label: "کارهای من",
+                  label: "درخواست ها",
                   value: TABS.TODO,
                   icon: <InboxOutlined />,
                 },
