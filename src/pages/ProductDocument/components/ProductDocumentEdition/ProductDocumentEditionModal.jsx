@@ -29,7 +29,7 @@ const ProductDocumentEditionModal = ({
         edition: modalData?.edition,
         description: modalData?.description,
         is_active: modalData?.is_active,
-        reasons_editing_id: modalData?.reasons_editing,
+        reasons_editing_id: modalData?.reasons_editing_id,
       });
     } else {
       form.resetFields();
