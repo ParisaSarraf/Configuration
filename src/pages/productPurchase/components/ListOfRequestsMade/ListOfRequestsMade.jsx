@@ -1,4 +1,4 @@
-import { message, Modal, Table, Tag } from "antd";
+import { message, Modal, Table, Tag, Tooltip } from "antd";
 import {
   useConfirmProductPurchaseById,
   useDeleteProductPurchase,
@@ -146,22 +146,39 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
         title: "نام محصول",
         dataIndex: ["product", "persian_title"],
         key: "persian_title",
+        width: 180,
+        ellipsis: true,
       },
       {
         title: "کد محصول",
         dataIndex: ["product", "code"],
         key: "code",
+        width: 130,
         render: (record) => <Tag color={"orange"}>{record}</Tag>,
       },
       {
         title: "تعداد تایید شده",
         dataIndex: "confirmed_number",
         key: "confirmed_number",
+        width: 125,
+      },
+      {
+        title: "توضیحات",
+        dataIndex: "export_description",
+        key: "export_description",
+        width: 230,
+        ellipsis: true,
+        render: (text) => (
+          <Tooltip title={text || "بدون توضیح"}>
+            <span className="block max-w-full truncate">{text || "—"}</span>
+          </Tooltip>
+        ),
       },
       {
         title: "تاریخ تایید",
         dataIndex: "date",
         key: "date",
+        width: 135,
         render: (text) => (
           <Tag color={"green"}>{georgianDateToJalaliDate(text)}</Tag>
         ),
@@ -172,22 +189,28 @@ const ListOfRequestsMade = ({ currentProduct, refetch }) => {
       key: item.id,
       product: item.product,
       confirmed_number: item.confirmed_number,
+      export_description: item.export_description,
       date: item.date,
     }));
 
     return (
-      <Table
-        columns={nestedColumns}
-        dataSource={nestedDataSource}
-        rowKey="key"
-        size={"small"}
-        pagination={{
+      <div className="w-full max-w-full overflow-hidden rounded-md bg-slate-50 p-2">
+        <Table
+          columns={nestedColumns}
+          dataSource={nestedDataSource}
+          rowKey="key"
+          size="small"
+          bordered
+          tableLayout="fixed"
+          scroll={{ x: 800 }}
+          pagination={{
           defaultPageSize: 5,
           pageSizeOptions: [10, 20, 45, 100],
           size: "small",
           showSizeChanger: true,
-        }}
-      />
+          }}
+        />
+      </div>
     );
   };
 

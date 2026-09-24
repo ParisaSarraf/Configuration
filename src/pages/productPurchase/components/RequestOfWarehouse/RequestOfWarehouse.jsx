@@ -11,7 +11,13 @@ import {usePersonalityProductList} from "@/QueryServises/personalityQuery/index.
 import TS from "@/components/TreeSelect/index.jsx";
 import { TableAntd } from "../../../../components/TableAntd/TableAntd";
 
-const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType, currentProduct, refetchUnconfirmed}) => {
+const RequestOfWarehouse = ({
+    selectedPurchaseId,
+    selectedPurchaseType,
+    currentProduct,
+    refetchUnconfirmed,
+    onSubmitted,
+}) => {
 
 
     const [selectedPersonalityFilters, setSelectedPersonalityFilters] = useState([]);
@@ -53,6 +59,11 @@ const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType, currentPr
                         .filter((item) => item.status === "active")
                         .map((item) => [item.id, item.quantity]),
                 ),
+                export_description: Object.fromEntries(
+                    purchaseData
+                        .filter((item) => item.status === "active")
+                        .map((item) => [item.id, item.export_description || ""]),
+                ),
             });
         } else {
             form.resetFields();
@@ -66,6 +77,7 @@ const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType, currentPr
             // mount نیستند) برگردانده شود، نه فقط فیلدهای صفحه‌ی جاری.
             const values = form.getFieldsValue(true);
             const confirmedNumbers = values.confirmed_number || {};
+            const exportDescriptions = values.export_description || {};
             const validProductIds = new Set(
                 (purchaseData || [])
                     .filter((item) => item.status === "active")
@@ -80,6 +92,9 @@ const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType, currentPr
                     product_purchase_id: selectedPurchaseId,
                     product_id: parseInt(productId, 10),
                     confirmed_number: Number(number),
+                    export_description: String(
+                        exportDescriptions[productId] || "",
+                    ).trim(),
                 }));
             if (payloads.length === 0) {
                 message.error("برای ارسال، باید حداقل برای یک محصول تعداد معتبر (بزرگتر از صفر) وارد کنید.");
@@ -87,9 +102,14 @@ const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType, currentPr
             }
             await createProductPurchaseNumber(payloads);
             message.success("تعدادهای مورد تایید با موفقیت ارسال شدند.");
-            await refetchPurchaseData();
-            await refetchUnconfirmed();
-            await refetchConfirmed();
+            // بلافاصله انتخاب ردیف پاک می‌شود تا پنل جزئیات بسته شود؛
+            // خطای احتمالی در refetch نباید باعث باقی‌ماندن فرم ارسال‌شده شود.
+            onSubmitted?.();
+            await Promise.allSettled([
+                refetchPurchaseData(),
+                refetchUnconfirmed(),
+                refetchConfirmed(),
+            ]);
         } catch (errorInfo) {
             console.error("خطا در اعتبارسنجی یا ارسال:", errorInfo);
             if (!errorInfo.errorFields) {
@@ -110,7 +130,10 @@ const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType, currentPr
     };
 
     return (
-        <Form form={form} initialValues={{confirmed_number: {}}}>
+        <Form
+            form={form}
+            initialValues={{ confirmed_number: {}, export_description: {} }}
+        >
             <Row gutter={[16, 16]}>
                 <Col span={24}>
                     <div className={'w-full flex flex-row gap-2'}>
@@ -152,6 +175,9 @@ const RequestOfWarehouse = ({selectedPurchaseId, selectedPurchaseType, currentPr
                         columns={RequestOfWarehouseCol()}
                         dataSource={purchaseData}
                         rowKey="id"
+                        scroll={{ x: 840 }}
+                        tableLayout="fixed"
+                        className="max-w-full"
                     />
                 </Col>
             </Row>

@@ -9,6 +9,7 @@ import { TableAntd } from "../../../../components/TableAntd/TableAntd";
 
 const PurchaseProductTable = ({
   currentProduct,
+  selectedPurchaseId,
   setSelectedPurchaseId,
   setModal,
   setSelectedPurchaseType,
@@ -50,6 +51,7 @@ const PurchaseProductTable = ({
 
   const rowSelection = {
     type: "radio",
+    selectedRowKeys: selectedPurchaseId ? [selectedPurchaseId] : [],
     onChange: (selectedRowKeys, selectedRows) => {
       setSelectedPurchaseType(selectedRows);
       setSelectedPurchaseId(selectedRowKeys[0] || null);

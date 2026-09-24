@@ -51,23 +51,30 @@ const ProductPurchase = () => {
       children: (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
-            <div className="col-span-1">
+            <div className="col-span-1 min-w-0">
               <PurchaseProductTable
                 key={currentProduct?.id}
                 currentProduct={currentProduct}
+                selectedPurchaseId={selectedPurchaseId}
                 setSelectedPurchaseId={setSelectedPurchaseId}
                 setModal={setModal}
                 setSelectedPurchaseType={setSelectedPurchaseType}
               />
             </div>
-            <div className="col-span-1">
-              <RequestOfWarehouse
-                selectedPurchaseId={selectedPurchaseId}
-                setSelectedPurchaseType={setSelectedPurchaseType}
-                selectedPurchaseType={selectedPurchaseType}
-                currentProduct={currentProduct}
-                refetchUnconfirmed={refetch}
-              />
+            <div className="col-span-1 min-w-0">
+              {selectedPurchaseId ? (
+                <RequestOfWarehouse
+                  selectedPurchaseId={selectedPurchaseId}
+                  setSelectedPurchaseType={setSelectedPurchaseType}
+                  selectedPurchaseType={selectedPurchaseType}
+                  currentProduct={currentProduct}
+                  refetchUnconfirmed={refetch}
+                  onSubmitted={() => {
+                    setSelectedPurchaseId(null);
+                    setSelectedPurchaseType(false);
+                  }}
+                />
+              ) : null}
             </div>
           </div>
         </>
