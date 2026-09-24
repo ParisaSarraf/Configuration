@@ -93,6 +93,10 @@ const TS = ({
   labelInValue = false,
   onChange,
   treeCheckable = false,
+  dropdownRender,
+  disabled = false,
+  notFoundContent,
+  onSearchChange,
 }) => {
   const [searchValue, setSearchValue] = useState("");
 
@@ -135,6 +139,7 @@ const TS = ({
 
   const onSearch = (value) => {
     setSearchValue(value);
+    onSearchChange?.(value);
   };
 
   // Also add defensive check for filterTreeNode
@@ -158,6 +163,9 @@ const TS = ({
       filterTreeNode={filterTree}
       value={value}
       onChange={onChange}
+      dropdownRender={dropdownRender}
+      disabled={disabled}
+      notFoundContent={notFoundContent}
       maxTagCount="responsive"
       style={{ width: "100%" }}
     />

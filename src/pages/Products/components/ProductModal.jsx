@@ -1,10 +1,12 @@
 import {
+  Button,
   Col,
   Divider,
   Form,
   Input,
   InputNumber,
   message,
+  Modal as AntModal,
   Row,
   Select,
 } from "antd";
@@ -14,15 +16,32 @@ import {
   useFinalCodeProductById,
   useUpdateProduct,
 } from "../../../QueryServises/productQuery";
-import { useOneCoreSetting } from "../../../QueryServises/settingQuery";
-import { useGenusProductList } from "../../../QueryServises/genusQuery";
+import {
+  useCreateCoreSetting,
+  useOneCoreSetting,
+} from "../../../QueryServises/settingQuery";
+import {
+  useCreateGenusProduct,
+  useGenusProductList,
+} from "../../../QueryServises/genusQuery";
 import Modal from "../../../components/Modal";
-import { usePersonalityProductList } from "@/QueryServises/personalityQuery/index.js";
-import { SearchOutlined } from "@ant-design/icons";
+import {
+  useCreatePersonalityProduct,
+  usePersonalityProductList,
+} from "@/QueryServises/personalityQuery/index.js";
+import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import TS from "../../../components/TreeSelect";
-import { useStandardCodePersonalityById } from "../../../QueryServises/StandardCodeQuery";
+import {
+  useCreateStandardCode,
+  useStandardCodePersonalityById,
+} from "../../../QueryServises/StandardCodeQuery";
 import TsLazy from "../../../components/LazyTreeSelect/LazyTreeSelect";
 import { useLazyProductTreeSelect } from "../../../hooks/useLazyProductTreeSelect";
+
+const flattenLookupItems = (items = []) =>
+  items.flatMap((item) => [item, ...flattenLookupItems(item.children || [])]);
+
+const getCreatedRecord = (payload) => payload?.data ?? payload?.result ?? payload;
 
 const ProductModal = ({
   isOpen,
@@ -33,6 +52,9 @@ const ProductModal = ({
   productData,
 }) => {
   const [form] = Form.useForm();
+  const [quickForm] = Form.useForm();
+  const [quickCreate, setQuickCreate] = useState(null);
+  const [quickSearch, setQuickSearch] = useState({});
   const { treeData, loadChildren } = useLazyProductTreeSelect(productData);
 
   const { isPending: isCreating, mutateAsync: createProduct } =
@@ -53,18 +75,37 @@ const ProductModal = ({
   const [productCode, setProductCode] = useState("");
   const [finalCode, setFinalCode] = useState("");
 
-  const { data: casingData } = useOneCoreSetting("casing");
-  const { data: genusData } = useGenusProductList();
-  const { data: personalityData } = usePersonalityProductList();
+  const { data: casingData, refetch: refetchCasing } =
+    useOneCoreSetting("casing");
+  const { data: genusData, refetch: refetchGenus } = useGenusProductList();
+  const { data: personalityData, refetch: refetchPersonality } =
+    usePersonalityProductList();
+  const { mutateAsync: createPersonality, isPending: isCreatingPersonality } =
+    useCreatePersonalityProduct();
+  const { mutateAsync: createGenus, isPending: isCreatingGenus } =
+    useCreateGenusProduct();
+  const { mutateAsync: createCasing, isPending: isCreatingCasing } =
+    useCreateCoreSetting();
+  const { mutateAsync: createStandardCode, isPending: isCreatingStandard } =
+    useCreateStandardCode();
   const { data: parentCodeData } = useFinalCodeProductById(
     selectedParentCodeId?.value,
   );
-  const { data: standardCodesResponse } = useStandardCodePersonalityById(
-    selectedPersonalityId?.value,
-  );
+  const {
+    data: standardCodesResponse,
+    refetch: refetchStandardCodes,
+  } = useStandardCodePersonalityById(selectedPersonalityId?.value);
 
-  const { data: alternativeStandardCodesResponse } =
-    useStandardCodePersonalityById(selectedAlternativePersonalityId?.value);
+  const {
+    data: alternativeStandardCodesResponse,
+    refetch: refetchAlternativeStandardCodes,
+  } = useStandardCodePersonalityById(selectedAlternativePersonalityId?.value);
+
+  const selectedGenusValue = Form.useWatch("genus_id", form);
+  const selectedAlternativeGenusValue = Form.useWatch(
+    "alternative_genus_id",
+    form,
+  );
 
   const parentCodeId = parentCodeData?.code || "";
 
@@ -249,6 +290,191 @@ const ProductModal = ({
     form.setFieldsValue({ final_code: newFinalCode });
   }, [parentCodeId, productCode]);
 
+  const openQuickCreate = (config) => {
+    const suggestedName = String(quickSearch[config.targetField] || "").trim();
+    quickForm.resetFields();
+    quickForm.setFieldsValue({
+      name: suggestedName,
+      order: config.type === "genus" || config.type === "casing" ? 0 : undefined,
+      parent_id: config.parentId,
+    });
+    setQuickCreate(config);
+  };
+
+  const closeQuickCreate = () => {
+    setQuickCreate(null);
+    quickForm.resetFields();
+  };
+
+  const resolveCreatedOption = async ({ created, refetchResult, name }) => {
+    const record = getCreatedRecord(created);
+    if (record?.id != null) {
+      return { value: record.id, label: record.name || record.title || name };
+    }
+    const refreshed = refetchResult?.data ?? [];
+    const match = flattenLookupItems(Array.isArray(refreshed) ? refreshed : []).find(
+      (item) => String(item?.name || item?.title || "").trim() === name.trim(),
+    );
+    return match ? { value: match.id, label: match.name || match.title } : null;
+  };
+
+  const submitQuickCreate = async (values) => {
+    if (!quickCreate) return;
+    const name = values.name?.trim();
+    if (!name) return;
+
+    try {
+      let created;
+      let refetchResult;
+      let option;
+
+      if (quickCreate.type === "personality") {
+        created = await createPersonality({
+          name,
+          warehouse_code: values.warehouse_code,
+          ...(values.parent_id != null && { parent_id: values.parent_id }),
+        });
+        refetchResult = await refetchPersonality();
+        option = await resolveCreatedOption({ created, refetchResult, name });
+      } else if (quickCreate.type === "genus") {
+        created = await createGenus({
+          name,
+          order: Number(values.order ?? 0),
+          material: values.material,
+          internal_code: values.internal_code,
+          ...(values.parent_id != null && {
+            parent_id: Number(values.parent_id?.value ?? values.parent_id),
+          }),
+        });
+        refetchResult = await refetchGenus();
+        option = await resolveCreatedOption({ created, refetchResult, name });
+      } else if (quickCreate.type === "casing") {
+        created = await createCasing({
+          name,
+          type: "casing",
+          order: Number(values.order ?? 0),
+        });
+        refetchResult = await refetchCasing();
+        option = await resolveCreatedOption({ created, refetchResult, name });
+      } else if (quickCreate.type === "standard") {
+        if (!quickCreate.parentId) {
+          message.warning(`ابتدا ${quickCreate.parentLabel} را انتخاب کنید`);
+          return;
+        }
+        created = await createStandardCode({
+          name,
+          [quickCreate.parentKey]: quickCreate.parentId,
+          warehouse_code: values.warehouse_code,
+          description: values.description,
+        });
+        refetchResult = await quickCreate.refetch?.();
+        const record = getCreatedRecord(created);
+        const refreshedPayload = refetchResult?.data;
+        const refreshedParent =
+          quickCreate.parentKey === "genus"
+            ? flattenLookupItems(
+                Array.isArray(refreshedPayload) ? refreshedPayload : [],
+              ).find(
+                (item) => Number(item?.id) === Number(quickCreate.parentId),
+              )
+            : null;
+        const refreshedCodes =
+          refreshedPayload?.personality_codes ||
+          refreshedParent?.genus_codes ||
+          [];
+        const match = refreshedCodes.find(
+          (item) => String(item?.name || "").trim() === name,
+        );
+        const finalRecord = record?.id != null ? record : match;
+        option = finalRecord
+          ? { value: finalRecord.id, label: finalRecord.name || name }
+          : null;
+      }
+
+      if (!option) {
+        message.warning("مورد ساخته شد؛ برای مشاهده، فهرست را دوباره باز کنید");
+        closeQuickCreate();
+        return;
+      }
+
+      form.setFieldValue(quickCreate.targetField, option);
+      if (quickCreate.targetField === "personality_id")
+        setSelectedPersonalityId(option);
+      if (quickCreate.targetField === "alternative_personality_id")
+        setSelectedAlternativePersonalityId(option);
+      if (quickCreate.targetField === "genus_id") {
+        setGenusStandardOptions([]);
+        form.setFieldsValue({
+          genus_standard_code_id: undefined,
+          genus_warehouse_code: undefined,
+        });
+      }
+      if (quickCreate.targetField === "alternative_genus_id") {
+        setAlterNativeGenusStandardOptions([]);
+        form.setFieldsValue({
+          alternative_genus_standard_code_id: undefined,
+          alternative_genus_warehouse_code: undefined,
+        });
+      }
+      if (quickCreate.warehouseField && values.warehouse_code) {
+        form.setFieldValue(quickCreate.warehouseField, values.warehouse_code);
+      }
+      if (quickCreate.targetField === "genus_standard_code_id") {
+        setGenusStandardOptions((previous) => [
+          ...previous.filter((item) => item.value !== option.value),
+          {
+            ...option,
+            full_ware_house_code: values.warehouse_code,
+          },
+        ]);
+      }
+      if (quickCreate.targetField === "alternative_genus_standard_code_id") {
+        setAlterNativeGenusStandardOptions((previous) => [
+          ...previous.filter((item) => item.value !== option.value),
+          {
+            ...option,
+            full_ware_house_code: values.warehouse_code,
+          },
+        ]);
+      }
+
+      message.success(`${quickCreate.title} اضافه و انتخاب شد`);
+      closeQuickCreate();
+    } catch (error) {
+      message.error(
+        error?.response?.data?.detail ||
+          error?.response?.data?.message ||
+          `افزودن ${quickCreate.title} انجام نشد`,
+      );
+    }
+  };
+
+  const quickCreateDropdown = (menu, config) => (
+    <div>
+      {menu}
+      <Divider className="my-1" />
+      <Button
+        type="text"
+        block
+        icon={<PlusOutlined />}
+        disabled={config.disabled}
+        onMouseDown={(event) => event.preventDefault()}
+        onClick={() => openQuickCreate(config)}
+        className="text-right"
+      >
+        {config.disabled
+          ? `ابتدا ${config.parentLabel} را انتخاب کنید`
+          : `افزودن ${config.title} جدید`}
+      </Button>
+    </div>
+  );
+
+  const quickCreating =
+    isCreatingPersonality ||
+    isCreatingGenus ||
+    isCreatingCasing ||
+    isCreatingStandard;
+
   const onFinish = (values) => {
     const payload = {
       persian_title: values.persian_title,
@@ -278,7 +504,7 @@ const ProductModal = ({
       parent_code_id: values.parent_code_id?.value,
 
       standard_code_id: values.standard_code_id?.value, //1
-      alternative_standard_code_id: values.alternative_standard_code_id, //2
+      alternative_standard_code_id: values.alternative_standard_code_id?.value, //2
 
       store_code: values.store_code, //3
       alternative_store_code: values.alternative_store_code, //4
@@ -471,6 +697,19 @@ const ProductModal = ({
                   labelInValue
                   data={personalityData}
                   placeholder="هویت"
+                  onSearchChange={(value) =>
+                    setQuickSearch((previous) => ({
+                      ...previous,
+                      personality_id: value,
+                    }))
+                  }
+                  dropdownRender={(menu) =>
+                    quickCreateDropdown(menu, {
+                      type: "personality",
+                      targetField: "personality_id",
+                      title: "هویت",
+                    })
+                  }
                   onChange={(selected) => {
                     setSelectedPersonalityId(selected);
                     const findPersonality = (list, id) => {
@@ -504,7 +743,26 @@ const ProductModal = ({
                       description: item.description,
                     })) || []
                   }
-                  disabled={!standardCodesResponse?.personality_codes?.length}
+                  disabled={!selectedPersonalityId?.value}
+                  onSearch={(value) =>
+                    setQuickSearch((previous) => ({
+                      ...previous,
+                      standard_code_id: value,
+                    }))
+                  }
+                  dropdownRender={(menu) =>
+                    quickCreateDropdown(menu, {
+                      type: "standard",
+                      targetField: "standard_code_id",
+                      warehouseField: "store_code",
+                      title: "کد استاندارد",
+                      parentId: selectedPersonalityId?.value,
+                      parentKey: "personality",
+                      parentLabel: "هویت",
+                      disabled: !selectedPersonalityId?.value,
+                      refetch: refetchStandardCodes,
+                    })
+                  }
                   onChange={(selected) => {
                     if (selected) {
                       const selectedOption =
@@ -555,6 +813,19 @@ const ProductModal = ({
                   labelInValue
                   data={personalityData}
                   placeholder="هویت جایگزین"
+                  onSearchChange={(value) =>
+                    setQuickSearch((previous) => ({
+                      ...previous,
+                      alternative_personality_id: value,
+                    }))
+                  }
+                  dropdownRender={(menu) =>
+                    quickCreateDropdown(menu, {
+                      type: "personality",
+                      targetField: "alternative_personality_id",
+                      title: "هویت جایگزین",
+                    })
+                  }
                   onChange={(selected) => {
                     setSelectedAlternativePersonalityId(selected);
                     const findPersonality = (list, id) => {
@@ -593,8 +864,25 @@ const ProductModal = ({
                       }),
                     ) || []
                   }
-                  disabled={
-                    !alternativeStandardCodesResponse?.personality_codes?.length
+                  disabled={!selectedAlternativePersonalityId?.value}
+                  onSearch={(value) =>
+                    setQuickSearch((previous) => ({
+                      ...previous,
+                      alternative_standard_code_id: value,
+                    }))
+                  }
+                  dropdownRender={(menu) =>
+                    quickCreateDropdown(menu, {
+                      type: "standard",
+                      targetField: "alternative_standard_code_id",
+                      warehouseField: "alternative_store_code",
+                      title: "کد استاندارد هویت جایگزین",
+                      parentId: selectedAlternativePersonalityId?.value,
+                      parentKey: "personality",
+                      parentLabel: "هویت جایگزین",
+                      disabled: !selectedAlternativePersonalityId?.value,
+                      refetch: refetchAlternativeStandardCodes,
+                    })
                   }
                   onChange={(selected) => {
                     if (selected) {
@@ -648,6 +936,19 @@ const ProductModal = ({
                   labelInValue
                   data={genusData}
                   placeholder="ماده اولیه"
+                  onSearchChange={(value) =>
+                    setQuickSearch((previous) => ({
+                      ...previous,
+                      genus_id: value,
+                    }))
+                  }
+                  dropdownRender={(menu) =>
+                    quickCreateDropdown(menu, {
+                      type: "genus",
+                      targetField: "genus_id",
+                      title: "ماده اولیه",
+                    })
+                  }
                   // onChange={(value) => {
                   //   const selectedGenus = genusData.find(
                   //     (item) => item.id === value.value,
@@ -721,7 +1022,26 @@ const ProductModal = ({
                   placeholder="کد استاندارد ماده اولیه"
                   showSearch
                   options={genusStandardOptions}
-                  disabled={!genusStandardOptions.length}
+                  disabled={!selectedGenusValue?.value}
+                  onSearch={(value) =>
+                    setQuickSearch((previous) => ({
+                      ...previous,
+                      genus_standard_code_id: value,
+                    }))
+                  }
+                  dropdownRender={(menu) =>
+                    quickCreateDropdown(menu, {
+                      type: "standard",
+                      targetField: "genus_standard_code_id",
+                      warehouseField: "genus_warehouse_code",
+                      title: "کد استاندارد ماده اولیه",
+                      parentId: selectedGenusValue?.value,
+                      parentKey: "genus",
+                      parentLabel: "ماده اولیه",
+                      disabled: !selectedGenusValue?.value,
+                      refetch: refetchGenus,
+                    })
+                  }
                   // onChange={(value) => {
                   //   if (!value) {
                   //     form.setFieldsValue({ genus_warehouse_code: undefined });
@@ -773,6 +1093,19 @@ const ProductModal = ({
                   labelInValue
                   data={genusData}
                   placeholder="ماده اولیه"
+                  onSearchChange={(value) =>
+                    setQuickSearch((previous) => ({
+                      ...previous,
+                      alternative_genus_id: value,
+                    }))
+                  }
+                  dropdownRender={(menu) =>
+                    quickCreateDropdown(menu, {
+                      type: "genus",
+                      targetField: "alternative_genus_id",
+                      title: "ماده اولیه جایگزین",
+                    })
+                  }
                   // onChange={(value) => {
                   //   const selectedGenus = genusData.find(
                   //     (item) => item.id === value.value,
@@ -847,7 +1180,26 @@ const ProductModal = ({
                   showSearch
                   style={{ width: "100%" }}
                   options={alterNativeGenusStandardOptions}
-                  disabled={!alterNativeGenusStandardOptions.length}
+                  disabled={!selectedAlternativeGenusValue?.value}
+                  onSearch={(value) =>
+                    setQuickSearch((previous) => ({
+                      ...previous,
+                      alternative_genus_standard_code_id: value,
+                    }))
+                  }
+                  dropdownRender={(menu) =>
+                    quickCreateDropdown(menu, {
+                      type: "standard",
+                      targetField: "alternative_genus_standard_code_id",
+                      warehouseField: "alternative_genus_warehouse_code",
+                      title: "کد استاندارد ماده اولیه جایگزین",
+                      parentId: selectedAlternativeGenusValue?.value,
+                      parentKey: "genus",
+                      parentLabel: "ماده اولیه جایگزین",
+                      disabled: !selectedAlternativeGenusValue?.value,
+                      refetch: refetchGenus,
+                    })
+                  }
                   onChange={(value) => {
                     if (!value) {
                       form.setFieldsValue({ genus_warehouse_code: undefined });
@@ -883,7 +1235,24 @@ const ProductModal = ({
             {/* پوشش */}
             <Col span={8}>
               <Form.Item label="پوشش" name="casing_id">
-                <TS labelInValue data={casingData} placeholder="پوشش" />
+                <TS
+                  labelInValue
+                  data={casingData}
+                  placeholder="پوشش"
+                  onSearchChange={(value) =>
+                    setQuickSearch((previous) => ({
+                      ...previous,
+                      casing_id: value,
+                    }))
+                  }
+                  dropdownRender={(menu) =>
+                    quickCreateDropdown(menu, {
+                      type: "casing",
+                      targetField: "casing_id",
+                      title: "پوشش",
+                    })
+                  }
+                />
               </Form.Item>
             </Col>
 
@@ -958,6 +1327,108 @@ const ProductModal = ({
           </>
         </Row>
       </Form>
+
+      <AntModal
+        open={Boolean(quickCreate)}
+        title={`افزودن سریع ${quickCreate?.title || "مورد جدید"}`}
+        okText="افزودن و انتخاب"
+        cancelText="انصراف"
+        onCancel={closeQuickCreate}
+        onOk={() => quickForm.submit()}
+        confirmLoading={quickCreating}
+        destroyOnClose
+        centered
+        zIndex={1100}
+      >
+        <Form
+          form={quickForm}
+          layout="vertical"
+          onFinish={submitQuickCreate}
+          className="pt-3"
+        >
+          <Form.Item
+            name="name"
+            label={
+              quickCreate?.type === "standard"
+                ? "کد استاندارد"
+                : `نام ${quickCreate?.title || "مورد"}`
+            }
+            rules={[{ required: true, message: "نام را وارد کنید" }]}
+          >
+            <Input
+              autoFocus
+              placeholder={
+                quickCreate?.type === "standard"
+                  ? "کد استاندارد جدید"
+                  : "نام مورد جدید"
+              }
+              onPressEnter={() => quickForm.submit()}
+            />
+          </Form.Item>
+
+          {quickCreate?.type === "personality" ? (
+            <>
+              <Form.Item name="warehouse_code" label="کد انبار">
+                <Input placeholder="کد انبار (اختیاری)" />
+              </Form.Item>
+              <Form.Item name="parent_id" label="هویت والد">
+                <TS data={personalityData} placeholder="هویت والد (اختیاری)" />
+              </Form.Item>
+            </>
+          ) : null}
+
+          {quickCreate?.type === "genus" ? (
+            <>
+              <Row gutter={12}>
+                <Col span={12}>
+                  <Form.Item
+                    name="order"
+                    label="اولویت نمایش"
+                    rules={[{ required: true, message: "اولویت را وارد کنید" }]}
+                  >
+                    <InputNumber className="w-full" min={0} />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="internal_code" label="کد داخلی">
+                    <Input />
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Form.Item name="parent_id" label="ماده اولیه والد">
+                <TS data={genusData} placeholder="ماده اولیه والد (اختیاری)" />
+              </Form.Item>
+              <Form.Item name="material" label="متریال">
+                <Input placeholder="متریال (اختیاری)" />
+              </Form.Item>
+            </>
+          ) : null}
+
+          {quickCreate?.type === "casing" ? (
+            <Form.Item
+              name="order"
+              label="اولویت نمایش"
+              rules={[{ required: true, message: "اولویت را وارد کنید" }]}
+            >
+              <InputNumber className="w-full" min={0} />
+            </Form.Item>
+          ) : null}
+
+          {quickCreate?.type === "standard" ? (
+            <>
+              <Form.Item name="description" label="نام/توضیح">
+                <Input placeholder="نام یا توضیح کد استاندارد" />
+              </Form.Item>
+              <Form.Item name="warehouse_code" label="کد انبار">
+                <Input placeholder="کد انبار (اختیاری)" />
+              </Form.Item>
+              <div className="rounded-lg bg-blue-50 px-3 py-2 text-xs text-blue-700">
+                این کد برای «{quickCreate.parentLabel}» انتخاب‌شده ساخته می‌شود.
+              </div>
+            </>
+          ) : null}
+        </Form>
+      </AntModal>
     </Modal>
   );
 };
