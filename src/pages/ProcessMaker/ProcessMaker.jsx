@@ -343,11 +343,6 @@ const ProcessMakerCartable = () => {
                   icon: <InboxOutlined />,
                 },
                 {
-                  label: "ارسال‌شده‌ها",
-                  value: TABS.SENT,
-                  icon: <CheckCircleOutlined />,
-                },
-                {
                   label: "فرآیند ها",
                   value: TABS.PROCESSES,
                   icon: <PartitionOutlined />,
