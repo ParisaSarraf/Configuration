@@ -32,6 +32,7 @@ const TABS = Object.freeze({
   TODO: "todo",
   SENT: "sent",
   PROCESSES: "processes",
+  ENDPROCESSES: "endedProcesses",
 });
 
 const MODAL_TYPES = Object.freeze({
@@ -226,6 +227,7 @@ const ProcessMakerCartable = () => {
   const isTodo = tab === TABS.TODO;
   const isSent = tab === TABS.SENT;
   const isProcesses = tab === TABS.PROCESSES;
+  const isEndProcesses = tab === TABS.ENDPROCESSES;
   const dataSource =
     (isTodo ? filteredTodo : isSent ? filteredSent : filteredProcesses) || [];
 
@@ -345,6 +347,11 @@ const ProcessMakerCartable = () => {
                 {
                   label: "فرآیند ها",
                   value: TABS.PROCESSES,
+                  icon: <PartitionOutlined />,
+                },
+                {
+                  label: "فرآیند های اتمام یافته",
+                  value: TABS.ENDPROCESSES,
                   icon: <PartitionOutlined />,
                 },
               ]}
