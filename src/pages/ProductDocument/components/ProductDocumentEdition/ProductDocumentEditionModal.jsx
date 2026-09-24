@@ -22,7 +22,6 @@ const ProductDocumentEditionModal = ({
     useCreateProductDocumentEdition();
   const { isPending: isUpdating, mutateAsync: updateProductDocumentEdition } =
     useUpdateProductDocumentEdition();
-    
 
   useEffect(() => {
     if (modalMode === "edit" && modalData) {
@@ -30,7 +29,7 @@ const ProductDocumentEditionModal = ({
         edition: modalData?.edition,
         description: modalData?.description,
         is_active: modalData?.is_active,
-        reasons_editing_id: modalData?.reasons_editing_id,
+        reasons_editing_id: modalData?.reasons_editing,
       });
     } else {
       form.resetFields();
