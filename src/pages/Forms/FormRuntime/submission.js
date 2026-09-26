@@ -94,12 +94,20 @@ export const normalizeValue = (field, raw) => {
     const clean = rows
       .map((row) =>
         Object.entries(row || {}).reduce((acc, [key, cell]) => {
-          if (cell === "" || cell == null) return acc;
+          if (cell === "" || cell == null || cell === false) return acc;
           return { ...acc, [key]: cell };
         }, {}),
       )
       .filter((row) => Object.keys(row).length > 0);
-    return clean.length ? clean : null;
+
+    // Backend currently validates MATRIX with DictField(child=CharField).
+    // Keep each UI row as JSON text under its numeric row index so no data is
+    // lost while the outer value still exactly matches that contract.
+    return clean.length
+      ? Object.fromEntries(
+          clean.map((row, index) => [String(index), JSON.stringify(row)]),
+        )
+      : null;
   }
 
   if (type === "sheet_table" || type === "date_signature") {
@@ -188,7 +196,13 @@ export const buildFormData = (
     if (isFile && !includeFiles) return data;
 
     const normalized = normalizeValue(field, values?.[key]);
-    if (normalized === undefined || isBlank(normalized)) return data;
+    if (normalized === undefined || isBlank(normalized)) {
+      // The existing backend validates MATRIX as DictField.  Unlike an omitted
+      // value (which it replaces with an invalid empty string), an explicit
+      // empty object is a valid optional table value.
+      if (type === "matrix") return { ...data, [key]: {} };
+      return data;
+    }
 
     if (isFile) {
       const names = toStringValue(normalized);

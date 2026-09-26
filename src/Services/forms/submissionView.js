@@ -46,6 +46,27 @@ const readSignature = (raw) => {
   return String(raw ?? "");
 };
 
+const matrixRowsOf = (raw) => {
+  if (Array.isArray(raw)) return raw;
+  if (!raw || typeof raw !== "object") return [];
+
+  return Object.entries(raw)
+    .sort(([left], [right]) => Number(left) - Number(right))
+    .map(([, row]) => {
+      if (row && typeof row === "object" && !Array.isArray(row)) return row;
+      if (typeof row !== "string") return null;
+      try {
+        const parsed = JSON.parse(row);
+        return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+          ? parsed
+          : null;
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean);
+};
+
 /** فایل‌ها به شکل [{name}] ذخیره می‌شوند؛ FieldControl آرایهٔ نام می‌خواهد. */
 const readFiles = (raw) => {
   if (Array.isArray(raw))
@@ -74,7 +95,7 @@ export const hydrateValue = (type, raw) => {
       (item) => item !== "" && item != null,
     );
 
-  if (type === "matrix") return Array.isArray(raw) ? raw : [];
+  if (type === "matrix") return matrixRowsOf(raw);
 
   if (type === "sheet_table" || type === "date_signature")
     return raw && typeof raw === "object" ? raw : {};

@@ -85,6 +85,12 @@ export const CHOICE_TYPES = new Set([
   "multiselect_list",
 ]);
 
+// The current backend runs every choice field through DRF ChoiceField and
+// substitutes an omitted value with "".  DRF rejects that value even when the
+// model marks the field optional, so the UI must require a real choice before
+// sending the request.  This prevents the opaque: `"" is not a valid choice`.
+const SERVER_REQUIRED_CHOICE_TYPES = CHOICE_TYPES;
+
 export const FILE_TYPES = new Set(["file", "multifile", "spreadsheet"]);
 
 /** انواعی که محدودیت «طول کاراکتر» برایشان معنا دارد. */
@@ -249,7 +255,10 @@ const isEmpty = (value) =>
 export const validateField = (field, value) => {
   const type = canonicalType(field.field_type);
   if (!INPUT_TYPES.has(type)) return "";
-  if (field.required && isEmpty(value)) return "تکمیل این فیلد الزامی است.";
+  if ((field.required || SERVER_REQUIRED_CHOICE_TYPES.has(type)) && isEmpty(value))
+    return SERVER_REQUIRED_CHOICE_TYPES.has(type)
+      ? "انتخاب حداقل یک گزینه برای ثبت در سرور الزامی است."
+      : "تکمیل این فیلد الزامی است.";
   if (isEmpty(value)) return "";
 
   // جدول پرشدنی: محدودیت روی تعداد ردیف است، نه طول متن

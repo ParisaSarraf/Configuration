@@ -105,6 +105,27 @@ const asText = (raw) => {
   return String(raw);
 };
 
+const matrixRowsOf = (raw) => {
+  if (Array.isArray(raw)) return raw;
+  if (!raw || typeof raw !== "object") return [];
+
+  return Object.entries(raw)
+    .sort(([left], [right]) => Number(left) - Number(right))
+    .map(([, row]) => {
+      if (row && typeof row === "object" && !Array.isArray(row)) return row;
+      if (typeof row !== "string") return null;
+      try {
+        const parsed = JSON.parse(row);
+        return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+          ? parsed
+          : null;
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean);
+};
+
 /** یک مقدار ذخیره‌شده را به شکل مورد انتظار همان نوع فیلد برمی‌گرداند. */
 export const hydrateValue = (field, raw) => {
   const type = resolveType(field);
@@ -133,8 +154,10 @@ export const hydrateValue = (field, raw) => {
     return asText(value);
   }
 
-  // امضا+تاریخ و ماتریس به شکل آبجکت ذخیره می‌شوند و همان‌طور مصرف می‌شوند.
-  if (type === "date_signature" || type === "matrix")
+  if (type === "matrix") return matrixRowsOf(value);
+
+  // امضا+تاریخ به شکل آبجکت ذخیره می‌شود و همان‌طور مصرف می‌شود.
+  if (type === "date_signature")
     return value && typeof value === "object" ? value : {};
 
   if (
