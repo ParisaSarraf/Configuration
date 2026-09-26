@@ -180,3 +180,16 @@ export const isDateAfterDate = (
 export function addMonthsToCurrentGregorianDate(months) {
   return moment().add(Number(months), "months").format("YYYY-MM-DD");
 }
+
+export function getSurveyDateStatus(enDate, warningDays = 10) {
+  if (!isGeorgianDateValid(enDate))
+    return { status: "none", daysRemaining: null };
+
+  const today = moment().startOf("day");
+  const reviewDate = moment(enDate).startOf("day");
+  const daysRemaining = reviewDate.diff(today, "days");
+
+  if (daysRemaining < 0) return { status: "expired", daysRemaining };
+  if (daysRemaining <= warningDays) return { status: "warning", daysRemaining };
+  return { status: "valid", daysRemaining };
+}

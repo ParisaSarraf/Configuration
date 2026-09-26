@@ -4,7 +4,10 @@ import {
   CheckOutlined,
 } from "@ant-design/icons";
 import { Button, Tag } from "antd";
-import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
+import {
+  georgianDateToJalaliDate,
+  getSurveyDateStatus,
+} from "@utils/timeTool.jsx";
 
 const ReportCol = ({ handleShowDetailEdition, handleAutomationFiles }) => {
   return [
@@ -85,11 +88,33 @@ const ReportCol = ({ handleShowDetailEdition, handleAutomationFiles }) => {
     },
     {
       title: "تاریخ بازبینی",
-      dataIndex: ["survey_date"],
-      key: "survey_date",
-      width: 100,
-      render: (record) => {
-        return <Tag color={"green"}>{georgianDateToJalaliDate(record)}</Tag>;
+      dataIndex: ["editions", 0, "survey_date"],
+      key: "edition_survey_date",
+      width: 165,
+      render: (surveyDate) => {
+        const { status, daysRemaining } = getSurveyDateStatus(surveyDate);
+
+        if (status === "none") return <Tag>ثبت نشده</Tag>;
+        if (status === "expired") {
+          return (
+            <Tag color="red">
+              منقضی شده — {georgianDateToJalaliDate(surveyDate)}
+            </Tag>
+          );
+        }
+        if (status === "warning") {
+          const warningText =
+            daysRemaining === 0
+              ? "امروز موعد بازبینی است"
+              : `${daysRemaining} روز تا بازبینی`;
+          return (
+            <Tag color="orange">
+              ⚠ {warningText} — {georgianDateToJalaliDate(surveyDate)}
+            </Tag>
+          );
+        }
+
+        return <Tag color="green">{georgianDateToJalaliDate(surveyDate)}</Tag>;
       },
     },
     {
