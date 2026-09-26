@@ -8,6 +8,7 @@ import {
   message,
   Popover,
   Row,
+  Select,
 } from "antd";
 import FileUploader from "@/components/FileUploader/FileUploader.jsx";
 import { FileOutlined } from "@ant-design/icons";
@@ -15,7 +16,10 @@ import { useUpdateProductDocumentEdition } from "@/QueryServises/productDocument
 import { usePatchDocumentEditionLog } from "@/QueryServises/productDocumentEditionLogQuery";
 import { useEffect, useMemo, useState } from "react";
 import { BASEURL } from "@/Services/axiosInstance.js";
-import { georgianDateTimeToJalaliDateTime } from "@utils/timeTool.jsx";
+import {
+  addMonthsToCurrentGregorianDate,
+  georgianDateTimeToJalaliDateTime,
+} from "@utils/timeTool.jsx";
 import { useAllLogs } from "@/hooks/useAllLogs.js";
 import { canViewDocumentFiles } from "@/utils/ExportFromToken.js";
 
@@ -124,7 +128,8 @@ const DocumentWorkflowGraph = ({ steps, currentState, logs }) => {
             route.isReturn ? "text-orange-600" : "text-blue-600"
           }`}
         >
-          {route.isReturn ? "مسیر برگشت" : "مسیر رفت"} · {route.items.length.toLocaleString("fa-IR")} بار
+          {route.isReturn ? "مسیر برگشت" : "مسیر رفت"} ·{" "}
+          {route.items.length.toLocaleString("fa-IR")} بار
         </div>
       </div>
       <div className="max-h-56 space-y-2 overflow-y-auto pl-1">
@@ -149,7 +154,9 @@ const DocumentWorkflowGraph = ({ steps, currentState, logs }) => {
                   {person}
                 </div>
                 {role ? (
-                  <div className="truncate text-[9px] text-slate-400">{role}</div>
+                  <div className="truncate text-[9px] text-slate-400">
+                    {role}
+                  </div>
                 ) : null}
                 <div className="mt-1 text-[9px] text-slate-500" dir="ltr">
                   {item.changed_at
@@ -188,7 +195,8 @@ const DocumentWorkflowGraph = ({ steps, currentState, logs }) => {
             <span className="h-0.5 w-5 bg-orange-500" /> برگشت
           </span>
           <span className="flex items-center gap-1 text-slate-400">
-            <span className="h-0.5 w-5 border-t border-dashed border-slate-400" /> مسیر مراحل
+            <span className="h-0.5 w-5 border-t border-dashed border-slate-400" />{" "}
+            مسیر مراحل
           </span>
         </div>
       </div>
@@ -202,17 +210,53 @@ const DocumentWorkflowGraph = ({ steps, currentState, logs }) => {
           dir="ltr"
         >
           <defs>
-            <marker id="document-flow-base-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <marker
+              id="document-flow-base-arrow"
+              viewBox="0 0 10 10"
+              refX="9"
+              refY="5"
+              markerWidth="6"
+              markerHeight="6"
+              orient="auto"
+            >
               <path d="M 0 0 L 10 5 L 0 10 z" fill="#cbd5e1" />
             </marker>
-            <marker id="document-flow-forward-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <marker
+              id="document-flow-forward-arrow"
+              viewBox="0 0 10 10"
+              refX="9"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto"
+            >
               <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb" />
             </marker>
-            <marker id="document-flow-return-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <marker
+              id="document-flow-return-arrow"
+              viewBox="0 0 10 10"
+              refX="9"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto"
+            >
               <path d="M 0 0 L 10 5 L 0 10 z" fill="#ea580c" />
             </marker>
-            <filter id="document-current-shadow" x="-30%" y="-40%" width="160%" height="180%">
-              <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#2563eb" floodOpacity="0.18" />
+            <filter
+              id="document-current-shadow"
+              x="-30%"
+              y="-40%"
+              width="160%"
+              height="180%"
+            >
+              <feDropShadow
+                dx="0"
+                dy="3"
+                stdDeviation="4"
+                floodColor="#2563eb"
+                floodOpacity="0.18"
+              />
             </filter>
           </defs>
 
@@ -234,8 +278,10 @@ const DocumentWorkflowGraph = ({ steps, currentState, logs }) => {
 
           {routes.map((route) => {
             const color = route.isReturn ? "#ea580c" : "#2563eb";
-            const fromLabel = steps[route.fromIndex]?.label || route.latest.from_state;
-            const toLabel = steps[route.toIndex]?.label || route.latest.to_state;
+            const fromLabel =
+              steps[route.fromIndex]?.label || route.latest.from_state;
+            const toLabel =
+              steps[route.toIndex]?.label || route.latest.to_state;
             const person = getWorkflowUserName(route.latest.changed_by);
             const actionTime = route.latest.changed_at
               ? georgianDateTimeToJalaliDateTime(route.latest.changed_at)
@@ -285,7 +331,10 @@ const DocumentWorkflowGraph = ({ steps, currentState, logs }) => {
                           <span className="block truncate text-[8px] font-bold text-slate-700">
                             {person}
                           </span>
-                          <span className="block truncate text-[7px] text-slate-400" dir="ltr">
+                          <span
+                            className="block truncate text-[7px] text-slate-400"
+                            dir="ltr"
+                          >
                             {actionTime}
                           </span>
                         </span>
@@ -321,7 +370,9 @@ const DocumentWorkflowGraph = ({ steps, currentState, logs }) => {
                   fill={isCurrent ? "#eff6ff" : "#ffffff"}
                   stroke={isCurrent ? "#2563eb" : "#cbd5e1"}
                   strokeWidth={isCurrent ? "2.5" : "1.5"}
-                  filter={isCurrent ? "url(#document-current-shadow)" : undefined}
+                  filter={
+                    isCurrent ? "url(#document-current-shadow)" : undefined
+                  }
                 />
                 <circle
                   cx={x}
@@ -331,18 +382,42 @@ const DocumentWorkflowGraph = ({ steps, currentState, logs }) => {
                   stroke="#fff"
                   strokeWidth="2"
                 />
-                <text x={x} y={nodeY - 2} textAnchor="middle" fontSize="11" fontWeight="700" fill={isCurrent ? "#1d4ed8" : "#334155"} direction="rtl">
+                <text
+                  x={x}
+                  y={nodeY - 2}
+                  textAnchor="middle"
+                  fontSize="11"
+                  fontWeight="700"
+                  fill={isCurrent ? "#1d4ed8" : "#334155"}
+                  direction="rtl"
+                >
                   {step.label}
                 </text>
-                <text x={x} y={nodeY + 15} textAnchor="middle" fontSize="8.5" fill={isCurrent ? "#2563eb" : "#94a3b8"} direction="rtl">
-                  {isCurrent ? "وضعیت فعلی" : `مرحله ${(index + 1).toLocaleString("fa-IR")}`}
+                <text
+                  x={x}
+                  y={nodeY + 15}
+                  textAnchor="middle"
+                  fontSize="8.5"
+                  fill={isCurrent ? "#2563eb" : "#94a3b8"}
+                  direction="rtl"
+                >
+                  {isCurrent
+                    ? "وضعیت فعلی"
+                    : `مرحله ${(index + 1).toLocaleString("fa-IR")}`}
                 </text>
               </g>
             );
           })}
 
           {!routes.length ? (
-            <text x={width / 2} y="200" textAnchor="middle" fontSize="10" fill="#94a3b8" direction="rtl">
+            <text
+              x={width / 2}
+              y="200"
+              textAnchor="middle"
+              fontSize="10"
+              fill="#94a3b8"
+              direction="rtl"
+            >
               هنوز رفت‌وبرگشتی برای این سند ثبت نشده است
             </text>
           ) : null}
@@ -364,18 +439,25 @@ const CombineFiles = ({
   const [form] = Form.useForm();
   const [currentState, setCurrentState] = useState(null);
   const [comment, setComment] = useState("");
+  const [reviewPeriod, setReviewPeriod] = useState(null);
 
-  const ProductDocumentId = modalData?.editions?.[0]?.id;
+  const editionRecord =
+    modalType === "SpecificAutomationFiles"
+      ? modalData?.editions?.[0]
+      : modalData;
+  const editionId = editionRecord?.id;
+  const productDocumentId =
+    editionRecord?.product_document_id?.id ??
+    editionRecord?.product_document_id ??
+    modalData?.product_document_id?.id ??
+    modalData?.product_document_id ??
+    (modalType === "SpecificAutomationFiles" ? modalData?.id : undefined);
   const { isPending: isUpdating, mutateAsync: updateProductDocumentEdition } =
     useUpdateProductDocumentEdition();
 
   const { mutateAsync: updateState, isPending: isPatching } =
     usePatchDocumentEditionLog();
 
-  const editionId =
-    modalType === "SpecificAutomationFiles"
-      ? modalData?.editions?.[0]?.id
-      : modalData?.id;
   const { data: logList = [], refetch: refetchLogs } = useAllLogs(editionId);
 
   const stateSteps = [
@@ -411,10 +493,13 @@ const CombineFiles = ({
   }, [logList]);
 
   useEffect(() => {
-    const editionState = modalType === "SpecificAutomationFiles"
-      ? modalData?.editions?.[0]?.state
-      : modalData?.state;
+    const editionState =
+      modalType === "SpecificAutomationFiles"
+        ? modalData?.editions?.[0]?.state
+        : modalData?.state;
     setCurrentState(editionState == null ? null : Number(editionState));
+    setReviewPeriod(null);
+    setComment("");
   }, [modalData, modalType]);
 
   useEffect(() => {
@@ -480,10 +565,7 @@ const CombineFiles = ({
         : modalData;
 
     const payload = {
-      product_document_id:
-        modalType === "SpecificAutomationFiles"
-          ? ProductDocumentId
-          : modalData?.product_document_id?.id,
+      product_document_id: productDocumentId,
       edition: values.edition,
       file_1: values.file_1?.[0]?.originFileObj,
       file_2: values.file_2?.[0]?.originFileObj,
@@ -495,10 +577,7 @@ const CombineFiles = ({
 
     try {
       await updateProductDocumentEdition({
-        documentId:
-          modalType === "SpecificAutomationFiles"
-            ? ProductDocumentId
-            : modalData?.id,
+        documentId: editionId,
         ...payload,
       });
       message.success("نسخه با موفقیت ویرایش شد");
@@ -515,23 +594,54 @@ const CombineFiles = ({
   const handleNextStep = async () => {
     if (currentStepIndex >= stateSteps?.length - 1) return;
     const nextState = stateSteps[currentStepIndex + 1].value;
+    const needsReviewDate = currentState === 20 && nextState === 30;
+
+    if (needsReviewDate && !reviewPeriod) {
+      message.warning("لطفاً بازه بازبینی سند را انتخاب کنید");
+      return;
+    }
 
     try {
+      // ترتیب الزامی است: ابتدا تاریخ بازبینی با PUT ذخیره می‌شود و فقط
+      // بعد از موفقیت آن، تغییر state با PATCH انجام می‌شود.
+      if (needsReviewDate) {
+        const surveyDate = addMonthsToCurrentGregorianDate(reviewPeriod);
+        await updateProductDocumentEdition({
+          documentId: editionId,
+          product_document_id: productDocumentId,
+          edition: editionRecord?.edition,
+          description: editionRecord?.description,
+          reasons_editing_id:
+            editionRecord?.reasons_editing?.id ??
+            editionRecord?.reasons_editing_id ??
+            (typeof editionRecord?.reasons_editing === "number"
+              ? editionRecord.reasons_editing
+              : undefined),
+          is_active: editionRecord?.is_active ?? true,
+          // PUT نباید مرحله را جلو ببرد؛ state فعلی بدون تغییر ارسال می‌شود.
+          state: currentState,
+          survey_date: surveyDate,
+        });
+      }
+
+      // تغییر مرحله فقط از endpoint مخصوص PATCH انجام می‌شود.
       await updateState({
-        id:
-          modalType === "SpecificAutomationFiles"
-            ? ProductDocumentId
-            : modalData?.id,
+        id: editionId,
         state: nextState,
-        comment: comment,
+        comment,
       });
+
       message.success("مرحله با موفقیت بروزرسانی شد");
       setCurrentState(nextState);
       setComment("");
-      await refetchLogs();
+      setReviewPeriod(null);
+      await Promise.all([refetchLogs(), refetch()]);
     } catch (error) {
       console.error(error);
-      message.error(error?.response?.data?.detail || "خطا در بروزرسانی مرحله");
+      message.error(
+        error?.response?.data?.detail ||
+          "ثبت تاریخ بازبینی یا بروزرسانی مرحله با خطا مواجه شد",
+      );
     }
   };
 
@@ -541,10 +651,7 @@ const CombineFiles = ({
 
     try {
       await updateState({
-        id:
-          modalType === "SpecificAutomationFiles"
-            ? ProductDocumentId
-            : modalData?.id,
+        id: editionId,
         state: prevState,
         comment: comment,
       });
@@ -689,6 +796,29 @@ const CombineFiles = ({
               />
             </Col>
 
+            {currentState === 20 && (
+              <Col span={24}>
+                <Form.Item
+                  label="بازه بازبینی"
+                  required
+                  help="پیش از تایید سند، تاریخ بازبینی با PUT ثبت می‌شود"
+                >
+                  <Select
+                    value={reviewPeriod}
+                    onChange={setReviewPeriod}
+                    placeholder="انتخاب بازه بازبینی"
+                    options={[
+                      { value: 1, label: "۱ ماه" },
+                      { value: 3, label: "۳ ماه" },
+                      { value: 6, label: "۶ ماه" },
+                      { value: 12, label: "۱۲ ماه" },
+                    ]}
+                    disabled={isUpdating || isPatching}
+                  />
+                </Form.Item>
+              </Col>
+            )}
+
             <Col span={24}>
               <Form.Item label="توضیح" layout={"vertical"}>
                 <Input.TextArea
@@ -723,10 +853,12 @@ const CombineFiles = ({
                 onClick={handleNextStep}
                 disabled={
                   !comment ||
+                  (currentState === 20 && !reviewPeriod) ||
                   currentStepIndex >= stateSteps?.length - 1 ||
-                  isPatching
+                  isPatching ||
+                  isUpdating
                 }
-                loading={isPatching}
+                loading={isPatching || isUpdating}
               >
                 {currentState === 10
                   ? "تهیه"
