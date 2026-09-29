@@ -109,47 +109,67 @@ const readTransitions = (request, process, fallbackProcess) =>
     });
   });
 
-const processRequestRowsFromResponse = (payload, fallbackProcess) =>
-  asArray(unwrapPayload(payload)).flatMap((process) =>
-    asArray(process?.requests).map((request) => {
-      const submission = request?.form_submission ?? null;
-      const formData = submission?.form_data ?? {};
-      return {
-        rowKey: `process-${process?.id ?? fallbackProcess?.id ?? "unknown"}-request-${request?.id ?? "unknown"}`,
-        processId: process?.id ?? fallbackProcess?.id ?? null,
-        processName: process?.name ?? fallbackProcess?.name ?? "",
-        formDefinitionId: formIdOf(
-          process?.form_definition ?? fallbackProcess?.form_definition,
-        ),
-        requestId: request?.id ?? null,
-        title: request?.title ?? process?.name ?? "درخواست فرایند",
-        currentStateId: request?.current_state?.id ?? null,
-        stateName: request?.current_state?.name ?? "بدون مرحله",
-        stateType: String(
-          request?.current_state?.state_type?.slug ??
-            request?.current_state?.state_type?.code ??
-            request?.current_state?.state_type?.type ??
-            request?.current_state?.state_type?.name ??
-            (typeof request?.current_state?.state_type === "string"
-              ? request.current_state.state_type
-              : "") ??
-            "",
-        ).toLowerCase(),
-        createdBy: request?.created_by ?? null,
-        submissionId: submission?.id ?? null,
-        formData,
-        attachments: Array.isArray(submission?.file_attachments)
-          ? submission.file_attachments
-          : [],
-        submitter: submission?.submitter ?? null,
-        createdAt: request?.created_at ?? submission?.created_at ?? null,
-        submittedAt: submission?.created_at ?? null,
-        transitions: readTransitions(request, process, fallbackProcess),
-      };
-    }),
-  );
+const rowFromRequest = (request, process, fallbackProcess) => {
+  const submission = request?.form_submission ?? null;
+  const formData = submission?.form_data ?? {};
+  return {
+    rowKey: `process-${process?.id ?? fallbackProcess?.id ?? "unknown"}-request-${request?.id ?? "unknown"}`,
+    processId:
+      process?.id ??
+      request?.process?.id ??
+      request?.process_id ??
+      (typeof request?.process === "number" ? request.process : null) ??
+      fallbackProcess?.id ??
+      null,
+    processName:
+      process?.name ?? request?.process?.name ?? fallbackProcess?.name ?? "",
+    formDefinitionId: formIdOf(
+      process?.form_definition ??
+        request?.form_definition ??
+        request?.process?.form_definition ??
+        fallbackProcess?.form_definition,
+    ),
+    requestId: request?.id ?? null,
+    title: request?.title ?? process?.name ?? "درخواست فرایند",
+    currentStateId: request?.current_state?.id ?? null,
+    stateName: request?.current_state?.name ?? "بدون مرحله",
+    stateType: String(
+      request?.current_state?.state_type?.slug ??
+        request?.current_state?.state_type?.code ??
+        request?.current_state?.state_type?.type ??
+        request?.current_state?.state_type?.name ??
+        (typeof request?.current_state?.state_type === "string"
+          ? request.current_state.state_type
+          : "") ??
+        "",
+    ).toLowerCase(),
+    createdBy: request?.created_by ?? null,
+    submissionId: submission?.id ?? null,
+    formData,
+    attachments: Array.isArray(submission?.file_attachments)
+      ? submission.file_attachments
+      : [],
+    submitter: submission?.submitter ?? null,
+    createdAt: request?.created_at ?? submission?.created_at ?? null,
+    submittedAt: submission?.created_at ?? null,
+    transitions: readTransitions(request, process, fallbackProcess),
+  };
+};
 
-const statePresentation = (stateType) => {
+export const requestRowsFromResponse = (payload, fallbackProcess = null) =>
+  asArray(unwrapPayload(payload)).flatMap((item) => {
+    if (Array.isArray(item?.requests))
+      return item.requests.map((request) =>
+        rowFromRequest(request, item, fallbackProcess),
+      );
+    const process =
+      item?.process && typeof item.process === "object"
+        ? item.process
+        : fallbackProcess;
+    return [rowFromRequest(item, process, fallbackProcess)];
+  });
+
+export const statePresentation = (stateType) => {
   if (["denied", "rejected", "reject"].includes(stateType))
     return {
       dot: "bg-rose-500",
@@ -225,7 +245,7 @@ const MetaItem = ({ icon, label, value }) => (
   </div>
 );
 
-const RequestWorkPanel = ({ record, onCompleted }) => {
+export const RequestWorkPanel = ({ record, onCompleted }) => {
   const { message } = App.useApp();
   const formQuery = useFormDefinitionFieldById(record.formDefinitionId, {
     enabled: Boolean(record.formDefinitionId && record.submissionId),
@@ -405,7 +425,7 @@ const ProcessRequestsModal = ({ open, process, onClose }) => {
   const states = asArray(processInfo?.process_states);
   const responseData = useMemo(() => unwrapPayload(query.data), [query.data]);
   const rows = useMemo(
-    () => processRequestRowsFromResponse(responseData, process),
+    () => requestRowsFromResponse(responseData, process),
     [responseData, process],
   );
 

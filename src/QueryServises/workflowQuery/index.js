@@ -15,7 +15,13 @@ export const transitionActionsKey = ["workflow", "transition-actions"];
 export const requestsKey = ["workflow", "requests"];
 export const requestKey = (id) => ["workflow", "request", id];
 export const requestPathKey = (id) => ["workflow", "request", id, "path"];
-export const requestsNeedActionKey = ["workflow", "requests", "need-action"];
+export const requestsNeedActionKey = (filters = {}) => [
+  "workflow",
+  "requests",
+  "need-action",
+  filters.processId ?? null,
+  filters.stateId ?? null,
+];
 export const processRequestsKey = (id, filters = {}) => [
   "workflow",
   "process-requests",
@@ -110,11 +116,11 @@ export const useRequestPathById = (id, queryOptions) => {
   });
 };
 
-export const useRequestsNeedUserAction = (queryOptions) => {
+export const useRequestsNeedUserAction = (filters = {}, queryOptions = {}) => {
   const { myAxios } = useMyAxios();
   return useQuery({
-    queryKey: requestsNeedActionKey,
-    queryFn: () => workflowApi.getRequestsNeedUserAction(myAxios),
+    queryKey: requestsNeedActionKey(filters),
+    queryFn: () => workflowApi.getRequestsNeedUserAction(myAxios, filters),
     ...queryOptions,
   });
 };
@@ -162,7 +168,9 @@ export const useCreateRequest = () => {
     mutationFn: (payload) => workflowApi.createRequest(myAxios, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: requestsKey });
-      queryClient.invalidateQueries({ queryKey: requestsNeedActionKey });
+      queryClient.invalidateQueries({
+        queryKey: ["workflow", "requests", "need-action"],
+      });
     },
   });
 };
@@ -174,7 +182,9 @@ export const useDoAction = () => {
     mutationFn: (payload) => workflowApi.doAction(myAxios, payload),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: requestsKey });
-      queryClient.invalidateQueries({ queryKey: requestsNeedActionKey });
+      queryClient.invalidateQueries({
+        queryKey: ["workflow", "requests", "need-action"],
+      });
       queryClient.invalidateQueries({
         queryKey: ["workflow", "process-requests"],
       });
