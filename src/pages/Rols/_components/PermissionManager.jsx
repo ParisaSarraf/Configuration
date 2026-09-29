@@ -195,13 +195,13 @@ const PermissionManager = ({ selectedRoleId, refetch }) => {
       if (isEditing) {
         await updatePermissions({
           roleId: selectedRoleId,
-          permissions_ids: permissionIds,
+          permission_ids: permissionIds,
         });
         message.success("دسترسی‌ها با موفقیت به‌روزرسانی شد");
       } else {
         await addPermissions({
           roles_ids: [selectedRoleId],
-          permissions_ids: permissionIds,
+          permission_ids: permissionIds,
         });
         message.success("دسترسی‌ها با موفقیت اضافه شدند");
       }
