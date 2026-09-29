@@ -113,36 +113,6 @@ const looksLikeFileValue = (value) => {
   );
 };
 
-/** هر مقداری را به رشته تبدیل می‌کند (فرادادهٔ فایل ← فقط نام فایل). */
-const asText = (value) => {
-  if (value == null) return "";
-  if (typeof value === "string") return value;
-  if (typeof value === "number" || typeof value === "boolean")
-    return String(value);
-
-  if (Array.isArray(value))
-    return value
-      .map((item) =>
-        item && typeof item === "object"
-          ? String(item.name ?? item.file_name ?? JSON.stringify(item))
-          : String(item ?? ""),
-      )
-      .filter(Boolean)
-      .join("، ");
-
-  if (typeof value === "object") {
-    if (value.name || value.file_name)
-      return String(value.name ?? value.file_name);
-    try {
-      return JSON.stringify(value);
-    } catch {
-      return String(value);
-    }
-  }
-
-  return String(value);
-};
-
 const parsedFormData = (payload) => {
   const raw = payload?.form_data;
   if (raw && typeof raw === "object" && !Array.isArray(raw)) return raw;
@@ -170,12 +140,9 @@ export const cleanSubmissionPayload = (payload) => {
   const formData = Object.fromEntries(
     Object.entries(data)
       .filter(([, value]) => value !== undefined && !looksLikeFileValue(value))
-      // Keep table/matrix values as nested JSON; stringify only scalar values.
-      .map(([key, value]) => [
-        key,
-        value && typeof value === "object" ? value : asText(value),
-      ])
-      .filter(([, value]) => value !== ""),
+      // Preserve the field-specific JSON type. DRF expects real booleans,
+      // numbers, arrays and dictionaries rather than one generic string form.
+      .filter(([, value]) => value !== "" && value !== null),
   );
 
   const next = { ...payload };
@@ -234,6 +201,104 @@ export const resolveSubmissionId = (response) => {
   );
   const id = Number(value);
   return Number.isFinite(id) && id > 0 ? id : null;
+};
+
+const normalizeApiItem = (payload) => {
+  if (Array.isArray(payload))
+    return payload.find((item) => item && typeof item === "object") ?? null;
+  if (Array.isArray(payload?.results)) return normalizeApiItem(payload.results);
+  return payload && typeof payload === "object" ? payload : null;
+};
+
+const parseJsonValue = (value) => {
+  if (typeof value !== "string") return value;
+  const text = value.trim();
+  if (!text.startsWith("{") && !text.startsWith("[")) return value;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return value;
+  }
+};
+
+const comparableValue = (actual, expected) => {
+  const parsed = parseJsonValue(actual);
+  if (typeof expected === "number") {
+    const numeric = Number(parsed);
+    return Number.isFinite(numeric) ? numeric : parsed;
+  }
+  if (typeof expected === "boolean") {
+    if (typeof parsed === "boolean") return parsed;
+    if (["true", "1", "yes", "on"].includes(String(parsed).toLowerCase()))
+      return true;
+    if (["false", "0", "no", "off"].includes(String(parsed).toLowerCase()))
+      return false;
+  }
+  if (Array.isArray(expected) && Array.isArray(parsed))
+    return parsed.map(String).sort();
+  if (expected && typeof expected === "object" && !Array.isArray(expected)) {
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))
+      return parsed;
+    return Object.fromEntries(
+      Object.keys(expected)
+        .sort()
+        .map((key) => [key, comparableValue(parsed[key], expected[key])]),
+    );
+  }
+  return parsed;
+};
+
+const sameValue = (actual, expected) =>
+  JSON.stringify(comparableValue(actual, expected)) ===
+  JSON.stringify(comparableValue(expected, expected));
+
+/** بازخوانی رکورد و مقایسهٔ تک‌تک کلیدهایی که در همین مرحله ارسال شده‌اند. */
+export const verifySavedSubmission = async (
+  client,
+  submissionId,
+  expectedFormData,
+  signal,
+) => {
+  try {
+    const response = await get(
+      client,
+      `/forms/get-form-submission-by-id/${submissionId}`,
+      signal,
+    );
+    const record = normalizeApiItem(response);
+    const raw = record?.form_data;
+    const parsed = typeof raw === "string" ? parseJsonValue(raw) : raw;
+    const saved =
+      parsed && typeof parsed === "object" && !Array.isArray(parsed)
+        ? parsed
+        : {};
+    const expected =
+      expectedFormData &&
+      typeof expectedFormData === "object" &&
+      !Array.isArray(expectedFormData)
+        ? expectedFormData
+        : {};
+    const mismatches = Object.entries(expected).flatMap(([fieldName, value]) =>
+      fieldName in saved && sameValue(saved[fieldName], value)
+        ? []
+        : [
+            {
+              fieldName,
+              sent: value,
+              saved: saved[fieldName],
+              missing: !(fieldName in saved),
+            },
+          ],
+    );
+    return {
+      checked: true,
+      ok: mismatches.length === 0,
+      mismatches,
+      savedFormData: saved,
+    };
+  } catch (error) {
+    return { checked: false, ok: false, mismatches: [], error };
+  }
 };
 
 /* --------------------------------------------- مرحلهٔ ۲: پیوست‌ها */
@@ -342,9 +407,25 @@ const submitForm = async (
   // مرحلهٔ ۱
   const response = await createSubmission(client, payload, signal);
   const submissionId = resolveSubmissionId(response);
+  const expectedFormData = cleanSubmissionPayload(payload).form_data;
+  const verification = submissionId
+    ? await verifySavedSubmission(
+        client,
+        submissionId,
+        expectedFormData,
+        signal,
+      )
+    : { checked: false, ok: false, mismatches: [] };
 
   if (!ready.length)
-    return { submissionId, response, uploaded: [], failed: [], skipped };
+    return {
+      submissionId,
+      response,
+      uploaded: [],
+      failed: [],
+      skipped,
+      verification,
+    };
 
   if (!submissionId)
     // فرم ثبت شده ولی بدون id نمی‌توان پیوست فرستاد.
@@ -354,6 +435,7 @@ const submitForm = async (
       uploaded: [],
       failed: [],
       skipped: [...skipped, ...ready],
+      verification,
     };
 
   // مرحلهٔ ۲
@@ -364,7 +446,7 @@ const submitForm = async (
     onProgress,
   });
 
-  return { submissionId, response, uploaded, failed, skipped };
+  return { submissionId, response, uploaded, failed, skipped, verification };
 };
 
 export const formApi = Object.freeze({
@@ -395,6 +477,7 @@ export const formApi = Object.freeze({
   createSubmission,
   submitForm,
   resolveSubmissionId,
+  verifySavedSubmission,
   getSubmissions: (client, signal) =>
     get(client, ENDPOINTS.submissions, signal),
 

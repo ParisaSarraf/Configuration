@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Alert, Button, Empty, Input, Segmented, Tooltip } from "antd";
 import {
   ArrowRightOutlined,
-  CheckCircleOutlined,
   InboxOutlined,
   PartitionOutlined,
   ReloadOutlined,
@@ -18,6 +17,7 @@ import todoColumns from "./components/todoColumns";
 import sentColumns from "./components/sentColumns";
 import processColumns from "./components/processColumns";
 import ProcessRequestsModal from "./components/ProcessRequestsModal";
+import ProcessPathModal from "./components/ProcessPathModal";
 import { useFormSubmisions } from "../../QueryServises/formsQuery";
 import { useProcessList, useRequests } from "../../QueryServises/workflowQuery";
 import {
@@ -39,6 +39,7 @@ const MODAL_TYPES = Object.freeze({
   CARTABLE_TASK: "cartableTask",
   CARTABLE_SUBMISSION: "cartableSubmission",
   PROCESS_REQUESTS: "processRequests",
+  PROCESS_PATH: "processPath",
 });
 
 const asArray = (value) => {
@@ -212,6 +213,14 @@ const ProcessMakerCartable = () => {
     });
   };
 
+  const openProcessPathModal = (record) => {
+    setModal({
+      type: MODAL_TYPES.PROCESS_PATH,
+      mode: "view",
+      data: record,
+    });
+  };
+
   const closeProcessRequestsModal = () => {
     setSubmissionPreview(null);
     closeModal();
@@ -236,6 +245,7 @@ const ProcessMakerCartable = () => {
       todoColumns({
         page,
         setActiveProcess: openTaskModal,
+        onViewPath: openProcessPathModal,
         pageSize: PAGE_SIZE,
       }),
     [page],
@@ -340,7 +350,7 @@ const ProcessMakerCartable = () => {
               onChange={setTab}
               options={[
                 {
-                  label: "درخواست ها",
+                  label: "ثبت درخواست",
                   value: TABS.TODO,
                   icon: <InboxOutlined />,
                 },
@@ -365,7 +375,7 @@ const ProcessMakerCartable = () => {
             <div className="flex items-baseline gap-2">
               <h2 className="m-0 text-base font-bold text-slate-800 dark:text-slate-100">
                 {isTodo
-                  ? "فهرست فرایندهای قابل شروع"
+                  ? "فهرست فرایندهای قابل ثبت درخواست"
                   : isSent
                     ? "رسید ارسال‌های من"
                     : "درخواست‌های هر فرآیند"}
@@ -470,6 +480,14 @@ const ProcessMakerCartable = () => {
           process={modalData}
           onClose={closeProcessRequestsModal}
           onViewSubmission={openSubmissionModal}
+        />
+      )}
+
+      {modalType === MODAL_TYPES.PROCESS_PATH && (
+        <ProcessPathModal
+          open={isOpen}
+          process={modalData}
+          onClose={closeModal}
         />
       )}
 

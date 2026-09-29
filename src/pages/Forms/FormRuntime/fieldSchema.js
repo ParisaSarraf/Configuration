@@ -226,6 +226,10 @@ export const FIELD_DEFS = [
     hint: "جدول چاپی با ادغام سلول و امضا",
     group: "جدول",
     panels: ["sheet"],
+    // SHEET_TABLE is display-only in the backend service. Store its cell map
+    // through ADDRESS/DictField and restore the UI type with this marker.
+    backend: "address",
+    marker: "el-sheet-table",
   },
 
   { type: "signature", label: "محل امضا", group: "سند", panels: ["help"] },

@@ -4,10 +4,11 @@ import {
   CloseCircleOutlined,
   EditOutlined,
   FileTextOutlined,
+  PartitionOutlined,
 } from "@ant-design/icons";
 import { georgianDateTimeToJalaliDateTime } from "@utils/timeTool.jsx";
 
-const todoColumns = ({ page, setActiveProcess, pageSize = 8 }) => [
+const todoColumns = ({ page, setActiveProcess, onViewPath, pageSize = 8 }) => [
   {
     title: "ردیف",
     key: "index",
@@ -19,7 +20,7 @@ const todoColumns = ({ page, setActiveProcess, pageSize = 8 }) => [
     ),
   },
   {
-    title: "نام فرم",
+    title: "نام فرایند",
     dataIndex: "name",
     key: "name",
     render: (value, record) => (
@@ -75,25 +76,6 @@ const todoColumns = ({ page, setActiveProcess, pageSize = 8 }) => [
     render: (value) => <Tag color="blue">v{value ?? "—"}</Tag>,
   },
   {
-    title: "حداکثر ارسال",
-    dataIndex: "max_submissions",
-    key: "max_submissions",
-    width: 120,
-    render: (value) => (value == null ? "نامحدود" : value),
-  },
-  {
-    title: "ذخیره خودکار",
-    dataIndex: "enable_auto_save",
-    key: "enable_auto_save",
-    width: 140,
-    render: (value, record) =>
-      value ? (
-        <Tag color="cyan">هر {record.auto_save_interval ?? "?"} ثانیه</Tag>
-      ) : (
-        <Tag color="default">خاموش</Tag>
-      ),
-  },
-  {
     title: "تاریخ ایجاد",
     dataIndex: "created_at",
     key: "created_at",
@@ -108,16 +90,24 @@ const todoColumns = ({ page, setActiveProcess, pageSize = 8 }) => [
   {
     title: "عملیات",
     key: "operations",
-    width: 220,
+    width: 360,
     align: "left",
     render: (_value, record) => (
-      <Button
-        type="primary"
-        icon={<EditOutlined />}
-        onClick={() => setActiveProcess(record)}
-      >
-        مشاهده و تکمیل فرم
-      </Button>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          type="primary"
+          icon={<EditOutlined />}
+          onClick={() => setActiveProcess(record)}
+        >
+          ثبت درخواست در فرایند
+        </Button>
+        <Button
+          icon={<PartitionOutlined />}
+          onClick={() => onViewPath?.(record)}
+        >
+          مشاهده مسیر
+        </Button>
+      </div>
     ),
   },
 ];

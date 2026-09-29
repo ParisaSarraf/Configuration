@@ -54,10 +54,22 @@ export default function FormFiller() {
         values,
       });
 
-      const { submissionId, failed, skipped } = await submitForm.mutateAsync({
-        payload,
-        files,
-      });
+      const { submissionId, failed, skipped, verification } =
+        await submitForm.mutateAsync({
+          payload,
+          files,
+        });
+
+      if (verification?.checked && !verification.ok) {
+        const names = verification.mismatches
+          .map((item) => item.fieldName)
+          .join("، ");
+        message.error(`ذخیرهٔ این فیلدها با مقدار ارسالی یکسان نیست: ${names}`);
+      } else if (submissionId && !verification?.checked) {
+        message.warning(
+          "فرم ثبت شد، اما بازخوانی فیلدبه‌فیلد از سرور انجام نشد.",
+        );
+      }
 
       if (files.length && !submissionId)
         message.warning(

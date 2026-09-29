@@ -156,6 +156,12 @@ export const hydrateValue = (field, raw) => {
 
   if (type === "matrix") return matrixRowsOf(value);
 
+  if (type === "address") {
+    if (value && typeof value === "object" && !Array.isArray(value))
+      return asText(value.address ?? "");
+    return asText(value);
+  }
+
   // امضا+تاریخ به شکل آبجکت ذخیره می‌شود و همان‌طور مصرف می‌شود.
   if (type === "date_signature")
     return value && typeof value === "object" ? value : {};

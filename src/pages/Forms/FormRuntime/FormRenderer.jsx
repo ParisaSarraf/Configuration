@@ -66,7 +66,8 @@ export function Element({ field, values, errors, onChange, readOnly }) {
   if (type === "spacer") return null;
   if (type === "divider") return <div className="fr-divider" />;
   if (type === "doc_header") return <DocHeader field={field} />;
-  if (type === "section") return <div className="fr-band">{field.field_label}</div>;
+  if (type === "section")
+    return <div className="fr-band">{field.field_label}</div>;
 
   if (type === "logo")
     return (
@@ -96,7 +97,9 @@ export function Element({ field, values, errors, onChange, readOnly }) {
   if (type === "display_text")
     return (
       <div className="fr-cell fr-plain">
-        <span className="fr-static">{field.default_value || field.field_label}</span>
+        <span className="fr-static">
+          {field.default_value || field.field_label}
+        </span>
       </div>
     );
 
@@ -196,6 +199,9 @@ export default function FormRenderer({
   onSubmit,
   submitting = false,
   submitLabel = "ثبت فرم",
+  submitOptions = [],
+  submitSectionTitle = "ثبت درخواست و انتخاب مسیر",
+  initialDevice = "a4",
   paperRef,
   lockedFieldIds = [],
 }) {
@@ -204,7 +210,7 @@ export default function FormRenderer({
   const [interactive, setInteractive] = useState(
     mode === "preview" || mode === "fill",
   );
-  const [device, setDevice] = useState("a4"); // a4 | fluid | mobile
+  const [device, setDevice] = useState(initialDevice); // a4 | fluid | mobile
   const [values, setValues] = useState(() => initialValues || {});
   const [errors, setErrors] = useState({});
   const [notice, setNotice] = useState("");
@@ -290,12 +296,19 @@ export default function FormRenderer({
 
           <span className="fr-toolbar-spacer" />
 
-          <span className={`fr-status${notice.includes("ایراد") ? " is-error" : ""}`}>
+          <span
+            className={`fr-status${notice.includes("ایراد") ? " is-error" : ""}`}
+          >
             {notice || `${filledCount} از ${allFields.length} فیلد تکمیل شده`}
           </span>
 
           {!viewing && (
-            <button type="button" className="fr-chip" onClick={check} disabled={readOnly}>
+            <button
+              type="button"
+              className="fr-chip"
+              onClick={check}
+              disabled={readOnly}
+            >
               بررسی اعتبارسنجی
             </button>
           )}
@@ -320,7 +333,7 @@ export default function FormRenderer({
           >
             چاپ / PDF
           </button>
-          {mode === "fill" && (
+          {mode === "fill" && submitOptions.length === 0 && (
             <button
               type="button"
               className="fr-chip is-active"
@@ -350,6 +363,36 @@ export default function FormRenderer({
           </div>
         </div>
       </div>
+
+      {mode === "fill" && submitOptions.length > 0 ? (
+        <div className="fr-no-print mt-4 rounded-2xl border border-blue-100 bg-blue-50/70 p-4 dark:border-blue-900 dark:bg-blue-950/20">
+          <div className="mb-3">
+            <div className="font-bold text-slate-800 dark:text-slate-100">
+              {submitSectionTitle}
+            </div>
+            <div className="mt-1 text-xs leading-6 text-slate-500 dark:text-slate-400">
+              فرم را تکمیل کنید، سپس عملیاتی را انتخاب کنید تا درخواست ساخته شود
+              و وارد مرحلهٔ بعد شود.
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {submitOptions.map((option) => (
+              <button
+                key={option.key ?? option.actionId ?? option.label}
+                type="button"
+                className="fr-chip is-active"
+                disabled={submitting || option.disabled}
+                onClick={() => check() && onSubmit?.(values, option)}
+              >
+                {submitting
+                  ? "در حال ثبت درخواست…"
+                  : option.label || submitLabel}
+                {option.nextStateName ? ` ← ${option.nextStateName}` : ""}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

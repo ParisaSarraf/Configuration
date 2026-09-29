@@ -1,4 +1,4 @@
-import { DISPLAY_ONLY, canonicalType } from "./fieldSchema";
+import { DISPLAY_ONLY, resolveType } from "./fieldSchema";
 import { MULTI_TYPES } from "./formElements";
 import {
   jalaliDateTimeToGeorgianDateTime,
@@ -41,7 +41,6 @@ const isBlank = (value) =>
     !Array.isArray(value) &&
     Object.keys(value).length === 0);
 
-
 const isBrowserFile = (value) =>
   typeof File !== "undefined" && value instanceof File;
 
@@ -75,7 +74,7 @@ export const fileDescriptor = (file) => ({
 const FILE_FIELD_TYPES = new Set(["file", "multifile"]);
 
 export const normalizeValue = (field, raw) => {
-  const type = canonicalType(field?.field_type);
+  const type = resolveType(field);
 
   if (DISPLAY_ONLY.has(type)) return undefined;
   if (raw === undefined) return undefined;
@@ -110,19 +109,35 @@ export const normalizeValue = (field, raw) => {
       : null;
   }
 
-  if (type === "sheet_table" || type === "date_signature") {
+  if (type === "address") {
+    const text =
+      raw && typeof raw === "object" && !Array.isArray(raw)
+        ? String(raw.address ?? "")
+        : String(raw ?? "");
+    return text.trim() ? { address: text.trim() } : null;
+  }
+
+  if (type === "sheet_table") {
     const cells = raw && typeof raw === "object" ? raw : {};
     const clean = Object.entries(cells).reduce((acc, [key, cell]) => {
       if (cell === "" || cell == null || cell === false) return acc;
-      return { ...acc, [key]: cell };
+      return { ...acc, [key]: String(cell) };
     }, {});
     return Object.keys(clean).length ? clean : null;
   }
 
+  if (type === "date_signature") {
+    const slots = raw && typeof raw === "object" ? raw : {};
+    const clean = Object.fromEntries(
+      Object.entries(slots).filter(([, value]) => !isBlank(value)),
+    );
+    // date_signature is stored as a marked SIGNATURE backend field.
+    return Object.keys(clean).length ? JSON.stringify(clean) : null;
+  }
+
   if (type === "signature") {
     const text = String(raw || "").trim();
-    if (!text) return null;
-    return { kind: "typed", value: text, signed_at: new Date().toISOString() };
+    return text || null;
   }
 
   if (FILE_FIELD_TYPES.has(type)) {
@@ -176,22 +191,18 @@ export const toStringValue = (value) => {
   return String(value);
 };
 
-const STRUCTURED_VALUE_TYPES = new Set([
-  "matrix",
-  "sheet_table",
-  "date_signature",
-]);
+const STRUCTURED_VALUE_TYPES = new Set(["matrix", "sheet_table", "address"]);
 
 export const buildFormData = (
   fields,
   values,
-  { includeFiles = true, stringifyValues = true } = {},
+  { includeFiles = true, stringifyValues = false } = {},
 ) =>
   (fields || []).reduce((data, field) => {
     const key = field.field_name || String(field.id || "");
     if (!key) return data;
 
-    const type = canonicalType(field?.field_type);
+    const type = resolveType(field);
     const isFile = FILE_FIELD_TYPES.has(type);
     if (isFile && !includeFiles) return data;
 
@@ -219,10 +230,9 @@ export const buildFormData = (
     return { ...data, [key]: output };
   }, {});
 
-
 export const collectFileEntries = (fields, values) =>
   (fields || []).flatMap((field) => {
-    if (!FILE_FIELD_TYPES.has(canonicalType(field?.field_type))) return [];
+    if (!FILE_FIELD_TYPES.has(resolveType(field))) return [];
     const key = field.field_name || String(field.id || "");
     const fieldId = Number(field.id);
     return realFilesOf(values?.[key]).map((file) => ({
@@ -233,8 +243,7 @@ export const collectFileEntries = (fields, values) =>
     }));
   });
 
-export const isFileField = (field) =>
-  FILE_FIELD_TYPES.has(canonicalType(field?.field_type));
+export const isFileField = (field) => FILE_FIELD_TYPES.has(resolveType(field));
 
 export const fileFieldsOf = (fields) => (fields || []).filter(isFileField);
 
@@ -260,7 +269,7 @@ export const checkFileFields = (fields, values) =>
 /** بررسی پسوند و حجم مجاز پیش از آپلود، بر اساس تنظیمات خودِ فیلد. */
 export const checkFileLimits = (fields, values) =>
   (fields || []).flatMap((field) => {
-    if (!FILE_FIELD_TYPES.has(canonicalType(field?.field_type))) return [];
+    if (!FILE_FIELD_TYPES.has(resolveType(field))) return [];
     const key = field.field_name || String(field.id || "");
     const label = field.field_label || key;
     const allowed = String(field.allowed_extensions || "")
@@ -287,7 +296,6 @@ export const checkFileLimits = (fields, values) =>
       return problems;
     });
   });
-
 
 export const validateFiles = (fields, values) => [
   ...checkFileFields(fields, values),
@@ -317,7 +325,7 @@ export const buildSubmissionPayload = ({
   submitterId,
   stringifyFormData = STRINGIFY_FORM_DATA,
   includeFiles = true,
-  stringifyValues = true,
+  stringifyValues = false,
 }) => {
   const formData = buildFormData(fields, values, {
     includeFiles,

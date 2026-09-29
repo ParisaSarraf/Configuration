@@ -47,6 +47,7 @@ const ProcessCanvas = ({
   onAddEdgeAction,
   onRenameNode,
   onOpenWizard,
+  readOnly = false,
 }) => {
   // ویرایش نام روی خود بوم؛ فقط حالت نمایشی است و دادهٔ گراف را تغییر نمی‌دهد.
   const [editingNodeId, setEditingNodeId] = useState(null);
@@ -130,6 +131,7 @@ const ProcessCanvas = ({
   /** بازکردن منوی راست‌کلیک در محل ماوس؛ همزمان هدف را هم انتخاب می‌کند. */
   const openMenu = useCallback(
     (event, target) => {
+      if (readOnly) return;
       event.preventDefault();
       event.stopPropagation();
       const rect = containerRef.current?.getBoundingClientRect();
@@ -140,7 +142,7 @@ const ProcessCanvas = ({
       });
       onSelect(target);
     },
-    [containerRef, onSelect],
+    [containerRef, onSelect, readOnly],
   );
 
   const closeMenu = useCallback(() => setMenu(null), []);
@@ -262,6 +264,10 @@ const ProcessCanvas = ({
   const handleNodePointerDown = (event, node) => {
     if (event.button !== 0) return;
     event.stopPropagation();
+    if (readOnly) {
+      onSelect({ type: "node", id: node.id });
+      return;
+    }
 
     if (connectFrom) {
       connectDragRef.current = null;
@@ -316,6 +322,7 @@ const ProcessCanvas = ({
 
   const handleDrop = (event) => {
     event.preventDefault();
+    if (readOnly) return;
     const raw = event.dataTransfer.getData(DRAG_TYPE);
     if (!raw) return;
     const point = toSurfacePoint(event.clientX, event.clientY);
@@ -389,8 +396,11 @@ const ProcessCanvas = ({
                     event.stopPropagation();
                     onSelect({ type: "edge", id: edge.id });
                   }}
-                  onContextMenu={(event) =>
-                    openMenu(event, { type: "edge", id: edge.id })
+                  onContextMenu={
+                    readOnly
+                      ? undefined
+                      : (event) =>
+                          openMenu(event, { type: "edge", id: edge.id })
                   }
                 />
                 <path
@@ -440,8 +450,10 @@ const ProcessCanvas = ({
                 event.stopPropagation();
                 onSelect({ type: "edge", id: edge.id });
               }}
-              onContextMenu={(event) =>
-                openMenu(event, { type: "edge", id: edge.id })
+              onContextMenu={
+                readOnly
+                  ? undefined
+                  : (event) => openMenu(event, { type: "edge", id: edge.id })
               }
             >
               {linkedActions.length > 0 ? (
@@ -466,6 +478,8 @@ const ProcessCanvas = ({
                     </span>
                   ) : null}
                 </span>
+              ) : readOnly ? (
+                <span className="process-edge-label__warning">بدون عملیات</span>
               ) : (
                 <button
                   type="button"
@@ -480,7 +494,7 @@ const ProcessCanvas = ({
                 </button>
               )}
 
-              {isSelected ? (
+              {isSelected && !readOnly ? (
                 <button
                   type="button"
                   className="process-edge-label__delete"
@@ -532,17 +546,23 @@ const ProcessCanvas = ({
                 height: NODE_HEIGHT,
               }}
               onPointerDown={(event) => handleNodePointerDown(event, node)}
-              onPointerMove={handleNodePointerMove}
+              onPointerMove={readOnly ? undefined : handleNodePointerMove}
               onPointerUp={(event) => handleNodePointerUp(event, node)}
               onPointerCancel={handleNodePointerUp}
-              onContextMenu={(event) =>
-                openMenu(event, { type: "node", id: node.id })
+              onContextMenu={
+                readOnly
+                  ? undefined
+                  : (event) => openMenu(event, { type: "node", id: node.id })
               }
-              onDoubleClick={(event) => {
-                event.stopPropagation();
-                setEditingNodeId(node.id);
-                setDraftName(node.name ?? "");
-              }}
+              onDoubleClick={
+                readOnly
+                  ? undefined
+                  : (event) => {
+                      event.stopPropagation();
+                      setEditingNodeId(node.id);
+                      setDraftName(node.name ?? "");
+                    }
+              }
             >
               <span className={`process-node__icon ${type.tone.icon}`}>
                 <Icon />
@@ -570,7 +590,9 @@ const ProcessCanvas = ({
                 ) : (
                   <span
                     className="process-node__name"
-                    title="برای تغییر نام، دوبار کلیک کنید"
+                    title={
+                      readOnly ? node.name : "برای تغییر نام، دوبار کلیک کنید"
+                    }
                   >
                     {node.name || "بدون نام"}
                   </span>
@@ -580,7 +602,7 @@ const ProcessCanvas = ({
                 </span>
               </span>
 
-              {isSelected ? (
+              {isSelected && !readOnly ? (
                 <button
                   type="button"
                   className="process-node__delete"
@@ -595,36 +617,38 @@ const ProcessCanvas = ({
                 </button>
               ) : null}
 
-              <button
-                type="button"
-                className="process-node__handle"
-                title={
-                  isConnectSource
-                    ? "برای پایان اتصال، روی مرحله مقصد کلیک کنید"
-                    : "ایجاد مسیر از این مرحله"
-                }
-                onPointerDown={(event) => {
-                  event.stopPropagation();
-                  onSelect({ type: "node", id: node.id });
-                  const next = isConnectSource ? null : node.id;
-                  onStartConnect(next);
-                  // هم‌کلیک پشت‌سر‌هم کار می‌کند و هم درگ تا مرحله مقصد.
-                  connectDragRef.current = next
-                    ? {
-                        source: node.id,
-                        startX: event.clientX,
-                        startY: event.clientY,
-                        moved: false,
-                      }
-                    : null;
-                  setPointer({
-                    x: node.x + NODE_WIDTH / 2,
-                    y: node.y + NODE_HEIGHT,
-                  });
-                }}
-              >
-                <NodeIndexOutlined />
-              </button>
+              {!readOnly ? (
+                <button
+                  type="button"
+                  className="process-node__handle"
+                  title={
+                    isConnectSource
+                      ? "برای پایان اتصال، روی مرحله مقصد کلیک کنید"
+                      : "ایجاد مسیر از این مرحله"
+                  }
+                  onPointerDown={(event) => {
+                    event.stopPropagation();
+                    onSelect({ type: "node", id: node.id });
+                    const next = isConnectSource ? null : node.id;
+                    onStartConnect(next);
+                    // هم‌کلیک پشت‌سر‌هم کار می‌کند و هم درگ تا مرحله مقصد.
+                    connectDragRef.current = next
+                      ? {
+                          source: node.id,
+                          startX: event.clientX,
+                          startY: event.clientY,
+                          moved: false,
+                        }
+                      : null;
+                    setPointer({
+                      x: node.x + NODE_WIDTH / 2,
+                      y: node.y + NODE_HEIGHT,
+                    });
+                  }}
+                >
+                  <NodeIndexOutlined />
+                </button>
+              ) : null}
             </div>
           );
         })}
@@ -633,29 +657,37 @@ const ProcessCanvas = ({
       {graph && graph.nodes.length === 0 ? (
         <div className="process-canvas__empty">
           <p className="process-canvas__empty-title">بوم فرایند خالی است</p>
-          <p className="process-canvas__empty-hint">
-            یکی از این دو راه را انتخاب کنید؛ هر دو را بعداً می‌توانید تغییر
-            دهید.
-          </p>
-          <div className="process-canvas__empty-actions">
-            <button
-              type="button"
-              className="process-canvas__empty-action process-canvas__empty-action--primary"
-              onClick={() => onOpenWizard?.()}
-            >
-              ساخت با الگوی تأیید/رد
-            </button>
-            <button
-              type="button"
-              className="process-canvas__empty-action"
-              onClick={() => onAddNode(STATE_TYPE_IDS.START)}
-            >
-              شروع دستی
-            </button>
-          </div>
-          <p className="process-canvas__empty-note">
-            الگو، مراحل و عملیاتی تأیید و رد را یک‌جا می‌سازد.
-          </p>
+          {readOnly ? (
+            <p className="process-canvas__empty-hint">
+              هنوز مسیری برای این فرایند تعریف نشده است.
+            </p>
+          ) : (
+            <>
+              <p className="process-canvas__empty-hint">
+                یکی از این دو راه را انتخاب کنید؛ هر دو را بعداً می‌توانید تغییر
+                دهید.
+              </p>
+              <div className="process-canvas__empty-actions">
+                <button
+                  type="button"
+                  className="process-canvas__empty-action process-canvas__empty-action--primary"
+                  onClick={() => onOpenWizard?.()}
+                >
+                  ساخت با الگوی تأیید/رد
+                </button>
+                <button
+                  type="button"
+                  className="process-canvas__empty-action"
+                  onClick={() => onAddNode(STATE_TYPE_IDS.START)}
+                >
+                  شروع دستی
+                </button>
+              </div>
+              <p className="process-canvas__empty-note">
+                الگو، مراحل و عملیاتی تأیید و رد را یک‌جا می‌سازد.
+              </p>
+            </>
+          )}
         </div>
       ) : null}
 
@@ -720,7 +752,7 @@ const ProcessCanvas = ({
         </div>
       ) : null}
 
-      {menu ? (
+      {menu && !readOnly ? (
         <div
           className="process-canvas__menu"
           style={{ left: menu.x, top: menu.y }}

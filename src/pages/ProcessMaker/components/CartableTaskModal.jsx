@@ -20,9 +20,14 @@ import {
 } from "@/QueryServises/formsQuery";
 import {
   useCreateRequest,
+  useDoAction,
   useProcessInfo,
+  useTransitionActions,
 } from "@/QueryServises/workflowQuery";
-import { pickProcessInfo } from "@/pages/Processes/ProcessBuilder/processGraph";
+import {
+  buildGraph,
+  pickProcessInfo,
+} from "@/pages/Processes/ProcessBuilder/processGraph";
 import {
   getStateTypeLabel,
   isStartStateType,
@@ -35,6 +40,24 @@ const asArray = (value) => {
   if (Array.isArray(value)) return value;
   if (Array.isArray(value?.results)) return value.results;
   return [];
+};
+
+const entityIdOf = (payload) => {
+  const item = Array.isArray(payload)
+    ? payload[0]
+    : Array.isArray(payload?.results)
+      ? payload.results[0]
+      : Array.isArray(payload?.data)
+        ? payload.data[0]
+        : payload;
+  const value =
+    item?.id ??
+    item?.request_id ??
+    item?.request?.id ??
+    item?.data?.id ??
+    item?.result?.id;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 };
 
 const looksLikeFormDefinition = (record) =>
@@ -91,8 +114,13 @@ const CartableTaskModal = ({
   const processInfoQuery = useProcessInfo(processId, {
     enabled: Boolean(open && processId),
   });
+  const transitionActionsQuery = useTransitionActions({
+    enabled: Boolean(open && processId),
+    staleTime: 60 * 1000,
+  });
   const submitForm = useSubmitForm();
   const createRequest = useCreateRequest();
+  const doAction = useDoAction();
 
   const [done, setDone] = useState(null);
   const [renderToken, setRenderToken] = useState(0);
@@ -117,14 +145,64 @@ const CartableTaskModal = ({
     const info = pickProcessInfo(processInfoQuery.data);
     if (!info) return null;
     const states = asArray(info.process_states);
+    const graph = buildGraph(
+      processInfoQuery.data,
+      asArray(transitionActionsQuery.data),
+    );
+    const startNode = graph?.nodes?.find((state) =>
+      isStartStateType(state.stateTypeId),
+    );
+    const actionById = new Map(
+      (graph?.actions ?? []).map((action) => [String(action.id), action]),
+    );
+    const nodeById = new Map(
+      (graph?.nodes ?? []).map((state) => [String(state.id), state]),
+    );
+    const startActions = (graph?.edges ?? [])
+      .filter((edge) => String(edge.source) === String(startNode?.id))
+      .flatMap((edge) =>
+        (edge.actions ?? []).map((link) => {
+          const action = actionById.get(String(link.actionId));
+          const nextState = nodeById.get(String(edge.target));
+          return {
+            key: `${edge.id}-${link.id ?? link.actionId}`,
+            actionId: action?.id ?? link.actionId,
+            label: action?.name || "ارسال به مرحله بعد",
+            nextStateId: nextState?.id ?? edge.target,
+            nextStateName: nextState?.name || "مرحله بعد",
+          };
+        }),
+      );
     return {
       startState: states.find((state) =>
         isStartStateType(state?.state_type?.id ?? state?.state_type_id),
       ),
       states,
       actions: asArray(info.process_actions),
+      startActions,
     };
-  }, [processInfoQuery.data]);
+  }, [processInfoQuery.data, transitionActionsQuery.data]);
+
+  const submitOptions = useMemo(() => {
+    if (processInfoQuery.isLoading || transitionActionsQuery.isLoading)
+      return [
+        {
+          key: "loading-start-actions",
+          label: "در حال دریافت مسیرهای شروع…",
+          disabled: true,
+        },
+      ];
+    return workflow?.startActions?.length
+      ? workflow.startActions
+      : [
+          {
+            key: "create-at-start",
+            actionId: null,
+            label: "ثبت درخواست",
+            nextStateName: workflow?.startState?.name || "",
+          },
+        ];
+  }, [processInfoQuery.isLoading, transitionActionsQuery.isLoading, workflow]);
 
   const formTitle =
     definition.name ||
@@ -132,7 +210,7 @@ const CartableTaskModal = ({
     processItem?.name ||
     "بدون فرم";
 
-  const submit = async (values) => {
+  const submit = async (values, selectedAction) => {
     try {
       const fileProblems = validateFiles(fields, values);
       if (fileProblems.length) {
@@ -155,11 +233,23 @@ const CartableTaskModal = ({
         submitterId: submitter,
       });
 
-
-      const { submissionId, uploaded, failed, skipped } =
+      const { submissionId, uploaded, failed, skipped, verification } =
         await submitForm.mutateAsync({ payload, files });
 
       const attachmentCount = uploaded?.length ?? 0;
+
+      if (verification?.checked && !verification.ok) {
+        const names = verification.mismatches
+          .map((item) => item.fieldName)
+          .join("، ");
+        throw new Error(
+          `مقدار ذخیره‌شدهٔ این فیلدها با دادهٔ ارسالی یکسان نیست: ${names}`,
+        );
+      }
+      if (submissionId && !verification?.checked)
+        message.warning(
+          "فرم ثبت شد، اما بازخوانی فیلدبه‌فیلد از سرور انجام نشد.",
+        );
 
       if (files.length && !submissionId)
         message.warning(
@@ -179,13 +269,16 @@ const CartableTaskModal = ({
           `${skipped.length} فایل ارسال نشد؛ فیلد مربوطه شناسهٔ معتبری روی سرور ندارد.`,
         );
 
-
       if (!processId) {
-        throw new Error("شناسهٔ فرایند پیدا نشد؛ امکان ثبت درخواست وجود ندارد.");
+        throw new Error(
+          "شناسهٔ فرایند پیدا نشد؛ امکان ثبت درخواست وجود ندارد.",
+        );
       }
 
       if (!submissionId) {
-        throw new Error("شناسهٔ ارسال فرم از سرور دریافت نشد؛ امکان ثبت درخواست وجود ندارد.");
+        throw new Error(
+          "شناسهٔ ارسال فرم از سرور دریافت نشد؛ امکان ثبت درخواست وجود ندارد.",
+        );
       }
 
       // بعد از ثبت موفق submission، مطابق Swagger درخواست فرایند هم ساخته می‌شود:
@@ -196,10 +289,22 @@ const CartableTaskModal = ({
         form_submission_id: Number(submissionId),
         title: formTitle,
       });
-      const requestId = createdRequest?.id ?? null;
+      const requestId = entityIdOf(createdRequest);
+
+      if (selectedAction?.actionId) {
+        if (!requestId)
+          throw new Error(
+            "درخواست ساخته شد، اما شناسهٔ آن برای اجرای عملیات مسیر دریافت نشد.",
+          );
+        await doAction.mutateAsync({
+          request_id: Number(requestId),
+          action_id: Number(selectedAction.actionId),
+        });
+      }
 
       const messageText =
-        definition.success_message || "فرم و درخواست فرایند با موفقیت ثبت شدند.";
+        definition.success_message ||
+        "فرم و درخواست فرایند با موفقیت ثبت شدند.";
 
       setDone(messageText);
       onSubmitted?.({
@@ -211,7 +316,8 @@ const CartableTaskModal = ({
         formName: formTitle,
         submitterId: submitter,
         submitterName: submitterName || "",
-        stateName: workflow?.startState?.name || "",
+        stateName:
+          selectedAction?.nextStateName || workflow?.startState?.name || "",
         fieldCount: Object.keys(formData).length,
         attachmentCount,
         formData,
@@ -310,14 +416,6 @@ const CartableTaskModal = ({
                 ) : (
                   <span>ایستگاه شروع تعیین نشده است.</span>
                 )}
-                {workflow.actions?.length ? (
-                  <>
-                    <span className="font-semibold">عملیات فرایند:</span>
-                    {workflow.actions.slice(0, 5).map((action) => (
-                      <Tag key={action.id}>{action.name}</Tag>
-                    ))}
-                  </>
-                ) : null}
               </div>
             ) : null}
             {definition.description ? (
@@ -343,10 +441,18 @@ const CartableTaskModal = ({
           definition={definition}
           fields={fields}
           mode="fill"
+          showToolbar={false}
+          initialDevice="fluid"
           readOnly={false}
           disabled={false}
-          submitLabel={processId ? "ارسال به فرایند" : "ثبت و ارسال فرم"}
-          submitting={submitForm.isPending}
+          submitLabel="ثبت درخواست"
+          submitOptions={submitOptions}
+          submitSectionTitle="ثبت درخواست در فرایند و انتخاب مسیر اول"
+          submitting={
+            submitForm.isPending ||
+            createRequest.isPending ||
+            doAction.isPending
+          }
           onSubmit={submit}
         />
       </>
