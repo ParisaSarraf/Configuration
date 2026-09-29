@@ -179,6 +179,27 @@ const createSubmission = async (client, payload, signal) => {
   }
 };
 
+const updateSubmission = async (client, id, payload, signal) => {
+  const submissionId = Number(id);
+  if (!Number.isFinite(submissionId) || submissionId <= 0)
+    throw new Error("شناسهٔ ارسال برای بروزرسانی معتبر نیست.");
+
+  const body = cleanSubmissionPayload(payload);
+  const response = await put(
+    client,
+    `/forms/update-form-submission/${submissionId}`,
+    body,
+    signal,
+  );
+  const verification = await verifySavedSubmission(
+    client,
+    submissionId,
+    body.form_data,
+    signal,
+  );
+  return { submissionId, response, verification };
+};
+
 /** شناسهٔ submission را از هر شکلی که سرور برگرداند بیرون می‌کشد. */
 export const resolveSubmissionId = (response) => {
   const direct = extractEntityId(response);
@@ -475,6 +496,7 @@ export const formApi = Object.freeze({
     remove(client, `/forms/delete-form-field/${id}`, signal),
 
   createSubmission,
+  updateSubmission,
   submitForm,
   resolveSubmissionId,
   verifySavedSubmission,

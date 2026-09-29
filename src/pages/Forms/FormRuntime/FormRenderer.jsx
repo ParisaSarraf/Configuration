@@ -244,7 +244,12 @@ export default function FormRenderer({
   };
 
   const check = () => {
-    const found = validateAll(allFields, values);
+    // در فرم‌های مرحله‌ای، فیلدهای قفل‌شده متعلق به مراحل قبل/بعد هستند و
+    // نباید اعتبارسنجی مرحله فعلی را متوقف کنند.
+    const editableFields = allFields.filter(
+      (field) => !lockedIds.has(String(field.id)),
+    );
+    const found = validateAll(editableFields, values);
     setErrors(found);
     const count = Object.keys(found).length;
     setNotice(count ? `${count} فیلد ایراد دارد.` : "همه فیلدها معتبرند.");

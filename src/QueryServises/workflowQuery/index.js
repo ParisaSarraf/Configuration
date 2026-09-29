@@ -16,7 +16,13 @@ export const requestsKey = ["workflow", "requests"];
 export const requestKey = (id) => ["workflow", "request", id];
 export const requestPathKey = (id) => ["workflow", "request", id, "path"];
 export const requestsNeedActionKey = ["workflow", "requests", "need-action"];
-export const processRequestsKey = (id) => ["workflow", "process-requests", id];
+export const processRequestsKey = (id, filters = {}) => [
+  "workflow",
+  "process-requests",
+  id,
+  filters.stateId ?? null,
+  filters.stateType ?? "",
+];
 export const lockedFieldsByRequestKey = (id) => [
   "workflow",
   "request",
@@ -113,11 +119,15 @@ export const useRequestsNeedUserAction = (queryOptions) => {
   });
 };
 
-export const useProcessRequests = (processId, queryOptions) => {
+export const useProcessRequests = (
+  processId,
+  filters = {},
+  queryOptions = {},
+) => {
   const { myAxios } = useMyAxios();
   return useQuery({
-    queryKey: processRequestsKey(processId),
-    queryFn: () => workflowApi.getProcessRequests(myAxios, processId),
+    queryKey: processRequestsKey(processId, filters),
+    queryFn: () => workflowApi.getProcessRequests(myAxios, processId, filters),
     enabled: Boolean(processId),
     ...queryOptions,
   });

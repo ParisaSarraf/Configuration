@@ -1,7 +1,7 @@
-import { Button, Tag, Tooltip } from "antd";
+import { Button, Tooltip } from "antd";
 import { EyeOutlined, PartitionOutlined } from "@ant-design/icons";
 
-const processColumns = ({ page, pageSize = 8, onViewRequests }) => [
+const processColumns = ({ page, pageSize = 8, onViewRequests, onViewPath }) => [
   {
     title: "ردیف",
     key: "index",
@@ -28,41 +28,30 @@ const processColumns = ({ page, pageSize = 8, onViewRequests }) => [
     ),
   },
   {
-    title: "شناسه فرآیند",
-    dataIndex: "id",
-    key: "id",
-    width: 130,
-    align: "center",
-    render: (value) => <Tag color="blue">#{value ?? "—"}</Tag>,
-  },
-  {
-    title: "فرم مرتبط",
-    key: "form_definition",
-    width: 140,
-    align: "center",
-    render: (_value, record) => {
-      const formId =
-        typeof record?.form_definition === "object"
-          ? record.form_definition?.id
-          : record?.form_definition;
-      return formId ? <Tag color="geekblue">فرم #{formId}</Tag> : "—";
-    },
-  },
-  {
-    title: "عملیات",
+    title: "دسترسی سریع",
     key: "operations",
-    width: 220,
+    width: 360,
     align: "center",
     render: (_value, record) => (
-      <Tooltip title="دریافت و نمایش درخواست‌های این فرآیند">
-        <Button
-          type="primary"
-          icon={<EyeOutlined />}
-          onClick={() => onViewRequests?.(record)}
-        >
-          مشاهده درخواست‌ها
-        </Button>
-      </Tooltip>
+      <div className="flex flex-wrap justify-center gap-2">
+        <Tooltip title="نمایش و پیگیری درخواست‌های جاری این فرایند">
+          <Button
+            type="primary"
+            icon={<EyeOutlined />}
+            onClick={() => onViewRequests?.(record)}
+          >
+            مشاهده درخواست‌ها
+          </Button>
+        </Tooltip>
+        <Tooltip title="نمایش مسیر فرایند به‌صورت فقط‌خواندنی">
+          <Button
+            icon={<PartitionOutlined />}
+            onClick={() => onViewPath?.(record)}
+          >
+            مشاهده مسیر
+          </Button>
+        </Tooltip>
+      </div>
     ),
   },
 ];

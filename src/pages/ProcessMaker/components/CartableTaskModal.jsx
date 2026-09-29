@@ -21,6 +21,7 @@ import {
 import {
   useCreateRequest,
   useDoAction,
+  useLockedFieldsByProcessId,
   useProcessInfo,
   useTransitionActions,
 } from "@/QueryServises/workflowQuery";
@@ -118,6 +119,9 @@ const CartableTaskModal = ({
     enabled: Boolean(open && processId),
     staleTime: 60 * 1000,
   });
+  const processLocksQuery = useLockedFieldsByProcessId(processId, {
+    enabled: Boolean(open && processId),
+  });
   const submitForm = useSubmitForm();
   const createRequest = useCreateRequest();
   const doAction = useDoAction();
@@ -148,6 +152,7 @@ const CartableTaskModal = ({
     const graph = buildGraph(
       processInfoQuery.data,
       asArray(transitionActionsQuery.data),
+      processLocksQuery.data,
     );
     const startNode = graph?.nodes?.find((state) =>
       isStartStateType(state.stateTypeId),
@@ -180,8 +185,13 @@ const CartableTaskModal = ({
       states,
       actions: asArray(info.process_actions),
       startActions,
+      startLockedFieldIds: startNode?.lockedFieldIds ?? [],
     };
-  }, [processInfoQuery.data, transitionActionsQuery.data]);
+  }, [
+    processInfoQuery.data,
+    processLocksQuery.data,
+    transitionActionsQuery.data,
+  ]);
 
   const submitOptions = useMemo(() => {
     if (processInfoQuery.isLoading || transitionActionsQuery.isLoading)
@@ -447,6 +457,7 @@ const CartableTaskModal = ({
           disabled={false}
           submitLabel="ثبت درخواست"
           submitOptions={submitOptions}
+          lockedFieldIds={workflow?.startLockedFieldIds ?? []}
           submitSectionTitle="ثبت درخواست در فرایند و انتخاب مسیر اول"
           submitting={
             submitForm.isPending ||

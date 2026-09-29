@@ -100,6 +100,21 @@ export const useCreateFormSubmission = () => {
   });
 };
 
+export const useUpdateFormSubmission = () => {
+  const { myAxios } = useMyAxios();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }) =>
+      formApi.updateSubmission(myAxios, id, payload),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: useFormSubmissionByIdKey(variables.id),
+      });
+      queryClient.invalidateQueries({ queryKey: formSubmissionsKey });
+    },
+  });
+};
+
 /**
  * ارسال کامل فرم در یک mutation (همان مسیر دومرحله‌ای رسمی):
  *   1) POST /forms/add-form-submission/            — JSON، بدون هیچ فایلی

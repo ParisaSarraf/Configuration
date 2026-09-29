@@ -74,7 +74,6 @@ const ProcessMakerCartable = () => {
   const [tab, setTab] = useState(TABS.TODO);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [submissionPreview, setSubmissionPreview] = useState(null);
 
   const processTabIsVisible = tab === TABS.TODO || tab === TABS.PROCESSES;
   const sentTabIsVisible = tab === TABS.SENT;
@@ -188,11 +187,6 @@ const ProcessMakerCartable = () => {
   };
 
   const openSubmissionModal = (record) => {
-    if (modalType === MODAL_TYPES.PROCESS_REQUESTS) {
-      setSubmissionPreview(record);
-      return;
-    }
-
     setModal({
       type: MODAL_TYPES.CARTABLE_SUBMISSION,
       mode: "view",
@@ -200,12 +194,7 @@ const ProcessMakerCartable = () => {
     });
   };
 
-  const closeSubmissionPreview = () => {
-    setSubmissionPreview(null);
-  };
-
   const openProcessRequestsModal = (record) => {
-    setSubmissionPreview(null);
     setModal({
       type: MODAL_TYPES.PROCESS_REQUESTS,
       mode: "view",
@@ -222,7 +211,6 @@ const ProcessMakerCartable = () => {
   };
 
   const closeProcessRequestsModal = () => {
-    setSubmissionPreview(null);
     closeModal();
   };
 
@@ -236,7 +224,6 @@ const ProcessMakerCartable = () => {
   const isTodo = tab === TABS.TODO;
   const isSent = tab === TABS.SENT;
   const isProcesses = tab === TABS.PROCESSES;
-  const isEndProcesses = tab === TABS.ENDPROCESSES;
   const dataSource =
     (isTodo ? filteredTodo : isSent ? filteredSent : filteredProcesses) || [];
 
@@ -267,6 +254,7 @@ const ProcessMakerCartable = () => {
         page,
         pageSize: PAGE_SIZE,
         onViewRequests: openProcessRequestsModal,
+        onViewPath: openProcessPathModal,
       }),
     [page],
   );
@@ -355,7 +343,7 @@ const ProcessMakerCartable = () => {
                   icon: <InboxOutlined />,
                 },
                 {
-                  label: "فرآیند ها",
+                  label: "درخواست‌های جاری",
                   value: TABS.PROCESSES,
                   icon: <PartitionOutlined />,
                 },
@@ -378,7 +366,7 @@ const ProcessMakerCartable = () => {
                   ? "فهرست فرایندهای قابل ثبت درخواست"
                   : isSent
                     ? "رسید ارسال‌های من"
-                    : "درخواست‌های هر فرآیند"}
+                    : "درخواست‌های جاری به تفکیک فرایند"}
               </h2>
               <span className="text-xs text-slate-500 dark:text-slate-400">
                 {dataSource.length} مورد
@@ -409,6 +397,29 @@ const ProcessMakerCartable = () => {
               </Tooltip>
             </div>
           </div>
+
+          {isProcesses ? (
+            <div className="mb-4 grid gap-3 rounded-2xl border border-blue-100 bg-gradient-to-l from-blue-50 to-slate-50 p-4 sm:grid-cols-[1fr_auto] sm:items-center dark:border-blue-900/60 dark:from-blue-950/30 dark:to-slate-900">
+              <div>
+                <div className="flex items-center gap-2 font-bold text-slate-800 dark:text-slate-100">
+                  <PartitionOutlined className="text-blue-500" />
+                  مدیریت درخواست‌های در جریان
+                </div>
+                <p className="mt-1 mb-0 text-xs leading-6 text-slate-500 dark:text-slate-400">
+                  یک فرایند را انتخاب کنید تا مرحله فعلی درخواست‌ها را ببینید،
+                  فرم همان مرحله را تکمیل کنید و با Action مناسب ارجاع دهید.
+                </p>
+              </div>
+              <div className="rounded-xl bg-white px-4 py-2 text-center shadow-sm dark:bg-slate-800">
+                <div className="text-lg font-extrabold text-blue-600">
+                  {filteredProcesses.length.toLocaleString("fa-IR")}
+                </div>
+                <div className="text-[10px] text-slate-400">
+                  فرایند قابل پیگیری
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           {hasError ? (
             <Alert
@@ -445,7 +456,7 @@ const ProcessMakerCartable = () => {
                     isTodo
                       ? "فرایندی برای شروع موجود نیست."
                       : isSent
-                        ? "هنوز فرمی ارسال نکرده‌��ید."
+                        ? "هنوز فرمی ارسال نکرده‌اید."
                         : "فرایندی برای نمایش موجود نیست."
                   }
                 />
@@ -479,7 +490,6 @@ const ProcessMakerCartable = () => {
           open={isOpen}
           process={modalData}
           onClose={closeProcessRequestsModal}
-          onViewSubmission={openSubmissionModal}
         />
       )}
 
@@ -488,15 +498,6 @@ const ProcessMakerCartable = () => {
           open={isOpen}
           process={modalData}
           onClose={closeModal}
-        />
-      )}
-
-      {modalType === MODAL_TYPES.PROCESS_REQUESTS && submissionPreview && (
-        <CartableSubmissionModal
-          open={Boolean(submissionPreview)}
-          record={submissionPreview}
-          onClose={closeSubmissionPreview}
-          zIndex={1200}
         />
       )}
     </div>
