@@ -15,7 +15,7 @@ export const SerialListCol = (handleEditProductSerial, handleDeleteProductSerial
         width: 200,
     },
     {
-        title: 'کارفرما',
+        title: 'کارفرما/پیمانکار',
         dataIndex: ['contractor','name'],
         key: 'contractor',
     },
