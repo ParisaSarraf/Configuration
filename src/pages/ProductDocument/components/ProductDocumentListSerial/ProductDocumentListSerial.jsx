@@ -16,7 +16,11 @@ import {
   useDeleteProductEditionlog,
   usePatchDocumentEditionLog,
 } from "@/QueryServises/productDocumentEditionLogQuery/index.js";
-import { DeleteOutlined, EyeFilled, CheckCircleOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EyeFilled,
+  CheckCircleOutlined,
+} from "@ant-design/icons";
 import { BASEURL } from "@/Services/axiosInstance.js";
 import { TableAntd } from "../../../../components/TableAntd/TableAntd";
 import { canViewDocumentFiles } from "@/utils/ExportFromToken.js";
@@ -84,6 +88,13 @@ const DocumentsTable = ({ documents, onDelete, onView, onConfirm }) => {
   const documentColumns = useMemo(
     () => [
       {
+        title: "عنوان سند",
+        key: "document_title",
+        onCell: (record) => ({ rowSpan: record.editionRowSpan }),
+        render: (_, record) => record.document?.englishTitle || "--",
+      },
+
+      {
         title: "کد سند",
         key: "edition_full_code",
         onCell: (record) => ({ rowSpan: record.editionRowSpan }),
@@ -91,27 +102,11 @@ const DocumentsTable = ({ documents, onDelete, onView, onConfirm }) => {
           record.editionData?.full_code ? record.editionData?.full_code : "--",
       },
       {
-        title: "فایل",
-        dataIndex: ["logData", "file"],
-        key: "log_file",
-        render: (fileUrl, record) =>
-          fileUrl ? (
-            <a
-              href={`${BASEURL.replace("/api/v1", "")}${fileUrl}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(event) => {
-                if (!canViewDocumentFiles(record.editionData?.state)) {
-                  event.preventDefault();
-                  showAccessError();
-                }
-              }}
-            >
-              مشاهده
-            </a>
-          ) : (
-            "ندارد"
-          ),
+        title: "تاریخ تهیه",
+        key: "edition_full_code",
+        onCell: (record) => ({ rowSpan: record.editionRowSpan }),
+        render: (_, record) =>
+          record.editionData?.full_code ? record.editionData?.full_code : "--",
       },
       {
         title: "عملیات",
@@ -151,6 +146,8 @@ const DocumentsTable = ({ documents, onDelete, onView, onConfirm }) => {
     ],
     [onDelete, onView, onConfirm],
   );
+
+  console.log(documentData);
 
   return (
     <TableAntd
@@ -243,7 +240,6 @@ const ProductDocumentListSerial = ({
     },
     [deleteProductEditionlog, refetchProductDocumentData],
   );
-
 
   const handleConfirmDocument = useCallback(
     (record) => {
