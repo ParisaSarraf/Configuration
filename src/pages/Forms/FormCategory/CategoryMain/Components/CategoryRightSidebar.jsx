@@ -1,9 +1,3 @@
-/* eslint-disable react/prop-types */
-// =====================================================================
-// پیش‌نمایش فرم در ستون سوم صفحهٔ دسته‌بندی‌ها.
-// همان برگهٔ A4 با مقیاس خودکار (مشابه پیش‌نمایش PDF).
-// =====================================================================
-
 import { useMemo } from "react";
 import { useFormDefinitionFieldById } from "../../../../../QueryServises/formsQuery";
 import FormPaperPreview from "../../../FormRuntime/FormPaperPreview";

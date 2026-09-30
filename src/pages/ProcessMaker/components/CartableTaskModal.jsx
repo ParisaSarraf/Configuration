@@ -231,10 +231,10 @@ const CartableTaskModal = ({
       const files = collectFileEntries(fields, values);
 
       const formData = buildFormData(fields, values);
-      if (!Object.keys(formData).length && !files.length) {
-        message.warning("داده‌ای برای ارسال وجود ندارد؛ ابتدا فرم را پر کنید.");
-        return;
-      }
+      // if (!Object.keys(formData).length && !files.length) {
+      //   message.warning("داده‌ای برای ارسال وجود ندارد؛ ابتدا فرم را پر کنید.");
+      //   return;
+      // }
 
       const payload = buildSubmissionPayload({
         formDefinitionId,

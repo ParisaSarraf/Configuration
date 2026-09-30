@@ -8,6 +8,9 @@ import FormDefinitionCategoryDetail from "../../FormDefinition/Components/FormDe
 import { useLocation, useNavigate } from "react-router-dom";
 import { openFormStudio } from "../../FormBuilderStudio/formStudioNavigation";
 import { Eye, FileSpreadsheet, FolderTree, Inbox } from "lucide-react";
+import { Button, Tooltip } from "antd";
+import { FormOutlined, PlusOutlined } from "@ant-design/icons";
+import FormDefinitionModal from "../../FormDefinition/Components/FormDefinitionModal";
 
 const CategoryMain = ({
   category = [],
@@ -54,6 +57,7 @@ const CategoryMain = ({
   const handlePreview = (record) => {
     setFormId(record.id);
   };
+
 
   const columns = FormDefinitionCols({
     handleEdit,
@@ -126,9 +130,10 @@ const CategoryMain = ({
               </div>
             </div>
 
-            <span className="rounded-full bg-indigo-600 px-3 py-1 text-[11px] font-bold text-white shadow-sm">
-              {forms.length} فرم
-            </span>
+              <span className="rounded-full bg-indigo-600 px-3 py-1 text-[11px] font-bold text-white shadow-sm">
+                {forms.length} فرم
+              </span>
+          
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto p-4">
@@ -152,8 +157,8 @@ const CategoryMain = ({
                   هیچ فرمی در این دسته‌بندی وجود ندارد.
                 </div>
                 <div className="text-xs text-slate-500">
-                  برای ایجاد فرم جدید، از آیکن «افزودن فرم» روی دسته‌بندی
-                  اقدام کنید.
+                  برای ایجاد فرم جدید، از آیکن «افزودن فرم» روی دسته‌بندی اقدام
+                  کنید.
                 </div>
               </div>
             )}
