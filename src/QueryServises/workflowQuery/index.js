@@ -5,6 +5,7 @@ import { syncProcessGraph } from "../../Services/workflow/workflowPayloads";
 
 export const processListKey = ["workflow", "processes"];
 export const processInfoKey = (id) => ["workflow", "process", id];
+export const processKpiKey = (id) => ["workflow", "process", id, "kpi"];
 export const processStateReportKey = (id) => [
   "workflow",
   "process",
@@ -57,6 +58,18 @@ export const useProcessInfo = (id, queryOptions) => {
     queryKey: processInfoKey(id),
     queryFn: () => workflowApi.getProcessInfo(myAxios, id),
     enabled: Boolean(id),
+    ...queryOptions,
+  });
+};
+
+export const useProcessKpi = (id, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: processKpiKey(id),
+    queryFn: () => workflowApi.getProcessKpi(myAxios, id),
+    enabled: Boolean(id),
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: true,
     ...queryOptions,
   });
 };
@@ -166,11 +179,15 @@ export const useCreateRequest = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload) => workflowApi.createRequest(myAxios, payload),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: requestsKey });
       queryClient.invalidateQueries({
         queryKey: ["workflow", "requests", "need-action"],
       });
+      if (variables?.process_id)
+        queryClient.invalidateQueries({
+          queryKey: processKpiKey(variables.process_id),
+        });
     },
   });
 };
@@ -187,6 +204,9 @@ export const useDoAction = () => {
       });
       queryClient.invalidateQueries({
         queryKey: ["workflow", "process-requests"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["workflow", "process"],
       });
       if (variables?.request_id)
         queryClient.invalidateQueries({

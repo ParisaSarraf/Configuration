@@ -28,7 +28,7 @@ import {
 import {
   useLockedFieldsByProcessId,
   useProcessInfo,
-  useProcessRequests,
+  useProcessKpi,
   useSaveProcessGraph,
   useTransitionActions,
 } from "@/QueryServises/workflowQuery";
@@ -61,7 +61,6 @@ import {
   STATE_TYPE_IDS,
   ZOOM_STEP,
   getStateType,
-  isTerminalStateType,
 } from "./processSchema";
 import { buildIssueTargets } from "./processIssues";
 import "./process-builder.css";
@@ -71,47 +70,32 @@ const PROCESS_SELECTION = { type: "process", id: null };
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
-const asArray = (value) => (Array.isArray(value) ? value : []);
+const processKpiOf = (payload) => {
+  const value = payload?.data ?? payload?.results ?? payload;
+  return Array.isArray(value) ? (value[0] ?? null) : (value ?? null);
+};
 
-const processRequestsOf = (payload) => {
-  const data = payload?.data ?? payload?.results ?? payload;
-  return asArray(data).flatMap((item) =>
-    Array.isArray(item?.requests)
-      ? item.requests
-      : item?.current_state || item?.current_state_id
-        ? [item]
-        : [],
+const countOf = (value) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+};
+
+const openRequestCountOf = (payload) => {
+  const kpi = processKpiOf(payload);
+  if (!kpi) return 0;
+
+  // منبع اصلی درخواست باز در قرارداد KPI.
+  if (kpi.count_of_normal_request != null)
+    return countOf(kpi.count_of_normal_request);
+
+  // fallback برای نسخه‌هایی که normal را برنمی‌گردانند.
+  return Math.max(
+    0,
+    countOf(kpi.count_of_request) -
+      countOf(kpi.count_of_completed_request) -
+      countOf(kpi.count_of_denied_request),
   );
 };
-
-const requestIsTerminal = (request) => {
-  const type = request?.current_state?.state_type;
-  const typeId =
-    type?.id ??
-    request?.current_state?.state_type_id ??
-    request?.current_state_type_id;
-  if (typeId !== undefined && typeId !== null)
-    return isTerminalStateType(typeId);
-
-  const label = String(type?.name ?? request?.state_type ?? "")
-    .trim()
-    .toLowerCase();
-  return [
-    "complete",
-    "completed",
-    "denied",
-    "rejected",
-    "cancelled",
-    "canceled",
-    "پایان",
-    "تکمیل شده",
-    "رد شده",
-    "لغو شده",
-  ].some((terminalLabel) => label.includes(terminalLabel));
-};
-
-const hasOpenProcessRequests = (payload) =>
-  processRequestsOf(payload).some((request) => !requestIsTerminal(request));
 
 const Builder = ({ processId }) => {
   const navigate = useNavigate();
@@ -134,9 +118,9 @@ const Builder = ({ processId }) => {
   });
 
   const infoQuery = useProcessInfo(processId);
+  const processKpiQuery = useProcessKpi(processId);
   const linksQuery = useTransitionActions();
   const processLocksQuery = useLockedFieldsByProcessId(processId);
-  const processRequestsQuery = useProcessRequests(processId);
   const groupsQuery = useRoleList();
   const saveMutation = useSaveProcessGraph();
 
@@ -149,10 +133,20 @@ const Builder = ({ processId }) => {
     }));
   }, [groupsQuery.data]);
 
-  const hasOpenRequests = useMemo(
-    () => hasOpenProcessRequests(processRequestsQuery.data),
-    [processRequestsQuery.data],
+  const openRequestCount = useMemo(
+    () => openRequestCountOf(processKpiQuery.data),
+    [processKpiQuery.data],
   );
+  const hasOpenRequests = openRequestCount > 0;
+  const kpiUnavailable = processKpiQuery.isError;
+  const editingLocked =
+    processKpiQuery.isLoading || kpiUnavailable || hasOpenRequests;
+
+  useEffect(() => {
+    if (!editingLocked) return;
+    setWizardOpen(false);
+    setConnectFrom(null);
+  }, [editingLocked]);
 
   /* --------------------------- تاریخچه و state --------------------------- */
 
@@ -169,6 +163,7 @@ const Builder = ({ processId }) => {
   }, []);
 
   const pushHistory = useCallback(() => {
+    if (editingLocked) return;
     const current = graphRef.current;
     if (!current) return;
     historyRef.current = {
@@ -179,7 +174,7 @@ const Builder = ({ processId }) => {
     };
     coalesceRef.current = { key: null, at: 0 };
     syncHistoryMeta();
-  }, [syncHistoryMeta]);
+  }, [editingLocked, syncHistoryMeta]);
 
   /**
    * تغییر نمودار همراه با ثبت تاریخچه.
@@ -187,6 +182,7 @@ const Builder = ({ processId }) => {
    */
   const updateGraph = useCallback(
     (recipe, coalesceKey) => {
+      if (editingLocked) return;
       const current = graphRef.current;
       if (!current) return;
       const next = typeof recipe === "function" ? recipe(current) : recipe;
@@ -212,10 +208,11 @@ const Builder = ({ processId }) => {
       syncHistoryMeta();
       applyGraph(next);
     },
-    [applyGraph, syncHistoryMeta],
+    [applyGraph, editingLocked, syncHistoryMeta],
   );
 
   const undo = useCallback(() => {
+    if (editingLocked) return;
     const { past, future } = historyRef.current;
     const current = graphRef.current;
     if (!past.length || !current) return;
@@ -228,9 +225,10 @@ const Builder = ({ processId }) => {
     syncHistoryMeta();
     setConnectFrom(null);
     applyGraph(previous);
-  }, [applyGraph, syncHistoryMeta]);
+  }, [applyGraph, editingLocked, syncHistoryMeta]);
 
   const redo = useCallback(() => {
+    if (editingLocked) return;
     const { past, future } = historyRef.current;
     const current = graphRef.current;
     if (!future.length || !current) return;
@@ -243,7 +241,7 @@ const Builder = ({ processId }) => {
     syncHistoryMeta();
     setConnectFrom(null);
     applyGraph(next);
-  }, [applyGraph, syncHistoryMeta]);
+  }, [applyGraph, editingLocked, syncHistoryMeta]);
 
   /* ------------------------------- بوم ------------------------------- */
 
@@ -381,6 +379,7 @@ const Builder = ({ processId }) => {
 
   /** چیدمان خودکار مراحل بر اساس مسیر فرایند، بعد نمایش کامل بوم. */
   const handleAutoLayout = useCallback(() => {
+    if (editingLocked) return;
     const current = graphRef.current;
     if (!current || current.nodes.length === 0) return;
 
@@ -389,7 +388,7 @@ const Builder = ({ processId }) => {
     updateGraph(() => positioned);
     writeStoredPositions(processId, positioned.nodes);
     window.requestAnimationFrame(() => fitToScreen(positioned));
-  }, [updateGraph, fitToScreen, processId]);
+  }, [editingLocked, updateGraph, fitToScreen, processId]);
 
   /** تکرار یک مرحله با همان نوع و متن، کمی پایین‌تر از نسخه‌ی اصلی. */
   const handleDuplicateNode = useCallback(
@@ -616,6 +615,7 @@ const Builder = ({ processId }) => {
 
   const handleNodeMove = useCallback(
     (nodeId, point) => {
+      if (editingLocked) return;
       const current = graphRef.current;
       if (!current) return;
       applyGraph({
@@ -627,13 +627,14 @@ const Builder = ({ processId }) => {
         ),
       });
     },
-    [applyGraph],
+    [applyGraph, editingLocked],
   );
 
   const handleNodeMoveEnd = useCallback(() => {
+    if (editingLocked) return;
     const current = graphRef.current;
     if (current) writeStoredPositions(processId, current.nodes);
-  }, [processId]);
+  }, [editingLocked, processId]);
 
   const handleConnect = useCallback(
     (sourceId, targetId) => {
@@ -742,16 +743,17 @@ const Builder = ({ processId }) => {
     const baseline = baselineRef.current;
     if (!current || !baseline || saveMutation.isPending) return;
 
-    const requestsResult = await processRequestsQuery.refetch();
-    if (requestsResult.isError) {
+    const kpiResult = await processKpiQuery.refetch();
+    if (kpiResult.isError) {
       message.error(
         "امکان بررسی درخواست‌های باز وجود ندارد؛ برای جلوگیری از تغییر اشتباه، ذخیره انجام نشد.",
       );
       return;
     }
-    if (hasOpenProcessRequests(requestsResult.data)) {
+    const latestOpenRequestCount = openRequestCountOf(kpiResult.data);
+    if (latestOpenRequestCount > 0) {
       message.error(
-        "این فرایند درخواست باز دارد و تا رسیدن همه‌ی درخواست‌ها به مرحله پایانی قابل ویرایش نیست.",
+        `این فرایند ${latestOpenRequestCount.toLocaleString("fa-IR")} درخواست باز دارد و تا بسته‌شدن آن‌ها قابل تغییر نیست.`,
       );
       return;
     }
@@ -830,7 +832,7 @@ const Builder = ({ processId }) => {
     message,
     modal,
     processId,
-    processRequestsQuery,
+    processKpiQuery,
     reloadFromServer,
     saveMutation,
   ]);
@@ -932,6 +934,7 @@ const Builder = ({ processId }) => {
     (infoQuery.isLoading ||
       linksQuery.isLoading ||
       processLocksQuery.isLoading ||
+      processKpiQuery.isLoading ||
       !graph) &&
     !infoQuery.isError &&
     !linksQuery.isError &&
@@ -990,10 +993,27 @@ const Builder = ({ processId }) => {
               تغییرات ذخیره‌نشده
             </Tag>
           ) : null}
-          {hasOpenRequests ? (
-            <Tooltip title="تا زمانی که درخواست‌ها به مرحله پایانی نرسیده‌اند، ساختار فرایند قابل تغییر نیست.">
-              <Tag color="error" className="process-builder__dirty-tag">
-                ویرایش قفل است · درخواست باز
+          {!kpiUnavailable && !processKpiQuery.isLoading ? (
+            <Tooltip
+              title={
+                hasOpenRequests
+                  ? "تا زمانی که درخواست‌ها به مرحله پایانی نرسیده‌اند، ساختار فرایند قابل تغییر نیست."
+                  : "این فرایند درخواست باز ندارد و قابل ویرایش است."
+              }
+            >
+              <Tag
+                color={hasOpenRequests ? "error" : "success"}
+                className="process-builder__dirty-tag"
+              >
+                {hasOpenRequests ? "ویرایش قفل است · " : ""}
+                {openRequestCount.toLocaleString("fa-IR")} درخواست باز
+              </Tag>
+            </Tooltip>
+          ) : null}
+          {kpiUnavailable ? (
+            <Tooltip title="وضعیت درخواست‌های باز از سرور دریافت نشد؛ ویرایش برای جلوگیری از تغییر اشتباه قفل شده است.">
+              <Tag color="warning" className="process-builder__dirty-tag">
+                ویرایش قفل است · KPI در دسترس نیست
               </Tag>
             </Tooltip>
           ) : null}
@@ -1015,7 +1035,7 @@ const Builder = ({ processId }) => {
             <Button
               icon={<UndoOutlined />}
               onClick={undo}
-              disabled={!historyMeta.canUndo}
+              disabled={!historyMeta.canUndo || editingLocked}
               className="process-builder__icon-button"
             />
           </Tooltip>
@@ -1023,7 +1043,7 @@ const Builder = ({ processId }) => {
             <Button
               icon={<RedoOutlined />}
               onClick={redo}
-              disabled={!historyMeta.canRedo}
+              disabled={!historyMeta.canRedo || editingLocked}
               className="process-builder__icon-button"
             />
           </Tooltip>
@@ -1055,7 +1075,7 @@ const Builder = ({ processId }) => {
               ghost
               icon={<Wand2 size={16} />}
               onClick={() => setWizardOpen(true)}
-              disabled={!graph || saveMutation.isPending || hasOpenRequests}
+              disabled={!graph || saveMutation.isPending || editingLocked}
               className="process-builder__wizard-button"
             >
               ساخت سریع
@@ -1070,7 +1090,7 @@ const Builder = ({ processId }) => {
                 {
                   key: "layout",
                   label: "چیدمان خودکار مراحل",
-                  disabled: !graph || graph.nodes.length === 0,
+                  disabled: !graph || graph.nodes.length === 0 || editingLocked,
                   onClick: handleAutoLayout,
                 },
                 {
@@ -1090,7 +1110,7 @@ const Builder = ({ processId }) => {
             type="primary"
             icon={<Save size={16} />}
             loading={saveMutation.isPending}
-            disabled={!graph || !isDirty}
+            disabled={!graph || !isDirty || editingLocked}
             onClick={handleSave}
             className="process-builder__save"
           >
@@ -1102,7 +1122,7 @@ const Builder = ({ processId }) => {
       <div className="process-builder__body">
         <ProcessToolbox
           onAddNode={handleAddNode}
-          disabled={!graph || saveMutation.isPending || hasOpenRequests}
+          disabled={!graph || saveMutation.isPending || editingLocked}
           nodes={graph?.nodes ?? []}
           onFocusNode={handleFocusNode}
         />
@@ -1144,11 +1164,15 @@ const Builder = ({ processId }) => {
               onOpenWizard={() => setWizardOpen(true)}
             />
           )}
-          {hasOpenRequests && !isLoading ? (
+          {editingLocked && !isLoading ? (
             <div className="process-builder__locked-canvas" role="status">
               <div className="process-builder__locked-message">
                 <strong>ویرایش فرایند قفل است</strong>
-                <span>این فرایند حداقل یک درخواست باز دارد.</span>
+                <span>
+                  {hasOpenRequests
+                    ? `این فرایند ${openRequestCount.toLocaleString("fa-IR")} درخواست باز دارد.`
+                    : "امکان بررسی KPI درخواست‌های باز وجود ندارد."}
+                </span>
               </div>
             </div>
           ) : null}
@@ -1172,7 +1196,7 @@ const Builder = ({ processId }) => {
           onAddEdgeAction={handleAddEdgeAction}
           onFocusNode={handleFocusNode}
           issueTargets={issueTargets}
-          disabled={saveMutation.isPending || hasOpenRequests}
+          disabled={saveMutation.isPending || editingLocked}
         />
       </div>
     </div>
