@@ -211,7 +211,9 @@ const CartableTaskModal = ({
       states,
       actions: asArray(info.process_actions),
       startActions,
-      startLockedFieldIds: startNode?.lockedFieldIds ?? [],
+      // قانون قفل مرحله شروع بعد از خروج از آن فعال می‌شود؛ فرمِ خود مرحله
+      // شروع باید هنگام ثبت درخواست قابل تکمیل باشد.
+      startLockedFieldIds: [],
     };
   }, [
     processInfoQuery.data,

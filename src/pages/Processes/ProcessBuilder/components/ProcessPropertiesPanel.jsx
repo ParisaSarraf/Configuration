@@ -520,12 +520,13 @@ const ProcessPropertiesPanel = ({
         <div className="process-panel__section">
           <div className="process-panel__section-head">
             <span className="process-panel__section-title">
-              فیلدهای قفل‌شده فرم
+              فیلدهایی که بعد از این مرحله قفل می‌شوند
             </span>
           </div>
           <p className="process-panel__hint">
-            فیلدهایی که اینجا انتخاب شوند، از ورود درخواست به این مرحله به بعد
-            برای تمام ادامه مسیر قفل و غیرقابل ویرایش باقی می‌مانند.
+            فیلدهای انتخاب‌شده در خود این مرحله قابل ویرایش‌اند؛ پس از خروج از
+            این مرحله قفل می‌شوند و در تمام مراحل بعدی غیرقابل ویرایش باقی
+            می‌مانند.
           </p>
           {fieldOptions(graph.formFields).length === 0 ? (
             <p className="process-panel__note">

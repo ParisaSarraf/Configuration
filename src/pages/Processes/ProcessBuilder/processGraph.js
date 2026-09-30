@@ -406,14 +406,17 @@ export const findAction = (graph, actionId) =>
   null;
 
 /**
- * قفل فیلد از مرحله‌ای که تعریف شده به بعد ماندگار است.
- * برای مرحله جاری، قفل‌های خود مرحله و همه مراحل بالادستی جمع می‌شوند.
+ * قانون قفلِ یک مرحله بعد از خروج از همان مرحله فعال می‌شود.
+ * بنابراین در مرحله جاری فقط قفل‌های مراحل بالادستی (بدون خود مرحله جاری)
+ * جمع می‌شوند و در تمام ادامه مسیر ماندگار می‌مانند.
  */
 export const cumulativeLockedFieldIds = (graph, currentStateId) => {
   if (!graph || currentStateId == null) return [];
 
-  const ancestors = new Set([String(currentStateId)]);
-  const queue = [String(currentStateId)];
+  const currentId = String(currentStateId);
+  const ancestors = new Set();
+  const visited = new Set([currentId]);
+  const queue = [currentId];
 
   while (queue.length) {
     const targetId = queue.shift();
@@ -421,7 +424,8 @@ export const cumulativeLockedFieldIds = (graph, currentStateId) => {
       .filter((edge) => String(edge.target) === targetId)
       .forEach((edge) => {
         const sourceId = String(edge.source);
-        if (ancestors.has(sourceId)) return;
+        if (visited.has(sourceId)) return;
+        visited.add(sourceId);
         ancestors.add(sourceId);
         queue.push(sourceId);
       });

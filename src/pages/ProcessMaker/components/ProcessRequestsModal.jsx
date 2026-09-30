@@ -93,6 +93,14 @@ const lockedFieldIdOf = (item) =>
   item?.id ??
   null;
 
+const pathStateIdOf = (item) =>
+  item?.state?.id ??
+  item?.state_id ??
+  item?.process_state?.id ??
+  item?.process_state_id ??
+  item?.id ??
+  null;
+
 const readTransitions = (request, process, fallbackProcess) =>
   asArray(request?.current_state?.transitions).flatMap((transition) => {
     const actionLinks = asArray(transition?.actions);
@@ -289,17 +297,17 @@ export const RequestWorkPanel = ({ record, onCompleted }) => {
       .filter((id) => id != null)
       .map(String);
     const graph = buildGraph(processInfoQuery.data, [], processLocksQuery.data);
-    const visitedStateIds = new Set(
-      [
-        ...asArray(requestPathQuery.data).map((state) => state?.id),
-        record.currentStateId,
-      ]
-        .filter((id) => id != null)
+    const currentStateId = String(record.currentStateId);
+    const previousStateIds = new Set(
+      asArray(requestPathQuery.data)
+        .map(pathStateIdOf)
+        .filter((id) => id != null && String(id) !== String(currentStateId))
         .map(String),
     );
     const inheritedLocks = asArray(requestPathQuery.data).length
       ? (graph?.nodes ?? [])
-          .filter((node) => visitedStateIds.has(String(node.id)))
+          // قانون مرحله جاری بعد از خروج از آن فعال می‌شود، نه هنگام ورود.
+          .filter((node) => previousStateIds.has(String(node.id)))
           .flatMap((node) => (node.lockedFieldIds ?? []).map(String))
       : cumulativeLockedFieldIds(graph, record.currentStateId);
     return Array.from(new Set([...requestLocks, ...inheritedLocks]));
@@ -427,8 +435,8 @@ export const RequestWorkPanel = ({ record, onCompleted }) => {
     <div className="space-y-3">
       <div className="rounded-xl border border-slate-200 bg-white p-3 text-xs leading-6 text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
         فیلدهای باز این مرحله را تکمیل کنید و سپس یکی از عملیات پایین فرم را
-        انتخاب کنید. هر فیلدی که در یکی از مراحل قبلی قفل شده باشد، از آن مرحله
-        به بعد به‌صورت ماندگار غیرقابل ویرایش است.
+        انتخاب کنید. قانون قفلِ خود مرحله بعد از خروج از آن فعال می‌شود و در
+        تمام مراحل بعدی به‌صورت ماندگار باقی می‌ماند.
       </div>
       <FormRenderer
         key={`request-${record.requestId}-state-${record.currentStateId}`}
