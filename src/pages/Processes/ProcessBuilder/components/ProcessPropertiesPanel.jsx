@@ -49,6 +49,32 @@ const groupOptions = (groups) =>
     }))
     .filter((option) => option.value !== undefined && option.value !== null);
 
+const groupTypedPermissions = (permissions) => {
+  const rows = new Map();
+
+  (permissions ?? []).forEach((permission) => {
+    // ردیف‌های تازه تا قبل از انتخاب سمت باید مستقل بمانند.
+    const key =
+      permission.groupId === null || permission.groupId === undefined
+        ? `draft:${permission.id}`
+        : `${permission.granteeType ?? DEFAULT_GRANTEE_TYPE}:${permission.groupId}`;
+
+    if (!rows.has(key)) {
+      rows.set(key, {
+        key,
+        groupId: permission.groupId ?? null,
+        groupName: permission.groupName ?? "",
+        granteeType: permission.granteeType ?? DEFAULT_GRANTEE_TYPE,
+        permissions: [],
+      });
+    }
+
+    rows.get(key).permissions.push(permission);
+  });
+
+  return [...rows.values()];
+};
+
 /**
  * لیست دسترسی‌های یک موجودیت (فرایند / مرحله / عملیات).
  * فیلدها دقیقاً همان فیلدهای serializer بک‌اند هستند:
@@ -62,86 +88,121 @@ const PermissionList = ({
   disabled,
   withType = true,
   onChange,
+  onChangeMany,
   onRemove,
+  onRemoveMany,
+  onToggleType,
   onAdd,
   hint,
-}) => (
-  <div className="process-panel__section">
-    <div className="process-panel__section-head">
-      <span className="process-panel__section-title">دسترسی سمت‌ها</span>
-      <Button
-        size="small"
-        icon={<Plus size={14} />}
-        onClick={onAdd}
-        disabled={disabled}
-      >
-        افزودن
-      </Button>
+}) => {
+  const rows = withType
+    ? groupTypedPermissions(permissions)
+    : (permissions ?? []).map((permission) => ({
+        key: permission.id,
+        groupId: permission.groupId ?? null,
+        groupName: permission.groupName ?? "",
+        permissions: [permission],
+      }));
+
+  return (
+    <div className="process-panel__section">
+      <div className="process-panel__section-head">
+        <span className="process-panel__section-title">دسترسی سمت‌ها</span>
+        <Button
+          size="small"
+          icon={<Plus size={14} />}
+          onClick={onAdd}
+          disabled={disabled}
+        >
+          افزودن
+        </Button>
+      </div>
+
+      {hint ? <p className="process-panel__hint">{hint}</p> : null}
+
+      {!groupsLoading && (groups?.length ?? 0) === 0 ? (
+        <p className="process-panel__note">
+          لیست سمت‌ها در دسترس شما نیست. برای تعیین دسترسی، از مدیر سیستم
+          بخواهید دسترسی مدیریت سمت‌ها را برای شما فعال کند.
+        </p>
+      ) : null}
+
+      {rows.length === 0 ? (
+        <p className="process-panel__note">هنوز دسترسی‌ای ثبت نشده است.</p>
+      ) : (
+        rows.map((row) => {
+          const permissionIds = row.permissions.map(
+            (permission) => permission.id,
+          );
+          const selectedTypes = new Set(
+            row.permissions.map((permission) => permission.permissionType),
+          );
+          const permission = row.permissions[0];
+
+          return (
+            <div className="process-panel__field" key={row.key}>
+              <div className="flex items-center gap-2">
+                <Select
+                  className="grow"
+                  value={row.groupId ?? undefined}
+                  options={groupOptions(groups)}
+                  loading={groupsLoading}
+                  placeholder="انتخاب سمت"
+                  notFoundContent={
+                    groupsLoading ? "در حال دریافت سمت‌ها…" : "سمتی یافت نشد"
+                  }
+                  showSearch
+                  optionFilterProp="label"
+                  disabled={disabled}
+                  onChange={(value) =>
+                    withType
+                      ? onChangeMany(permissionIds, { groupId: value })
+                      : onChange(permission.id, { groupId: value })
+                  }
+                />
+
+                <Tooltip title="حذف دسترسی">
+                  <Button
+                    danger
+                    icon={<Trash2 size={14} />}
+                    disabled={disabled}
+                    onClick={() =>
+                      withType
+                        ? onRemoveMany(permissionIds)
+                        : onRemove(permission.id)
+                    }
+                  />
+                </Tooltip>
+              </div>
+
+              {withType ? (
+                <div className="process-panel__permission-types">
+                  {PERMISSION_TYPES.map((type) => (
+                    <Checkbox
+                      className="process-panel__permission-type"
+                      key={type.value}
+                      checked={selectedTypes.has(type.value)}
+                      disabled={disabled}
+                      onChange={(event) =>
+                        onToggleType(row, type.value, event.target.checked)
+                      }
+                    >
+                      {type.label}
+                    </Checkbox>
+                  ))}
+                </div>
+              ) : null}
+
+              {row.groupName && !row.groupId ? (
+                <span className="process-panel__hint">{row.groupName}</span>
+              ) : null}
+            </div>
+          );
+        })
+      )}
     </div>
-
-    {hint ? <p className="process-panel__hint">{hint}</p> : null}
-
-    {!groupsLoading && (groups?.length ?? 0) === 0 ? (
-      <p className="process-panel__note">
-        لیست سمت‌ها در دسترس شما نیست. برای تعیین دسترسی، از مدیر سیستم بخواهید
-        دسترسی مدیریت سمت‌ها را برای شما فعال کند.
-      </p>
-    ) : null}
-
-    {permissions.length === 0 ? (
-      <p className="process-panel__note">هنوز دسترسی‌ای ثبت نشده است.</p>
-    ) : (
-      permissions.map((permission) => (
-        <div className="process-panel__field" key={permission.id}>
-          <div className="flex items-center gap-2">
-            <Select
-              className="grow"
-              value={permission.groupId ?? undefined}
-              options={groupOptions(groups)}
-              loading={groupsLoading}
-              placeholder="انتخاب سمت"
-              notFoundContent={
-                groupsLoading ? "در حال دریافت سمت‌ها…" : "سمتی یافت نشد"
-              }
-              showSearch
-              optionFilterProp="label"
-              disabled={disabled}
-              onChange={(value) => onChange(permission.id, { groupId: value })}
-            />
-
-            {withType ? (
-              <Select
-                style={{ minWidth: 104 }}
-                value={permission.permissionType}
-                options={PERMISSION_TYPES.map((item) => ({
-                  value: item.value,
-                  label: item.label,
-                }))}
-                disabled={disabled}
-                onChange={(value) =>
-                  onChange(permission.id, { permissionType: value })
-                }
-              />
-            ) : null}
-
-            <Tooltip title="حذف دسترسی">
-              <Button
-                danger
-                icon={<Trash2 size={14} />}
-                disabled={disabled}
-                onClick={() => onRemove(permission.id)}
-              />
-            </Tooltip>
-          </div>
-
-          {permission.groupName && !permission.groupId ? (
-            <span className="process-panel__hint">{permission.groupName}</span>
-          ) : null}
-        </div>
-      ))
-    )}
-  </div>
-);
+  );
+};
 
 const ProcessPropertiesPanel = ({
   graph,
@@ -265,12 +326,68 @@ const ProcessPropertiesPanel = ({
             : permission,
         ),
       ),
+    onChangeMany: (permissionIds, patch) =>
+      patchPermissions(owner, ownerId, (list) => {
+        const ids = new Set(permissionIds.map(String));
+        const changed = list.map((permission) =>
+          ids.has(String(permission.id))
+            ? { ...permission, ...patch }
+            : permission,
+        );
+
+        // اگر سمت تازه با ردیف موجود یکی شد، برای هر نوع دسترسی فقط یک
+        // رکورد نگه می‌داریم تا payload تکراری به بک‌اند ارسال نشود.
+        if (!withType) return changed;
+        const seen = new Set();
+        return changed.filter((permission) => {
+          if (permission.groupId === null || permission.groupId === undefined)
+            return true;
+          const key = [
+            permission.granteeType ?? DEFAULT_GRANTEE_TYPE,
+            permission.groupId,
+            permission.permissionType,
+          ].join(":");
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+      }),
     onRemove: (permissionId) =>
       patchPermissions(owner, ownerId, (list) =>
         list.filter(
           (permission) => String(permission.id) !== String(permissionId),
         ),
       ),
+    onRemoveMany: (permissionIds) =>
+      patchPermissions(owner, ownerId, (list) => {
+        const ids = new Set(permissionIds.map(String));
+        return list.filter((permission) => !ids.has(String(permission.id)));
+      }),
+    onToggleType: (row, permissionType, checked) =>
+      patchPermissions(owner, ownerId, (list) => {
+        const matchingIds = new Set(
+          row.permissions
+            .filter(
+              (permission) => permission.permissionType === permissionType,
+            )
+            .map((permission) => String(permission.id)),
+        );
+
+        if (!checked) {
+          return list.filter(
+            (permission) => !matchingIds.has(String(permission.id)),
+          );
+        }
+        if (matchingIds.size > 0) return list;
+
+        return [
+          ...list,
+          createPermission({
+            permissionType,
+            groupId: row.groupId,
+          }),
+        ];
+      }),
   });
 
   /**
@@ -396,7 +513,7 @@ const ProcessPropertiesPanel = ({
           groups={groups}
           groupsLoading={groupsLoading}
           disabled={disabled}
-          hint="دسترسی مشاهده برای دیدن درخواست‌های این مرحله و دسترسی ویرایش برای تکمیل فرم در این مرحله لازم است."
+          hint="دسترسی مشاهده برای دیدن درخواست‌های این مرحله و دسترسی ویرایش برای تکمیل فرم لازم است؛ هر دو گزینه را می‌توان هم‌زمان برای یک سمت فعال کرد."
           {...permissionHandlers("node", selectedNode.id)}
         />
 
@@ -897,7 +1014,7 @@ const ProcessPropertiesPanel = ({
         groups={groups}
         groupsLoading={groupsLoading}
         disabled={disabled}
-        hint="دسترسی مشاهده برای دیدن فرایند و دسترسی ویرایش برای مدیریت اجزای آن (مرحله، مسیر، عملیات) لازم است."
+        hint="دسترسی مشاهده برای دیدن فرایند و دسترسی ویرایش برای مدیریت اجزای آن لازم است؛ هر دو گزینه را می‌توان هم‌زمان برای یک سمت فعال کرد."
         {...permissionHandlers("process", graph.id)}
       />
 

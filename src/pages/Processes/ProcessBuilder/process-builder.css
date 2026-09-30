@@ -1036,6 +1036,32 @@
   margin-top: 16px;
 }
 
+.process-panel__permission-types {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.process-panel__permission-type {
+  min-width: 96px;
+  margin-inline-start: 0 !important;
+  padding: 7px 10px;
+  border: 1px solid var(--pb-border);
+  border-radius: 8px;
+  background: var(--pb-surface);
+}
+
+/* ظاهر رادیویی با رفتار مستقل؛ بنابراین مشاهده و ویرایش هم‌زمان ممکن است. */
+.process-panel__permission-type .ant-checkbox-inner {
+  border-radius: 50%;
+}
+
+.process-panel__permission-type:has(.ant-checkbox-checked) {
+  border-color: var(--pb-primary);
+  background: var(--pb-primary-soft);
+}
+
 .process-panel__field-head {
   display: flex;
   align-items: center;
