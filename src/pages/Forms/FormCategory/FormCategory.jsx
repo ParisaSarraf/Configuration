@@ -1,17 +1,12 @@
 import useModal from "../../../hooks/useModal";
 import { useFormCategoryList } from "../../../QueryServises/formsQuery";
+import Header from "@/components/Layouts/Header.jsx";
 import CategoryHeader from "./CategoryHeader";
 import CategoryMain from "./CategoryMain/CategoryMain";
 
 const FormCategory = () => {
-  const {
-    setModal,
-    modalMode,
-    modalData,
-    modalType,
-    closeModal,
-    isOpen,
-  } = useModal();
+  const { setModal, modalMode, modalData, modalType, closeModal, isOpen } =
+    useModal();
 
   const { data, refetch } = useFormCategoryList();
 
@@ -23,29 +18,27 @@ const FormCategory = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-50 via-slate-50 to-sky-50 px-6 pt-6 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
-      <CategoryHeader
-        refetch={refetch}
-        totalCategories={category.length}
-        totalForms={totalForms}
-        setModal={setModal}
-        modalMode={modalMode}
-        modalData={modalData}
-        modalType={modalType}
-        closeModal={closeModal}
-        isOpen={isOpen}
-      />
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+      <Header />
 
-      <CategoryMain
-        category={category}
-        refetch={refetch}
-        setModal={setModal}
-        modalMode={modalMode}
-        modalData={modalData}
-        modalType={modalType}
-        closeModal={closeModal}
-        isOpen={isOpen}
-      />
+      <div className="mx-auto max-w-screen-xl p-4 sm:p-6">
+        <CategoryHeader
+          refetch={refetch}
+          totalCategories={category.length}
+          totalForms={totalForms}
+        />
+
+        <CategoryMain
+          category={category}
+          refetch={refetch}
+          setModal={setModal}
+          modalMode={modalMode}
+          modalData={modalData}
+          modalType={modalType}
+          closeModal={closeModal}
+          isOpen={isOpen}
+        />
+      </div>
     </div>
   );
 };
