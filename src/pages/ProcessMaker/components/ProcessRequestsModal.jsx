@@ -341,18 +341,30 @@ export const RequestWorkPanel = ({ record, onCompleted }) => {
         includeFiles: false,
         stringifyValues: false,
       });
-      const formData = { ...(record.formData ?? {}), ...changedData };
-      const result = await updateSubmission.mutateAsync({
-        id: record.submissionId,
-        payload: { form_data: formData },
-      });
-      if (result.verification?.checked && !result.verification.ok) {
-        const names = result.verification.mismatches
-          .map((item) => item.fieldName)
-          .join("، ");
-        throw new Error(
-          `ذخیرهٔ این فیلدها با مقدار ارسالی یکسان نیست: ${names}`,
-        );
+      const savedFormData =
+        record.formData &&
+        typeof record.formData === "object" &&
+        !Array.isArray(record.formData)
+          ? record.formData
+          : {};
+      const formData = { ...savedFormData, ...changedData };
+      const hasFormData = Object.keys(formData).length > 0;
+
+      // فرم خالی نباید به update-form-submission ارسال شود؛ خطای همان API
+      // نباید جلوی اجرای Action و ارجاع درخواست را بگیرد.
+      if (hasFormData) {
+        const result = await updateSubmission.mutateAsync({
+          id: record.submissionId,
+          payload: { form_data: formData },
+        });
+        if (result.verification?.checked && !result.verification.ok) {
+          const names = result.verification.mismatches
+            .map((item) => item.fieldName)
+            .join("، ");
+          throw new Error(
+            `ذخیرهٔ این فیلدها با مقدار ارسالی یکسان نیست: ${names}`,
+          );
+        }
       }
 
       const files = collectFileEntries(fields, values);
@@ -372,12 +384,12 @@ export const RequestWorkPanel = ({ record, onCompleted }) => {
         action_id: Number(selectedAction.actionId),
       });
       message.success(
-        `فرم ذخیره شد و درخواست با عملیات «${selectedAction.label}» به «${selectedAction.nextStateName || "مرحله بعد"}» ارجاع شد.`,
+        `${hasFormData ? "فرم ذخیره شد و " : ""}درخواست با عملیات «${selectedAction.label}» به «${selectedAction.nextStateName || "مرحله بعد"}» ارجاع شد.`,
       );
       await onCompleted?.();
     } catch (error) {
       message.error(
-        getApiErrorMessage(error, "ذخیره فرم و ارجاع درخواست انجام نشد."),
+        getApiErrorMessage(error, "ذخیره اطلاعات یا ارجاع درخواست انجام نشد."),
       );
     }
   };

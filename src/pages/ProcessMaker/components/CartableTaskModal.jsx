@@ -43,22 +43,48 @@ const asArray = (value) => {
   return [];
 };
 
-const entityIdOf = (payload) => {
-  const item = Array.isArray(payload)
-    ? payload[0]
-    : Array.isArray(payload?.results)
-      ? payload.results[0]
-      : Array.isArray(payload?.data)
-        ? payload.data[0]
-        : payload;
-  const value =
-    item?.id ??
-    item?.request_id ??
-    item?.request?.id ??
-    item?.data?.id ??
-    item?.result?.id;
+const positiveId = (value) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+};
+
+/**
+ * پاسخ add-request در نسخه‌های مختلف بک‌اند گاهی مستقیم و گاهی داخل
+ * data/result/request برمی‌گردد. شناسه باید قبل از do_action از تمام این
+ * wrapperها به‌صورت قطعی استخراج شود.
+ */
+const entityIdOf = (payload, depth = 0) => {
+  if (payload == null || depth > 5) return null;
+  if (Array.isArray(payload)) {
+    for (const item of payload) {
+      const found = entityIdOf(item, depth + 1);
+      if (found) return found;
+    }
+    return null;
+  }
+  if (typeof payload !== "object") return null;
+
+  const direct =
+    positiveId(payload.request_id) ??
+    positiveId(payload.requestId) ??
+    positiveId(payload.__request_id) ??
+    positiveId(payload.id) ??
+    positiveId(payload.pk);
+  if (direct) return direct;
+
+  for (const key of [
+    "request",
+    "created_request",
+    "data",
+    "result",
+    "results",
+    "payload",
+    "response",
+  ]) {
+    const found = entityIdOf(payload[key], depth + 1);
+    if (found) return found;
+  }
+  return null;
 };
 
 const looksLikeFormDefinition = (record) =>
@@ -222,6 +248,13 @@ const CartableTaskModal = ({
 
   const submit = async (values, selectedAction) => {
     try {
+      const selectedActionId = positiveId(selectedAction?.actionId);
+      if (selectedAction && !selectedAction.disabled && !selectedActionId) {
+        throw new Error(
+          "شناسهٔ عملیات مسیر معتبر نیست؛ اتصال Action به مسیر شروع را بررسی کنید.",
+        );
+      }
+
       const fileProblems = validateFiles(fields, values);
       if (fileProblems.length) {
         message.error(fileProblems[0]);
@@ -301,14 +334,14 @@ const CartableTaskModal = ({
       });
       const requestId = entityIdOf(createdRequest);
 
-      if (selectedAction?.actionId) {
+      if (selectedActionId) {
         if (!requestId)
           throw new Error(
             "درخواست ساخته شد، اما شناسهٔ آن برای اجرای عملیات مسیر دریافت نشد.",
           );
         await doAction.mutateAsync({
           request_id: Number(requestId),
-          action_id: Number(selectedAction.actionId),
+          action_id: selectedActionId,
         });
       }
 

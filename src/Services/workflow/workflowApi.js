@@ -31,6 +31,93 @@ const put = (client, endpoint, payload, signal) =>
 const remove = (client, endpoint, signal) =>
   client.delete(endpoint, { signal }).then((response) => response.data);
 
+const positiveId = (value) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+};
+
+const requestIdOf = (value, depth = 0) => {
+  if (value == null || depth > 5) return null;
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const id = requestIdOf(item, depth + 1);
+      if (id) return id;
+    }
+    return null;
+  }
+  if (typeof value !== "object") return null;
+  const direct =
+    positiveId(value.request_id) ??
+    positiveId(value.requestId) ??
+    positiveId(value.id) ??
+    positiveId(value.pk);
+  if (direct) return direct;
+  for (const key of [
+    "request",
+    "created_request",
+    "data",
+    "result",
+    "results",
+    "payload",
+    "response",
+  ]) {
+    const id = requestIdOf(value[key], depth + 1);
+    if (id) return id;
+  }
+  return null;
+};
+
+const requestRows = (payload, depth = 0) => {
+  if (payload == null || depth > 5) return [];
+  if (Array.isArray(payload)) return payload;
+  if (typeof payload !== "object") return [];
+  for (const key of ["results", "data", "requests", "items"]) {
+    const rows = requestRows(payload[key], depth + 1);
+    if (rows.length) return rows;
+  }
+  return [payload];
+};
+
+const relatedId = (record, key) =>
+  positiveId(
+    record?.[`${key}_id`] ??
+      record?.[key]?.id ??
+      record?.[key]?.pk ??
+      record?.[key],
+  );
+
+/**
+ * بعضی نسخه‌های add-request بدنه‌ای بدون id برمی‌گردانند. در این حالت
+ * درخواست تازه را با submission/process پیدا می‌کنیم تا فراخوانی do_action
+ * به‌خاطر نبود شناسه بی‌صدا حذف نشود.
+ */
+const createRequestAndResolveId = async (client, payload, signal) => {
+  const created = await post(client, ENDPOINTS.addRequest, payload, signal);
+  const directId = requestIdOf(created);
+  if (directId) return { ...created, __request_id: directId };
+
+  const requests = await get(client, ENDPOINTS.requests, signal);
+  const submissionId = positiveId(payload?.form_submission_id);
+  const processId = positiveId(payload?.process_id);
+  const match = requestRows(requests)
+    .slice()
+    .reverse()
+    .find((request) => {
+      const requestSubmissionId =
+        relatedId(request, "form_submission") ??
+        relatedId(request, "submission");
+      const requestProcessId = relatedId(request, "process");
+      return (
+        (!submissionId || requestSubmissionId === submissionId) &&
+        (!processId || requestProcessId === processId)
+      );
+    });
+  const fallbackId = requestIdOf(match);
+  return fallbackId
+    ? { data: created, request: match, __request_id: fallbackId }
+    : created;
+};
+
 export const workflowApi = Object.freeze({
   // ---------- Process ----------
   getProcesses: (client, signal) => get(client, ENDPOINTS.processes, signal),
@@ -114,7 +201,7 @@ export const workflowApi = Object.freeze({
       .then((response) => response.data);
   },
   createRequest: (client, payload, signal) =>
-    post(client, ENDPOINTS.addRequest, payload, signal),
+    createRequestAndResolveId(client, payload, signal),
   doAction: (client, payload, signal) =>
     post(client, ENDPOINTS.doAction, payload, signal),
 
