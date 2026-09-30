@@ -407,8 +407,8 @@ const ProcessPropertiesPanel = ({
             </span>
           </div>
           <p className="process-panel__hint">
-            فیلدهایی که اینجا انتخاب شوند، وقتی درخواست در این مرحله باشد در فرم
-            درخواست غیرفعال می‌شوند.
+            فیلدهایی که اینجا انتخاب شوند، از ورود درخواست به این مرحله به بعد
+            برای تمام ادامه مسیر قفل و غیرقابل ویرایش باقی می‌مانند.
           </p>
           {fieldOptions(graph.formFields).length === 0 ? (
             <p className="process-panel__note">

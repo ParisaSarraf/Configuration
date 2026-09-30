@@ -405,6 +405,39 @@ export const findAction = (graph, actionId) =>
   graph?.actions.find((action) => String(action.id) === String(actionId)) ??
   null;
 
+/**
+ * قفل فیلد از مرحله‌ای که تعریف شده به بعد ماندگار است.
+ * برای مرحله جاری، قفل‌های خود مرحله و همه مراحل بالادستی جمع می‌شوند.
+ */
+export const cumulativeLockedFieldIds = (graph, currentStateId) => {
+  if (!graph || currentStateId == null) return [];
+
+  const ancestors = new Set([String(currentStateId)]);
+  const queue = [String(currentStateId)];
+
+  while (queue.length) {
+    const targetId = queue.shift();
+    (graph.edges ?? [])
+      .filter((edge) => String(edge.target) === targetId)
+      .forEach((edge) => {
+        const sourceId = String(edge.source);
+        if (ancestors.has(sourceId)) return;
+        ancestors.add(sourceId);
+        queue.push(sourceId);
+      });
+  }
+
+  const fieldIds = new Set();
+  (graph.nodes ?? []).forEach((node) => {
+    if (!ancestors.has(String(node.id))) return;
+    (node.lockedFieldIds ?? []).forEach((fieldId) =>
+      fieldIds.add(String(fieldId)),
+    );
+  });
+
+  return Array.from(fieldIds);
+};
+
 /* ------------------------------- مختصات ------------------------------- */
 
 export const readStoredPositions = (processId) => {

@@ -663,29 +663,6 @@ const ProcessCanvas = ({
             </p>
           ) : (
             <>
-              <p className="process-canvas__empty-hint">
-                یکی از این دو راه را انتخاب کنید؛ هر دو را بعداً می‌توانید تغییر
-                دهید.
-              </p>
-              <div className="process-canvas__empty-actions">
-                <button
-                  type="button"
-                  className="process-canvas__empty-action process-canvas__empty-action--primary"
-                  onClick={() => onOpenWizard?.()}
-                >
-                  ساخت با الگوی تأیید/رد
-                </button>
-                <button
-                  type="button"
-                  className="process-canvas__empty-action"
-                  onClick={() => onAddNode(STATE_TYPE_IDS.START)}
-                >
-                  شروع دستی
-                </button>
-              </div>
-              <p className="process-canvas__empty-note">
-                الگو، مراحل و عملیاتی تأیید و رد را یک‌جا می‌سازد.
-              </p>
             </>
           )}
         </div>

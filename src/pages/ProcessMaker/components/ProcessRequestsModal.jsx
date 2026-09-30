@@ -4,12 +4,11 @@ import {
   CalendarOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
-  DownOutlined,
+  EditOutlined,
   FilterOutlined,
   PaperClipOutlined,
   SendOutlined,
   StopOutlined,
-  UpOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 
@@ -28,15 +27,21 @@ import {
 import {
   useDoAction,
   useLockedFieldsByRequestId,
+  useLockedFieldsByProcessId,
   useProcessInfo,
   useProcessRequests,
+  useRequestPathById,
 } from "@/QueryServises/workflowQuery";
 import {
   asCategories,
   hydrateSubmissionValues,
 } from "@/Services/forms/submissionValues";
 import { getApiErrorMessage } from "@/Services/forms/formUtils";
-import { pickProcessInfo } from "@/pages/Processes/ProcessBuilder/processGraph";
+import {
+  buildGraph,
+  cumulativeLockedFieldIds,
+  pickProcessInfo,
+} from "@/pages/Processes/ProcessBuilder/processGraph";
 import { georgianDateTimeToJalaliDateTime } from "@utils/timeTool.jsx";
 import Modal from "../../../components/Modal";
 
@@ -253,6 +258,18 @@ export const RequestWorkPanel = ({ record, onCompleted }) => {
   const locksQuery = useLockedFieldsByRequestId(record.requestId, {
     enabled: Boolean(record.requestId),
   });
+  const processInfoQuery = useProcessInfo(record.processId, {
+    enabled: Boolean(record.processId),
+    staleTime: 60 * 1000,
+  });
+  const processLocksQuery = useLockedFieldsByProcessId(record.processId, {
+    enabled: Boolean(record.processId),
+    staleTime: 60 * 1000,
+  });
+  const requestPathQuery = useRequestPathById(record.requestId, {
+    enabled: Boolean(record.requestId),
+    retry: false,
+  });
   const updateSubmission = useUpdateFormSubmission();
   const uploadAttachments = useUploadSubmissionAttachments();
   const doAction = useDoAction();
@@ -266,13 +283,33 @@ export const RequestWorkPanel = ({ record, onCompleted }) => {
     () => hydrateSubmissionValues(categories, record.formData),
     [categories, record.formData],
   );
-  const lockedFieldIds = useMemo(
-    () =>
-      asArray(locksQuery.data)
-        .map(lockedFieldIdOf)
-        .filter((id) => id != null),
-    [locksQuery.data],
-  );
+  const lockedFieldIds = useMemo(() => {
+    const requestLocks = asArray(locksQuery.data)
+      .map(lockedFieldIdOf)
+      .filter((id) => id != null)
+      .map(String);
+    const graph = buildGraph(processInfoQuery.data, [], processLocksQuery.data);
+    const visitedStateIds = new Set(
+      [
+        ...asArray(requestPathQuery.data).map((state) => state?.id),
+        record.currentStateId,
+      ]
+        .filter((id) => id != null)
+        .map(String),
+    );
+    const inheritedLocks = asArray(requestPathQuery.data).length
+      ? (graph?.nodes ?? [])
+          .filter((node) => visitedStateIds.has(String(node.id)))
+          .flatMap((node) => (node.lockedFieldIds ?? []).map(String))
+      : cumulativeLockedFieldIds(graph, record.currentStateId);
+    return Array.from(new Set([...requestLocks, ...inheritedLocks]));
+  }, [
+    locksQuery.data,
+    processInfoQuery.data,
+    processLocksQuery.data,
+    record.currentStateId,
+    requestPathQuery.data,
+  ]);
   const submitOptions = useMemo(
     () =>
       (record.transitions ?? []).map((transition) => {
@@ -353,7 +390,13 @@ export const RequestWorkPanel = ({ record, onCompleted }) => {
         message="فرم این درخواست برای تکمیل در دسترس نیست."
       />
     );
-  if (formQuery.isLoading || locksQuery.isLoading)
+  if (
+    formQuery.isLoading ||
+    locksQuery.isLoading ||
+    processInfoQuery.isLoading ||
+    processLocksQuery.isLoading ||
+    requestPathQuery.isLoading
+  )
     return <Skeleton active paragraph={{ rows: 8 }} />;
   if (formQuery.isError)
     return (
@@ -372,7 +415,8 @@ export const RequestWorkPanel = ({ record, onCompleted }) => {
     <div className="space-y-3">
       <div className="rounded-xl border border-slate-200 bg-white p-3 text-xs leading-6 text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
         فیلدهای باز این مرحله را تکمیل کنید و سپس یکی از عملیات پایین فرم را
-        انتخاب کنید. فیلدهای قفل‌شده مربوط به مراحل قبلی‌اند.
+        انتخاب کنید. هر فیلدی که در یکی از مراحل قبلی قفل شده باشد، از آن مرحله
+        به بعد به‌صورت ماندگار غیرقابل ویرایش است.
       </div>
       <FormRenderer
         key={`request-${record.requestId}-state-${record.currentStateId}`}
@@ -402,13 +446,13 @@ const ProcessRequestsModal = ({ open, process, onClose }) => {
   const processId = process?.id ?? null;
   const [stateType, setStateType] = useState("");
   const [stateId, setStateId] = useState(null);
-  const [expandedRequestKey, setExpandedRequestKey] = useState(null);
+  const [workRecord, setWorkRecord] = useState(null);
 
   useEffect(() => {
     if (!open) return;
     setStateType("");
     setStateId(null);
-    setExpandedRequestKey(null);
+    setWorkRecord(null);
   }, [open, processId]);
 
   const processInfoQuery = useProcessInfo(processId, {
@@ -441,7 +485,6 @@ const ProcessRequestsModal = ({ open, process, onClose }) => {
   );
 
   const renderRequest = (record) => {
-    const isExpanded = expandedRequestKey === record.rowKey;
     const state = statePresentation(record.stateType);
     return (
       <article
@@ -480,136 +523,178 @@ const ProcessRequestsModal = ({ open, process, onClose }) => {
           </div>
 
           <Button
-            type={isExpanded ? "default" : "primary"}
-            icon={isExpanded ? <UpOutlined /> : <DownOutlined />}
-            onClick={() =>
-              setExpandedRequestKey(isExpanded ? null : record.rowKey)
-            }
+            type="primary"
+            icon={<EditOutlined />}
+            onClick={() => setWorkRecord(record)}
           >
-            {isExpanded ? "بستن" : "تکمیل و ارجاع"}
+            تکمیل و ارجاع
           </Button>
         </div>
+      </article>
+    );
+  };
 
-        {isExpanded ? (
-          <div className="border-t border-slate-100 bg-slate-50/70 p-4 dark:border-slate-800 dark:bg-slate-950/30">
-            <div className="mb-4 grid gap-4 rounded-xl bg-white p-3 sm:grid-cols-2 lg:grid-cols-4 dark:bg-slate-900">
+  const workState = workRecord
+    ? statePresentation(workRecord.stateType)
+    : statePresentation("");
+
+  return (
+    <>
+      <Modal
+        isOpen={open}
+        onClose={onClose}
+        title={title}
+        size="min(1380px, 98vw)"
+        destroyOnClose
+        footer={null}
+      >
+        <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-end dark:border-slate-700 dark:bg-slate-900">
+          <div className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-200">
+            <FilterOutlined className="text-blue-500" />
+            فیلتر مرحله
+          </div>
+          <div className="grid flex-1 gap-3 sm:grid-cols-2">
+            <div>
+              <div className="mb-1 text-[11px] text-slate-500">نوع وضعیت</div>
+              <Select
+                className="w-full"
+                value={stateType}
+                options={STATE_TYPE_OPTIONS}
+                onChange={(value) => {
+                  setStateType(value);
+                  setWorkRecord(null);
+                }}
+              />
+            </div>
+            <div>
+              <div className="mb-1 text-[11px] text-slate-500">مرحله مشخص</div>
+              <Select
+                allowClear
+                showSearch
+                optionFilterProp="label"
+                className="w-full"
+                placeholder="همه مراحل"
+                value={stateId}
+                loading={processInfoQuery.isLoading}
+                options={states.map((state) => ({
+                  value: state.id,
+                  label: state.name || `مرحله ${state.id}`,
+                }))}
+                onChange={(value) => {
+                  setStateId(value ?? null);
+                  setWorkRecord(null);
+                }}
+              />
+            </div>
+          </div>
+          {(stateType || stateId) && (
+            <Button
+              onClick={() => {
+                setStateType("");
+                setStateId(null);
+              }}
+            >
+              پاک‌کردن فیلتر
+            </Button>
+          )}
+        </div>
+
+        {query.isLoading ? (
+          <Skeleton active paragraph={{ rows: 8 }} />
+        ) : query.isError ? (
+          <Alert
+            type="error"
+            showIcon
+            message={getApiErrorMessage(
+              query.error,
+              "دریافت درخواست‌های فرایند انجام نشد.",
+            )}
+            action={
+              <Button size="small" onClick={() => query.refetch()}>
+                تلاش مجدد
+              </Button>
+            }
+          />
+        ) : rows.length ? (
+          <div className="space-y-3">{rows.map(renderRequest)}</div>
+        ) : (
+          <Empty
+            className="py-14"
+            description="درخواستی مطابق فیلتر انتخاب‌شده وجود ندارد."
+          />
+        )}
+      </Modal>
+
+      <Modal
+        isOpen={Boolean(workRecord)}
+        onClose={() => setWorkRecord(null)}
+        size="calc(100vw - 24px)"
+        zIndex={1300}
+        destroyOnClose
+        footer={null}
+        title={
+          <div>
+            <div className="font-bold text-slate-800 dark:text-slate-100">
+              تکمیل و ارجاع «{workRecord?.title || process?.name || "درخواست"}»
+            </div>
+            <div className="mt-1 text-xs font-normal text-slate-400">
+              فرم مرحله فعلی و همه عملیات قابل انجام در همین صفحه قرار دارند.
+            </div>
+          </div>
+        }
+      >
+        {workRecord ? (
+          <div className="max-h-[calc(100vh-130px)] overflow-y-auto px-1 pb-4">
+            <div className={`mb-4 rounded-2xl border p-4 ${workState.panel}`}>
+              <div className="text-[11px] font-semibold opacity-70">
+                مرحلهٔ فعلی درخواست
+              </div>
+              <div className="mt-1 flex flex-wrap items-center justify-between gap-3">
+                <strong className="text-lg">{workRecord.stateName}</strong>
+                <span className="rounded-full bg-white/70 px-3 py-1 text-xs font-semibold dark:bg-black/10">
+                  {workState.label}
+                </span>
+              </div>
+            </div>
+
+            <div className="mb-4 grid gap-4 rounded-xl border border-slate-200 bg-white p-3 sm:grid-cols-2 lg:grid-cols-4 dark:border-slate-700 dark:bg-slate-900">
               <MetaItem
                 icon={<UserOutlined />}
                 label="ثبت‌کننده"
-                value={fullName(record.createdBy)}
+                value={fullName(workRecord.createdBy)}
               />
               <MetaItem
                 icon={<UserOutlined />}
                 label="ارسال‌کننده"
-                value={fullName(record.submitter)}
+                value={fullName(workRecord.submitter)}
               />
               <MetaItem
                 icon={<CalendarOutlined />}
                 label="تاریخ ایجاد"
-                value={jalali(record.submittedAt)}
+                value={jalali(workRecord.submittedAt)}
               />
               <MetaItem
                 icon={<PaperClipOutlined />}
                 label="پیوست‌ها"
                 value={
-                  record.attachments.length
-                    ? `${record.attachments.length.toLocaleString("fa-IR")} فایل`
+                  workRecord.attachments.length
+                    ? `${workRecord.attachments.length.toLocaleString("fa-IR")} فایل`
                     : "بدون پیوست"
                 }
               />
             </div>
-            <RequestWorkPanel record={record} onCompleted={query.refetch} />
+
+            <RequestWorkPanel
+              record={workRecord}
+              onCompleted={async () => {
+                await query.refetch();
+                setWorkRecord(null);
+              }}
+            />
           </div>
         ) : null}
-      </article>
-    );
-  };
-
-  return (
-    <Modal
-      isOpen={open}
-      onClose={onClose}
-      title={title}
-      size="min(1380px, 98vw)"
-      destroyOnClose
-      footer={null}
-    >
-      <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-end dark:border-slate-700 dark:bg-slate-900">
-        <div className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-200">
-          <FilterOutlined className="text-blue-500" />
-          فیلتر مرحله
-        </div>
-        <div className="grid flex-1 gap-3 sm:grid-cols-2">
-          <div>
-            <div className="mb-1 text-[11px] text-slate-500">نوع وضعیت</div>
-            <Select
-              className="w-full"
-              value={stateType}
-              options={STATE_TYPE_OPTIONS}
-              onChange={(value) => {
-                setStateType(value);
-                setExpandedRequestKey(null);
-              }}
-            />
-          </div>
-          <div>
-            <div className="mb-1 text-[11px] text-slate-500">مرحله مشخص</div>
-            <Select
-              allowClear
-              showSearch
-              optionFilterProp="label"
-              className="w-full"
-              placeholder="همه مراحل"
-              value={stateId}
-              loading={processInfoQuery.isLoading}
-              options={states.map((state) => ({
-                value: state.id,
-                label: state.name || `مرحله ${state.id}`,
-              }))}
-              onChange={(value) => {
-                setStateId(value ?? null);
-                setExpandedRequestKey(null);
-              }}
-            />
-          </div>
-        </div>
-        {(stateType || stateId) && (
-          <Button
-            onClick={() => {
-              setStateType("");
-              setStateId(null);
-            }}
-          >
-            پاک‌کردن فیلتر
-          </Button>
-        )}
-      </div>
-
-      {query.isLoading ? (
-        <Skeleton active paragraph={{ rows: 8 }} />
-      ) : query.isError ? (
-        <Alert
-          type="error"
-          showIcon
-          message={getApiErrorMessage(
-            query.error,
-            "دریافت درخواست‌های فرایند انجام نشد.",
-          )}
-          action={
-            <Button size="small" onClick={() => query.refetch()}>
-              تلاش مجدد
-            </Button>
-          }
-        />
-      ) : rows.length ? (
-        <div className="space-y-3">{rows.map(renderRequest)}</div>
-      ) : (
-        <Empty
-          className="py-14"
-          description="درخواستی مطابق فیلتر انتخاب‌شده وجود ندارد."
-        />
-      )}
-    </Modal>
+      </Modal>
+    </>
   );
 };
 
