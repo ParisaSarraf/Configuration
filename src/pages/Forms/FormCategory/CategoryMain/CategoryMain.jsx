@@ -83,7 +83,6 @@ const CategoryMain = ({
           gap-4
         "
       >
-        {/* Left Sidebar — دسته‌بندی‌ها */}
         <aside className="min-h-0 overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-md shadow-sky-100/60">
           <div className="flex items-center gap-2 border-b border-sky-100 bg-gradient-to-l from-sky-50 to-indigo-50 px-4 py-3">
             <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-500/10 text-sky-600">
