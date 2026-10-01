@@ -9,7 +9,7 @@ import {
   WarningOutlined,
 } from "@ant-design/icons";
 import Tree from "../../../components/Tree";
-import { Button, message, Modal, Space, Tag, Tooltip } from "antd";
+import { Button, message, Modal, Space, Tooltip } from "antd";
 import {
   useDeleteProductDocument,
   useDeleteProductDocumentEdition,
@@ -24,45 +24,41 @@ import {
 
 const LOCAL_STORAGE_KEY = "productDocumentTreeExpandedKeys";
 
-const ReviewDateBadge = ({ surveyDate }) => {
+const reviewDatePresentation = (surveyDate) => {
   const { status, daysRemaining } = getSurveyDateStatus(surveyDate);
-  if (status === "none") return null;
+  if (status === "none")
+    return { className: "text-slate-700", icon: null, tooltip: "" };
 
   const date = georgianDateToJalaliDate(surveyDate);
-  const presentation =
-    status === "expired"
-      ? {
-          color: "red",
-          icon: <CloseCircleOutlined />,
-          label: `منقضی · ${date}`,
-          tooltip: `تاریخ بازبینی گذشته است — ${date}`,
-        }
-      : status === "warning"
-        ? {
-            color: "orange",
-            icon: <WarningOutlined />,
-            label:
-              daysRemaining === 0
-                ? `بازبینی امروز · ${date}`
-                : `${daysRemaining.toLocaleString("fa-IR")} روز · ${date}`,
-            tooltip: `موعد بازبینی نزدیک است — ${date}`,
-          }
-        : {
-            color: "green",
-            icon: <CheckCircleOutlined />,
-            label: date,
-            tooltip: `تاریخ بازبینی: ${date}`,
-          };
+  if (status === "expired")
+    return {
+      className: "text-red-600",
+      icon: <CloseCircleOutlined />,
+      tooltip: `تاریخ بازبینی گذشته است — ${date}`,
+    };
+  if (status === "warning")
+    return {
+      className: "text-orange-500",
+      icon: <WarningOutlined />,
+      tooltip:
+        daysRemaining === 0
+          ? `امروز موعد بازبینی است — ${date}`
+          : `${daysRemaining.toLocaleString("fa-IR")} روز تا بازبینی — ${date}`,
+    };
+  return {
+    className: "text-green-600",
+    icon: <CheckCircleOutlined />,
+    tooltip: `تاریخ بازبینی: ${date}`,
+  };
+};
 
+const ReviewDateIcon = ({ presentation }) => {
+  if (!presentation.icon) return null;
   return (
     <Tooltip title={presentation.tooltip}>
-      <Tag
-        icon={presentation.icon}
-        color={presentation.color}
-        className="!m-0 shrink-0"
-      >
-        {presentation.label}
-      </Tag>
+      <span className={`inline-flex shrink-0 ${presentation.className}`}>
+        {presentation.icon}
+      </span>
     </Tooltip>
   );
 };
@@ -206,7 +202,6 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
                 ? ` ${productDoc.title} - ${productDoc.document.code}`
                 : node.title}
             </span>
-            <ReviewDateBadge surveyDate={reviewDate} />
           </span>
           {hasDocument && (
             <Space>
@@ -254,83 +249,86 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
     };
 
     if (hasEditions) {
-      const editionNodes = editions.map((edition) => ({
-        key: `edition-${edition.id}`,
-        value: `edition-${edition.id}`,
-        title: (
-          <div
-            className={`flex flex-row justify-between items-center w-full ${edition?.is_active ? "text-sky-500" : "text-black"}`}
-          >
-            <span className="flex min-w-0 flex-1 items-center gap-2">
-              <span className="truncate">{edition.edition_full} -</span>
-              <FiberManualRecordIcon
-                fontSize="small"
-                className={
-                  edition?.state === 10
-                    ? "text-[#f5222d]"
-                    : edition?.state === 20
-                      ? "text-[#faad14]"
-                      : edition?.state === 30
-                        ? "text-[#52c41a]"
-                        : edition?.state === 40
-                          ? "text-[#722ed1]"
-                          : "text-[#faad14]"
-                }
-              />
-              <span className="truncate">{edition.reasons_editing}</span>
-              <ReviewDateBadge surveyDate={edition.survey_date} />
-            </span>
-            <Space>
-              <Button
-                size={"small"}
-                type="text"
-                icon={<EditOutlined />}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleEditEdition(edition);
-                }}
-                title={"ویرایش"}
-                className="text-green-500 hover:text-green-700"
-              />
-              <Button
-                size={"small"}
-                type="text"
-                icon={<DeleteOutlined />}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteEdition(edition.id);
-                }}
-                title={"حذف"}
-                className="text-red-500 hover:text-red-700"
-              />
-              <Button
-                size={"small"}
-                type="text"
-                icon={<FileDoneOutlined />}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleAutomationFiles(edition);
-                }}
-                title={"روال اسناد"}
-                className="text-purple-500 hover:text-purple-700"
-              />
-              <Button
-                size={"small"}
-                type="text"
-                icon={<EyeOutlined />}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleShowDetailEdition(edition);
-                }}
-                className="text-sky-500 hover:text-sky-700"
-              />
-            </Space>
-          </div>
-        ),
-        edition: edition.edition,
-        id: edition.id,
-        isLeaf: true,
-      }));
+      const editionNodes = editions.map((edition) => {
+        const review = reviewDatePresentation(edition.survey_date);
+        return {
+          key: `edition-${edition.id}`,
+          value: `edition-${edition.id}`,
+          title: (
+            <div className="flex w-full flex-row items-center justify-between">
+              <span
+                className={`flex min-w-0 flex-1 items-center gap-2 font-medium ${review.className}`}
+              >
+                <ReviewDateIcon presentation={review} />
+                <span className="truncate">{edition.edition_full} -</span>
+                <FiberManualRecordIcon
+                  fontSize="small"
+                  className={
+                    edition?.state === 10
+                      ? "text-[#f5222d]"
+                      : edition?.state === 20
+                        ? "text-[#faad14]"
+                        : edition?.state === 30
+                          ? "text-[#52c41a]"
+                          : edition?.state === 40
+                            ? "text-[#722ed1]"
+                            : "text-[#faad14]"
+                  }
+                />
+                <span className="truncate">{edition.reasons_editing}</span>
+              </span>
+              <Space>
+                <Button
+                  size={"small"}
+                  type="text"
+                  icon={<EditOutlined />}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEditEdition(edition);
+                  }}
+                  title={"ویرایش"}
+                  className="text-green-500 hover:text-green-700"
+                />
+                <Button
+                  size={"small"}
+                  type="text"
+                  icon={<DeleteOutlined />}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteEdition(edition.id);
+                  }}
+                  title={"حذف"}
+                  className="text-red-500 hover:text-red-700"
+                />
+                <Button
+                  size={"small"}
+                  type="text"
+                  icon={<FileDoneOutlined />}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAutomationFiles(edition);
+                  }}
+                  title={"روال اسناد"}
+                  className="text-purple-500 hover:text-purple-700"
+                />
+                <Button
+                  size={"small"}
+                  type="text"
+                  icon={<EyeOutlined />}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleShowDetailEdition(edition);
+                  }}
+                  className="text-sky-500 hover:text-sky-700"
+                />
+              </Space>
+            </div>
+          ),
+          edition: edition.edition,
+          id: edition.id,
+          isLeaf: true,
+        };
+      });
       baseNode.children.push(...editionNodes);
     }
 
