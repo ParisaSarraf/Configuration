@@ -1,12 +1,15 @@
 import {
+  CheckCircleOutlined,
+  CloseCircleOutlined,
   DeleteOutlined,
   EditOutlined,
   EyeOutlined,
   FileDoneOutlined,
   PlusOutlined,
+  WarningOutlined,
 } from "@ant-design/icons";
 import Tree from "../../../components/Tree";
-import { Button, message, Modal, Space } from "antd";
+import { Button, message, Modal, Space, Tag, Tooltip } from "antd";
 import {
   useDeleteProductDocument,
   useDeleteProductDocumentEdition,
@@ -14,8 +17,55 @@ import {
 } from "../../../QueryServises/productDocumentQuery";
 import { useEffect, useMemo, useState } from "react";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import {
+  georgianDateToJalaliDate,
+  getSurveyDateStatus,
+} from "@utils/timeTool.jsx";
 
 const LOCAL_STORAGE_KEY = "productDocumentTreeExpandedKeys";
+
+const ReviewDateBadge = ({ surveyDate }) => {
+  const { status, daysRemaining } = getSurveyDateStatus(surveyDate);
+  if (status === "none") return null;
+
+  const date = georgianDateToJalaliDate(surveyDate);
+  const presentation =
+    status === "expired"
+      ? {
+          color: "red",
+          icon: <CloseCircleOutlined />,
+          label: `منقضی · ${date}`,
+          tooltip: `تاریخ بازبینی گذشته است — ${date}`,
+        }
+      : status === "warning"
+        ? {
+            color: "orange",
+            icon: <WarningOutlined />,
+            label:
+              daysRemaining === 0
+                ? `بازبینی امروز · ${date}`
+                : `${daysRemaining.toLocaleString("fa-IR")} روز · ${date}`,
+            tooltip: `موعد بازبینی نزدیک است — ${date}`,
+          }
+        : {
+            color: "green",
+            icon: <CheckCircleOutlined />,
+            label: date,
+            tooltip: `تاریخ بازبینی: ${date}`,
+          };
+
+  return (
+    <Tooltip title={presentation.tooltip}>
+      <Tag
+        icon={presentation.icon}
+        color={presentation.color}
+        className="!m-0 shrink-0"
+      >
+        {presentation.label}
+      </Tag>
+    </Tooltip>
+  );
+};
 const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
   const [expandedKeys, setExpandedKeys] = useState([]);
   const selectedProductId = currentProduct?.id;
@@ -142,15 +192,21 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
     const hasDocument = productDoc?.id;
     const documentTitle = node.title || parentTitle;
     const documentId = node.id || parentId;
+    // تاریخ بازبینی فقط متعلق به edition است؛ هیچ تاریخ جایگزینی از
+    // product_document یا موجودیت دیگری در درخت نمایش داده نمی‌شود.
+    const reviewDate = editions?.[0]?.survey_date ?? null;
 
     const baseNode = {
       key: `node-${node.id || productDoc.id}`,
       title: (
         <div className="flex flex-row justify-between items-center w-full">
-          <span>
-            {productDoc?.document?.code
-              ? ` ${productDoc.title} - ${productDoc.document.code}`
-              : node.title}
+          <span className="flex min-w-0 flex-1 items-center gap-2">
+            <span className="truncate">
+              {productDoc?.document?.code
+                ? ` ${productDoc.title} - ${productDoc.document.code}`
+                : node.title}
+            </span>
+            <ReviewDateBadge surveyDate={reviewDate} />
           </span>
           {hasDocument && (
             <Space>
@@ -190,7 +246,7 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
       product_document_id: productDoc,
       is_reportable: productDoc?.is_reportable,
       document: productDoc?.document,
-      survey_date: productDoc?.survey_date,
+      survey_date: reviewDate,
       children: [],
       documentTitle: documentTitle,
       documentId: documentId,
@@ -205,8 +261,8 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
           <div
             className={`flex flex-row justify-between items-center w-full ${edition?.is_active ? "text-sky-500" : "text-black"}`}
           >
-            <span className={`w-full gap-2 `}>
-              {edition.edition_full} -
+            <span className="flex min-w-0 flex-1 items-center gap-2">
+              <span className="truncate">{edition.edition_full} -</span>
               <FiberManualRecordIcon
                 fontSize="small"
                 className={
@@ -221,7 +277,8 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
                           : "text-[#faad14]"
                 }
               />
-              {edition.reasons_editing}
+              <span className="truncate">{edition.reasons_editing}</span>
+              <ReviewDateBadge surveyDate={edition.survey_date} />
             </span>
             <Space>
               <Button
