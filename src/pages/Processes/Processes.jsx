@@ -29,7 +29,6 @@ import {
 import ProccessDetailModal from "./ProcessBuilder/components/ProccessDetailModal";
 import useModal from "../../hooks/useModal";
 import CreateProccessModal from "./ProcessBuilder/components/CreateProccessModal";
-import ProcessDashboardModal from "./components/ProcessDashboardModal";
 
 const PAGE_SIZE = 8;
 
@@ -125,13 +124,7 @@ const ProcessesList = () => {
             <Tooltip title="داشبورد فرایند">
               <Button
                 icon={<BarChartOutlined />}
-                onClick={() =>
-                  setModal({
-                    mode: "view",
-                    data: record,
-                    type: "ProcessDashboard",
-                  })
-                }
+                onClick={() => navigate(`/processes/${record.id}/dashboard`)}
               >
                 داشبورد
               </Button>
@@ -326,11 +319,6 @@ const ProcessesList = () => {
         modalMode={modalMode}
         isOpen={modalType === "ProccessDetail" && isOpen}
         closeModal={closeModal}
-      />
-      <ProcessDashboardModal
-        process={modalData}
-        open={modalType === "ProcessDashboard" && isOpen}
-        onClose={closeModal}
       />
     </div>
   );

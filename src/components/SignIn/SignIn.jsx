@@ -79,7 +79,20 @@ export function SignIn() {
             {loading ? "" : "ورود"}
           </Button>
 
-         
+          <div className="flex justify-between items-center mt-6">
+            <Button type="text" className="text-gray-900 hover:text-gray-600">
+              <Link to="/forget-password" className="text-gray-900 ml-1">
+                فراموشی رمز
+              </Link>
+            </Button>
+          </div>
+
+          <Paragraph className="text-center text-gray-500 mt-4">
+            ثبت نام نیستید؟
+            <Link to="/auth/sign-up" className="text-gray-900 ml-1">
+              حساب کاربری بسازید
+            </Link>
+          </Paragraph>
         </Form>
       </div>
 
