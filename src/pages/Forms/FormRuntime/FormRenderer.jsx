@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { GRID, normalizeFields } from "../FormBuilderStudio/formStudioLayout";
 import { INPUT_TYPES, validateAll } from "./formElements";
-import { resolveType } from "./fieldSchema";
+import { resolveType, sectionBandStyle } from "./fieldSchema";
 import FieldControl from "./FieldControl";
 import SheetTable from "./SheetTable";
 import printForm from "./printForm";
@@ -67,7 +67,11 @@ export function Element({ field, values, errors, onChange, readOnly }) {
   if (type === "divider") return <div className="fr-divider" />;
   if (type === "doc_header") return <DocHeader field={field} />;
   if (type === "section")
-    return <div className="fr-band">{field.field_label}</div>;
+    return (
+      <div className="fr-band" style={sectionBandStyle(field)}>
+        {field.field_label}
+      </div>
+    );
 
   if (type === "logo")
     return (

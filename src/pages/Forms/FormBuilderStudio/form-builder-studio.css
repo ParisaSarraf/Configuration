@@ -329,6 +329,18 @@
 .studio-field-card:hover .studio-field-resize,
 .studio-field-card.is-selected .studio-field-resize { color: var(--tone); background: var(--tone-soft); }
 
+.studio-color-input.ant-input {
+  width: 100%;
+  height: 42px;
+  padding: 4px;
+  cursor: pointer;
+}
+.studio-color-input.ant-input::-webkit-color-swatch-wrapper { padding: 0; }
+.studio-color-input.ant-input::-webkit-color-swatch {
+  border: 0;
+  border-radius: 6px;
+}
+
 /* ---------- Loading ---------- */
 
 .studio-loading {

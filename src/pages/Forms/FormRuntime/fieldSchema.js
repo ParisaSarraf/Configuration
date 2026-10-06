@@ -296,6 +296,47 @@ export const TYPE_ALIASES = Object.freeze({
 
 const DEF_BY_TYPE = new Map(FIELD_DEFS.map((def) => [def.type, def]));
 
+const SECTION_BACKGROUND_TOKEN =
+  /(?:^|\s)form-section-bg:(#[0-9a-fA-F]{6})(?=\s|$)/g;
+
+export const readSectionBackground = (cssClass = "") => {
+  let color = "";
+  String(cssClass).replace(SECTION_BACKGROUND_TOKEN, (match, value) => {
+    color = value;
+    return match;
+  });
+  SECTION_BACKGROUND_TOKEN.lastIndex = 0;
+  return color;
+};
+
+export const writeSectionBackground = (cssClass = "", color = "") => {
+  SECTION_BACKGROUND_TOKEN.lastIndex = 0;
+  const clean = String(cssClass)
+    .replace(SECTION_BACKGROUND_TOKEN, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const normalized = /^#[0-9a-fA-F]{6}$/.test(String(color).trim())
+    ? String(color).trim().toUpperCase()
+    : "";
+  return [clean, normalized ? `form-section-bg:${normalized}` : ""]
+    .filter(Boolean)
+    .join(" ");
+};
+
+export const sectionBandStyle = (field) => {
+  const backgroundColor = readSectionBackground(field?.css_class);
+  if (!backgroundColor) return undefined;
+  const red = Number.parseInt(backgroundColor.slice(1, 3), 16);
+  const green = Number.parseInt(backgroundColor.slice(3, 5), 16);
+  const blue = Number.parseInt(backgroundColor.slice(5, 7), 16);
+  const luminance = (red * 299 + green * 587 + blue * 114) / 1000;
+  return {
+    backgroundColor,
+    borderColor: backgroundColor,
+    color: luminance > 155 ? "#0F172A" : "#FFFFFF",
+  };
+};
+
 export const canonicalType = (type) => {
   const key = String(type || "text");
   return TYPE_ALIASES[key] || key;

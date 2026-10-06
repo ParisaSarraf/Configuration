@@ -81,10 +81,13 @@ import {
   hasPanel,
   labelOf,
   payloadKeysOf,
+  readSectionBackground,
   resolveType,
+  sectionBandStyle,
   toBackendType,
   toChoiceObjects,
   toMatrixColumns,
+  writeSectionBackground,
 } from "../FormRuntime/fieldSchema";
 import MatrixInput from "../FormRuntime/MatrixInput";
 import { CHANGE_REQUEST_TEMPLATE } from "../FormRuntime/sampleChangeRequestForm";
@@ -262,6 +265,8 @@ const editorValues = (field) => {
     ...field,
     field_type: type,
     css_class: stripLayout(field.css_class),
+    sectionBackground:
+      readSectionBackground(field.css_class) || "#DBE6F3",
     choiceList: CHOICE_TYPES.has(type) ? toChoiceObjects(field.choices) : [],
     columns:
       type === "matrix"
@@ -285,7 +290,11 @@ function DocElementPreview({ field }) {
     return <div className="fr-pagebreak">شکست صفحه در چاپ</div>;
   if (type === "divider") return <div className="fr-divider" />;
   if (type === "section")
-    return <div className="fr-band">{field.field_label}</div>;
+    return (
+      <div className="fr-band" style={sectionBandStyle(field)}>
+        {field.field_label}
+      </div>
+    );
   if (type === "display_text")
     return (
       <div className="fr-cell fr-plain">
@@ -1063,8 +1072,13 @@ function Studio({ formDefinitionId }) {
         ...editing,
         ...values,
         field_type: editedFieldType,
+        css_class: writeSectionBackground(
+          values.css_class,
+          editedFieldType === "section" ? values.sectionBackground : "",
+        ),
         choices,
       };
+      delete next.sectionBackground;
       delete next.choiceList;
       delete next.columns;
       delete next.structureText;
@@ -1314,6 +1328,15 @@ function Studio({ formDefinitionId }) {
             style={LAYOUT_ONLY.has(activeType) ? HIDE : undefined}
           >
             <Switch />
+          </Form.Item>
+
+          <Form.Item
+            name="sectionBackground"
+            label="رنگ پس‌زمینه عنوان بخش"
+            extra="رنگ متن با توجه به روشن یا تیره بودن پس‌زمینه، خودکار تنظیم می‌شود."
+            style={activeType === "section" ? undefined : HIDE}
+          >
+            <Input type="color" className="studio-color-input" />
           </Form.Item>
 
           <Form.Item
