@@ -53,7 +53,14 @@ export const pxToX = (px) => Math.round(px / colPitch);
 
 export const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
-const LEGACY_WIDTH_SPANS = { "1/1": 12, "1/2": 6, "1/3": 4, "1/4": 3, "2/3": 8 };
+const LEGACY_WIDTH_SPANS = {
+  "1/1": 12,
+  "3/4": 9,
+  "2/3": 8,
+  "1/2": 6,
+  "1/3": 4,
+  "1/4": 3,
+};
 
 export const stripLayout = (cssClass = "") =>
   String(cssClass)
