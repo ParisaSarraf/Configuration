@@ -469,6 +469,79 @@ function FieldCard({
   );
 }
 
+const ALIGN_GUIDE_THRESHOLD = 7;
+
+const findClosestAlignment = (anchors, targets) => {
+  let closest = null;
+  anchors.forEach((anchor) => {
+    targets.forEach((target) => {
+      if (anchor.key !== target.key) return;
+      const distance = Math.abs(anchor.value - target.value);
+      if (
+        distance <= ALIGN_GUIDE_THRESHOLD &&
+        (!closest || distance < closest.distance)
+      ) {
+        closest = { anchor, target: target.value, distance };
+      }
+    });
+  });
+  return closest;
+};
+
+const snapToFieldGuides = ({ left, top, width, height }, fields, activeId) => {
+  const otherRects = fields
+    .filter((field) => String(field.id) !== String(activeId))
+    .map((field) => {
+      const rectLeft = xToPx(field.x);
+      const rectTop = rowsToPx(field.y);
+      const rectWidth = colsToPx(field.w);
+      const rectHeight = rowsToPx(field.h);
+      return {
+        left: rectLeft,
+        centerX: rectLeft + rectWidth / 2,
+        right: rectLeft + rectWidth,
+        top: rectTop,
+        centerY: rectTop + rectHeight / 2,
+        bottom: rectTop + rectHeight,
+      };
+    });
+
+  if (!otherRects.length)
+    return { left, top, guideX: null, guideY: null };
+
+  const xMatch = findClosestAlignment(
+    [
+      { key: "left", value: left, offset: 0 },
+      { key: "center", value: left + width / 2, offset: width / 2 },
+      { key: "right", value: left + width, offset: width },
+    ],
+    otherRects.flatMap((rect) => [
+      { key: "left", value: rect.left },
+      { key: "center", value: rect.centerX },
+      { key: "right", value: rect.right },
+    ]),
+  );
+  const yMatch = findClosestAlignment(
+    [
+      { key: "top", value: top, offset: 0 },
+      { key: "middle", value: top + height / 2, offset: height / 2 },
+      { key: "bottom", value: top + height, offset: height },
+    ],
+    otherRects.flatMap((rect) => [
+      { key: "top", value: rect.top },
+      { key: "middle", value: rect.centerY },
+      { key: "bottom", value: rect.bottom },
+    ]),
+  );
+
+  return {
+    left: xMatch ? xMatch.target - xMatch.anchor.offset : left,
+    top: yMatch ? yMatch.target - yMatch.anchor.offset : top,
+    guideX: xMatch?.target ?? null,
+    guideY: yMatch?.target ?? null,
+  };
+};
+
 function Canvas({ fields, saving, onEdit, onRemove, onPersist }) {
   const canvasRef = useRef(null);
   const [gesture, setGesture] = useState(null); // { kind, id, ... }
@@ -492,6 +565,8 @@ function Canvas({ fields, saving, onEdit, onRemove, onPersist }) {
       h: field.h,
       liveLeft: xToPx(field.x),
       liveTop: rowsToPx(field.y),
+      guideX: null,
+      guideY: null,
     });
   };
 
@@ -519,11 +594,31 @@ function Canvas({ fields, saving, onEdit, onRemove, onPersist }) {
       const dy = event.clientY - gesture.pointerY;
       if (gesture.kind === "move") {
         const maxLeft = width - colsToPx(gesture.w);
-        setGesture((prev) => ({
-          ...prev,
-          liveLeft: clamp(prev.originLeft + dx, 0, Math.max(maxLeft, 0)),
-          liveTop: Math.max(prev.originTop + dy, 0),
-        }));
+        setGesture((prev) => {
+          const rawLeft = clamp(
+            prev.originLeft + dx,
+            0,
+            Math.max(maxLeft, 0),
+          );
+          const rawTop = Math.max(prev.originTop + dy, 0);
+          const aligned = snapToFieldGuides(
+            {
+              left: rawLeft,
+              top: rawTop,
+              width: colsToPx(prev.w),
+              height: rowsToPx(prev.h),
+            },
+            fields,
+            prev.id,
+          );
+          return {
+            ...prev,
+            liveLeft: clamp(aligned.left, 0, Math.max(maxLeft, 0)),
+            liveTop: Math.max(aligned.top, 0),
+            guideX: aligned.guideX,
+            guideY: aligned.guideY,
+          };
+        });
       } else {
         setGesture((prev) => ({
           ...prev,
@@ -598,6 +693,20 @@ function Canvas({ fields, saving, onEdit, onRemove, onPersist }) {
         ref={canvasRef}
         style={{ width, height, opacity: saving ? 0.75 : 1 }}
       >
+        {gesture?.kind === "move" && gesture.guideX != null ? (
+          <span
+            className="studio-alignment-guide is-vertical"
+            style={{ left: gesture.guideX }}
+            aria-hidden="true"
+          />
+        ) : null}
+        {gesture?.kind === "move" && gesture.guideY != null ? (
+          <span
+            className="studio-alignment-guide is-horizontal"
+            style={{ top: gesture.guideY }}
+            aria-hidden="true"
+          />
+        ) : null}
         {fields.map((field) => {
           const isActive = gesture?.id === field.id;
           const left =

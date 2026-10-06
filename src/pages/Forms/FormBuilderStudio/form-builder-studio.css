@@ -171,6 +171,26 @@
   margin: 0 auto;
 }
 
+.studio-alignment-guide {
+  position: absolute;
+  z-index: 35;
+  display: block;
+  pointer-events: none;
+  filter: drop-shadow(0 0 2px rgba(109, 90, 224, .22));
+}
+.studio-alignment-guide.is-horizontal {
+  right: -18px;
+  left: -18px;
+  height: 0;
+  border-top: 1.5px dashed #6d5ae0;
+}
+.studio-alignment-guide.is-vertical {
+  top: -18px;
+  bottom: -18px;
+  width: 0;
+  border-left: 1.5px dashed #6d5ae0;
+}
+
 .studio-canvas > .ant-empty {
   min-height: 460px;
   margin: 26px;
