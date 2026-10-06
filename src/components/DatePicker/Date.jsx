@@ -8,6 +8,7 @@ const Date = ({
   rules = [],
   stringifyDate = false,
   onlyYearPicker = false,
+  noMaxDate = false,
 }) => {
   const form = Form.useFormInstance();
   const handleDate = (date) => {
@@ -42,6 +43,7 @@ const Date = ({
         <DatepickerCustom
           onChange={handleOnChange}
           onlyYearPicker={onlyYearPicker}
+          noMaxDate={noMaxDate}
         />
       </Form.Item>
     </div>

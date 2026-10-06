@@ -53,12 +53,17 @@ export function georgianDateTimeToJalaliDateTimeWithSeconds(enDateTime) {
 }
 
 export function jalaliDateToGeorgianDate(faDate) {
-  // this condition used for part of project that not converted to TS
-  if ([null, undefined, "", "null"].includes(faDate?.trim())) return "";
+  if (faDate == null || faDate === "" || faDate === "null") return "";
 
-  // if (!faDate) return null
-  return isJalaliDateValid(faDate)
-    ? moment(faDate, "jYYYY/jMM/jDD").format("YYYY-MM-DD")
+  // DatePicker رشته را با جداکننده «-» می‌سازد، در حالی که نسخه قبلی فقط
+  // فرمت دارای «/» را می‌پذیرفت و در نتیجه close_date به null تبدیل می‌شد.
+  const normalized = String(faDate)
+    .trim()
+    .replace(/[۰-۹]/g, (digit) => "۰۱۲۳۴۵۶۷۸۹".indexOf(digit))
+    .replace(/-/g, "/");
+
+  return isJalaliDateValid(normalized)
+    ? moment(normalized, "jYYYY/jMM/jDD").format("YYYY-MM-DD")
     : null;
 }
 

@@ -73,7 +73,10 @@ const FormDefinitionModal = ({
         description: modalData.description,
         is_active: modalData.is_active ,
         version: modalData.version,
-        close_date: georgianDateToJalaliDate(modalData.close_date),
+        close_date: georgianDateToJalaliDate(modalData.close_date).replaceAll(
+          "/",
+          "-",
+        ),
         max_submissions: modalData.max_submissions ?? null,
         success_message: modalData.success_message || "",
         success_redirect_url: modalData.success_redirect_url || "",
@@ -125,6 +128,7 @@ const FormDefinitionModal = ({
               label="تاریخ پایان"
               name="close_date"
               stringifyDate={true}
+              noMaxDate
               noStyle
             />
           </Col>
