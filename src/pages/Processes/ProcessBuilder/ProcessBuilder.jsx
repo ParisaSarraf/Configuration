@@ -7,6 +7,7 @@ import {
   ConfigProvider,
   Dropdown,
   Empty,
+  Select,
   Spin,
   Tag,
   Tooltip,
@@ -112,6 +113,7 @@ const Builder = ({ processId }) => {
   const [wizardOpen, setWizardOpen] = useState(false);
   const [viewport, setViewport] = useState({ x: 0, y: 0, zoom: 1 });
   const [connectFrom, setConnectFrom] = useState(null);
+  const [lensRoleId, setLensRoleId] = useState(null);
   const [historyMeta, setHistoryMeta] = useState({
     canUndo: false,
     canRedo: false,
@@ -1031,6 +1033,22 @@ const Builder = ({ processId }) => {
         </div>
 
         <div className="process-builder__toolbar-end">
+          <Tooltip title="نمای فرایند از دید یک سمت؛ مراحل خارج از دسترسی کم‌رنگ می‌شوند.">
+            <Select
+              allowClear
+              showSearch
+              optionFilterProp="label"
+              className="process-builder__role-lens"
+              placeholder="Role Lens"
+              value={lensRoleId}
+              options={groups}
+              loading={groupsQuery.isLoading}
+              onChange={(value) => setLensRoleId(value ?? null)}
+            />
+          </Tooltip>
+
+          <span className="process-builder__divider" />
+
           <Tooltip title="بازگردانی (Ctrl+Z)">
             <Button
               icon={<UndoOutlined />}
@@ -1162,6 +1180,7 @@ const Builder = ({ processId }) => {
               onAddEdgeAction={handleAddEdgeAction}
               onRenameNode={handleRenameNode}
               onOpenWizard={() => setWizardOpen(true)}
+              lensRoleId={lensRoleId}
             />
           )}
           {editingLocked && !isLoading ? (

@@ -120,6 +120,22 @@
   min-width: 0;
 }
 
+.process-builder__role-lens {
+  width: 170px;
+}
+
+.process-node--role-hidden {
+  opacity: 0.22;
+  filter: grayscale(1);
+  transform: scale(0.98);
+}
+
+.process-node--role-hidden:hover,
+.process-node--role-hidden.process-node--selected {
+  opacity: 0.72;
+  filter: grayscale(0.35);
+}
+
 .process-builder__title {
   display: flex;
   flex-direction: column;

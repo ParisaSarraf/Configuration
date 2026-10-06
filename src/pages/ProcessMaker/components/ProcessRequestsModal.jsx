@@ -44,6 +44,7 @@ import {
 } from "@/pages/Processes/ProcessBuilder/processGraph";
 import { georgianDateTimeToJalaliDateTime } from "@utils/timeTool.jsx";
 import Modal from "../../../components/Modal";
+import RequestPathGraph from "./RequestPathGraph";
 
 const STATE_TYPE_OPTIONS = [
   { value: "", label: "همه وضعیت‌ها" },
@@ -432,32 +433,85 @@ export const RequestWorkPanel = ({ record, onCompleted }) => {
   if (!categories.length) return <Empty description="ساختار فرم خالی است." />;
 
   return (
-    <div className="space-y-3">
-      <div className="rounded-xl border border-slate-200 bg-white p-3 text-xs leading-6 text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
-        فیلدهای باز این مرحله را تکمیل کنید و سپس یکی از عملیات پایین فرم را
-        انتخاب کنید. قانون قفلِ خود مرحله بعد از خروج از آن فعال می‌شود و در
-        تمام مراحل بعدی به‌صورت ماندگار باقی می‌ماند.
-      </div>
-      <FormRenderer
-        key={`request-${record.requestId}-state-${record.currentStateId}`}
-        categories={categories}
-        mode="fill"
-        initialValues={initialValues}
-        initialDevice="fluid"
-        showToolbar={false}
-        lockedFieldIds={lockedFieldIds}
-        submitOptions={submitOptions}
-        submitSectionTitle={`تکمیل مرحله «${record.stateName}» و ارجاع`}
-        submitting={pending}
-        onSubmit={saveAndRefer}
-      />
-      {!submitOptions.length ? (
-        <Alert
-          type="info"
-          showIcon
-          message="برای مرحله فعلی عملیات قابل اجرایی وجود ندارد."
+    <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="min-w-0 space-y-3">
+        <div className="rounded-2xl border border-blue-100 bg-blue-50/70 p-4 text-xs leading-6 text-blue-800 dark:border-blue-900/50 dark:bg-blue-950/30 dark:text-blue-200">
+          فیلدهای باز این مرحله را تکمیل کنید و سپس یکی از عملیات پایین فرم را
+          انتخاب کنید. 
+        </div>
+        <FormRenderer
+          key={`request-${record.requestId}-state-${record.currentStateId}`}
+          categories={categories}
+          mode="fill"
+          initialValues={initialValues}
+          initialDevice="fluid"
+          showToolbar={false}
+          lockedFieldIds={lockedFieldIds}
+          submitOptions={submitOptions}
+          submitSectionTitle={`تکمیل مرحله «${record.stateName}» و ارجاع`}
+          submitting={pending}
+          onSubmit={saveAndRefer}
         />
-      ) : null}
+        {!submitOptions.length ? (
+          <Alert
+            type="info"
+            showIcon
+            message="برای مرحله فعلی عملیات قابل اجرایی وجود ندارد."
+          />
+        ) : null}
+      </div>
+
+      <aside className="space-y-3 lg:sticky lg:top-0">
+        <div className="rounded-2xl bg-slate-950 p-4 text-white shadow-lg">
+          <div className="text-[10px] font-bold text-blue-300">
+            CURRENT STATION
+          </div>
+          <div className="mt-2 text-lg font-black">
+            {record.stateName || "بدون مرحله"}
+          </div>
+          <div className="mt-3 flex items-center justify-between rounded-xl bg-white/10 px-3 py-2 text-[11px] text-slate-300">
+            <span>فیلد قفل‌شده</span>
+            <b className="text-white">
+              {lockedFieldIds.length.toLocaleString("fa-IR")}
+            </b>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+          <div className="mb-3 text-xs font-black text-slate-800 dark:text-white">
+            مسیر طی‌شده درخواست
+          </div>
+          <RequestPathGraph
+            query={requestPathQuery}
+            requestId={record.requestId}
+          />
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+          <div className="mb-3 text-xs font-black text-slate-800 dark:text-white">
+            مقصد Actionهای این مرحله
+          </div>
+          <div className="space-y-2">
+            {submitOptions.length ? (
+              submitOptions.map((option) => (
+                <div
+                  key={option.actionId}
+                  className="flex items-center justify-between gap-2 rounded-xl bg-slate-50 px-3 py-2.5 text-xs dark:bg-slate-800"
+                >
+                  <strong className="truncate">{option.label}</strong>
+                  <span className="shrink-0 text-[10px] text-slate-400">
+                    ← {option.nextStateName || "مرحله بعد"}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <span className="text-xs text-slate-400">
+                Action قابل اجرایی وجود ندارد.
+              </span>
+            )}
+          </div>
+        </div>
+      </aside>
     </div>
   );
 };

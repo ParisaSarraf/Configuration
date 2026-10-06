@@ -9,7 +9,11 @@ import { getStateType } from "../ProcessBuilder/processSchema";
 const NODE_WIDTH = 184;
 const NODE_HEIGHT = 76;
 
-const ProcessFlowOverview = ({ graph }) => {
+const ProcessFlowOverview = ({
+  graph,
+  selectedRoleId = null,
+  stateCounts = new Map(),
+}) => {
   if (!graph?.nodes?.length)
     return <Empty description="هنوز ایستگاهی برای این فرایند ساخته نشده است" />;
 
@@ -71,10 +75,23 @@ const ProcessFlowOverview = ({ graph }) => {
         {laidOut.nodes.map((node) => {
           const type = getStateType(node.stateTypeId);
           const TypeIcon = type.Icon;
+          const roleIsAllowed =
+            !selectedRoleId ||
+            (node.permissions ?? []).some(
+              (permission) =>
+                String(permission.groupId) === String(selectedRoleId),
+            );
+          const requestCount = Number(
+            stateCounts.get(String(node.id)) ?? 0,
+          );
           return (
             <div
               key={node.id}
-              className="absolute flex h-[76px] w-[184px] flex-col justify-center rounded-2xl border bg-white px-4 shadow-sm dark:border-slate-700 dark:bg-slate-900"
+              className={`absolute flex h-[76px] w-[184px] flex-col justify-center rounded-2xl border bg-white px-4 shadow-sm transition-all dark:border-slate-700 dark:bg-slate-900 ${
+                roleIsAllowed
+                  ? "opacity-100"
+                  : "scale-[0.98] opacity-25 grayscale"
+              }`}
               style={{
                 left: node.x,
                 top: node.y,
@@ -88,9 +105,16 @@ const ProcessFlowOverview = ({ graph }) => {
                 </span>
               </div>
               <div className="mt-2 flex items-center justify-between gap-2">
-                <Tag bordered={false} className="m-0 text-[10px]">
-                  {type.shortLabel}
-                </Tag>
+                <span className="flex items-center gap-1">
+                  <Tag bordered={false} className="m-0 text-[10px]">
+                    {type.shortLabel}
+                  </Tag>
+                  {requestCount > 0 ? (
+                    <Tag color="geekblue" className="m-0 text-[10px]">
+                      {requestCount.toLocaleString("fa-IR")} درخواست
+                    </Tag>
+                  ) : null}
+                </span>
                 {node.lockedFieldIds?.length ? (
                   <span className="flex items-center gap-1 text-[10px] text-amber-600">
                     <LockOutlined />

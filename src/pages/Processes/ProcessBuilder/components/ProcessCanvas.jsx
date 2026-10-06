@@ -48,6 +48,7 @@ const ProcessCanvas = ({
   onRenameNode,
   onOpenWizard,
   readOnly = false,
+  lensRoleId = null,
 }) => {
   // ویرایش نام روی خود بوم؛ فقط حالت نمایشی است و دادهٔ گراف را تغییر نمی‌دهد.
   const [editingNodeId, setEditingNodeId] = useState(null);
@@ -528,6 +529,12 @@ const ProcessCanvas = ({
               String(edge.target) === String(node.id),
           );
           const isEditing = String(editingNodeId) === String(node.id);
+          const isOutsideRoleLens =
+            lensRoleId != null &&
+            !(node.permissions ?? []).some(
+              (permission) =>
+                String(permission.groupId) === String(lensRoleId),
+            );
 
           return (
             <div
@@ -538,7 +545,7 @@ const ProcessCanvas = ({
                 isConnectTarget ? " process-node--connect-target" : ""
               }${isOrphan ? " process-node--orphan" : ""}${
                 type.shape === "pill" ? " process-node--pill" : ""
-              }`}
+              }${isOutsideRoleLens ? " process-node--role-hidden" : ""}`}
               style={{
                 left: node.x,
                 top: node.y,

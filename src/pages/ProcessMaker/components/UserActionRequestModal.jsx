@@ -10,7 +10,8 @@ const UserActionRequestModal = ({ open, record, onClose, onCompleted }) => {
     <Modal
       isOpen={open}
       onClose={onClose}
-      size="min(1380px, 98vw)"
+      size="100vw"
+      className="request-workbench-modal"
       destroyOnClose
       footer={null}
       title={

@@ -1,52 +1,56 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Alert, Button, Empty, Input, Segmented, Select, Tooltip } from "antd";
+import {
+  Alert,
+  Button,
+  Empty,
+  Input,
+  Pagination,
+  Select,
+  Tag,
+  Tooltip,
+} from "antd";
 import {
   ArrowRightOutlined,
+  BarChartOutlined,
+  CheckCircleOutlined,
+  DashboardOutlined,
+  EditOutlined,
+  EyeOutlined,
   InboxOutlined,
   PartitionOutlined,
+  PlusOutlined,
   ReloadOutlined,
+  SearchOutlined,
   ThunderboltOutlined,
 } from "@ant-design/icons";
 import Header from "@/components/Layouts/Header.jsx";
 import { getApiErrorMessage } from "@/Services/forms/formUtils";
 import { getUserFromToken } from "@/utils/ExportFromToken";
 import CartableTaskModal from "./components/CartableTaskModal";
-import CartableSubmissionModal from "./components/CartableSubmissionModal";
-import { TableAntd } from "../../components/TableAntd/TableAntd";
-import todoColumns from "./components/todoColumns";
-import sentColumns from "./components/sentColumns";
-import processColumns from "./components/processColumns";
 import ProcessRequestsModal from "./components/ProcessRequestsModal";
 import { requestRowsFromResponse } from "./components/ProcessRequestsModal";
 import ProcessPathModal from "./components/ProcessPathModal";
 import UserActionRequestModal from "./components/UserActionRequestModal";
-import userActionColumns from "./components/userActionColumns";
-import { useFormSubmisions } from "../../QueryServises/formsQuery";
 import {
   useProcessInfo,
+  useProcessKpis,
   useProcessList,
-  useRequests,
   useRequestsNeedUserAction,
 } from "../../QueryServises/workflowQuery";
-import {
-  sentRowsFromRequests,
-  sentRowsFromSubmissions,
-} from "@/Services/forms/submissionView";
 import useModal from "../../hooks/useModal";
+import "./components/command-center.css";
 
 const PAGE_SIZE = 8;
 
 const TABS = Object.freeze({
   TODO: "todo",
-  SENT: "sent",
   PROCESSES: "processes",
   ACTIONS: "actions",
 });
 
 const MODAL_TYPES = Object.freeze({
   CARTABLE_TASK: "cartableTask",
-  CARTABLE_SUBMISSION: "cartableSubmission",
   PROCESS_REQUESTS: "processRequests",
   PROCESS_PATH: "processPath",
   USER_ACTION: "userAction",
@@ -81,6 +85,7 @@ const ProcessMakerCartable = () => {
   const { isOpen, modalType, modalData, setModal, closeModal } = useModal();
 
   const currentUser = useMemo(readCurrentUser, []);
+  const searchRef = useRef(null);
 
   const [tab, setTab] = useState(TABS.TODO);
   const [search, setSearch] = useState("");
@@ -91,7 +96,6 @@ const ProcessMakerCartable = () => {
   const actionTabIsVisible = tab === TABS.ACTIONS;
   const processTabIsVisible =
     tab === TABS.TODO || tab === TABS.PROCESSES || actionTabIsVisible;
-  const sentTabIsVisible = tab === TABS.SENT;
   const permissionSensitiveQueryOptions = {
     retry: false,
     staleTime: 60 * 1000,
@@ -105,13 +109,9 @@ const ProcessMakerCartable = () => {
     ...permissionSensitiveQueryOptions,
     enabled: processTabIsVisible,
   });
-  const formSubmissionQuery = useFormSubmisions({
+  const processKpisQuery = useProcessKpis({
     ...permissionSensitiveQueryOptions,
-    enabled: sentTabIsVisible,
-  });
-  const requestsQuery = useRequests({
-    ...permissionSensitiveQueryOptions,
-    enabled: sentTabIsVisible,
+    enabled: processTabIsVisible,
   });
   const actionFilters = useMemo(
     () => ({
@@ -122,7 +122,7 @@ const ProcessMakerCartable = () => {
   );
   const userActionsQuery = useRequestsNeedUserAction(actionFilters, {
     ...permissionSensitiveQueryOptions,
-    enabled: actionTabIsVisible,
+    enabled: true,
   });
   const actionProcessInfoQuery = useProcessInfo(actionProcessId, {
     ...permissionSensitiveQueryOptions,
@@ -137,6 +137,17 @@ const ProcessMakerCartable = () => {
     if (tab !== TABS.ACTIONS) return;
     setActionStateId(null);
   }, [actionProcessId, tab]);
+
+  useEffect(() => {
+    const handleShortcut = (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        searchRef.current?.focus?.();
+      }
+    };
+    window.addEventListener("keydown", handleShortcut);
+    return () => window.removeEventListener("keydown", handleShortcut);
+  }, []);
 
   // ---------- فرایندهای قابل شروع (TODO) ----------
   // دیتای تب «درخواست ها» از API فرایند خوانده می‌شود، نه لیست فرم‌ها.
@@ -160,46 +171,6 @@ const ProcessMakerCartable = () => {
     );
   }, [todoItems, search]);
 
-  // ---------- ارسال‌شده‌ها (SENT) ----------
-  const requestRows = useMemo(
-    () => sentRowsFromRequests(requestsQuery.data),
-    [requestsQuery.data],
-  );
-
-  const legacyRows = useMemo(
-    () =>
-      sentRowsFromSubmissions(
-        formSubmissionQuery.data,
-        new Set(requestRows.map((row) => row.submissionId).filter(Boolean)),
-      ),
-    [formSubmissionQuery.data, requestRows],
-  );
-
-  const sentRows = useMemo(
-    () => [...requestRows, ...legacyRows],
-    [requestRows, legacyRows],
-  );
-
-  const filteredSent = useMemo(() => {
-    const term = normalize(search);
-    if (!term) return sentRows;
-    return sentRows.filter((row) => {
-      const values = Object.values(row?.formData ?? {})
-        .map((value) =>
-          value && typeof value === "object" ? JSON.stringify(value) : value,
-        )
-        .join(" ");
-      return (
-        normalize(row?.submitter?.name).includes(term) ||
-        normalize(row?.submitter?.username).includes(term) ||
-        normalize(row?.processName).includes(term) ||
-        normalize(row?.stateName).includes(term) ||
-        normalize(row?.title).includes(term) ||
-        normalize(values).includes(term)
-      );
-    });
-  }, [sentRows, search]);
-
   // ---------- لیست فرآیندها (PROCESSES) ----------
   const filteredProcesses = useMemo(() => {
     const term = normalize(search);
@@ -216,6 +187,29 @@ const ProcessMakerCartable = () => {
   const actionRows = useMemo(
     () => requestRowsFromResponse(userActionsQuery.data),
     [userActionsQuery.data],
+  );
+  const kpis = useMemo(
+    () => asArray(processKpisQuery.data),
+    [processKpisQuery.data],
+  );
+  const kpiByProcessId = useMemo(
+    () => new Map(kpis.map((item) => [String(item?.id), item])),
+    [kpis],
+  );
+  const cartableSummary = useMemo(
+    () => ({
+      processes: processes.length,
+      current: kpis.reduce(
+        (sum, item) => sum + (Number(item?.count_of_normal_request) || 0),
+        0,
+      ),
+      completed: kpis.reduce(
+        (sum, item) => sum + (Number(item?.count_of_completed_request) || 0),
+        0,
+      ),
+      actions: actionRows.length,
+    }),
+    [actionRows.length, kpis, processes.length],
   );
   const filteredActionRows = useMemo(() => {
     const term = normalize(search);
@@ -266,14 +260,6 @@ const ProcessMakerCartable = () => {
     });
   };
 
-  const openSubmissionModal = (record) => {
-    setModal({
-      type: MODAL_TYPES.CARTABLE_SUBMISSION,
-      mode: "view",
-      data: record,
-    });
-  };
-
   const openProcessRequestsModal = (record) => {
     setModal({
       type: MODAL_TYPES.PROCESS_REQUESTS,
@@ -297,80 +283,35 @@ const ProcessMakerCartable = () => {
       data: record,
     });
   };
+  const processForRecord = (record) =>
+    processes.find(
+      (process) => String(process?.id) === String(record?.processId),
+    );
 
   const closeProcessRequestsModal = () => {
     closeModal();
   };
 
   const handleSubmitted = () => {
-    requestsQuery.refetch();
-    formSubmissionQuery.refetch();
+    processKpisQuery.refetch();
     setTab(TABS.PROCESSES);
   };
 
-  // ---------- ستون‌ها ----------
+  // ---------- نمای فعال ----------
   const isTodo = tab === TABS.TODO;
-  const isSent = tab === TABS.SENT;
   const isProcesses = tab === TABS.PROCESSES;
   const isActions = tab === TABS.ACTIONS;
   const dataSource =
     (isTodo
       ? filteredTodo
-      : isSent
-        ? filteredSent
-        : isActions
+      : isActions
           ? filteredActionRows
           : filteredProcesses) || [];
-
-  const todoCols = useMemo(
-    () =>
-      todoColumns({
-        page,
-        setActiveProcess: openTaskModal,
-        onViewPath: openProcessPathModal,
-        pageSize: PAGE_SIZE,
-      }),
-    [page],
-  );
-
-  const sentCols = useMemo(
-    () =>
-      sentColumns({
-        page,
-        pageSize: PAGE_SIZE,
-        onView: openSubmissionModal,
-      }),
-    [page],
-  );
-
-  const processCols = useMemo(
-    () =>
-      processColumns({
-        page,
-        pageSize: PAGE_SIZE,
-        onViewRequests: openProcessRequestsModal,
-        onViewPath: openProcessPathModal,
-      }),
-    [page],
-  );
-
-  const actionCols = useMemo(
-    () =>
-      userActionColumns({
-        page,
-        pageSize: PAGE_SIZE,
-        onComplete: openUserActionModal,
-      }),
-    [page],
-  );
 
   // ---------- رفرش دستی ----------
   const handleRefresh = () => {
     if (isTodo) {
       processListQuery.refetch();
-    } else if (isSent) {
-      requestsQuery.refetch();
-      formSubmissionQuery.refetch();
     } else if (isActions) {
       userActionsQuery.refetch();
     } else {
@@ -380,45 +321,35 @@ const ProcessMakerCartable = () => {
 
   const isRefreshing = isTodo
     ? processListQuery.isFetching
-    : isSent
-      ? requestsQuery.isFetching || formSubmissionQuery.isFetching
-      : isActions
+    : isActions
         ? userActionsQuery.isFetching
         : processListQuery.isFetching;
 
   const isLoading = isTodo
     ? processListQuery.isLoading
-    : isSent
-      ? requestsQuery.isLoading || formSubmissionQuery.isLoading
-      : isActions
+    : isActions
         ? userActionsQuery.isLoading
         : processListQuery.isLoading;
 
   const hasError = isTodo
     ? processListQuery.isError
-    : isSent
-      ? requestsQuery.isError || formSubmissionQuery.isError
-      : isActions
+    : isActions
         ? userActionsQuery.isError
         : processListQuery.isError;
 
   const activeError = isTodo
     ? processListQuery.error
-    : isSent
-      ? (requestsQuery.error ?? formSubmissionQuery.error)
-      : isActions
+    : isActions
         ? userActionsQuery.error
         : processListQuery.error;
   const isForbidden = Number(activeError?.response?.status) === 403;
   const errorMessage = isForbidden
-    ? isSent || isActions
+    ? isActions
       ? "شما دسترسی مشاهده ارسال‌ها و درخواست‌های فرایند را ندارید."
       : "شما دسترسی مشاهده فرایندها را ندارید."
     : getApiErrorMessage(
         activeError,
-        isSent
-          ? "دریافت ارسال‌ها انجام نشد."
-          : isActions
+        isActions
             ? "دریافت درخواست‌های نیازمند اقدام انجام نشد."
             : "دریافت لیست فرایندها انجام نشد.",
       );
@@ -427,226 +358,402 @@ const ProcessMakerCartable = () => {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <Header />
 
-      <div className="mx-auto max-w-screen-xl p-4 sm:p-6">
+      <div className="mx-auto max-w-[1500px] p-3 sm:p-5">
         <Button
           type="text"
           icon={<ArrowRightOutlined />}
           onClick={() => navigate(-1)}
-          className="mb-4 flex items-center text-slate-600 hover:!text-blue-600 dark:text-slate-300"
+          className="mb-3 text-slate-500"
         >
-          بازگشت به صفحه قبل
+          بازگشت
         </Button>
 
-        {/* ---------- هدر ---------- */}
-        <div className="overflow-hidden rounded-2xl bg-gradient-to-l from-blue-500 to-sky-600 p-5 shadow-sm sm:p-7">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <h1 className="text-xl font-extrabold text-white sm:text-2xl">
-                کارتابل فرآیندساز
-              </h1>
-              <p className="mt-1 mb-0 text-xs leading-7 text-blue-50 sm:text-sm">
-                {currentUser.name} عزیز، فرم مورد نظر را باز کنید، تکمیل کنید و
-                به گردش کار بفرستید.
+        <div className="grid gap-4 lg:grid-cols-[250px_minmax(0,1fr)]">
+          <aside className="h-fit overflow-hidden rounded-3xl bg-slate-950 p-4 text-white shadow-xl lg:sticky lg:top-4">
+            <div className="rounded-2xl bg-gradient-to-bl from-blue-600 to-indigo-600 p-4">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 text-xl">
+                <ThunderboltOutlined />
+              </div>
+              <h1 className="mb-1 mt-4 text-lg font-black"> کارتابل فرآیند ها</h1>
+              <p className="m-0 text-[11px] leading-6 text-blue-100">
+                {currentUser.name}، کارهای مهم امروز شما اینجاست.
               </p>
             </div>
-            <Segmented
-              size="large"
-              value={tab}
-              onChange={setTab}
-              options={[
+
+            <nav className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
+              {[
                 {
-                  label: "ثبت درخواست",
                   value: TABS.TODO,
-                  icon: <InboxOutlined />,
+                  label: "ثبت درخواست جدید",
+                  detail: "شروع یک گردش کار",
+                  icon: <PlusOutlined />,
+                  count: cartableSummary.processes,
                 },
                 {
-                  label: "درخواست‌های جاری",
                   value: TABS.PROCESSES,
+                  label: "درخواست‌های جاری",
+                  detail: "رصد و پیگیری فرایندها",
                   icon: <PartitionOutlined />,
+                  count: cartableSummary.current,
                 },
                 {
-                  label: "نیازمند اقدام من",
                   value: TABS.ACTIONS,
+                  label: "نیازمند اقدام من",
+                  detail: "کارهای منتظر تصمیم",
                   icon: <ThunderboltOutlined />,
+                  count: cartableSummary.actions,
                 },
-              ]}
-            />
-          </div>
-        </div>
+              ].map((item) => {
+                const active = tab === item.value;
+                return (
+                  <button
+                    key={item.value}
+                    type="button"
+                    onClick={() => setTab(item.value)}
+                    className={`flex items-center gap-3 rounded-2xl border p-3 text-right transition ${
+                      active
+                        ? "border-white/20 bg-white text-slate-950 shadow-lg"
+                        : "border-transparent bg-white/5 text-slate-300 hover:bg-white/10"
+                    }`}
+                  >
+                    <span
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                        active
+                          ? "bg-blue-50 text-blue-600"
+                          : "bg-white/10 text-white"
+                      }`}
+                    >
+                      {item.icon}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <strong className="block truncate text-xs">
+                        {item.label}
+                      </strong>
+                      <small
+                        className={`block truncate text-[9px] ${
+                          active ? "text-slate-400" : "text-slate-500"
+                        }`}
+                      >
+                        {item.detail}
+                      </small>
+                    </span>
+                    <b className="text-sm tabular-nums">
+                      {item.count.toLocaleString("fa-IR")}
+                    </b>
+                  </button>
+                );
+              })}
+            </nav>
+          </aside>
 
-        {/* ---------- جدول ---------- */}
-        <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 dark:border-slate-800 dark:bg-slate-900">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-baseline gap-2">
-              <h2 className="m-0 text-base font-bold text-slate-800 dark:text-slate-100">
-                {isTodo
-                  ? "فهرست فرایندهای قابل ثبت درخواست"
-                  : isSent
-                    ? "رسید ارسال‌های من"
-                    : isActions
-                      ? "درخواست‌های نیازمند اقدام شما"
-                      : "درخواست‌های جاری به تفکیک فرایند"}
-              </h2>
-              <span className="text-xs text-slate-500 dark:text-slate-400">
-                {dataSource.length} مورد
-              </span>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <Input.Search
-                allowClear
-                placeholder={
-                  isTodo
-                    ? "جستجوی نام فرایند یا فرم"
-                    : isSent
-                      ? "جستجوی ارسال‌کننده یا مقدار فیلدها"
-                      : isActions
-                        ? "جستجوی فرایند، مرحله یا عنوان درخواست"
-                        : "جستجوی فرایند، درخواست یا ثبت‌کننده"
-                }
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                style={{ width: 280 }}
-              />
-
-              <Tooltip title="بارگذاری مجدد">
+          <main className="min-w-0">
+            <section className="relative overflow-hidden rounded-3xl bg-gradient-to-bl from-slate-900 via-slate-900 to-indigo-950 p-5 text-white shadow-xl sm:p-7">
+              <div className="absolute -left-16 -top-24 h-56 w-56 rounded-full bg-blue-500/20 blur-3xl" />
+              <div className="relative flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <div className="mb-2 text-[11px] font-semibold text-blue-300">
+                     
+                  </div>
+                  <h2 className="m-0 text-xl font-black sm:text-3xl">
+                    {isActions
+                      ? "صف کارهای امروز شما"
+                      : isProcesses
+                        ? " فرایندهای جاری"
+                        : "یک درخواست تازه شروع کنید"}
+                  </h2>
+                  <p className="mb-0 mt-2 max-w-2xl text-xs leading-6 text-slate-400">
+                    {isActions
+                      ? "درخواست‌های منتظر تصمیم، تکمیل فرم و ارجاع بعدی بدون پراکندگی در چند صفحه."
+                      : isProcesses
+                        ? "وضعیت هر فرایند، درخواست‌های باز و مسیر گردش را از یک نقطه کنترل کنید."
+                        : "فرایند مناسب را انتخاب کنید، مسیر آن را ببینید و درخواست را ثبت کنید."}
+                  </p>
+                </div>
                 <Button
+                  ghost
                   icon={<ReloadOutlined />}
                   loading={isRefreshing}
                   onClick={handleRefresh}
-                />
-              </Tooltip>
-            </div>
-          </div>
-
-          {isActions ? (
-            <div className="mb-4 grid gap-3 rounded-2xl border border-amber-100 bg-gradient-to-l from-amber-50 to-slate-50 p-4 sm:grid-cols-[1fr_240px_240px_auto] sm:items-end dark:border-amber-900/60 dark:from-amber-950/30 dark:to-slate-900">
-              <div>
-                <div className="flex items-center gap-2 font-bold text-slate-800 dark:text-slate-100">
-                  <ThunderboltOutlined className="text-amber-500" />
-                  کارهای منتظر اقدام شما
-                </div>
-                <p className="mt-1 mb-0 text-xs leading-6 text-slate-500 dark:text-slate-400">
-                  این درخواست‌ها از همه فرایندها جمع‌آوری شده‌اند. فرم مرحله
-                  فعلی را تکمیل و سپس عملیات ارجاع را انتخاب کنید.
-                </p>
-              </div>
-              <div>
-                <div className="mb-1 text-[11px] text-slate-500">فرایند</div>
-                <Select
-                  allowClear
-                  showSearch
-                  optionFilterProp="label"
-                  className="w-full"
-                  placeholder="همه فرایندها"
-                  value={actionProcessId}
-                  options={processes.map((process) => ({
-                    value: process.id,
-                    label: process.name || `فرایند ${process.id}`,
-                  }))}
-                  onChange={(value) => setActionProcessId(value ?? null)}
-                />
-              </div>
-              <div>
-                <div className="mb-1 text-[11px] text-slate-500">مرحله</div>
-                <Select
-                  allowClear
-                  showSearch
-                  optionFilterProp="label"
-                  className="w-full"
-                  placeholder="همه مراحل"
-                  value={actionStateId}
-                  loading={actionProcessInfoQuery.isLoading}
-                  options={actionStateOptions}
-                  onChange={(value) => setActionStateId(value ?? null)}
-                />
-              </div>
-              <div className="rounded-xl bg-white px-4 py-2 text-center shadow-sm dark:bg-slate-800">
-                <div className="text-lg font-extrabold text-amber-600">
-                  {filteredActionRows.length.toLocaleString("fa-IR")}
-                </div>
-                <div className="text-[10px] text-slate-400">نیازمند اقدام</div>
-              </div>
-            </div>
-          ) : null}
-
-          {isProcesses ? (
-            <div className="mb-4 grid gap-3 rounded-2xl border border-blue-100 bg-gradient-to-l from-blue-50 to-slate-50 p-4 sm:grid-cols-[1fr_auto] sm:items-center dark:border-blue-900/60 dark:from-blue-950/30 dark:to-slate-900">
-              <div>
-                <div className="flex items-center gap-2 font-bold text-slate-800 dark:text-slate-100">
-                  <PartitionOutlined className="text-blue-500" />
-                  مدیریت درخواست‌های در جریان
-                </div>
-                <p className="mt-1 mb-0 text-xs leading-6 text-slate-500 dark:text-slate-400">
-                  یک فرایند را انتخاب کنید تا مرحله فعلی درخواست‌ها را ببینید،
-                  فرم همان مرحله را تکمیل کنید و با Action مناسب ارجاع دهید.
-                </p>
-              </div>
-              <div className="rounded-xl bg-white px-4 py-2 text-center shadow-sm dark:bg-slate-800">
-                <div className="text-lg font-extrabold text-blue-600">
-                  {filteredProcesses.length.toLocaleString("fa-IR")}
-                </div>
-                <div className="text-[10px] text-slate-400">
-                  فرایند قابل پیگیری
-                </div>
-              </div>
-            </div>
-          ) : null}
-
-          {hasError ? (
-            <Alert
-              type="error"
-              showIcon
-              className="mb-4"
-              message={errorMessage}
-              action={
-                <Button size="small" onClick={handleRefresh}>
-                  تلاش مجدد
+                >
+                  همگام‌سازی
                 </Button>
-              }
-            />
-          ) : null}
+              </div>
+            </section>
 
-          <TableAntd
-            rowKey={(record) =>
-              record.rowKey || (isTodo ? `process-${record.id}` : record.id)
-            }
-            columns={
-              isTodo
-                ? todoCols
-                : isSent
-                  ? sentCols
-                  : isActions
-                    ? actionCols
-                    : processCols
-            }
-            dataSource={dataSource}
-            loading={isLoading}
-            pagination={{
-              current: page,
-              pageSize: PAGE_SIZE,
-              onChange: setPage,
-            }}
-            scroll={{ x: "max-content" }}
-            locale={{
-              emptyText: (
-                <Empty
-                  className="py-10"
-                  description={
-                    isTodo
-                      ? "فرایندی برای شروع موجود نیست."
-                      : isSent
-                        ? "هنوز فرمی ارسال نکرده‌��ید."
-                        : isActions
-                          ? "درخواستی منتظر اقدام شما نیست."
-                          : "فرایندی برای نمایش موجود نیست."
+            <div className="mt-3 grid grid-cols-2 gap-3 xl:grid-cols-4">
+              {[
+                ["فرایند فعال", cartableSummary.processes, <PartitionOutlined />, "text-blue-500"],
+                ["در حال گردش", cartableSummary.current, <BarChartOutlined />, "text-indigo-500"],
+                ["تکمیل‌شده", cartableSummary.completed, <CheckCircleOutlined />, "text-emerald-500"],
+                ["منتظر من", cartableSummary.actions, <ThunderboltOutlined />, "text-amber-500"],
+              ].map(([label, value, icon, tone]) => (
+                <div
+                  key={label}
+                  className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+                >
+                  <div>
+                    <div className="text-[10px] text-slate-400">{label}</div>
+                    <strong className="mt-1 block text-xl tabular-nums text-slate-900 dark:text-white">
+                      {value.toLocaleString("fa-IR")}
+                    </strong>
+                  </div>
+                  <span className={`text-xl ${tone}`}>{icon}</span>
+                </div>
+              ))}
+            </div>
+
+            <section className="mt-4 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h3 className="m-0 text-base font-black text-slate-900 dark:text-white">
+                    {isActions
+                      ? "نیازمند اقدام شما"
+                      : isProcesses
+                        ? "فرایندهای در حال کار"
+                        : "فرایندهای قابل شروع"}
+                  </h3>
+                  <p className="mb-0 mt-1 text-[11px] text-slate-400">
+                    {dataSource.length.toLocaleString("fa-IR")} مورد پیدا شد
+                  </p>
+                </div>
+                <Input.Search
+                  ref={searchRef}
+                  allowClear
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="جستجوی سریع..."
+                  className="w-full sm:!w-[320px]"
+                  prefix={<SearchOutlined className="text-slate-300" />}
+                  suffix={
+                    <kbd className="rounded bg-slate-100 px-1.5 py-0.5 text-[9px] text-slate-400 dark:bg-slate-800">
+                      Ctrl K
+                    </kbd>
                   }
                 />
-              ),
-            }}
-          />
+              </div>
+
+              {isActions ? (
+                <div className="mt-4 grid gap-3 rounded-2xl border border-amber-100 bg-amber-50/70 p-3 sm:grid-cols-2 dark:border-amber-900/50 dark:bg-amber-950/20">
+                  <Select
+                    allowClear
+                    showSearch
+                    optionFilterProp="label"
+                    placeholder="فیلتر بر اساس فرایند"
+                    value={actionProcessId}
+                    options={processes.map((process) => ({
+                      value: process.id,
+                      label: process.name || `فرایند ${process.id}`,
+                    }))}
+                    onChange={(value) => setActionProcessId(value ?? null)}
+                  />
+                  <Select
+                    allowClear
+                    showSearch
+                    optionFilterProp="label"
+                    placeholder="فیلتر بر اساس مرحله"
+                    value={actionStateId}
+                    loading={actionProcessInfoQuery.isLoading}
+                    options={actionStateOptions}
+                    onChange={(value) => setActionStateId(value ?? null)}
+                  />
+                </div>
+              ) : null}
+
+              {hasError ? (
+                <Alert
+                  type="error"
+                  showIcon
+                  className="mt-4"
+                  message={errorMessage}
+                  action={<Button onClick={handleRefresh}>تلاش مجدد</Button>}
+                />
+              ) : null}
+
+              {isLoading ? (
+                <div className="grid gap-3 py-5 md:grid-cols-2 xl:grid-cols-3">
+                  {[0, 1, 2, 3, 4, 5].map((item) => (
+                    <div
+                      key={item}
+                      className="h-52 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800"
+                    />
+                  ))}
+                </div>
+              ) : dataSource.length ? (
+                <>
+                  <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                    {dataSource
+                      .slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+                      .map((record) => {
+                        if (isActions)
+                          return (
+                            <article
+                              key={record.rowKey || record.id || record.requestId}
+                              className="group rounded-3xl border border-slate-200 bg-white p-4 transition hover:-translate-y-1 hover:border-amber-300 hover:shadow-xl dark:border-slate-700 dark:bg-slate-900"
+                            >
+                              <div className="flex items-start justify-between gap-3">
+                                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-lg text-amber-500 dark:bg-amber-950/40">
+                                  <ThunderboltOutlined />
+                                </span>
+                                <div className="min-w-0 flex-1">
+                                  <strong className="block truncate text-sm text-slate-900 dark:text-white">
+                                    {record.processName || "فرایند بدون نام"}
+                                  </strong>
+                                  <small className="text-slate-400">
+                                    {record.title || `درخواست ${record.requestId}`}
+                                  </small>
+                                </div>
+                                <Tag color="processing" className="m-0 shrink-0">
+                                  {record.stateName || "بدون مرحله"}
+                                </Tag>
+                              </div>
+                              <div className="my-4 rounded-2xl bg-slate-50 p-3 text-[11px] leading-6 text-slate-500 dark:bg-slate-800/70">
+                                فرم مرحله فعلی را کامل کنید؛ مقصد هر Action پیش از ارجاع داخل Workbench نمایش داده می‌شود.
+                              </div>
+                              <div className="flex gap-2">
+                                <Button
+                                  type="primary"
+                                  block
+                                  icon={<EditOutlined />}
+                                  onClick={() => openUserActionModal(record)}
+                                >
+                                  باز کردن Workbench
+                                </Button>
+                                <Button
+                                  icon={<PartitionOutlined />}
+                                  disabled={!processForRecord(record)}
+                                  onClick={() =>
+                                    openProcessPathModal(processForRecord(record))
+                                  }
+                                />
+                              </div>
+                            </article>
+                          );
+
+                        const kpi = kpiByProcessId.get(String(record.id));
+                        if (isProcesses)
+                          return (
+                            <article
+                              key={record.id}
+                              className="overflow-hidden rounded-3xl border border-slate-200 bg-white transition hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-900"
+                            >
+                              <div className="bg-gradient-to-bl from-slate-900 to-indigo-950 p-4 text-white">
+                                <div className="flex items-center justify-between gap-3">
+                                  <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10">
+                                    <PartitionOutlined />
+                                  </span>
+                                  <Button
+                                    size="small"
+                                    type="text"
+                                    className="!text-white/70"
+                                    icon={<DashboardOutlined />}
+                                    onClick={() =>
+                                      navigate(`/processes/${record.id}/dashboard`)
+                                    }
+                                  >
+                                    داشبورد
+                                  </Button>
+                                </div>
+                                <h4 className="mb-1 mt-4 truncate text-base font-black">
+                                  {record.name || "فرایند بدون نام"}
+                                </h4>
+                                <p className="m-0 truncate text-[10px] text-slate-400">
+                                  {record.description || "گردش کار سازمانی"}
+                                </p>
+                              </div>
+                              <div className="grid grid-cols-3 gap-px bg-slate-100 dark:bg-slate-800">
+                                {[
+                                  ["باز", kpi?.count_of_normal_request],
+                                  ["تکمیل", kpi?.count_of_completed_request],
+                                  ["رد", kpi?.count_of_denied_request],
+                                ].map(([label, value]) => (
+                                  <div key={label} className="bg-white p-3 text-center dark:bg-slate-900">
+                                    <b className="block text-sm">{Number(value || 0).toLocaleString("fa-IR")}</b>
+                                    <small className="text-[9px] text-slate-400">{label}</small>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="flex gap-2 p-4">
+                                <Button
+                                  type="primary"
+                                  block
+                                  icon={<EyeOutlined />}
+                                  onClick={() => openProcessRequestsModal(record)}
+                                >
+                                  مرکز درخواست‌ها
+                                </Button>
+                                <Button
+                                  icon={<PartitionOutlined />}
+                                  onClick={() => openProcessPathModal(record)}
+                                />
+                              </div>
+                            </article>
+                          );
+
+                        return (
+                          <article
+                            key={record.id}
+                            className="group rounded-3xl border border-slate-200 bg-white p-5 transition hover:-translate-y-1 hover:border-blue-300 hover:shadow-xl dark:border-slate-700 dark:bg-slate-900"
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-xl text-blue-600 dark:bg-blue-950/40">
+                                <PlusOutlined />
+                              </span>
+                              <Tag color={record.is_active === false ? "default" : "success"}>
+                                {record.is_active === false ? "غیرفعال" : "آماده ثبت"}
+                              </Tag>
+                            </div>
+                            <h4 className="mb-1 mt-4 truncate text-base font-black text-slate-900 dark:text-white">
+                              {record.name || "فرایند بدون نام"}
+                            </h4>
+                            <p className="h-12 overflow-hidden text-xs leading-6 text-slate-400">
+                              {record.description || "برای شروع درخواست، فرم این فرایند را باز و تکمیل کنید."}
+                            </p>
+                            <div className="mt-4 flex gap-2">
+                              <Button
+                                type="primary"
+                                block
+                                icon={<PlusOutlined />}
+                                disabled={record.is_active === false}
+                                onClick={() => openTaskModal(record)}
+                              >
+                                شروع درخواست
+                              </Button>
+                              <Button
+                                icon={<PartitionOutlined />}
+                                onClick={() => openProcessPathModal(record)}
+                              />
+                            </div>
+                          </article>
+                        );
+                      })}
+                  </div>
+                  <div className="mt-6 flex justify-center">
+                    <Pagination
+                      current={page}
+                      pageSize={PAGE_SIZE}
+                      total={dataSource.length}
+                      hideOnSinglePage
+                      onChange={setPage}
+                    />
+                  </div>
+                </>
+              ) : (
+                <Empty
+                  className="py-16"
+                  description={
+                    isActions
+                      ? "عالیه! درخواستی منتظر اقدام شما نیست."
+                      : isProcesses
+                        ? "فرایندی برای پیگیری پیدا نشد."
+                        : "فرایندی برای شروع درخواست وجود ندارد."
+                  }
+                />
+              )}
+            </section>
+          </main>
         </div>
       </div>
+
 
       {/* ---------- مودال‌ها ---------- */}
       {modalType === MODAL_TYPES.CARTABLE_TASK && (
@@ -656,14 +763,6 @@ const ProcessMakerCartable = () => {
           submitterId={currentUser.id}
           onClose={closeModal}
           onSubmitted={handleSubmitted}
-        />
-      )}
-
-      {modalType === MODAL_TYPES.CARTABLE_SUBMISSION && (
-        <CartableSubmissionModal
-          open={isOpen}
-          record={modalData}
-          onClose={closeModal}
         />
       )}
 

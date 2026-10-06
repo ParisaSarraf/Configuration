@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Alert,
@@ -7,6 +7,7 @@ import {
   ConfigProvider,
   Empty,
   Skeleton,
+  Select,
   Tag,
 } from "antd";
 import {
@@ -20,6 +21,7 @@ import {
   SafetyCertificateOutlined,
   TeamOutlined,
   ThunderboltOutlined,
+  WarningOutlined,
 } from "@ant-design/icons";
 import Header from "@/components/Layouts/Header.jsx";
 import { useRoleList } from "@/QueryServises/roleQuery";
@@ -34,6 +36,7 @@ import { getApiErrorMessage } from "@/Services/forms/formUtils";
 import {
   buildGraph,
   pickProcessInfo,
+  validateGraph,
 } from "./ProcessBuilder/processGraph";
 import ProcessFlowOverview from "./components/ProcessFlowOverview";
 
@@ -190,6 +193,7 @@ const ProcessDashboardContent = () => {
   const navigate = useNavigate();
   const { processId } = useParams();
   const { message } = App.useApp();
+  const [selectedRoleId, setSelectedRoleId] = useState(null);
   const infoQuery = useProcessInfo(processId, { retry: false });
   const kpisQuery = useProcessKpis({ retry: false });
   const statesQuery = useProcessStateRequestCounts(processId, { retry: false });
@@ -270,6 +274,22 @@ const ProcessDashboardContent = () => {
         ),
       }));
   }, [graph]);
+  const health = useMemo(() => validateGraph(graph), [graph]);
+  const stateCountMap = useMemo(
+    () =>
+      new Map(
+        states.map((state) => [String(state.id), Number(state.count) || 0]),
+      ),
+    [states],
+  );
+  const roleOptions = useMemo(
+    () =>
+      asArray(rolesQuery.data).map((role) => ({
+        value: role?.id ?? role?.pk,
+        label: roleName(role),
+      })),
+    [rolesQuery.data],
+  );
 
   const refreshAll = async () => {
     await Promise.all([
@@ -413,13 +433,68 @@ const ProcessDashboardContent = () => {
       <div className="mt-4">
         <Section
           title="مسیر کلی فرایند"
-          description="نمای فقط‌خواندنی ایستگاه‌ها و ارتباطات؛ برای ویرایش از دکمه فرایندساز استفاده کنید."
+          description="نقشه زنده ایستگاه‌ها؛ تعداد درخواست و دسترسی هر سمت مستقیماً روی مسیر دیده می‌شود."
+          extra={
+            <Select
+              allowClear
+              showSearch
+              optionFilterProp="label"
+              className="min-w-[220px]"
+              placeholder="Role Lens: نمایش برای همه"
+              value={selectedRoleId}
+              options={roleOptions}
+              onChange={(value) => setSelectedRoleId(value ?? null)}
+            />
+          }
         >
-          <ProcessFlowOverview graph={graph} />
+          <ProcessFlowOverview
+            graph={graph}
+            selectedRoleId={selectedRoleId}
+            stateCounts={stateCountMap}
+          />
         </Section>
       </div>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+      <div className="mt-4 grid gap-4 lg:grid-cols-3">
+        <Section
+          title="سلامت فرایند"
+          description="بررسی خودکار بن‌بست‌ها، مسیرهای ناقص، Actionها و دسترسی‌ها"
+          extra={
+            health.errors.length ? (
+              <Tag color="error">{health.errors.length} خطا</Tag>
+            ) : health.warnings.length ? (
+              <Tag color="warning">{health.warnings.length} هشدار</Tag>
+            ) : (
+              <Tag color="success">سالم</Tag>
+            )
+          }
+        >
+          {!health.errors.length && !health.warnings.length ? (
+            <div className="rounded-2xl bg-emerald-50 p-4 text-center dark:bg-emerald-950/30">
+              <CheckCircleOutlined className="text-3xl text-emerald-500" />
+              <div className="mt-2 text-sm font-bold text-emerald-700 dark:text-emerald-300">
+                مسیر فرایند آماده اجراست
+              </div>
+            </div>
+          ) : (
+            <div className="max-h-72 space-y-2 overflow-y-auto">
+              {[...health.errors, ...health.warnings].map((issue, index) => (
+                <div
+                  key={`${issue}-${index}`}
+                  className={`flex gap-2 rounded-xl p-3 text-xs leading-6 ${
+                    index < health.errors.length
+                      ? "bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-300"
+                      : "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300"
+                  }`}
+                >
+                  <WarningOutlined className="mt-1 shrink-0" />
+                  <span>{issue}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </Section>
+
         <Section
           title="دسترسی سمت‌ها"
           description="سمت‌های دارای دسترسی در فرایند و سطح مشاهده یا ویرایش آن‌ها"
