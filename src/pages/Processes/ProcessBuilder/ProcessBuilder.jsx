@@ -1130,7 +1130,7 @@ const Builder = ({ processId }) => {
             loading={saveMutation.isPending}
             disabled={!graph || !isDirty || editingLocked}
             onClick={handleSave}
-            className="process-builder__save"
+            // className="process-builder__save"
           >
             {changeCount > 0 ? `ذخیره ${changeCount} تغییر` : "ذخیره فرایند"}
           </Button>
