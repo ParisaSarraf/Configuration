@@ -30,6 +30,7 @@ import RequestPathGraph from "./RequestPathGraph";
 import { getApiErrorMessage } from "@/Services/forms/formUtils";
 import { georgianDateTimeToJalaliDateTime } from "@utils/timeTool.jsx";
 import Modal from "../../../components/Modal";
+import RequestStateHistoryButton from "./RequestStateHistoryButton";
 import "./cartable-form-view.css";
 
 const attachmentName = (item) => {
@@ -247,7 +248,12 @@ const CartableSubmissionModal = ({ open, record, submission, onClose }) => {
     >
       <div className="flex flex-col gap-4">
         {requestId ? (
-          <RequestPathGraph query={requestPathQuery} requestId={requestId} />
+          <>
+            <div className="flex justify-end">
+              <RequestStateHistoryButton requestId={requestId} />
+            </div>
+            <RequestPathGraph query={requestPathQuery} requestId={requestId} />
+          </>
         ) : null}
         {renderBody()}
       </div>

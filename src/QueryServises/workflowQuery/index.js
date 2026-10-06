@@ -23,6 +23,12 @@ export const transitionActionsKey = ["workflow", "transition-actions"];
 export const requestsKey = ["workflow", "requests"];
 export const requestKey = (id) => ["workflow", "request", id];
 export const requestPathKey = (id) => ["workflow", "request", id, "path"];
+export const requestStateHistoryKey = (id) => [
+  "workflow",
+  "request",
+  id,
+  "state-history",
+];
 export const requestsNeedActionKey = (filters = {}) => [
   "workflow",
   "requests",
@@ -152,6 +158,18 @@ export const useRequestPathById = (id, queryOptions) => {
   return useQuery({
     queryKey: requestPathKey(id),
     queryFn: () => workflowApi.getRequestPathById(myAxios, id),
+    enabled: Boolean(id),
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
+    ...queryOptions,
+  });
+};
+
+export const useRequestStateHistoryById = (id, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: requestStateHistoryKey(id),
+    queryFn: () => workflowApi.getRequestStateHistoryById(myAxios, id),
     enabled: Boolean(id),
     staleTime: 60 * 1000,
     refetchOnWindowFocus: false,

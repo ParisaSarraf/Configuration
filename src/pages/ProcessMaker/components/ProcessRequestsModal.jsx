@@ -45,6 +45,7 @@ import {
 import { georgianDateTimeToJalaliDateTime } from "@utils/timeTool.jsx";
 import Modal from "../../../components/Modal";
 import RequestPathGraph from "./RequestPathGraph";
+import RequestStateHistoryButton from "./RequestStateHistoryButton";
 
 const STATE_TYPE_OPTIONS = [
   { value: "", label: "همه وضعیت‌ها" },
@@ -462,6 +463,8 @@ export const RequestWorkPanel = ({ record, onCompleted }) => {
       </div>
 
       <aside className="space-y-3 lg:sticky lg:top-0">
+        <RequestStateHistoryButton requestId={record.requestId} block />
+
         <div className="rounded-2xl bg-slate-950 p-4 text-white shadow-lg">
           <div className="text-[10px] font-bold text-blue-300">
             CURRENT STATION

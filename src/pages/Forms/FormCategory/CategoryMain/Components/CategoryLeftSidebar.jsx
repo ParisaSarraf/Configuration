@@ -4,6 +4,7 @@ import { FolderOpen, Folder, Plus } from "lucide-react";
 import FormCategoryModal from "../../FormCategoryModal";
 import { useDeleteFormCategory } from "../../../../../QueryServises/formsQuery";
 import FormDefinitionModal from "../../../FormDefinition/Components/FormDefinitionModal";
+import { StoredIcon } from "../../../../../components/IconPicker/Index";
 
 // پالت رنگی برای متمایز شدن دسته‌بندی‌ها
 const PALETTE = [
@@ -157,11 +158,18 @@ const CategoryLeftSidebar = ({
                         isActive ? color.active : color.idle
                       }`}
                     >
-                      {isActive ? (
-                        <FolderOpen size={14} />
-                      ) : (
-                        <Folder size={14} />
-                      )}
+                      <StoredIcon
+                        value={item.icon}
+                        fallback={
+                          isActive ? (
+                            <FolderOpen size={14} />
+                          ) : (
+                            <Folder size={14} />
+                          )
+                        }
+                        size={14}
+                        style={{ fontSize: 14 }}
+                      />
                     </span>
 
                     <span

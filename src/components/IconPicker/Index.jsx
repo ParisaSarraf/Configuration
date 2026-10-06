@@ -19,21 +19,27 @@ const getIconNames = (icons) => {
 const lucideIconNames = getIconNames(LucideIcons);
 const antIconNames = getIconNames(AntIcons);
 
-const IconPicker = ({ value, onChange }) => {
-  const [open, setOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("lucide");
-  const [search, setSearch] = useState("");
+export const StoredIcon = ({ value, fallback = null, ...props }) => {
+  const raw = String(value || "").trim();
+  if (!raw) return fallback;
 
-  const [library, iconName] = value?.includes(":")
-    ? value.split(":")
-    : ["", value];
-
-  const SelectedIcon =
+  const [library, iconName] = raw.includes(":")
+    ? raw.split(":", 2)
+    : ["", raw];
+  const Icon =
     library === "lucide"
       ? LucideIcons[iconName]
       : library === "antd"
         ? AntIcons[iconName]
-        : null;
+        : LucideIcons[iconName] || AntIcons[iconName];
+
+  return Icon ? <Icon {...props} /> : fallback;
+};
+
+const IconPicker = ({ value, onChange }) => {
+  const [open, setOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("lucide");
+  const [search, setSearch] = useState("");
 
   const currentIcons =
     activeTab === "lucide" ? lucideIconNames : antIconNames;
@@ -163,9 +169,7 @@ const IconPicker = ({ value, onChange }) => {
         allowClear
         onClear={() => onChange?.("")}
         prefix={
-          SelectedIcon ? (
-            <SelectedIcon style={{ fontSize: 18 }} />
-          ) : null
+          <StoredIcon value={value} style={{ fontSize: 18 }} />
         }
       />
     </Popover>

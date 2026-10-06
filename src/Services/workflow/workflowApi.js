@@ -6,6 +6,7 @@ const ENDPOINTS = Object.freeze({
   processKpi: "/workflow/get-process-kpi-by-id/",
   processStateDurationStats:
     "/workflow/get-report-state-duration-stats-by-process-id/",
+  requestStateHistory: "/workflow/get-request-state-history-by-request-id/",
   addState: "/workflow/add-state/",
   addTransition: "/workflow/add-transitions/",
   addAction: "/workflow/add-action/",
@@ -183,6 +184,8 @@ export const workflowApi = Object.freeze({
     get(client, `${ENDPOINTS.requestById}${id}`, signal),
   getRequestPathById: (client, id, signal) =>
     get(client, `/workflow/get-request-path-by-id/${id}`, signal),
+  getRequestStateHistoryById: (client, id, signal) =>
+    get(client, `${ENDPOINTS.requestStateHistory}${id}`, signal),
   getRequestsNeedUserAction: (
     client,
     { processId = null, stateId = null } = {},

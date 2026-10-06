@@ -21,6 +21,7 @@ import FormDefinitionCategoryDetail from "../../FormDefinition/Components/FormDe
 import FormDefinitionModal from "../../FormDefinition/Components/FormDefinitionModal";
 import CategoryRightSidebar from "./Components/CategoryRightSidebar";
 import FormDefinitionCols from "./Components/FormDefinitionCols";
+import { StoredIcon } from "../../../../components/IconPicker/Index";
 
 const normalize = (value) =>
   String(value ?? "")
@@ -64,10 +65,22 @@ const CategoryMain = ({
 
   const categoryOptions = useMemo(
     () => [
-      { value: "all", label: "همه فرم‌ها" },
+      { value: "all", label: "همه فرم‌ها", searchLabel: "همه فرم‌ها" },
       ...categories.map((item) => ({
         value: item.id,
-        label: `${item.name} (${Number(item.number_of_forms) || 0})`,
+        searchLabel: item.name,
+        label: (
+          <span className="flex items-center gap-2">
+            <StoredIcon
+              value={item.icon}
+              fallback={<FolderAddOutlined />}
+              className="shrink-0"
+            />
+            <span>
+              {item.name} ({Number(item.number_of_forms) || 0})
+            </span>
+          </span>
+        ),
       })),
     ],
     [categories],
@@ -179,7 +192,7 @@ const CategoryMain = ({
             />
             <Select
               showSearch
-              optionFilterProp="label"
+              optionFilterProp="searchLabel"
               value={categoryId}
               options={categoryOptions}
               onChange={(value) => {
@@ -200,13 +213,22 @@ const CategoryMain = ({
         </div>
 
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-blue-100 bg-gradient-to-l from-blue-50 to-slate-50 p-4 dark:border-blue-900/60 dark:from-blue-950/30 dark:to-slate-900">
-          <div>
-            <div className="font-bold text-slate-800 dark:text-slate-100">
-              {activeCategoryName}
+          <div className="flex items-start gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-lg text-blue-600 dark:bg-blue-950/60 dark:text-blue-300">
+              <StoredIcon
+                value={activeCategory?.icon}
+                fallback={<FolderAddOutlined />}
+              />
+            </span>
+            <div>
+              <div className="font-bold text-slate-800 dark:text-slate-100">
+                {activeCategoryName}
+              </div>
+              <p className="mt-1 mb-0 text-xs leading-6 text-slate-500 dark:text-slate-400">
+                دسته‌بندی را انتخاب کنید و فرم‌های آن را از همین جدول مدیریت
+                کنید.
+              </p>
             </div>
-            <p className="mt-1 mb-0 text-xs leading-6 text-slate-500 dark:text-slate-400">
-              دسته‌بندی را انتخاب کنید و فرم‌های آن را از همین جدول مدیریت کنید.
-            </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
