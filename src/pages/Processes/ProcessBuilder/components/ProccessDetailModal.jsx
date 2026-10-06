@@ -32,7 +32,7 @@ const NEW_ROW_ID = "__new__";
 
 const PERMISSION_OPTIONS = [
   { value: "view", label: "مشاهده" },
-  { value: "edit", label: "ویرایش" },
+  { value: "edit", label: "مشاهده + ویرایش" },
 ];
 
 const PERMISSION_LABELS = Object.fromEntries(
@@ -143,13 +143,22 @@ const ProccessDetailModal = ({ modalData, isOpen, closeModal }) => {
       return message.warning("سطح دسترسی را انتخاب کنید.");
 
     try {
-      await createMutation.mutateAsync({
-        process_id: processId,
-        grantee_type: "group",
-        group_id: draft.group,
-        permission_type: draft.permission_type,
-      });
-      message.success("دسترسی افزوده شد.");
+      const permissionTypes =
+        draft.permission_type === "edit" ? ["view", "edit"] : ["view"];
+      for (const permissionType of permissionTypes) {
+        // eslint-disable-next-line no-await-in-loop
+        await createMutation.mutateAsync({
+          process_id: processId,
+          grantee_type: "group",
+          group_id: draft.group,
+          permission_type: permissionType,
+        });
+      }
+      message.success(
+        draft.permission_type === "edit"
+          ? "دسترسی مشاهده و ویرایش افزوده شد."
+          : "دسترسی مشاهده افزوده شد.",
+      );
       cancelAdd();
       infoQuery.refetch();
     } catch (error) {
@@ -163,13 +172,50 @@ const ProccessDetailModal = ({ modalData, isOpen, closeModal }) => {
 
     setBusyId(record.id);
     try {
-      await updateMutation.mutateAsync({
-        permissionId: record.id,
-        processId,
-        permission_type: editingValue,
-        grantee_type: record.grantee_type ?? "group",
-      });
-      message.success("سطح دسترسی ویرایش شد.");
+      const groupId = record?.group?.id;
+      const matchingView = permissions.find(
+        (permission) =>
+          permission.id !== record.id &&
+          permission.permission_type === "view" &&
+          String(permission?.group?.id) === String(groupId),
+      );
+
+      if (editingValue === "edit" && record.permission_type === "view") {
+        // رکورد مشاهده حفظ می‌شود و فقط دسترسی ویرایش کنار آن ساخته می‌شود.
+        await createMutation.mutateAsync({
+          process_id: processId,
+          grantee_type: record.grantee_type ?? "group",
+          group_id: groupId,
+          permission_type: "edit",
+        });
+      } else if (
+        editingValue === "view" &&
+        record.permission_type === "edit" &&
+        matchingView
+      ) {
+        // مشاهده از قبل وجود دارد؛ برای تبدیل به مشاهده کافی است edit حذف شود.
+        await deleteMutation.mutateAsync(record.id);
+      } else {
+        await updateMutation.mutateAsync({
+          permissionId: record.id,
+          processId,
+          permission_type: editingValue,
+          grantee_type: record.grantee_type ?? "group",
+        });
+        if (editingValue === "edit" && !matchingView) {
+          await createMutation.mutateAsync({
+            process_id: processId,
+            grantee_type: record.grantee_type ?? "group",
+            group_id: groupId,
+            permission_type: "view",
+          });
+        }
+      }
+      message.success(
+        editingValue === "edit"
+          ? "دسترسی مشاهده و ویرایش فعال شد."
+          : "دسترسی به مشاهده تغییر کرد.",
+      );
       cancelEdit();
       infoQuery.refetch();
     } catch (error) {

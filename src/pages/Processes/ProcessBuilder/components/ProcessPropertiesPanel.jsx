@@ -137,6 +137,9 @@ const PermissionList = ({
           const selectedTypes = new Set(
             row.permissions.map((permission) => permission.permissionType),
           );
+          // ویرایش بدون مشاهده معنایی ندارد؛ داده‌های قدیمی edit-only نیز
+          // در رابط کاربری به‌صورت ترکیبی نمایش داده می‌شوند.
+          if (selectedTypes.has("edit")) selectedTypes.add("view");
           const permission = row.permissions[0];
 
           return (
@@ -182,7 +185,10 @@ const PermissionList = ({
                       className="process-panel__permission-type"
                       key={type.value}
                       checked={selectedTypes.has(type.value)}
-                      disabled={disabled}
+                      disabled={
+                        disabled ||
+                        (type.value === "view" && selectedTypes.has("edit"))
+                      }
                       onChange={(event) =>
                         onToggleType(row, type.value, event.target.checked)
                       }
@@ -365,28 +371,47 @@ const ProcessPropertiesPanel = ({
       }),
     onToggleType: (row, permissionType, checked) =>
       patchPermissions(owner, ownerId, (list) => {
+        const sameType = (type) =>
+          row.permissions.filter(
+            (permission) => permission.permissionType === type,
+          );
+        const hasType = (type) => sameType(type).length > 0;
+        const addType = (items, type) =>
+          hasType(type)
+            ? items
+            : [
+                ...items,
+                createPermission({
+                  permissionType: type,
+                  groupId: row.groupId,
+                }),
+              ];
+
+        if (checked) {
+          let next = list;
+          // انتخاب «ویرایش» به‌صورت خودکار «مشاهده» را نیز فعال می‌کند.
+          if (permissionType === "edit") next = addType(next, "view");
+          return addType(next, permissionType);
+        }
+
         const matchingIds = new Set(
-          row.permissions
-            .filter(
-              (permission) => permission.permissionType === permissionType,
-            )
-            .map((permission) => String(permission.id)),
+          sameType(permissionType).map((permission) => String(permission.id)),
+        );
+        let next = list.filter(
+          (permission) => !matchingIds.has(String(permission.id)),
         );
 
-        if (!checked) {
-          return list.filter(
-            (permission) => !matchingIds.has(String(permission.id)),
-          );
-        }
-        if (matchingIds.size > 0) return list;
-
-        return [
-          ...list,
-          createPermission({
-            permissionType,
-            groupId: row.groupId,
-          }),
-        ];
+        // در داده‌های قدیمی ممکن است edit بدون view وجود داشته باشد. با حذف
+        // ویرایش، مشاهده را نگه می‌داریم تا دسترسی سمت ناخواسته صفر نشود.
+        if (permissionType === "edit" && !hasType("view"))
+          next = [
+            ...next,
+            createPermission({
+              permissionType: "view",
+              groupId: row.groupId,
+            }),
+          ];
+        return next;
       }),
   });
 
@@ -513,7 +538,7 @@ const ProcessPropertiesPanel = ({
           groups={groups}
           groupsLoading={groupsLoading}
           disabled={disabled}
-          hint="دسترسی مشاهده برای دیدن درخواست‌های این مرحله و دسترسی ویرایش برای تکمیل فرم لازم است؛ هر دو گزینه را می‌توان هم‌زمان برای یک سمت فعال کرد."
+          hint="دسترسی ویرایش شامل مشاهده هم هست و با انتخاب ویرایش، مشاهده خودکار فعال می‌شود. مشاهده را می‌توان بدون ویرایش ثبت کرد."
           {...permissionHandlers("node", selectedNode.id)}
         />
 
@@ -1015,7 +1040,7 @@ const ProcessPropertiesPanel = ({
         groups={groups}
         groupsLoading={groupsLoading}
         disabled={disabled}
-        hint="دسترسی مشاهده برای دیدن فرایند و دسترسی ویرایش برای مدیریت اجزای آن لازم است؛ هر دو گزینه را می‌توان هم‌زمان برای یک سمت فعال کرد."
+        hint="دسترسی ویرایش شامل مشاهده هم هست و با انتخاب ویرایش، مشاهده خودکار فعال می‌شود. مشاهده را می‌توان بدون ویرایش ثبت کرد."
         {...permissionHandlers("process", graph.id)}
       />
 
