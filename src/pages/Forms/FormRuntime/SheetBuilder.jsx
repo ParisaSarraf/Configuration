@@ -88,6 +88,11 @@ const KIND_LABEL = new Map(KINDS.map((kind) => [kind.id, kind.label]));
 const editsPlaceholder = (cell) =>
   Boolean(cell.type) && cell.type !== "checkbox";
 
+const widthPercentOf = (value) => {
+  const parsed = Number.parseInt(String(value || "").replace("%", ""), 10);
+  return Number.isFinite(parsed) ? parsed : "";
+};
+
 /* ------------------------------ مدل جدول ------------------------------ */
 
 const readCells = (value) => {
@@ -337,6 +342,12 @@ export default function SheetBuilder({ value, onChange, onSize }) {
       : null;
   const selectedCell = selectedId ? byId.get(selectedId) : null;
   const selectedBox = selectedId ? boxes.get(selectedId) : null;
+  const selectedColumnWidth =
+    selectedCell?.width ||
+    Array.from({ length: rows }, (unused, rowIndex) =>
+      byId.get(grid[rowIndex]?.[selected.c]),
+    ).find((cell) => cell?.width)?.width ||
+    "";
 
   /* ------------------------------ عملیات ------------------------------ */
 
@@ -344,6 +355,26 @@ export default function SheetBuilder({ value, onChange, onSize }) {
     if (!selectedId) return;
     const nextById = cloneMap(byId);
     nextById.set(selectedId, { ...nextById.get(selectedId), ...patch });
+    emit(grid, nextById);
+  };
+
+  const setSelectedColumnWidth = (width) => {
+    const nextById = cloneMap(byId);
+    const changedIds = new Set();
+    for (let rowIndex = 0; rowIndex < rows; rowIndex += 1) {
+      const id = grid[rowIndex]?.[selected.c];
+      const box = boxes.get(id);
+      if (
+        !id ||
+        changedIds.has(id) ||
+        !box ||
+        box.minC !== selected.c ||
+        box.maxC !== selected.c
+      )
+        continue;
+      changedIds.add(id);
+      nextById.set(id, { ...nextById.get(id), width });
+    }
     emit(grid, nextById);
   };
 
@@ -605,6 +636,7 @@ export default function SheetBuilder({ value, onChange, onSize }) {
                     <td
                       key={id}
                       className={classes}
+                      style={cell.width ? { width: cell.width } : undefined}
                       colSpan={box.maxC - box.minC + 1}
                       rowSpan={box.maxR - box.minR + 1}
                       onClick={() => setSelected({ r, c })}
@@ -700,12 +732,33 @@ export default function SheetBuilder({ value, onChange, onSize }) {
 
           <div className="sb-row">
             <span className="sb-row-label">عرض ستون</span>
-            <input
-              className="sb-field sb-field-sm"
-              value={selectedCell.width || ""}
-              placeholder="مثلاً 30%"
-              onChange={(event) => patchSelected({ width: event.target.value })}
-            />
+            <label className="sb-percent-field">
+              <input
+                className="sb-field sb-field-sm"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={100}
+                value={widthPercentOf(selectedColumnWidth)}
+                placeholder="30"
+                onChange={(event) => {
+                  const raw = event.target.value;
+                  if (raw === "") {
+                    setSelectedColumnWidth("");
+                    return;
+                  }
+                  const percent = Math.min(
+                    100,
+                    Math.max(1, Number.parseInt(raw, 10) || 1),
+                  );
+                  setSelectedColumnWidth(`${percent}%`);
+                }}
+              />
+              <span aria-hidden="true">٪</span>
+            </label>
+            <span className="sb-hint">
+              عددی بین ۱ تا ۱۰۰؛ علامت درصد خودکار ذخیره می‌شود.
+            </span>
             {Boolean(selectedCell.type) && (
               <>
                 <span className="sb-row-label">کلید ذخیره</span>
