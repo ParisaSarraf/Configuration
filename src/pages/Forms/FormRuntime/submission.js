@@ -254,9 +254,6 @@ export const checkFileFields = (fields, values) =>
     const files = realFilesOf(values?.[key]);
     const problems = [];
 
-    if (field.is_required && !files.length)
-      problems.push(`«${label}»: انتخاب فایل الزامی است.`);
-
     const fieldId = Number(field.id);
     if (files.length && !(Number.isFinite(fieldId) && fieldId > 0))
       problems.push(

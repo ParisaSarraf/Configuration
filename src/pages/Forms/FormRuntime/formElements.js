@@ -249,10 +249,9 @@ const isEmpty = (value) =>
 export const validateField = (field, value) => {
   const type = canonicalType(field.field_type);
   if (!INPUT_TYPES.has(type)) return "";
-  // بک‌اند فقط فیلدهای ارسال‌شده را اعتبارسنجی می‌کند. buildFormData نیز
-  // مقدارهای خالی را از payload حذف می‌کند؛ بنابراین هیچ نوع کنترلی (از جمله
-  // select/radio/multiselect) نباید صرفاً به‌خاطر نوعش اجباری شود.
-  if (field.required && isEmpty(value)) return "تکمیل این فیلد الزامی است.";
+  // required در فرم‌ساز صرفاً نشان بصری (*) است. فرایند ممکن است این فیلد را
+  // در ایستگاه دیگری تکمیل کند؛ بنابراین خالی بودن آن نباید ارسال مرحلهٔ
+  // فعلی را متوقف کند. محدودیت‌های فرمت فقط وقتی مقدار وارد شده بررسی می‌شوند.
   if (isEmpty(value)) return "";
 
   // جدول پرشدنی: محدودیت روی تعداد ردیف است، نه طول متن

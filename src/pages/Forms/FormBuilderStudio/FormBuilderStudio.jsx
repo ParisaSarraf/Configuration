@@ -1322,9 +1322,9 @@ function Studio({ formDefinitionId }) {
 
           <Form.Item
             name="required"
-            label="پاسخ اجباری"
+            label="نمایش به‌عنوان فیلد اجباری"
             valuePropName="checked"
-            extra="بدون تکمیل این فیلد، ارسال فرم ممکن نیست."
+            extra="فقط علامت اجباری (*) را نمایش می‌دهد و جلوی ثبت یا ارجاع درخواست در ایستگاه‌ها را نمی‌گیرد."
             style={LAYOUT_ONLY.has(activeType) ? HIDE : undefined}
           >
             <Switch />
