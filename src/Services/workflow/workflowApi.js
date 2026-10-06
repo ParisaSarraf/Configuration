@@ -22,6 +22,13 @@ const ENDPOINTS = Object.freeze({
   processRequests: "/workflow/get-process-requests-by-id/",
   addRequest: "/workflow/add-request/",
   doAction: "/workflow/do-action/",
+  // RequestNote (یادداشت‌های درخواست)
+  requestNotes: "/workflow/get-request-note/",
+  requestNoteById: "/workflow/get-request-note-by-id/",
+  notesByRequestId: "/workflow/get-notes-by-request-id/",
+  addRequestNote: "/workflow/add-request-note/",
+  updateRequestNote: "/workflow/update-request-note/",
+  deleteRequestNote: "/workflow/delete-request-note/",
 });
 
 const get = (client, endpoint, signal) =>
@@ -216,6 +223,20 @@ export const workflowApi = Object.freeze({
     createRequestAndResolveId(client, payload, signal),
   doAction: (client, payload, signal) =>
     post(client, ENDPOINTS.doAction, payload, signal),
+
+  // ---------- RequestNote (یادداشت‌های درخواست) ----------
+  getRequestNotes: (client, signal) =>
+    get(client, ENDPOINTS.requestNotes, signal),
+  getRequestNoteById: (client, id, signal) =>
+    get(client, `${ENDPOINTS.requestNoteById}${id}`, signal),
+  getNotesByRequestId: (client, requestId, signal) =>
+    get(client, `${ENDPOINTS.notesByRequestId}${requestId}`, signal),
+  createRequestNote: (client, payload, signal) =>
+    post(client, ENDPOINTS.addRequestNote, payload, signal),
+  updateRequestNote: (client, id, payload, signal) =>
+    put(client, `${ENDPOINTS.updateRequestNote}${id}`, payload, signal),
+  deleteRequestNote: (client, id, signal) =>
+    remove(client, `${ENDPOINTS.deleteRequestNote}${id}`, signal),
 
   // ---------- Permissions ----------
   createProcessPermission: (client, payload, signal) =>

@@ -27,6 +27,7 @@ import {
   useRequestPathById,
 } from "@/QueryServises/workflowQuery";
 import RequestPathGraph from "./RequestPathGraph";
+import RequestNotesPanel from "./RequestNotesPanel";
 import { getApiErrorMessage } from "@/Services/forms/formUtils";
 import { georgianDateTimeToJalaliDateTime } from "@utils/timeTool.jsx";
 import Modal from "../../../components/Modal";
@@ -253,6 +254,7 @@ const CartableSubmissionModal = ({ open, record, submission, onClose }) => {
               <RequestStateHistoryButton requestId={requestId} />
             </div>
             <RequestPathGraph query={requestPathQuery} requestId={requestId} />
+            <RequestNotesPanel requestId={requestId} />
           </>
         ) : null}
         {renderBody()}

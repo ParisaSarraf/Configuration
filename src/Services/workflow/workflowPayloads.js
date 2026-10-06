@@ -83,6 +83,33 @@ export const actionPermissionPayload = (actionId, permission) => ({
   ...(permission.groupId ? { group_id: Number(permission.groupId) } : {}),
 });
 
+// ---------- RequestNote (یادداشت درخواست) ----------
+// بک‌اند AddRequestNoteSerializer را با request_id / title / note (و
+// created_by_id اختیاری) می‌شناسد؛ UpdateRequestNoteSerializer فقط title و note
+// را می‌پذیرد.
+export const requestNotePayload = (
+  requestId,
+  { title = "", note = "", createdById = null } = {},
+) => ({
+  request_id: Number(requestId),
+  title: text(title),
+  note: text(note),
+  ...(createdById ? { created_by_id: Number(createdById) } : {}),
+});
+
+export const requestNoteUpdatePayload = ({ title = "", note = "" } = {}) => ({
+  title: text(title),
+  note: text(note),
+});
+
+/** پاسخ endpointهای یادداشت گاهی مستقیم، data یا results است. */
+export const normalizeRequestNotes = (payload) => {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.results)) return payload.results;
+  if (Array.isArray(payload?.data)) return payload.data;
+  return payload ? [payload] : [];
+};
+
 // ---------- diff ----------
 
 const byId = (list = []) =>
