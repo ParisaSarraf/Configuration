@@ -125,12 +125,14 @@ const buildGrid = (cells) => {
   const grid = Array.from({ length: rows }, () => Array(cols).fill(null));
   const byId = new Map();
 
-  cells.forEach((cell) => {
+  cells.forEach((cell, index) => {
     const r = Number(cell.r) || 0;
     const c = Number(cell.c) || 0;
     const rs = Math.max(Number(cell.rs) || 1, 1);
     const cs = Math.max(Number(cell.cs) || 1, 1);
-    const id = nextId();
+    // شناسه باید بین رندرها ثابت بماند. شناسهٔ شمارنده‌ای قبلی بعد از تایپ
+    // هر حرف عوض می‌شد؛ React ورودی را از نو می‌ساخت و فوکوس از دست می‌رفت.
+    const id = `cell-${r}-${c}-${index}`;
     byId.set(id, { ...cell, r, c, rs, cs });
     for (let i = r; i < Math.min(r + rs, rows); i += 1)
       for (let j = c; j < Math.min(c + cs, cols); j += 1)
@@ -141,7 +143,7 @@ const buildGrid = (cells) => {
   for (let i = 0; i < rows; i += 1)
     for (let j = 0; j < cols; j += 1)
       if (!grid[i][j]) {
-        const id = nextId();
+        const id = `cell-hole-${i}-${j}`;
         byId.set(id, { text: "", type: "text", variant: "plain", align: "right" });
         grid[i][j] = id;
       }
