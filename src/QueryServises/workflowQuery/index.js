@@ -13,6 +13,12 @@ export const processStateReportKey = (id) => [
   id,
   "state-request-counts",
 ];
+export const processStateDurationStatsKey = (id) => [
+  "workflow",
+  "process",
+  id,
+  "state-duration-stats",
+];
 export const transitionActionsKey = ["workflow", "transition-actions"];
 export const requestsKey = ["workflow", "requests"];
 export const requestKey = (id) => ["workflow", "request", id];
@@ -91,6 +97,18 @@ export const useProcessStateRequestCounts = (id, queryOptions) => {
   return useQuery({
     queryKey: processStateReportKey(id),
     queryFn: () => workflowApi.getProcessStateRequestCounts(myAxios, id),
+    enabled: Boolean(id),
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
+    ...queryOptions,
+  });
+};
+
+export const useProcessStateDurationStats = (id, queryOptions) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: processStateDurationStatsKey(id),
+    queryFn: () => workflowApi.getProcessStateDurationStats(myAxios, id),
     enabled: Boolean(id),
     staleTime: 60 * 1000,
     refetchOnWindowFocus: false,

@@ -29,6 +29,7 @@ import {
   useLockedFieldsByProcessId,
   useProcessInfo,
   useProcessKpis,
+  useProcessStateDurationStats,
   useProcessStateRequestCounts,
   useTransitionActions,
 } from "@/QueryServises/workflowQuery";
@@ -51,6 +52,22 @@ const number = (value) => Math.max(0, Number(value) || 0);
 const formatNumber = (value) => number(value).toLocaleString("fa-IR");
 const roleId = (role) => String(role?.id ?? role?.pk ?? "");
 const roleName = (role) => role?.name ?? role?.title ?? "سمت بدون نام";
+
+const formatDuration = (value) => {
+  if (value == null || value === "") return "—";
+  const raw = String(value).trim();
+  const match = raw.match(/^(?:(\d+)\s+)?(\d+):(\d{2}):(\d{2})(?:\.\d+)?$/);
+  if (!match) return raw;
+
+  const [, days = "0", hours, minutes, seconds] = match;
+  const parts = [];
+  if (Number(days)) parts.push(`${formatNumber(days)} روز`);
+  if (Number(hours)) parts.push(`${formatNumber(hours)} ساعت`);
+  if (Number(minutes)) parts.push(`${formatNumber(minutes)} دقیقه`);
+  if (Number(seconds) || !parts.length)
+    parts.push(`${formatNumber(seconds)} ثانیه`);
+  return parts.join(" و ");
+};
 
 const Metric = ({ icon, label, value, detail, tone = "slate" }) => {
   const tones = {
@@ -189,6 +206,67 @@ const StatusChart = ({ kpi }) => {
   );
 };
 
+const StationDurationStats = ({ rows, isLoading, error, onRetry }) => {
+  if (isLoading)
+    return <Skeleton active paragraph={{ rows: 4 }} title={false} />;
+  if (error)
+    return (
+      <Alert
+        type="warning"
+        showIcon
+        message="دریافت گزارش زمانی ایستگاه‌ها انجام نشد"
+        description={getApiErrorMessage(error)}
+        action={<Button onClick={onRetry}>تلاش مجدد</Button>}
+      />
+    );
+  if (!rows.length)
+    return <Empty description="گزارش زمانی برای ایستگاه‌های فرایند وجود ندارد" />;
+
+  return (
+    <div className="overflow-x-auto">
+      <div className="min-w-[760px] space-y-2">
+        <div className="grid grid-cols-[minmax(150px,1.4fr)_repeat(4,minmax(115px,1fr))_90px_90px] gap-2 px-3 text-[11px] font-bold text-slate-400">
+          <span>ایستگاه</span>
+          <span>میانگین زمان</span>
+          <span>حداقل زمان</span>
+          <span>حداکثر زمان</span>
+          <span>مجموع زمان</span>
+          <span>تعداد بازدید</span>
+          <span>درخواست</span>
+        </div>
+        {rows.map((row) => (
+          <div
+            key={row.id ?? row.name}
+            className="grid grid-cols-[minmax(150px,1.4fr)_repeat(4,minmax(115px,1fr))_90px_90px] items-center gap-2 rounded-xl border border-slate-100 bg-slate-50/70 px-3 py-3 text-xs dark:border-slate-800 dark:bg-slate-800/50"
+          >
+            <strong className="truncate text-slate-800 dark:text-slate-100">
+              {row.name}
+            </strong>
+            <span className="text-slate-600 dark:text-slate-300">
+              {formatDuration(row.average)}
+            </span>
+            <span className="text-slate-600 dark:text-slate-300">
+              {formatDuration(row.minimum)}
+            </span>
+            <span className="text-slate-600 dark:text-slate-300">
+              {formatDuration(row.maximum)}
+            </span>
+            <span className="text-slate-600 dark:text-slate-300">
+              {formatDuration(row.total)}
+            </span>
+            <strong className="tabular-nums text-slate-700 dark:text-slate-200">
+              {formatNumber(row.visitCount)}
+            </strong>
+            <strong className="tabular-nums text-indigo-600 dark:text-indigo-300">
+              {formatNumber(row.requestCount)}
+            </strong>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const ProcessDashboardContent = () => {
   const navigate = useNavigate();
   const { processId } = useParams();
@@ -197,6 +275,9 @@ const ProcessDashboardContent = () => {
   const infoQuery = useProcessInfo(processId, { retry: false });
   const kpisQuery = useProcessKpis({ retry: false });
   const statesQuery = useProcessStateRequestCounts(processId, { retry: false });
+  const durationStatsQuery = useProcessStateDurationStats(processId, {
+    retry: false,
+  });
   const actionsQuery = useTransitionActions({ retry: false });
   const locksQuery = useLockedFieldsByProcessId(processId, { retry: false });
   const rolesQuery = useRoleList({ retry: false });
@@ -217,6 +298,24 @@ const ProcessDashboardContent = () => {
         count: number(item?.request_count),
       })),
     [statesQuery.data],
+  );
+  const durationStats = useMemo(
+    () =>
+      asArray(durationStatsQuery.data).map((item) => ({
+        id: item?.state_id ?? item?.id,
+        name:
+          item?.state__name ||
+          item?.state_name ||
+          item?.name ||
+          "ایستگاه بدون نام",
+        average: item?.avg_duration,
+        minimum: item?.min_duration,
+        maximum: item?.max_duration,
+        total: item?.total_duration,
+        visitCount: number(item?.visit_count),
+        requestCount: number(item?.request_count),
+      })),
+    [durationStatsQuery.data],
   );
   const graph = useMemo(
     () =>
@@ -296,6 +395,7 @@ const ProcessDashboardContent = () => {
       infoQuery.refetch(),
       kpisQuery.refetch(),
       statesQuery.refetch(),
+      durationStatsQuery.refetch(),
       actionsQuery.refetch(),
       locksQuery.refetch(),
       rolesQuery.refetch(),
@@ -362,7 +462,7 @@ const ProcessDashboardContent = () => {
               loading={
                 infoQuery.isFetching ||
                 kpisQuery.isFetching ||
-                statesQuery.isFetching
+                statesQuery.isFetching || durationStatsQuery.isFetching
               }
               onClick={refreshAll}
             >
@@ -427,6 +527,25 @@ const ProcessDashboardContent = () => {
           description="خلاصه جاری، تکمیل‌شده و ردشده از API جدید KPI"
         >
           <StatusChart kpi={kpi} />
+        </Section>
+      </div>
+
+      <div className="mt-4">
+        <Section
+          title="گزارش زمانی ایستگاه‌ها"
+          description="میانگین، حداقل، حداکثر و مجموع زمان توقف درخواست‌ها در هر ایستگاه"
+          extra={
+            <Tag color="purple" className="m-0">
+              {formatNumber(durationStats.length)} ایستگاه
+            </Tag>
+          }
+        >
+          <StationDurationStats
+            rows={durationStats}
+            isLoading={durationStatsQuery.isLoading}
+            error={durationStatsQuery.error}
+            onRetry={durationStatsQuery.refetch}
+          />
         </Section>
       </div>
 
