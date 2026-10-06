@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CloseOutlined, NodeIndexOutlined } from "@ant-design/icons";
 import { Trash2 } from "lucide-react";
 
-import { edgeGeometry, graphBounds } from "../processGraph";
+import { buildEdgeGeometries, graphBounds } from "../processGraph";
 import {
   GRID_SIZE,
   MAX_ZOOM,
@@ -17,10 +17,6 @@ import {
 
 const SURFACE_SIZE = 6000;
 const DRAG_TYPE = "application/x-process-state-type";
-/** خمیدگی وقتی بین دو مرحله، مسیر برگشت هم تعریف شده باشد. */
-const RECIPROCAL_BOW = 60;
-/** فاصله‌ی مسیرهای هم‌جهت تکراری بین همان دو مرحله. */
-const PARALLEL_SPACING = 52;
 /** ابعاد مینی‌مپ نمای کلی فرایند. */
 const MINIMAP_WIDTH = 168;
 const MINIMAP_HEIGHT = 112;
@@ -87,35 +83,13 @@ const ProcessCanvas = ({
   );
 
   /**
-   * آفست خمیدگی هر مسیر. اگر بین دو مرحله مسیر برگشت هم وجود
-   * داشته باشد، هر دو خم می‌شوند تا خط، برچسب و ناحیه‌ی کلیکشان جدا باشد و
-   * بتوان برای هر جهت جداگانه عملیات تعریف کرد.
+   * هندسهٔ همهٔ خطوط در یک گذر ساخته می‌شود؛ چون برای جدا نگه‌داشتن مسیرهای
+   * رفت و برگشت، موتور مسیریابی باید همهٔ یال‌ها را با هم ببیند.
    */
-  const edgeOffsets = useMemo(() => {
-    const edges = graph?.edges ?? [];
-    const directions = new Set(
-      edges.map((edge) => `${String(edge.source)}>${String(edge.target)}`),
-    );
-    const seen = new Map();
-
-    return new Map(
-      edges.map((edge) => {
-        const source = String(edge.source);
-        const target = String(edge.target);
-        const key = `${source}>${target}`;
-        const index = seen.get(key) ?? 0;
-        seen.set(key, index + 1);
-
-        const hasReciprocal =
-          source !== target && directions.has(`${target}>${source}`);
-
-        return [
-          String(edge.id),
-          (hasReciprocal ? RECIPROCAL_BOW : 0) + index * PARALLEL_SPACING,
-        ];
-      }),
-    );
-  }, [graph]);
+  const edgeGeometries = useMemo(
+    () => buildEdgeGeometries(graph?.nodes ?? [], graph?.edges ?? []),
+    [graph],
+  );
 
   const toSurfacePoint = useCallback(
     (clientX, clientY) => {
@@ -360,28 +334,29 @@ const ProcessCanvas = ({
           height={SURFACE_SIZE}
         >
           <defs>
-            <marker
-              id="process-arrow"
-              viewBox="0 0 10 10"
-              refX="9"
-              refY="5"
-              markerWidth="7"
-              markerHeight="7"
-              orient="auto-start-reverse"
-            >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
-            </marker>
+            {[
+              ["process-arrow", "var(--pb-edge)"],
+              ["process-arrow-hover", "var(--pb-primary)"],
+              ["process-arrow-selected", "var(--pb-accent)"],
+            ].map(([id, color]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="9"
+                refY="5"
+                markerWidth="7"
+                markerHeight="7"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={color} />
+              </marker>
+            ))}
           </defs>
 
           {(graph?.edges ?? []).map((edge) => {
-            const source = nodeById.get(String(edge.source));
-            const target = nodeById.get(String(edge.target));
-            if (!source || !target) return null;
-            const geometry = edgeGeometry(
-              source,
-              target,
-              edgeOffsets.get(String(edge.id)) ?? 0,
-            );
+            const geometry = edgeGeometries.get(String(edge.id));
+            if (!geometry) return null;
             const isSelected =
               selection.type === "edge" &&
               String(selection.id) === String(edge.id);
@@ -425,14 +400,8 @@ const ProcessCanvas = ({
 
         {/* برچسب مسیرها: عملیاتی متصل به هر انتقال */}
         {(graph?.edges ?? []).map((edge) => {
-          const source = nodeById.get(String(edge.source));
-          const target = nodeById.get(String(edge.target));
-          if (!source || !target) return null;
-          const geometry = edgeGeometry(
-            source,
-            target,
-            edgeOffsets.get(String(edge.id)) ?? 0,
-          );
+          const geometry = edgeGeometries.get(String(edge.id));
+          if (!geometry) return null;
           const isSelected =
             selection.type === "edge" &&
             String(selection.id) === String(edge.id);
