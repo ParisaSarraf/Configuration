@@ -8,9 +8,14 @@ const SystemEngineerCols = ({handleDelete, handleEdit}) => {
             title: 'نام حوزه', dataIndex: ['precinct', 'title'], key: 'precinct'
         },
         {
-            title: 'شرح فعالیت',
+            title: "عنوان",
             dataIndex: 'title',
             key: 'title'
+        },
+        {
+            title: 'شرح',
+            dataIndex: 'description',
+            key: 'description'
         },
         {
             title: 'تاریخ و ساعت ثبت',
@@ -27,11 +32,6 @@ const SystemEngineerCols = ({handleDelete, handleEdit}) => {
             title: 'کاربر ثبت کننده',
             dataIndex: 'user',
             key: 'user'
-        },
-        {
-            title: 'توضیحات',
-            dataIndex: 'description',
-            key: 'description'
         },
         {
             title: 'عملیات',

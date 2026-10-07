@@ -73,7 +73,7 @@ const SystemEngineerModal = ({isOpen, modalMode, closeModal, modalData, refetch}
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item label={'شرح تعریف'} name={'title'}>
+                        <Form.Item label={'عنوان'} name={'title'}>
                             <Input/>
                         </Form.Item>
                     </Col>
