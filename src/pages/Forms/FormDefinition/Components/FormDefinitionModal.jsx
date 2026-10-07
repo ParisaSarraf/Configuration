@@ -144,7 +144,7 @@ const FormDefinitionModal = ({
             </Form.Item>
           </Col>
 
-          <Col span={8}>
+          {/* <Col span={8}>
             <Form.Item
               name="max_submissions"
               label="حداکثر تعداد ارسال"
@@ -156,9 +156,9 @@ const FormDefinitionModal = ({
                 placeholder="بدون محدودیت"
               />
             </Form.Item>
-          </Col>
+          </Col> */}
 
-          <Col span={16}>
+          {/* <Col span={16}>
             <Form.Item
               name="success_redirect_url"
               label="صفحهٔ مقصد پس از ارسال موفق"
@@ -170,7 +170,7 @@ const FormDefinitionModal = ({
                 allowClear
               />
             </Form.Item>
-          </Col>
+          </Col> */}
 
           <Col span={24}>
             <Form.Item name="success_message" label="پیغام پس از ارسال فرم">
@@ -183,7 +183,7 @@ const FormDefinitionModal = ({
             </Form.Item>
           </Col>
 
-          <Col span={24}>
+          {/* <Col span={24}>
             <Form.Item
               name="is_active"
               valuePropName="checked"
@@ -191,7 +191,7 @@ const FormDefinitionModal = ({
             >
               <Checkbox>فرم فعال باشد</Checkbox>
             </Form.Item>
-          </Col>
+          </Col> */}
         </Row>
       </Form>
     </Modal>
