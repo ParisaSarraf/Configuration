@@ -12,9 +12,13 @@
 
 import {
   DISPLAY_ONLY,
-  canonicalType,
+  resolveType,
 } from "../../pages/Forms/FormRuntime/fieldSchema";
 import { MULTI_TYPES } from "../../pages/Forms/FormRuntime/formElements";
+import {
+  checkboxValue,
+  objectInputValue,
+} from "../../pages/Forms/FormRuntime/inputIdentity";
 
 const NUMERIC = new Set(["number", "decimal", "currency", "slider", "rating"]);
 
@@ -83,7 +87,7 @@ const readFiles = (raw) => {
 export const hydrateValue = (type, raw) => {
   if (raw === undefined || raw === null) return undefined;
 
-  if (type === "checkbox") return Boolean(raw);
+  if (type === "checkbox") return checkboxValue(raw);
 
   if (NUMERIC.has(type)) {
     const parsed = Number(raw);
@@ -98,7 +102,7 @@ export const hydrateValue = (type, raw) => {
   if (type === "matrix") return matrixRowsOf(raw);
 
   if (type === "sheet_table" || type === "date_signature")
-    return raw && typeof raw === "object" ? raw : {};
+    return objectInputValue(raw);
 
   if (type === "signature") return readSignature(raw);
 
@@ -122,7 +126,7 @@ export const hydrateValues = (fields, formData) => {
   const values = { ...data };
 
   (fields || []).forEach((field) => {
-    const type = canonicalType(field?.field_type);
+    const type = resolveType(field);
     if (DISPLAY_ONLY.has(type)) return;
 
     const key = field?.field_name || String(field?.id ?? "");

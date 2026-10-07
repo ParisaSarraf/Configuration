@@ -8,7 +8,9 @@
 // (مانند گزینه‌های خطی) هم درست رندر شوند.
 // =====================================================================
 
+import { useId } from "react";
 import { toOptions, MULTI_TYPES } from "./formElements";
+import { checkboxValue, textInputValue } from "./inputIdentity";
 import { resolveType } from "./fieldSchema";
 import MatrixInput from "./MatrixInput";
 import DateField from "./DateField";
@@ -60,6 +62,7 @@ export default function FieldControl({
   invalid = false,
   compact = false,
 }) {
+  const radioGroupId = useId();
   const type = resolveType(field);
   const cls = `fr-input${invalid ? " is-invalid" : ""}`;
   const set = (next) => !readOnly && onChange?.(next);
@@ -117,7 +120,7 @@ export default function FieldControl({
                 <div className="fr-sign fr-datesign-sign">
                   <input
                     className="fr-input"
-                    value={current[key] ?? ""}
+                    value={textInputValue(current[key])}
                     disabled={readOnly}
                     onChange={(event) => setSlot(key, event.target.value)}
                   />
@@ -125,7 +128,7 @@ export default function FieldControl({
               ) : (
                 <input
                   className="fr-input"
-                  value={current[key] ?? ""}
+                  value={textInputValue(current[key])}
                   disabled={readOnly}
                   onChange={(event) => setSlot(key, event.target.value)}
                 />
@@ -143,7 +146,7 @@ export default function FieldControl({
       <textarea
         className={`fr-textarea${invalid ? " is-invalid" : ""}`}
         rows={type === "address" ? 2 : compact ? 2 : 4}
-        value={value ?? ""}
+        value={textInputValue(value)}
         placeholder={field.placeholder || ""}
         maxLength={field.max_length ? Number(field.max_length) : undefined}
         disabled={readOnly}
@@ -200,16 +203,19 @@ export default function FieldControl({
     const list = options.length ? options : [{ value: "", label: "بدون گزینه" }];
     return (
       <div className={`fr-options${type === "radio" ? " fr-col" : ""}`}>
-        {list.map((option) => (
+        {list.map((option, index) => (
           <label
-            key={option.value}
+            key={`${option.value}-${index}`}
             className={`fr-option${readOnly ? " is-readonly" : ""}`}
           >
             <input
               type="radio"
-              name={`${field.field_name || field.id}`}
-              checked={String(value ?? "") === String(option.value)}
-              disabled={readOnly}
+              name={`fr-radio-${radioGroupId}`}
+              checked={
+                value !== undefined && value !== null && value !== "" &&
+                String(value) === String(option.value)
+              }
+              disabled={readOnly || options.length === 0}
               onChange={() => set(option.value)}
             />
             {option.label}
@@ -252,7 +258,7 @@ export default function FieldControl({
       <label className={`fr-option${readOnly ? " is-readonly" : ""}`}>
         <input
           type="checkbox"
-          checked={Boolean(value)}
+          checked={checkboxValue(value)}
           disabled={readOnly}
           onChange={(event) => set(event.target.checked)}
         />
@@ -339,7 +345,7 @@ export default function FieldControl({
         <input
           className="fr-input"
           placeholder="نام و امضا"
-          value={value ?? ""}
+          value={textInputValue(value)}
           disabled={readOnly}
           onChange={(event) => set(event.target.value)}
         />
@@ -352,7 +358,7 @@ export default function FieldControl({
     <input
       className={cls}
       type={INPUT_TYPE_MAP[type] || "text"}
-      value={value ?? ""}
+      value={textInputValue(value)}
       placeholder={field.placeholder || ""}
       maxLength={!numeric && field.max_length ? Number(field.max_length) : undefined}
       min={numeric && field.min_value !== "" && field.min_value != null ? field.min_value : undefined}

@@ -3,10 +3,13 @@
 // در هر سلول — همان چیزی که فرم‌های رسمی (مثل فرم درخواست تغییرات)
 // لازم دارند و جدول ساده (matrix) نمی‌تواند بسازد.
 
+import { useId } from "react";
 import { parseSheet, toOptions } from "./formElements";
+import { checkboxValue, textInputValue } from "./inputIdentity";
 import DateField from "./DateField";
 
 function CellInput({ cell, values, onChange, readOnly }) {
+  const radioGroupId = useId();
   const key = cell.name || cell.key;
   const value = values?.[key];
   const set = (next) => !readOnly && onChange?.(key, next);
@@ -16,7 +19,7 @@ function CellInput({ cell, values, onChange, readOnly }) {
       <textarea
         className="fr-textarea"
         rows={2}
-        value={value ?? ""}
+        value={textInputValue(value)}
         placeholder={cell.placeholder}
         disabled={readOnly}
         onChange={(event) => set(event.target.value)}
@@ -28,7 +31,7 @@ function CellInput({ cell, values, onChange, readOnly }) {
       <label className={`fr-option${readOnly ? " is-readonly" : ""}`}>
         <input
           type="checkbox"
-          checked={Boolean(value)}
+          checked={checkboxValue(value)}
           disabled={readOnly}
           onChange={(event) => set(event.target.checked)}
         />
@@ -40,12 +43,15 @@ function CellInput({ cell, values, onChange, readOnly }) {
     const options = toOptions(cell.options);
     return (
       <div className="fr-options">
-        {options.map((option) => (
-          <label key={option.value} className={`fr-option${readOnly ? " is-readonly" : ""}`}>
+        {options.map((option, index) => (
+          <label key={`${option.value}-${index}`} className={`fr-option${readOnly ? " is-readonly" : ""}`}>
             <input
               type="radio"
-              name={key}
-              checked={String(value ?? "") === String(option.value)}
+              name={`fr-sheet-radio-${radioGroupId}`}
+              checked={
+                value !== undefined && value !== null && value !== "" &&
+                String(value) === String(option.value)
+              }
               disabled={readOnly}
               onChange={() => set(option.value)}
             />
@@ -80,7 +86,7 @@ function CellInput({ cell, values, onChange, readOnly }) {
       <div className="fr-sign">
         <input
           className="fr-input"
-          value={value ?? ""}
+          value={textInputValue(value)}
           disabled={readOnly}
           onChange={(event) => set(event.target.value)}
         />
@@ -103,7 +109,7 @@ function CellInput({ cell, values, onChange, readOnly }) {
     <input
       className="fr-input"
       type={cell.type === "number" ? "number" : "text"}
-      value={value ?? ""}
+      value={textInputValue(value)}
       placeholder={cell.placeholder}
       disabled={readOnly}
       onChange={(event) => set(event.target.value)}

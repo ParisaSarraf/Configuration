@@ -71,6 +71,7 @@ import SheetBuilder from "../FormRuntime/SheetBuilder";
 import HeaderBuilder, { LogoPicker } from "../FormRuntime/HeaderBuilder";
 import { emptySheet } from "../FormRuntime/formElements";
 import { buildChoiceList, createChoiceValue } from "../FormRuntime/choiceOptions";
+import { newInputFieldName } from "../FormRuntime/inputIdentity";
 import {
   AUTO_PATTERNS,
   FIELD_DEFS,
@@ -911,7 +912,7 @@ function Studio({ formDefinitionId }) {
     pendingInsertIndex.current = Number.isInteger(index) ? index + 1 : null;
     const draft = {
       ...field,
-      field_name: `${field.field_name || "field"}-${Date.now().toString(36)}`,
+      field_name: newInputFieldName(fields),
     };
     delete draft.id;
     try {
@@ -934,7 +935,7 @@ function Studio({ formDefinitionId }) {
     const draft = {
       field_type: type,
       field_label: labelOf(type),
-      field_name: `field-${Date.now().toString(36)}`,
+      field_name: newInputFieldName(fields),
       required: false,
       choices: defaultChoices(type),
       default_value:
@@ -1306,6 +1307,19 @@ function Studio({ formDefinitionId }) {
                   {
                     pattern: /^[-a-zA-Z0-9_]+$/,
                     message: "فقط حروف انگلیسی، عدد، خط تیره و زیرخط",
+                  },
+                  {
+                    validator: (_, value) => {
+                      const key = slugify(value || "", "field");
+                      const duplicate = fields.some(
+                        (field) =>
+                          String(field.id) !== String(editing?.id) &&
+                          slugify(field.field_name || "", "field") === key,
+                      );
+                      return duplicate
+                        ? Promise.reject(new Error("نام فنی باید در این فرم یکتا باشد."))
+                        : Promise.resolve();
+                    },
                   },
                 ]}
               >

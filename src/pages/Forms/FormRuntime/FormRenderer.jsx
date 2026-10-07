@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { GRID, normalizeFields } from "../FormBuilderStudio/formStudioLayout";
-import { INPUT_TYPES, validateAll } from "./formElements";
+import { INPUT_TYPES, parseSheet, toOptions, validateAll } from "./formElements";
 import { resolveType, sectionBandStyle } from "./fieldSchema";
 import FieldControl from "./FieldControl";
 import SheetTable from "./SheetTable";
@@ -159,7 +159,7 @@ export function Element({ field, values, errors, onChange, readOnly }) {
   );
 }
 
-function Section({ item, values, errors, onChange, readOnly, lockedFieldIds }) {
+function Section({ item, values, errors, onChange, readOnly, lockedFieldIds, blockedKeys }) {
   const fields = normalizeFields(sortByOrder(item.fields));
   if (!fields.length) return null;
   return (
@@ -184,7 +184,10 @@ function Section({ item, values, errors, onChange, readOnly, lockedFieldIds }) {
             values={values}
             errors={errors}
             onChange={onChange}
-            readOnly={readOnly || lockedFieldIds.has(String(field.id))}
+            readOnly={
+              readOnly || lockedFieldIds.has(String(field.id)) ||
+              blockedKeys.has(keyOf(field))
+            }
           />
         </div>
       ))}
@@ -237,6 +240,34 @@ export default function FormRenderer({
   }, [initialValues]);
 
   const allFields = useMemo(() => inputFieldsOf(categories), [categories]);
+  const schemaConflicts = useMemo(() => {
+    const seen = new Set();
+    const blockedKeys = new Set();
+    const labels = new Set();
+    const duplicatedOptions = (choices) => {
+      const ids = toOptions(choices).map((option) => String(option.value));
+      return ids.some((id) => id === "") || ids.length !== new Set(ids).size;
+    };
+    allFields.forEach((field) => {
+      const key = keyOf(field);
+      const type = resolveType(field);
+      const duplicateChoices =
+        ["radio", "option_row", "select", "checkboxes", "multiselect", "multiselect_list"]
+          .includes(type) && duplicatedOptions(field.choices);
+      const duplicateSheetOptions =
+        type === "sheet_table" &&
+        parseSheet(field).matrix.flat().some(
+          (cell) => ["radio_row", "select"].includes(cell.type) &&
+            duplicatedOptions(cell.options),
+        );
+      if (seen.has(key) || duplicateChoices || duplicateSheetOptions) {
+        blockedKeys.add(key);
+        labels.add(field.field_label || key);
+      }
+      seen.add(key);
+    });
+    return { blockedKeys, labels: [...labels] };
+  }, [allFields]);
 
   const filledCount = allFields.filter((field) => {
     const value = values[keyOf(field)];
@@ -249,6 +280,10 @@ export default function FormRenderer({
   };
 
   const check = () => {
+    if (schemaConflicts.blockedKeys.size) {
+      setNotice("ساختار فرم نیاز به اصلاح دارد؛ اطلاعات ارسال نشد.");
+      return false;
+    }
     // در فرم‌های مرحله‌ای، فیلدهای قفل‌شده متعلق به مراحل قبل/بعد هستند و
     // نباید اعتبارسنجی مرحله فعلی را متوقف کنند.
     const editableFields = allFields.filter(
@@ -271,6 +306,14 @@ export default function FormRenderer({
 
   return (
     <div className="fr-root">
+      {schemaConflicts.blockedKeys.size > 0 && (
+        <div className="fr-no-print" role="alert">
+          نام فنی فیلدها یا شناسهٔ گزینه‌ها در این فرم نامعتبر یا تکراری است:
+          {" "}{schemaConflicts.labels.join("، ")}.
+          برای جلوگیری از ثبت اطلاعات روی فیلد اشتباه، این ورودی‌ها غیرفعال‌اند.
+          در فرم‌ساز نام فنی را یکتا کنید یا تنظیمات گزینه‌ها را باز و ذخیره کنید.
+        </div>
+      )}
       {showToolbar && (
         <div className="fr-toolbar fr-no-print">
           {!viewing && (
@@ -385,6 +428,7 @@ export default function FormRenderer({
                 onChange={change}
                 readOnly={readOnly}
                 lockedFieldIds={lockedIds}
+                blockedKeys={schemaConflicts.blockedKeys}
               />
             ))}
           </div>

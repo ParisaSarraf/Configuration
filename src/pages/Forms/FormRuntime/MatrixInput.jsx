@@ -13,6 +13,7 @@
 import { toMatrixColumns } from "./fieldSchema";
 import { toOptions } from "./formElements";
 import DateField from "./DateField";
+import { checkboxValue, textInputValue } from "./inputIdentity";
 
 const emptyRow = (columns) =>
   columns.reduce(
@@ -31,7 +32,7 @@ function CellControl({ column, value, onChange, readOnly }) {
       <label className={`fr-option${readOnly ? " is-readonly" : ""}`}>
         <input
           type="checkbox"
-          checked={Boolean(value)}
+          checked={checkboxValue(value)}
           disabled={readOnly}
           onChange={(event) => set(event.target.checked)}
         />
@@ -67,7 +68,7 @@ function CellControl({ column, value, onChange, readOnly }) {
     <input
       className="fr-input"
       type={column.type === "number" ? "number" : "text"}
-      value={value ?? ""}
+      value={textInputValue(value)}
       disabled={readOnly}
       onChange={(event) => set(event.target.value)}
     />

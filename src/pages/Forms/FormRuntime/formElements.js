@@ -15,6 +15,7 @@
 
 import { FIELD_DEFS, TYPE_ALIASES, canonicalType } from "./fieldSchema";
 import { choiceDisplayLabel } from "./choiceOptions";
+import { uniqueSheetCellNames } from "./inputIdentity";
 
 /** عناصری که ورودی کاربر می‌گیرند (در حالت تکمیل، مقدار دارند). */
 export const INPUT_TYPES = new Set([
@@ -141,10 +142,13 @@ export const toOptions = (choices) =>
 //   tall  : ارتفاع بلند برای سلول‌های شرح/امضا
 
 export const parseSheet = (field) => {
-  const cells = (Array.isArray(field?.choices) ? field.choices : [])
-    .filter((cell) => cell && typeof cell === "object")
+  const cells = uniqueSheetCellNames(
+    (Array.isArray(field?.choices) ? field.choices : [])
+      .filter((cell) => cell && typeof cell === "object"),
+    { legacyFallback: true },
+  )
     .map((cell, index) => ({
-      key: cell.key || `${cell.r ?? 0}-${cell.c ?? 0}-${index}`,
+      key: `${cell.key || "cell"}-${cell.r ?? 0}-${cell.c ?? 0}-${index}`,
       r: Number(cell.r) || 0,
       c: Number(cell.c) || 0,
       rs: Math.max(Number(cell.rs) || 1, 1),

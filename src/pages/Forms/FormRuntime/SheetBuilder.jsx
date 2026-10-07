@@ -16,6 +16,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { emptySheet } from "./formElements";
+import { uniqueSheetCellNames } from "./inputIdentity";
 import "./sheet-builder.css";
 
 /* ------------------------------ انواع خانه ------------------------------ */
@@ -190,7 +191,7 @@ const gridToCells = (grid, byId) => {
     };
     if (base.type) {
       cell.type = base.type;
-      cell.name = base.name || `cell_${box.minR}_${box.minC}`;
+      if (base.name || base.key) cell.name = base.name || base.key;
     }
     if (base.tall) cell.tall = true;
     if (base.placeholder) cell.placeholder = base.placeholder;
@@ -200,7 +201,7 @@ const gridToCells = (grid, byId) => {
     out.push(cell);
   });
 
-  return out.sort((a, b) => a.r - b.r || a.c - b.c);
+  return uniqueSheetCellNames(out.sort((a, b) => a.r - b.r || a.c - b.c));
 };
 
 const cloneGrid = (grid) => grid.map((row) => row.slice());
@@ -301,7 +302,10 @@ const TEMPLATES = [
 /* ------------------------------ کامپوننت ------------------------------ */
 
 export default function SheetBuilder({ value, onChange, onSize }) {
-  const cells = useMemo(() => readCells(value), [value]);
+  const cells = useMemo(
+    () => uniqueSheetCellNames(readCells(value), { legacyFallback: true }),
+    [value],
+  );
   const model = useMemo(() => buildGrid(cells), [cells]);
   const { rows, cols, grid, byId } = model;
 

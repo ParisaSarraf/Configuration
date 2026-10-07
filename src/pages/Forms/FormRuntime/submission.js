@@ -1,5 +1,6 @@
 import { DISPLAY_ONLY, resolveType } from "./fieldSchema";
-import { MULTI_TYPES } from "./formElements";
+import { MULTI_TYPES, parseSheet } from "./formElements";
+import { checkboxValue, objectInputValue } from "./inputIdentity";
 import {
   jalaliDateTimeToGeorgianDateTime,
   jalaliDateToGeorgianDate,
@@ -79,7 +80,7 @@ export const normalizeValue = (field, raw) => {
   if (DISPLAY_ONLY.has(type)) return undefined;
   if (raw === undefined) return undefined;
 
-  if (type === "checkbox") return Boolean(raw);
+  if (type === "checkbox") return checkboxValue(raw);
 
   if (NUMERIC.has(type)) return toNumber(raw);
 
@@ -118,10 +119,17 @@ export const normalizeValue = (field, raw) => {
   }
 
   if (type === "sheet_table") {
-    const cells = raw && typeof raw === "object" ? raw : {};
+    const cells = objectInputValue(raw);
+    const checkboxKeys = new Set(
+      parseSheet(field).matrix.flat().filter((cell) => cell.type === "checkbox")
+        .map((cell) => cell.name || cell.key),
+    );
     const clean = Object.entries(cells).reduce((acc, [key, cell]) => {
-      if (cell === "" || cell == null || cell === false) return acc;
-      return { ...acc, [key]: String(cell) };
+      if (cell === "" || cell == null) return acc;
+      return {
+        ...acc,
+        [key]: checkboxKeys.has(key) ? String(checkboxValue(cell)) : String(cell),
+      };
     }, {});
     return Object.keys(clean).length ? clean : null;
   }

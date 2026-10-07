@@ -12,6 +12,10 @@ import {
   resolveType,
 } from "@/pages/Forms/FormRuntime/fieldSchema";
 import { MULTI_TYPES } from "@/pages/Forms/FormRuntime/formElements";
+import {
+  checkboxValue,
+  objectInputValue,
+} from "../../pages/Forms/FormRuntime/inputIdentity";
 
 const has = (collection, value) => {
   if (collection instanceof Set) return collection.has(value);
@@ -78,8 +82,6 @@ export const readFormData = (detail) => {
 
 /* --------------------------- برگرداندن مقادیر --------------------------- */
 
-const TRUTHY = new Set(["1", "true", "on", "yes", "بله", "دارد", "✓"]);
-
 const splitList = (raw) =>
   String(raw)
     .split(/[،,]|\r?\n/)
@@ -135,15 +137,9 @@ export const hydrateValue = (field, raw) => {
     return Array.isArray(value) ? value.map(asText) : splitList(asText(value));
 
   if (type === "checkbox") {
-    if (typeof value === "boolean") return value;
-    return TRUTHY.has(
-      String(value ?? "")
-        .trim()
-        .toLowerCase(),
-    ) || String(value ?? "").trim() === "بله"
-      ? true
-      : false;
+    return checkboxValue(value);
   }
+  if (type === "sheet_table") return objectInputValue(value);
 
   if (type === "file" || type === "multifile" || type === "spreadsheet")
     return fileNamesOf(value);

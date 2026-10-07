@@ -34,7 +34,7 @@ export const choiceDisplayLabel = (choice, index) => {
   return `گزینه ${index + 1}`;
 };
 
-/** مقدارهای موجود حفظ می‌شوند؛ فقط گزینه‌های بدون شناسه شناسه می‌گیرند. */
+/** شناسه‌های معتبر حفظ می‌شوند؛ شناسهٔ خالی یا تکراری اصلاح می‌شود. */
 export const buildChoiceList = (items = []) => {
   const options = items.filter(
     (item) => item && String(item.label ?? "").trim(),
@@ -44,10 +44,14 @@ export const buildChoiceList = (items = []) => {
       .map((item) => String(item.value ?? item.key ?? "").trim())
       .filter(Boolean),
   );
+  const assignedValues = new Set();
   return options.map((item) => {
     const existing = String(item.value ?? item.key ?? "").trim();
-    const value = existing || createChoiceValue(usedValues);
+    const value = existing && !assignedValues.has(existing)
+      ? existing
+      : createChoiceValue(usedValues);
     usedValues.add(value);
+    assignedValues.add(value);
     return { value, label: String(item.label).trim() };
   });
 };
