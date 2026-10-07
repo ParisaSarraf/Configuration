@@ -1,5 +1,16 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMyAxios } from "../../hooks/useMyAxios";
+import { fetchPersonalityWarehouseList } from "../../Services/personalityWarehouseCodes";
+
+export const usePersonalityWarehouseList = () => {
+	const { myAxios } = useMyAxios();
+	return useQuery({
+		queryKey: ["lists", "personality", "warehouse-codes"],
+		queryFn: ({ signal }) => fetchPersonalityWarehouseList(myAxios, signal),
+		enabled: false,
+		staleTime: 0,
+	});
+};
 
 export const usePersonalityProductKey = ["lists", "personality"];
 export const usePersonalityProductList = (queryOptions) => {

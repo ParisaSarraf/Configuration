@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Col,
   Divider,
@@ -10,7 +11,7 @@ import {
   Row,
   Select,
 } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   useCreateProduct,
   useFinalCodeProductById,
@@ -28,6 +29,7 @@ import Modal from "../../../components/Modal";
 import {
   useCreatePersonalityProduct,
   usePersonalityProductList,
+  usePersonalityWarehouseList,
 } from "@/QueryServises/personalityQuery/index.js";
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import TS from "../../../components/TreeSelect";
@@ -37,6 +39,11 @@ import {
 } from "../../../QueryServises/StandardCodeQuery";
 import TsLazy from "../../../components/LazyTreeSelect/LazyTreeSelect";
 import { useLazyProductTreeSelect } from "../../../hooks/useLazyProductTreeSelect";
+import {
+  getPersonalityWarehouseProposal,
+  normalizePersonalityWarehouseCode,
+  personalityWarehouseCodeExists,
+} from "../../../Services/personalityWarehouseCodes";
 
 const flattenLookupItems = (items = []) =>
   items.flatMap((item) => [item, ...flattenLookupItems(item.children || [])]);
@@ -55,6 +62,11 @@ const ProductModal = ({
   const [quickForm] = Form.useForm();
   const [quickCreate, setQuickCreate] = useState(null);
   const [quickSearch, setQuickSearch] = useState({});
+  const [warehouseProposal, setWarehouseProposal] = useState(null);
+  const [checkingWarehouseCode, setCheckingWarehouseCode] = useState(false);
+  const warehouseRequestId = useRef(0);
+  const quickSubmitPending = useRef(false);
+  const { refetch: fetchWarehouseIdentities } = usePersonalityWarehouseList();
   const { treeData, loadChildren } = useLazyProductTreeSelect(productData);
 
   const { isPending: isCreating, mutateAsync: createProduct } =
@@ -290,7 +302,31 @@ const ProductModal = ({
     form.setFieldsValue({ final_code: newFinalCode });
   }, [parentCodeId, productCode]);
 
+  const suggestWarehouseCode = async (requestId) => {
+    setWarehouseProposal({ status: "loading" });
+    try {
+      const result = await fetchWarehouseIdentities({ throwOnError: true });
+      if (result.isError) throw result.error;
+      if (requestId !== warehouseRequestId.current) return;
+      const proposal = getPersonalityWarehouseProposal(result.data);
+      setWarehouseProposal({ ...proposal, status: "ready" });
+      if (
+        proposal.nextCode !== null &&
+        !quickForm.isFieldTouched("warehouse_code")
+      ) {
+        quickForm.setFieldValue("warehouse_code", proposal.nextCode);
+      }
+    } catch {
+      if (requestId !== warehouseRequestId.current) return;
+      setWarehouseProposal({
+        status: "error",
+        message: "فهرست هویت‌ها دریافت نشد؛ کد انبار خودکار پیشنهاد نشد.",
+      });
+    }
+  };
+
   const openQuickCreate = (config) => {
+    const requestId = ++warehouseRequestId.current;
     const suggestedName = String(quickSearch[config.targetField] || "").trim();
     quickForm.resetFields();
     quickForm.setFieldsValue({
@@ -299,10 +335,14 @@ const ProductModal = ({
       parent_id: config.parentId,
     });
     setQuickCreate(config);
+    setWarehouseProposal(null);
+    if (config.type === "personality") suggestWarehouseCode(requestId);
   };
 
   const closeQuickCreate = () => {
+    warehouseRequestId.current += 1;
     setQuickCreate(null);
+    setWarehouseProposal(null);
     quickForm.resetFields();
   };
 
@@ -319,19 +359,45 @@ const ProductModal = ({
   };
 
   const submitQuickCreate = async (values) => {
-    if (!quickCreate) return;
+    if (!quickCreate || quickSubmitPending.current) return;
+    if (
+      quickCreate.type === "personality" &&
+      warehouseProposal?.status === "loading"
+    ) {
+      return;
+    }
     const name = values.name?.trim();
     if (!name) return;
 
+    quickSubmitPending.current = true;
     try {
       let created;
       let refetchResult;
       let option;
 
       if (quickCreate.type === "personality") {
+        setCheckingWarehouseCode(true);
+        // پیش از ثبت دوباره از سرور بخوانیم تا پیشنهادِ زمان بازشدن کهنه نباشد.
+        const result = await fetchWarehouseIdentities({ throwOnError: true });
+        if (result.isError) throw result.error;
+        const proposal = getPersonalityWarehouseProposal(result.data);
+        setWarehouseProposal({ ...proposal, status: "ready" });
+        const warehouseCode = normalizePersonalityWarehouseCode(
+          values.warehouse_code,
+        );
+        if (personalityWarehouseCodeExists(result.data, warehouseCode)) {
+          if (proposal.nextCode !== null)
+            quickForm.setFieldValue("warehouse_code", proposal.nextCode);
+          message.warning(
+            proposal.nextCode !== null
+              ? `این کد انبار برای یک هویت ثبت شده است. کد ${proposal.nextCode} جایگزین شد؛ دوباره تأیید کنید.`
+              : "این کد انبار برای یک هویت ثبت شده است؛ کد دیگری وارد کنید.",
+          );
+          return;
+        }
         created = await createPersonality({
           name,
-          warehouse_code: values.warehouse_code,
+          warehouse_code: warehouseCode,
           ...(values.parent_id != null && { parent_id: values.parent_id }),
         });
         refetchResult = await refetchPersonality();
@@ -444,8 +510,12 @@ const ProductModal = ({
       message.error(
         error?.response?.data?.detail ||
           error?.response?.data?.message ||
+          error?.message ||
           `افزودن ${quickCreate.title} انجام نشد`,
       );
+    } finally {
+      quickSubmitPending.current = false;
+      setCheckingWarehouseCode(false);
     }
   };
 
@@ -470,6 +540,7 @@ const ProductModal = ({
   );
 
   const quickCreating =
+    checkingWarehouseCode ||
     isCreatingPersonality ||
     isCreatingGenus ||
     isCreatingCasing ||
@@ -1333,9 +1404,19 @@ const ProductModal = ({
         title={`افزودن سریع ${quickCreate?.title || "مورد جدید"}`}
         okText="افزودن و انتخاب"
         cancelText="انصراف"
-        onCancel={closeQuickCreate}
+        onCancel={() => {
+          if (!quickCreating) closeQuickCreate();
+        }}
         onOk={() => quickForm.submit()}
         confirmLoading={quickCreating}
+        okButtonProps={{
+          disabled:
+            quickCreate?.type === "personality" &&
+            warehouseProposal?.status === "loading",
+        }}
+        cancelButtonProps={{ disabled: quickCreating }}
+        maskClosable={!quickCreating}
+        keyboard={!quickCreating}
         destroyOnClose
         centered
         zIndex={1100}
@@ -1368,9 +1449,61 @@ const ProductModal = ({
 
           {quickCreate?.type === "personality" ? (
             <>
-              <Form.Item name="warehouse_code" label="کد انبار">
-                <Input placeholder="کد انبار (اختیاری)" />
+              <Form.Item
+                name="warehouse_code"
+                label="کد انبار هویت"
+                rules={[
+                  {
+                    required: true,
+                    whitespace: true,
+                    message: "کد انبار هویت را وارد کنید",
+                  },
+                ]}
+                extra={
+                  warehouseProposal?.status === "loading"
+                    ? "در حال دریافت آخرین کد انبار هویت‌ها…"
+                    : warehouseProposal?.status === "ready" &&
+                        warehouseProposal.nonNumericCount === 0
+                      ? warehouseProposal.lastCode === null
+                        ? "هنوز کد انباری برای هویت‌ها ثبت نشده است؛ پیشنهاد: 1"
+                        : `آخرین کد انبار هویت‌ها: ${warehouseProposal.lastCode} — کد بعدی: ${warehouseProposal.nextCode}`
+                      : undefined
+                }
+              >
+                <Input
+                  dir="ltr"
+                  placeholder="کد انبار هویت"
+                  disabled={
+                    warehouseProposal?.status === "loading" || quickCreating
+                  }
+                />
               </Form.Item>
+              {warehouseProposal?.status === "error" ? (
+                <Alert
+                  type="warning"
+                  showIcon
+                  className="mb-4"
+                  message={warehouseProposal.message}
+                  action={
+                    <Button
+                      size="small"
+                      disabled={quickCreating}
+                      onClick={() =>
+                        suggestWarehouseCode(warehouseRequestId.current)
+                      }
+                    >
+                      تلاش دوباره
+                    </Button>
+                  }
+                />
+              ) : warehouseProposal?.nonNumericCount > 0 ? (
+                <Alert
+                  type="info"
+                  showIcon
+                  className="mb-4"
+                  message="بعضی هویت‌ها کد غیرعددی دارند؛ برای جلوگیری از پیشنهاد اشتباه، کد انبار را دستی وارد کنید."
+                />
+              ) : null}
               <Form.Item name="parent_id" label="هویت والد">
                 <TS data={personalityData} placeholder="هویت والد (اختیاری)" />
               </Form.Item>
