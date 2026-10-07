@@ -1451,7 +1451,7 @@ const ProductModal = ({
             <>
               <Form.Item
                 name="warehouse_code"
-                label="کد انبار هویت"
+                label="کد طبقه بندی هویت"
                 rules={[
                   {
                     required: true,

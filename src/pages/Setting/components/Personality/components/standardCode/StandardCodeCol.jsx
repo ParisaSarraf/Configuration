@@ -18,7 +18,7 @@ export const StandardCodeCol = ({ getColumnSearchProps, handleDelete, handleEdit
       ...getColumnSearchProps("name", " کد استاندارد"),
     },
     {
-      title: " کد طبقه بندی",
+      title: " کد انبار",
       dataIndex: "full_ware_house_code",
       key: "warehouse_code",
       width: 200,

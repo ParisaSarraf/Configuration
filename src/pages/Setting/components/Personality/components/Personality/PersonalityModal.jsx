@@ -132,7 +132,7 @@ const PersonalityModal = ({isOpen, modalMode, modalData, closeModal, refetch}) =
                         <Col span={12}>
                             <Form.Item
                                 name="warehouse_code"
-                                label="کد انبار"
+                                label="کد طبقه بندی"
                             >
                                 <Input/>
                             </Form.Item>

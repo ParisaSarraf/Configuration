@@ -137,7 +137,7 @@ const PersonalityTable = ({
       ),
     },
     {
-      title: "کد انبار",
+      title: "کد طبقه بندی",
       dataIndex: "warehouse_code",
       key: "warehouse_code",
       width: 120,
