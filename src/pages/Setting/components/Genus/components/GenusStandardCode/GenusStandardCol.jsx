@@ -18,7 +18,7 @@ export const GenusStandardCol = ({getColumnSearchProps, handleDelete, handleEdit
             render: (text) => <span>{text}</span>
         },
         {
-            title: ' کد طبقه بندی',
+            title: ' کد انبار',
             dataIndex: 'full_ware_house_code',
             key: 'warehouse_code',
             width: 200,

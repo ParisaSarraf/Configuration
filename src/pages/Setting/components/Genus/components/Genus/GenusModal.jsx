@@ -128,14 +128,19 @@ const GenusModal = ({
               </Form.Item>
             </Col>
 
-            <Col span={24}>
+            <Col span={12}>
               <Form.Item name="parent_id" label="ماده اولیه والد (اختیاری)">
                 <TS data={genusList} placeholder="ماده اولیه والد (اختیاری)" />
               </Form.Item>
             </Col>
+            <Col span={12}>
+              <Form.Item name="internal_code" label="کد داخلی">
+                <Input placeholder="کد داخلی" />
+              </Form.Item>
+            </Col>
           </Row>
           <Row gutter={16}>
-            <Col span={12}>
+            {/* <Col span={12}>
               <Form.Item name="material" label="متریال">
                 <Input placeholder="متریال" />
               </Form.Item>
@@ -151,12 +156,8 @@ const GenusModal = ({
               <Form.Item name="equal_material" label="متریال معادل">
                 <Input placeholder="متریال معادل" />
               </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="internal_code" label="کد داخلی">
-                <Input placeholder="کد داخلی" />
-              </Form.Item>
-            </Col>
+            </Col> */}
+            
           </Row>
         </Form>
       </Modal>

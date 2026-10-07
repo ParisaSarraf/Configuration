@@ -54,6 +54,11 @@ const GenusCols = ({
         );
       },
     },
+  {
+      title: "کد طبقه بندی ",
+      dataIndex: "internal_code",
+      key: "internal_code",
+    },
     {
       title: "عملیات",
       key: "actions",
