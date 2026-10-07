@@ -13,6 +13,7 @@ import { Button, Empty, Input, Modal, Select, Tooltip, message } from "antd";
 import {
   useDeleteFormCategory,
   useFormCategoryById,
+  useFormDefinitions,
 } from "../../../../QueryServises/formsQuery";
 import { TableAntd } from "../../../../components/TableAntd/TableAntd";
 import { openFormStudio } from "../../FormBuilderStudio/formStudioNavigation";
@@ -51,13 +52,34 @@ const CategoryMain = ({
     useDeleteFormCategory();
 
   const categories = category ?? [];
+  const showAllForms =
+    categoryId === "all" ||
+    categoryId === null ||
+    categoryId === undefined ||
+    categoryId === "";
+  // «همه» شناسه‌ی دسته‌بندی نیست؛ فهرست عمومی فرم‌ها مسیر جداگانه دارد.
+  const allFormsQuery = useFormDefinitions({ enabled: showAllForms });
+  const categoryFormsQuery = useFormCategoryById(
+    showAllForms ? null : categoryId,
+    { enabled: !showAllForms },
+  );
+  const activeFormsQuery = showAllForms ? allFormsQuery : categoryFormsQuery;
   const {
-    data: categoryByIdData,
     isLoading,
     isFetching,
     refetch: refetchCategoryForms,
-  } = useFormCategoryById(categoryId);
-  const forms = categoryByIdData?.[0]?.forms || [];
+  } = activeFormsQuery;
+  const forms = useMemo(() => {
+    const data = activeFormsQuery.data;
+    const items = Array.isArray(data)
+      ? data
+      : Array.isArray(data?.results)
+        ? data.results
+        : [];
+    if (showAllForms) return items;
+    if (Array.isArray(data?.forms)) return data.forms;
+    return items.flatMap((item) => (Array.isArray(item?.forms) ? item.forms : []));
+  }, [activeFormsQuery.data, showAllForms]);
   const activeCategory = categories.find(
     (item) => String(item.id) === String(categoryId),
   );
@@ -191,12 +213,14 @@ const CategoryMain = ({
               className="w-full sm:!w-[260px]"
             />
             <Select
+              allowClear
               showSearch
+              placeholder="همه فرم‌ها"
               optionFilterProp="searchLabel"
-              value={categoryId}
+              value={showAllForms ? "all" : categoryId}
               options={categoryOptions}
               onChange={(value) => {
-                setCategoryId(value);
+                setCategoryId(value ?? "all");
                 setSearch("");
               }}
               className="w-full sm:!w-[220px]"
@@ -225,8 +249,8 @@ const CategoryMain = ({
                 {activeCategoryName}
               </div>
               <p className="mt-1 mb-0 text-xs leading-6 text-slate-500 dark:text-slate-400">
-                دسته‌بندی را انتخاب کنید و فرم‌های آن را از همین جدول مدیریت
-                کنید.
+                بدون انتخاب دسته‌بندی، همه فرم‌ها نمایش داده می‌شوند. برای
+                نمایش فرم‌های یک دسته‌بندی، آن را انتخاب کنید.
               </p>
             </div>
           </div>
@@ -276,7 +300,9 @@ const CategoryMain = ({
                 description={
                   search
                     ? "فرمی مطابق جستجو پیدا نشد."
-                    : "هنوز فرمی در این دسته‌بندی ساخته نشده است."
+                    : showAllForms
+                      ? "هنوز فرمی ساخته نشده است."
+                      : "هنوز فرمی در این دسته‌بندی ساخته نشده است."
                 }
               />
             ),
