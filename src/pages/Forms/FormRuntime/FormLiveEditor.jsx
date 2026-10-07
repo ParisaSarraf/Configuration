@@ -151,8 +151,8 @@ export default function FormLiveEditor({
     </div>
   );
 
-  const node = (field) => {
-    const selected = String(selectedId) === String(field.id);
+  const node = (field, forPrint = false) => {
+    const selected = !forPrint && String(selectedId) === String(field.id);
     const width = `${(field.w / COLS) * 100}%`;
     const fixedWidth = FULL_WIDTH_TYPES.has(field.field_type);
     return (
@@ -161,17 +161,17 @@ export default function FormLiveEditor({
         className={[
           "fw-node",
           selected ? "is-selected" : "",
-          dropAt === field.index ? "is-drop" : "",
+          !forPrint && dropAt === field.index ? "is-drop" : "",
         ]
           .filter(Boolean)
           .join(" ")}
         style={{
           flex: `0 0 ${width}`,
           maxWidth: width,
-          height: rowsToPx(rowHeight(field)),
+          height: rowsToPx(forPrint ? field.h : rowHeight(field)),
         }}
-        onMouseDown={() => setSelectedId(field.id)}
-        onDoubleClick={() => onEdit?.(field)}
+        onMouseDown={forPrint ? undefined : () => setSelectedId(field.id)}
+        onDoubleClick={forPrint ? undefined : () => onEdit?.(field)}
         onDragOver={(event) => {
           if (dragId == null || String(dragId) === String(field.id)) return;
           event.preventDefault();
@@ -182,7 +182,7 @@ export default function FormLiveEditor({
         }
         onDrop={(event) => dropOn(event, field.index)}
       >
-        {chrome && (
+        {!forPrint && chrome && (
           <div className="fw-tools fr-no-print">
             <span
               className="fw-chip fw-grab"
@@ -285,14 +285,14 @@ export default function FormLiveEditor({
         <div className="fr-slot fw-body">
           <Element
             field={field}
-            values={values}
+            values={forPrint ? {} : values}
             errors={null}
-            onChange={change}
-            readOnly={false}
+            onChange={forPrint ? undefined : change}
+            readOnly={forPrint}
           />
         </div>
 
-        {chrome && selected && (
+        {!forPrint && chrome && selected && (
           <span
             className="fw-resize fr-no-print"
             title="کشیدن برای تغییر ارتفاع"
@@ -343,7 +343,7 @@ export default function FormLiveEditor({
 
       <div className="fr-paper-wrap">
         <div className="fr-paper fr-print-area" ref={paperRef}>
-          <div className="fr-frame">
+          <div className="fr-frame fw-screen-only">
             {!count && (
               <div className="fw-empty">
                 فرم خالی است — با دکمهٔ + اولین فیلد را اضافه کنید.
@@ -358,6 +358,17 @@ export default function FormLiveEditor({
               </div>
             ))}
             {chrome && inserter(count)}
+          </div>
+          {/* قالب چاپِ فرم‌ساز مستقل از نوشته‌های آزمایشی بوم است.
+              مقادیر روی صفحه پاک نمی‌شوند و چاپ بخش‌های دیگر تغییری نمی‌کند. */}
+          <div className="fr-frame fw-print-only">
+            {rows.map((row) => (
+              <div className="fw-rowwrap" key={`print-row-${row.items[0].id}`}>
+                <div className="fw-row" style={{ minHeight: rowsToPx(row.h) }}>
+                  {row.items.map((item) => node(item, true))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

@@ -11,6 +11,11 @@
   gap: 10px;
 }
 
+/* قالب خالی چاپ فقط متعلق به فرم‌ساز است؛ بوم تعاملی دست‌نخورده می‌ماند. */
+.fw-print-only {
+  display: none;
+}
+
 .fw-bar {
   display: flex;
   align-items: center;
@@ -230,6 +235,12 @@
 }
 
 @media print {
+  .fw-screen-only {
+    display: none !important;
+  }
+  .fw-print-only {
+    display: block !important;
+  }
   .fw-bar,
   .fw-tools,
   .fw-inserter,
