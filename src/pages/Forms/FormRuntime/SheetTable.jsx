@@ -78,13 +78,12 @@ function CellInput({ cell, values, onChange, readOnly }) {
   if (cell.type === "signature")
     return (
       <div className="fr-sign">
-        {readOnly ? "" : (
-          <input
-            className="fr-input"
-            value={value ?? ""}
-            onChange={(event) => set(event.target.value)}
-          />
-        )}
+        <input
+          className="fr-input"
+          value={value ?? ""}
+          disabled={readOnly}
+          onChange={(event) => set(event.target.value)}
+        />
       </div>
     );
 

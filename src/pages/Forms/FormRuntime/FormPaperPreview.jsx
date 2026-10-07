@@ -62,6 +62,7 @@ function PaperStage({ categories, mode, fit, paperRef }) {
             categories={categories}
             mode={mode}
             showToolbar={false}
+            showPrintButton={false}
             paperRef={paperRef}
           />
         </div>

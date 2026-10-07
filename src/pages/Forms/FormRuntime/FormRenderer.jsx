@@ -199,6 +199,7 @@ export default function FormRenderer({
   mode = "preview",
   initialValues = null,
   showToolbar = true,
+  showPrintButton = true,
   framed = true,
   onSubmit,
   submitting = false,
@@ -335,13 +336,15 @@ export default function FormRenderer({
               پاک‌کردن
             </button>
           )}
-          <button
-            type="button"
-            className="fr-chip"
-            onClick={() => printForm(paper.current)}
-          >
-            چاپ / PDF
-          </button>
+          {showPrintButton && (
+            <button
+              type="button"
+              className="fr-chip"
+              onClick={() => printForm(paper.current)}
+            >
+              چاپ / PDF
+            </button>
+          )}
           {mode === "fill" && submitOptions.length === 0 && (
             <button
               type="button"
@@ -352,6 +355,21 @@ export default function FormRenderer({
               {submitting ? "در حال ارسال…" : submitLabel}
             </button>
           )}
+        </div>
+      )}
+
+      {/* پنهان‌کردن ابزارهای ویرایش نباید خروجی PDF را در کارتابل و درخواست‌ها
+          حذف کند. چاپ از همان برگه و مقادیر فعلی انجام می‌شود. */}
+      {!showToolbar && showPrintButton && (
+        <div className="fr-toolbar fr-no-print">
+          <span className="fr-toolbar-spacer" />
+          <button
+            type="button"
+            className="fr-chip"
+            onClick={() => printForm(paper.current)}
+          >
+            چاپ / PDF
+          </button>
         </div>
       )}
 

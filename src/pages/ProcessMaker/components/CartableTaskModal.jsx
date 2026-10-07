@@ -487,6 +487,7 @@ const CartableTaskModal = ({
           fields={fields}
           mode="fill"
           showToolbar={false}
+          showPrintButton
           initialDevice="fluid"
           readOnly={false}
           disabled={false}

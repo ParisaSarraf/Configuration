@@ -447,6 +447,7 @@ export const RequestWorkPanel = ({ record, onCompleted }) => {
           initialValues={initialValues}
           initialDevice="fluid"
           showToolbar={false}
+          showPrintButton
           lockedFieldIds={lockedFieldIds}
           submitOptions={submitOptions}
           submitSectionTitle={`تکمیل مرحله «${record.stateName}» و ارجاع`}
