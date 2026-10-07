@@ -1,5 +1,19 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMyAxios } from "../../hooks/useMyAxios";
+import { fetchPersonalityStandardWarehouseCodes } from "../../Services/standardWarehouseCodes";
+
+// شناسه صریح دریافت می‌شود تا بلافاصله پس از ساخت هویت نیز همان id استفاده شود.
+export const useFetchPersonalityStandardWarehouseCodes = () => {
+  const { myAxios } = useMyAxios();
+  const queryClient = useQueryClient();
+  return (personalityId) =>
+    queryClient.fetchQuery({
+      queryKey: ["personality-standard-warehouse", personalityId],
+      queryFn: ({ signal }) =>
+        fetchPersonalityStandardWarehouseCodes(myAxios, personalityId, signal),
+      staleTime: 0,
+    });
+};
 
 export const useStandardCodeKey = ["lists", "standard-code"];
 export const useStandardCodeList = (queryOptions) => {

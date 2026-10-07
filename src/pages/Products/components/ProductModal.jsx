@@ -35,6 +35,7 @@ import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import TS from "../../../components/TreeSelect";
 import {
   useCreateStandardCode,
+  useFetchPersonalityStandardWarehouseCodes,
   useStandardCodePersonalityById,
 } from "../../../QueryServises/StandardCodeQuery";
 import TsLazy from "../../../components/LazyTreeSelect/LazyTreeSelect";
@@ -44,11 +45,26 @@ import {
   normalizePersonalityWarehouseCode,
   personalityWarehouseCodeExists,
 } from "../../../Services/personalityWarehouseCodes";
+import {
+  getServerFullWarehouseCode,
+  getStandardWarehouseProposal,
+  readPersonalityStandardCodes,
+  standardWarehouseCodeExists,
+} from "../../../Services/standardWarehouseCodes";
 
 const flattenLookupItems = (items = []) =>
   items.flatMap((item) => [item, ...flattenLookupItems(item.children || [])]);
 
 const getCreatedRecord = (payload) => payload?.data ?? payload?.result ?? payload;
+
+const codesForIdentity = (payload, id) => {
+  if (id == null || !payload) return [];
+  try {
+    return readPersonalityStandardCodes(payload, id).codes;
+  } catch {
+    return [];
+  }
+};
 
 const ProductModal = ({
   isOpen,
@@ -67,6 +83,7 @@ const ProductModal = ({
   const warehouseRequestId = useRef(0);
   const quickSubmitPending = useRef(false);
   const { refetch: fetchWarehouseIdentities } = usePersonalityWarehouseList();
+  const fetchPersonalityStandards = useFetchPersonalityStandardWarehouseCodes();
   const { treeData, loadChildren } = useLazyProductTreeSelect(productData);
 
   const { isPending: isCreating, mutateAsync: createProduct } =
@@ -118,6 +135,24 @@ const ProductModal = ({
     "alternative_genus_id",
     form,
   );
+  const quickWarehouseCode = Form.useWatch("warehouse_code", quickForm);
+  const selectedIdentityCodes = codesForIdentity(
+    standardCodesResponse, selectedPersonalityId?.value,
+  );
+  const selectedAlternativeIdentityCodes = codesForIdentity(
+    alternativeStandardCodesResponse, selectedAlternativePersonalityId?.value,
+  );
+  const identityStandardQuickCreate =
+    quickCreate?.type === "standard" && quickCreate.parentKey === "personality";
+  const hasWarehouseSuggestion =
+    quickCreate?.type === "personality" || identityStandardQuickCreate;
+  const matchingStandard = identityStandardQuickCreate
+    ? warehouseProposal?.codes?.find(
+        (code) => normalizePersonalityWarehouseCode(code.warehouse_code) ===
+          normalizePersonalityWarehouseCode(quickWarehouseCode),
+      )
+    : null;
+  const quickFullWarehouseCode = getServerFullWarehouseCode(matchingStandard);
 
   const parentCodeId = parentCodeData?.code || "";
 
@@ -302,13 +337,23 @@ const ProductModal = ({
     form.setFieldsValue({ final_code: newFinalCode });
   }, [parentCodeId, productCode]);
 
-  const suggestWarehouseCode = async (requestId) => {
+  const suggestWarehouseCode = async (requestId, config) => {
     setWarehouseProposal({ status: "loading" });
     try {
-      const result = await fetchWarehouseIdentities({ throwOnError: true });
-      if (result.isError) throw result.error;
+      let proposal;
+      if (config.type === "standard" && config.parentKey === "personality") {
+        const result = await fetchPersonalityStandards(config.parentId);
+        proposal = {
+          ...getStandardWarehouseProposal(result.codes),
+          codes: result.codes,
+          parent: result.parent,
+        };
+      } else {
+        const result = await fetchWarehouseIdentities({ throwOnError: true });
+        if (result.isError) throw result.error;
+        proposal = getPersonalityWarehouseProposal(result.data);
+      }
       if (requestId !== warehouseRequestId.current) return;
-      const proposal = getPersonalityWarehouseProposal(result.data);
       setWarehouseProposal({ ...proposal, status: "ready" });
       if (
         proposal.nextCode !== null &&
@@ -320,7 +365,9 @@ const ProductModal = ({
       if (requestId !== warehouseRequestId.current) return;
       setWarehouseProposal({
         status: "error",
-        message: "فهرست هویت‌ها دریافت نشد؛ کد انبار خودکار پیشنهاد نشد.",
+        message: config.type === "standard"
+          ? "استانداردهای هویت دریافت نشد؛ کد انبار خودکار پیشنهاد نشد."
+          : "فهرست هویت‌ها دریافت نشد؛ کد طبقه‌بندی خودکار پیشنهاد نشد.",
       });
     }
   };
@@ -336,7 +383,10 @@ const ProductModal = ({
     });
     setQuickCreate(config);
     setWarehouseProposal(null);
-    if (config.type === "personality") suggestWarehouseCode(requestId);
+    if (
+      config.type === "personality" ||
+      (config.type === "standard" && config.parentKey === "personality")
+    ) suggestWarehouseCode(requestId, config);
   };
 
   const closeQuickCreate = () => {
@@ -349,7 +399,11 @@ const ProductModal = ({
   const resolveCreatedOption = async ({ created, refetchResult, name }) => {
     const record = getCreatedRecord(created);
     if (record?.id != null) {
-      return { value: record.id, label: record.name || record.title || name };
+      return {
+        value: record.id,
+        label: record.name || record.title || name,
+        warehouse_code: record.warehouse_code,
+      };
     }
     const refreshed = refetchResult?.data ?? [];
     const match = flattenLookupItems(Array.isArray(refreshed) ? refreshed : []).find(
@@ -361,7 +415,7 @@ const ProductModal = ({
   const submitQuickCreate = async (values) => {
     if (!quickCreate || quickSubmitPending.current) return;
     if (
-      quickCreate.type === "personality" &&
+      hasWarehouseSuggestion &&
       warehouseProposal?.status === "loading"
     ) {
       return;
@@ -374,6 +428,7 @@ const ProductModal = ({
       let created;
       let refetchResult;
       let option;
+      let standardRecord;
 
       if (quickCreate.type === "personality") {
         setCheckingWarehouseCode(true);
@@ -390,8 +445,8 @@ const ProductModal = ({
             quickForm.setFieldValue("warehouse_code", proposal.nextCode);
           message.warning(
             proposal.nextCode !== null
-              ? `این کد انبار برای یک هویت ثبت شده است. کد ${proposal.nextCode} جایگزین شد؛ دوباره تأیید کنید.`
-              : "این کد انبار برای یک هویت ثبت شده است؛ کد دیگری وارد کنید.",
+              ? `این کد طبقه‌بندی برای یک هویت ثبت شده است. کد ${proposal.nextCode} جایگزین شد؛ دوباره تأیید کنید.`
+              : "این کد طبقه‌بندی برای یک هویت ثبت شده است؛ کد دیگری وارد کنید.",
           );
           return;
         }
@@ -400,8 +455,14 @@ const ProductModal = ({
           warehouse_code: warehouseCode,
           ...(values.parent_id != null && { parent_id: values.parent_id }),
         });
-        refetchResult = await refetchPersonality();
-        option = await resolveCreatedOption({ created, refetchResult, name });
+        // id پاسخ ساخت معتبر است؛ شکست تازه‌سازی لیست نباید ثبت را تکرار کند.
+        option = await resolveCreatedOption({ created, name });
+        try {
+          refetchResult = await refetchPersonality({ throwOnError: true });
+        } catch {
+          message.warning("هویت ثبت شد، اما تازه‌سازی فهرست انجام نشد.");
+        }
+        option = option || await resolveCreatedOption({ created, refetchResult, name });
       } else if (quickCreate.type === "genus") {
         created = await createGenus({
           name,
@@ -427,14 +488,37 @@ const ProductModal = ({
           message.warning(`ابتدا ${quickCreate.parentLabel} را انتخاب کنید`);
           return;
         }
+        const warehouseCode = normalizePersonalityWarehouseCode(values.warehouse_code);
+        if (quickCreate.parentKey === "personality") {
+          setCheckingWarehouseCode(true);
+          const fresh = await fetchPersonalityStandards(quickCreate.parentId);
+          const proposal = getStandardWarehouseProposal(fresh.codes);
+          setWarehouseProposal({
+            ...proposal, codes: fresh.codes, parent: fresh.parent, status: "ready",
+          });
+          if (standardWarehouseCodeExists(fresh.codes, warehouseCode)) {
+            if (proposal.nextCode !== null)
+              quickForm.setFieldValue("warehouse_code", proposal.nextCode);
+            message.warning(
+              proposal.nextCode !== null
+                ? `این کد انبار در همین هویت ثبت شده است. کد ${proposal.nextCode} جایگزین شد؛ دوباره تأیید کنید.`
+                : "این کد انبار در همین هویت ثبت شده است؛ کد دیگری وارد کنید.",
+            );
+            return;
+          }
+        }
         created = await createStandardCode({
           name,
           [quickCreate.parentKey]: quickCreate.parentId,
-          warehouse_code: values.warehouse_code,
+          warehouse_code: warehouseCode,
           description: values.description,
         });
-        refetchResult = await quickCreate.refetch?.();
         const record = getCreatedRecord(created);
+        try {
+          refetchResult = await quickCreate.refetch?.({ throwOnError: true });
+        } catch {
+          message.warning("کد استاندارد ثبت شد، اما تازه‌سازی فهرست انجام نشد.");
+        }
         const refreshedPayload = refetchResult?.data;
         const refreshedParent =
           quickCreate.parentKey === "genus"
@@ -444,14 +528,29 @@ const ProductModal = ({
                 (item) => Number(item?.id) === Number(quickCreate.parentId),
               )
             : null;
-        const refreshedCodes =
-          refreshedPayload?.personality_codes ||
-          refreshedParent?.genus_codes ||
-          [];
+        let refreshedCodes = refreshedParent?.genus_codes || [];
+        if (quickCreate.parentKey === "personality" && refreshedPayload) {
+          try {
+            refreshedCodes = readPersonalityStandardCodes(
+              refreshedPayload, quickCreate.parentId,
+            ).codes;
+          } catch {
+            refreshedCodes = [];
+          }
+        }
         const match = refreshedCodes.find(
-          (item) => String(item?.name || "").trim() === name,
+          (item) => record?.id != null
+            ? String(item.id) === String(record.id)
+            : String(item?.name || "").trim() === name,
         );
         const finalRecord = record?.id != null ? record : match;
+        standardRecord = finalRecord
+          ? {
+              ...match, ...finalRecord,
+              full_ware_house_code:
+                getServerFullWarehouseCode(finalRecord) || getServerFullWarehouseCode(match),
+            }
+          : null;
         option = finalRecord
           ? { value: finalRecord.id, label: finalRecord.name || name }
           : null;
@@ -464,10 +563,16 @@ const ProductModal = ({
       }
 
       form.setFieldValue(quickCreate.targetField, option);
-      if (quickCreate.targetField === "personality_id")
+      if (quickCreate.targetField === "personality_id") {
         setSelectedPersonalityId(option);
-      if (quickCreate.targetField === "alternative_personality_id")
+        form.setFieldsValue({ standard_code_id: undefined, store_code: undefined });
+      }
+      if (quickCreate.targetField === "alternative_personality_id") {
         setSelectedAlternativePersonalityId(option);
+        form.setFieldsValue({
+          alternative_standard_code_id: undefined, alternative_store_code: undefined,
+        });
+      }
       if (quickCreate.targetField === "genus_id") {
         setGenusStandardOptions([]);
         form.setFieldsValue({
@@ -482,15 +587,19 @@ const ProductModal = ({
           alternative_genus_warehouse_code: undefined,
         });
       }
-      if (quickCreate.warehouseField && values.warehouse_code) {
-        form.setFieldValue(quickCreate.warehouseField, values.warehouse_code);
+      if (quickCreate.warehouseField) {
+        // کد کامل فقط از پاسخ سرور؛ هرگز کد جزئی یا ترکیب محلی را جای آن ننشانیم.
+        form.setFieldValue(
+          quickCreate.warehouseField,
+          getServerFullWarehouseCode(standardRecord) ?? undefined,
+        );
       }
       if (quickCreate.targetField === "genus_standard_code_id") {
         setGenusStandardOptions((previous) => [
           ...previous.filter((item) => item.value !== option.value),
           {
             ...option,
-            full_ware_house_code: values.warehouse_code,
+            full_ware_house_code: getServerFullWarehouseCode(standardRecord),
           },
         ]);
       }
@@ -499,12 +608,17 @@ const ProductModal = ({
           ...previous.filter((item) => item.value !== option.value),
           {
             ...option,
-            full_ware_house_code: values.warehouse_code,
+            full_ware_house_code: getServerFullWarehouseCode(standardRecord),
           },
         ]);
       }
 
-      message.success(`${quickCreate.title} اضافه و انتخاب شد`);
+      const fullCode = getServerFullWarehouseCode(standardRecord);
+      if (quickCreate.type === "standard" && fullCode === null)
+        message.warning("سرور کد انبار کامل را برنگرداند؛ هیچ کدی ترکیب یا حدس زده نشد.");
+      message.success(
+        `${quickCreate.title} اضافه و انتخاب شد${fullCode === null ? "" : ` — کد انبار کامل: ${fullCode}`}`,
+      );
       closeQuickCreate();
     } catch (error) {
       message.error(
@@ -782,6 +896,11 @@ const ProductModal = ({
                     })
                   }
                   onChange={(selected) => {
+                    if (String(selected?.value) !== String(selectedPersonalityId?.value))
+                      form.setFieldsValue({
+                        standard_code_id: undefined,
+                        store_code: undefined,
+                      });
                     setSelectedPersonalityId(selected);
                     const findPersonality = (list, id) => {
                       for (const item of list) {
@@ -808,7 +927,7 @@ const ProductModal = ({
                   showSearch
                   style={{ width: "100%" }}
                   options={
-                    standardCodesResponse?.personality_codes?.map((item) => ({
+                    selectedIdentityCodes.map((item) => ({
                       value: item.id,
                       label: item.name,
                       description: item.description,
@@ -837,7 +956,7 @@ const ProductModal = ({
                   onChange={(selected) => {
                     if (selected) {
                       const selectedOption =
-                        standardCodesResponse?.personality_codes?.find(
+                        selectedIdentityCodes.find(
                           (item) => item.id === selected.value,
                         );
 
@@ -854,7 +973,7 @@ const ProductModal = ({
                         });
                       }
                     } else {
-                      form.setFieldsValue({ persian_title: "" });
+                      form.setFieldsValue({ persian_title: "", store_code: undefined });
                     }
                   }}
                   filterOption={(input, option) =>
@@ -867,7 +986,7 @@ const ProductModal = ({
 
             {/* کد انبار */}
             <Col span={8}>
-              <Form.Item label="کد انبار" name="store_code">
+              <Form.Item label="کد انبار کامل" name="store_code">
                 <Input />
               </Form.Item>
             </Col>
@@ -898,6 +1017,11 @@ const ProductModal = ({
                     })
                   }
                   onChange={(selected) => {
+                    if (String(selected?.value) !== String(selectedAlternativePersonalityId?.value))
+                      form.setFieldsValue({
+                        alternative_standard_code_id: undefined,
+                        alternative_store_code: undefined,
+                      });
                     setSelectedAlternativePersonalityId(selected);
                     const findPersonality = (list, id) => {
                       for (const item of list) {
@@ -927,7 +1051,7 @@ const ProductModal = ({
                   showSearch
                   style={{ width: "100%" }}
                   options={
-                    alternativeStandardCodesResponse?.personality_codes?.map(
+                    selectedAlternativeIdentityCodes.map(
                       (item) => ({
                         value: item.id,
                         label: item.name,
@@ -958,7 +1082,7 @@ const ProductModal = ({
                   onChange={(selected) => {
                     if (selected) {
                       const selectedOption =
-                        alternativeStandardCodesResponse?.personality_codes?.find(
+                        selectedAlternativeIdentityCodes.find(
                           (item) => item.id === selected.value,
                         );
 
@@ -974,7 +1098,10 @@ const ProductModal = ({
                         });
                       }
                     } else {
-                      form.setFieldsValue({ persian_title: "" });
+                      form.setFieldsValue({
+                        persian_title: "",
+                        alternative_store_code: undefined,
+                      });
                     }
                   }}
                   filterOption={(input, option) =>
@@ -988,7 +1115,7 @@ const ProductModal = ({
             {/* کد انبار جایگزین */}
             <Col span={8}>
               <Form.Item
-                label="کد انبار هویت جایگزین"
+                label="کد انبار کامل هویت جایگزین"
                 name="alternative_store_code"
               >
                 <Input />
@@ -1411,7 +1538,7 @@ const ProductModal = ({
         confirmLoading={quickCreating}
         okButtonProps={{
           disabled:
-            quickCreate?.type === "personality" &&
+            hasWarehouseSuggestion &&
             warehouseProposal?.status === "loading",
         }}
         cancelButtonProps={{ disabled: quickCreating }}
@@ -1451,28 +1578,28 @@ const ProductModal = ({
             <>
               <Form.Item
                 name="warehouse_code"
-                label="کد طبقه بندی هویت"
+                label="کد طبقه‌بندی هویت"
                 rules={[
                   {
                     required: true,
                     whitespace: true,
-                    message: "کد انبار هویت را وارد کنید",
+                    message: "کد طبقه‌بندی هویت را وارد کنید",
                   },
                 ]}
                 extra={
                   warehouseProposal?.status === "loading"
-                    ? "در حال دریافت آخرین کد انبار هویت‌ها…"
+                    ? "در حال دریافت آخرین کد طبقه‌بندی هویت‌ها…"
                     : warehouseProposal?.status === "ready" &&
                         warehouseProposal.nonNumericCount === 0
                       ? warehouseProposal.lastCode === null
-                        ? "هنوز کد انباری برای هویت‌ها ثبت نشده است؛ پیشنهاد: 1"
-                        : `آخرین کد انبار هویت‌ها: ${warehouseProposal.lastCode} — کد بعدی: ${warehouseProposal.nextCode}`
+                        ? "هنوز کد طبقه‌بندی ثبت نشده است؛ پیشنهاد: 1"
+                        : `آخرین کد طبقه‌بندی هویت‌ها: ${warehouseProposal.lastCode} — کد بعدی: ${warehouseProposal.nextCode}`
                       : undefined
                 }
               >
                 <Input
                   dir="ltr"
-                  placeholder="کد انبار هویت"
+                  placeholder="کد طبقه‌بندی هویت"
                   disabled={
                     warehouseProposal?.status === "loading" || quickCreating
                   }
@@ -1489,7 +1616,7 @@ const ProductModal = ({
                       size="small"
                       disabled={quickCreating}
                       onClick={() =>
-                        suggestWarehouseCode(warehouseRequestId.current)
+                        suggestWarehouseCode(warehouseRequestId.current, quickCreate)
                       }
                     >
                       تلاش دوباره
@@ -1501,7 +1628,7 @@ const ProductModal = ({
                   type="info"
                   showIcon
                   className="mb-4"
-                  message="بعضی هویت‌ها کد غیرعددی دارند؛ برای جلوگیری از پیشنهاد اشتباه، کد انبار را دستی وارد کنید."
+                  message="بعضی هویت‌ها کد غیرعددی دارند؛ کد طبقه‌بندی را دستی وارد کنید."
                 />
               ) : null}
               <Form.Item name="parent_id" label="هویت والد">
@@ -1552,9 +1679,79 @@ const ProductModal = ({
               <Form.Item name="description" label="نام/توضیح">
                 <Input placeholder="نام یا توضیح کد استاندارد" />
               </Form.Item>
-              <Form.Item name="warehouse_code" label="کد انبار">
-                <Input placeholder="کد انبار (اختیاری)" />
-              </Form.Item>
+              <Row gutter={24}>
+                <Col span={identityStandardQuickCreate ? 24 : 24}>
+                  <Form.Item
+                    name="warehouse_code"
+                    label="کد انبار استاندارد"
+                    rules={identityStandardQuickCreate ? [
+                      { required: true, whitespace: true, message: "کد انبار استاندارد را وارد کنید" },
+                    ] : []}
+                    extra={
+                      identityStandardQuickCreate && warehouseProposal?.status === "loading"
+                        ? "در حال دریافت استانداردهای همین هویت…"
+                        : identityStandardQuickCreate && warehouseProposal?.status === "ready" &&
+                            warehouseProposal.nonNumericCount === 0
+                          ? warehouseProposal.lastCode === null
+                            ? "این هویت هنوز کد استاندارد ندارد؛ پیشنهاد کد انبار: 1"
+                            : `آخرین کد انبار این هویت: ${warehouseProposal.lastCode} — کد بعدی: ${warehouseProposal.nextCode}`
+                          : undefined
+                    }
+                  >
+                    <Input
+                      dir="ltr"
+                      placeholder="کد انبار استاندارد"
+                      disabled={quickCreating || (identityStandardQuickCreate &&
+                        warehouseProposal?.status === "loading")}
+                    />
+                  </Form.Item>
+                </Col>
+                {/* {identityStandardQuickCreate && (
+                  <Col span={12}>
+                    <Form.Item
+                      label="کد انبار کامل (پاسخ سرور)"
+                      extra="برای کد جدید، مقدار برگشتی سرور پس از ثبت در مودال محصول نمایش داده می‌شود."
+                    >
+                      <Input
+                        dir="ltr"
+                        readOnly
+                        value={quickFullWarehouseCode ?? ""}
+                        placeholder="پس از ثبت از سرور دریافت می‌شود"
+                      />
+                    </Form.Item>
+                  </Col>
+                )} */}
+              </Row>
+              {identityStandardQuickCreate && warehouseProposal?.status === "ready" && (
+                <div className="mb-3 text-xs text-slate-500">
+                  کد طبقه‌بندی هویت:{" "}
+                  <span dir="ltr">{warehouseProposal.parent?.warehouse_code ?? "—"}</span>
+                  {warehouseProposal.lastFullCode !== null && (
+                    <div>
+                      کد انبار کامل آخرین استاندارد (سرور):{" "}
+                      <span dir="ltr">{warehouseProposal.lastFullCode}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+              {identityStandardQuickCreate && warehouseProposal?.status === "error" ? (
+                <Alert
+                  type="warning"
+                  showIcon
+                  className="mb-3"
+                  message={warehouseProposal.message}
+                  action={<Button size="small" disabled={quickCreating} onClick={() =>
+                    suggestWarehouseCode(warehouseRequestId.current, quickCreate)
+                  }>تلاش دوباره</Button>}
+                />
+              ) : identityStandardQuickCreate && warehouseProposal?.nonNumericCount > 0 ? (
+                <Alert
+                  type="info"
+                  showIcon
+                  className="mb-3"
+                  message="کدهای استاندارد این هویت قالب غیرعددی دارند؛ کد انبار را دستی وارد کنید."
+                />
+              ) : null}
               <div className="rounded-lg bg-blue-50 px-3 py-2 text-xs text-blue-700">
                 این کد برای «{quickCreate.parentLabel}» انتخاب‌شده ساخته می‌شود.
               </div>
