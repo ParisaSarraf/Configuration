@@ -11,7 +11,7 @@ const CategoryHeader = ({ refetch, totalCategories = 0, totalForms = 0 }) => {
       <Button
         type="text"
         icon={<ArrowRightOutlined />}
-        onClick={() => navigate(-1)}
+        onClick={() => navigate("/")}
         className="mb-4 flex items-center text-slate-600 hover:!text-blue-600 dark:text-slate-300"
       >
         بازگشت به صفحه قبل

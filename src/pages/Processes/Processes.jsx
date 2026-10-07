@@ -186,7 +186,7 @@ const ProcessesList = () => {
         <Button
           type="text"
           icon={<ArrowRightOutlined />}
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/")}
           className="mb-4 flex items-center text-slate-600 hover:!text-Main dark:text-slate-300"
         >
           بازگشت به صفحه قبل
