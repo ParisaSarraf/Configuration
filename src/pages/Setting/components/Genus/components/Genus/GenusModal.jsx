@@ -134,8 +134,8 @@ const GenusModal = ({
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="internal_code" label="کد داخلی">
-                <Input placeholder="کد داخلی" />
+              <Form.Item name="internal_code" label="کد طبقه بندی">
+                <Input placeholder="کد طبقه بندی" />
               </Form.Item>
             </Col>
           </Row>

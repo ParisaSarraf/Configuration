@@ -1650,7 +1650,7 @@ const ProductModal = ({
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="internal_code" label="کد داخلی">
+                  <Form.Item name="internal_code" label="کد طبقه بندی">
                     <Input />
                   </Form.Item>
                 </Col>
