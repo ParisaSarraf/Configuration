@@ -45,7 +45,6 @@ import {
 import { georgianDateTimeToJalaliDateTime } from "@utils/timeTool.jsx";
 import Modal from "../../../components/Modal";
 import RequestPathGraph from "./RequestPathGraph";
-import RequestNotesPanel from "./RequestNotesPanel";
 import RequestStateHistoryButton from "./RequestStateHistoryButton";
 
 const STATE_TYPE_OPTIONS = [
@@ -407,14 +406,11 @@ export const RequestWorkPanel = ({ record, onCompleted }) => {
 
   if (!record.submissionId || !record.formDefinitionId)
     return (
-      <div className="space-y-3">
-        <Alert
-          type="warning"
-          showIcon
-          message="فرم این درخواست برای تکمیل در دسترس نیست."
-        />
-        <RequestNotesPanel requestId={record.requestId} />
-      </div>
+      <Alert
+        type="warning"
+        showIcon
+        message="فرم این درخواست برای تکمیل در دسترس نیست."
+      />
     );
   if (
     formQuery.isLoading ||
@@ -423,33 +419,19 @@ export const RequestWorkPanel = ({ record, onCompleted }) => {
     processLocksQuery.isLoading ||
     requestPathQuery.isLoading
   )
-    return (
-      <div className="space-y-3">
-        <Skeleton active paragraph={{ rows: 8 }} />
-        <RequestNotesPanel requestId={record.requestId} />
-      </div>
-    );
+    return <Skeleton active paragraph={{ rows: 8 }} />;
   if (formQuery.isError)
     return (
-      <div className="space-y-3">
-        <Alert
-          type="error"
-          showIcon
-          message={getApiErrorMessage(
-            formQuery.error,
-            "دریافت ساختار فرم انجام نشد.",
-          )}
-        />
-        <RequestNotesPanel requestId={record.requestId} />
-      </div>
+      <Alert
+        type="error"
+        showIcon
+        message={getApiErrorMessage(
+          formQuery.error,
+          "دریافت ساختار فرم انجام نشد.",
+        )}
+      />
     );
-  if (!categories.length)
-    return (
-      <div className="space-y-3">
-        <Empty description="ساختار فرم خالی است." />
-        <RequestNotesPanel requestId={record.requestId} />
-      </div>
-    );
+  if (!categories.length) return <Empty description="ساختار فرم خالی است." />;
 
   return (
     <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
@@ -482,8 +464,6 @@ export const RequestWorkPanel = ({ record, onCompleted }) => {
 
       <aside className="space-y-3 lg:sticky lg:top-0">
         <RequestStateHistoryButton requestId={record.requestId} block />
-
-        <RequestNotesPanel requestId={record.requestId} />
 
         <div className="rounded-2xl bg-slate-950 p-4 text-white shadow-lg">
           <div className="text-[10px] font-bold text-blue-300">

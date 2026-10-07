@@ -495,10 +495,8 @@
 .process-edge__line {
   fill: none;
   stroke: var(--pb-edge);
-  stroke-width: 1.8;
+  stroke-width: 1.6;
   stroke-linecap: round;
-  stroke-linejoin: round;
-  marker-end: url(#process-arrow);
   transition:
     stroke 0.15s ease,
     stroke-width 0.15s ease;
@@ -506,15 +504,11 @@
 
 .process-edge:hover .process-edge__line {
   stroke: var(--pb-primary);
-  stroke-width: 2.1;
-  marker-end: url(#process-arrow-hover);
 }
 
-.process-edge--selected .process-edge__line,
-.process-edge--selected:hover .process-edge__line {
+.process-edge--selected .process-edge__line {
   stroke: var(--pb-accent);
-  stroke-width: 2.4;
-  marker-end: url(#process-arrow-selected);
+  stroke-width: 2.2;
 }
 
 .process-edge__preview {
@@ -1063,6 +1057,15 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.process-panel__select-all {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .process-panel__permission-type {

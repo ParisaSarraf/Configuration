@@ -575,265 +575,46 @@ export const graphBounds = (nodes) => {
   return { minX, minY, maxX, maxY, width: maxX - minX, height: maxY - minY };
 };
 
-/* --------------------------- هندسهٔ خطوط فرایند --------------------------- */
-//
-// مسیریابی به سبک draw.io: هر خط از ضلعی از مبدأ که رو به مقصد است بیرون
-// می‌آید، با پاره‌های عمودی/افقی و گوشه‌های گرد پیش می‌رود و از ضلع مقابلِ
-// مقصد وارد می‌شود. خطوطِ هم‌گروه (رفت و برگشت بین یک جفت مرحله) در «لِین»های
-// جدا حرکت می‌کنند تا هر جهت، خط و برچسب خودش را داشته باشد.
-
-/** فاصلهٔ خطوط هم‌گروه از یکدیگر. */
-export const EDGE_LANE_GAP = 36;
-/** امتداد کوتاه عمود بر ضلع، پیش از اولین گوشه. */
-const EDGE_STUB = 20;
-/** شعاع گردی گوشه‌ها. */
-const EDGE_CORNER_RADIUS = 10;
-/** حداقل فاصله از بدنهٔ مراحل هنگام دور زدن. */
-const EDGE_CLEARANCE = 26;
-/** موقعیت برچسب روی طول خط؛ وقتی چند خط بین دو مرحله هست، از میانه فاصله می‌گیرد. */
-const EDGE_LABEL_T = 0.5;
-const EDGE_LABEL_T_GROUPED = 0.35;
-
-const round2 = (value) => Math.round(value * 100) / 100;
-
-const rectOf = (node) => ({
-  left: node.x,
-  top: node.y,
-  right: node.x + NODE_WIDTH,
-  bottom: node.y + NODE_HEIGHT,
-  cx: node.x + NODE_WIDTH / 2,
-  cy: node.y + NODE_HEIGHT / 2,
-});
-
-/** حذف نقاط پشت‌سرهمِ یکسان تا مسیر گوشهٔ صفر نداشته باشد. */
-const dedupePoints = (points) =>
-  points.filter(
-    (point, index) =>
-      index === 0 ||
-      Math.abs(point.x - points[index - 1].x) > 0.01 ||
-      Math.abs(point.y - points[index - 1].y) > 0.01,
-  );
-
-/** تبدیل خط راست‌گوشه به مسیر SVG با گوشه‌های گرد. */
-const toRoundedPath = (rawPoints) => {
-  const points = dedupePoints(rawPoints);
-  if (points.length < 2) return "";
-
-  let path = `M ${round2(points[0].x)} ${round2(points[0].y)}`;
-  for (let index = 1; index < points.length - 1; index += 1) {
-    const previous = points[index - 1];
-    const corner = points[index];
-    const next = points[index + 1];
-    const inLength = Math.hypot(corner.x - previous.x, corner.y - previous.y);
-    const outLength = Math.hypot(next.x - corner.x, next.y - corner.y);
-    const radius = Math.min(EDGE_CORNER_RADIUS, inLength / 2, outLength / 2);
-
-    if (radius < 0.5) {
-      path += ` L ${round2(corner.x)} ${round2(corner.y)}`;
-      continue;
-    }
-
-    const beforeX = corner.x - ((corner.x - previous.x) / inLength) * radius;
-    const beforeY = corner.y - ((corner.y - previous.y) / inLength) * radius;
-    const afterX = corner.x + ((next.x - corner.x) / outLength) * radius;
-    const afterY = corner.y + ((next.y - corner.y) / outLength) * radius;
-    path +=
-      ` L ${round2(beforeX)} ${round2(beforeY)}` +
-      ` Q ${round2(corner.x)} ${round2(corner.y)} ${round2(afterX)} ${round2(afterY)}`;
-  }
-
-  const last = points[points.length - 1];
-  return `${path} L ${round2(last.x)} ${round2(last.y)}`;
-};
-
-/** نقطه‌ای که در فاصلهٔ نسبی `t` از طول مسیر قرار دارد (برای برچسب). */
-const pointAlong = (points, t) => {
-  if (points.length < 2) return { x: points[0]?.x ?? 0, y: points[0]?.y ?? 0 };
-
-  const segments = [];
-  let total = 0;
-  for (let index = 1; index < points.length; index += 1) {
-    const length = Math.hypot(
-      points[index].x - points[index - 1].x,
-      points[index].y - points[index - 1].y,
-    );
-    segments.push(length);
-    total += length;
-  }
-  if (total <= 0) return { x: points[0].x, y: points[0].y };
-
-  let remaining = total * t;
-  for (let index = 0; index < segments.length; index += 1) {
-    const length = segments[index];
-    const isLast = index === segments.length - 1;
-    if (remaining <= length || isLast) {
-      const ratio = length > 0 ? Math.min(remaining / length, 1) : 0;
-      const from = points[index];
-      const to = points[index + 1];
-      return {
-        x: from.x + (to.x - from.x) * ratio,
-        y: from.y + (to.y - from.y) * ratio,
-      };
-    }
-    remaining -= length;
-  }
-  return { x: points[points.length - 1].x, y: points[points.length - 1].y };
-};
-
 /**
- * مسیر یک انتقال. `laneOffset` کل خط را عمود بر جهت حرکت جابه‌جا می‌کند؛
- * همین باعث می‌شود رفت و برگشتِ یک جفت مرحله روی هم نیفتند.
- */
-const routeEdge = (source, target, laneOffset) => {
-  const s = rectOf(source);
-  const t = rectOf(target);
-  const dx = t.cx - s.cx;
-  const dy = t.cy - s.cy;
-
-  const down = dy >= 0;
-  const right = dx >= 0;
-  const verticalGap = down ? t.top - s.bottom : s.top - t.bottom;
-  const horizontalGap = right ? t.left - s.right : s.left - t.right;
-  const verticalRoom = verticalGap >= EDGE_STUB * 2 + 6;
-  const horizontalRoom = horizontalGap >= EDGE_STUB * 2 + 6;
-
-  // محور غالب؛ فقط اگر فضایش بسته باشد و محور دیگر باز باشد، محور عوض می‌شود.
-  let vertical = Math.abs(dy) >= Math.abs(dx);
-  if (vertical && !verticalRoom && horizontalRoom) vertical = false;
-  if (!vertical && !horizontalRoom && verticalRoom) vertical = true;
-
-  let points;
-  if (vertical) {
-    const exitY = down ? s.bottom : s.top;
-    const enterY = down ? t.top : t.bottom;
-    const exitX = s.cx + laneOffset;
-    const enterX = t.cx + laneOffset;
-    let channelY;
-    if (verticalRoom) {
-      channelY = (exitY + enterY) / 2 + laneOffset;
-    } else if (down) {
-      channelY = Math.max(s.bottom, t.bottom) + EDGE_CLEARANCE + laneOffset;
-    } else {
-      channelY = Math.min(s.top, t.top) - EDGE_CLEARANCE + laneOffset;
-    }
-    points = [
-      { x: exitX, y: exitY },
-      { x: exitX, y: channelY },
-      { x: enterX, y: channelY },
-      { x: enterX, y: enterY },
-    ];
-  } else {
-    const exitX = right ? s.right : s.left;
-    const enterX = right ? t.left : t.right;
-    const exitY = s.cy + laneOffset;
-    const enterY = t.cy + laneOffset;
-    let channelX;
-    if (horizontalRoom) {
-      channelX = (exitX + enterX) / 2 + laneOffset;
-    } else if (right) {
-      channelX = Math.max(s.right, t.right) + EDGE_CLEARANCE + laneOffset;
-    } else {
-      channelX = Math.min(s.left, t.left) - EDGE_CLEARANCE + laneOffset;
-    }
-    points = [
-      { x: exitX, y: exitY },
-      { x: channelX, y: exitY },
-      { x: channelX, y: enterY },
-      { x: enterX, y: enterY },
-    ];
-  }
-
-  return { points, path: toRoundedPath(points) };
-};
-
-/** حلقهٔ یک مرحله به خودش؛ در دادهٔ فعلی رخ نمی‌دهد ولی مسیر را خراب نمی‌کند. */
-const routeSelfLoop = (node, laneOffset) => {
-  const r = rectOf(node);
-  const outX = r.right + 30;
-  const backX = r.left - 30;
-  const overY = r.top - 34 - laneOffset;
-  const points = [
-    { x: r.right, y: r.cy - 16 },
-    { x: outX, y: r.cy - 16 },
-    { x: outX, y: overY },
-    { x: backX, y: overY },
-    { x: backX, y: r.cy + 16 },
-    { x: r.left, y: r.cy + 16 },
-  ];
-  return { points, path: toRoundedPath(points) };
-};
-
-/**
- * هندسهٔ همهٔ یال‌ها یک‌جا محاسبه می‌شود، چون فاصله‌گذاری خطوط به هم نگاه
- * می‌کند: هر جفت مرحله یک گروه است و خطوط آن گروه در لِین‌های جدا می‌روند.
+ * هندسه‌ی یک مسیر: مسیر بزیه بین دو مرحله به همراه نقطه‌ی میانی برچسب.
  *
- * @returns {Map<string, {path: string, midX: number, midY: number,
- *   startX: number, startY: number, endX: number, endY: number}>}
+ * curveOffset منحنی را عمود بر خط مبدأ←مقصد خم می‌کند. چون جهت مسیر
+ * برگشت معکوس است، بردار عمود هم معکوس می‌شود؛ بنابراین دادن آفست
+ * هم‌علامت به رفت و برگشت، آن‌ها را به دو سمت مخالف خم می‌کند و دیگر روی هم
+ * نمی‌افتند. مقدار صفر دقیقاً همان خط مستقیم قبلی است.
  */
-export const buildEdgeGeometries = (nodes = [], edges = []) => {
-  const nodeById = new Map(nodes.map((node) => [String(node.id), node]));
+export const edgeGeometry = (source, target, curveOffset = 0) => {
+  const startX = source.x + NODE_WIDTH / 2;
+  const startY = source.y + NODE_HEIGHT;
+  const endX = target.x + NODE_WIDTH / 2;
+  const endY = target.y;
 
-  const groups = new Map();
-  edges.forEach((edge) => {
-    const source = String(edge.source);
-    const target = String(edge.target);
-    const key = source <= target ? `${source}|${target}` : `${target}|${source}`;
-    const group = groups.get(key) ?? [];
-    group.push(edge);
-    groups.set(key, group);
-  });
+  const distance = Math.max(48, Math.abs(endY - startY) / 2);
 
-  const lanes = new Map();
-  const labelParams = new Map();
-  groups.forEach((group) => {
-    const ordered = [...group].sort((a, b) => {
-      const bySource = String(a.source).localeCompare(String(b.source));
-      if (bySource !== 0) return bySource;
-      return String(a.id).localeCompare(String(b.id));
-    });
-    const labelT =
-      ordered.length > 1 ? EDGE_LABEL_T_GROUPED : EDGE_LABEL_T;
-    ordered.forEach((edge, index) => {
-      lanes.set(
-        String(edge.id),
-        (index - (ordered.length - 1) / 2) * EDGE_LANE_GAP,
-      );
-      labelParams.set(String(edge.id), labelT);
-    });
-  });
+  const deltaX = endX - startX;
+  const deltaY = endY - startY;
+  const length = Math.hypot(deltaX, deltaY) || 1;
+  const normalX = (-deltaY / length) * curveOffset;
+  const normalY = (deltaX / length) * curveOffset;
 
-  const geometries = new Map();
-  edges.forEach((edge) => {
-    const source = nodeById.get(String(edge.source));
-    const target = nodeById.get(String(edge.target));
-    if (!source || !target) return;
+  const controlOneX = startX + normalX;
+  const controlOneY = startY + distance + normalY;
+  const controlTwoX = endX + normalX;
+  const controlTwoY = endY - distance + normalY;
 
-    const laneOffset = lanes.get(String(edge.id)) ?? 0;
-    const { points, path } =
-      String(source.id) === String(target.id)
-        ? routeSelfLoop(source, laneOffset)
-        : routeEdge(source, target, laneOffset);
+  const path = `M ${startX} ${startY} C ${controlOneX} ${controlOneY}, ${controlTwoX} ${controlTwoY}, ${endX} ${endY}`;
 
-    const clean = dedupePoints(points);
-    const label = pointAlong(
-      clean,
-      labelParams.get(String(edge.id)) ?? EDGE_LABEL_T,
-    );
-    const first = clean[0];
-    const last = clean[clean.length - 1];
-
-    geometries.set(String(edge.id), {
-      path,
-      midX: label.x,
-      midY: label.y,
-      startX: first.x,
-      startY: first.y,
-      endX: last.x,
-      endY: last.y,
-    });
-  });
-
-  return geometries;
+  return {
+    path,
+    // نقطه‌ی میانی واقعی منحنی (t = 0.5) تا برچسب روی خود خط بنشیند.
+    // با curveOffset = 0 دقیقاً برابر میانه‌ی قبلی است.
+    midX: (startX + 3 * controlOneX + 3 * controlTwoX + endX) / 8,
+    midY: (startY + 3 * controlOneY + 3 * controlTwoY + endY) / 8,
+    startX,
+    startY,
+    endX,
+    endY,
+  };
 };
 
 /* ------------------------------ اعتبارسنجی ------------------------------ */

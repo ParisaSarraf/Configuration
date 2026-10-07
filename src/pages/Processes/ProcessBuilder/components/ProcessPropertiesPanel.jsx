@@ -12,6 +12,10 @@ import {
 import { Plus, Trash2 } from "lucide-react";
 
 import { createAction, createPermission } from "../processGraph";
+import {
+  getPermissionSelection,
+  toggleAllGroupPermissions,
+} from "../permissionSelection";
 import { issueJumpLabel } from "../processIssues";
 import {
   ACTION_TYPES,
@@ -92,9 +96,12 @@ const PermissionList = ({
   onRemove,
   onRemoveMany,
   onToggleType,
+  onSelectAll,
   onAdd,
   hint,
 }) => {
+  const options = groupOptions(groups);
+  const selection = getPermissionSelection(permissions ?? [], options);
   const rows = withType
     ? groupTypedPermissions(permissions)
     : (permissions ?? []).map((permission) => ({
@@ -119,6 +126,26 @@ const PermissionList = ({
       </div>
 
       {hint ? <p className="process-panel__hint">{hint}</p> : null}
+
+      <div className="process-panel__select-all">
+        <Checkbox
+          checked={selection.checked}
+          indeterminate={selection.indeterminate}
+          disabled={disabled || groupsLoading || selection.total === 0}
+          onChange={(event) => onSelectAll(event.target.checked)}
+        >
+          انتخاب همه
+        </Checkbox>
+        <span className="process-panel__hint">
+          {`${selection.selected} از ${selection.total} سمت`}
+        </span>
+      </div>
+      {withType ? (
+        <p className="process-panel__hint">
+          انتخاب همه، سمت‌های جدید را با دسترسی مشاهده اضافه می‌کند؛ دسترسی‌های
+          قبلی تغییر نمی‌کنند.
+        </p>
+      ) : null}
 
       {!groupsLoading && (groups?.length ?? 0) === 0 ? (
         <p className="process-panel__note">
@@ -148,7 +175,7 @@ const PermissionList = ({
                 <Select
                   className="grow"
                   value={row.groupId ?? undefined}
-                  options={groupOptions(groups)}
+                  options={options}
                   loading={groupsLoading}
                   placeholder="انتخاب سمت"
                   notFoundContent={
@@ -316,6 +343,13 @@ const ProcessPropertiesPanel = ({
   };
 
   const permissionHandlers = (owner, ownerId, withType = true) => ({
+    onSelectAll: (checked) => {
+      const options = groupOptions(groups);
+      if (disabled || groupsLoading || options.length === 0) return;
+      patchPermissions(owner, ownerId, (list) =>
+        toggleAllGroupPermissions(list, options, checked, withType),
+      );
+    },
     onAdd: () =>
       patchPermissions(owner, ownerId, (list) => [
         ...list,

@@ -1,11 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMyAxios } from "../../hooks/useMyAxios";
 import { workflowApi } from "../../Services/workflow/workflowApi";
-import {
-  requestNotePayload,
-  requestNoteUpdatePayload,
-  syncProcessGraph,
-} from "../../Services/workflow/workflowPayloads";
+import { syncProcessGraph } from "../../Services/workflow/workflowPayloads";
 
 export const processListKey = ["workflow", "processes"];
 export const processInfoKey = (id) => ["workflow", "process", id];
@@ -59,14 +55,6 @@ export const lockedFieldsByProcessKey = (id) => [
   id,
   "locked-fields",
 ];
-export const requestNotesListKey = ["workflow", "request-notes"];
-export const requestNotesByRequestKey = (requestId) => [
-  "workflow",
-  "request",
-  requestId,
-  "notes",
-];
-export const requestNoteKey = (id) => ["workflow", "request-note", id];
 
 export const useProcessList = (queryOptions) => {
   const { myAxios } = useMyAxios();
@@ -231,84 +219,6 @@ export const useLockedFieldsByProcessId = (id, queryOptions) => {
     staleTime: 60 * 1000,
     refetchOnWindowFocus: false,
     ...queryOptions,
-  });
-};
-
-// ---------- یادداشت‌های درخواست (RequestNote) ----------
-export const useRequestNotes = (queryOptions = {}) => {
-  const { myAxios } = useMyAxios();
-  return useQuery({
-    queryKey: requestNotesListKey,
-    queryFn: () => workflowApi.getRequestNotes(myAxios),
-    ...queryOptions,
-  });
-};
-
-export const useRequestNoteById = (id, queryOptions = {}) => {
-  const { myAxios } = useMyAxios();
-  return useQuery({
-    queryKey: requestNoteKey(id),
-    queryFn: () => workflowApi.getRequestNoteById(myAxios, id),
-    enabled: Boolean(id),
-    ...queryOptions,
-  });
-};
-
-export const useRequestNotesByRequestId = (requestId, queryOptions = {}) => {
-  const { myAxios } = useMyAxios();
-  return useQuery({
-    queryKey: requestNotesByRequestKey(requestId),
-    queryFn: () => workflowApi.getNotesByRequestId(myAxios, requestId),
-    enabled: Boolean(requestId),
-    ...queryOptions,
-  });
-};
-
-const invalidateRequestNotes = (queryClient, requestId) => {
-  queryClient.invalidateQueries({ queryKey: requestNotesListKey });
-  if (requestId)
-    queryClient.invalidateQueries({
-      queryKey: requestNotesByRequestKey(requestId),
-    });
-  else queryClient.invalidateQueries({ queryKey: ["workflow", "request"] });
-};
-
-export const useCreateRequestNote = () => {
-  const { myAxios } = useMyAxios();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ requestId, title, note, createdById }) =>
-      workflowApi.createRequestNote(
-        myAxios,
-        requestNotePayload(requestId, { title, note, createdById }),
-      ),
-    onSuccess: (_, variables) =>
-      invalidateRequestNotes(queryClient, variables?.requestId),
-  });
-};
-
-export const useUpdateRequestNote = () => {
-  const { myAxios } = useMyAxios();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ noteId, requestId, title, note }) =>
-      workflowApi.updateRequestNote(
-        myAxios,
-        noteId,
-        requestNoteUpdatePayload({ title, note }),
-      ),
-    onSuccess: (_, variables) =>
-      invalidateRequestNotes(queryClient, variables?.requestId),
-  });
-};
-
-export const useDeleteRequestNote = () => {
-  const { myAxios } = useMyAxios();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ noteId }) => workflowApi.deleteRequestNote(myAxios, noteId),
-    onSuccess: (_, variables) =>
-      invalidateRequestNotes(queryClient, variables?.requestId),
   });
 };
 
