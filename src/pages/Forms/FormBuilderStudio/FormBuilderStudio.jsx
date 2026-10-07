@@ -70,6 +70,7 @@ import SheetTable from "../FormRuntime/SheetTable";
 import SheetBuilder from "../FormRuntime/SheetBuilder";
 import HeaderBuilder, { LogoPicker } from "../FormRuntime/HeaderBuilder";
 import { emptySheet } from "../FormRuntime/formElements";
+import { buildChoiceList, createChoiceValue } from "../FormRuntime/choiceOptions";
 import {
   AUTO_PATTERNS,
   FIELD_DEFS,
@@ -1059,14 +1060,7 @@ function Studio({ formDefinitionId }) {
         }
       } else if (CHOICE_TYPES.has(editedFieldType)) {
         // قالب مورد توافق بک‌اند: [{ value, label }]
-        choices = (values.choiceList || [])
-          .filter((item) => item && String(item.label || "").trim())
-          .map((item, index) => ({
-            value:
-              String(item.value || "").trim() ||
-              slugify(item.label, `option-${index + 1}`),
-            label: String(item.label).trim(),
-          }));
+        choices = buildChoiceList(values.choiceList || []);
       }
       const next = {
         ...editing,
@@ -1394,7 +1388,7 @@ function Studio({ formDefinitionId }) {
 
           <Form.Item
             label="گزینه‌ها"
-            extra="برچسب را کاربر می‌بیند؛ مقدار (value) در پایگاه داده ذخیره می‌شود و اگر خالی بماند خودکار ساخته می‌شود."
+            extra="فقط متن گزینه را وارد کنید؛ شناسهٔ آن خودکار ساخته می‌شود و با تغییر متن ثابت می‌ماند."
             style={hasPanel(activeType, "choices") ? undefined : HIDE}
           >
             <Form.List name="choiceList">
@@ -1409,14 +1403,12 @@ function Studio({ formDefinitionId }) {
                     >
                       <Col flex="auto">
                         <Form.Item name={[optionField.name, "label"]} noStyle>
-                          <Input placeholder="برچسب (مانند: مرد)" />
+                          <Input placeholder="متن گزینه (مانند: تأیید)" />
                         </Form.Item>
                       </Col>
-                      <Col flex="140px">
-                        <Form.Item name={[optionField.name, "value"]} noStyle>
-                          <Input dir="ltr" placeholder="value" />
-                        </Form.Item>
-                      </Col>
+                      <Form.Item name={[optionField.name, "value"]} hidden>
+                        <Input />
+                      </Form.Item>
                       <Col flex="none">
                         <Button
                           danger
@@ -1432,7 +1424,9 @@ function Studio({ formDefinitionId }) {
                     type="dashed"
                     block
                     icon={<Plus size={14} />}
-                    onClick={() => addOption({ label: "", value: "" })}
+                    onClick={() =>
+                      addOption({ label: "", value: createChoiceValue() })
+                    }
                   >
                     افزودن گزینه
                   </Button>

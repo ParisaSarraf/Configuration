@@ -14,6 +14,7 @@
 // =====================================================================
 
 import { FIELD_DEFS, TYPE_ALIASES, canonicalType } from "./fieldSchema";
+import { choiceDisplayLabel } from "./choiceOptions";
 
 /** عناصری که ورودی کاربر می‌گیرند (در حالت تکمیل، مقدار دارند). */
 export const INPUT_TYPES = new Set([
@@ -117,10 +118,10 @@ export const TYPE_LABELS = new Map([
 export const toOptions = (choices) =>
   (Array.isArray(choices) ? choices : []).map((choice, index) =>
     typeof choice === "string"
-      ? { value: choice, label: choice }
+      ? { value: choice, label: choiceDisplayLabel(choice, index) }
       : {
           value: choice.value ?? choice.key ?? choice.label ?? String(index),
-          label: choice.label ?? choice.value ?? `گزینه ${index + 1}`,
+          label: choiceDisplayLabel(choice, index),
         },
   );
 

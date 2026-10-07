@@ -8,6 +8,8 @@
 // قاعده: هر جا لازم شد نوع جدیدی اضافه شود، فقط همین فایل.
 // =====================================================================
 
+import { choiceDisplayLabel, createChoiceValue } from "./choiceOptions";
+
 /* بخش‌های درایور (panels) و کلیدهای API متناظرشان */
 export const PANEL_KEYS = Object.freeze({
   basic: ["placeholder", "help_text", "default_value"],
@@ -430,11 +432,14 @@ export const defaultChoicesFor = (type) => {
       { value: "date", label: "تاریخ" },
       { value: "signature", label: "امضا" },
     ];
-  if (hasPanel(canonical, "choices"))
-    return [
-      { value: "option_1", label: "گزینه ۱" },
-      { value: "option_2", label: "گزینه ۲" },
-    ];
+  if (hasPanel(canonical, "choices")) {
+    const usedValues = new Set();
+    return ["گزینه ۱", "گزینه ۲"].map((label) => {
+      const value = createChoiceValue(usedValues);
+      usedValues.add(value);
+      return { value, label };
+    });
+  }
   return [];
 };
 
@@ -444,13 +449,20 @@ export const toChoiceObjects = (choices) =>
     .map((choice, index) => {
       if (typeof choice === "string") {
         const label = choice.trim();
-        return label ? { value: label, label } : null;
+        return label
+          ? { value: label, label: choiceDisplayLabel(choice, index) }
+          : null;
       }
       if (!choice || typeof choice !== "object") return null;
-      const label = String(choice.label ?? choice.value ?? "").trim();
+      const label = String(
+        choice.label ?? choice.value ?? choice.key ?? "",
+      ).trim();
       if (!label) return null;
       const value = String(choice.value ?? choice.key ?? "").trim();
-      return { value: value || label || `option_${index + 1}`, label };
+      return {
+        value: value || label || `option_${index + 1}`,
+        label: choiceDisplayLabel(choice, index),
+      };
     })
     .filter(Boolean);
 

@@ -1,5 +1,4 @@
 import { createBrowserRouter } from "react-router-dom";
-import ProtectedRoute from "./components/ProtectedRoute/‎ProtectedRoute‎"
 import MainLayout from "./components/Layouts/MainLayout";
 import SignIn from "./components/SignIn/SignIn";
 import NotFound from "./pages/NotFound/NotFound";
@@ -26,6 +25,7 @@ import Processes from "./pages/Processes/Processes";
 import ProcessBuilder from "./pages/Processes/ProcessBuilder/ProcessBuilder";
 import ProcessDashboard from "./pages/Processes/ProcessDashboard";
 import ProcessMaker from "./pages/ProcessMaker/ProcessMaker";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
 const router = createBrowserRouter([
   {
@@ -35,7 +35,7 @@ const router = createBrowserRouter([
         <MainLayout />
       </ProtectedRoute>
     ),
-    errorElement: (
+    errorElement: ( 
       <ProtectedRoute>
         <NotFound />
       </ProtectedRoute>
