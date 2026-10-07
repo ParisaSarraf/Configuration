@@ -15,7 +15,7 @@ const RequirementModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
     useEffect(() => {
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
-                parent_id: modalData.parent_id?.id,
+                parent_id: modalData.parentId ?? modalData.parent_id?.id ?? modalData.parent_id ?? undefined,
                 code: modalData.code,
                 persianTitle: modalData.persian_title || modalData.title,
                 englishTitle: modalData.english_title || modalData.englishTitle,
@@ -40,11 +40,9 @@ const RequirementModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
             if (modalMode === "add") {
                 await createProductRequirement(payload);
                 message.success("الزام با موفقیت اضافه شد");
-                refetch()
             } else {
                 await updateProductRequirement({ requirementId: modalData.id, ...payload });
                 message.success("الزام با موفقیت ویرایش شد");
-                refetch()
             }
             refetch();
             closeModal();
@@ -54,7 +52,7 @@ const RequirementModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
         }
     };
 
-    const getTreeSelectOptions = (data, modalMode = null, modalData = null) => {
+    const getTreeSelectOptions = (data, disableId = null, parentDisabled = false) => {
         return data.map(item => {
             const titleFields = [
                 'persian_title',
@@ -70,11 +68,12 @@ const RequirementModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
                     break;
                 }
             }
+            const disabled = parentDisabled || (disableId != null && item.id === disableId);
             return {
                 title: title,
                 value: item.id,
-                children: item.children ? getTreeSelectOptions(item.children, modalMode, modalData) : [],
-                // disabled: modalMode === "edit" && item.id === modalData?.document?.id 
+                disabled,
+                children: item.children ? getTreeSelectOptions(item.children, disableId, disabled) : [],
             };
         });
     };
@@ -117,7 +116,7 @@ const RequirementModal = ({ isOpen, modalMode, modalData, closeModal, setModal, 
                                 name="parent_id"
                             >
                                 <TreeSelect
-                                    treeData={getTreeSelectOptions(requirementList || [])}
+                                    treeData={getTreeSelectOptions(requirementList || [], modalMode === "edit" ? modalData?.id : null)}
                                     placeholder="شاخه والد"
                                     allowClear
                                     treeIcon={true}

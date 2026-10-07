@@ -46,7 +46,7 @@ export const useDeleteRequirement = () => {
   return useMutation({
     mutationFn: (params) => {
       return myAxios
-        .delete(`/product/delete-requirement-tree/${params}/`)
+        .delete(`/product/delete-requirement-tree/${params}`)
         .then((response) => {
           return response?.data;
         });
