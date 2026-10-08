@@ -17,7 +17,8 @@ const CTransfer = ({
     Leftloading = false,
     Rightloading = false,
     style,
-    className
+    className,
+    renderItemWrapper,
 }) => {
     const handleLeftSelect = (key) => {
         if (selectedLeftKeys.includes(key)) {
@@ -53,7 +54,8 @@ const CTransfer = ({
                         dataSource={rightDataSource}
                         loading={Rightloading}
                         rowKey="key"
-                        renderItem={(item) => (
+                        renderItem={(item) => {
+                            const row = (
                             <List.Item
                                 onClick={() => handleRightSelect(item.key)}
                                 style={{
@@ -69,7 +71,11 @@ const CTransfer = ({
                                     description={item.description}
                                 />
                             </List.Item>
-                        )}
+                            );
+                            return renderItemWrapper
+                                ? renderItemWrapper(item, row, "right")
+                                : row;
+                        }}
                     />
                 </Card>
                 <Space direction="vertical">
@@ -94,7 +100,8 @@ const CTransfer = ({
                         loading={Leftloading}
                         dataSource={leftDataSource}
                         rowKey="key"
-                        renderItem={(item) => (
+                        renderItem={(item) => {
+                            const row = (
                             <List.Item
                                 onClick={() => !item.disabled && handleLeftSelect(item.key)}
                                 style={{
@@ -111,7 +118,11 @@ const CTransfer = ({
                                     description={item.description}
                                 />
                             </List.Item>
-                        )}
+                            );
+                            return renderItemWrapper
+                                ? renderItemWrapper(item, row, "left")
+                                : row;
+                        }}
                     />
                 </Card>
             </div>

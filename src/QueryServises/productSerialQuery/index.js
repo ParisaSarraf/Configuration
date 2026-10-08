@@ -1,5 +1,24 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMyAxios } from "../../hooks/useMyAxios";
+import {
+  getProductSerialsCsv,
+  getSerialDescendantsCsv,
+} from "../../Services/productSerial/serialExports";
+
+// خروجی فقط با کلیک کاربر دریافت می‌شود؛ blob یا URL دانلود در query cache نمی‌ماند.
+export const useExportProductSerialsCsv = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: (productId) => getProductSerialsCsv(myAxios, productId),
+  });
+};
+
+export const useExportSerialDescendantsCsv = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: (serialId) => getSerialDescendantsCsv(myAxios, serialId),
+  });
+};
 
 export const useProductSerialListKey = ["list", "product-serial"];
 export const useProductSerialList = (queryOptions) => {

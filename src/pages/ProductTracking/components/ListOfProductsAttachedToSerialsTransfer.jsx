@@ -3,9 +3,13 @@ import CTransfer from "../../../components/Transfer";
 import {
     usePatchProductSerial,
     useProductSerialChildrenById,
-    useProductSerialUnlinkedById
+    useProductSerialUnlinkedById,
+    useExportSerialDescendantsCsv,
 } from "../../../QueryServises/productSerialQuery";
-import { Modal as Md, message } from "antd";
+import { Dropdown, Modal as Md, message } from "antd";
+import { FileExcelOutlined } from "@ant-design/icons";
+import { handleDownload } from "@/utils/HandleDownload";
+import { getApiErrorMessage } from "@/Services/forms/formUtils";
 
 const ListOfProductsAttachedToSerialsTransfer = ({ selectedRowId, selectedParentId }) => {
     const { data: productSerialChildren, refetch: refetchChildren  , isLoading : Rightloading} = useProductSerialChildrenById(
@@ -19,6 +23,42 @@ const ListOfProductsAttachedToSerialsTransfer = ({ selectedRowId, selectedParent
     );
 
     const { mutateAsync: updateProductSerial } = usePatchProductSerial();
+    const exportDescendants = useExportSerialDescendantsCsv();
+
+    const handleExportSerial = async (serialId) => {
+        if (!serialId || exportDescendants.isPending) return;
+        try {
+            const blob = await exportDescendants.mutateAsync(serialId);
+            handleDownload(
+                window.URL.createObjectURL(blob),
+                `serial_${serialId}_descendants.csv`,
+            );
+        } catch (error) {
+            message.error(getApiErrorMessage(error, "دریافت خروجی سریال و زیرمجموعه‌های آن انجام نشد."));
+        }
+    };
+
+    const renderSerialItem = (item, row) => (
+        <Dropdown
+            key={item.key}
+            trigger={["contextMenu"]}
+            menu={{
+                items: [{
+                    key: "export-descendants",
+                    icon: <FileExcelOutlined />,
+                    label: "خروجی سریال به همراه زیر مجموعه‌هاش",
+                    disabled: !item.serialId || exportDescendants.isPending,
+                }],
+                onClick: ({ key, domEvent }) => {
+                    domEvent?.stopPropagation();
+                    if (key === "export-descendants")
+                        return handleExportSerial(item.serialId);
+                },
+            }}
+        >
+            {row}
+        </Dropdown>
+    );
 
     const [leftData, setLeftData] = useState([]);
     const [rightData, setRightData] = useState([]);
@@ -38,12 +78,14 @@ const ListOfProductsAttachedToSerialsTransfer = ({ selectedRowId, selectedParent
                     .filter((item) => item?.id && item?.serial)
                     .map((item) => ({
                         key: item.id.toString(),
+                        serialId: item.id,
                         title: `${item.product?.persian_title || "محصول"}: ${item.serial}`,
                     }));
             }
             return Object.entries(data).flatMap(([personName, items]) =>
                 (Array.isArray(items) ? items : []).map((item) => ({
                     key: item.id.toString(),
+                    serialId: item.id,
                     title: `${personName}: ${item.serial}`,
                 }))
             );
@@ -118,6 +160,7 @@ const ListOfProductsAttachedToSerialsTransfer = ({ selectedRowId, selectedParent
                 onSelectRightChange={setSelectedRightKeys}
                 onAdd={handleAdd}
                 onDelete={handleDelete}
+                renderItemWrapper={renderSerialItem}
                 rightTitle="سریال‌های متصل"
                 leftTitle="سریال‌های نامتصل"
                 style={{ height: "100%" }}

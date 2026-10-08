@@ -1,12 +1,16 @@
-import { message, Modal } from "antd";
+import { Button, message, Modal } from "antd";
+import { FileExcelOutlined } from "@ant-design/icons";
 import { SerialListCol } from "./SerialListCol.jsx";
 import {
   useDeleteProductSerial,
   useProductSerialById,
+  useExportProductSerialsCsv,
 } from "../../../../QueryServises/productSerialQuery/index.js";
 import { useEffect } from "react";
 import { useResizableColumns } from "../../../../hooks/useResizableColumns.jsx";
 import { TableAntd } from "../../../../components/TableAntd/TableAntd.jsx";
+import { handleDownload } from "@/utils/HandleDownload";
+import { getApiErrorMessage } from "@/Services/forms/formUtils";
 
 const SerialListTable = ({
   setModal,
@@ -19,6 +23,20 @@ const SerialListTable = ({
     currentProduct?.id,
   );
   const { mutateAsync: deleteProductSerial } = useDeleteProductSerial();
+  const exportSerials = useExportProductSerialsCsv();
+
+  const handleExportSerials = async () => {
+    if (!currentProduct?.id || exportSerials.isPending) return;
+    try {
+      const blob = await exportSerials.mutateAsync(currentProduct.id);
+      handleDownload(
+        window.URL.createObjectURL(blob),
+        `product_${currentProduct.id}_serials.csv`,
+      );
+    } catch (error) {
+      message.error(getApiErrorMessage(error, "دریافت خروجی سریال‌های محصول انجام نشد."));
+    }
+  };
 
   useEffect(() => {
     refetch();
@@ -53,6 +71,17 @@ const SerialListTable = ({
   const { resizableColumns, components } = useResizableColumns(baseColumns);
 
   return (
+    <div className="min-w-0" dir="rtl">
+      <div className="mb-3 flex justify-start">
+        <Button
+          icon={<FileExcelOutlined />}
+          loading={exportSerials.isPending}
+          disabled={!currentProduct?.id}
+          onClick={handleExportSerials}
+        >
+          خروجی اکسل
+        </Button>
+      </div>
     <TableAntd
       components={components}
       columns={resizableColumns}
@@ -67,6 +96,7 @@ const SerialListTable = ({
         },
       }}
     />
+    </div>
   );
 };
 
