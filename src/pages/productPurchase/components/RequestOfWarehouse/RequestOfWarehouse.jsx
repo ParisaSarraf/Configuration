@@ -6,6 +6,7 @@ import {
     useProductPurchaseById
 } from "@/QueryServises/productPurchase/index.js";
 import RequestOfWarehouseCol from "./RequestOfWarehouseCol";
+import { isActivePurchaseProduct } from "./purchaseProductStatus";
 import {ReloadOutlined, SendOutlined} from "@ant-design/icons";
 import {usePersonalityProductList} from "@/QueryServises/personalityQuery/index.js";
 import TS from "@/components/TreeSelect/index.jsx";
@@ -52,21 +53,21 @@ const RequestOfWarehouse = ({
     // برای اینکه مقدار تمام ردیف‌ها (حتی صفحاتی که دیده نشده‌اند) در store فرم ثبت شود،
     // به محض تغییر داده، مقدار پیش‌فرض همه‌ی ردیف‌ها را در فرم ست می‌کنیم.
     useEffect(() => {
+        // مقادیر حفظ‌شدهٔ ردیفی که دیگر فعال نیست در فرم باقی نماند.
+        form.resetFields();
         if (purchaseData?.length) {
             form.setFieldsValue({
                 confirmed_number: Object.fromEntries(
                     purchaseData
-                        .filter((item) => item.status === "active")
+                        .filter(isActivePurchaseProduct)
                         .map((item) => [item.id, item.quantity]),
                 ),
                 export_description: Object.fromEntries(
                     purchaseData
-                        .filter((item) => item.status === "active")
+                        .filter(isActivePurchaseProduct)
                         .map((item) => [item.id, item.export_description || ""]),
                 ),
             });
-        } else {
-            form.resetFields();
         }
     }, [purchaseData, form]);
 
@@ -80,12 +81,12 @@ const RequestOfWarehouse = ({
             const exportDescriptions = values.export_description || {};
             const validProductIds = new Set(
                 (purchaseData || [])
-                    .filter((item) => item.status === "active")
-                    .map((item) => item.id),
+                    .filter(isActivePurchaseProduct)
+                    .map((item) => String(item.id)),
             );
             const payloads = Object.entries(confirmedNumbers)
                 .filter(([productId, number]) =>
-                    validProductIds.has(Number(productId)) &&
+                    validProductIds.has(String(productId)) &&
                     number !== undefined && number !== null && number !== "" && Number(number) > 0,
                 )
                 .map(([productId, number]) => ({
@@ -123,7 +124,7 @@ const RequestOfWarehouse = ({
         form.setFieldsValue({
             confirmed_number: Object.fromEntries(
                 purchaseData
-                    .filter((item) => item.status === "active")
+                    .filter(isActivePurchaseProduct)
                     .map((item) => [item.id, 0]),
             ),
         });

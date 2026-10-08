@@ -1,4 +1,5 @@
 import { Form, Input, Tag } from "antd";
+import { isActivePurchaseProduct } from "./purchaseProductStatus";
 
 const RequestOfWarehouseCol = () => {
   return [
@@ -22,8 +23,8 @@ const RequestOfWarehouseCol = () => {
       key: "status",
       width: 90,
       render: (status) => (
-        <Tag color={status === "active" ? "green" : "default"}>
-          {status === "active" ? "فعال" : "غیرفعال"}
+        <Tag color={isActivePurchaseProduct({ status }) ? "green" : "default"}>
+          {isActivePurchaseProduct({ status }) ? "فعال" : "غیرفعال"}
         </Tag>
       ),
     },
@@ -40,9 +41,9 @@ const RequestOfWarehouseCol = () => {
       render: (_, record) => (
         <Form.Item
           name={["confirmed_number", record.id]}
-          initialValue={record.quantity}
+          initialValue={isActivePurchaseProduct(record) ? record.quantity : undefined}
           className="mb-0"
-          rules={[
+          rules={isActivePurchaseProduct(record) ? [
             {
               validator: (_, value) => {
                 if (value && value < 0) {
@@ -54,14 +55,14 @@ const RequestOfWarehouseCol = () => {
                 return Promise.resolve();
               },
             },
-          ]}
+          ] : []}
         >
           <Input
             type="number"
             min={0}
-            placeholder={record.status === "active" ? "تعداد را وارد کنید" : "غیرفعال"}
+            placeholder={isActivePurchaseProduct(record) ? "تعداد را وارد کنید" : "غیرفعال"}
             step="0.01"
-            disabled={record.status !== "active"}
+            disabled={!isActivePurchaseProduct(record)}
           />
         </Form.Item>
       ),
@@ -80,11 +81,11 @@ const RequestOfWarehouseCol = () => {
             maxLength={1000}
             allowClear
             placeholder={
-              record.status === "active"
+              isActivePurchaseProduct(record)
                 ? "توضیحات این ردیف را وارد کنید"
                 : "غیرفعال"
             }
-            disabled={record.status !== "active"}
+            disabled={!isActivePurchaseProduct(record)}
           />
         </Form.Item>
       ),
