@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMyAxios } from "../../hooks/useMyAxios";
+import { getProductSerialTree } from "../../Services/productSerial/serialTree";
 import {
   getProductSerialsCsv,
   getSerialDescendantsCsv,
@@ -17,6 +18,20 @@ export const useExportSerialDescendantsCsv = () => {
   const { myAxios } = useMyAxios();
   return useMutation({
     mutationFn: (serialId) => getSerialDescendantsCsv(myAxios, serialId),
+  });
+};
+
+export const useProductSerialTreeById = (serialId, queryOptions = {}) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    queryKey: ["product-serial-tree", serialId],
+    queryFn: () => getProductSerialTree(myAxios, serialId),
+    enabled: Boolean(serialId),
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: false,
+    retry: false,
+    ...queryOptions,
   });
 };
 

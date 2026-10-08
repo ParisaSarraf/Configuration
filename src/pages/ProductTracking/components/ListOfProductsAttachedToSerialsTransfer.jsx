@@ -7,11 +7,12 @@ import {
     useExportSerialDescendantsCsv,
 } from "../../../QueryServises/productSerialQuery";
 import { Dropdown, Modal as Md, message } from "antd";
-import { FileExcelOutlined } from "@ant-design/icons";
+import { FileExcelOutlined, ApartmentOutlined } from "@ant-design/icons";
 import { handleDownload } from "@/utils/HandleDownload";
 import { getApiErrorMessage } from "@/Services/forms/formUtils";
+import SerialTreeModal from "./SerialList/SerialTreeModal";
 
-const ListOfProductsAttachedToSerialsTransfer = ({ selectedRowId, selectedParentId }) => {
+const ListOfProductsAttachedToSerialsTransfer = ({ selectedRowId, selectedParentId, currentProduct }) => {
     const { data: productSerialChildren, refetch: refetchChildren  , isLoading : Rightloading} = useProductSerialChildrenById(
         selectedRowId,
         { enabled: !!selectedRowId }
@@ -24,6 +25,10 @@ const ListOfProductsAttachedToSerialsTransfer = ({ selectedRowId, selectedParent
 
     const { mutateAsync: updateProductSerial } = usePatchProductSerial();
     const exportDescendants = useExportSerialDescendantsCsv();
+    const [treeSerial, setTreeSerial] = useState(null);
+    useEffect(() => {
+        setTreeSerial(null);
+    }, [currentProduct?.id, selectedRowId]);
 
     const handleExportSerial = async (serialId) => {
         if (!serialId || exportDescendants.isPending) return;
@@ -46,13 +51,20 @@ const ListOfProductsAttachedToSerialsTransfer = ({ selectedRowId, selectedParent
                 items: [{
                     key: "export-descendants",
                     icon: <FileExcelOutlined />,
-                    label: "خروجی سریال به همراه زیر مجموعه‌هاش",
+                    label: "خروجی سریال به همراه زیر مجموعه‌ها",
                     disabled: !item.serialId || exportDescendants.isPending,
+                }, {
+                    key: "show-tree",
+                    icon: <ApartmentOutlined />,
+                    label: "نمایش درخت سریال",
+                    disabled: !item.serialId,
                 }],
                 onClick: ({ key, domEvent }) => {
                     domEvent?.stopPropagation();
                     if (key === "export-descendants")
                         return handleExportSerial(item.serialId);
+                    if (key === "show-tree" && item.serialId)
+                        setTreeSerial({ id: item.serialId, label: item.title });
                 },
             }}
         >
@@ -164,6 +176,13 @@ const ListOfProductsAttachedToSerialsTransfer = ({ selectedRowId, selectedParent
                 rightTitle="سریال‌های متصل"
                 leftTitle="سریال‌های نامتصل"
                 style={{ height: "100%" }}
+            />
+            <SerialTreeModal
+                open={Boolean(treeSerial)}
+                serialId={treeSerial?.id}
+                serialLabel={treeSerial?.label}
+                productId={currentProduct?.id}
+                onClose={() => setTreeSerial(null)}
             />
         </div>
     );

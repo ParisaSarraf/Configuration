@@ -19,6 +19,7 @@ export const TableAntd = ({
   scroll,
   tableLayout,
   expandedRowRender,
+  onRow,
 }) => {
   return (
     <div className={`rtl-table ${className}`}>
@@ -35,6 +36,7 @@ export const TableAntd = ({
         loading={loading}
         rowKey={rowKey}
         expandedRowRender={expandedRowRender}
+        onRow={onRow}
         locale={{ filterConfirm: "اعمال", filterReset: "ریست" } || locale}
         expandable={expandable}
         rowSelection={rowSelection}

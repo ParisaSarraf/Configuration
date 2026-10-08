@@ -1,16 +1,19 @@
 import { Button, message, Modal } from "antd";
-import { FileExcelOutlined } from "@ant-design/icons";
+import { FileExcelOutlined, ApartmentOutlined } from "@ant-design/icons";
 import { SerialListCol } from "./SerialListCol.jsx";
 import {
   useDeleteProductSerial,
   useProductSerialById,
   useExportProductSerialsCsv,
+  useExportSerialDescendantsCsv,
 } from "../../../../QueryServises/productSerialQuery/index.js";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useResizableColumns } from "../../../../hooks/useResizableColumns.jsx";
 import { TableAntd } from "../../../../components/TableAntd/TableAntd.jsx";
 import { handleDownload } from "@/utils/HandleDownload";
 import { getApiErrorMessage } from "@/Services/forms/formUtils";
+import SerialContextMenuRow from "./SerialContextMenuRow";
+import SerialTreeModal from "./SerialTreeModal";
 
 const SerialListTable = ({
   setModal,
@@ -24,6 +27,8 @@ const SerialListTable = ({
   );
   const { mutateAsync: deleteProductSerial } = useDeleteProductSerial();
   const exportSerials = useExportProductSerialsCsv();
+  const exportDescendants = useExportSerialDescendantsCsv();
+  const [treeSerial, setTreeSerial] = useState(null);
 
   const handleExportSerials = async () => {
     if (!currentProduct?.id || exportSerials.isPending) return;
@@ -38,7 +43,44 @@ const SerialListTable = ({
     }
   };
 
+  const handleExportSerial = async (serialId) => {
+    if (!serialId || exportDescendants.isPending) return;
+    try {
+      const blob = await exportDescendants.mutateAsync(serialId);
+      handleDownload(
+        window.URL.createObjectURL(blob),
+        `serial_${serialId}_descendants.csv`,
+      );
+    } catch (error) {
+      message.error(getApiErrorMessage(error, "دریافت خروجی سریال و زیرمجموعه‌های آن انجام نشد."));
+    }
+  };
+
+  const serialRowProps = (record) => ({
+    serialMenu: {
+      items: [{
+        key: "export-descendants",
+        icon: <FileExcelOutlined />,
+        label: "خروجی سریال به همراه زیر مجموعه‌هاش",
+        disabled: !record?.id || exportDescendants.isPending,
+      }, {
+        key: "show-tree",
+        icon: <ApartmentOutlined />,
+        label: "نمایش درخت سریال",
+        disabled: !record?.id,
+      }],
+      onClick: ({ key, domEvent }) => {
+        domEvent?.stopPropagation();
+        if (key === "export-descendants")
+          return handleExportSerial(record.id);
+        if (key === "show-tree" && record?.id)
+          setTreeSerial({ id: record.id, label: record.full_serial ?? record.serial ?? String(record.id) });
+      },
+    },
+  });
+
   useEffect(() => {
+    setTreeSerial(null);
     refetch();
   }, [currentProduct?.id, refetch]);
 
@@ -82,20 +124,31 @@ const SerialListTable = ({
           خروجی اکسل
         </Button>
       </div>
-    <TableAntd
-      components={components}
-      columns={resizableColumns}
-      dataSource={productSerial?.serials}
-      rowKey="id"
-      rowSelection={{
-        type: "radio",
-        selectedRowKeys: selectedRowId ? [selectedRowId] : [],
-        onChange: (selectedRowKeys, selectedRows) => {
-          setSelectedRowId(selectedRowKeys[0] || null);
-          setSelectedParentId(selectedRows[0].id);
-        },
-      }}
-    />
+      <TableAntd
+        components={{
+          ...components,
+          body: { ...components?.body, row: SerialContextMenuRow },
+        }}
+        onRow={serialRowProps}
+        columns={resizableColumns}
+        dataSource={productSerial?.serials}
+        rowKey="id"
+        rowSelection={{
+          type: "radio",
+          selectedRowKeys: selectedRowId ? [selectedRowId] : [],
+          onChange: (selectedRowKeys, selectedRows) => {
+            setSelectedRowId(selectedRowKeys[0] || null);
+            setSelectedParentId(selectedRows[0].id);
+          },
+        }}
+      />
+      <SerialTreeModal
+        open={Boolean(treeSerial)}
+        serialId={treeSerial?.id}
+        serialLabel={treeSerial?.label}
+        productId={currentProduct?.id}
+        onClose={() => setTreeSerial(null)}
+      />
     </div>
   );
 };
