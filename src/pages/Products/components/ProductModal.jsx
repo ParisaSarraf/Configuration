@@ -36,6 +36,7 @@ import TS from "../../../components/TreeSelect";
 import {
   useCreateStandardCode,
   useFetchPersonalityStandardWarehouseCodes,
+  useFetchGenusStandardWarehouseCodes,
   useStandardCodePersonalityById,
 } from "../../../QueryServises/StandardCodeQuery";
 import TsLazy from "../../../components/LazyTreeSelect/LazyTreeSelect";
@@ -49,6 +50,7 @@ import {
   getServerFullWarehouseCode,
   getStandardWarehouseProposal,
   readPersonalityStandardCodes,
+  readGenusStandardCodes,
   standardWarehouseCodeExists,
 } from "../../../Services/standardWarehouseCodes";
 
@@ -84,6 +86,10 @@ const ProductModal = ({
   const quickSubmitPending = useRef(false);
   const { refetch: fetchWarehouseIdentities } = usePersonalityWarehouseList();
   const fetchPersonalityStandards = useFetchPersonalityStandardWarehouseCodes();
+  const fetchGenusStandards = useFetchGenusStandardWarehouseCodes();
+  const fetchStandardScope = (config) => config.parentKey === "genus"
+    ? fetchGenusStandards(config.parentId)
+    : fetchPersonalityStandards(config.parentId);
   const { treeData, loadChildren } = useLazyProductTreeSelect(productData);
 
   const { isPending: isCreating, mutateAsync: createProduct } =
@@ -144,9 +150,13 @@ const ProductModal = ({
   );
   const identityStandardQuickCreate =
     quickCreate?.type === "standard" && quickCreate.parentKey === "personality";
+  const genusStandardQuickCreate =
+    quickCreate?.type === "standard" && quickCreate.parentKey === "genus";
+  const scopedStandardQuickCreate = identityStandardQuickCreate || genusStandardQuickCreate;
+  const standardScopeLabel = genusStandardQuickCreate ? "ماده اولیه" : "هویت";
   const hasWarehouseSuggestion =
-    quickCreate?.type === "personality" || identityStandardQuickCreate;
-  const matchingStandard = identityStandardQuickCreate
+    quickCreate?.type === "personality" || scopedStandardQuickCreate;
+  const matchingStandard = scopedStandardQuickCreate
     ? warehouseProposal?.codes?.find(
         (code) => normalizePersonalityWarehouseCode(code.warehouse_code) ===
           normalizePersonalityWarehouseCode(quickWarehouseCode),
@@ -341,8 +351,8 @@ const ProductModal = ({
     setWarehouseProposal({ status: "loading" });
     try {
       let proposal;
-      if (config.type === "standard" && config.parentKey === "personality") {
-        const result = await fetchPersonalityStandards(config.parentId);
+      if (config.type === "standard" && ["personality", "genus"].includes(config.parentKey)) {
+        const result = await fetchStandardScope(config);
         proposal = {
           ...getStandardWarehouseProposal(result.codes),
           codes: result.codes,
@@ -366,7 +376,7 @@ const ProductModal = ({
       setWarehouseProposal({
         status: "error",
         message: config.type === "standard"
-          ? "استانداردهای هویت دریافت نشد؛ کد انبار خودکار پیشنهاد نشد."
+          ? `استانداردهای ${config.parentLabel} دریافت نشد؛ کد انبار خودکار پیشنهاد نشد.`
           : "فهرست هویت‌ها دریافت نشد؛ کد طبقه‌بندی خودکار پیشنهاد نشد.",
       });
     }
@@ -385,7 +395,7 @@ const ProductModal = ({
     setWarehouseProposal(null);
     if (
       config.type === "personality" ||
-      (config.type === "standard" && config.parentKey === "personality")
+      (config.type === "standard" && ["personality", "genus"].includes(config.parentKey))
     ) suggestWarehouseCode(requestId, config);
   };
 
@@ -473,8 +483,13 @@ const ProductModal = ({
             parent_id: Number(values.parent_id?.value ?? values.parent_id),
           }),
         });
-        refetchResult = await refetchGenus();
-        option = await resolveCreatedOption({ created, refetchResult, name });
+        option = await resolveCreatedOption({ created, name });
+        try {
+          refetchResult = await refetchGenus({ throwOnError: true });
+        } catch {
+          message.warning("ماده اولیه ثبت شد، اما تازه‌سازی فهرست انجام نشد.");
+        }
+        option = option || await resolveCreatedOption({ created, refetchResult, name });
       } else if (quickCreate.type === "casing") {
         created = await createCasing({
           name,
@@ -489,9 +504,9 @@ const ProductModal = ({
           return;
         }
         const warehouseCode = normalizePersonalityWarehouseCode(values.warehouse_code);
-        if (quickCreate.parentKey === "personality") {
+        if (scopedStandardQuickCreate) {
           setCheckingWarehouseCode(true);
-          const fresh = await fetchPersonalityStandards(quickCreate.parentId);
+          const fresh = await fetchStandardScope(quickCreate);
           const proposal = getStandardWarehouseProposal(fresh.codes);
           setWarehouseProposal({
             ...proposal, codes: fresh.codes, parent: fresh.parent, status: "ready",
@@ -501,8 +516,8 @@ const ProductModal = ({
               quickForm.setFieldValue("warehouse_code", proposal.nextCode);
             message.warning(
               proposal.nextCode !== null
-                ? `این کد انبار در همین هویت ثبت شده است. کد ${proposal.nextCode} جایگزین شد؛ دوباره تأیید کنید.`
-                : "این کد انبار در همین هویت ثبت شده است؛ کد دیگری وارد کنید.",
+                ? `این کد انبار در همین ${standardScopeLabel} ثبت شده است. کد ${proposal.nextCode} جایگزین شد؛ دوباره تأیید کنید.`
+                : `این کد انبار در همین ${standardScopeLabel} ثبت شده است؛ کد دیگری وارد کنید.`,
             );
             return;
           }
@@ -515,25 +530,23 @@ const ProductModal = ({
         });
         const record = getCreatedRecord(created);
         try {
-          refetchResult = await quickCreate.refetch?.({ throwOnError: true });
+          if (quickCreate.parentKey === "genus") {
+            const refreshed = await fetchGenusStandards(quickCreate.parentId);
+            refetchResult = { data: { ...refreshed.parent, genus_codes: refreshed.codes } };
+          } else {
+            refetchResult = await quickCreate.refetch?.({ throwOnError: true });
+          }
         } catch {
           message.warning("کد استاندارد ثبت شد، اما تازه‌سازی فهرست انجام نشد.");
         }
         const refreshedPayload = refetchResult?.data;
-        const refreshedParent =
-          quickCreate.parentKey === "genus"
-            ? flattenLookupItems(
-                Array.isArray(refreshedPayload) ? refreshedPayload : [],
-              ).find(
-                (item) => Number(item?.id) === Number(quickCreate.parentId),
-              )
-            : null;
-        let refreshedCodes = refreshedParent?.genus_codes || [];
-        if (quickCreate.parentKey === "personality" && refreshedPayload) {
+        let refreshedCodes = [];
+        if (refreshedPayload) {
           try {
-            refreshedCodes = readPersonalityStandardCodes(
-              refreshedPayload, quickCreate.parentId,
-            ).codes;
+            refreshedCodes = (quickCreate.parentKey === "genus"
+              ? readGenusStandardCodes : readPersonalityStandardCodes)(
+                refreshedPayload, quickCreate.parentId,
+              ).codes;
           } catch {
             refreshedCodes = [];
           }
@@ -1272,10 +1285,10 @@ const ProductModal = ({
             {/* کد انبار ماده اولیه  */}
             <Col span={8}>
               <Form.Item
-                label="کد انبار ماده اولیه"
+                label="کد انبار کامل ماده اولیه"
                 name="genus_warehouse_code"
               >
-                <Input placeholder="کد انبار ماده اولیه" />
+                <Input placeholder="کد انبار کامل ماده اولیه" />
               </Form.Item>
             </Col>
           </>
@@ -1400,7 +1413,7 @@ const ProductModal = ({
                   }
                   onChange={(value) => {
                     if (!value) {
-                      form.setFieldsValue({ genus_warehouse_code: undefined });
+                      form.setFieldsValue({ alternative_genus_warehouse_code: undefined });
                       return;
                     }
                     const selectedOption = alterNativeGenusStandardOptions.find(
@@ -1418,10 +1431,10 @@ const ProductModal = ({
             {/* کد انبار ماده اولیه جایگزین  */}
             <Col span={8}>
               <Form.Item
-                label="کد انبار ماده اولیه جایگزین"
+                label="کد انبار کامل ماده اولیه جایگزین"
                 name="alternative_genus_warehouse_code"
               >
-                <Input placeholder="کد انبار ماده اولیه جایگزین" />
+                <Input placeholder="کد انبار کامل ماده اولیه جایگزین" />
               </Form.Item>
             </Col>
           </>
@@ -1680,33 +1693,33 @@ const ProductModal = ({
                 <Input placeholder="نام یا توضیح کد استاندارد" />
               </Form.Item>
               <Row gutter={24}>
-                <Col span={identityStandardQuickCreate ? 24 : 24}>
+                <Col span={genusStandardQuickCreate ? 12 : 24}>
                   <Form.Item
                     name="warehouse_code"
                     label="کد انبار استاندارد"
-                    rules={identityStandardQuickCreate ? [
+                    rules={scopedStandardQuickCreate ? [
                       { required: true, whitespace: true, message: "کد انبار استاندارد را وارد کنید" },
                     ] : []}
                     extra={
-                      identityStandardQuickCreate && warehouseProposal?.status === "loading"
-                        ? "در حال دریافت استانداردهای همین هویت…"
-                        : identityStandardQuickCreate && warehouseProposal?.status === "ready" &&
+                      scopedStandardQuickCreate && warehouseProposal?.status === "loading"
+                        ? `در حال دریافت استانداردهای همین ${standardScopeLabel}…`
+                        : scopedStandardQuickCreate && warehouseProposal?.status === "ready" &&
                             warehouseProposal.nonNumericCount === 0
                           ? warehouseProposal.lastCode === null
-                            ? "این هویت هنوز کد استاندارد ندارد؛ پیشنهاد کد انبار: 1"
-                            : `آخرین کد انبار این هویت: ${warehouseProposal.lastCode} — کد بعدی: ${warehouseProposal.nextCode}`
+                            ? `این ${standardScopeLabel} هنوز کد استاندارد ندارد؛ پیشنهاد کد انبار: 1`
+                            : `آخرین کد انبار این ${standardScopeLabel}: ${warehouseProposal.lastCode} — کد بعدی: ${warehouseProposal.nextCode}`
                           : undefined
                     }
                   >
                     <Input
                       dir="ltr"
                       placeholder="کد انبار استاندارد"
-                      disabled={quickCreating || (identityStandardQuickCreate &&
+                      disabled={quickCreating || (scopedStandardQuickCreate &&
                         warehouseProposal?.status === "loading")}
                     />
                   </Form.Item>
                 </Col>
-                {/* {identityStandardQuickCreate && (
+                {/* {genusStandardQuickCreate && (
                   <Col span={12}>
                     <Form.Item
                       label="کد انبار کامل (پاسخ سرور)"
@@ -1722,10 +1735,12 @@ const ProductModal = ({
                   </Col>
                 )} */}
               </Row>
-              {identityStandardQuickCreate && warehouseProposal?.status === "ready" && (
+              {scopedStandardQuickCreate && warehouseProposal?.status === "ready" && (
                 <div className="mb-3 text-xs text-slate-500">
-                  کد طبقه‌بندی هویت:{" "}
-                  <span dir="ltr">{warehouseProposal.parent?.warehouse_code ?? "—"}</span>
+                  {identityStandardQuickCreate && (<>
+                    کد طبقه‌بندی هویت:{" "}
+                    <span dir="ltr">{warehouseProposal.parent?.warehouse_code ?? "—"}</span>
+                  </>)}
                   {warehouseProposal.lastFullCode !== null && (
                     <div>
                       کد انبار کامل آخرین استاندارد (سرور):{" "}
@@ -1734,7 +1749,7 @@ const ProductModal = ({
                   )}
                 </div>
               )}
-              {identityStandardQuickCreate && warehouseProposal?.status === "error" ? (
+              {scopedStandardQuickCreate && warehouseProposal?.status === "error" ? (
                 <Alert
                   type="warning"
                   showIcon
@@ -1744,12 +1759,12 @@ const ProductModal = ({
                     suggestWarehouseCode(warehouseRequestId.current, quickCreate)
                   }>تلاش دوباره</Button>}
                 />
-              ) : identityStandardQuickCreate && warehouseProposal?.nonNumericCount > 0 ? (
+              ) : scopedStandardQuickCreate && warehouseProposal?.nonNumericCount > 0 ? (
                 <Alert
                   type="info"
                   showIcon
                   className="mb-3"
-                  message="کدهای استاندارد این هویت قالب غیرعددی دارند؛ کد انبار را دستی وارد کنید."
+                  message={`کدهای استاندارد این ${standardScopeLabel} قالب غیرعددی دارند؛ کد انبار را دستی وارد کنید.`}
                 />
               ) : null}
               <div className="rounded-lg bg-blue-50 px-3 py-2 text-xs text-blue-700">

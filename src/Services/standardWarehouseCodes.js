@@ -13,7 +13,7 @@ export const getServerFullWarehouseCode = (record) => {
 
 const unwrap = (payload) => payload?.data ?? payload?.result ?? payload;
 
-export const readPersonalityStandardCodes = (payload, personalityId) => {
+const readStandardCodes = (payload, parentId, codesKey, label) => {
   const data = unwrap(payload);
   const records = Array.isArray(data)
     ? data
@@ -23,14 +23,14 @@ export const readPersonalityStandardCodes = (payload, personalityId) => {
         ? [data]
         : [];
   const parent =
-    records.find((record) => String(record?.id) === String(personalityId)) ||
+    records.find((record) => String(record?.id) === String(parentId)) ||
     (records.length === 1 && records[0]?.id == null ? records[0] : null);
   if (!parent)
-    throw new Error("پاسخ استانداردها متعلق به هویت انتخاب‌شده نیست.");
-  const rawCodes = parent.personality_codes;
+    throw new Error(`پاسخ استانداردها متعلق به ${label} انتخاب‌شده نیست.`);
+  const rawCodes = parent[codesKey];
   const codes = Array.isArray(rawCodes) ? rawCodes : rawCodes?.results;
   if (!Array.isArray(codes))
-    throw new Error("فهرست کدهای استاندارد هویت کامل دریافت نشد.");
+    throw new Error(`فهرست کدهای استاندارد ${label} کامل دریافت نشد.`);
   return {
     parent,
     codes,
@@ -38,6 +38,12 @@ export const readPersonalityStandardCodes = (payload, personalityId) => {
     count: Array.isArray(rawCodes) ? null : rawCodes.count,
   };
 };
+
+export const readPersonalityStandardCodes = (payload, id) =>
+  readStandardCodes(payload, id, "personality_codes", "هویت");
+
+export const readGenusStandardCodes = (payload, id) =>
+  readStandardCodes(payload, id, "genus_codes", "ماده اولیه");
 
 export const getStandardWarehouseProposal = (codes = []) => {
   // فقط کد انبار خودِ استانداردها، نه کد کامل یا کد طبقه‌بندی هویت.
@@ -58,14 +64,16 @@ export const standardWarehouseCodeExists = (codes, value) =>
     value,
   );
 
-export const fetchPersonalityStandardWarehouseCodes = async (
+const fetchStandardWarehouseCodes = async (
   client,
   id,
   signal,
+  base,
+  readCodes,
+  label,
 ) => {
   if (!/^\d+$/.test(String(id)) || BigInt(String(id)) <= 0n)
-    throw new Error("شناسهٔ هویت برای دریافت استانداردها معتبر نیست.");
-  const base = `/core/get-personality-by-id/${id}`;
+    throw new Error(`شناسهٔ ${label} برای دریافت استانداردها معتبر نیست.`);
   const visited = new Set();
   const codes = [];
   let endpoint = base;
@@ -73,10 +81,10 @@ export const fetchPersonalityStandardWarehouseCodes = async (
   let expectedCount = null;
   while (endpoint) {
     if (visited.has(endpoint))
-      throw new Error("صفحه‌بندی استانداردهای هویت تکراری است.");
+      throw new Error(`صفحه‌بندی استانداردهای ${label} تکراری است.`);
     visited.add(endpoint);
     const response = await client.get(endpoint, { signal });
-    const page = readPersonalityStandardCodes(response.data, id);
+    const page = readCodes(response.data, id);
     parent = parent || page.parent;
     codes.push(...page.codes);
     if (Number.isFinite(page.count)) expectedCount = page.count;
@@ -88,11 +96,31 @@ export const fetchPersonalityStandardWarehouseCodes = async (
         ![base, `${base}/`].some((path) => next.pathname.endsWith(path)) ||
         !next.search
       )
-        throw new Error("آدرس صفحهٔ بعدی استانداردهای هویت معتبر نیست.");
+        throw new Error(`آدرس صفحهٔ بعدی استانداردهای ${label} معتبر نیست.`);
       endpoint = `${base}${next.search}`;
     }
   }
   if (expectedCount !== null && codes.length < expectedCount)
-    throw new Error("فهرست استانداردهای هویت کامل دریافت نشد.");
+    throw new Error(`فهرست استانداردهای ${label} کامل دریافت نشد.`);
   return { parent, codes };
 };
+
+export const fetchPersonalityStandardWarehouseCodes = (client, id, signal) =>
+  fetchStandardWarehouseCodes(
+    client,
+    id,
+    signal,
+    `/core/get-personality-by-id/${id}`,
+    readPersonalityStandardCodes,
+    "هویت",
+  );
+
+export const fetchGenusStandardWarehouseCodes = (client, id, signal) =>
+  fetchStandardWarehouseCodes(
+    client,
+    id,
+    signal,
+    `/product/get-genus-by-id/${id}`,
+    readGenusStandardCodes,
+    "ماده اولیه",
+  );

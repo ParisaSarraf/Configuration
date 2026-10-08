@@ -1,6 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMyAxios } from "../../hooks/useMyAxios";
-import { fetchPersonalityStandardWarehouseCodes } from "../../Services/standardWarehouseCodes";
+import {
+  fetchPersonalityStandardWarehouseCodes,
+  fetchGenusStandardWarehouseCodes,
+} from "../../Services/standardWarehouseCodes";
 
 // شناسه صریح دریافت می‌شود تا بلافاصله پس از ساخت هویت نیز همان id استفاده شود.
 export const useFetchPersonalityStandardWarehouseCodes = () => {
@@ -11,6 +14,19 @@ export const useFetchPersonalityStandardWarehouseCodes = () => {
       queryKey: ["personality-standard-warehouse", personalityId],
       queryFn: ({ signal }) =>
         fetchPersonalityStandardWarehouseCodes(myAxios, personalityId, signal),
+      staleTime: 0,
+    });
+};
+
+// شناسهٔ پاسخ ساخت ماده اولیه مستقیماً به این درخواست داده می‌شود.
+export const useFetchGenusStandardWarehouseCodes = () => {
+  const { myAxios } = useMyAxios();
+  const queryClient = useQueryClient();
+  return (genusId) =>
+    queryClient.fetchQuery({
+      queryKey: ["genus-standard-warehouse", genusId],
+      queryFn: ({ signal }) =>
+        fetchGenusStandardWarehouseCodes(myAxios, genusId, signal),
       staleTime: 0,
     });
 };
