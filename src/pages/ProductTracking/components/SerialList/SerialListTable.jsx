@@ -61,7 +61,7 @@ const SerialListTable = ({
       items: [{
         key: "export-descendants",
         icon: <FileExcelOutlined />,
-        label: "خروجی سریال به همراه زیر مجموعه‌هاش",
+        label: "خروجی اکسل سریال",
         disabled: !record?.id || exportDescendants.isPending,
       }, {
         key: "show-tree",
@@ -114,15 +114,14 @@ const SerialListTable = ({
 
   return (
     <div className="min-w-0" dir="rtl">
-      <div className="mb-3 flex justify-start">
+      <div className="mb-3 flex justify-end">
         <Button
           icon={<FileExcelOutlined />}
           loading={exportSerials.isPending}
           disabled={!currentProduct?.id}
           onClick={handleExportSerials}
-        >
-          خروجی اکسل
-        </Button>
+          className="border-green-600 text-green-600"
+        />
       </div>
       <TableAntd
         components={{

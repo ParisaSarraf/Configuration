@@ -47,9 +47,7 @@ const SerialTreeModal = ({ open, serialId, serialLabel, productId, onClose }) =>
             selectedKeys={selectedKeys}
             onSelect={setSelectedKeys}
             titleRender={(node) => (
-              <span className={`inline-flex flex-wrap items-center gap-2 rounded-lg px-2 py-1 ${
-                node.isProductMatch ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-200" : ""
-              }`}>
+              <span className={`inline-flex flex-wrap items-center gap-2 rounded-lg px-2 py-1`}>
                 <strong>{node.serialLabel}</strong>
                 {node.productLabel ? <span className="text-xs">{node.productLabel}</span> : null}
                 {node.productId != null ? <span className="text-xs opacity-60">محصول: {node.productId}</span> : null}

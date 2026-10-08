@@ -51,7 +51,7 @@ const ListOfProductsAttachedToSerialsTransfer = ({ selectedRowId, selectedParent
                 items: [{
                     key: "export-descendants",
                     icon: <FileExcelOutlined />,
-                    label: "خروجی سریال به همراه زیر مجموعه‌ها",
+                    label: "خروجی اکسل سریال",
                     disabled: !item.serialId || exportDescendants.isPending,
                 }, {
                     key: "show-tree",
