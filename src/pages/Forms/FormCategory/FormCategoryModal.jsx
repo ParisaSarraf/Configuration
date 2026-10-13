@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Col, Form, Input, InputNumber, Checkbox, message, Row } from "antd";
+import { Col, Form, Input, message, Row } from "antd";
 
 import Modal from "../../../components/Modal";
 
@@ -32,7 +32,7 @@ const FormCategoryModal = ({
   const onFinish = async (values) => {
     const payload = {
       name: values.name ?? "",
-      order: values.order ?? 0,
+      order: isEdit ? (initialValuesRef.current.order ?? 0) : 0,
       icon: values.icon ?? "",
       description: values.description ?? "",
       is_collapsed_by_default: values.is_collapsed_by_default ?? false,
@@ -114,7 +114,7 @@ const FormCategoryModal = ({
         disabled={isPending}
       >
         <Row gutter={12}>
-          <Col span={12}>
+          <Col span={24}>
             <Form.Item
               name="name"
               label="نام دسته‌بندی"
@@ -129,11 +129,7 @@ const FormCategoryModal = ({
             </Form.Item>
           </Col>
 
-          <Col span={12}>
-            <Form.Item name="order" label="ترتیب نمایش فرم در لیست">
-              <InputNumber min={0} className="w-full" placeholder="0" />
-            </Form.Item>
-          </Col>
+
 
           <Col span={24}>
             <Form.Item

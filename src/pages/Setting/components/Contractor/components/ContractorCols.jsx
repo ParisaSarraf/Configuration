@@ -2,11 +2,7 @@ import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Button, Flex } from "antd";
 
 export const ContractorCols = ({ handleDelete, handleEdit }) => [
-  {
-    title: "اولویت نمایش",
-    dataIndex: "order",
-    key: "order",    
-  },
+  
   {
     title: "نام",
     dataIndex: "name",

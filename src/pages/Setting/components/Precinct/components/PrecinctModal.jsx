@@ -34,7 +34,7 @@ const PrecinctModal = ({
         is_definable: Boolean(modalData.is_definable),
         life_cycle_id:
           modalData.life_cycle?.id ?? modalData.life_cycle_id ?? undefined,
-        order: modalData.order,
+
       });
     } else if (modalMode === "add") {
       form.resetFields();
@@ -46,7 +46,7 @@ const PrecinctModal = ({
       life_cycle_id: values.life_cycle_id,
       title: values.title,
       is_definable: values.is_definable,
-      order: values.order,
+      order: modalMode === "edit" ? (modalData?.order ?? 0) : 0,
     };
     if (values.parent_id) {
       payload.parent_id = values.parent_id;
@@ -135,21 +135,8 @@ const PrecinctModal = ({
       >
         <Form form={form} layout="vertical" onFinish={onFinishForm}>
           <Row gutter={16}>
-            <Col span={6}>
-              <Form.Item
-                name="order"
-                label="ترتیب"
-                rules={[
-                  {
-                    required: true,
-                    message: "لطفاً ترتیب را وارد کنید",
-                  },
-                ]}
-              >
-                <Input placeholder="ترتیب" />
-              </Form.Item>
-            </Col>
-            <Col span={18}>
+
+            <Col span={24}>
               <Form.Item
                 name="title"
                 label="عنوان حوزه تجارب"

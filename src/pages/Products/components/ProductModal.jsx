@@ -388,7 +388,6 @@ const ProductModal = ({
     quickForm.resetFields();
     quickForm.setFieldsValue({
       name: suggestedName,
-      order: config.type === "genus" || config.type === "casing" ? 0 : undefined,
       parent_id: config.parentId,
     });
     setQuickCreate(config);
@@ -476,7 +475,7 @@ const ProductModal = ({
       } else if (quickCreate.type === "genus") {
         created = await createGenus({
           name,
-          order: Number(values.order ?? 0),
+          order: 0,
           material: values.material,
           internal_code: values.internal_code,
           ...(values.parent_id != null && {
@@ -494,7 +493,7 @@ const ProductModal = ({
         created = await createCasing({
           name,
           type: "casing",
-          order: Number(values.order ?? 0),
+          order: 0,
         });
         refetchResult = await refetchCasing();
         option = await resolveCreatedOption({ created, refetchResult, name });
@@ -1653,16 +1652,8 @@ const ProductModal = ({
           {quickCreate?.type === "genus" ? (
             <>
               <Row gutter={12}>
-                <Col span={12}>
-                  <Form.Item
-                    name="order"
-                    label="اولویت نمایش"
-                    rules={[{ required: true, message: "اولویت را وارد کنید" }]}
-                  >
-                    <InputNumber className="w-full" min={0} />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
+                
+                <Col span={24}>
                   <Form.Item name="internal_code" label="کد طبقه بندی">
                     <Input />
                   </Form.Item>
@@ -1677,15 +1668,7 @@ const ProductModal = ({
             </>
           ) : null}
 
-          {quickCreate?.type === "casing" ? (
-            <Form.Item
-              name="order"
-              label="اولویت نمایش"
-              rules={[{ required: true, message: "اولویت را وارد کنید" }]}
-            >
-              <InputNumber className="w-full" min={0} />
-            </Form.Item>
-          ) : null}
+
 
           {quickCreate?.type === "standard" ? (
             <>

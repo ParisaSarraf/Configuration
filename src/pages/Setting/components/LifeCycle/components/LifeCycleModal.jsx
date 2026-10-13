@@ -26,7 +26,7 @@ const LifeCycleModal = ({
       form.setFieldsValue({
         title: modalData.title,
         tag: modalData.tag,
-        order: modalData.order,
+
       });
     } else if (modalMode === "add") {
       form.resetFields();
@@ -37,7 +37,7 @@ const LifeCycleModal = ({
     const payload = {
       title: values.title,
       tag: values.tag,
-      order: values.order,
+      order: modalMode === "edit" ? (modalData?.order ?? 0) : 0,
     };
     try {
       if (modalMode === "add") {
@@ -82,12 +82,8 @@ const LifeCycleModal = ({
       >
         <Form form={form} layout="vertical" onFinish={onFinishForm}>
           <Row gutter={16}>
-            <Col span={6}>
-              <Form.Item name="order" label="اولویت نمایش">
-                <Input placeholder="اولویت نمایش" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
+
+            <Col span={18}>
               <Form.Item name="title" label="نام چرخه عمر محصول">
                 <Input placeholder="نام چرخه عمر محصول" />
               </Form.Item>

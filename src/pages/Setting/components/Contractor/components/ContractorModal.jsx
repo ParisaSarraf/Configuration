@@ -26,7 +26,7 @@ const ContractorModal = ({
         name: modalData.name,
         is_employer: modalData.is_employer,
         code: modalData.code,
-        order: modalData.order,
+
       });
     } else {
       form.resetFields();
@@ -38,7 +38,7 @@ const ContractorModal = ({
       name: values.name,
       is_employer: values.is_employer,
       code: values.code,
-      order: values.order,
+      order: modalMode === "edit" ? (modalData?.order ?? 0) : 0,
     };
     try {
       if (modalMode === "add") {
@@ -78,12 +78,8 @@ const ContractorModal = ({
       >
         <Form onFinish={onFinish} form={form} layout={"vertical"}>
           <Row gutter={[16, 4]}>
-            <Col span={12}>
-              <Form.Item name="order" label={"اولویت نمایش"}>
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
+
+            <Col span={24}>
               <Form.Item name="name" label={"نام"}>
                 <Input />
               </Form.Item>
