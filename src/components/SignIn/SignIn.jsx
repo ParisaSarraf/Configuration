@@ -1,8 +1,11 @@
 import { Form, Input, Button, Typography, message } from "antd";
-import { Suspense, useContext, useState } from "react";
+import { useContext, useState } from "react";
 import { MainContext } from "../../Services/Context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { SignInFn } from "../../Services/authService";
+
+import KineticGrid from "../KineticGrid/KineticGrid";
+import "./SignIn.css";
 
 const { Title, Paragraph } = Typography;
 
@@ -35,19 +38,21 @@ export function SignIn() {
   };
 
   return (
-    <section className="m-8 flex gap-4">
-      <div className="w-full lg:w-3/5 mt-24">
-        <div className="text-center">
-          <Title level={2} className="font-bold mb-4">
+    <section className="signin-page" dir="rtl" aria-labelledby="signin-title">
+      <KineticGrid />
+      <div className="signin-layout">
+      <div className="signin-card">
+        <div className="signin-heading">
+          <Title id="signin-title" level={2}>
             ورود
           </Title>
-          <Paragraph className="text-gray-600 text-lg">
+          <Paragraph>
             لطفا رمز عبور و نام کاربری خود را وارد کنید
           </Paragraph>
         </div>
 
         <Form
-          className="mt-8 mb-2 mx-auto w-80 max-w-screen-lg lg:w-1/2"
+          className="signin-form"
           onFinish={onFinish}
           layout="vertical"
         >
@@ -58,7 +63,7 @@ export function SignIn() {
               { required: true, message: "لطفا نام کاربری خود را وارد کنید" },
             ]}
           >
-            <Input size="large" placeholder="نام کاربری" className="w-full" />
+            <Input size="large" placeholder="نام کاربری" autoComplete="username" />
           </Form.Item>
 
           <Form.Item
@@ -71,7 +76,7 @@ export function SignIn() {
             <Input.Password
               size="large"
               placeholder="********"
-              className="w-full"
+              autoComplete="current-password"
             />
           </Form.Item>
 
@@ -79,30 +84,20 @@ export function SignIn() {
             {loading ? "" : "ورود"}
           </Button>
 
-          <div className="flex justify-between items-center mt-6">
-            <Button type="text" className="text-gray-900 hover:text-gray-600">
-              <Link to="/forget-password" className="text-gray-900 ml-1">
+          <div className="signin-forgot">
+            <Button type="text" className="signin-forgot-button">
+              <Link to="/forget-password" className="signin-link">
                 فراموشی رمز
               </Link>
             </Button>
           </div>
 
-          <Paragraph className="text-center text-gray-500 mt-4">
-            ثبت نام نیستید؟
-            <Link to="/auth/sign-up" className="text-gray-900 ml-1">
-              حساب کاربری بسازید
-            </Link>
-          </Paragraph>
         </Form>
       </div>
 
-      <div className="w-2/5 h-full hidden lg:block p-5">
-        <img
-          // src="assets/img/pattern.webp"
-          src="banner.jpg"
-          className="h-[calc(100vh-100px)] w-full object-cover rounded-3xl"
-          alt="Background pattern"
-        />
+      <figure className="signin-banner">
+        <img src="/banner.jpg" alt="گروه مهندسی صادق یکتا، دانش‌بنیان" width="640" height="1280" />
+      </figure>
       </div>
     </section>
   );
