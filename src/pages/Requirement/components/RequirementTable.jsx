@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { Button, ConfigProvider, Flex, Table, Tag, Tooltip } from "antd";
+import { useMemo, useState } from "react";
+import { ConfigProvider, Dropdown, Table, Tag } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import fa_IR from "antd/locale/fa_IR";
 import { useRequirementList } from "../../../QueryServises/requirementQuery";
@@ -9,6 +9,7 @@ import { normalizeRequirements } from "../utils";
 const RequirementTable = ({ setModal }) => {
     const { data: requirementList, isLoading } = useRequirementList();
     const { handleEdit, handleDelete } = useRequirementActions({ setModal });
+    const [contextRecord, setContextRecord] = useState(null);
 
     const dataSource = useMemo(() => normalizeRequirements(requirementList), [requirementList]);
 
@@ -40,34 +41,40 @@ const RequirementTable = ({ setModal }) => {
             key: "is_definable",
             render: (value) => (value ? <Tag color="green">بله</Tag> : <Tag>خیر</Tag>),
         },
-        {
-            title: "عملیات",
-            key: "actions",
-            render: (_, record) => (
-                <Flex gap={4}>
-                    <Tooltip title="ویرایش">
-                        <Button
-                            className="text-green-700 border-green-700"
-                            icon={<EditOutlined />}
-                            onClick={() => handleEdit(record)}
-                        >
-                            ویرایش
-                        </Button>
-                    </Tooltip>
-                    <Tooltip title="حذف">
-                        <Button danger icon={<DeleteOutlined />} onClick={() => handleDelete(record)}>
-                            حذف
-                        </Button>
-                    </Tooltip>
-                </Flex>
-            ),
-        },
+
     ];
 
     return (
         <div>
             <ConfigProvider direction="rtl" locale={fa_IR}>
+                <Dropdown
+                    trigger={["contextMenu"]}
+                    open={Boolean(contextRecord)}
+                    onOpenChange={(open) => { if (!open) setContextRecord(null); }}
+                    menu={{
+                        items: [
+                            { key: "edit", label: "ویرایش الزام", icon: <EditOutlined /> },
+                            { key: "delete", label: "حذف الزام", icon: <DeleteOutlined />, danger: true },
+                        ],
+                        onClick: ({ key }) => {
+                            if (!contextRecord) return;
+                            const record = contextRecord;
+                            setContextRecord(null);
+                            if (key === "edit") handleEdit(record);
+                            else if (key === "delete") handleDelete(record);
+                        },
+                    }}
+                >
+                <div onContextMenu={(event) => {
+                    if (!event.target.closest("tr[data-row-key]")) setContextRecord(null);
+                }}>
                 <Table
+                    onRow={(record) => ({
+                        onContextMenu: (event) => {
+                            event.preventDefault();
+                            setContextRecord(record);
+                        },
+                    })}
                     bordered
                     columns={columns}
                     dataSource={dataSource}
@@ -85,6 +92,8 @@ const RequirementTable = ({ setModal }) => {
                         rowExpandable: (record) => record.children && record.children.length > 0,
                     }}
                 />
+                </div>
+                </Dropdown>
             </ConfigProvider>
         </div>
     );
