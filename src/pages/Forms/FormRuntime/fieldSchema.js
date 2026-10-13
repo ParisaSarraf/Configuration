@@ -489,6 +489,7 @@ export const toMatrixColumns = (choices) =>
         type: column.type || "text",
         options: Array.isArray(column.options) ? column.options : [],
         width: column.width || "",
+        required: Boolean(column.required),
       };
     })
     .filter(Boolean);

@@ -334,3 +334,28 @@ body.fr-printing .fr-matrix-tools {
     display: none;
   }
 }
+
+/* Table constraints are reminders, not errors. */
+.fr-table-required { color: #a63a19; font-weight: 700; margin-inline-start: 4px; }
+.fr-table-advisory {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1px solid #e8c99a;
+  border-radius: 8px;
+  background: #fff8eb;
+  color: #72501e;
+  font-size: 14px;
+  line-height: 1.7;
+  text-align: right;
+  overflow-wrap: anywhere;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.fr-table-advisory ul { margin: 4px 0 0; padding-inline-start: 22px; }
+.fr-matrix-bar { flex-wrap: wrap; }
+@media print { .fr-table-advisory { display: none !important; } }
+body.fr-printing .fr-table-advisory { display: none !important; }
+/* Fixed-height form slots must not let long tables/warnings cover the next field. */
+.fr-slot:has(.fr-matrix), .fr-slot:has(.fr-table-advisory) { overflow: auto; }
+.fr-slot .fr-cell:has(> .fr-matrix) { box-sizing: border-box; }
+.fr-matrix > * { flex-shrink: 0; }

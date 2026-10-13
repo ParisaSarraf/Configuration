@@ -193,6 +193,7 @@ const gridToCells = (grid, byId) => {
       cell.type = base.type;
       if (base.name || base.key) cell.name = base.name || base.key;
     }
+    if (base.required != null) cell.required = Boolean(base.required);
     if (base.tall) cell.tall = true;
     if (base.placeholder) cell.placeholder = base.placeholder;
     if (Array.isArray(base.options) && base.options.length)
@@ -359,6 +360,25 @@ export default function SheetBuilder({ value, onChange, onSize }) {
     if (!selectedId) return;
     const nextById = cloneMap(byId);
     nextById.set(selectedId, { ...nextById.get(selectedId), ...patch });
+    emit(grid, nextById);
+  };
+
+  // Bulk actions only mark input cells. Headers/static labels are never required.
+  const axisInputIds = (axis, position) => {
+    const ids = axis === "row"
+      ? grid[position] || []
+      : grid.map((row) => row[position]);
+    return [...new Set(ids)].filter((id) => Boolean(byId.get(id)?.type));
+  };
+  const axisRequired = (axis, position) => {
+    const ids = axisInputIds(axis, position);
+    return ids.length > 0 && ids.every((id) => byId.get(id)?.required);
+  };
+  const setAxisRequired = (axis, position, required) => {
+    const nextById = cloneMap(byId);
+    axisInputIds(axis, position).forEach((id) => {
+      nextById.set(id, { ...nextById.get(id), required });
+    });
     emit(grid, nextById);
   };
 
@@ -579,7 +599,7 @@ export default function SheetBuilder({ value, onChange, onSize }) {
       )}
 
       <div className="sb-wrap">
-        <table className="sb-table">
+        <table className="sb-table" style={{ minWidth: Math.max(360, cols * 100 + 84) }}>
           <thead>
             <tr>
               <th className="sb-corner" />
@@ -589,6 +609,10 @@ export default function SheetBuilder({ value, onChange, onSize }) {
                     +
                   </button>
                   <span>{c + 1}</span>
+                  <label className="sb-required-axis" title="پاسخ این ستون اجباری؛ فقط هشدار">
+                    <input type="checkbox" aria-label={`ستون ${c + 1} اجباری (فقط هشدار)`} checked={axisRequired("column", c)} onChange={(event) => setAxisRequired("column", c, event.target.checked)} />
+                    <span>اجباری</span>
+                  </label>
                   <button
                     type="button"
                     className="sb-mini is-danger"
@@ -610,6 +634,10 @@ export default function SheetBuilder({ value, onChange, onSize }) {
                     +
                   </button>
                   <span>{r + 1}</span>
+                  <label className="sb-required-axis" title="پاسخ این سطر اجباری؛ فقط هشدار">
+                    <input type="checkbox" aria-label={`سطر ${r + 1} اجباری (فقط هشدار)`} checked={axisRequired("row", r)} onChange={(event) => setAxisRequired("row", r, event.target.checked)} />
+                    <span>اجباری</span>
+                  </label>
                   <button
                     type="button"
                     className="sb-mini is-danger"
@@ -654,7 +682,7 @@ export default function SheetBuilder({ value, onChange, onSize }) {
                         onFocus={() => setSelected({ r, c })}
                         onChange={(event) => setCellText(id, event.target.value)}
                       />
-                      <span className="sb-tag">{KIND_LABEL.get(kind)}</span>
+                      <span className="sb-tag">{KIND_LABEL.get(kind)}{cell.type && cell.required ? " *" : ""}</span>
                     </td>
                   );
                 })}
@@ -687,6 +715,16 @@ export default function SheetBuilder({ value, onChange, onSize }) {
               ))}
             </div>
           </div>
+
+          {Boolean(selectedCell.type) && (
+            <div className="sb-row">
+              <label className="sb-required-axis">
+                <input type="checkbox" checked={Boolean(selectedCell.required)} onChange={(event) => patchSelected({ required: event.target.checked })} />
+                پاسخ این خانه اجباری (فقط هشدار)
+              </label>
+            </div>
+          )}
+          <p className="sb-rule-note">اجباری‌بودن سطر یا ستون روی خانه‌های ورودی فعلی آن اعمال می‌شود؛ متن ثابت و سرستون شامل آن نیست. برای خانه‌های ادغام‌شده، کل خانه علامت می‌خورد. فقط یادآوری است و مانع ثبت یا ارجاع نیست.</p>
 
           <div className="sb-row">
             <span className="sb-row-label">چیدمان</span>

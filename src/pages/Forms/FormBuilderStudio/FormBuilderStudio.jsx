@@ -92,6 +92,7 @@ import {
   writeSectionBackground,
 } from "../FormRuntime/fieldSchema";
 import MatrixInput from "../FormRuntime/MatrixInput";
+import { readMatrixRequiredRows, writeMatrixRequiredRows } from "../FormRuntime/tableAdvisory";
 import { CHANGE_REQUEST_TEMPLATE } from "../FormRuntime/sampleChangeRequestForm";
 import FormLiveEditor from "../FormRuntime/FormLiveEditor";
 import { flowLayout, moveFieldTo } from "../FormRuntime/flowLayout";
@@ -279,6 +280,9 @@ const editorValues = (field) => {
               .join(", "),
           }))
         : [],
+    requiredRows: type === "matrix"
+      ? readMatrixRequiredRows(field.css_class).map((row) => ({ row }))
+      : [],
     structureText: STRUCTURED_TYPES.has(type)
       ? JSON.stringify(field.choices || [], null, 2)
       : "",
@@ -1044,6 +1048,8 @@ function Studio({ formDefinitionId }) {
             ),
             label: String(col.label).trim(),
             type: col.type || "text",
+            width: col.width || "",
+            required: Boolean(col.required),
             ...(col.type === "select"
               ? {
                   options: toChoiceObjects(
@@ -1073,6 +1079,8 @@ function Studio({ formDefinitionId }) {
         ),
         choices,
       };
+      next.css_class = writeMatrixRequiredRows(next.css_class, isMatrix ? values.requiredRows || [] : []);
+      delete next.requiredRows;
       delete next.sectionBackground;
       delete next.choiceList;
       delete next.columns;
@@ -1250,8 +1258,9 @@ function Studio({ formDefinitionId }) {
       </div>
       <Drawer
         title="ویرایش ویژگی‌های فیلد"
+        rootClassName="studio-field-drawer"
         placement="right"
-        width={520}
+        width="min(520px, 100vw)"
         open={Boolean(editing)}
         onClose={closeEditor}
         destroyOnClose
@@ -1490,10 +1499,11 @@ function Studio({ formDefinitionId }) {
           )}
 
           {editing && activeType === "matrix" && (
+            <>
             <Form.Item
               label="ستون‌های جدول"
               required
-              extra="ستون‌ها را شما می‌سازید؛ کاربر هنگام تکمیل فرم، ردیف‌ها را اضافه و پر می‌کند."
+              extra="اجباری‌بودن ستون‌ها و سطرها فقط علامت و هشدار دارد؛ ثبت یا ارجاع درخواست مسدود نمی‌شود."
             >
               <Form.List name="columns">
                 {(columnFields, { add: addColumn, remove: removeColumn }) => (
@@ -1541,6 +1551,13 @@ function Studio({ formDefinitionId }) {
                             />
                           </Col>
                         </Row>
+                        <Form.Item
+                          name={[columnField.name, "required"]}
+                          valuePropName="checked"
+                          label="پاسخ این ستون اجباری (فقط هشدار)"
+                        >
+                          <Switch />
+                        </Form.Item>
                         <Form.Item shouldUpdate noStyle>
                           {({ getFieldValue }) =>
                             getFieldValue([
@@ -1574,6 +1591,26 @@ function Studio({ formDefinitionId }) {
                 )}
               </Form.List>
             </Form.Item>
+            <Form.Item label="سطرهای اجباری (فقط هشدار)" extra="همهٔ خانه‌های سطر انتخابی اجباری علامت می‌خورند. شماره‌ها از ۱ شروع می‌شوند و بعد از حذف ردیف بر اساس ترتیب فعلی هستند؛ هیچ محدودیتی جلوی کاربر را نمی‌گیرد.">
+              <Form.List name="requiredRows">
+                {(rowFields, { add: addRequiredRow, remove: removeRequiredRow }) => (
+                  <div>
+                    {rowFields.map((rowField) => (
+                      <Row key={rowField.key} gutter={8} align="middle">
+                        <Col flex="auto">
+                          <Form.Item name={[rowField.name, "row"]} rules={[{ required: true, message: "شماره سطر را وارد کنید" }]}>
+                            <InputNumber min={1} precision={0} placeholder="شماره سطر" style={{ width: "100%" }} />
+                          </Form.Item>
+                        </Col>
+                        <Col><Button type="text" danger icon={<Trash2 size={14} />} aria-label="حذف تعریف سطر اجباری" onClick={() => removeRequiredRow(rowField.name)} /></Col>
+                      </Row>
+                    ))}
+                    <Button type="dashed" block icon={<Plus size={14} />} onClick={() => addRequiredRow({})}>افزودن سطر اجباری</Button>
+                  </div>
+                )}
+              </Form.List>
+            </Form.Item>
+            </>
           )}
 
           <Row
@@ -1610,7 +1647,7 @@ function Studio({ formDefinitionId }) {
                 name="min_value"
                 label={
                   hasPanel(activeType, "matrix")
-                    ? "حداقل تعداد ردیف"
+                    ? "حداقل تعداد ردیف (فقط هشدار)"
                     : "کمترین مقدار"
                 }
               >
@@ -1624,7 +1661,7 @@ function Studio({ formDefinitionId }) {
                   hasPanel(activeType, "rating")
                     ? "بیشترین ستاره (۱ تا ۱۰)"
                     : hasPanel(activeType, "matrix")
-                      ? "حداکثر تعداد ردیف"
+                      ? "حداکثر تعداد ردیف (فقط هشدار)"
                       : "بیشترین مقدار"
                 }
               >

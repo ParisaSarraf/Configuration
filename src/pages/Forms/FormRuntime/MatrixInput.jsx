@@ -11,6 +11,7 @@
 // =====================================================================
 
 import { toMatrixColumns } from "./fieldSchema";
+import { matrixAdvisories, readMatrixRequiredRows } from "./tableAdvisory";
 import { toOptions } from "./formElements";
 import DateField from "./DateField";
 import { checkboxValue, textInputValue } from "./inputIdentity";
@@ -83,18 +84,20 @@ export default function MatrixInput({
 }) {
   const columns = toMatrixColumns(field?.choices);
   const minRows = Math.max(Number(field?.min_value) || 0, 0);
-  const maxRows = Number(field?.max_value) || 0;
+  const maxRows = Math.max(Number(field?.max_value) || 0, 0);
+  const requiredRows = readMatrixRequiredRows(field?.css_class);
 
   const stored = Array.isArray(value) ? value : [];
   // در حالت طراحی/چاپ، چند ردیف خالی نشان می‌دهیم تا شکل جدول دیده شود.
-  const placeholderCount = Math.max(minRows || 2, 1);
+  const placeholderCount = Math.min(Math.max(minRows || 2, 1), 20);
   const rows =
     stored.length || !readOnly
       ? stored
       : Array.from({ length: placeholderCount }, () => emptyRow(columns));
 
-  const canAdd = !readOnly && (!maxRows || rows.length < maxRows);
-  const canRemove = !readOnly && rows.length > minRows;
+  const canAdd = !readOnly;
+  const canRemove = !readOnly;
+  const warnings = readOnly ? [] : matrixAdvisories(field, stored, columns);
 
   const commit = (next) => onChange?.(next);
 
@@ -130,6 +133,7 @@ export default function MatrixInput({
                 style={column.width ? { width: column.width } : undefined}
               >
                 {column.label}
+                {column.required && <span className="fr-table-required" title="پاسخ اجباری؛ فقط هشدار"> *</span>}
               </th>
             ))}
             {!readOnly && <th className="fr-head fr-matrix-tools fr-no-print" />}
@@ -148,7 +152,10 @@ export default function MatrixInput({
           )}
           {rows.map((row, index) => (
             <tr key={`matrix-row-${index}`}>
-              <td className="fr-center fr-matrix-index">{index + 1}</td>
+              <td className="fr-center fr-matrix-index">
+                {index + 1}
+                {requiredRows.includes(index + 1) && <span className="fr-table-required" title="سطر اجباری؛ فقط هشدار"> *</span>}
+              </td>
               {columns.map((column) => (
                 <td
                   key={column.value}
@@ -198,6 +205,12 @@ export default function MatrixInput({
           <span className="fr-matrix-count">حداقل {minRows} ردیف</span>
         )}
       </div>
+      {warnings.length > 0 && (
+        <div className="fr-table-advisory fr-no-print" role="status">
+          <strong>یادآوری جدول — مانع ثبت یا ارجاع نیست</strong>
+          <ul>{warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul>
+        </div>
+      )}
     </div>
   );
 }

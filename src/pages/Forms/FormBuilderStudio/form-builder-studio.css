@@ -450,3 +450,9 @@
   border: 1px solid #eef2f6;
   border-radius: 8px;
 }
+
+/* Keep table requirement controls reachable on narrow screens. */
+.studio-field-drawer .ant-drawer-content-wrapper {
+  max-width: 100vw;
+  box-sizing: border-box;
+}

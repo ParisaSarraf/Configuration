@@ -259,17 +259,8 @@ export const validateField = (field, value) => {
   // فعلی را متوقف کند. محدودیت‌های فرمت فقط وقتی مقدار وارد شده بررسی می‌شوند.
   if (isEmpty(value)) return "";
 
-  // جدول پرشدنی: محدودیت روی تعداد ردیف است، نه طول متن
-  if (type === "matrix") {
-    const rows = Array.isArray(value) ? value : [];
-    const minRows = Number(field.min_value) || 0;
-    const maxRows = Number(field.max_value) || 0;
-    if (minRows && rows.length < minRows)
-      return `حداقل ${minRows} ردیف باید تکمیل شود.`;
-    if (maxRows && rows.length > maxRows)
-      return `حداکثر ${maxRows} ردیف مجاز است.`;
-    return "";
-  }
+  // Table requirements and row-count limits are advisory, never submission errors.
+  if (type === "matrix") return "";
 
   // جدول ثابت سند: اعتبارسنجی در سطح سلول انجام می‌شود
   if (type === "sheet_table") return "";

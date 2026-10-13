@@ -7,6 +7,7 @@ import { useId } from "react";
 import { parseSheet, toOptions } from "./formElements";
 import { checkboxValue, textInputValue } from "./inputIdentity";
 import DateField from "./DateField";
+import { isTableAnswerEmpty } from "./tableAdvisory";
 
 function CellInput({ cell, values, onChange, readOnly }) {
   const radioGroupId = useId();
@@ -119,8 +120,10 @@ function CellInput({ cell, values, onChange, readOnly }) {
 
 export default function SheetTable({ field, values, onChange, readOnly = false }) {
   const { matrix } = parseSheet(field);
+  const missing = readOnly ? [] : matrix.flat().filter((cell) => cell.type && cell.required && isTableAnswerEmpty(values?.[cell.name || cell.key], cell.type));
 
   return (
+    <>
     <table className="fr-sheet">
       <tbody>
         {matrix.map((row, rowIndex) => (
@@ -142,6 +145,7 @@ export default function SheetTable({ field, values, onChange, readOnly = false }
                   colSpan={cell.cs > 1 ? cell.cs : undefined}
                   rowSpan={cell.rs > 1 ? cell.rs : undefined}
                 >
+                  {cell.type && cell.required && <span className="fr-table-required" title="پاسخ اجباری؛ فقط هشدار">*</span>}
                   {cell.type ? (
                     <CellInput
                       cell={cell}
@@ -159,5 +163,12 @@ export default function SheetTable({ field, values, onChange, readOnly = false }
         ))}
       </tbody>
     </table>
+    {missing.length > 0 && (
+      <div className="fr-table-advisory fr-no-print" role="status">
+        <strong>یادآوری جدول — مانع ثبت یا ارجاع نیست</strong>
+        <ul>{missing.map((cell) => <li key={cell.key}>پاسخ خانهٔ سطر {cell.r + 1}، ستون {cell.c + 1} تکمیل نشده است.</li>)}</ul>
+      </div>
+    )}
+    </>
   );
 }

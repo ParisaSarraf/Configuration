@@ -1,5 +1,6 @@
 import { DISPLAY_ONLY, resolveType } from "./fieldSchema";
 import { MULTI_TYPES, parseSheet } from "./formElements";
+import { readMatrixRequiredRows } from "./tableAdvisory";
 import { checkboxValue, objectInputValue } from "./inputIdentity";
 import {
   jalaliDateTimeToGeorgianDateTime,
@@ -98,7 +99,8 @@ export const normalizeValue = (field, raw) => {
           return { ...acc, [key]: cell };
         }, {}),
       )
-      .filter((row) => Object.keys(row).length > 0);
+      // Keep positions of empty rows when per-row advisory rules are defined.
+      .filter((row) => readMatrixRequiredRows(field.css_class).length > 0 || Object.keys(row).length > 0);
 
     // Backend currently validates MATRIX with DictField(child=CharField).
     // Keep each UI row as JSON text under its numeric row index so no data is
