@@ -8,7 +8,7 @@ const SystemEngineerCols = ({handleDelete, handleEdit}) => {
             title: 'نام حوزه', dataIndex: ['precinct', 'title'], key: 'precinct'
         },
         {
-            title: 'شرح فعالیت',
+            title: 'عنوان', 
             dataIndex: 'title',
             key: 'title'
         },
@@ -29,7 +29,7 @@ const SystemEngineerCols = ({handleDelete, handleEdit}) => {
             key: 'user'
         },
         {
-            title: 'توضیحات',
+            title: 'شرح',
             dataIndex: 'description',
             key: 'description'
         },
