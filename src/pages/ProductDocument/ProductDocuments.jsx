@@ -143,6 +143,7 @@ const ProductDocuments = () => {
       />
 
       <EditionDetailViewModal
+        productId={currentProduct?.id}
         isOpen={modalType === "EditionDetailView" && isOpen}
         modalMode={modalMode}
         modalType={modalType}
@@ -151,6 +152,7 @@ const ProductDocuments = () => {
       />
 
       <DetailModal
+        productId={currentProduct?.id}
         isOpen={modalType === "EditionDetail" && isOpen}
         modalMode={modalMode}
         modalData={modalData}

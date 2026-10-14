@@ -50,27 +50,14 @@ export const getAuthDataFromToken = (token) => {
     accessible_pages: Array.isArray(data.accessible_pages)
       ? data.accessible_pages
       : [],
-    view_unaccepted_version: data.view_unaccepted_version ?? false,
   };
 };
 
 export const hasPageAccess = (page, token) =>
   getAuthDataFromToken(token)?.accessible_pages.includes(page) ?? false;
 
-export const canViewUnacceptedVersion = (token) =>
-  getAuthDataFromToken(token)?.view_unaccepted_version === true;
-
-export const canViewDocumentFiles = (state, token, surveyDate) => {
-  const hasUnacceptedAccess = canViewUnacceptedVersion(token);
-  const reviewDate = surveyDate ? new Date(surveyDate) : null;
-  const today = new Date();
-  reviewDate?.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-  const isExpired = reviewDate ? reviewDate < today : false;
-
-  if (isExpired && !hasUnacceptedAccess) return false;
-  return Number(state) === 40 || hasUnacceptedAccess;
-};
+// Compatibility exports: document permissions now come from the API, not JWT.
+export { canViewUnacceptedVersion, canViewDocumentFiles } from "../Services/productDocuments/fileAccess";
 
 export const isTokenExpired = (token) => {
   const expiration = getTokenField("exp", null, token);

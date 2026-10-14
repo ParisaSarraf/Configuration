@@ -1,9 +1,8 @@
 import { Button, Image, Upload } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { useEffect, useMemo, useState } from "react";
-import { canViewDocumentFiles } from "@/utils/ExportFromToken.js";
 
-const FileUploader = ({ value = [], onChange, maxFiles = 1, documentState }) => {
+const FileUploader = ({ value = [], onChange, maxFiles = 1, documentState, documentFileAccess }) => {
   const [fileList, setFileList] = useState([]);
 
   const normalizedValue = useMemo(() => {
@@ -44,7 +43,7 @@ const FileUploader = ({ value = [], onChange, maxFiles = 1, documentState }) => 
       reader.readAsDataURL(file);
     });
 
-  const isRestricted = (file) => Boolean(file.url) && !canViewDocumentFiles(documentState);
+  const isRestricted = (file) => Boolean(file.url) && (documentFileAccess !== undefined || documentState !== undefined) && documentFileAccess !== true;
 
   const handlePreview = async (file) => {
     if (isRestricted(file)) return; 
@@ -68,6 +67,12 @@ const FileUploader = ({ value = [], onChange, maxFiles = 1, documentState }) => 
         onChange={handleChange}
         onPreview={handlePreview}
         beforeUpload={() => false}
+        itemRender={(originNode, file, _list, actions) => isRestricted(file) ? (
+          <div style={{ padding: 8, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <bdi>{file.name}</bdi>
+            <Button style={{ minHeight: 44 }} onClick={actions.remove}>حذف از فهرست</Button>
+          </div>
+        ) : originNode}
       >
         {fileList.length < maxFiles && (
           <Button icon={<UploadOutlined />}>آپلود فایل</Button>
@@ -85,7 +90,7 @@ const FileUploader = ({ value = [], onChange, maxFiles = 1, documentState }) => 
             />
           )}
           {isRestricted(file) && (
-            <div style={{ marginTop: 10, color: "#999" }}>
+            <div style={{ marginTop: 10, color: "#64748b" }}>
               شما اجازه مشاهده این فایل را ندارید
             </div>
           )}

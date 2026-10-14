@@ -21,7 +21,7 @@ import {
   georgianDateTimeToJalaliDateTime,
 } from "@utils/timeTool.jsx";
 import { useAllLogs } from "@/hooks/useAllLogs.js";
-import { canViewDocumentFiles } from "@/utils/ExportFromToken.js";
+import useDocumentFileAccess from "@/hooks/useDocumentFileAccess";
 
 const getWorkflowUserName = (user) =>
   [user?.name, user?.last_name].filter(Boolean).join(" ") ||
@@ -435,6 +435,7 @@ const CombineFiles = ({
   refetch,
   modalType,
   currentProduct,
+  productId,
 }) => {
   const [form] = Form.useForm();
   const [currentState, setCurrentState] = useState(null);
@@ -446,6 +447,8 @@ const CombineFiles = ({
       ? modalData?.editions?.[0]
       : modalData;
   const editionId = editionRecord?.id;
+  const fileAccess = useDocumentFileAccess(productId ?? currentProduct?.id, isOpen);
+  const canOpenEditionFiles = fileAccess.canViewEdition(editionId, currentState);
   const productDocumentId =
     editionRecord?.product_document_id?.id ??
     editionRecord?.product_document_id ??
@@ -662,7 +665,7 @@ const CombineFiles = ({
       );
       setCurrentState(prevState);
       setComment("");
-      await refetchLogs();
+      await Promise.all([refetchLogs(), fileAccess.query.refetch()]);
     } catch (error) {
       console.error(error);
       message.error(error?.response?.data?.detail || "خطا در بازگردانی مرحله");
@@ -672,7 +675,7 @@ const CombineFiles = ({
   const renderFiles = () => {
     if (!modalData) return <div>در حال بارگذاری...</div>;
 
-    if (!canViewDocumentFiles(currentState)) {
+    if (!canOpenEditionFiles) {
       return <div>شما اجازه مشاهده این فایل‌ها را ندارید</div>;
     }
 
@@ -752,22 +755,22 @@ const CombineFiles = ({
           <Row gutter={16}>
             <Col span={6}>
               <Form.Item label={"فایل غیرقابل ویرایش"} name="file_1">
-                <FileUploader maxCount={1} documentState={currentState} />
+                <FileUploader maxCount={1} documentState={currentState} documentFileAccess={canOpenEditionFiles} />
               </Form.Item>
             </Col>
             <Col span={6}>
               <Form.Item label={"قابل ویرایش"} name="file_2">
-                <FileUploader maxCount={1} documentState={currentState} />
+                <FileUploader maxCount={1} documentState={currentState} documentFileAccess={canOpenEditionFiles} />
               </Form.Item>
             </Col>
             <Col span={6}>
               <Form.Item label={"فایل پشتیبان تولید"} name="file_3">
-                <FileUploader maxCount={1} documentState={currentState} />
+                <FileUploader maxCount={1} documentState={currentState} documentFileAccess={canOpenEditionFiles} />
               </Form.Item>
             </Col>
             <Col span={6}>
               <Form.Item label={"ارسال به کارفرما/پیمانکار"} name="file_4">
-                <FileUploader maxCount={1} documentState={currentState} />
+                <FileUploader maxCount={1} documentState={currentState} documentFileAccess={canOpenEditionFiles} />
               </Form.Item>
             </Col>
           </Row>

@@ -1,3 +1,4 @@
+import useDocumentFileAccess from "@/hooks/useDocumentFileAccess";
 import { PlusOutlined } from "@ant-design/icons";
 import { Button, Col, Form, Input, message, Row, TreeSelect } from "antd";
 import Modal from "../../../../../components/Modal/index.jsx";
@@ -24,8 +25,12 @@ const AddProductDocumentListSerialLogModal = ({
   serialId,
   refetchSerialId,
   serialLabel,
+  currentProduct,
 }) => {
   const [form] = Form.useForm();
+  const selectedEditionId = Form.useWatch("document_edition_id", form);
+  const fileAccess = useDocumentFileAccess(currentProduct?.id, isOpen);
+  const selectedEdition = fileAccess.index.get(String(selectedEditionId));
   const { data: documentList, isLoading } =
     useAvailableProductEditionList(serialId);
   const { mutateAsync: createProductEditionlog } = useCreateProductEditionlog();
@@ -37,7 +42,7 @@ const AddProductDocumentListSerialLogModal = ({
     }
     if (modalMode === "edit" && modalData) {
       form.setFieldsValue({
-        document_edition_id: modalData?.data?.product_document_edition?.edition,
+        document_edition_id: modalData?.data?.product_document_edition?.id ?? modalData?.data?.product_document_edition?.edition,
         survey_date: georgianDateToJalaliDate(modalData?.data?.survey_date),
         file: modalData?.data?.file
           ? [
@@ -150,7 +155,7 @@ const AddProductDocumentListSerialLogModal = ({
             </Col>
             <Col span={24}>
               <Form.Item label="بارگذاری فایل" name="file">
-                <FileUploader maxCount={1} documentState={modalData?.editionData?.state ?? modalData?.data?.product_document_edition?.state} />
+                <FileUploader maxCount={1} documentState={selectedEdition?.state} documentFileAccess={fileAccess.canViewEdition(selectedEditionId, selectedEdition?.state)} />
               </Form.Item>
             </Col>
           </Row>

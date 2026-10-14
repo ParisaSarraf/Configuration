@@ -3,7 +3,7 @@ import { Badge, Image, message, Space } from "antd";
 import { CopyOutlined, FileOutlined } from "@ant-design/icons";
 import { BASEURL } from "@/Services/axiosInstance.js";
 import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
-import { canViewDocumentFiles } from "@/utils/ExportFromToken.js";
+import useDocumentFileAccess from "@/hooks/useDocumentFileAccess";
 
 export const renderFileButton = (
   label,
@@ -11,13 +11,15 @@ export const renderFileButton = (
   accessCheckRequired = false,
   documentState,
   surveyDate,
+  documentFileAccess = false,
 ) => {
   if (!filePath) return <div className="text-gray-400">فایلی وجود ندارد</div>;
   const fullUrl = `${BASEURL.replace("/api/v1", "")}${filePath}`;
   const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(filePath);
   const canOpenFile =
     !accessCheckRequired ||
-    canViewDocumentFiles(documentState, undefined, surveyDate);
+    documentFileAccess === true;
+  if (!canOpenFile) return <div role="status" className="text-gray-500">شما اجازه مشاهده یا دانلود این فایل را ندارید</div>;
   const handleFileClick = (event) => {
     if (canOpenFile) return;
     event.preventDefault();
@@ -68,7 +70,11 @@ const DetailModal = ({
   modalData,
   closeModal,
   modalType,
+  productId,
 }) => {
+  const documentEdition = modalType === "SpecificEditionDetail" ? modalData?.editions?.[0] : modalData;
+  const fileAccess = useDocumentFileAccess(productId, isOpen && ["SpecificEditionDetail", "EditionDetail"].includes(modalType));
+  const canOpenEditionFiles = fileAccess.canViewEdition(documentEdition?.id, documentEdition?.state, documentEdition?.survey_date);
   if (!modalData) return null;
 
   const getStateInfo = (state) => {
@@ -319,6 +325,7 @@ const DetailModal = ({
                     true,
                     editionData.state,
                     editionData.survey_date,
+                    canOpenEditionFiles,
                   )}
                 </h1>
                 <h1>
@@ -329,6 +336,7 @@ const DetailModal = ({
                     true,
                     editionData.state,
                     editionData.survey_date,
+                    canOpenEditionFiles,
                   )}
                 </h1>
                 <h1>
@@ -339,6 +347,7 @@ const DetailModal = ({
                     true,
                     editionData.state,
                     editionData.survey_date,
+                    canOpenEditionFiles,
                   )}
                 </h1>
                 <h1>
@@ -349,6 +358,7 @@ const DetailModal = ({
                     true,
                     editionData.state,
                     editionData.survey_date,
+                    canOpenEditionFiles,
                   )}
                 </h1>
               </SectionCard>
@@ -391,6 +401,7 @@ const DetailModal = ({
                     true,
                     editionData.state,
                     editionData.survey_date,
+                    canOpenEditionFiles,
                   )}
                 </h1>
                 <h1>
@@ -401,6 +412,7 @@ const DetailModal = ({
                     true,
                     editionData.state,
                     editionData.survey_date,
+                    canOpenEditionFiles,
                   )}
                 </h1>
                 <h1>
@@ -411,6 +423,7 @@ const DetailModal = ({
                     true,
                     editionData.state,
                     editionData.survey_date,
+                    canOpenEditionFiles,
                   )}
                 </h1>
                 <h1>
@@ -421,6 +434,7 @@ const DetailModal = ({
                     true,
                     editionData.state,
                     editionData.survey_date,
+                    canOpenEditionFiles,
                   )}
                 </h1>
               </SectionCard>

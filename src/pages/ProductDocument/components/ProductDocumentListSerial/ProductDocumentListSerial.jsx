@@ -19,12 +19,12 @@ import {
 import { DeleteOutlined, EyeFilled, CheckCircleOutlined } from "@ant-design/icons";
 import { BASEURL } from "@/Services/axiosInstance.js";
 import { TableAntd } from "../../../../components/TableAntd/TableAntd";
-import { canViewDocumentFiles } from "@/utils/ExportFromToken.js";
+import useDocumentFileAccess from "@/hooks/useDocumentFileAccess";
 
 const showAccessError = () =>
   message.error("شما اجازه مشاهده این فایل را ندارید");
 
-const DocumentsTable = ({ documents, onDelete, onView, onConfirm }) => {
+const DocumentsTable = ({ documents, onDelete, onView, onConfirm, canViewEdition }) => {
   const documentData = useMemo(() => {
     const flatData = [];
 
@@ -95,13 +95,13 @@ const DocumentsTable = ({ documents, onDelete, onView, onConfirm }) => {
         dataIndex: ["logData", "file"],
         key: "log_file",
         render: (fileUrl, record) =>
-          fileUrl ? (
+          fileUrl && !canViewEdition(record.editionData?.id, record.editionData?.state) ? "شما اجازه مشاهده این فایل را ندارید" : fileUrl ? (
             <a
               href={`${BASEURL.replace("/api/v1", "")}${fileUrl}`}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(event) => {
-                if (!canViewDocumentFiles(record.editionData?.state)) {
+                if (!canViewEdition(record.editionData?.id, record.editionData?.state)) {
                   event.preventDefault();
                   showAccessError();
                 }
@@ -149,7 +149,7 @@ const DocumentsTable = ({ documents, onDelete, onView, onConfirm }) => {
           ) : null,
       },
     ],
-    [onDelete, onView, onConfirm],
+    [onDelete, onView, onConfirm, canViewEdition],
   );
 
   return (
@@ -172,6 +172,7 @@ const ProductDocumentListSerial = ({
   setModal,
   setSerialLabel,
 }) => {
+  const fileAccess = useDocumentFileAccess(currentProduct?.id);
   const { data: ProductSerialList } = useProductSerialById(currentProduct?.id);
   const { mutateAsync: deleteProductEditionlog } = useDeleteProductEditionlog();
   const { mutateAsync: updateDocumentState } = usePatchDocumentEditionLog();
@@ -286,6 +287,7 @@ const ProductDocumentListSerial = ({
     (productRecord) => (
       <DocumentsTable
         documents={productRecord.documents}
+        canViewEdition={fileAccess.canViewEdition}
         onDelete={handleDeleteLogEdition}
         onView={handleShowDetailEdiotnLog}
         onConfirm={handleConfirmDocument}
@@ -296,6 +298,7 @@ const ProductDocumentListSerial = ({
       handleDeleteLogEdition,
       handleShowDetailEdiotnLog,
       handleConfirmDocument,
+      fileAccess.canViewEdition,
     ],
   );
 
