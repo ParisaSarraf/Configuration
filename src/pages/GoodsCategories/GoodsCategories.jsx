@@ -171,7 +171,7 @@ const GoodsCategories = () => {
               مدیریت یکپارچه محصول
             </h1>
             <p className="text-slate-400 text-sm mt-1 font-medium">
-             مهندسی سیستم و یکپارچه سازی روال ها
+              پنل نظارت و کنترل فرآیندهای سیستمی
             </p>
           </div>
 

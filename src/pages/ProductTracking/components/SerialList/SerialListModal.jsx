@@ -6,6 +6,7 @@ import {
   useUpdateProductSerial,
 } from "@/QueryServises/productSerialQuery/index.js";
 import { useEffect } from "react";
+import { normalizeContractorSearch } from "./contractorSearch";
 import {
   georgianDateToJalaliDate,
   jalaliDateToGeorgianDate,
@@ -35,14 +36,11 @@ const SerialListModal = ({
   
   useEffect(() => {
     if (modalMode === "edit" && modalData) {
-        const contractorData = modalData.contractor
-        ? { value: modalData.contractor.id, label: modalData.contractor.name }
-        : null;
       form.setFieldsValue({
         serial: modalData?.serial,
         product_id: modalData?.product_id,
         parent_id: modalData?.parent_id,
-        contractor_id: contractorData,
+        contractor_id: modalData.contractor?.id ?? null,
         date: georgianDateToJalaliDate(modalData?.date),
       });
     } else {
@@ -95,7 +93,7 @@ const SerialListModal = ({
     >
       <Form form={form} layout="vertical" onFinish={onFinish}>
         <Row gutter={16}>
-          <Col span={8}>
+          <Col xs={24} sm={8}>
             <Form.Item
               name="serial"
               label="سریال"
@@ -109,7 +107,7 @@ const SerialListModal = ({
               <Input placeholder="سریال" />
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col xs={24} sm={8}>
             <Form.Item name="parent_id" label="سریال های شاخه والد">
               <Select
                 options={
@@ -123,9 +121,16 @@ const SerialListModal = ({
               />
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col xs={24} sm={8}>
             <Form.Item name="contractor_id" label="نام کارفرما">
               <Select
+                showSearch
+                optionFilterProp="label"
+                filterOption={(input, option) =>
+                  normalizeContractorSearch(option?.label).includes(
+                    normalizeContractorSearch(input)
+                  )
+                }
                 options={
                   employersData?.map((item) => ({
                     label: item.name,
@@ -137,7 +142,7 @@ const SerialListModal = ({
               />
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col xs={24} sm={8}>
             <Date name="date" label="تاریخ سریال" stringifyDate isRequired />
           </Col>
         </Row>
