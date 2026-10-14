@@ -1,4 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { currentSignatureActor } from "@/pages/Forms/FormRuntime/signatureValue";
+import { finalizeReferralSignatures, signatureLocations } from "@/pages/Forms/FormRuntime/referralSignatures";
+import { referThenSign, verifySignatureSave } from "@/pages/Forms/FormRuntime/referralSignatureSave";
+import { getUserFromToken } from "@/utils/ExportFromToken";
+import { BASEURL } from "@/Services/axiosInstance";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Alert, App, Button, Empty, Select, Skeleton } from "antd";
 import {
   CalendarOutlined,
@@ -262,6 +267,9 @@ const MetaItem = ({ icon, label, value }) => (
 
 export const RequestWorkPanel = ({ record, onCompleted }) => {
   const { message } = App.useApp();
+  const inFlight = useRef(false);
+  const [referralResult, setReferralResult] = useState(null);
+  const [signatureRetrying, setSignatureRetrying] = useState(false);
   const formQuery = useFormDefinitionFieldById(record.formDefinitionId, {
     enabled: Boolean(record.formDefinitionId && record.submissionId),
   });
@@ -334,13 +342,17 @@ export const RequestWorkPanel = ({ record, onCompleted }) => {
   );
 
   const pending =
+    signatureRetrying ||
     updateSubmission.isPending ||
     uploadAttachments.isPending ||
     doAction.isPending;
 
   const saveAndRefer = async (values, selectedAction) => {
-    if (!selectedAction?.actionId) return;
+    if (!selectedAction?.actionId || inFlight.current || referralResult) return;
+    inFlight.current = true;
+    let actionSucceeded = false;
     try {
+      const actor = currentSignatureActor(getUserFromToken(), BASEURL);
       const fileProblems = validateFiles(fields, values);
       if (fileProblems.length) {
         message.error(fileProblems[0]);
@@ -389,19 +401,48 @@ export const RequestWorkPanel = ({ record, onCompleted }) => {
           );
       }
 
-      await doAction.mutateAsync({
-        request_id: Number(record.requestId),
-        action_id: Number(selectedAction.actionId),
+      const graph = buildGraph(processInfoQuery.data, [], processLocksQuery.data);
+      const stageFieldIds = graph?.nodes?.find((node) => String(node.id) === String(record.currentStateId))?.lockedFieldIds || [];
+      const result = await referThenSign({
+        refer: async () => {
+          await doAction.mutateAsync({ request_id: Number(record.requestId), action_id: Number(selectedAction.actionId) });
+          actionSucceeded = true;
+          setReferralResult({ referred: true });
+        },
+        prepare: () => {
+          const signed = finalizeReferralSignatures({ fields, values, actor, lockedFieldIds, stageFieldIds,
+            meta: { event_key: `${record.requestId}:${record.currentStateId}:${selectedAction.actionId}:${Date.now()}`, request_id: record.requestId, state_id: record.currentStateId, state_name: record.stateName, action_id: selectedAction.actionId } });
+          return signed.count ? { count: signed.count, formData: { ...formData, ...buildFormData(fields, signed.values, { includeFiles: false }) } } : null;
+        },
+        persist: (prepared) => updateSubmission.mutateAsync({ id: record.submissionId, payload: { form_data: prepared.formData } }),
       });
+      setReferralResult(result);
+      if (result.signatureError) {
+        message.warning("ارجاع انجام شد، ولی ذخیرهٔ امضا ناموفق بود. فقط ذخیرهٔ امضا را دوباره امتحان کنید؛ ارجاع تکرار نمی‌شود.");
+        return;
+      }
+      if (signatureLocations(fields).length && !result.signatureCount)
+        message.warning(actor ? "ارجاع انجام شد، اما محل امضای این مرحله انتخاب نشده بود؛ امضا ثبت نشد." : "ارجاع انجام شد، اما تصویر امضای کاربر در حساب فعلی موجود نیست؛ امضا ثبت نشد.");
+      if (result.signatureCount && !result.verified) message.warning("امضا ارسال شد، ولی بازخوانی آن از سرور تأیید نشد.");
       message.success(
         `${hasFormData ? "فرم ذخیره شد و " : ""}درخواست با عملیات «${selectedAction.label}» به «${selectedAction.nextStateName || "مرحله بعد"}» ارجاع شد.`,
       );
       await onCompleted?.();
     } catch (error) {
-      message.error(
-        getApiErrorMessage(error, "ذخیره اطلاعات یا ارجاع درخواست انجام نشد."),
-      );
-    }
+      message.error(actionSucceeded ? "ارجاع انجام شد؛ تازه‌سازی نمایش انجام نشد. ارجاع را تکرار نکنید." : getApiErrorMessage(error, "ذخیره اطلاعات یا ارجاع درخواست انجام نشد."));
+    } finally { inFlight.current = false; }
+  };
+  const retrySignature = async () => {
+    if (!referralResult?.signatureError || signatureRetrying) return;
+    setSignatureRetrying(true);
+    try {
+      const result = verifySignatureSave(await updateSubmission.mutateAsync({ id: record.submissionId, payload: { form_data: referralResult.prepared.formData } }));
+      setReferralResult({ ...referralResult, signatureError: null, signatureCount: referralResult.prepared.count });
+      message.success("امضای ارجاع قبلی ذخیره شد؛ ارجاع دوباره اجرا نشد.");
+      if (!result?.verification?.checked) message.warning("بازخوانی امضا از سرور تأیید نشد.");
+      await onCompleted?.();
+    } catch (error) { message.error(getApiErrorMessage(error, "ذخیرهٔ امضا انجام نشد؛ ارجاع قبلاً انجام شده است.")); }
+    finally { setSignatureRetrying(false); }
   };
 
   if (!record.submissionId || !record.formDefinitionId)
@@ -440,16 +481,18 @@ export const RequestWorkPanel = ({ record, onCompleted }) => {
           فیلدهای باز این مرحله را تکمیل کنید و سپس یکی از عملیات پایین فرم را
           انتخاب کنید. 
         </div>
+        {referralResult?.signatureError && <Alert type="warning" showIcon message="ارجاع موفق بوده؛ ذخیرهٔ امضا هنوز تکمیل نشده است." action={referralResult.prepared ? <Button loading={signatureRetrying} onClick={retrySignature}>تلاش مجدد برای ذخیرهٔ امضا</Button> : null} />}
         <FormRenderer
           key={`request-${record.requestId}-state-${record.currentStateId}`}
           categories={categories}
           mode="fill"
+          deferSignatures
           initialValues={initialValues}
           initialDevice="fluid"
           showToolbar={false}
           showPrintButton
-          lockedFieldIds={lockedFieldIds}
-          submitOptions={submitOptions}
+          lockedFieldIds={referralResult ? fields.map((field) => field.id) : lockedFieldIds}
+          submitOptions={referralResult ? submitOptions.map((option) => ({ ...option, disabled: true })) : submitOptions}
           submitSectionTitle={`تکمیل مرحله «${record.stateName}» و ارجاع`}
           submitting={pending}
           onSubmit={saveAndRefer}

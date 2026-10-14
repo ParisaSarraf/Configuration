@@ -1,3 +1,4 @@
+import { encodeSignature, signatureRecord } from "./signatureValue";
 import { DISPLAY_ONLY, resolveType } from "./fieldSchema";
 import { MULTI_TYPES, parseSheet } from "./formElements";
 import { readMatrixRequiredRows } from "./tableAdvisory";
@@ -128,10 +129,8 @@ export const normalizeValue = (field, raw) => {
     );
     const clean = Object.entries(cells).reduce((acc, [key, cell]) => {
       if (cell === "" || cell == null) return acc;
-      return {
-        ...acc,
-        [key]: checkboxKeys.has(key) ? String(checkboxValue(cell)) : String(cell),
-      };
+      const encoded = checkboxKeys.has(key) ? String(checkboxValue(cell)) : signatureRecord(cell) ? encodeSignature(cell) : String(cell);
+      return encoded == null ? acc : { ...acc, [key]: encoded };
     }, {});
     return Object.keys(clean).length ? clean : null;
   }
@@ -139,15 +138,14 @@ export const normalizeValue = (field, raw) => {
   if (type === "date_signature") {
     const slots = raw && typeof raw === "object" ? raw : {};
     const clean = Object.fromEntries(
-      Object.entries(slots).filter(([, value]) => !isBlank(value)),
+      Object.entries(slots).map(([key, value]) => [key, signatureRecord(value) ? encodeSignature(value) : value]).filter(([, value]) => !isBlank(value)),
     );
     // date_signature is stored as a marked SIGNATURE backend field.
     return Object.keys(clean).length ? JSON.stringify(clean) : null;
   }
 
   if (type === "signature") {
-    const text = String(raw || "").trim();
-    return text || null;
+    return encodeSignature(raw);
   }
 
   if (FILE_FIELD_TYPES.has(type)) {

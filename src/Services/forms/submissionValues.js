@@ -1,3 +1,4 @@
+import { parseSignature } from "../../pages/Forms/FormRuntime/signatureValue";
 // =====================================================================
 // کمک‌کارهای «نمایش فرم پرشده» در کارتابل
 //
@@ -144,11 +145,7 @@ export const hydrateValue = (field, raw) => {
   if (type === "file" || type === "multifile" || type === "spreadsheet")
     return fileNamesOf(value);
 
-  if (type === "signature") {
-    if (value && typeof value === "object")
-      return asText(value.value ?? value.text ?? value.name ?? "");
-    return asText(value);
-  }
+  if (type === "signature") return parseSignature(raw);
 
   if (type === "matrix") return matrixRowsOf(value);
 

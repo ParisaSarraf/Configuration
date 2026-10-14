@@ -14,6 +14,7 @@ import { checkboxValue, textInputValue } from "./inputIdentity";
 import { resolveType } from "./fieldSchema";
 import MatrixInput from "./MatrixInput";
 import DateField from "./DateField";
+import SignatureField from "./SignatureField";
 
 const INPUT_TYPE_MAP = {
   email: "email",
@@ -117,14 +118,7 @@ export default function FieldControl({
                   readOnly={readOnly}
                 />
               ) : isSign ? (
-                <div className="fr-sign fr-datesign-sign">
-                  <input
-                    className="fr-input"
-                    value={textInputValue(current[key])}
-                    disabled={readOnly}
-                    onChange={(event) => setSlot(key, event.target.value)}
-                  />
-                </div>
+                <SignatureField value={current[key]} onChange={(next) => setSlot(key, next)} readOnly={readOnly} />
               ) : (
                 <input
                   className="fr-input"
@@ -340,17 +334,7 @@ export default function FieldControl({
 
   /* ------------------------- محل امضا ------------------------- */
   if (type === "signature")
-    return (
-      <div className="fr-sign">
-        <input
-          className="fr-input"
-          placeholder="نام و امضا"
-          value={textInputValue(value)}
-          disabled={readOnly}
-          onChange={(event) => set(event.target.value)}
-        />
-      </div>
-    );
+    return <SignatureField value={value} onChange={set} readOnly={readOnly} />;
 
   /* ------------------------- ورودی تک‌خطی ------------------------- */
   const numeric = type === "number" || type === "decimal" || type === "currency";

@@ -1,3 +1,4 @@
+import SignatureField from "@/pages/Forms/FormRuntime/SignatureField";
 import { useMemo } from "react";
 import { Alert, Empty, Skeleton, Tag } from "antd";
 import { DownloadOutlined, PaperClipOutlined } from "@ant-design/icons";
@@ -183,6 +184,7 @@ const FilledField = ({ field, formData }) => {
       );
     }
     if (isFileField(field)) return <FileList files={value} />;
+    if (["signature", "sign"].includes(fieldType(field))) return <SignatureField value={value} readOnly />;
     if (isImageField(field) && typeof value === "string" && value) {
       return (
         <ValueBox>

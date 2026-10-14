@@ -1,4 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { BASEURL } from "@/Services/axiosInstance";
+import { currentSignatureActor } from "@/pages/Forms/FormRuntime/signatureValue";
+import { finalizeReferralSignatures, signatureLocations } from "@/pages/Forms/FormRuntime/referralSignatures";
+import { referThenSign, verifySignatureSave } from "@/pages/Forms/FormRuntime/referralSignatureSave";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Alert, App, Button, Empty, Result, Skeleton, Space, Tag } from "antd";
 import {
   FileTextOutlined,
@@ -17,6 +21,7 @@ import {
 import {
   useFormDefinitionFieldById,
   useSubmitForm,
+  useUpdateFormSubmission,
 } from "@/QueryServises/formsQuery";
 import {
   useCreateRequest,
@@ -151,6 +156,9 @@ const CartableTaskModal = ({
   const submitForm = useSubmitForm();
   const createRequest = useCreateRequest();
   const doAction = useDoAction();
+  const updateSubmission = useUpdateFormSubmission();
+  const inFlight = useRef(false);
+  const [signatureRetry, setSignatureRetry] = useState(null);
 
   const [done, setDone] = useState(null);
   const [renderToken, setRenderToken] = useState(0);
@@ -158,6 +166,7 @@ const CartableTaskModal = ({
   useEffect(() => {
     if (!open) return;
     setDone(null);
+    setSignatureRetry(null);
     setRenderToken((prev) => prev + 1);
   }, [open, formDefinitionId]);
 
@@ -205,6 +214,7 @@ const CartableTaskModal = ({
         }),
       );
     return {
+      signatureFieldIds: startNode?.lockedFieldIds || [],
       startState: states.find((state) =>
         isStartStateType(state?.state_type?.id ?? state?.state_type_id),
       ),
@@ -249,7 +259,11 @@ const CartableTaskModal = ({
     "بدون فرم";
 
   const submit = async (values, selectedAction) => {
+    if (inFlight.current || done) return;
+    inFlight.current = true;
+    let actionSucceeded = false;
     try {
+      const actor = currentSignatureActor(getUserFromToken(), BASEURL);
       const selectedActionId = positiveId(selectedAction?.actionId);
       if (selectedAction && !selectedAction.disabled && !selectedActionId) {
         throw new Error(
@@ -265,7 +279,7 @@ const CartableTaskModal = ({
 
       const files = collectFileEntries(fields, values);
 
-      const formData = buildFormData(fields, values);
+      let formData = buildFormData(fields, values);
       // if (!Object.keys(formData).length && !files.length) {
       //   message.warning("داده‌ای برای ارسال وجود ندارد؛ ابتدا فرم را پر کنید.");
       //   return;
@@ -341,10 +355,29 @@ const CartableTaskModal = ({
           throw new Error(
             "درخواست ساخته شد، اما شناسهٔ آن برای اجرای عملیات مسیر دریافت نشد.",
           );
-        await doAction.mutateAsync({
-          request_id: Number(requestId),
-          action_id: selectedActionId,
+        const referred = await referThenSign({
+          refer: async () => {
+            await doAction.mutateAsync({ request_id: Number(requestId), action_id: selectedActionId });
+            actionSucceeded = true;
+            setDone("درخواست ثبت و ارجاع شد؛ در حال ذخیرهٔ امضا…");
+          },
+          prepare: () => {
+            const signed = finalizeReferralSignatures({ fields, values, actor, stageFieldIds: workflow?.signatureFieldIds || [],
+              meta: { event_key: `${requestId}:start:${selectedActionId}:${Date.now()}`, request_id: requestId, state_id: workflow?.startState?.id, state_name: workflow?.startState?.name, action_id: selectedActionId } });
+            return signed.count ? { count: signed.count, formData: { ...formData, ...buildFormData(fields, signed.values, { includeFiles: false }) } } : null;
+          },
+          persist: (prepared) => updateSubmission.mutateAsync({ id: submissionId, payload: { form_data: prepared.formData } }),
         });
+        if (referred.signatureError) {
+          setSignatureRetry({ submissionId, prepared: referred.prepared });
+          setDone("درخواست ثبت و ارجاع شد؛ ذخیرهٔ امضا هنوز تکمیل نشده است.");
+          message.warning("ارجاع انجام شد، ولی ذخیرهٔ امضا ناموفق بود؛ از دکمهٔ تلاش مجدد برای امضا استفاده کنید.");
+          return;
+        }
+        if (referred.prepared) formData = referred.prepared.formData;
+        if (signatureLocations(fields).length && !referred.signatureCount)
+          message.warning(actor ? "ارجاع انجام شد، اما محل امضا انتخاب نشده بود؛ امضا ثبت نشد." : "ارجاع انجام شد، اما تصویر امضای کاربر موجود نیست؛ امضا ثبت نشد.");
+        if (referred.signatureCount && !referred.verified) message.warning("امضا ارسال شد، اما بازخوانی سرور تأیید نشد.");
       }
 
       const messageText =
@@ -369,8 +402,17 @@ const CartableTaskModal = ({
       });
       message.success(messageText);
     } catch (error) {
-      message.error(getApiErrorMessage(error, "ارسال فرم انجام نشد."));
-    }
+      message.error(actionSucceeded ? "درخواست ثبت و ارجاع شده است؛ تکمیل نمایش انجام نشد. ارجاع را تکرار نکنید." : getApiErrorMessage(error, "ارسال فرم انجام نشد."));
+    } finally { inFlight.current = false; }
+  };
+  const retrySignatureSave = async () => {
+    if (!signatureRetry?.prepared || updateSubmission.isPending) return;
+    try {
+      const result = verifySignatureSave(await updateSubmission.mutateAsync({ id: signatureRetry.submissionId, payload: { form_data: signatureRetry.prepared.formData } }));
+      setSignatureRetry(null);
+      setDone("امضای ارجاع قبلی ذخیره شد؛ درخواست دوباره ساخته یا ارجاع نشد.");
+      if (!result?.verification?.checked) message.warning("بازخوانی امضا از سرور تأیید نشد.");
+    } catch (error) { message.error(getApiErrorMessage(error, "ذخیرهٔ امضا انجام نشد؛ درخواست قبلاً ارجاع شده است.")); }
   };
 
   const renderBody = () => {
@@ -405,7 +447,7 @@ const CartableTaskModal = ({
     if (done)
       return (
         <Result
-          status="success"
+          status={signatureRetry ? "warning" : "success"}
           title={done}
           subTitle={
             workflow?.startState?.name
@@ -413,9 +455,11 @@ const CartableTaskModal = ({
               : "درخواست شما ثبت شد."
           }
           extra={
-            <Space>
+            <Space wrap>
+              {signatureRetry?.prepared && <Button loading={updateSubmission.isPending} onClick={retrySignatureSave}>تلاش مجدد برای ذخیرهٔ امضا</Button>}
               <Button
                 type="primary"
+                disabled={Boolean(signatureRetry)}
                 onClick={() => {
                   setDone(null);
                   setRenderToken((prev) => prev + 1);
@@ -486,6 +530,7 @@ const CartableTaskModal = ({
           definition={definition}
           fields={fields}
           mode="fill"
+          deferSignatures
           showToolbar={false}
           showPrintButton
           initialDevice="fluid"
@@ -498,7 +543,7 @@ const CartableTaskModal = ({
           submitting={
             submitForm.isPending ||
             createRequest.isPending ||
-            doAction.isPending
+            doAction.isPending || updateSubmission.isPending
           }
           onSubmit={submit}
         />

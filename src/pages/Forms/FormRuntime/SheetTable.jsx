@@ -7,6 +7,7 @@ import { useId } from "react";
 import { parseSheet, toOptions } from "./formElements";
 import { checkboxValue, textInputValue } from "./inputIdentity";
 import DateField from "./DateField";
+import SignatureField from "./SignatureField";
 import { isTableAnswerEmpty } from "./tableAdvisory";
 
 function CellInput({ cell, values, onChange, readOnly }) {
@@ -83,16 +84,7 @@ function CellInput({ cell, values, onChange, readOnly }) {
   }
 
   if (cell.type === "signature")
-    return (
-      <div className="fr-sign">
-        <input
-          className="fr-input"
-          value={textInputValue(value)}
-          disabled={readOnly}
-          onChange={(event) => set(event.target.value)}
-        />
-      </div>
-    );
+    return <SignatureField value={value} onChange={set} readOnly={readOnly} />;
 
   // خانهٔ تاریخ در جدول‌های سند هم با تقویم شمسی پروژه پر می‌شود.
   if (cell.type === "date")

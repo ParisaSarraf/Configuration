@@ -1,3 +1,4 @@
+import { parseSignature } from "../../pages/Forms/FormRuntime/signatureValue";
 /**
  * نگاشت دادهٔ سرور برای نمایش «فرم پرشده» در کارتابل.
  *
@@ -44,11 +45,7 @@ export const formIdOf = (process) => {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 };
 
-const readSignature = (raw) => {
-  if (raw && typeof raw === "object" && !Array.isArray(raw))
-    return String(raw.value ?? "");
-  return String(raw ?? "");
-};
+const readSignature = parseSignature;
 
 const matrixRowsOf = (raw) => {
   if (Array.isArray(raw)) return raw;

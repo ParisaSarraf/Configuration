@@ -3,6 +3,7 @@ import { GRID, normalizeFields } from "../FormBuilderStudio/formStudioLayout";
 import { INPUT_TYPES, parseSheet, toOptions, validateAll } from "./formElements";
 import { resolveType, sectionBandStyle } from "./fieldSchema";
 import FieldControl from "./FieldControl";
+import { SignatureContext } from "./SignatureField";
 import SheetTable from "./SheetTable";
 import printForm from "./printForm";
 import "./form-runtime.css";
@@ -212,6 +213,7 @@ export default function FormRenderer({
   initialDevice = "a4",
   paperRef,
   lockedFieldIds = [],
+  deferSignatures = false,
 }) {
   const localPaper = useRef(null);
   const paper = paperRef || localPaper;
@@ -305,6 +307,7 @@ export default function FormRenderer({
     .join(" ");
 
   return (
+    <SignatureContext.Provider value={{ defer: deferSignatures, disabled: submitting }}>
     <div className="fr-root">
       {schemaConflicts.blockedKeys.size > 0 && (
         <div className="fr-no-print" role="alert">
@@ -465,5 +468,6 @@ export default function FormRenderer({
         </div>
       ) : null}
     </div>
+    </SignatureContext.Provider>
   );
 }
