@@ -34,8 +34,8 @@ const ProductCols = () => {
         },
         {
             title: 'کد کالا',
-            dataIndex: 'warehouse_code',
-            key: 'warehouse_code',
+            dataIndex: 'store_code',
+            key: 'store_code',
         },
         {
             title: 'موجودی انبار',
