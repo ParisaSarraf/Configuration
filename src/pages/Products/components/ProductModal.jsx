@@ -162,7 +162,6 @@ const ProductModal = ({
           normalizePersonalityWarehouseCode(quickWarehouseCode),
       )
     : null;
-  const quickFullWarehouseCode = getServerFullWarehouseCode(matchingStandard);
 
   const parentCodeId = parentCodeData?.code || "";
 
@@ -242,13 +241,13 @@ const ProductModal = ({
       const alternativeStandardCodeValue = modalData.alternative_standard_code
         ? {
             value: modalData.alternative_standard_code.id,
-            label: modalData.alternative_standard_code.full_ware_house_code,
+            label: modalData.alternative_standard_code.name,
           }
         : null;
       const genusStandardCodeValue = modalData.genus_standard_code
         ? {
             value: modalData.genus_standard_code.id,
-            label: modalData.genus_standard_code.full_ware_house_code,
+            label: modalData.genus_standard_code.name,
           }
         : null;
       const alternativeGenusStandardCodeValue =
@@ -256,7 +255,7 @@ const ProductModal = ({
           ? {
               value: modalData.alternative_genus_standard_code.id,
               label:
-                modalData.alternative_genus_standard_code.full_ware_house_code,
+                modalData.alternative_genus_standard_code.name,
             }
           : null;
 
@@ -346,6 +345,24 @@ const ProductModal = ({
     setFinalCode(newFinalCode);
     form.setFieldsValue({ final_code: newFinalCode });
   }, [parentCodeId, productCode]);
+
+  useEffect(() => {
+    const genera = flattenLookupItems(genusData || []);
+    const optionsFor = (selection) => {
+      const genus = genera.find(
+        (item) => String(item.id) === String(selection?.value),
+      );
+      return (genus?.genus_codes || []).map((item) => ({
+        value: item.id,
+        label: item.name,
+        description: item.description,
+        full_ware_house_code: item.full_ware_house_code,
+        warehouse_code: item.warehouse_code,
+      }));
+    };
+    setGenusStandardOptions(optionsFor(selectedGenusValue));
+    setAlterNativeGenusStandardOptions(optionsFor(selectedAlternativeGenusValue));
+  }, [genusData, selectedGenusValue, selectedAlternativeGenusValue]);
 
   const suggestWarehouseCode = async (requestId, config) => {
     setWarehouseProposal({ status: "loading" });
@@ -974,18 +991,11 @@ const ProductModal = ({
 
                       if (selectedOption) {
                         form.setFieldsValue({
-                          persian_title: selectedOption.description,
-                        });
-                      }
-                      if (selectedOption) {
-                        form.setFieldsValue({
-                          // persian_title:
-                          //   selectedItem.personality_codes?.[0]?.description,
                           store_code: selectedOption?.full_ware_house_code,
                         });
                       }
                     } else {
-                      form.setFieldsValue({ persian_title: "", store_code: undefined });
+                      form.setFieldsValue({ store_code: undefined });
                     }
                   }}
                   filterOption={(input, option) =>
@@ -1100,18 +1110,12 @@ const ProductModal = ({
 
                       if (selectedOption) {
                         form.setFieldsValue({
-                          persian_title: selectedOption.description,
-                        });
-                      }
-                      if (selectedOption) {
-                        form.setFieldsValue({
                           alternative_store_code:
                             selectedOption?.full_ware_house_code,
                         });
                       }
                     } else {
                       form.setFieldsValue({
-                        persian_title: "",
                         alternative_store_code: undefined,
                       });
                     }
