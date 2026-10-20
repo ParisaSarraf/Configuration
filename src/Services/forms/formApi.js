@@ -25,24 +25,6 @@ const put = (client, endpoint, payload, signal) =>
 const remove = (client, endpoint, signal) =>
   client.delete(endpoint, { signal }).then((response) => response.data);
 
-/* ================================================================== *
- *  مسیر رسمی ارسال فرم (دو مرحله‌ای)
- *
- *  مرحلهٔ ۱ — ثبت فرم بدون هیچ فایلی:
- *      POST /forms/add-form-submission/   (application/json)
- *      { form_definition_id, submitter_id?, form_data: { ...فقط فیلدهای غیرفایلی } }
- *      → پاسخ شامل id ِ submission است.
- *
- *  مرحلهٔ ۲ — به‌ازای هر فایل، یک درخواست مجزا با همان id:
- *      POST /forms/add-form-submission-attachment/   (multipart/form-data)
- *      submission_id (int) | field_id (int) | file (binary)
- *
- *  هیچ فایلی هیچ‌وقت در مرحلهٔ ۱ ارسال نمی‌شود و مرحلهٔ ۱ هم هیچ‌وقت
- *  multipart نمی‌شود.
- * ================================================================== */
-
-/* ------------------------------------------------ تشخیص خطاهای سرور */
-
 const errorText = (error) => {
   const data = error?.response?.data;
   if (data == null) return String(error?.message || "");
@@ -273,13 +255,13 @@ const sameValue = (actual, expected) =>
   JSON.stringify(comparableValue(actual, expected)) ===
   JSON.stringify(comparableValue(expected, expected));
 
-/** بازخوانی رکورد و مقایسهٔ تک‌تک کلیدهایی که در همین مرحله ارسال شده‌اند. */
 export const verifySavedSubmission = async (
   client,
   submissionId,
   expectedFormData,
   signal,
 ) => {
+  const ignore = new Set(ignoreKeys);
   try {
     const response = await get(
       client,
@@ -299,18 +281,20 @@ export const verifySavedSubmission = async (
       !Array.isArray(expectedFormData)
         ? expectedFormData
         : {};
-    const mismatches = Object.entries(expected).flatMap(([fieldName, value]) =>
-      fieldName in saved && sameValue(saved[fieldName], value)
-        ? []
-        : [
-            {
-              fieldName,
-              sent: value,
-              saved: saved[fieldName],
-              missing: !(fieldName in saved),
-            },
-          ],
-    );
+    const mismatches = Object.entries(expected)
+      .filter(([fieldName]) => !ignore.has(fieldName))
+      .flatMap(([fieldName, value]) =>
+        fieldName in saved && sameValue(saved[fieldName], value)
+          ? []
+          : [
+              {
+                fieldName,
+                sent: value,
+                saved: saved[fieldName],
+                missing: !(fieldName in saved),
+              },
+            ],
+      );
     return {
       checked: true,
       ok: mismatches.length === 0,
@@ -429,14 +413,12 @@ const submitForm = async (
   const response = await createSubmission(client, payload, signal);
   const submissionId = resolveSubmissionId(response);
   const expectedFormData = cleanSubmissionPayload(payload).form_data;
-  const verification = submissionId
-    ? await verifySavedSubmission(
-        client,
-        submissionId,
-        expectedFormData,
-        signal,
-      )
-    : { checked: false, ok: false, mismatches: [] };
+const verification = submissionId
+  ? await verifySavedSubmission(
+      client, submissionId, expectedFormData, signal,
+      entries.map((entry) => entry.fieldName), 
+    )
+  : { checked: false, ok: false, mismatches: [] };
 
   if (!ready.length)
     return {
