@@ -1,7 +1,8 @@
 import { Table } from 'antd';
+import { TableAntd } from '../../../components/TableAntd/TableAntd';
 
 const RecursiveTable = ({ dataSource, columns }) => (
-    <Table
+    <TableAntd
         columns={columns}
         dataSource={dataSource}
         rowKey="id"
