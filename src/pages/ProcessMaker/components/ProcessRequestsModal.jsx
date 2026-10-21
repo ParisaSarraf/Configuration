@@ -26,6 +26,7 @@ import {
 } from "@/pages/Forms/FormRuntime/submission";
 import {
   useFormDefinitionFieldById,
+  useFormSubmisionById,
   useUpdateFormSubmission,
   useUploadSubmissionAttachments,
 } from "@/QueryServises/formsQuery";
@@ -273,6 +274,12 @@ export const RequestWorkPanel = ({ record, onCompleted }) => {
   const formQuery = useFormDefinitionFieldById(record.formDefinitionId, {
     enabled: Boolean(record.formDefinitionId && record.submissionId),
   });
+  const submissionDetailQuery = useFormSubmisionById(record.submissionId, {
+    enabled: Boolean(record.submissionId),
+    refetchOnMount: "always",
+  });
+  const submissionDetail = asArray(submissionDetailQuery.data)[0];
+  const savedAttachments = submissionDetail?.file_attachments ?? record.attachments;
   const locksQuery = useLockedFieldsByRequestId(record.requestId, {
     enabled: Boolean(record.requestId),
   });
@@ -298,8 +305,8 @@ export const RequestWorkPanel = ({ record, onCompleted }) => {
   );
   const fields = useMemo(() => flattenFields(categories), [categories]);
   const initialValues = useMemo(
-    () => hydrateSubmissionValues(categories, record.formData),
-    [categories, record.formData],
+    () => hydrateSubmissionValues(categories, record.formData, savedAttachments),
+    [categories, record.formData, savedAttachments],
   );
   const lockedFieldIds = useMemo(() => {
     const requestLocks = asArray(locksQuery.data)
@@ -455,6 +462,7 @@ export const RequestWorkPanel = ({ record, onCompleted }) => {
     );
   if (
     formQuery.isLoading ||
+    submissionDetailQuery.isLoading ||
     locksQuery.isLoading ||
     processInfoQuery.isLoading ||
     processLocksQuery.isLoading ||

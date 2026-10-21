@@ -1,3 +1,4 @@
+import { attachmentItems, mergeSubmissionAttachments } from "./submissionAttachments";
 import { parseSignature } from "../../pages/Forms/FormRuntime/signatureValue";
 // =====================================================================
 // کمک‌کارهای «نمایش فرم پرشده» در کارتابل
@@ -89,16 +90,7 @@ const splitList = (raw) =>
     .map((item) => item.trim())
     .filter(Boolean);
 
-const fileNamesOf = (raw) => {
-  const list = Array.isArray(raw) ? raw : [raw];
-  return list
-    .map((item) => {
-      if (!item) return "";
-      if (typeof item === "string") return item;
-      return item.name || item.file_name || item.title || item.file || "";
-    })
-    .filter(Boolean);
-};
+const fileNamesOf = attachmentItems;
 
 const asText = (raw) => {
   if (raw == null) return "";
@@ -177,8 +169,8 @@ export const hydrateValue = (field, raw) => {
  * کلیدهای تخت (سلول‌های «جدول ثابت سند») هم حفظ می‌شوند، چون
  * SheetTable مقدارها را با نام سلول از همین آبجکت می‌خواند.
  */
-export const hydrateSubmissionValues = (categories, formData) => {
-  const source = formData && typeof formData === "object" ? formData : {};
+export const hydrateSubmissionValues = (categories, formData, attachments = []) => {
+  const source = mergeSubmissionAttachments(flattenFields(categories), formData, attachments);
   const values = { ...source };
 
   flattenFields(categories).forEach((field) => {

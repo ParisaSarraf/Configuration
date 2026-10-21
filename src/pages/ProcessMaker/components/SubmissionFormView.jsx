@@ -21,6 +21,7 @@ import "./submission-view.css";
 export default function SubmissionFormView({
   formDefinitionId,
   formData,
+  attachments = [],
   enabled = true,
   showToolbar = true,
   framed = true,
@@ -37,8 +38,8 @@ export default function SubmissionFormView({
   // initialValues باید هویت پایدار داشته باشد؛ FormRenderer فقط وقتی مقادیر را
   // از نو اعمال می‌کند که هویت این آبجکت عوض شود.
   const values = useMemo(
-    () => hydrateSubmissionValues(categories, formData),
-    [categories, formData],
+    () => hydrateSubmissionValues(categories, formData, attachments),
+    [categories, formData, attachments],
   );
 
   if (!formDefinitionId)

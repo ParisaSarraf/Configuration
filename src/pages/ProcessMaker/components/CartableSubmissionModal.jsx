@@ -75,9 +75,10 @@ const CartableSubmissionModal = ({ open, record, submission, onClose }) => {
   const requestId = row?.requestId ?? null;
 
   // اگر ردیف از فهرست درخواست‌ها آمده باشد، form_data همراهش هست
-  const needsDetail = Boolean(open && submissionId && !row?.formData);
+  const needsDetail = Boolean(open && submissionId);
   const detailQuery = useFormSubmisionById(submissionId, {
     enabled: needsDetail,
+    refetchOnMount: "always",
   });
   const detail = useMemo(() => firstItem(detailQuery.data), [detailQuery.data]);
 
@@ -85,9 +86,7 @@ const CartableSubmissionModal = ({ open, record, submission, onClose }) => {
   const submitter = row?.submitter ?? detail?.submitter ?? null;
   const createdAt = row?.createdAt ?? detail?.created_at ?? null;
   const attachments = useMemo(() => {
-    const list = row?.attachments?.length
-      ? row.attachments
-      : (detail?.file_attachments ?? []);
+    const list = detail?.file_attachments ?? row?.attachments ?? [];
     return Array.isArray(list) ? list : [];
   }, [row?.attachments, detail?.file_attachments]);
 
@@ -135,8 +134,8 @@ const CartableSubmissionModal = ({ open, record, submission, onClose }) => {
   const definition = categories[0] ?? null;
   const fields = useMemo(() => flattenFields(categories), [categories]);
   const values = useMemo(
-    () => hydrateValues(fields, formData),
-    [fields, formData],
+    () => hydrateValues(fields, formData, attachments),
+    [fields, formData, attachments],
   );
   const lockedFieldIds = useMemo(() => {
     const payload = lockedFieldsQuery.data;

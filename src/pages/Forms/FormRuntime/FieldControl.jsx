@@ -1,3 +1,5 @@
+import { BASEURL } from "@/Services/axiosInstance";
+import { attachmentItems, attachmentName, attachmentUrl } from "@/Services/forms/submissionAttachments";
 /* eslint-disable react/prop-types */
 // =====================================================================
 // یک کنترل ورودی برای هر نوع فیلد.
@@ -37,22 +39,6 @@ const toAccept = (raw) => {
     .filter(Boolean)
     .map((item) => (item.startsWith(".") ? item : `.${item}`))
     .join(",");
-};
-
-/** نام فایل‌ها برای نمایش؛ مقدار می‌تواند File، توصیف‌گر سرور یا رشته باشد. */
-const fileNames = (value) => {
-  const list = Array.isArray(value)
-    ? value
-    : value == null || value === ""
-      ? []
-      : [value];
-  return list
-    .map((item) =>
-      typeof item === "string"
-        ? item
-        : (item?.name ?? item?.file_name ?? item?.originFileObj?.name ?? ""),
-    )
-    .filter(Boolean);
 };
 
 export default function FieldControl({
@@ -306,7 +292,7 @@ export default function FieldControl({
 
   /* ------------------------- فایل ------------------------- */
   if (type === "file" || type === "multifile") {
-    const names = fileNames(value);
+    const items = attachmentItems(value);
     return (
       <div className="fr-upload">
         <input
@@ -319,10 +305,25 @@ export default function FieldControl({
             // خودِ آبجکت File نگه داشته می‌شود تا پس از ثبت فرم با اندپوینت
             // /forms/add-form-submission-attachment/ آپلود شود.
             const picked = Array.from(event.target.files || []);
-            set(type === "multifile" ? picked : picked.slice(0, 1));
+            if (!picked.length) return;
+            set(type === "multifile" ? [...items, ...picked] : picked.slice(0, 1));
+            event.target.value = "";
           }}
         />
-        {names.length > 0 && <span className="fr-upload-names">{names.join("، ")}</span>}
+        {items.length > 0 && (
+          <div className="fr-upload-names" style={{ display: "grid", gap: 6 }}>
+            {items.map((item, index) => {
+              const name = attachmentName(item);
+              const url = attachmentUrl(item, BASEURL);
+              return url ? (
+                <a key={`${item?.id ?? name}-${index}`} href={url} target="_blank" rel="noopener noreferrer"
+                  style={{ color: "#2563eb", textDecoration: "underline", overflowWrap: "anywhere" }}>
+                  {name}
+                </a>
+              ) : <span key={`${name}-${index}`}>{name}</span>;
+            })}
+          </div>
+        )}
         {field.max_file_size_mb ? (
           <span className="fr-upload-names">
             حداکثر حجم هر فایل: {field.max_file_size_mb} مگابایت

@@ -260,6 +260,7 @@ export const verifySavedSubmission = async (
   submissionId,
   expectedFormData,
   signal,
+  ignoreKeys = [],
 ) => {
   const ignore = new Set(ignoreKeys);
   try {

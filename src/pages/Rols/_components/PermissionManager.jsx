@@ -201,7 +201,7 @@ const PermissionManager = ({ selectedRoleId, refetch }) => {
       } else {
         await addPermissions({
           roles_ids: [selectedRoleId],
-          permission_ids: permissionIds,
+          permissions_ids: permissionIds,
         });
         message.success("دسترسی‌ها با موفقیت اضافه شدند");
       }

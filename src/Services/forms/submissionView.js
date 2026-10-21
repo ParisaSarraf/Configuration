@@ -1,3 +1,4 @@
+import { attachmentItems, mergeSubmissionAttachments } from "./submissionAttachments";
 import { parseSignature } from "../../pages/Forms/FormRuntime/signatureValue";
 /**
  * نگاشت دادهٔ سرور برای نمایش «فرم پرشده» در کارتابل.
@@ -68,17 +69,7 @@ const matrixRowsOf = (raw) => {
     .filter(Boolean);
 };
 
-/** فایل‌ها به شکل [{name}] ذخیره می‌شوند؛ FieldControl آرایهٔ نام می‌خواهد. */
-const readFiles = (raw) => {
-  if (Array.isArray(raw))
-    return raw
-      .map((item) => (typeof item === "string" ? item : (item?.name ?? "")))
-      .filter(Boolean);
-  return String(raw ?? "")
-    .split("،")
-    .map((item) => item.trim())
-    .filter(Boolean);
-};
+const readFiles = attachmentItems;
 
 /** معکوس normalizeValue: مقدار ذخیره‌شده → مقدار ورودیِ همان فیلد. */
 export const hydrateValue = (type, raw) => {
@@ -114,11 +105,8 @@ export const hydrateValue = (type, raw) => {
  * کلیدهایی که فیلد مستقل ندارند (مثل سلول‌های «جدول ثابت سند») دست‌نخورده
  * منتقل می‌شوند تا SheetTable هم پر شود. فیلدهای بدون مقدار خالی می‌مانند.
  */
-export const hydrateValues = (fields, formData) => {
-  const data =
-    formData && typeof formData === "object" && !Array.isArray(formData)
-      ? formData
-      : {};
+export const hydrateValues = (fields, formData, attachments = []) => {
+  const data = mergeSubmissionAttachments(fields, formData, attachments);
 
   const values = { ...data };
 
