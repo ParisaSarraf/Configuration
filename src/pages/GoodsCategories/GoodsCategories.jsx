@@ -15,6 +15,8 @@ import {
   FileAddFilled,
   CaretUpOutlined,
   UnlockOutlined,
+  SlackSquareOutlined,
+  ShoppingCartOutlined,
 } from "@ant-design/icons";
 
 import Introduction from "../Introduction/Introduction";
@@ -30,6 +32,7 @@ import Reports from "@/pages/Reports/Reports.jsx";
 import DetailAccessProduct from "@/pages/SystemManagement/DetailAccessProduct/DetailAccessProduct.jsx";
 import { useProductContext } from "../../Services/Context/ProductContext";
 import { useAccessOfUserByProductIdList } from "../../QueryServises/accsessQuery";
+import AfterSalesService from "../AfterSalesService/AfterSalesService";
 
 const GoodsCategories = () => {
   const [activeTab, setActiveTab] = useState("1");
@@ -84,6 +87,14 @@ const GoodsCategories = () => {
       content: <Experience />,
       color:
         "bg-gradient-to-r from-rose-100 to-rose-200 text-rose-800 border border-rose-200",
+    },
+    {  
+      id: "12",
+      label: "خدمات پس از فروش",
+      icon: <ShoppingCartOutlined />,
+      content: <AfterSalesService />,
+      color:
+        "bg-gradient-to-r from-sky-100 to-sky-200 text-sky-800 border border-sky-200",
     },
     {
       id: "6",
