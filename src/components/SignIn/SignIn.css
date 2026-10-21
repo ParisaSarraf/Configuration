@@ -10,7 +10,10 @@
   min-height: 100svh;
   box-sizing: border-box;
   padding: 0;
-  overflow: hidden;
+  width: 100%;
+  min-width: 0;
+  /* Keep short screens/virtual-keyboard layouts vertically scrollable. */
+  overflow-x: clip;
   background: #fff;
   color: #263b36;
   color-scheme: light;
@@ -33,13 +36,17 @@
 }
 .signin-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, min(42vw, 50svh));
+  grid-template-areas: "form banner";
+  grid-template-columns: minmax(0, 1fr) minmax(0, min(36vw, 50svh));
   align-items: center;
   gap: 0;
   width: 100%;
+  min-height: 100vh;
   min-height: 100svh;
 }
 .signin-card {
+  grid-area: form;
+  min-width: 0;
   justify-self: center;
   width: min(calc(100% - 48px), 440px);
   margin: 48px 24px;
@@ -52,12 +59,19 @@
   backdrop-filter: blur(12px);
   box-shadow: 0 4px 24px rgba(0, 80, 65, .05);
 }
-.signin-banner { margin: 0; width: 100%; align-self: start; }
+.signin-banner {
+  grid-area: banner;
+  margin: 0;
+  width: 100%;
+  min-width: 0;
+  align-self: start;
+}
 .signin-banner img {
   display: block;
   width: 100%;
   height: auto;
-  max-height: none;
+  max-height: 100vh;
+  max-height: 100svh;
   object-fit: contain;
   border-radius: 0;
 }
@@ -130,17 +144,52 @@
 .signin-page .ant-input-status-error,
 .signin-page .ant-input-affix-wrapper-status-error { border-color: #b42318 !important; background: #fff !important; }
 .signin-page :is(a, button):focus-visible { outline: 2px solid var(--signin-green-text); outline-offset: 4px; }
-@media (max-width: 1023px) {
-  .signin-page { padding: 24px 0; }
-  .signin-layout { grid-template-columns: minmax(0, 1fr); gap: 32px; min-height: auto; }
-  .signin-card { width: min(calc(100% - 32px), 440px); margin: 0 16px; }
-  .signin-banner { width: min(100%, 240px); justify-self: end; }
-  .signin-banner img { max-height: none; }
+/* Tablets keep the form and artwork side by side. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .signin-card {
+    width: min(calc(100% - 32px), 440px);
+    margin: 24px 16px;
+    padding: 32px 24px 24px;
+  }
 }
-@media (max-width: 480px) {
-  .signin-page { padding: 24px 0; }
-  .signin-card { padding: 32px 24px 20px; }
+/* On phones, put the compact artwork ABOVE the form, never below it. */
+@media (max-width: 767px) {
+  .signin-page {
+    padding: 16px;
+    padding-top: max(16px, env(safe-area-inset-top));
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+  .signin-layout {
+    grid-template-areas: "banner" "form";
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+    gap: 16px;
+    min-height: 0;
+    width: 100%;
+    max-width: 440px;
+  }
+  .signin-banner {
+    justify-self: center;
+    width: 100%;
+  }
+  .signin-banner img {
+    width: auto;
+    max-width: 100%;
+    height: clamp(96px, 18svh, 152px);
+    max-height: 152px;
+    margin-inline: auto;
+    object-fit: contain;
+  }
+  .signin-card {
+    width: 100%;
+    margin: 0;
+    padding: 28px 24px 20px;
+  }
   .signin-page .signin-heading h2.ant-typography { font-size: 28px; }
+  .signin-page .signin-form { margin-top: 24px; }
+}
+@media (max-width: 359px) {
+  .signin-card { padding-inline: 16px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .signin-page *, .signin-page *::before, .signin-page *::after { transition: none !important; animation: none !important; }
