@@ -1,196 +1,167 @@
-/* Scoped to sign-in. The white background is intentional, including in dark mode. */
+/* Login-only font assets resolved and versioned by Vite, independent of global styles. */
+@font-face { font-family: SignInVazirmatn; font-style: normal; font-weight: 400; font-display: swap; src: url("./assets/fonts/Vazirmatn-Regular.woff2") format("woff2"); }
+@font-face { font-family: SignInVazirmatn; font-style: normal; font-weight: 500; font-display: swap; src: url("./assets/fonts/Vazirmatn-Medium.woff2") format("woff2"); }
+@font-face { font-family: SignInVazirmatn; font-style: normal; font-weight: 600; font-display: swap; src: url("./assets/fonts/Vazirmatn-SemiBold.woff2") format("woff2"); }
+@font-face { font-family: SignInVazirmatn; font-style: normal; font-weight: 700; font-display: swap; src: url("./assets/fonts/Vazirmatn-Bold.woff2") format("woff2"); }
+/* Only presentation: the original auth service and redirect remain unchanged. */
 .signin-page {
-  --signin-green: #00a890;
-  --signin-green-text: #007969;
-  position: relative;
-  isolation: isolate;
-  display: grid;
-  place-items: center;
-  min-height: 100vh;
-  min-height: 100svh;
-  box-sizing: border-box;
-  padding: 0;
-  width: 100%;
-  min-width: 0;
-  /* Keep short screens/virtual-keyboard layouts vertically scrollable. */
-  overflow-x: clip;
-  background: #fff;
-  color: #263b36;
-  color-scheme: light;
+  --signin-primary: #0B7F6E;
+  --signin-ink: #0A6B5D;
+  --signin-soft: #E6F6F3;
+  --signin-hover-border: #6FBFB0;
+  --signin-field-hover: #F5FBFA;
+  --signin-border: #D2DEDC;
+  --signin-card-border: #E1EAE9;
+  --signin-text: #14182B;
+  --signin-secondary: #5B6178;
+  --signin-placeholder: #6B7188;
+  --signin-label: #2D3350;
+  --signin-error: #E5484D;
+  min-height: 100svh; background: #fff; color: var(--signin-text); color-scheme: light;
+  width: 100%; overflow-x: clip; font-size: 14px;
 }
-.signin-grid {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -2;
+.signin-page *, .signin-page *::before, .signin-page *::after { box-sizing: border-box; font-family: SignInVazirmatn, Vazirmatn, sans-serif !important; }
+.signin-layout { display: flex; flex-wrap: wrap; min-height: 100svh; align-items: stretch; }
+.signin-form-region {
+  flex: 1 1 520px; min-width: 0; position: relative; isolation: isolate;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 100svh; padding: 64px 24px 88px; background: #fff;
+}
+.signin-form-region .signin-grid {
+  position: absolute; inset: 0; width: 100%; height: 100%; z-index: -2;
   pointer-events: none;
 }
-.signin-page::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: radial-gradient(ellipse at center, rgba(255, 255, 255, .45), transparent 85%);
-}
-.signin-layout {
-  display: grid;
-  grid-template-areas: "form banner";
-  grid-template-columns: minmax(0, 1fr) minmax(0, min(36vw, 50svh));
-  align-items: center;
-  gap: 0;
-  width: 100%;
-  min-height: 100vh;
-  min-height: 100svh;
+.signin-form-region::after {
+  content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: min(720px, 100%); aspect-ratio: 1; border-radius: 50%; z-index: -1; pointer-events: none;
+  background: radial-gradient(circle, rgba(11,127,110,.13), transparent 66%);
 }
 .signin-card {
-  grid-area: form;
-  min-width: 0;
-  justify-self: center;
-  width: min(calc(100% - 48px), 440px);
-  margin: 48px 24px;
-  box-sizing: border-box;
-  padding: 40px 32px 28px;
-  border: 1px solid #d5e7e2;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, .94);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 4px 24px rgba(0, 80, 65, .05);
+  width: 100%; max-width: 440px; min-width: 0; position: relative; padding: 40px;
+  background: #fff; border: 1px solid var(--signin-card-border); border-radius: 20px;
+  box-shadow: 0 24px 60px -24px rgba(11,127,110,.28), 0 2px 6px rgba(20,24,43,.05);
 }
 .signin-banner {
-  grid-area: banner;
-  margin: 0;
-  width: 100%;
-  min-width: 0;
-  align-self: start;
+  flex: 0 1 600px; max-width: 41.667%; min-width: 0; min-height: 100svh;
+  position: relative; isolation: isolate; overflow: hidden; display: grid; place-items: center;
+  background: linear-gradient(145deg, #F7FBFB 0%, #E6F6F3 52%, #CDEBE5 100%);
+  border-inline-start: 1px solid var(--signin-card-border);
 }
-.signin-banner img {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-height: 100vh;
-  max-height: 100svh;
-  object-fit: contain;
-  border-radius: 0;
+.signin-brand-art {
+  position: absolute; inset: 0; z-index: -1; height: 100%; width: 100%; object-fit: fill;
+  /* Only expose the original decorative corners; hide its baked-in logo/text. */
+  -webkit-mask-image: linear-gradient(#000 0%, #000 10%, transparent 18%, transparent 66%, #000 81%, #000 100%);
+  mask-image: linear-gradient(#000 0%, #000 10%, transparent 18%, transparent 66%, #000 81%, #000 100%);
+  pointer-events: none;
 }
+.signin-brand-content { text-align: center; position: relative; padding: 48px 24px; color: var(--signin-ink); }
+.signin-logo { display: block; width: 150px; height: 150px; overflow: hidden; position: relative; margin: 0 auto 24px; mix-blend-mode: multiply; }
+.signin-logo img { position: absolute; width: 333.333px; max-width: none; height: 666.667px; left: -91.667px; top: -128.125px; filter: contrast(1.12) brightness(1.05); }
+.signin-brand-eyebrow { margin: 0; font-size: 22px; font-weight: 600; line-height: 1.7; }
+.signin-brand-name { margin: 4px 0 8px; color: var(--signin-ink); font-size: 46px; font-weight: 700; line-height: 1.6; }
+.signin-brand-caption { margin: 0; font-size: 18px; line-height: 1.8; }
+.signin-mobile-brand { display: none; }
+.signin-footer { position: absolute; inset-inline: 16px; bottom: 20px; text-align: center; color: var(--signin-secondary); font-size: 12px; line-height: 2; }
 .signin-heading { text-align: center; }
-.signin-page .signin-heading h2.ant-typography {
-  margin: 0 0 12px;
-  color: #263b36;
-  font-size: 30px;
-  line-height: 1.4;
+.signin-page .signin-heading h2.ant-typography { margin: 0 0 12px; font-size: 28px; font-weight: 700; color: var(--signin-text); line-height: 1.6; }
+.signin-page .signin-heading .ant-typography { color: var(--signin-secondary); font-size: 14px; line-height: 1.9; margin: 0; }
+.signin-form { margin-top: 32px; }
+.signin-page .ant-form-item { margin-bottom: 18px; }
+.signin-page .ant-input-affix-wrapper, .signin-page .ant-input { min-height: 52px; border-radius: 12px; }
+.signin-page .ant-input-affix-wrapper .ant-input { min-height: 0; }
+.signin-page .ant-btn-primary { height: 52px; border-radius: 12px; font-weight: 600; font-size: 16px; }
+.signin-page .signin-forgot { margin-top: 12px; }
+.signin-page .signin-link { color: var(--signin-ink); }
+.signin-page :is(a,button,input,[tabindex]):focus-visible { outline: 3px solid var(--signin-primary); outline-offset: 4px; }
+@media (max-width: 1023px) {
+  .signin-banner { display: none; }
+  .signin-form-region { flex-basis: 100%; padding: 32px 24px 80px; }
+  .signin-mobile-brand { display: block; margin-bottom: 24px; }
+  .signin-logo--small { width: 80px; height: 80px; margin-bottom: 0; }
+  .signin-logo--small img { width: 177.778px; height: 355.556px; left: -48.889px; top: -68.333px; }
 }
-.signin-page .signin-heading .ant-typography {
-  margin-bottom: 0;
-  color: #596c65;
-  font-size: 16px;
-  line-height: 1.8;
+@media (max-width: 479px) {
+  .signin-form-region { padding: 28px 16px 80px; }
+  .signin-card { padding: 32px 24px; }
 }
-.signin-page .signin-form { width: 100%; margin-top: 32px; }
-.signin-page .ant-form-item { margin-bottom: 24px; }
-.signin-page .ant-form-item-label > label { color: #354d43; font-size: 14px; }
-.signin-page .ant-form-item-required::before { color: #b42318 !important; }
-.signin-page .ant-input,
-.signin-page .ant-input-affix-wrapper {
-  min-height: 48px;
-  box-sizing: border-box;
-  border-color: #7d938a;
-  border-radius: 8px;
-  background: #fff;
-  color: #263b36;
-  font-size: 16px;
-}
-.signin-page .ant-input-affix-wrapper .ant-input { min-height: auto; background: transparent; }
-.signin-page .ant-input::placeholder { color: #64776e; }
-.signin-page .ant-input-password-icon { color: #596c65 !important; padding: 10px 6px; }
-.signin-page .ant-input:hover,
-.signin-page .ant-input-affix-wrapper:hover { border-color: var(--signin-green); }
-.signin-page .ant-input:focus,
-.signin-page .ant-input-affix-wrapper-focused {
-  border-color: var(--signin-green-text);
-  box-shadow: 0 0 0 3px rgba(0, 168, 144, .16);
-}
-.signin-page .ant-btn-primary {
-  height: 48px;
-  border: none;
-  border-radius: 8px;
-  background: var(--signin-green-text);
-  color: #fff;
-  box-shadow: none;
-  font-size: 16px;
-  font-weight: 600;
-}
-.signin-page .ant-btn-primary:not(:disabled):hover,
-.signin-page .ant-btn-primary:not(:disabled):active {
-  background: #006758;
-  color: #fff;
-}
-.signin-page .signin-forgot { display: flex; justify-content: flex-start; margin-top: 12px; }
-.signin-page .signin-forgot-button { height: 44px; padding: 0; background: transparent !important; }
-.signin-page .signin-link { color: var(--signin-green-text); font-size: 14px; }
-.signin-page .signin-link:hover { color: #006758; text-decoration: underline; }
-.signin-page .signin-register {
-  margin: 20px 0 0;
-  padding-top: 24px;
-  border-top: 1px solid #d5e7e2;
-  color: #596c65;
-  text-align: center;
-  font-size: 14px;
-}
-.signin-page .signin-register .signin-link { display: inline-flex; align-items: center; min-height: 44px; margin-inline-start: 8px; }
-.signin-page .ant-form-item-explain-error { color: #b42318; font-size: 14px; }
-.signin-page .ant-input-status-error,
-.signin-page .ant-input-affix-wrapper-status-error { border-color: #b42318 !important; background: #fff !important; }
-.signin-page :is(a, button):focus-visible { outline: 2px solid var(--signin-green-text); outline-offset: 4px; }
-/* Tablets keep the form and artwork side by side. */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .signin-card {
-    width: min(calc(100% - 32px), 440px);
-    margin: 24px 16px;
-    padding: 32px 24px 24px;
-  }
-}
-/* On phones, put the compact artwork ABOVE the form, never below it. */
-@media (max-width: 767px) {
-  .signin-page {
-    padding: 16px;
-    padding-top: max(16px, env(safe-area-inset-top));
-    padding-bottom: max(16px, env(safe-area-inset-bottom));
-  }
-  .signin-layout {
-    grid-template-areas: "banner" "form";
-    grid-template-columns: minmax(0, 1fr);
-    align-content: center;
-    gap: 16px;
-    min-height: 0;
-    width: 100%;
-    max-width: 440px;
-  }
-  .signin-banner {
-    justify-self: center;
-    width: 100%;
-  }
-  .signin-banner img {
-    width: auto;
-    max-width: 100%;
-    height: clamp(96px, 18svh, 152px);
-    max-height: 152px;
-    margin-inline: auto;
-    object-fit: contain;
-  }
-  .signin-card {
-    width: 100%;
-    margin: 0;
-    padding: 28px 24px 20px;
-  }
-  .signin-page .signin-heading h2.ant-typography { font-size: 28px; }
-  .signin-page .signin-form { margin-top: 24px; }
-}
-@media (max-width: 359px) {
-  .signin-card { padding-inline: 16px; }
-}
+@media (max-width: 359px) { .signin-card { padding: 28px 20px; } }
 @media (prefers-reduced-motion: reduce) {
-  .signin-page *, .signin-page *::before, .signin-page *::after { transition: none !important; animation: none !important; }
+  .signin-page *, .signin-page *::before, .signin-page *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+/* Field and keyboard states are scoped to the sign-in route. */
+.signin-page .ant-form-item-label { padding-bottom: 8px; }
+.signin-page .ant-form-item-label > label { height: auto; color: var(--signin-label); font-size: 13px; font-weight: 600; line-height: 20px; }
+.signin-page .ant-input-affix-wrapper {
+  height: 52px; padding: 3px 12px; border: 1px solid var(--signin-border); background: #fff;
+  box-shadow: none; transition: border-color 150ms, background-color 150ms, box-shadow 150ms;
+}
+.signin-page .ant-input-affix-wrapper .ant-input {
+  height: auto; font-size: 14px; line-height: 1.7; color: var(--signin-text); background: transparent;
+}
+.signin-page .ant-input::placeholder { color: var(--signin-placeholder); opacity: 1; }
+.signin-page .ant-input-prefix { font-size: 18px; margin-inline-end: 10px; color: var(--signin-secondary); transition: color 150ms; }
+.signin-page .ant-input-affix-wrapper:not(.ant-input-affix-wrapper-disabled):hover { border-color: var(--signin-hover-border); background: var(--signin-field-hover); }
+.signin-page .ant-input-affix-wrapper-focused, .signin-page .ant-input-affix-wrapper:focus-within {
+  border-color: var(--signin-primary) !important; background: #fff !important; box-shadow: 0 0 0 4px rgba(11,127,110,.16);
+}
+.signin-page .ant-input-affix-wrapper:focus-within .ant-input-prefix { color: var(--signin-primary); }
+.signin-page .ant-input:focus-visible { outline: none; }
+.signin-page .ant-input-affix-wrapper-status-error,
+.signin-page .ant-input-affix-wrapper-status-error:focus-within,
+.signin-page .ant-input-affix-wrapper.ant-input-status-error,
+.signin-page .ant-input-affix-wrapper.ant-input-status-error:focus-within {
+  border-color: var(--signin-error) !important; box-shadow: 0 0 0 4px rgba(229,72,77,.12); background: #fff !important;
+}
+/* Error token draws the border; darker text meets AA on white. */
+.signin-page .ant-form-item-explain-error { color: #B4232C; font-size: 12px; line-height: 1.9; padding-top: 6px; }
+.signin-page .ant-input-password-icon {
+  display: inline-flex; justify-content: center; align-items: center; width: 44px; min-width: 44px; height: 44px;
+  padding: 0; margin-inline-end: -8px; border: 0; border-radius: 8px; background: transparent; color: var(--signin-secondary);
+  cursor: pointer; transition: color 150ms, background-color 150ms;
+}
+.signin-page .ant-input-password-icon:not(:disabled):hover { color: var(--signin-ink); background: var(--signin-soft); }
+.signin-page .ant-input-password-icon:focus-visible { outline-offset: 0; }
+.signin-page .ant-form-item-extra { min-height: 0; }
+.signin-caps-warning { display: flex; align-items: center; gap: 6px; color: var(--signin-secondary); font-size: 12px; padding-top: 8px; }
+.signin-options { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 0 0 18px; }
+.signin-options .ant-checkbox-wrapper { display: inline-flex; align-items: center; min-height: 44px; color: var(--signin-secondary); font-size: 13px; }
+.signin-options .ant-checkbox-wrapper:hover { color: var(--signin-ink); }
+.signin-page .signin-link { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; font-size: 13px; font-weight: 600; text-decoration: none; }
+.signin-page .signin-link:hover { color: var(--signin-primary); text-decoration: underline; text-underline-offset: 4px; }
+.signin-page .ant-checkbox-input:focus-visible + .ant-checkbox-inner { outline: 3px solid var(--signin-primary); outline-offset: 3px; }
+@media (max-width: 359px) { .signin-options { gap: 8px; } .signin-options .ant-checkbox-wrapper, .signin-page .signin-options .signin-link { font-size: 12px; } }
+.signin-page .signin-submit {
+  display: flex; gap: 10px; align-items: center; justify-content: center;
+  color: #fff; background: var(--signin-primary); border-color: var(--signin-primary); box-shadow: none;
+  transition: transform 150ms, box-shadow 150ms, background-color 150ms;
+}
+.signin-submit-arrow { transition: transform 150ms; }
+.signin-page .signin-submit:not(:disabled):hover {
+  color: #fff; background: var(--signin-ink); border-color: var(--signin-ink); transform: translateY(-1px);
+  box-shadow: 0 10px 24px -10px rgba(11,127,110,.7);
+}
+.signin-page .signin-submit:not(:disabled):hover .signin-submit-arrow { transform: translateX(-4px); }
+.signin-page .signin-submit:not(:disabled):active { transform: none; box-shadow: none; }
+.signin-page .signin-submit:not(:disabled):active .signin-submit-arrow { transform: none; }
+.signin-page .signin-submit:disabled, .signin-page .signin-submit.ant-btn-loading {
+  background: var(--signin-primary); border-color: var(--signin-primary); color: #fff; opacity: 1; cursor: wait; transform: none;
+}
+.signin-page .ant-input-affix-wrapper-disabled { background: #F5F8F7; }
+.signin-page .ant-input-affix-wrapper-disabled input { color: var(--signin-secondary); -webkit-text-fill-color: var(--signin-secondary); }
+.signin-page .signin-alert { margin-top: 24px; padding: 12px; border-radius: 12px; border-color: #F4C8CB; background: #FFF5F5; }
+.signin-page .signin-alert .ant-alert-message { color: #9E2631; font-size: 13px; line-height: 1.9; }
+.signin-page .signin-alert + .signin-form { margin-top: 20px; }
+.signin-page .signin-footer .signin-link { font-size: 12px; }
+.signin-support-popover *, .signin-support-note { font-family: SignInVazirmatn, Vazirmatn, sans-serif !important; }
+.signin-support-note { max-width: 260px; margin: 0; color: #5B6178; line-height: 2; font-size: 13px; }
+@media (prefers-reduced-motion: reduce) {
+  .signin-page .signin-submit:not(:disabled):hover, .signin-page .signin-submit:not(:disabled):hover .signin-submit-arrow { transform: none; }
+}
+/* Exclude neighboring banner decoration from the reusable logo viewport. */
+.signin-logo { border-radius: 50%; }
+.signin-page .signin-link { min-width: 44px; }
+.signin-options .ant-checkbox-wrapper-disabled > span:last-child { color: var(--signin-secondary); }
+
+/* Original vector asset replaces the old JPG crop; brand artwork stays unchanged. */
+.signin-logo { overflow: visible; mix-blend-mode: normal; border-radius: 0; }
+.signin-logo img, .signin-logo--small img { position: static; display: block; width: 100%; height: 100%; max-width: 100%; filter: none; }
