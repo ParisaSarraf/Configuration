@@ -8,14 +8,14 @@ const ProductCols = () => {
         {
             title: 'ردیف',
             key: 'index',
-            render: (_, __, index) => index + 1,
+            render: (_, __, index) => (index + 1).toLocaleString('fa-IR'),
         },
 
         {
             title: 'عنوان محصول',
             dataIndex: 'persian_title',
             key: 'persian_title',
-            render: (text) => <Text>{text}</Text>,
+            render: (text) => <Text>{text || '—'}</Text>,
         },
         {
             title: 'کد',

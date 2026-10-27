@@ -1,6 +1,5 @@
 import {useState} from 'react';
-import {Col, ConfigProvider, message, Row} from 'antd';
-import fa_IR from 'antd/locale/fa_IR';
+import {Alert, message, Skeleton} from 'antd';
 import {useProductContext} from '../../Services/Context/ProductContext';
 import {useDeleteProductImage, useProductChildren, useUpdateProductInfo} from '../../QueryServises/productQuery';
 import ProductInfoForm from './components/ProductInfoForm';
@@ -9,10 +8,10 @@ import SubProductsTable from './components/SubProductsTable';
 const Introduction = () => {
     const [isDeleting, setIsDeleting] = useState(false);
     const {currentProduct} = useProductContext();
-    const {data: productData, refetch} = useProductChildren(currentProduct?.id, {
+    const {data: productData, refetch, isLoading, isError} = useProductChildren(currentProduct?.id, {
         enabled: !!currentProduct?.id,
     });
-    const {mutateAsync: updateProductionInfo, isLoading: isUpdating} = useUpdateProductInfo();
+    const {mutateAsync: updateProductionInfo, isPending: isUpdating} = useUpdateProductInfo();
     const {mutateAsync: deleteProductionImage} = useDeleteProductImage();
 
     const onFinish = async (values) => {
@@ -33,9 +32,11 @@ const Introduction = () => {
             });
             message.success('ذخیره با موفقیت انجام شد');
             await refetch();
+            return true;
         } catch (error) {
             console.error('Error details:', error);
             message.error("مشکلی در انجام عملیات پیش آمده است");
+            return false;
         }
     };
     const handleDeleteImage = async () => {
@@ -47,6 +48,7 @@ const Introduction = () => {
         } catch (error) {
             console.error('Delete error:', error);
             message.error("خطا در حذف تصویر");
+            throw error;
         } finally {
             setIsDeleting(false);
         }
@@ -56,25 +58,19 @@ const Introduction = () => {
     }
 
     return (
-        <ConfigProvider direction="rtl" locale={fa_IR}>
-            {/*<Spin spinning={isDeleting || isUpdating} tip={isDeleting ? "در حال حذف تصویر..." : "در حال ذخیره..."}>*/}
-            <div style={{padding: 16}}>
-                <Row gutter={[16, 16]}>
-                    <Col span={24}>
-                        <ProductInfoForm
-                            product={productData?.[0] || currentProduct}
-                            onFinish={onFinish}
-                            onDeleteImage={handleDeleteImage}
-                            isSubmitting={isUpdating}
-                        />
-                    </Col>
-                    <Col span={24}>
-                        <SubProductsTable productData={productData} currentProduct={currentProduct}/>
-                    </Col>
-                </Row>
-            </div>
-            {/*</Spin>*/}
-        </ConfigProvider>
+        <div className="pw-introduction">
+            {isError && <Alert type="error" showIcon message="اطلاعات محصول بارگذاری نشد" action={<button type="button" onClick={() => refetch()}>تلاش مجدد</button>}/>}
+            {isLoading ? <Skeleton active/> : <>
+                    <ProductInfoForm
+                        product={productData?.[0] || currentProduct}
+                        onFinish={onFinish}
+                        onDeleteImage={handleDeleteImage}
+                        isSubmitting={isUpdating}
+                        isDeleting={isDeleting}
+                    />
+                <SubProductsTable key={currentProduct.id} productData={productData} currentProduct={currentProduct}/>
+            </>}
+        </div>
     );
 };
 

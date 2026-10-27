@@ -17,9 +17,11 @@ import PersianDate from "persian-date";
 import { useMyAxios } from "@/hooks/useMyAxios.js";
 import { BASEURL } from "@/Services/axiosInstance.js";
 import { useAccessList } from "@/QueryServises/accsessQuery";
+import { useProductContext } from "../../Services/Context/ProductContext";
 import { resolveBuilderAccess } from "@/Services/access/builderAccess";
 
 const CustomHeader = ({ children }) => {
+  const { currentProduct } = useProductContext();
   const { handleLogout } = useMyAxios();
   const [currentTime, setCurrentTime] = useState(new PersianDate());
   const [userData, setUserData] = useState({});
@@ -189,14 +191,15 @@ const CustomHeader = ({ children }) => {
     : null;
 
   return (
-    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/70 rounded-xl my-2 mx-2 flex items-center justify-between h-14 shadow-sm ring-1 ring-slate-100 px-3 sm:px-4">
+    <header className="pw-topbar">
       {/* Left cluster: sidebar toggle + brand */}
       <div className="flex items-center gap-2 sm:gap-3 min-w-0">
         {children}
         <Divider type="vertical" className="hidden sm:block !h-6 !m-0" />
-        <span className="hidden sm:block font-bold tracking-tight text-slate-800 truncate">
-          مسیر
-        </span>
+        <nav className="pw-breadcrumb" aria-label="مسیر صفحه">
+          <span>محصولات</span><span aria-hidden="true">‹</span>
+          <strong>{currentProduct?.persian_title || currentProduct?.name || "انتخاب محصول"}</strong>
+        </nav>
       </div>
 
       {/* Right cluster: actions */}

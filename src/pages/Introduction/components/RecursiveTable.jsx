@@ -1,23 +1,25 @@
-import { Table } from 'antd';
-import { TableAntd } from '../../../components/TableAntd/TableAntd';
+import {TableAntd} from '../../../components/TableAntd/TableAntd';
 
-const RecursiveTable = ({ dataSource, columns }) => (
+const RecursiveTable = ({dataSource, columns, expandedRowKeys, onExpandedRowsChange}) => (
     <TableAntd
+        className="pw-product-table"
         columns={columns}
         dataSource={dataSource}
         rowKey="id"
+        scroll={{x: 960}}
         pagination={{
             defaultPageSize: 5,
-            pageSizeOptions: [10, 20, 45,100],
-            size: "small",
+            pageSizeOptions: [5, 10, 20, 45, 100],
             showSizeChanger: true,
+            showTotal: (total, range) => `نمایش ${range[0].toLocaleString('fa-IR')} تا ${range[1].toLocaleString('fa-IR')} از ${total.toLocaleString('fa-IR')} مورد`,
         }}
         expandable={{
             indentSize: 20,
-            expandIconColumnIndex: 0,
-            rowExpandable: (record) => record.children && record.children.length > 0,
+            expandIconColumnIndex: 1,
+            expandedRowKeys,
+            onExpandedRowsChange,
+            rowExpandable: (record) => !!record.children?.length,
         }}
-        bordered
     />
 );
 

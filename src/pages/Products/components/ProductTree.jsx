@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Input, message, Modal } from "antd";
+import { Empty, Input, message, Modal } from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -34,6 +34,8 @@ const ProductTree = ({
   const [expandedKeys, setExpandedKeys] = useState([]);
   const [exportProductId, setExportProductId] = useState(null);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const searchRef = useRef(null);
 
   const { data: exportExcelData, isFetching: isExporting } =
     useExportExcelProductChildrenBom(exportProductId);
@@ -53,6 +55,28 @@ const ProductTree = ({
     useLazyProductTree(baseTreeData);
 
   useEffect(() => {
+    const handleShortcut = (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        searchRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", handleShortcut);
+    return () => window.removeEventListener("keydown", handleShortcut);
+  }, []);
+
+  // Keep matching descendants and their ancestry without changing lazy-loaded data.
+  const visibleTreeData = useMemo(() => {
+    if (statusFilter === "all") return treeData;
+    const filterNodes = (nodes = []) => nodes.flatMap((node) => {
+      const children = filterNodes(node.children);
+      return node.productData?.status === statusFilter || children.length
+        ? [{...node, children: children.length ? children : undefined}] : [];
+    });
+    return filterNodes(treeData);
+  }, [treeData, statusFilter]);
+
+  useEffect(() => {
     setExpandedKeys([]);
   }, []);
 
@@ -69,6 +93,7 @@ const ProductTree = ({
     const fullCode = rawCode?.trim();
     if (!fullCode) return;
 
+    setStatusFilter("all");
     setSearchLoading(true);
     try {
       const { data } = await myAxios.get(
@@ -213,34 +238,24 @@ const ProductTree = ({
 
   return (
     <>
-      <div className="mb-3 flex items-center gap-2 rounded-lg bg-slate-100 p-1.5">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-white shadow-sm">
-          <SearchOutlined className="text-sm text-slate-500" />
-        </div>
-        <Input.Search
-          bordered={false}
-          size="middle"
-          allowClear
-          loading={searchLoading}
-          placeholder="جستجوی کد محصول..."
-          onSearch={handleSearch}
-          enterButton={<span className="px-2 text-xs">جستجو</span>}
-          className="
-      flex-1
-      [&_.ant-input]:!bg-transparent
-      [&_.ant-input]:!text-sm
-      [&_.ant-input]:placeholder:text-xs
-      [&_.ant-input-search-button]:!h-8
-      [&_.ant-input-search-button]:!rounded-md
-      [&_.ant-input-search-button]:!bg-slate-800
-      [&_.ant-input-search-button]:hover:!bg-slate-700
-    "
-        />
+      <div className="pw-product-search">
+        <Input.Search ref={searchRef} allowClear loading={searchLoading}
+          aria-label="جستجوی کد کامل محصول" placeholder="جستجوی کد کامل محصول..."
+          onSearch={handleSearch} enterButton={<SearchOutlined/>}/>
+        <kbd>Ctrl K</kbd>
       </div>
+      <div className="pw-product-filters" role="group" aria-label="فیلتر وضعیت محصولات">
+        {[{key: "all", label: "همه"}, {key: "active", label: "فعال"}, {key: "inactive", label: "غیرفعال"}].map((filter) => (
+          <button key={filter.key} type="button" aria-pressed={statusFilter === filter.key}
+            className={statusFilter === filter.key ? "is-active" : ""}
+            onClick={() => setStatusFilter(filter.key)}>{filter.label}</button>
+        ))}
+      </div>
+      {!visibleTreeData.length && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="محصولی یافت نشد"/>}
 
       <ProductTreeEtc
-        className="-p-2"
-        data={treeData}
+        className="pw-product-tree"
+        data={visibleTreeData}
         isLoading={isLoading || isDeleting || isExporting || isRequestingZip}
         isError={isError}
         onSelect={(_, { node }) => onProductClick(node.productData)}

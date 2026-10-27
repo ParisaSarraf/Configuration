@@ -1,0 +1,162 @@
+--- a/src/components/ProductUI/product-workspace.css
++++ b/src/components/ProductUI/product-workspace.css
+@@ -74,7 +74,7 @@
+ .pw-tab-panel { min-width: 0; margin-top: 16px; }
+ .pw-tab-panel:focus { outline: none; }
+ .pw-introduction { display: flex; flex-direction: column; gap: 16px; }
+-.pw-introduction-grid { display: grid; grid-template-columns: minmax(0, 420px) 1fr; gap: 20px; }
++.pw-introduction-grid { display: grid; grid-template-columns: minmax(0, min(420px, 50%)) minmax(0, 1fr); gap: 20px; }
+ .pw-card-heading { padding: 14px 18px; border-bottom: 1px solid var(--pw-border); }
+ .pw-card h2 { font-size: 14px; font-weight: 700; margin: 0; line-height: 1.7; }
+ .pw-card-heading p { margin: 4px 0 0; color: var(--pw-muted); font-size: 12px; line-height: 1.8; }
+@@ -87,7 +87,6 @@
+ .pw-image-dropzone p { font-size: 12px; color: var(--pw-muted); margin: 4px 0 12px; }
+ .pw-file-select { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 6px 24px; border: 1px solid #afe4db; background: white; color: #007265; border-radius: 12px; font-size: 14px; font-weight: 600; }
+ .pw-image-dropzone p.pw-file-hint { margin: 12px 0 0; }
+-.pw-description-toggle.ant-btn { margin-top: 12px; color: var(--pw-muted); min-height: 44px; }
+ .pw-image-preview { display: flex; flex-direction: column; gap: 16px; }
+ .pw-image-preview .ant-image { display: flex; justify-content: center; width: 100%; }
+ .pw-image-preview .ant-image-img { max-height: 210px; width: 100%; object-fit: contain; border-radius: 12px; }
+@@ -127,7 +126,6 @@
+     .pw-product-actions .ant-btn { min-width: 36px; min-height: 36px; }
+     .pw-table-actions .ant-btn, .pw-image-actions .ant-btn, .pw-save-row .ant-btn { min-height: 36px; }
+     .pw-file-select { min-height: 36px; padding: 4px 18px; font-size: 13px; }
+-    .pw-description-toggle.ant-btn { min-height: 32px; margin-top: 8px; font-size: 12px; }
+ }
+ @media (min-width: 1600px) { .pw-content { padding-inline: 24px; } .pw-topbar { padding-inline: 24px; } }
+ @media (max-width: 1199px) {
+@@ -143,7 +141,7 @@
+ @media (max-width: 1023px) {
+     .pw-sidebar { display: none; }
+     .pw-mobile-only { display: inline-flex; }
+-    .pw-introduction-grid { grid-template-columns: minmax(0, 420px) 1fr; }
++    .pw-introduction-grid { grid-template-columns: minmax(0, min(420px, 50%)) minmax(0, 1fr); }
+ }
+ @media (max-width: 639px) {
+     .pw-topbar { padding: 12px 16px; min-height: 64px; gap: 8px; }
+@@ -177,3 +175,16 @@
+     .product-workspace *, .pw-mobile-drawer * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+ }
+ .pw-empty .ant-btn { min-height: 44px; }
++
++/* Product descriptions are essential content and are never collapsed. */
++.pw-product-info-form { min-width: 0; }
++.pw-description-card { min-width: 0; }
++.pw-description-body { padding: 18px; }
++.pw-description-body .ant-form-item { margin-bottom: 0; }
++.pw-description-body textarea.ant-input { min-height: 220px; font-size: 14px; line-height: 1.9; }
++@media (max-width: 899px) {
++    .pw-product-info-form .pw-introduction-grid { grid-template-columns: minmax(0, 1fr); }
++}
++@media (max-width: 639px) {
++    .pw-description-body { padding: 16px; }
++}
+--- a/src/pages/Introduction/Introduction.jsx
++++ b/src/pages/Introduction/Introduction.jsx
+@@ -61,7 +61,6 @@
+         <div className="pw-introduction">
+             {isError && <Alert type="error" showIcon message="اطلاعات محصول بارگذاری نشد" action={<button type="button" onClick={() => refetch()}>تلاش مجدد</button>}/>}
+             {isLoading ? <Skeleton active/> : <>
+-                <div className="pw-introduction-grid">
+                     <ProductInfoForm
+                         product={productData?.[0] || currentProduct}
+                         onFinish={onFinish}
+@@ -69,7 +68,6 @@
+                         isSubmitting={isUpdating}
+                         isDeleting={isDeleting}
+                     />
+-                </div>
+                 <SubProductsTable key={currentProduct.id} productData={productData} currentProduct={currentProduct}/>
+             </>}
+         </div>
+--- a/src/pages/Introduction/components/ProductInfoForm.jsx
++++ b/src/pages/Introduction/components/ProductInfoForm.jsx
+@@ -1,6 +1,5 @@
+ import {useEffect, useRef, useState} from 'react';
+ import {Button, Form, Input} from 'antd';
+-import {EditOutlined} from '@ant-design/icons';
+ import ProductImageHandler from './ProductImageHandler';
+ import {BASEURL} from '@/Services/axiosInstance.js';
+ 
+@@ -8,7 +7,6 @@
+     const [form] = Form.useForm();
+     const initializedProduct = useRef(null);
+     const [isDirty, setDirty] = useState(false);
+-    const [showDescription, setShowDescription] = useState(false);
+ 
+     useEffect(() => {
+         if (initializedProduct.current === product?.id && isDirty) return;
+@@ -16,8 +14,6 @@
+         form.setFieldsValue({user_description: product?.user_description || '', user_image: []});
+         setDirty(false);
+     }, [product?.id, product?.user_description, product?.user_image, form, isDirty]);
+-
+-    useEffect(() => { setShowDescription(false); }, [product?.id]);
+ 
+     const initialImageUrl = product?.user_image
+         ? (/^https?:\/\//i.test(product.user_image) ? product.user_image : `${BASEURL.replace('/api/v1', '')}${product.user_image}`)
+@@ -29,31 +25,41 @@
+     };
+ 
+     return (
+-        <section className="pw-card pw-image-card" aria-labelledby="product-image-title">
+-            <header className="pw-card-heading">
+-                <h2 id="product-image-title">تصویر محصول</h2>
+-                <p>تصویر شاخص در فهرست و گزارش‌ها نمایش داده می‌شود.</p>
+-            </header>
+-            <Form form={form} layout="vertical" onFinish={handleFinish} onValuesChange={() => setDirty(true)}>
+-                <div className="pw-image-body">
+-                    <Form.Item name="user_image" className="pw-image-field">
+-                        <ProductImageHandler initialImageUrl={initialImageUrl} onDeleteFromServer={onDeleteImage} disabled={isSubmitting || isDeleting}/>
+-                    </Form.Item>
+-                    <Button type="text" className="pw-description-toggle" icon={<EditOutlined/>}
+-                        aria-expanded={showDescription} aria-controls="product-description"
+-                        onClick={() => setShowDescription((open) => !open)}>توضیحات محصول</Button>
+-                    <div id="product-description" hidden={!showDescription}>
+-                        <Form.Item name="user_description" label="توضیحات محصول">
+-                            <Input.TextArea rows={4} placeholder="توضیحات محصول را وارد کنید" disabled={isSubmitting}/>
++        <Form className="pw-product-info-form" form={form} layout="vertical" onFinish={handleFinish} onValuesChange={() => setDirty(true)}>
++            <div className="pw-introduction-grid">
++                <section className="pw-card pw-image-card" aria-labelledby="product-image-title">
++                    <header className="pw-card-heading">
++                        <h2 id="product-image-title">تصویر محصول</h2>
++                        <p>تصویر شاخص در فهرست و گزارش‌ها نمایش داده می‌شود.</p>
++                    </header>
++                    <div className="pw-image-body">
++                        <Form.Item name="user_image" className="pw-image-field">
++                            <ProductImageHandler initialImageUrl={initialImageUrl} onDeleteFromServer={onDeleteImage} disabled={isSubmitting || isDeleting}/>
+                         </Form.Item>
+                     </div>
+-                    {isDirty && <div className="pw-save-row">
+-                        <span role="status">تغییرات ذخیره نشده</span>
+-                        <Button type="primary" htmlType="submit" loading={isSubmitting} disabled={isDeleting}>ذخیره تغییرات</Button>
+-                    </div>}
+-                </div>
+-            </Form>
+-        </section>
++                </section>
++                <section className="pw-card pw-description-card" aria-labelledby="product-description-title">
++                    <header className="pw-card-heading">
++                        <h2 id="product-description-title">توضیحات محصول</h2>
++                        <p>شرح، ویژگی‌ها و نکات تکمیلی محصول</p>
++                    </header>
++                    <div className="pw-description-body">
++                        <Form.Item name="user_description">
++                            <Input.TextArea
++                                aria-labelledby="product-description-title"
++                                autoSize={{minRows: 8, maxRows: 18}}
++                                placeholder="توضیحات محصول را وارد کنید"
++                                disabled={isSubmitting}
++                            />
++                        </Form.Item>
++                    </div>
++                </section>
++            </div>
++            {isDirty && <div className="pw-save-row">
++                <span role="status">تغییرات ذخیره نشده</span>
++                <Button type="primary" htmlType="submit" loading={isSubmitting} disabled={isDeleting}>ذخیره تغییرات</Button>
++            </div>}
++        </Form>
+     );
+ };
+ 

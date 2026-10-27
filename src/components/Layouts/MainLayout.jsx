@@ -1,64 +1,82 @@
-import {useState} from 'react';
-import {Outlet} from 'react-router-dom';
-import {MenuFoldOutlined, MenuUnfoldOutlined} from '@ant-design/icons';
+import {useEffect, useRef, useState} from 'react';
+import {Outlet, useLocation} from 'react-router-dom';
+import {Button, ConfigProvider, Drawer} from 'antd';
+import {MenuFoldOutlined, MenuUnfoldOutlined, InboxOutlined} from '@ant-design/icons';
 import CustomHeader from './Header';
 import Products from '../../pages/Products/Products';
 import {useProductContext} from '../../Services/Context/ProductContext';
+import '../ProductUI/product-workspace.css';
 
 const MainLayout = () => {
     const {currentProduct} = useProductContext();
     const [isSidebarOpen, setSidebarOpen] = useState(true);
+    const [isMobileOpen, setMobileOpen] = useState(false);
+    const toggleRef = useRef(null);
+    const location = useLocation();
+
+    useEffect(() => {
+        setMobileOpen(false);
+    }, [currentProduct?.id, location.pathname]);
+
+    // Do not keep a modal drawer open when switching to the desktop layout.
+    useEffect(() => {
+        const media = window.matchMedia('(min-width: 1024px)');
+        const handleChange = (event) => {
+            if (event.matches) setMobileOpen(false);
+        };
+        media.addEventListener('change', handleChange);
+        return () => media.removeEventListener('change', handleChange);
+    }, []);
+
+    const toggleSidebar = () => {
+        if (window.matchMedia('(min-width: 1024px)').matches) {
+            setSidebarOpen((open) => !open);
+        } else {
+            setMobileOpen((open) => !open);
+        }
+    };
 
     return (
-        <div className="h-screen bg-slate-100 flex font-sans" dir="rtl">
-            {isSidebarOpen && (
-                <div
-                    onClick={() => setSidebarOpen(false)}
-                    className="fixed inset-0 bg-black/60 z-30 lg:hidden"
-                    aria-label="Close sidebar"
-                ></div>
-            )}
-
-            <aside
-                className={`
-                    fixed lg:relative inset-y-0 right-0 z-40
-                    flex h-full flex-col bg-white shadow-lg
-                    overflow-hidden
-                    transition-all duration-300 ease-in-out
-                    w-72
-                    ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}
-                    lg:translate-x-0
-                    ${isSidebarOpen ? 'lg:w-96' : 'lg:w-0'}
-                `}
-            >
-                <div className="flex-1 overflow-hidden">
+        <ConfigProvider theme={{token: {colorPrimary: '#087f70', borderRadius: 12}}}>
+            <div className="product-workspace" dir="rtl">
+                <aside className={`pw-sidebar ${isSidebarOpen ? '' : 'pw-sidebar--collapsed'}`} aria-label="فهرست محصولات">
                     {isSidebarOpen && <Products/>}
+                </aside>
+                <Drawer
+                    className="pw-mobile-drawer"
+                    title="فهرست محصولات"
+                    placement="right"
+                    width="min(340px, 90vw)"
+                    open={isMobileOpen}
+                    onClose={() => setMobileOpen(false)}
+                    afterOpenChange={(open) => { if (!open) toggleRef.current?.focus(); }}
+                    destroyOnClose
+                >
+                    {isMobileOpen && <Products onSelect={() => setMobileOpen(false)}/>}
+                </Drawer>
+                <div className="pw-main">
+                    <CustomHeader>
+                        <Button
+                            ref={toggleRef}
+                            onClick={toggleSidebar}
+                            className="pw-sidebar-toggle"
+                            aria-label="باز و بسته کردن فهرست محصولات"
+                            icon={isSidebarOpen ? <MenuFoldOutlined/> : <MenuUnfoldOutlined/>}
+                        />
+                    </CustomHeader>
+                    <main className="pw-content" id="main-content">
+                        {currentProduct ? <Outlet context={{product: currentProduct}}/> : (
+                            <section className="pw-empty" aria-live="polite">
+                                <InboxOutlined/>
+                                <h1>مدیریت یکپارچه محصول</h1>
+                                <p>برای شروع، یک محصول را از فهرست انتخاب کنید.</p>
+                                <Button className="pw-mobile-only" onClick={() => setMobileOpen(true)}>انتخاب محصول</Button>
+                            </section>
+                        )}
+                    </main>
                 </div>
-
-            </aside>
-
-            <div className="flex-1 flex flex-col overflow-hidden">
-                <CustomHeader>
-                    <button
-                        onClick={() => setSidebarOpen(!isSidebarOpen)}
-                        className="p-2 text-xl text-slate-700 rounded-full hover:bg-slate-100 transition-colors"
-                        aria-label="Toggle sidebar"
-                    >
-                        {isSidebarOpen ? <MenuFoldOutlined/> : <MenuUnfoldOutlined/>}
-                    </button>
-                </CustomHeader>
-
-                <main className="flex-1 p-4 md:p-6 overflow-y-auto">
-                    {currentProduct ? (
-                        <Outlet context={{product: currentProduct}}/>
-                    ) : (
-                        <div className="flex items-center justify-center h-full text-slate-500 text-xl">
-                            <p>برای شروع، یک محصول را از لیست انتخاب کنید</p>
-                        </div>
-                    )}
-                </main>
             </div>
-        </div>
+        </ConfigProvider>
     );
 };
 

@@ -27,7 +27,7 @@ const ErrorDisplay = ({ onRetry }) => (
   </div>
 );
 
-const Products = () => {
+const Products = ({onSelect}) => {
   const { data: productData, isFetching, isError, refetch } = useRootProduct();
   const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
   const [selectedKeys, setSelectedKeys] = useState([]);
@@ -58,7 +58,7 @@ const Products = () => {
         isError={isError}
         selectedKeys={selectedKeys}
         onChange={handleTreeChange}
-        onProductClick={handleProductSelect}
+        onProductClick={(product) => { handleProductSelect(product); onSelect?.(); }}
       />
     );
   };
@@ -125,28 +125,30 @@ const Products = () => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-white p-4">
-      <div className="flex justify-between items-center pb-4 border-b border-slate-200">
-        <h2 className="text-lg font-semibold text-slate-800">محصولات</h2>
+    <div className="pw-products">
+      <div className="pw-products-heading">
+        <h2>محصولات <span className="pw-count">{Array.isArray(productData) ? productData.length.toLocaleString("fa-IR") : "—"}</span></h2>
         <div className="flex flex-row gap-2">
           <Button
             type="primary"
-            shape="round"
+            shape="default"
             onClick={() => setModal({ mode: "add" })}
             icon={<PlusOutlined />}
             title="افزودن محصول"
+            aria-label="افزودن محصول"
           />
           <Button
             type="primary"
-            shape="round"
+            shape="default"
             onClick={handleUpdateWarehouseStock}
             icon={<ReloadOutlined />}
             title="بروزرسانی موجودی انبار"
+            aria-label="بروزرسانی موجودی انبار"
           />
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto mt-4 custom-scrollbar">
+      <div className="pw-products-body">
         {isFetching ? <ProductListSkeleton /> : renderContent()}
       </div>
 
