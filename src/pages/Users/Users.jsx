@@ -28,25 +28,25 @@ const Users = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8" dir="rtl">
+        <div className="system-management-page min-h-screen theme-canvas p-4 sm:p-6 lg:p-8" dir="rtl">
             <div className="max-w-7xl mx-auto">
                 <div className="mb-4">
                     <Button
                         type="text"
                         icon={<ArrowRightOutlined/>}
                         onClick={() => navigate("/panel/system-management/")}
-                        className="flex items-center text-slate-600 hover:!text-sky-700"
+                        className="flex items-center theme-muted hover:!theme-accent"
                     >
                         بازگشت به مدیریت سیستم
                     </Button>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-lg border border-slate-200">
+                <div className="theme-surface rounded-xl shadow-lg border theme-border">
                     <div
-                        className="flex flex-col md:flex-row items-start md:items-center justify-between p-6 border-b border-slate-200">
+                        className="themed-page-header flex flex-col md:flex-row items-start md:items-center justify-between p-6 border-b theme-border">
                         <div>
-                            <h1 className="text-xl font-bold text-slate-800">مدیریت کاربران</h1>
-                            <p className="mt-1 text-sm text-slate-500">
+                            <h1 className="text-xl font-bold theme-text">مدیریت کاربران</h1>
+                            <p className="mt-1 text-sm theme-muted">
                                 لیست تمام کاربران سیستم را مشاهده کرده و آن‌ها را مدیریت کنید.
                             </p>
                         </div>

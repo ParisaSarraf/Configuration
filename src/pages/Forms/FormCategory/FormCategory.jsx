@@ -18,7 +18,7 @@ const FormCategory = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="min-h-screen theme-canvas dark:theme-panel">
       <Header />
 
       <div className="mx-auto max-w-screen-xl p-4 sm:p-6">

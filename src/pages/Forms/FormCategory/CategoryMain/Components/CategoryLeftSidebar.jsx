@@ -9,46 +9,46 @@ import { StoredIcon } from "../../../../../components/IconPicker/Index";
 // پالت رنگی برای متمایز شدن دسته‌بندی‌ها
 const PALETTE = [
   {
-    idle: "bg-sky-50 text-sky-600",
-    active: "bg-gradient-to-br from-sky-500 to-sky-600 text-white",
-    row: "bg-sky-50/80 ring-1 ring-sky-200",
-    text: "text-sky-800",
-    badge: "bg-sky-600 text-white",
+    idle: "theme-accent-soft theme-accent",
+    active: "theme-gradient theme-on-accent",
+    row: "theme-accent-soft-80 ring-1 theme-ring-accent-border",
+    text: "theme-accent",
+    badge: "theme-accent-bg theme-on-accent",
   },
   {
-    idle: "bg-violet-50 text-violet-600",
-    active: "bg-gradient-to-br from-violet-500 to-violet-600 text-white",
-    row: "bg-violet-50/80 ring-1 ring-violet-200",
-    text: "text-violet-800",
-    badge: "bg-violet-600 text-white",
+    idle: "theme-accent-soft theme-accent",
+    active: "theme-gradient theme-on-accent",
+    row: "theme-accent-soft-80 ring-1 theme-ring-accent-border",
+    text: "theme-accent",
+    badge: "theme-accent-bg theme-on-accent",
   },
   {
-    idle: "bg-emerald-50 text-emerald-600",
-    active: "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white",
-    row: "bg-emerald-50/80 ring-1 ring-emerald-200",
-    text: "text-emerald-800",
-    badge: "bg-emerald-600 text-white",
+    idle: "theme-accent-soft theme-accent",
+    active: "theme-gradient theme-on-accent",
+    row: "theme-accent-soft-80 ring-1 theme-ring-accent-border",
+    text: "theme-accent",
+    badge: "theme-accent-bg theme-on-accent",
   },
   {
-    idle: "bg-amber-50 text-amber-600",
-    active: "bg-gradient-to-br from-amber-500 to-orange-500 text-white",
-    row: "bg-amber-50/80 ring-1 ring-amber-200",
-    text: "text-amber-800",
-    badge: "bg-amber-500 text-white",
+    idle: "theme-accent-soft theme-accent",
+    active: "theme-gradient theme-on-accent",
+    row: "theme-accent-soft-80 ring-1 theme-ring-accent-border",
+    text: "theme-accent",
+    badge: "theme-accent-bg theme-on-accent",
   },
   {
-    idle: "bg-pink-50 text-pink-600",
-    active: "bg-gradient-to-br from-pink-500 to-rose-500 text-white",
-    row: "bg-pink-50/80 ring-1 ring-pink-200",
-    text: "text-pink-800",
-    badge: "bg-pink-500 text-white",
+    idle: "theme-accent-soft theme-accent",
+    active: "theme-gradient theme-on-accent",
+    row: "theme-accent-soft-80 ring-1 theme-ring-accent-border",
+    text: "theme-accent",
+    badge: "theme-accent-bg theme-on-accent",
   },
   {
-    idle: "bg-teal-50 text-teal-600",
-    active: "bg-gradient-to-br from-teal-500 to-cyan-500 text-white",
-    row: "bg-teal-50/80 ring-1 ring-teal-200",
-    text: "text-teal-800",
-    badge: "bg-teal-500 text-white",
+    idle: "theme-accent-soft theme-accent",
+    active: "theme-gradient theme-on-accent",
+    row: "theme-accent-soft-80 ring-1 theme-ring-accent-border",
+    text: "theme-accent",
+    badge: "theme-accent-bg theme-on-accent",
   },
 ];
 
@@ -75,7 +75,7 @@ const CategoryLeftSidebar = ({
         <div>
           آیا از حذف دسته‌بندی{" "}
           <strong className="text-red-500">«{item.name}»</strong> مطمئن هستید؟
-          <div className="mt-2 text-xs text-gray-500">
+          <div className="mt-2 text-xs theme-muted">
             این عملیات قابل بازگشت نیست.
           </div>
         </div>
@@ -120,14 +120,14 @@ const CategoryLeftSidebar = ({
               type: "createCategory",
             })
           }
-          className="!mb-3 !flex !h-9 !w-full !items-center !justify-center !gap-1 !rounded-xl !border-none !bg-gradient-to-l !from-sky-600 !to-indigo-600 !text-xs !font-bold shadow-sm hover:!opacity-90"
+          className="!mb-3 !flex !h-9 !w-full !items-center !justify-center !gap-1 !rounded-xl !border-none !bg-gradient-to-l !theme-gradient !theme-gradient !text-xs !font-bold shadow-sm hover:!opacity-90"
         >
           دسته‌بندی جدید
         </Button>
 
         <div className="min-h-0 flex-1 space-y-1.5 overflow-y-auto pl-0.5">
           {categories.length === 0 && (
-            <div className="rounded-xl border border-dashed border-sky-200 bg-sky-50/50 p-4 text-center text-[11px] text-sky-500">
+            <div className="rounded-xl border border-dashed theme-accent-border theme-accent-soft-50 p-4 text-center text-[11px] theme-accent">
               هنوز دسته‌بندی‌ای ساخته نشده است.
             </div>
           )}
@@ -140,7 +140,7 @@ const CategoryLeftSidebar = ({
               <div
                 key={item.id}
                 className={`group flex items-center rounded-xl transition ${
-                  isActive ? color.row : "hover:bg-slate-50"
+                  isActive ? color.row : "hover:theme-canvas"
                 }`}
               >
                 <Tooltip
@@ -176,7 +176,7 @@ const CategoryLeftSidebar = ({
                       className={`min-w-0 flex-1 truncate text-xs ${
                         isActive
                           ? `font-bold ${color.text}`
-                          : "font-medium text-slate-700"
+                          : "font-medium theme-text"
                       }`}
                     >
                       {item.name}
@@ -196,7 +196,7 @@ const CategoryLeftSidebar = ({
                       type="text"
                       size="small"
                       icon={<FormOutlined />}
-                      className="!h-6 !w-6 !rounded-lg !p-0 !text-slate-400 hover:!bg-emerald-100 hover:!text-emerald-600"
+                      className="!h-6 !w-6 !rounded-lg !p-0 !theme-muted hover:!bg-emerald-100 hover:!text-emerald-600"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleForm(item);
@@ -209,7 +209,7 @@ const CategoryLeftSidebar = ({
                       type="text"
                       size="small"
                       icon={<EditOutlined />}
-                      className="!h-6 !w-6 !rounded-lg !p-0 !text-slate-400 hover:!bg-sky-100 hover:!text-sky-600"
+                      className="!h-6 !w-6 !rounded-lg !p-0 !theme-muted hover:!theme-accent-soft hover:!theme-accent"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleEdit(item);
@@ -234,7 +234,7 @@ const CategoryLeftSidebar = ({
 
                 <span
                   className={`mx-2 flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-2 text-[10px] font-bold ${
-                    isActive ? color.badge : "bg-slate-100 text-slate-500"
+                    isActive ? color.badge : "theme-panel theme-muted"
                   }`}
                 >
                   {item.number_of_forms}

@@ -22,12 +22,12 @@ const UsersPerformance = () => {
             {rank <= 3 ? (
               <div className="relative">
                 <TrophyOutlined style={{ color: colors[rank - 1], fontSize: '24px' }} />
-                <span className="absolute -top-1 -right-1 bg-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center border shadow-sm">
+                <span className="absolute -top-1 -right-1 theme-surface text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center border shadow-sm">
                   {rank}
                 </span>
               </div>
             ) : (
-              <span className="text-slate-400 font-mono italic">{rank}</span>
+              <span className="theme-muted font-mono italic">{rank}</span>
             )}
           </div>
         );
@@ -42,20 +42,20 @@ const UsersPerformance = () => {
         <div className="flex items-center gap-4">
           <Avatar 
             size={48}
-            className="shadow-inner border-2 border-white"
+            className="shadow-inner border-2 theme-border"
             style={{ 
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'linear-gradient(135deg, var(--pw-accent) 0%, var(--pw-accent-strong) 100%)',
               fontSize: '18px'
             }}
           >
             {record.trustee__name[0]}
           </Avatar>
           <div className="flex flex-col">
-            <span className="font-bold text-slate-800 text-base leading-tight">
+            <span className="font-bold theme-text text-base leading-tight">
               {`${record.trustee__name} ${record.trustee__last_name}`}
             </span>
             <div className="flex items-center gap-2 mt-1">
-              {/* <span className="text-[11px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded">
+              {/* <span className="text-[11px] theme-panel theme-muted px-2 py-0.5 rounded">
                 ID: {record.trustee_id}
               </span> */}
               {record.avg_performance > 80 && (
@@ -76,15 +76,15 @@ const UsersPerformance = () => {
             <span className={`text-sm font-black ${value > 50 ? 'text-emerald-600' : 'text-rose-500'}`}>
               {value}%
             </span>
-            {/* <span className="text-[10px] text-slate-400 uppercase tracking-tighter">Efficiency Score</span> */}
+            {/* <span className="text-[10px] theme-muted uppercase tracking-tighter">Efficiency Score</span> */}
           </div>
           <Progress
             percent={value}
             showInfo={false}
             strokeWidth={10}
             strokeColor={{
-              '0%': '#108ee9',
-              '100%': '#87d068',
+              '0%': 'var(--pw-accent-strong)',
+              '100%': 'var(--pw-accent)',
             }}
             className="m-0"
           />
@@ -99,12 +99,12 @@ const UsersPerformance = () => {
       align: "center",
       render: (count) => (
         <div className="flex flex-col items-center gap-1">
-          <div className="text-lg font-bold text-slate-700">
+          <div className="text-lg font-bold theme-text">
             {count.toLocaleString("fa-IR")}
           </div>
           <div className="flex gap-0.5">
             {[...Array(Math.min(5, Math.ceil(count/5)))].map((_, i) => (
-              <div key={i} className="w-1.5 h-1.5 rounded-full bg-sky-400" />
+              <div key={i} className="w-1.5 h-1.5 rounded-full theme-accent-bg" />
             ))}
           </div>
         </div>
@@ -114,31 +114,31 @@ const UsersPerformance = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f1f5f9] p-4 sm:p-6 lg:p-8" dir="rtl">
+    <div className="system-management-page min-h-screen theme-canvas p-4 sm:p-6 lg:p-8" dir="rtl">
       <div className="max-w-7xl mx-auto">
-        <header>
+        <header className="themed-page-header mb-6">
           <Button
             type="text"
             icon={<ArrowRightOutlined />}
             onClick={() => navigate("/panel/system-management")}
-            className="flex items-center text-slate-600 hover:!text-sky-700 mb-4 font-medium"
+            className="flex items-center theme-muted hover:!theme-accent mb-4 font-medium"
           >
             بازگشت به مدیریت سیستم
           </Button>
 
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
             <div>
-              <h1 className="text-4xl font-black text-slate-900 leading-none">
+              <h1 className="text-4xl font-black theme-text leading-none">
                 عملکرد کاربران
               </h1>
-              <p className="mt-3 text-slate-500 text-lg">
+              <p className="mt-3 theme-muted text-lg">
                 گزارش جامع و تحلیل هوشمند خروجی تیم
               </p>
             </div>
             <div className="mt-4 md:mt-0 flex gap-4">
-              <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 min-w-[140px]">
-                <div className="text-slate-400 text-xs mb-1">تعداد کل کاربران</div>
-                <div className="text-2xl font-black text-slate-800 leading-none">{data?.length || 0}</div>
+              <div className="theme-surface p-4 rounded-2xl shadow-sm border theme-border min-w-[140px]">
+                <div className="theme-muted text-xs mb-1">تعداد کل کاربران</div>
+                <div className="text-2xl font-black theme-text leading-none">{data?.length || 0}</div>
               </div>
             </div>
           </div>
@@ -156,15 +156,15 @@ const UsersPerformance = () => {
                 </div>
                 <div className="flex flex-wrap gap-8 justify-around items-center py-4">
                   <Statistic title="مجموع کل فعالیت ها" value={totalActivities} valueStyle={{ fontWeight: 900 }} />
-                  <div className="h-12 w-[1px] bg-slate-100 hidden sm:block" />
+                  <div className="h-12 w-[1px] theme-panel hidden sm:block" />
                   <Statistic 
                     title="برترین عملکرد" 
                     value={topPerformer?.trustee__name ? `${topPerformer.trustee__name} ${topPerformer.trustee__last_name}` : '---'} 
                     valueStyle={{ fontSize: '16px', fontWeight: 800, color: '#059669' }} 
                   />
-                  <div className="h-12 w-[1px] bg-slate-100 hidden sm:block" />
+                  <div className="h-12 w-[1px] theme-panel hidden sm:block" />
                   {/* <div className="flex flex-col items-center">
-                    <span className="text-slate-400 text-sm mb-1">توزیع کلی</span>
+                    <span className="theme-muted text-sm mb-1">توزیع کلی</span>
                     <Progress type="dashboard" percent={75} size={60} strokeColor="#6366f1" />
                   </div> */}
                 </div>
@@ -177,13 +177,14 @@ const UsersPerformance = () => {
             <Table
               dataSource={data || []}
               columns={columns}
+              scroll={{ x: "max-content" }}
               rowKey="trustee_id"
               className="modern-table"
               loading={isLoading}
               pagination={{
                 pageSize: 7,
                 className: "p-6",
-                showTotal: (total) => <span className="text-slate-400 font-medium">نمایش {total} ردیف عملکرد</span>,
+                showTotal: (total) => <span className="theme-muted font-medium">نمایش {total} ردیف عملکرد</span>,
               }}
               locale={{
                 emptyText: <Empty description="داده‌ای یافت نشد" image={Empty.PRESENTED_IMAGE_SIMPLE} />,
@@ -193,14 +194,14 @@ const UsersPerformance = () => {
         </main>
       </div>
 
-      <style jsx global>{`
+      <style>{`
         .modern-table .ant-table-thead > tr > th {
-          background: #fafafa !important;
-          color: #94a3b8 !important;
+          background: var(--pw-table-head) !important;
+          color: var(--pw-table-text) !important;
           font-weight: 800 !important;
           font-size: 12px !important;
           text-transform: uppercase;
-          border-bottom: 2px solid #f1f5f9 !important;
+          border-bottom: 2px solid var(--pw-border) !important;
           padding: 20px 24px !important;
         }
         .modern-table .ant-table-tbody > tr > td {
@@ -208,14 +209,14 @@ const UsersPerformance = () => {
           transition: all 0.2s;
         }
         .modern-table .ant-table-row:hover td {
-          background-color: #f8fafc !important;
+          background-color: var(--pw-accent-hover) !important;
         }
-        .ant-table {
+        .system-management-page .ant-table {
             background: transparent !important;
         }
-        .ant-pagination-item-active {
+        .system-management-page .ant-pagination-item-active {
             border-radius: 8px !important;
-            border-color: #6366f1 !important;
+            border-color: var(--pw-accent) !important;
         }
       `}</style>
     </div>

@@ -23,21 +23,21 @@ function Rols() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8 flex flex-col" dir="rtl">
+        <div className="system-management-page min-h-screen theme-canvas p-4 sm:p-6 lg:p-8 flex flex-col" dir="rtl">
             <div className="max-w-screen-2xl mx-auto w-full">
-                <header>
+                <header className="themed-page-header mb-6">
                     <Button
                         type="text"
                         icon={<ArrowRightOutlined/>}
                         onClick={() => navigate("/panel/system-management")}
-                        className="flex items-center text-slate-600 hover:!text-sky-700 mb-4"
+                        className="flex items-center theme-muted hover:!theme-accent mb-4"
                     >
                         بازگشت به مدیریت سیستم
                     </Button>
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
                         <div>
-                            <h1 className="text-3xl font-bold text-slate-900">مدیریت سمت‌ها و مجوزها</h1>
-                            <p className="mt-1 text-base text-slate-600">
+                            <h1 className="text-3xl font-bold theme-text">مدیریت سمت‌ها و مجوزها</h1>
+                            <p className="mt-1 text-base theme-muted">
                                 یک سمت از لیست انتخاب کرده و مجوزهای آن را در پنل مقابل مدیریت کنید.
                             </p>
                         </div>

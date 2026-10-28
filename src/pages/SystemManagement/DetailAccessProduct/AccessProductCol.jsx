@@ -34,7 +34,7 @@ export const AccessProductCol = (data = []) => [
         key: 'role_name',
         dataIndex: ['role', 'name'],
         render: (_, record) => {
-            return <Tag color={'blue'}>{record.role?.name || 'ندارد'}</Tag>;
+            return <Tag color="var(--pw-accent)">{record.role?.name || 'ندارد'}</Tag>;
         },
         sorter: (a, b) => (a.role?.name || '').localeCompare(b.role?.name || '', 'fa'),
         filters: createUniqueFilters(data, record => record.role?.name),
@@ -45,7 +45,7 @@ export const AccessProductCol = (data = []) => [
         key: 'persian_title',
         dataIndex: ['product', 'persian_title'],
         render: (_, record) => {
-            return <Tag color={'purple'}>{record.product?.persian_title || ''}</Tag>;
+            return <Tag color="var(--pw-accent)">{record.product?.persian_title || ''}</Tag>;
         },
         sorter: (a, b) => (a.product?.persian_title || '').localeCompare(b.product?.persian_title || '', 'fa'),
         filters: createUniqueFilters(data, record => record.product?.persian_title),

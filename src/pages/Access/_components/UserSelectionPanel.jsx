@@ -12,8 +12,8 @@ const UserSelectionPanel = ({selectedUserId, onSelectUser}) => {
     ) || [];
 
     const PanelHeader = (
-        <div className="p-4 border-b border-slate-200">
-            <h2 className="text-base font-semibold text-slate-800">۱. انتخاب کاربر</h2>
+        <div className="p-4 border-b theme-border">
+            <h2 className="text-base font-semibold theme-text">۱. انتخاب کاربر</h2>
             <Input.Search
                 placeholder="جستجوی کاربر..."
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -25,7 +25,7 @@ const UserSelectionPanel = ({selectedUserId, onSelectUser}) => {
     if (isError) return <div className="text-red-500 p-4">خطا در بارگذاری کاربران</div>;
 
     return (
-        <div className="bg-white rounded-xl shadow-lg border border-slate-200 flex flex-col h-full">
+        <div className="theme-surface rounded-xl shadow-lg border theme-border flex flex-col h-full">
             {PanelHeader}
             {isLoading ? <div className="flex-1 flex justify-center items-center"><Spin/></div> :
                 !filteredUsers || filteredUsers.length === 0 ?
@@ -37,13 +37,13 @@ const UserSelectionPanel = ({selectedUserId, onSelectUser}) => {
                         renderItem={(user) => (
                             <List.Item
                                 onClick={() => onSelectUser(user.id)}
-                                className={`!p-3 !my-1 rounded-lg cursor-pointer transition-colors ${selectedUserId === user.id ? 'bg-sky-100' : 'hover:bg-slate-50'}`}
+                                className={`!p-3 !my-1 rounded-lg cursor-pointer transition-colors ${selectedUserId === user.id ? 'theme-accent-soft' : 'hover:theme-canvas'}`}
                             >
                                 <List.Item.Meta
                                     avatar={<Avatar icon={<UserOutlined/>}
                                                     src={user.temp_image }/>}
                                     title={<span
-                                        className="font-medium text-slate-700">{`${user.name} ${user.last_name} (${user.username})`}</span>}
+                                        className="font-medium theme-text">{`${user.name} ${user.last_name} (${user.username})`}</span>}
                                 />
                             </List.Item>
                         )}

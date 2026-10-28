@@ -98,7 +98,7 @@ const ContractorModal = ({
                 <Switch
                   checkedChildren="بله"
                   unCheckedChildren="خیر"
-                  className="bg-gray-300"
+                  className="theme-panel"
                 />
               </Form.Item>
             </Col>

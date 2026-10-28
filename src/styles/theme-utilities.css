@@ -1,0 +1,45 @@
+/* Theme-aware presentation utilities. Status/error colors are intentionally separate. */
+.\!theme-accent { color: var(--pw-accent-strong) !important; }
+.\!theme-accent-soft { background-color: var(--pw-accent-soft) !important; }
+.\!theme-border { border-color: var(--pw-border) !important; }
+.\!theme-gradient { background-image: linear-gradient(120deg, var(--pw-accent-strong), var(--pw-accent)) !important; }
+.\!theme-muted { color: var(--pw-muted) !important; }
+.\!theme-surface { background-color: var(--pw-surface) !important; }
+.dark .dark\:theme-accent { color: var(--pw-accent-strong); }
+.dark .dark\:theme-accent-border-60 { border-color: color-mix(in srgb, var(--pw-accent-border) 60%, transparent); }
+.dark .dark\:theme-accent-soft-40 { background-color: color-mix(in srgb, var(--pw-accent-soft) 40%, transparent); }
+.dark .dark\:theme-accent-soft-60 { background-color: color-mix(in srgb, var(--pw-accent-soft) 60%, transparent); }
+.dark .dark\:theme-border { border-color: var(--pw-border); }
+.dark .dark\:theme-gradient { background-image: linear-gradient(120deg, var(--pw-accent-strong), var(--pw-accent)); }
+.dark .dark\:theme-muted { color: var(--pw-muted); }
+.dark .dark\:theme-on-accent { color: #fff; }
+.dark .dark\:theme-panel { background-color: var(--pw-canvas); }
+.dark .dark\:theme-panel-60 { background-color: color-mix(in srgb, var(--pw-canvas) 60%, transparent); }
+.group:hover .group-hover\:theme-accent-soft { background-color: var(--pw-accent-soft); }
+.hover\:\!theme-accent:hover { color: var(--pw-accent-strong) !important; }
+.hover\:\!theme-accent-soft:hover { background-color: var(--pw-accent-soft) !important; }
+.hover\:\!theme-panel:hover { background-color: var(--pw-canvas) !important; }
+.hover\:theme-accent:hover { color: var(--pw-accent-strong); }
+.hover\:theme-accent-border:hover { border-color: var(--pw-accent-border); }
+.hover\:theme-accent-soft:hover { background-color: var(--pw-accent-soft); }
+.hover\:theme-border:hover { border-color: var(--pw-border); }
+.hover\:theme-canvas:hover { background-color: var(--pw-canvas); }
+.hover\:theme-panel:hover { background-color: var(--pw-canvas); }
+.theme-accent { color: var(--pw-accent-strong); }
+.theme-accent-bg { background-color: var(--pw-accent); }
+.theme-accent-border { border-color: var(--pw-accent-border); }
+.theme-accent-soft { background-color: var(--pw-accent-soft); }
+.theme-accent-soft-50 { background-color: color-mix(in srgb, var(--pw-accent-soft) 50%, transparent); }
+.theme-accent-soft-80 { background-color: color-mix(in srgb, var(--pw-accent-soft) 80%, transparent); }
+.theme-border { border-color: var(--pw-border); }
+.theme-canvas { background-color: var(--pw-canvas); }
+.theme-gradient { background-image: linear-gradient(120deg, var(--pw-accent-strong), var(--pw-accent)); }
+.theme-gradient-soft { background-image: linear-gradient(120deg, var(--pw-accent-soft), var(--pw-canvas)); }
+.theme-muted { color: var(--pw-muted); }
+.theme-on-accent { color: #fff; }
+.theme-panel { background-color: var(--pw-canvas); }
+.theme-ring-accent-border { --tw-ring-color: var(--pw-accent-border); }
+.theme-ring-border-20 { --tw-ring-color: color-mix(in srgb, var(--pw-border) 20%, transparent); }
+.theme-surface { background-color: var(--pw-surface); }
+.theme-surface-15 { background-color: color-mix(in srgb, var(--pw-surface) 15%, transparent); }
+.theme-text { color: var(--pw-text); }

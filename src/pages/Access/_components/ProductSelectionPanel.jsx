@@ -85,9 +85,9 @@ const ProductSelectionPanel = (
         return (
             <div className="w-full flex flex-row gap-4 justify-between items-center">
                 <div>
- <span className={hasAccess ? "text-sky-600 font-semibold" : "text-gray-800"}>
+ <span className={hasAccess ? "theme-accent font-semibold" : "theme-text"}>
 {nodeData.title}
-     {hasAccess && <span className="text-xs text-sky-500 mr-2">(قبلاً انتخاب شده)</span>}
+     {hasAccess && <span className="text-xs theme-accent mr-2">(قبلاً انتخاب شده)</span>}
  </span>
                 </div>
                 {hasAccess && (
@@ -116,8 +116,8 @@ const ProductSelectionPanel = (
 
     if (!selectedUserId || !selectedRoleId) {
         return (
-            <div className="bg-white rounded-xl shadow-lg border border-slate-200 flex flex-col h-full">
-                <div className="p-4 border-b border-slate-200"><h2 className="text-base font-semibold text-slate-800">۳.
+            <div className="theme-surface rounded-xl shadow-lg border theme-border flex flex-col h-full">
+                <div className="p-4 border-b theme-border"><h2 className="text-base font-semibold theme-text">۳.
                     انتخاب محصولات</h2></div>
                 <div className="flex-1 flex justify-center items-center"><Empty
                     description="ابتدا کاربر و سمت را انتخاب کنید."/></div>
@@ -126,15 +126,15 @@ const ProductSelectionPanel = (
     }
 
     const PanelHeader = (
-        <div className="p-4 border-b border-slate-200">
-            <h2 className="text-base font-semibold text-slate-800">۳. انتخاب محصولات</h2>
+        <div className="p-4 border-b theme-border">
+            <h2 className="text-base font-semibold theme-text">۳. انتخاب محصولات</h2>
         </div>
     );
 
     if (error) return <div className="p-4"><Alert message="خطا در بارگذاری محصولات" type="error"/></div>;
 
     return (
-        <div className="bg-white rounded-xl shadow-lg border border-slate-200 flex flex-col h-full">
+        <div className="theme-surface rounded-xl shadow-lg border theme-border flex flex-col h-full">
             {PanelHeader}
             {isLoading ? <div className="flex-1 flex justify-center items-center"><Spin/></div> :
                 !treeData || treeData.length === 0 ? <div className="flex-1 flex justify-center items-center"><Empty
@@ -142,17 +142,17 @@ const ProductSelectionPanel = (
                     <>
                         <div className="p-2 flex-1 overflow-y-auto">
                             <div className="
-                             [&_.ant-tree-checkbox-checked_.ant-tree-checkbox-inner]:bg-sky-500
-                              [&_.ant-tree-checkbox-checked_.ant-tree-checkbox-inner]:border-sky-500
-                               [&_.ant-tree-checkbox-checked]:border-sky-500
-                                [&_.ant-tree-checkbox-checked::after]:border-sky-500
-                                 [&_.ant-tree-checkbox:not(.ant-tree-checkbox-checked)_]:border-gray-300
-                                  [&_.ant-tree-checkbox:not(.ant-tree-checkbox-checked)_.ant-tree-checkbox-inner]:bg-gray-100
-                                   [&_.ant-tree-checkbox:not(.ant-tree-checkbox-checked)_.ant-tree-checkbox-inner]:border-gray-300
-                                    [&_.ant-tree-checkbox-wrapper:hover_.ant-tree-checkbox-inner]:border-sky-400
-                                     [&_.ant-tree-checkbox:hover_.ant-tree-checkbox-inner]:border-sky-400
-                                      [&_.ant-tree-checkbox-wrapper:hover_.ant-tree-checkbox:not(.ant-tree-checkbox-checked)_.ant-tree-checkbox-inner]:bg-sky-50
-                                       [&_.ant-tree-checkbox:hover:not(.ant-tree-checkbox-checked)_.ant-tree-checkbox-inner]:bg-sky-50">
+                             [&_.ant-tree-checkbox-checked_.ant-tree-checkbox-inner]:theme-accent-bg
+                              [&_.ant-tree-checkbox-checked_.ant-tree-checkbox-inner]:theme-accent-border
+                               [&_.ant-tree-checkbox-checked]:theme-accent-border
+                                [&_.ant-tree-checkbox-checked::after]:theme-accent-border
+                                 [&_.ant-tree-checkbox:not(.ant-tree-checkbox-checked)_]:theme-border
+                                  [&_.ant-tree-checkbox:not(.ant-tree-checkbox-checked)_.ant-tree-checkbox-inner]:theme-panel
+                                   [&_.ant-tree-checkbox:not(.ant-tree-checkbox-checked)_.ant-tree-checkbox-inner]:theme-border
+                                    [&_.ant-tree-checkbox-wrapper:hover_.ant-tree-checkbox-inner]:theme-accent-border
+                                     [&_.ant-tree-checkbox:hover_.ant-tree-checkbox-inner]:theme-accent-border
+                                      [&_.ant-tree-checkbox-wrapper:hover_.ant-tree-checkbox:not(.ant-tree-checkbox-checked)_.ant-tree-checkbox-inner]:theme-accent-soft
+                                       [&_.ant-tree-checkbox:hover:not(.ant-tree-checkbox-checked)_.ant-tree-checkbox-inner]:theme-accent-soft">
                                 <Tree
                                     checkable
                                     checkStrictly
@@ -164,8 +164,8 @@ const ProductSelectionPanel = (
                                 />
                             </div>
                         </div>
-                        <div className="p-4 border-t border-slate-200">
-                            <div className="mb-2 text-sm text-gray-600">
+                        <div className="p-4 border-t theme-border">
+                            <div className="mb-2 text-sm theme-muted">
                                 {previouslySelectedKeys.size > 0 && (
                                     <p>تعداد محصولات قبلاً انتخاب شده: {previouslySelectedKeys.size}</p>
                                 )}

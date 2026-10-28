@@ -51,7 +51,7 @@ const FormDefinitionCols = ({
       width: 70,
       align: "center",
       render: (text, record, index) => (
-        <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-50 to-sky-100 text-xs font-bold text-indigo-600">
+        <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br theme-gradient-soft theme-gradient-soft text-xs font-bold theme-accent">
           {index + 1}
         </span>
       ),
@@ -61,7 +61,7 @@ const FormDefinitionCols = ({
       dataIndex: "name",
       key: "name",
       render: (value) => (
-        <span className="text-[14px] font-semibold text-slate-800">
+        <span className="text-[14px] font-semibold theme-text">
           {value || "بدون نام"}
         </span>
       ),
@@ -76,7 +76,7 @@ const FormDefinitionCols = ({
             {georgianDateToJalaliDate(text)}
           </span>
         ) : (
-          <span className="text-slate-400">-</span>
+          <span className="theme-muted">-</span>
         ),
     },
     {
@@ -89,7 +89,7 @@ const FormDefinitionCols = ({
             {georgianDateToJalaliDate(text)}
           </span>
         ) : (
-          <span className="text-slate-400">-</span>
+          <span className="theme-muted">-</span>
         ),
     },
     {
@@ -120,7 +120,7 @@ const FormDefinitionCols = ({
             <Button
               type="text"
               icon={<EyeOutlined />}
-              className={`${actionClass} !bg-sky-50 !text-sky-600 hover:!bg-sky-100`}
+              className={`${actionClass} !theme-accent-soft !theme-accent hover:!theme-accent-soft`}
               onClick={() => handleView(record)}
             />
           </Tooltip>
@@ -129,7 +129,7 @@ const FormDefinitionCols = ({
             <Button
               type="text"
               icon={<PlayCircleOutlined />}
-              className={`${actionClass} !bg-violet-50 !text-violet-600 hover:!bg-violet-100`}
+              className={`${actionClass} !theme-accent-soft !theme-accent hover:!theme-accent-soft`}
               onClick={() => handlePreview(record)}
             />
           </Tooltip>

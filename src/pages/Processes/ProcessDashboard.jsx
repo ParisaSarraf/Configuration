@@ -56,20 +56,20 @@ const roleName = (role) => role?.name ?? role?.title ?? "سمت بدون نام"
 
 const Metric = ({ icon, label, value, detail, tone = "slate" }) => {
   const tones = {
-    indigo: "bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40",
+    indigo: "theme-accent-soft theme-accent dark:theme-accent-soft-40",
     emerald: "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40",
     rose: "bg-rose-50 text-rose-600 dark:bg-rose-950/40",
     amber: "bg-amber-50 text-amber-600 dark:bg-amber-950/40",
-    slate: "bg-slate-100 text-slate-600 dark:bg-slate-800",
+    slate: "theme-panel theme-muted dark:theme-panel",
   };
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div className="rounded-2xl border theme-border theme-surface p-4 shadow-sm dark:theme-border dark:theme-panel">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="text-xs text-slate-500 dark:text-slate-400">
+          <div className="text-xs theme-muted dark:theme-muted">
             {label}
           </div>
-          <div className="mt-2 text-2xl font-black tabular-nums text-slate-900 dark:text-white">
+          <div className="mt-2 text-2xl font-black tabular-nums theme-text dark:theme-on-accent">
             {value}
           </div>
         </div>
@@ -79,20 +79,20 @@ const Metric = ({ icon, label, value, detail, tone = "slate" }) => {
           {icon}
         </span>
       </div>
-      <div className="mt-2 text-[11px] text-slate-400">{detail}</div>
+      <div className="mt-2 text-[11px] theme-muted">{detail}</div>
     </div>
   );
 };
 
 const Section = ({ title, description, extra, children }) => (
-  <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 dark:border-slate-800 dark:bg-slate-900">
+  <section className="rounded-2xl border theme-border theme-surface p-4 shadow-sm sm:p-5 dark:theme-border dark:theme-panel">
     <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
       <div>
-        <h2 className="m-0 text-base font-bold text-slate-800 dark:text-slate-100">
+        <h2 className="m-0 text-base font-bold theme-text dark:theme-muted">
           {title}
         </h2>
         {description ? (
-          <p className="mb-0 mt-1 text-xs leading-6 text-slate-400">
+          <p className="mb-0 mt-1 text-xs leading-6 theme-muted">
             {description}
           </p>
         ) : null}
@@ -112,16 +112,16 @@ const StationChart = ({ states }) => {
       {states.map((state) => (
         <div key={state.id ?? state.name}>
           <div className="mb-1.5 flex items-center justify-between gap-3 text-xs">
-            <span className="truncate font-semibold text-slate-700 dark:text-slate-200">
+            <span className="truncate font-semibold theme-text dark:theme-muted">
               {state.name}
             </span>
-            <span className="tabular-nums text-slate-500">
+            <span className="tabular-nums theme-muted">
               {formatNumber(state.count)} درخواست
             </span>
           </div>
-          <div className="h-3 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+          <div className="h-3 overflow-hidden rounded-full theme-panel dark:theme-panel">
             <div
-              className="h-full rounded-full bg-gradient-to-l from-indigo-600 to-sky-400 transition-all duration-500"
+              className="h-full rounded-full bg-gradient-to-l theme-gradient transition-all duration-500"
               style={{
                 width: `${state.count ? Math.max(4, (state.count / max) * 100) : 0}%`,
               }}
@@ -141,7 +141,7 @@ const StatusChart = ({ kpi }) => {
       key: "normal",
       label: "جاری",
       value: number(kpi?.count_of_normal_request),
-      color: "bg-indigo-500",
+      color: "theme-accent-bg",
     },
     {
       key: "complete",
@@ -159,7 +159,7 @@ const StatusChart = ({ kpi }) => {
   const total = Math.max(1, data.reduce((sum, item) => sum + item.value, 0));
   return (
     <div>
-      <div className="mb-5 flex h-4 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+      <div className="mb-5 flex h-4 overflow-hidden rounded-full theme-panel dark:theme-panel">
         {data.map((item) =>
           item.value ? (
             <div
@@ -175,13 +175,13 @@ const StatusChart = ({ kpi }) => {
         {data.map((item) => (
           <div
             key={item.key}
-            className="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2.5 dark:bg-slate-800/60"
+            className="flex items-center justify-between rounded-xl theme-canvas px-3 py-2.5 dark:theme-panel-60"
           >
-            <span className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+            <span className="flex items-center gap-2 text-xs theme-muted dark:theme-muted">
               <i className={`h-2.5 w-2.5 rounded-full ${item.color}`} />
               {item.label}
             </span>
-            <strong className="tabular-nums text-slate-800 dark:text-slate-100">
+            <strong className="tabular-nums theme-text dark:theme-muted">
               {formatNumber(item.value)}
             </strong>
           </div>
@@ -384,17 +384,17 @@ const ProcessDashboardContent = () => {
         بازگشت به فرایندها
       </Button>
 
-      <div className="overflow-hidden rounded-3xl bg-gradient-to-l from-slate-900 via-slate-800 to-indigo-900 p-5 text-white shadow-lg sm:p-7">
+      <div className="themed-page-header overflow-hidden rounded-3xl bg-gradient-to-l theme-gradient theme-gradient p-5 theme-on-accent shadow-lg sm:p-7">
         <div className="flex flex-wrap items-center justify-between gap-5">
           <div>
-            <div className="mb-2 flex items-center gap-2 text-xs text-indigo-200">
+            <div className="mb-2 flex items-center gap-2 text-xs theme-accent">
               <ApartmentOutlined />
               داشبورد فرایند
             </div>
             <h1 className="m-0 text-xl font-black sm:text-2xl">
               {kpi?.name || info?.name || "فرایند"}
             </h1>
-            <p className="mb-0 mt-2 max-w-2xl text-xs leading-6 text-slate-300">
+            <p className="mb-0 mt-2 max-w-2xl text-xs leading-6 theme-muted">
               وضعیت درخواست‌ها، مسیر گردش، دسترسی سمت‌ها و قواعد قفل فیلدها در
               یک نمای یکپارچه
             </p>
@@ -561,7 +561,7 @@ const ProcessDashboardContent = () => {
         <Section
           title="دسترسی سمت‌ها"
           description="سمت‌های دارای دسترسی در فرایند و سطح مشاهده یا ویرایش آن‌ها"
-          extra={<TeamOutlined className="text-slate-400" />}
+          extra={<TeamOutlined className="theme-muted" />}
         >
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
@@ -575,7 +575,7 @@ const ProcessDashboardContent = () => {
                       key={item.id}
                       className="flex items-center justify-between gap-2 rounded-xl bg-emerald-50 px-3 py-2.5 dark:bg-emerald-950/30"
                     >
-                      <span className="truncate text-xs font-semibold text-slate-700 dark:text-slate-200">
+                      <span className="truncate text-xs font-semibold theme-text dark:theme-muted">
                         {item.name}
                       </span>
                       <span className="flex shrink-0 gap-1">
@@ -601,7 +601,7 @@ const ProcessDashboardContent = () => {
               </div>
             </div>
             <div>
-              <div className="mb-2 text-xs font-bold text-slate-500">
+              <div className="mb-2 text-xs font-bold theme-muted">
                 بدون دسترسی مستقیم
               </div>
               <div className="flex flex-wrap gap-2">
@@ -612,7 +612,7 @@ const ProcessDashboardContent = () => {
                     </Tag>
                   ))
                 ) : (
-                  <span className="text-xs text-slate-400">
+                  <span className="text-xs theme-muted">
                     سمت دیگری برای مقایسه پیدا نشد.
                   </span>
                 )}
@@ -633,7 +633,7 @@ const ProcessDashboardContent = () => {
                   key={row.id}
                   className="rounded-xl border border-amber-100 bg-amber-50/70 p-3 dark:border-amber-900/50 dark:bg-amber-950/20"
                 >
-                  <div className="mb-2 flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-200">
+                  <div className="mb-2 flex items-center gap-2 text-xs font-bold theme-text dark:theme-muted">
                     <SafetyCertificateOutlined className="text-amber-600" />
                     بعد از ایستگاه «{row.state || "بدون نام"}»
                   </div>
@@ -662,7 +662,7 @@ const ProcessDashboardContent = () => {
 const ProcessDashboard = () => (
   <ConfigProvider direction="rtl">
     <App>
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950" dir="rtl">
+      <div className="min-h-screen theme-canvas dark:theme-panel" dir="rtl">
         <Header />
         <ProcessDashboardContent />
       </div>

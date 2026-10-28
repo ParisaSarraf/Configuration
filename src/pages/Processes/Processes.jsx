@@ -97,10 +97,10 @@ const ProcessesList = () => {
         key: "name",
         render: (value, _record, index) => (
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-Box text-sm font-bold text-Main dark:bg-slate-800 dark:text-slate-200">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl theme-accent-soft text-sm font-bold theme-accent dark:theme-panel dark:theme-muted">
               {(page - 1) * PAGE_SIZE + index + 1}
             </span>
-            <span className="text-[15px] font-semibold text-slate-800 dark:text-slate-100">
+            <span className="text-[15px] font-semibold theme-text dark:theme-muted">
               {value || "بدون نام"}
             </span>
           </div>
@@ -160,7 +160,7 @@ const ProcessesList = () => {
             <Tooltip title="جزئیات فرایند">
               <Button
                 icon={<SettingOutlined />}
-                className="text-sky-500 border-sky-500"
+                className="theme-accent theme-accent-border"
                 onClick={() =>
                   setModal({
                     mode: "detail",
@@ -179,7 +179,7 @@ const ProcessesList = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950" dir="rtl">
+    <div className="min-h-screen theme-canvas dark:theme-panel" dir="rtl">
       <Header />
 
       <div className="mx-auto max-w-screen-xl p-4 sm:p-6">
@@ -187,18 +187,18 @@ const ProcessesList = () => {
           type="text"
           icon={<ArrowRightOutlined />}
           onClick={() => navigate("/")}
-          className="mb-4 flex items-center text-slate-600 hover:!text-Main dark:text-slate-300"
+          className="mb-4 flex items-center theme-muted hover:!theme-accent dark:theme-muted"
         >
           بازگشت به صفحه قبل
         </Button>
 
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-l from-Main to-slate-700 p-5 shadow-sm sm:p-7 dark:border-slate-800">
+        <div className="themed-page-header overflow-hidden rounded-2xl border theme-border bg-gradient-to-l theme-gradient p-5 shadow-sm sm:p-7 dark:theme-border">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h1 className="text-xl font-extrabold text-white sm:text-2xl">
+              <h1 className="text-xl font-extrabold theme-on-accent sm:text-2xl">
                 فرایندها
               </h1>
-              <p className="mt-1 text-xs leading-7 text-slate-200 sm:text-sm">
+              <p className="mt-1 text-xs leading-7 theme-muted sm:text-sm">
                 گردش کار درخواست‌ها را در سه مرحله‌ی ساده بسازید و مدیریت کنید.
               </p>
             </div>
@@ -208,20 +208,20 @@ const ProcessesList = () => {
               onClick={() =>
                 setModal({ mode: "create", data: null, type: "CreateProccess" })
               }
-              className="!h-11 !border-none !bg-white !font-semibold !text-Main hover:!bg-slate-100"
+              className="!h-11 !border-none !theme-surface !font-semibold !theme-accent hover:!theme-panel"
             >
               ثبت فرایند جدید
             </Button>
           </div>
         </div>
 
-        <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 dark:border-slate-800 dark:bg-slate-900">
+        <div className="mt-4 rounded-2xl border theme-border theme-surface p-4 shadow-sm sm:p-5 dark:theme-border dark:theme-panel">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-baseline gap-2">
-              <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">
+              <h2 className="text-base font-bold theme-text dark:theme-muted">
                 فهرست فرایندها
               </h2>
-              <span className="text-xs text-slate-500 dark:text-slate-400">
+              <span className="text-xs theme-muted dark:theme-muted">
                 {processes.length} فرایند
               </span>
             </div>
@@ -274,16 +274,16 @@ const ProcessesList = () => {
             scroll={{ x: "max-content" }}
             rowClassName={(record) =>
               String(record?.id) === String(highlightId)
-                ? "bg-Box dark:bg-slate-800"
+                ? "theme-accent-soft dark:theme-panel"
                 : ""
             }
             locale={{
               emptyText: (
                 <div className="flex flex-col items-center gap-2 py-10">
-                  <p className="m-0 text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  <p className="m-0 text-sm font-semibold theme-text dark:theme-muted">
                     هنوز فرایندی ثبت نشده است
                   </p>
-                  <p className="m-0 text-xs text-slate-500 dark:text-slate-400">
+                  <p className="m-0 text-xs theme-muted dark:theme-muted">
                     برای شروع، نام اولین فرایند خود را ثبت کنید.
                   </p>
                   <Button

@@ -74,10 +74,10 @@ const LifeCycleManager = ({ selectedRoleId, refetch }) => {
 
   if (!selectedRoleId) {
     return (
-      <div className="lg:col-span-2 bg-white rounded-xl shadow-lg border border-slate-200 flex flex-col">
-        <div className="p-4 border-b border-slate-200 flex items-center gap-2">
-          <SafetyCertificateOutlined className="text-slate-500" />
-          <h2 className="text-base font-semibold text-slate-800">
+      <div className="lg:col-span-2 theme-surface rounded-xl shadow-lg border theme-border flex flex-col">
+        <div className="p-4 border-b theme-border flex items-center gap-2">
+          <SafetyCertificateOutlined className="theme-muted" />
+          <h2 className="text-base font-semibold theme-text">
             مدیریت چرخه عمر
           </h2>
         </div>
@@ -89,12 +89,12 @@ const LifeCycleManager = ({ selectedRoleId, refetch }) => {
   }
 
   return (
-    <div className="lg:col-span-2 bg-white rounded-xl shadow-lg border border-slate-200 flex flex-col">
-      <div className="p-4 border-b border-slate-200 flex items-center gap-2">
-        <SafetyCertificateOutlined className="text-slate-500" />
-        <h2 className="text-base font-semibold text-slate-800">
+    <div className="lg:col-span-2 theme-surface rounded-xl shadow-lg border theme-border flex flex-col">
+      <div className="p-4 border-b theme-border flex items-center gap-2">
+        <SafetyCertificateOutlined className="theme-muted" />
+        <h2 className="text-base font-semibold theme-text">
           چرخه عمرهای سمت:
-          <span className="text-sky-600">{selectedRoleName}</span>
+          <span className="theme-accent">{selectedRoleName}</span>
         </h2>
       </div>
       <div className="p-4 flex-1">

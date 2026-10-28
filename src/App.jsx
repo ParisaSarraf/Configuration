@@ -6,6 +6,8 @@ import ContextProvider from "./Services/Context/AuthContext.jsx";
 import fa_IR from "antd/locale/fa_IR";
 import {ProductThemeProvider, useProductTheme} from "./components/Theme/ProductThemeContext.jsx";
 import {getProductThemeConfig, getProductThemeVariables} from "./components/Theme/productThemes.js";
+import "./styles/theme-utilities.css";
+import "./styles/theme-consistency.css";
 
 const ThemedApplication = () => {
     const {globalTheme} = useProductTheme();

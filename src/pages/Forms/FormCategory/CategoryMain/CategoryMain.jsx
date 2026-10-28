@@ -192,13 +192,13 @@ const CategoryMain = ({
 
   return (
     <>
-      <main className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 dark:border-slate-800 dark:bg-slate-900">
+      <main className="rounded-2xl border theme-border theme-surface p-4 shadow-sm sm:p-5 dark:theme-border dark:theme-panel">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-baseline gap-2">
-            <h2 className="m-0 text-base font-bold text-slate-800 dark:text-slate-100">
+            <h2 className="m-0 text-base font-bold theme-text dark:theme-muted">
               فهرست فرم‌ها
             </h2>
-            <span className="text-xs text-slate-500 dark:text-slate-400">
+            <span className="text-xs theme-muted dark:theme-muted">
               {filteredForms.length.toLocaleString("fa-IR")} مورد
             </span>
           </div>
@@ -206,7 +206,7 @@ const CategoryMain = ({
           <div className="flex flex-wrap items-center gap-2">
             <Input
               allowClear
-              prefix={<SearchOutlined className="text-slate-400" />}
+              prefix={<SearchOutlined className="theme-muted" />}
               placeholder="جستجوی نام یا توضیحات فرم"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
@@ -236,19 +236,19 @@ const CategoryMain = ({
           </div>
         </div>
 
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-blue-100 bg-gradient-to-l from-blue-50 to-slate-50 p-4 dark:border-blue-900/60 dark:from-blue-950/30 dark:to-slate-900">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border theme-accent-border bg-gradient-to-l theme-gradient-soft theme-gradient-soft p-4 dark:theme-accent-border-60 dark:theme-gradient dark:theme-gradient">
           <div className="flex items-start gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-lg text-blue-600 dark:bg-blue-950/60 dark:text-blue-300">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl theme-accent-soft text-lg theme-accent dark:theme-accent-soft-60 dark:theme-accent">
               <StoredIcon
                 value={activeCategory?.icon}
                 fallback={<FolderAddOutlined />}
               />
             </span>
             <div>
-              <div className="font-bold text-slate-800 dark:text-slate-100">
+              <div className="font-bold theme-text dark:theme-muted">
                 {activeCategoryName}
               </div>
-              <p className="mt-1 mb-0 text-xs leading-6 text-slate-500 dark:text-slate-400">
+              <p className="mt-1 mb-0 text-xs leading-6 theme-muted dark:theme-muted">
                 بدون انتخاب دسته‌بندی، همه فرم‌ها نمایش داده می‌شوند. برای
                 نمایش فرم‌های یک دسته‌بندی، آن را انتخاب کنید.
               </p>

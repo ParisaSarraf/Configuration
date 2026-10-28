@@ -217,10 +217,10 @@ const PermissionManager = ({ selectedRoleId, refetch }) => {
 
   if (!selectedRoleId) {
     return (
-      <div className="lg:col-span-2 flex min-h-[420px] flex-col rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex items-center gap-2 border-b border-slate-200 p-4">
-          <SafetyCertificateOutlined className="text-slate-500" />
-          <h2 className="text-base font-semibold text-slate-800">
+      <div className="lg:col-span-2 flex min-h-[420px] flex-col rounded-xl border theme-border theme-surface shadow-sm">
+        <div className="flex items-center gap-2 border-b theme-border p-4">
+          <SafetyCertificateOutlined className="theme-muted" />
+          <h2 className="text-base font-semibold theme-text">
             مدیریت مجوزها
           </h2>
         </div>
@@ -232,26 +232,26 @@ const PermissionManager = ({ selectedRoleId, refetch }) => {
   }
 
   return (
-    <div className="lg:col-span-2 flex flex-col rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-200 p-4">
+    <div className="lg:col-span-2 flex flex-col rounded-xl border theme-border theme-surface shadow-sm">
+      <div className="border-b theme-border p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <SafetyCertificateOutlined className="text-sky-600" />
-            <h2 className="text-base font-semibold text-slate-800">
+            <SafetyCertificateOutlined className="theme-accent" />
+            <h2 className="text-base font-semibold theme-text">
               دسترسی‌های سمت
             </h2>
-            <Tag color="blue" className="!m-0">
+            <Tag color="var(--pw-accent)" className="!m-0">
               {selectedRoleName}
             </Tag>
           </div>
-          <div className="flex items-center gap-2 text-xs text-slate-500">
-            <Tag color="cyan" className="!m-0">
+          <div className="flex items-center gap-2 text-xs theme-muted">
+            <Tag color="var(--pw-accent)" className="!m-0">
               {targetKeys.length} دسترسی انتخاب‌شده
             </Tag>
             <Tag className="!m-0">{permissionGroups.length} گروه</Tag>
           </div>
         </div>
-        <p className="mb-0 mt-2 text-sm text-slate-500">
+        <p className="mb-0 mt-2 text-sm theme-muted">
           هر گروه را باز کنید تا دسترسی‌های زیرمجموعه و وضعیت انتخاب آن‌ها را
           ببینید.
         </p>
@@ -263,7 +263,7 @@ const PermissionManager = ({ selectedRoleId, refetch }) => {
             allowClear
             value={searchText}
             onChange={(event) => setSearchText(event.target.value)}
-            prefix={<SearchOutlined className="text-slate-400" />}
+            prefix={<SearchOutlined className="theme-muted" />}
             placeholder="جستجو در نام گروه، دسترسی یا کد دسترسی"
             className="mb-4"
           />
@@ -277,7 +277,7 @@ const PermissionManager = ({ selectedRoleId, refetch }) => {
               <Empty description="دسترسی‌ای پیدا نشد" />
             </div>
           ) : (
-            <div className="max-h-[56vh] overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-2">
+            <div className="max-h-[56vh] overflow-y-auto rounded-lg border theme-border theme-canvas p-2">
               <Collapse
                 activeKey={expandedKeys}
                 onChange={(keys) =>
@@ -304,8 +304,8 @@ const PermissionManager = ({ selectedRoleId, refetch }) => {
                       header={
                         <div className="flex w-full items-center justify-between gap-3 pl-2">
                           <div className="flex min-w-0 items-center gap-2">
-                            <FolderOpenOutlined className="shrink-0 text-sky-600" />
-                            <span className="truncate font-semibold text-slate-800">
+                            <FolderOpenOutlined className="shrink-0 theme-accent" />
+                            <span className="truncate font-semibold theme-text">
                               {group.category}
                             </span>
                           </div>
@@ -314,7 +314,7 @@ const PermissionManager = ({ selectedRoleId, refetch }) => {
                             onClick={(event) => event.stopPropagation()}
                           >
                             <Tag
-                              color={selectedCount ? "blue" : "default"}
+                              color={selectedCount ? "var(--pw-accent)" : "default"}
                               className="!m-0"
                             >
                               {selectedCount} از {groupPermissionKeys.length}
@@ -331,7 +331,7 @@ const PermissionManager = ({ selectedRoleId, refetch }) => {
                           </div>
                         </div>
                       }
-                      className="!mb-2 overflow-hidden !rounded-lg !border !border-slate-200 !bg-white"
+                      className="!mb-2 overflow-hidden !rounded-lg !border !theme-border !theme-surface"
                     >
                       <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                         {group.permissions.map((permission) => {
@@ -343,8 +343,8 @@ const PermissionManager = ({ selectedRoleId, refetch }) => {
                               key={permissionKey}
                               className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors ${
                                 checked
-                                  ? "border-sky-300 bg-sky-50"
-                                  : "border-slate-200 bg-white hover:border-slate-300"
+                                  ? "theme-accent-border theme-accent-soft"
+                                  : "theme-border theme-surface hover:theme-border"
                               }`}
                             >
                               <Checkbox
@@ -357,10 +357,10 @@ const PermissionManager = ({ selectedRoleId, refetch }) => {
                                 }
                               />
                               <span className="min-w-0 flex-1">
-                                <span className="block text-sm font-medium text-slate-700">
+                                <span className="block text-sm font-medium theme-text">
                                   {permission.name}
                                 </span>
-                                <span className="mt-1 block truncate font-mono text-xs text-slate-400">
+                                <span className="mt-1 block truncate font-mono text-xs theme-muted">
                                   {permission.codename}
                                 </span>
                               </span>
@@ -375,7 +375,7 @@ const PermissionManager = ({ selectedRoleId, refetch }) => {
             </div>
           )}
 
-          <div className="mt-4 flex justify-end gap-3 border-t border-slate-100 pt-4">
+          <div className="mt-4 flex justify-end gap-3 border-t theme-border pt-4">
             <Button htmlType="button" onClick={handleReset}>
               بازنشانی
             </Button>

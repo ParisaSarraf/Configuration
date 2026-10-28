@@ -1,0 +1,178 @@
+/* Shared visual language for standalone forms, workflows and administration.
+   No selectors target SignIn; its fixed palette remains independent. */
+.themed-page-header {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 20px 24px !important;
+  color: var(--pw-text) !important;
+  background: var(--pw-accent-soft) !important;
+  background-image: none !important;
+  border: 1px solid var(--pw-accent-border) !important;
+  border-radius: 12px;
+  box-shadow: none !important;
+}
+.themed-page-header :is(h1, h2) {
+  margin: 0;
+  color: var(--pw-text) !important;
+  font-size: clamp(20px, 2vw, 24px);
+  font-weight: 700;
+  line-height: 1.6 !important;
+  overflow-wrap: anywhere;
+}
+.themed-page-header p {
+  color: var(--pw-muted) !important;
+  font-size: 14px;
+  line-height: 1.9;
+  margin-top: 6px;
+  margin-bottom: 0;
+}
+.themed-page-header > div,
+.themed-page-header .flex {
+  min-width: 0;
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+.themed-page-header > .mb-8 { margin-bottom: 0; }
+.themed-page-header :is(.theme-on-accent, .theme-on-accent-15, .theme-on-accent-20) {
+  color: var(--pw-accent-strong);
+}
+.themed-page-header .theme-surface-15 {
+  background: var(--pw-surface);
+  border: 1px solid var(--pw-accent-border);
+}
+.themed-page-header :is(button, a) { min-height: 44px; }
+.themed-page-header .ant-btn-icon-only { min-width: 44px; }
+.themed-page-header button { white-space: normal; height: auto; }
+.themed-page-header :is(button, a):focus-visible,
+.system-management-page a:focus-visible {
+  outline: 2px solid var(--pw-focus);
+  outline-offset: 3px;
+}
+.system-management-page { color: var(--pw-text); }
+.system-management-page :where(main, section, article, .grid, .grid > *, .ant-card, .ant-tabs, .ant-table-wrapper) {
+  min-width: 0;
+}
+.system-management-page .ant-table-wrapper,
+.system-access-detail .ant-table-wrapper { max-width: 100%; }
+.system-management-page .ant-tree-title { overflow-wrap: anywhere; }
+.system-management-page .ant-table-thead > tr > th,
+.system-access-detail .ant-table-thead > tr > th {
+  color: var(--pw-table-text);
+  background: var(--pw-table-head);
+}
+.system-management-page .ant-table-tbody > tr:hover > td,
+.system-access-detail .ant-table-tbody > tr:hover > td { background: var(--pw-accent-hover); }
+
+/* Match editor toolbars to the same palette without changing canvas grids,
+   breakpoint ordering, graph coordinates or form/document content. */
+.form-studio {
+  --studio-bg: var(--pw-canvas);
+  --studio-workspace: var(--pw-canvas);
+  --studio-surface: var(--pw-surface);
+  --studio-canvas: var(--pw-surface);
+  --studio-panel: var(--pw-canvas);
+  --studio-primary: var(--pw-accent);
+  --studio-primary-strong: var(--pw-accent-strong);
+  --studio-primary-soft: var(--pw-accent-soft);
+  --studio-border: var(--pw-border);
+  --studio-text: var(--pw-text);
+  --studio-muted: var(--pw-muted);
+}
+.process-builder {
+  --pb-bg: var(--pw-canvas);
+  --pb-surface: var(--pw-surface);
+  --pb-panel: var(--pw-canvas);
+  --pb-rail: var(--pw-canvas);
+  --pb-chrome-top: var(--pw-accent-soft);
+  --pb-chrome-bottom: var(--pw-accent-soft);
+  --pb-chrome-text: var(--pw-text);
+  --pb-chrome-muted: var(--pw-muted);
+  --pb-chrome-line: var(--pw-accent-border);
+  --pb-chrome-fill: var(--pw-surface);
+  --pb-text: var(--pw-text);
+  --pb-text-soft: var(--pw-muted);
+  --pb-muted: var(--pw-muted);
+  --pb-border: var(--pw-border);
+  --pb-border-strong: var(--pw-control-border);
+}
+.form-studio .studio-header,
+.process-builder .process-builder__toolbar {
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  height: auto;
+  min-height: 72px;
+  max-width: 100%;
+  padding: 12px 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: var(--pw-text);
+  background: var(--pw-accent-soft);
+  border-bottom: 1px solid var(--pw-accent-border);
+  box-shadow: none;
+}
+.form-studio .studio-header > div,
+.process-builder .process-builder__toolbar-start,
+.process-builder .process-builder__toolbar-end {
+  min-width: 0;
+  max-width: 100%;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.form-studio .studio-header > div:first-child { flex: 1 1 280px; }
+.form-studio .studio-header h1,
+.process-builder .process-builder__title-text {
+  color: var(--pw-text);
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+.form-studio .studio-header p,
+.process-builder .process-builder__subtitle { color: var(--pw-muted); }
+.form-studio .studio-header .ant-btn,
+.process-builder .process-builder__toolbar .ant-btn {
+  color: var(--pw-accent-strong);
+  min-height: 44px;
+  height: auto;
+  border-radius: 8px;
+}
+.form-studio .studio-header .ant-btn-primary,
+.process-builder .process-builder__toolbar .ant-btn-primary:not(.process-builder__save) {
+  color: var(--pw-accent-strong);
+  background: var(--pw-surface);
+  border-color: var(--pw-accent-border);
+}
+.form-studio .studio-header .ant-btn:not(:disabled):hover,
+.process-builder .process-builder__toolbar .ant-btn:not(:disabled):hover {
+  color: var(--pw-accent-strong);
+  background: var(--pw-surface);
+  border-color: var(--pw-accent-border);
+}
+.process-builder .process-builder__toolbar .process-builder__save {
+  color: #fff;
+  background: var(--pw-accent);
+  border-color: var(--pw-accent);
+}
+.process-builder .process-builder__toolbar .process-builder__save:not(:disabled):hover {
+  color: #fff;
+  background: var(--pw-accent-strong);
+  border-color: var(--pw-accent-strong);
+}
+@media (max-width: 639px) {
+  .themed-page-header { padding: 16px !important; }
+  .themed-page-header .flex { gap: 10px; }
+  .themed-page-header :is(button, a) { max-width: 100%; }
+  .system-management-page .ant-pagination { flex-wrap: wrap; }
+  .form-studio .studio-header,
+  .process-builder .process-builder__toolbar { padding: 12px; }
+  .form-studio .studio-header > div:first-child { flex-basis: 100%; }
+  .process-builder .process-builder__title { min-width: 0; flex: 1 1 160px; }
+  .process-builder .process-builder__title-text { overflow-wrap: anywhere; white-space: normal; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .themed-page-header *, .system-management-page * { transition: none !important; }
+}
+
+@media (max-width: 1200px) {
+  /* A wrapped editor header must never cover a sticky tool library. */
+  .form-studio .studio-library { position: static; }
+}

@@ -36,10 +36,10 @@ const RoleListPanel = ({selectedRoleId, onRoleSelect, setModal, refetch}) => {
     }
 
     return (
-        <div className="lg:col-span-1 bg-white rounded-xl shadow-lg border border-slate-200 h-fit">
-            <div className="p-4 border-b border-slate-200 flex items-center gap-2">
-                <ApartmentOutlined className="text-slate-500"/>
-                <h2 className="text-base font-semibold text-slate-800">لیست سمت‌ها</h2>
+        <div className="lg:col-span-1 theme-surface rounded-xl shadow-lg border theme-border h-fit">
+            <div className="p-4 border-b theme-border flex items-center gap-2">
+                <ApartmentOutlined className="theme-muted"/>
+                <h2 className="text-base font-semibold theme-text">لیست سمت‌ها</h2>
             </div>
             <div className="p-2 max-h-[60vh] overflow-y-auto">
                 <List
@@ -47,9 +47,9 @@ const RoleListPanel = ({selectedRoleId, onRoleSelect, setModal, refetch}) => {
                     renderItem={(item) => (
                         <List.Item
                             onClick={() => onRoleSelect(item.id)}
-                            className={`!p-3 !my-1 rounded-lg cursor-pointer transition-colors ${selectedRoleId === item.id ? 'bg-sky-100' : 'hover:bg-slate-50'}`}
+                            className={`!p-3 !my-1 rounded-lg cursor-pointer transition-colors ${selectedRoleId === item.id ? 'theme-accent-soft' : 'hover:theme-canvas'}`}
                         >
-                            <List.Item.Meta title={<span className="font-medium text-slate-700">{item.name}</span>}/>
+                            <List.Item.Meta title={<span className="font-medium theme-text">{item.name}</span>}/>
                             <Dropdown menu={{items: menuItems(item)}} trigger={['click']}>
                                 <Button type="text" shape="circle" icon={<MoreOutlined/>}
                                         onClick={(e) => e.stopPropagation()}/>

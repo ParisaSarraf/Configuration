@@ -35,8 +35,8 @@ const Setting = () => {
             icon: <TagsOutlined/>,
             children: <Casing/>,
             colorScheme: {
-                active: 'bg-teal-50 text-teal-700 font-semibold',
-                inactive: 'text-slate-600 hover:bg-teal-50 hover:text-teal-700'
+                active: 'theme-accent-soft theme-accent font-semibold',
+                inactive: 'theme-muted hover:theme-accent-soft hover:theme-accent'
             }
         },
         {
@@ -45,8 +45,8 @@ const Setting = () => {
             icon: <UserOutlined/>,
             children: <Personality/>,
             colorScheme: {
-                active: 'bg-sky-50 text-sky-700 font-semibold',
-                inactive: 'text-slate-600 hover:bg-sky-50 hover:text-sky-700'
+                active: 'theme-accent-soft theme-accent font-semibold',
+                inactive: 'theme-muted hover:theme-accent-soft hover:theme-accent'
             }
         },
         {
@@ -55,8 +55,8 @@ const Setting = () => {
             icon: <AppstoreOutlined/>,
             children: <Genus/>,
             colorScheme: {
-                active: 'bg-violet-50 text-violet-700 font-semibold',
-                inactive: 'text-slate-600 hover:bg-violet-50 hover:text-violet-700'
+                active: 'theme-accent-soft theme-accent font-semibold',
+                inactive: 'theme-muted hover:theme-accent-soft hover:theme-accent'
             }
         },
         {
@@ -65,8 +65,8 @@ const Setting = () => {
             icon: <SyncOutlined/>,
             children: <LifeCycle/>,
             colorScheme: {
-                active: 'bg-amber-50 text-amber-700 font-semibold',
-                inactive: 'text-slate-600 hover:bg-amber-50 hover:text-amber-700'
+                active: 'theme-accent-soft theme-accent font-semibold',
+                inactive: 'theme-muted hover:theme-accent-soft hover:theme-accent'
             }
         }, {
             label: `حوزه`,
@@ -74,8 +74,8 @@ const Setting = () => {
             icon: <GlobalOutlined/>,
             children: <Precinct/>,
             colorScheme: {
-                active: 'bg-emerald-50 text-emerald-700 font-semibold',
-                inactive: 'text-slate-600 hover:bg-emerald-50 hover:text-emerald-700'
+                active: 'theme-accent-soft theme-accent font-semibold',
+                inactive: 'theme-muted hover:theme-accent-soft hover:theme-accent'
             }
         },
 
@@ -85,8 +85,8 @@ const Setting = () => {
             icon: <FileTextOutlined/>,
             children: <Documents/>,
             colorScheme: {
-                active: 'bg-rose-50 text-rose-700 font-semibold',
-                inactive: 'text-slate-600 hover:bg-rose-50 hover:text-rose-700'
+                active: 'theme-accent-soft theme-accent font-semibold',
+                inactive: 'theme-muted hover:theme-accent-soft hover:theme-accent'
             }
         },
         {
@@ -95,8 +95,8 @@ const Setting = () => {
             icon: <CheckSquareOutlined/>,
             children: <Requirement/>,
             colorScheme: {
-                active: 'bg-lime-50 text-lime-700 font-semibold',
-                inactive: 'text-slate-600 hover:bg-lime-50 hover:text-lime-700'
+                active: 'theme-accent-soft theme-accent font-semibold',
+                inactive: 'theme-muted hover:theme-accent-soft hover:theme-accent'
             }
         },
         {
@@ -105,8 +105,8 @@ const Setting = () => {
             icon: <TeamOutlined/>,
             children: <Contractor/>,
             colorScheme: {
-                active: 'bg-cyan-50 text-cyan-700 font-semibold',
-                inactive: 'text-slate-600 hover:bg-cyan-50 hover:text-cyan-700'
+                active: 'theme-accent-soft theme-accent font-semibold',
+                inactive: 'theme-muted hover:theme-accent-soft hover:theme-accent'
             }
         },
         {
@@ -115,8 +115,8 @@ const Setting = () => {
             icon: <FormOutlined/>,
             children: <ReasonsEditing/>,
             colorScheme: {
-                active: 'bg-cyan-50 text-stone-700 font-semibold',
-                inactive: 'text-slate-600 hover:bg-stone-50 hover:text-stone-700'
+                active: 'theme-accent-soft theme-accent font-semibold',
+                inactive: 'theme-muted hover:theme-accent-soft hover:theme-accent'
             }
         },
         {
@@ -125,8 +125,8 @@ const Setting = () => {
             icon: <ToolOutlined/>,
             children: <SystemEngineer/>,
             colorScheme: {
-                active: 'bg-pink-50 text-pink-700 font-semibold',
-                inactive: 'text-slate-600 hover:bg-pink-50 hover:text-pink-700'
+                active: 'theme-accent-soft theme-accent font-semibold',
+                inactive: 'theme-muted hover:theme-accent-soft hover:theme-accent'
             }
         },
     ];
@@ -135,27 +135,27 @@ const Setting = () => {
     const activeComponent = settingItems.find(item => item.key === activeKey)?.children;
 
     return (
-        <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8" dir="rtl">
+        <div className="system-management-page min-h-screen theme-canvas p-4 sm:p-6 lg:p-8" dir="rtl">
             <div className="max-w-screen-2xl mx-auto">
-                <header className="mb-8">
+                <header className="themed-page-header mb-8">
                     <Button
                         type="text"
                         icon={<ArrowRightOutlined/>}
                         onClick={() => navigate("/")}
-                        className="flex items-center text-slate-600 hover:!text-sky-700 mb-4"
+                        className="flex items-center theme-muted hover:!theme-accent mb-4"
                     >
                         بازگشت به صفحه اصلی
                     </Button>
                     <div>
-                        <h1 className="text-3xl font-bold text-slate-900">تنظیمات داده‌های پایه</h1>
-                        <p className="mt-2 text-base text-slate-600">
+                        <h1 className="text-3xl font-bold theme-text">تنظیمات داده‌های پایه</h1>
+                        <p className="mt-2 text-base theme-muted">
                             در این بخش می‌توانید اطلاعات پایه‌ای و تنظیمات کلی سیستم را مدیریت کنید.
                         </p>
                     </div>
                 </header>
 
                 <main className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-8">
-                    <div className="md:col-span-1 bg-white rounded-xl shadow-lg border border-slate-200 p-4 h-fit">
+                    <div className="md:col-span-1 theme-surface rounded-xl shadow-lg border theme-border p-4 h-fit">
                         <ul className="space-y-1">
                             {settingItems.map(item => (
                                 <li key={item.key}>
@@ -176,7 +176,7 @@ const Setting = () => {
                     </div>
 
                     <div
-                        className="md:col-span-3 lg:col-span-4 bg-white rounded-xl shadow-lg border border-slate-200 min-h-[60vh]">
+                        className="md:col-span-3 lg:col-span-4 theme-surface rounded-xl shadow-lg border theme-border min-h-[60vh]">
                         <div className="p-6">
                             {activeComponent}
                         </div>

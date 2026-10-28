@@ -45,12 +45,13 @@ const DetailAccessProduct = () => {
     return (
         <Card
             title="جزئیات توزیع نقش ها"
-            className='w-full flex flex-col gap-5'
+            className='system-access-detail w-full min-w-0 flex flex-col gap-5'
             loading={isAccessLoading}
         >
             <Spin spinning={isAccessLoading || isFetching}>
                 <Table
                     columns={columns}
+                    scroll={{x: "max-content"}}
                     dataSource={tableData}
                     loading={isAccessLoading}
                     rowKey={(record) => record.rowId}

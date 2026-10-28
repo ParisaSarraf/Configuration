@@ -13,11 +13,11 @@ const StateCard = ({ icon, title, description, tone = "emerald" }) => {
     <div
       className={`flex h-full flex-col items-center justify-center gap-3 rounded-xl border border-dashed p-6 text-center ${tones[tone]}`}
     >
-      <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-sm">
+      <span className="flex h-14 w-14 items-center justify-center rounded-2xl theme-surface shadow-sm">
         {icon}
       </span>
-      <p className="m-0 text-sm font-bold text-slate-700">{title}</p>
-      <p className="m-0 text-xs text-slate-500">{description}</p>
+      <p className="m-0 text-sm font-bold theme-text">{title}</p>
+      <p className="m-0 text-xs theme-muted">{description}</p>
     </div>
   );
 };
