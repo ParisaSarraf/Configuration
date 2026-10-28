@@ -58,8 +58,8 @@
 
 .hb-input:focus {
   outline: none;
-  border-color: #1677ff;
-  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.12);
+  border-color: var(--pw-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--pw-accent) 12%, transparent);
 }
 
 .hb-input-value {
@@ -92,8 +92,8 @@
 
 .hb-drop:hover,
 .hb-drop:focus-visible {
-  border-color: #1677ff;
-  background: #f5faff;
+  border-color: var(--pw-accent);
+  background: var(--pw-accent-soft);
   outline: none;
 }
 
@@ -122,12 +122,12 @@
 
 .hb-btn {
   padding: 4px 10px;
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--pw-border);
   border-radius: 6px;
-  background: #fff;
+  background: var(--pw-surface);
   font: inherit;
   font-size: 11.5px;
-  color: #334155;
+  color: var(--pw-muted);
   cursor: pointer;
   transition:
     border-color 0.15s,
@@ -135,14 +135,14 @@
 }
 
 .hb-btn:hover {
-  border-color: #1677ff;
-  color: #1677ff;
+  border-color: var(--pw-accent);
+  color: var(--pw-accent);
 }
 
 .hb-btn-main {
   border-style: dashed;
-  border-color: #1677ff;
-  color: #1677ff;
+  border-color: var(--pw-accent);
+  color: var(--pw-accent);
 }
 
 .hb-btn-danger:hover {
@@ -223,8 +223,8 @@
 }
 
 .hb-icon:hover:not(:disabled) {
-  background: #f1f5f9;
-  color: #1677ff;
+  background: var(--pw-accent-soft);
+  color: var(--pw-accent);
 }
 
 .hb-icon:disabled {

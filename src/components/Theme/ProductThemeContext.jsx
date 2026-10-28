@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { PRODUCT_THEMES } from "./productThemes";
+import { getProductThemeVariables, PRODUCT_THEMES } from "./productThemes";
 
 const STORAGE_KEY = "product-workspace-theme:v1";
 const ProductThemeContext = createContext(null);
@@ -26,6 +26,11 @@ export const ProductThemeProvider = ({ children }) => {
   const [preferences, setPreferences] = useState(readThemePreferences);
 
   useEffect(() => {
+    const root = document.documentElement;
+    root.dataset.appTheme = preferences.globalTheme;
+    Object.entries(getProductThemeVariables(preferences.globalTheme)).forEach(
+      ([name, value]) => root.style.setProperty(name, value),
+    );
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
     } catch {

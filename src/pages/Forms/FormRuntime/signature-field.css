@@ -3,7 +3,7 @@
 .fr-user-signature img { display:block; width:auto; max-width:100%; height:64px; object-fit:contain; background:#fff; }
 .fr-signature-entry time,.fr-signature-note { font-size:14px; line-height:1.5; }
 .fr-signature-controls .fr-chip { font-size:14px; min-height:44px; max-width:100%; white-space:normal; line-height:1.5; }
-.fr-signature-controls .fr-chip:focus-visible { outline:2px solid #2783de; outline-offset:2px; }
+.fr-signature-controls .fr-chip:focus-visible { outline:2px solid var(--fr-accent); outline-offset:2px; }
 @media print { .fr-user-signature { border:0; } .fr-user-signature img { height:56px; } }
 
 .fr-slot:has(.fr-user-signature) { overflow:auto; }

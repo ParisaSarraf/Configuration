@@ -5,11 +5,11 @@
 @font-face { font-family: SignInVazirmatn; font-style: normal; font-weight: 700; font-display: swap; src: url("./assets/fonts/Vazirmatn-Bold.woff2") format("woff2"); }
 /* Only presentation: the original auth service and redirect remain unchanged. */
 .signin-page {
-  --signin-primary: #0B7F6E;
-  --signin-ink: #0A6B5D;
-  --signin-soft: #E6F6F3;
-  --signin-hover-border: #6FBFB0;
-  --signin-field-hover: #F5FBFA;
+  --signin-primary: var(--pw-accent);
+  --signin-ink: var(--pw-accent-strong);
+  --signin-soft: var(--pw-accent-soft);
+  --signin-hover-border: var(--pw-accent-border);
+  --signin-field-hover: var(--pw-accent-hover);
   --signin-border: #D2DEDC;
   --signin-card-border: #E1EAE9;
   --signin-text: #14182B;
@@ -34,12 +34,12 @@
 .signin-form-region::after {
   content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
   width: min(720px, 100%); aspect-ratio: 1; border-radius: 50%; z-index: -1; pointer-events: none;
-  background: radial-gradient(circle, rgba(11,127,110,.13), transparent 66%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--pw-accent) 13%, transparent), transparent 66%);
 }
 .signin-card {
   width: 100%; max-width: 440px; min-width: 0; position: relative; padding: 40px;
   background: #fff; border: 1px solid var(--signin-card-border); border-radius: 20px;
-  box-shadow: 0 24px 60px -24px rgba(11,127,110,.28), 0 2px 6px rgba(20,24,43,.05);
+  box-shadow: 0 24px 60px -24px color-mix(in srgb, var(--pw-accent) 28%, transparent), 0 2px 6px rgba(20,24,43,.05);
 }
 .signin-banner {
   flex: 0 1 600px; max-width: 41.667%; min-width: 0; min-height: 100svh;
@@ -102,7 +102,7 @@
 .signin-page .ant-input-prefix { font-size: 18px; margin-inline-end: 10px; color: var(--signin-secondary); transition: color 150ms; }
 .signin-page .ant-input-affix-wrapper:not(.ant-input-affix-wrapper-disabled):hover { border-color: var(--signin-hover-border); background: var(--signin-field-hover); }
 .signin-page .ant-input-affix-wrapper-focused, .signin-page .ant-input-affix-wrapper:focus-within {
-  border-color: var(--signin-primary) !important; background: #fff !important; box-shadow: 0 0 0 4px rgba(11,127,110,.16);
+  border-color: var(--signin-primary) !important; background: #fff !important; box-shadow: 0 0 0 4px color-mix(in srgb, var(--pw-accent) 16%, transparent);
 }
 .signin-page .ant-input-affix-wrapper:focus-within .ant-input-prefix { color: var(--signin-primary); }
 .signin-page .ant-input:focus-visible { outline: none; }
@@ -138,7 +138,7 @@
 .signin-submit-arrow { transition: transform 150ms; }
 .signin-page .signin-submit:not(:disabled):hover {
   color: #fff; background: var(--signin-ink); border-color: var(--signin-ink); transform: translateY(-1px);
-  box-shadow: 0 10px 24px -10px rgba(11,127,110,.7);
+  box-shadow: 0 10px 24px -10px color-mix(in srgb, var(--pw-accent) 70%, transparent);
 }
 .signin-page .signin-submit:not(:disabled):hover .signin-submit-arrow { transform: translateX(-4px); }
 .signin-page .signin-submit:not(:disabled):active { transform: none; box-shadow: none; }

@@ -11,10 +11,10 @@
   --fr-line-soft: #cbd5e1;
   --fr-band: #dbe6f3;
   --fr-band-ink: #1e3a5f;
-  --fr-accent: #2783de;
+  --fr-accent: var(--pw-accent);
   --fr-danger: #e56458;
   --fr-field-bg: #ffffff;
-  --fr-field-focus: #eaf3fd;
+  --fr-field-focus: var(--pw-accent-soft);
 
   color: var(--fr-ink);
   font-family: Vazirmatn, system-ui, "Segoe UI", sans-serif;
@@ -47,11 +47,11 @@
   cursor: pointer;
   transition: background .15s, border-color .15s, color .15s;
 }
-.fr-chip:hover { border-color: #c7d2e0; background: #f8fafc; }
+.fr-chip:hover { border-color: var(--pw-accent-border); background: var(--pw-accent-hover); }
 .fr-chip.is-active {
-  border-color: #bcd8f5;
+  border-color: var(--pw-accent-border);
   background: var(--fr-field-focus);
-  color: #1d4ed8;
+  color: var(--pw-accent-strong);
   font-weight: 600;
 }
 .fr-chip:disabled { opacity: .5; cursor: not-allowed; }

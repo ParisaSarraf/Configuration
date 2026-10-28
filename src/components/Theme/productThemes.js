@@ -104,8 +104,19 @@ export const getProductThemeConfig = (themeId) => {
   return {
     token: {
       colorPrimary: theme.accent,
+      colorPrimaryHover: theme.tokens.accentStrong,
+      colorPrimaryActive: theme.tokens.accentStrong,
+      colorPrimaryBg: theme.tokens.accentSoft,
+      colorPrimaryBgHover: theme.tokens.accentSoft,
+      colorPrimaryBorder: theme.tokens.accentBorder,
+      colorPrimaryBorderHover: theme.tokens.accentBorder,
       colorLink: theme.accent,
       colorLinkHover: theme.tokens.accentStrong,
+      colorInfo: theme.accent,
+      colorText: theme.tokens.text,
+      colorTextSecondary: theme.tokens.muted,
+      colorBorder: theme.tokens.controlBorder,
+      colorBgContainer: theme.tokens.surface,
       borderRadius: 12,
     },
   };
