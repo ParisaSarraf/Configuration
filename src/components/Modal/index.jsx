@@ -13,6 +13,7 @@ const Modal = ({
   footer,
   mode = "add",
   className,
+  draggable = true,
   ...rest
 }) => {
   const dragRef = useRef(null);
@@ -56,7 +57,7 @@ const Modal = ({
           className="drag-handle"
           style={{
             width: "100%",
-            cursor: "move",
+            cursor: draggable ? "move" : "default",
             userSelect: "none",
           }}
         >
@@ -70,7 +71,7 @@ const Modal = ({
       footer={modalFooter}
       destroyOnClose
       {...rest}
-      modalRender={(modal) => (
+      modalRender={(modal) => draggable ? (
         <Draggable
           nodeRef={dragRef}
           bounds={bounds}
@@ -79,7 +80,7 @@ const Modal = ({
         >
           <div ref={dragRef}>{modal}</div>
         </Draggable>
-      )}
+      ) : modal}
     >
       {children}
     </MDL>

@@ -87,6 +87,9 @@ const UserActionRequestModal = ({ open, record, onClose, onCompleted }) => {
       onClose={onClose}
       size="100vw"
       className="request-workbench-modal"
+      wrapClassName="request-workbench-wrap"
+      centered={false}
+      draggable={false}
       destroyOnClose
       footer={null}
       title={
