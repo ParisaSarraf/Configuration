@@ -1,7 +1,10 @@
 import { useRef, useState } from "react";
-import { Button, Modal } from "antd";
+import { Button, ConfigProvider, Modal } from "antd";
 import { LockOutlined, MoreOutlined } from "@ant-design/icons";
 import ProductStatus from "../../components/ProductUI/ProductStatus";
+import ProductThemePicker from "../../components/Theme/ProductThemePicker";
+import { useProductTheme } from "../../components/Theme/ProductThemeContext";
+import { getProductTheme, getProductThemeConfig, getProductThemeVariables } from "../../components/Theme/productThemes";
 import {
   AppstoreOutlined,
   AuditOutlined,
@@ -35,7 +38,7 @@ import AfterSalesService from "../AfterSalesService/AfterSalesService";
 const GoodsCategories = () => {
   const [activeTab, setActiveTab] = useState("1");
   const [showAccessDetails, setShowAccessDetails] = useState(false); 
-
+  const { getThemeForModule } = useProductTheme();
   const tabRefs = useRef([]);
 
   const { currentProduct } = useProductContext();
@@ -118,7 +121,11 @@ const GoodsCategories = () => {
     },
   ];
 
-  const activeContent = tabs.find((tab) => tab.id === activeTab)?.content;
+  const activeTabConfig = tabs.find((tab) => tab.id === activeTab) || tabs[0];
+  const activeContent = activeTabConfig.content;
+  const activeThemeId = getThemeForModule(activeTabConfig.id);
+  const activeTheme = getProductTheme(activeThemeId);
+  const activeThemeVariables = getProductThemeVariables(activeThemeId);
 
   const handleTabKeyDown = (event, index) => {
     let nextIndex;
@@ -134,66 +141,74 @@ const GoodsCategories = () => {
   };
 
   return (
-    <div className="pw-product-page">
-      <section className="pw-product-header" aria-label="مشخصات محصول">
-        <div className="pw-product-summary">
-          <div className="pw-product-identity">
-            <div className="pw-product-icon"><InboxOutlined /></div>
-            <div className="pw-product-heading">
-              <p className="pw-eyebrow">مدیریت یکپارچه محصول</p>
-              <div className="pw-title-line">
-                <h1>{currentProduct?.persian_title || currentProduct?.name || "محصول"}</h1>
-                <ProductStatus status={currentProduct?.status}/>
+    <ConfigProvider theme={getProductThemeConfig(activeThemeId)}>
+      <div className="pw-product-page">
+        <section className="pw-product-header" aria-label="مشخصات محصول">
+          <div className="pw-product-summary">
+            <div className="pw-product-identity">
+              <div className="pw-product-icon"><InboxOutlined /></div>
+              <div className="pw-product-heading">
+                <p className="pw-eyebrow">مدیریت یکپارچه محصول</p>
+                <div className="pw-title-line">
+                  <h1>{currentProduct?.persian_title || currentProduct?.name || "محصول"}</h1>
+                  <ProductStatus status={currentProduct?.status}/>
+                </div>
+                <p className="pw-subtitle">پنل نظارت و کنترل فرآیندهای سیستمی</p>
+                <span className="pw-code">کد {currentProduct?.final_code || currentProduct?.code || "—"}</span>
               </div>
-              <p className="pw-subtitle">پنل نظارت و کنترل فرآیندهای سیستمی</p>
-              <span className="pw-code">کد {currentProduct?.final_code || currentProduct?.code || "—"}</span>
+            </div>
+            <div className="pw-product-actions">
+              <ProductThemePicker
+                moduleKey={activeTabConfig.id}
+                moduleLabel={activeTabConfig.label}
+              />
+              <Button icon={<LockOutlined/>} onClick={() => setShowAccessDetails(true)}>پروفایل دسترسی</Button>
+              <Button icon={<MoreOutlined/>} aria-label="بخش‌های دیگر محصول" onClick={() => {
+                Modal.info({title: "بخش‌های محصول", width: 520, okText: "بستن", content: (
+                  <div className="pw-section-links">{tabs.map((tab) => (
+                    <Button key={tab.id} icon={tab.icon} onClick={() => {
+                      setActiveTab(tab.id);
+                      Modal.destroyAll();
+                      requestAnimationFrame(() => tabRefs.current[tabs.indexOf(tab)]?.scrollIntoView({block: "nearest", inline: "nearest"}));
+                    }}>{tab.label}</Button>
+                  ))}</div>
+                )});
+              }}/>
             </div>
           </div>
-          <div className="pw-product-actions">
-            <Button icon={<LockOutlined/>} onClick={() => setShowAccessDetails(true)}>پروفایل دسترسی</Button>
-            <Button icon={<MoreOutlined/>} aria-label="بخش‌های دیگر محصول" onClick={() => {
-              Modal.info({title: "بخش‌های محصول", width: 520, okText: "بستن", content: (
-                <div className="pw-section-links">{tabs.map((tab) => (
-                  <Button key={tab.id} icon={tab.icon} onClick={() => {
-                    setActiveTab(tab.id);
-                    Modal.destroyAll();
-                    requestAnimationFrame(() => tabRefs.current[tabs.indexOf(tab)]?.scrollIntoView({block: "nearest", inline: "nearest"}));
-                  }}>{tab.label}</Button>
-                ))}</div>
-              )});
-            }}/>
+          <div className="pw-tabs" role="tablist" aria-label="بخش‌های محصول">
+            {tabs.map((tab, index) => (
+              <button key={tab.id} ref={(element) => { tabRefs.current[index] = element; }}
+                id={`product-tab-${tab.id}`} type="button" role="tab"
+                aria-selected={activeTab === tab.id} aria-controls="product-tab-panel"
+                tabIndex={activeTab === tab.id ? 0 : -1}
+                onKeyDown={(event) => handleTabKeyDown(event, index)}
+                onClick={() => setActiveTab(tab.id)}
+                className={`pw-tab ${activeTab === tab.id ? "pw-tab--active" : ""}`}>
+                {tab.icon}<span>{tab.label}</span>
+              </button>
+            ))}
           </div>
-        </div>
-        <div className="pw-tabs" role="tablist" aria-label="بخش‌های محصول">
-          {tabs.map((tab, index) => (
-            <button key={tab.id} ref={(element) => { tabRefs.current[index] = element; }}
-              id={`product-tab-${tab.id}`} type="button" role="tab"
-              aria-selected={activeTab === tab.id} aria-controls="product-tab-panel"
-              tabIndex={activeTab === tab.id ? 0 : -1}
-              onKeyDown={(event) => handleTabKeyDown(event, index)}
-              onClick={() => setActiveTab(tab.id)}
-              className={`pw-tab ${activeTab === tab.id ? "pw-tab--active" : ""}`}>
-              {tab.icon}<span>{tab.label}</span>
-            </button>
-          ))}
-        </div>
-      </section>
-      <section id="product-tab-panel" role="tabpanel" aria-labelledby={`product-tab-${activeTab}`} tabIndex={0} className="pw-tab-panel">
-        {activeContent}
-      </section>
-      <Modal title="پروفایل دسترسی" open={showAccessDetails} onCancel={() => setShowAccessDetails(false)} footer={null}>
-        <div className="pw-access-profile">
-          <h3>سمت‌های این محصول</h3>
-          <div className="pw-role-list">{accessList?.roles?.length ? accessList.roles.map((role) => (
-            <span className="pw-code" key={role.id}>{role.name}</span>
-          )) : <p>نقشی تعریف نشده</p>}</div>
-          <h3>لیست مجوزها</h3>
-          <ul>{accessList?.permissions?.length ? accessList.permissions.map((permission) => (
-            <li key={permission.codename}>{permission.name}</li>
-          )) : <li>مجوزی یافت نشد</li>}</ul>
-        </div>
-      </Modal>
-    </div>
+        </section>
+        <section id="product-tab-panel" role="tabpanel" aria-labelledby={`product-tab-${activeTab}`} tabIndex={0} className="pw-tab-panel">
+          <div className="pw-module-scope" data-theme={activeTheme.id}>
+            {activeContent}
+          </div>
+        </section>
+        <Modal title="پروفایل دسترسی" open={showAccessDetails} onCancel={() => setShowAccessDetails(false)} footer={null}>
+          <div className="pw-access-profile" style={activeThemeVariables}>
+            <h3>سمت‌های این محصول</h3>
+            <div className="pw-role-list">{accessList?.roles?.length ? accessList.roles.map((role) => (
+              <span className="pw-code" key={role.id}>{role.name}</span>
+            )) : <p>نقشی تعریف نشده</p>}</div>
+            <h3>لیست مجوزها</h3>
+            <ul>{accessList?.permissions?.length ? accessList.permissions.map((permission) => (
+              <li key={permission.codename}>{permission.name}</li>
+            )) : <li>مجوزی یافت نشد</li>}</ul>
+          </div>
+        </Modal>
+      </div>
+    </ConfigProvider>
   );
 };
 

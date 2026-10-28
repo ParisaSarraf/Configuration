@@ -5,10 +5,14 @@ import {MenuFoldOutlined, MenuUnfoldOutlined, InboxOutlined} from '@ant-design/i
 import CustomHeader from './Header';
 import Products from '../../pages/Products/Products';
 import {useProductContext} from '../../Services/Context/ProductContext';
+import {useProductTheme} from '../Theme/ProductThemeContext';
+import {getProductThemeConfig, getProductThemeVariables} from '../Theme/productThemes';
 import '../ProductUI/product-workspace.css';
 
 const MainLayout = () => {
     const {currentProduct} = useProductContext();
+    const {globalTheme} = useProductTheme();
+    const themeVariables = getProductThemeVariables(globalTheme);
     const [isSidebarOpen, setSidebarOpen] = useState(true);
     const [isMobileOpen, setMobileOpen] = useState(false);
     const toggleRef = useRef(null);
@@ -37,8 +41,8 @@ const MainLayout = () => {
     };
 
     return (
-        <ConfigProvider theme={{token: {colorPrimary: '#087f70', borderRadius: 12}}}>
-            <div className="product-workspace" dir="rtl">
+        <ConfigProvider theme={getProductThemeConfig(globalTheme)}>
+            <div className="product-workspace" data-theme={globalTheme} dir="rtl">
                 <aside className={`pw-sidebar ${isSidebarOpen ? '' : 'pw-sidebar--collapsed'}`} aria-label="فهرست محصولات">
                     {isSidebarOpen && <Products/>}
                 </aside>
@@ -51,6 +55,7 @@ const MainLayout = () => {
                     onClose={() => setMobileOpen(false)}
                     afterOpenChange={(open) => { if (!open) toggleRef.current?.focus(); }}
                     destroyOnClose
+                    rootStyle={themeVariables}
                 >
                     {isMobileOpen && <Products onSelect={() => setMobileOpen(false)}/>}
                 </Drawer>
