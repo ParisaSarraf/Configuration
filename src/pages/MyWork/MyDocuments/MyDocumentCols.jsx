@@ -1,4 +1,7 @@
-export const MyDocumentCols = () => {
+import { FileDoneOutlined } from "@ant-design/icons";
+import { Button, Tooltip } from "antd";
+
+export const MyDocumentCols = (onOpenWorkflow) => {
     return (
         [{
            title: 'نام محصول',
@@ -40,6 +43,27 @@ export const MyDocumentCols = () => {
            dataIndex: ['survey_date'] ,
            key: 'survey_date',
            width: 100,
+        },{
+           title: 'عملیات',
+           key: 'workflow',
+           width: 110,
+           align: 'center',
+           render: (_, record) => (
+              <Tooltip title="مشاهده روال اسناد">
+                <Button
+                  size="small"
+                  type="text"
+                  aria-label="مشاهده روال اسناد"
+                  icon={<FileDoneOutlined />}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onOpenWorkflow?.(record);
+                  }}
+                  disabled={!record?.id}
+                  className="text-purple-600 hover:!text-purple-800"
+                />
+              </Tooltip>
+           ),
         },
         ]
     )

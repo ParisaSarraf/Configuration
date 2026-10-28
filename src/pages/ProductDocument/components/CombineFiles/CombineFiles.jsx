@@ -740,7 +740,7 @@ const CombineFiles = ({
         modalMode === "edit"
           ? "ویرایش روال اسناد و فایل های"
           : "افزودن روال اسناد و فایل های "
-      } ${currentProduct.name}`}
+      } ${currentProduct?.name || "محصول"}`}
       size={1000}
       onClose={closeModal}
       onSubmit={() => form.submit()}
