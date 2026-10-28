@@ -1,7 +1,7 @@
 import {useEffect, useRef, useState} from 'react';
 import {Button, Form, Input} from 'antd';
 import ProductImageHandler from './ProductImageHandler';
-import {BASEURL} from '@/Services/axiosInstance.js';
+import {getProductImageUrl} from '@/utils/productImage.js';
 
 const ProductInfoForm = ({product, onFinish, onDeleteImage, isSubmitting, isDeleting}) => {
     const [form] = Form.useForm();
@@ -15,9 +15,7 @@ const ProductInfoForm = ({product, onFinish, onDeleteImage, isSubmitting, isDele
         setDirty(false);
     }, [product?.id, product?.user_description, product?.user_image, form, isDirty]);
 
-    const initialImageUrl = product?.user_image
-        ? (/^https?:\/\//i.test(product.user_image) ? product.user_image : `${BASEURL.replace('/api/v1', '')}${product.user_image}`)
-        : null;
+    const initialImageUrl = getProductImageUrl(product?.user_image);
 
     const handleFinish = async (values) => {
         const saved = await onFinish(values);
@@ -27,17 +25,6 @@ const ProductInfoForm = ({product, onFinish, onDeleteImage, isSubmitting, isDele
     return (
         <Form className="pw-product-info-form" form={form} layout="vertical" onFinish={handleFinish} onValuesChange={() => setDirty(true)}>
             <div className="pw-introduction-grid">
-                <section className="pw-card pw-image-card" aria-labelledby="product-image-title">
-                    <header className="pw-card-heading">
-                        <h2 id="product-image-title">تصویر محصول</h2>
-                        <p>تصویر شاخص در فهرست و گزارش‌ها نمایش داده می‌شود.</p>
-                    </header>
-                    <div className="pw-image-body">
-                        <Form.Item name="user_image" className="pw-image-field">
-                            <ProductImageHandler initialImageUrl={initialImageUrl} onDeleteFromServer={onDeleteImage} disabled={isSubmitting || isDeleting}/>
-                        </Form.Item>
-                    </div>
-                </section>
                 <section className="pw-card pw-description-card" aria-labelledby="product-description-title">
                     <header className="pw-card-heading">
                         <h2 id="product-description-title">توضیحات محصول</h2>
@@ -51,6 +38,17 @@ const ProductInfoForm = ({product, onFinish, onDeleteImage, isSubmitting, isDele
                                 placeholder="توضیحات محصول را وارد کنید"
                                 disabled={isSubmitting}
                             />
+                        </Form.Item>
+                    </div>
+                </section>
+                <section className="pw-card pw-image-card" aria-labelledby="product-image-title">
+                    <header className="pw-card-heading">
+                        <h2 id="product-image-title">تصویر محصول</h2>
+                        <p>تصویر شاخص در فهرست و گزارش‌ها نمایش داده می‌شود.</p>
+                    </header>
+                    <div className="pw-image-body">
+                        <Form.Item name="user_image" className="pw-image-field">
+                            <ProductImageHandler initialImageUrl={initialImageUrl} onDeleteFromServer={onDeleteImage} disabled={isSubmitting || isDeleting}/>
                         </Form.Item>
                     </div>
                 </section>

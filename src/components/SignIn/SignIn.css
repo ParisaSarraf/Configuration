@@ -5,16 +5,17 @@
 @font-face { font-family: SignInVazirmatn; font-style: normal; font-weight: 700; font-display: swap; src: url("./assets/fonts/Vazirmatn-Bold.woff2") format("woff2"); }
 /* Only presentation: the original auth service and redirect remain unchanged. */
 .signin-page {
-  --signin-primary: var(--pw-accent);
-  --signin-ink: var(--pw-accent-strong);
-  --signin-soft: var(--pw-accent-soft);
-  --signin-hover-border: var(--pw-accent-border);
-  --signin-field-hover: var(--pw-accent-hover);
-  --signin-border: var(--pw-control-border);
-  --signin-card-border: var(--pw-border);
-  --signin-text: var(--pw-text);
-  --signin-secondary: var(--pw-muted);
-  --signin-placeholder: var(--pw-muted);
+  /* Fixed login palette; never inherit workspace/module theme colors. */
+  --signin-primary: #087f70;
+  --signin-ink: #006d5e;
+  --signin-soft: #e5f5f2;
+  --signin-hover-border: #afe4db;
+  --signin-field-hover: #f6faf9;
+  --signin-border: #cddcde;
+  --signin-card-border: #dce6e8;
+  --signin-text: #191d34;
+  --signin-secondary: #555f7d;
+  --signin-placeholder: #555f7d;
   --signin-label: #2D3350;
   --signin-error: #E5484D;
   min-height: 100svh; background: #fff; color: var(--signin-text); color-scheme: light;
@@ -34,12 +35,12 @@
 .signin-form-region::after {
   content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
   width: min(720px, 100%); aspect-ratio: 1; border-radius: 50%; z-index: -1; pointer-events: none;
-  background: radial-gradient(circle, color-mix(in srgb, var(--pw-accent) 13%, transparent), transparent 66%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--signin-primary) 13%, transparent), transparent 66%);
 }
 .signin-card {
   width: 100%; max-width: 440px; min-width: 0; position: relative; padding: 40px;
   background: #fff; border: 1px solid var(--signin-card-border); border-radius: 20px;
-  box-shadow: 0 24px 60px -24px color-mix(in srgb, var(--pw-accent) 28%, transparent), 0 2px 6px rgba(20,24,43,.05);
+  box-shadow: 0 24px 60px -24px color-mix(in srgb, var(--signin-primary) 28%, transparent), 0 2px 6px rgba(20,24,43,.05);
 }
 .signin-banner {
   flex: 0 1 600px; max-width: 41.667%; min-width: 0; min-height: 100svh;
@@ -138,7 +139,7 @@
 .signin-submit-arrow { transition: transform 150ms; }
 .signin-page .signin-submit:not(:disabled):hover {
   color: #fff; background: var(--signin-ink); border-color: var(--signin-ink); transform: translateY(-1px);
-  box-shadow: 0 10px 24px -10px color-mix(in srgb, var(--pw-accent) 70%, transparent);
+  box-shadow: 0 10px 24px -10px color-mix(in srgb, var(--signin-primary) 70%, transparent);
 }
 .signin-page .signin-submit:not(:disabled):hover .signin-submit-arrow { transform: translateX(-4px); }
 .signin-page .signin-submit:not(:disabled):active { transform: none; box-shadow: none; }

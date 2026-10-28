@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Button, ConfigProvider, Modal } from "antd";
+import { Button, ConfigProvider, Image, Modal } from "antd";
 import { LockOutlined, MoreOutlined } from "@ant-design/icons";
 import ProductStatus from "../../components/ProductUI/ProductStatus";
 import ProductThemePicker from "../../components/Theme/ProductThemePicker";
@@ -34,14 +34,28 @@ import DetailAccessProduct from "@/pages/SystemManagement/DetailAccessProduct/De
 import { useProductContext } from "../../Services/Context/ProductContext";
 import { useAccessOfUserByProductIdList } from "../../QueryServises/accsessQuery";
 import AfterSalesService from "../AfterSalesService/AfterSalesService";
+import { useProductChildren } from "../../QueryServises/productQuery";
+import { getProductImageUrl } from "../../utils/productImage";
 
 const GoodsCategories = () => {
   const [activeTab, setActiveTab] = useState("1");
+  const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
+  const [failedImageUrl, setFailedImageUrl] = useState(null);
   const [showAccessDetails, setShowAccessDetails] = useState(false); 
   const { getThemeForModule } = useProductTheme();
   const tabRefs = useRef([]);
 
   const { currentProduct } = useProductContext();
+  // Share the introduction query so uploads/deletions also refresh the header.
+  const { data: productDetails } = useProductChildren(currentProduct?.id, {
+    enabled: Boolean(currentProduct?.id),
+    staleTime: 60 * 1000,
+  });
+  const imageProduct = productDetails?.find(
+    (product) => String(product?.id) === String(currentProduct?.id),
+  ) || currentProduct;
+  const productImageUrl = getProductImageUrl(imageProduct?.user_image);
+  const hasProductImage = Boolean(productImageUrl && productImageUrl !== failedImageUrl);
   const { data: accessList } = useAccessOfUserByProductIdList(
     currentProduct?.id
   );
@@ -146,7 +160,32 @@ const GoodsCategories = () => {
         <section className="pw-product-header" aria-label="مشخصات محصول">
           <div className="pw-product-summary">
             <div className="pw-product-identity">
-              <div className="pw-product-icon"><InboxOutlined /></div>
+              <div
+                className={`pw-product-icon${hasProductImage ? " pw-product-icon--image" : ""}`}
+                role={hasProductImage ? "button" : undefined}
+                tabIndex={hasProductImage ? 0 : undefined}
+                aria-label={hasProductImage ? "بزرگ‌نمایی تصویر محصول" : undefined}
+                onKeyDown={hasProductImage ? (event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setImagePreviewOpen(true);
+                  }
+                } : undefined}
+              >
+                {hasProductImage ? (
+                  <Image
+                    key={`${currentProduct?.id}-${productImageUrl}`}
+                    src={productImageUrl}
+                    alt={`تصویر ${currentProduct?.persian_title || currentProduct?.name || "محصول"}`}
+                    onError={() => setFailedImageUrl(productImageUrl)}
+                    preview={{
+                      visible: imagePreviewOpen,
+                      onVisibleChange: setImagePreviewOpen,
+                      mask: <EyeOutlined />,
+                    }}
+                  />
+                ) : <InboxOutlined />}
+              </div>
               <div className="pw-product-heading">
                 <p className="pw-eyebrow">مدیریت یکپارچه محصول</p>
                 <div className="pw-title-line">
