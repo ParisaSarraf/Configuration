@@ -34,7 +34,6 @@ export const ProductThemeProvider = ({ children }) => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
     } catch {
-      return;
     }
   }, [preferences]);
 

@@ -455,18 +455,11 @@ body {
 :root :is(button, [role="button"])[class~="!bg-blue-500"],
 :root :is(button, [role="button"])[class~="bg-Main"],
 :root :is(button, [role="button"])[class~="!bg-Main"],
-:root :is(button, [role="button"])[class~="!bg-gradient-to-l"][class~="!from-blue-600"] {
+:root :is(button, [role="button"])[class~="!from-blue-600"] {
   color: #fff !important;
   background-color: var(--pw-accent) !important;
   background-image: none !important;
   border-color: var(--pw-accent) !important;
-}
-
-:root :is(button, [role="button"])[class~="!from-blue-600"],
-:root :is(button, [role="button"])[class~="!from-blue-700"] {
-  color: #fff !important;
-  background-color: var(--pw-accent) !important;
-  background-image: none !important;
 }
 
 :root :is(button, [role="button"])[class~="hover:bg-blue-600"]:hover,
@@ -478,100 +471,43 @@ body {
   border-color: var(--pw-accent-strong) !important;
 }
 
-:root :is(button, [role="button"])[class~="bg-blue-50"],
 :root :is(button, [role="button"])[class~="!bg-blue-50"],
-:root :is(button, [role="button"])[class~="bg-green-50"],
 :root :is(button, [role="button"])[class~="!bg-green-50"],
 :root :is(button, [role="button"])[class~="!bg-emerald-50"],
-:root :is(button, [role="button"])[class~="bg-emerald-50"],
 :root :is(button, [role="button"])[class~="!bg-emerald-100"],
 :root :is(button, [role="button"])[class~="!bg-sky-50"],
 :root :is(button, [role="button"])[class~="!bg-sky-100"],
 :root :is(button, [role="button"])[class~="!bg-violet-50"],
 :root :is(button, [role="button"])[class~="!bg-violet-100"],
 :root :is(button, [role="button"])[class~="!bg-amber-50"],
-:root :is(button, [role="button"])[class~="!bg-amber-100"] {
-  color: var(--pw-accent-strong) !important;
-  background-color: var(--pw-accent-soft) !important;
-  border-color: var(--pw-accent-border) !important;
-}
-
-:root :is(button, [role="button"])[class~="hover:bg-gray-100"]:hover,
-:root :is(button, [role="button"])[class~="hover:!bg-blue-50"]:hover,
+:root :is(button, [role="button"])[class~="!bg-amber-100"],
 :root :is(button, [role="button"])[class~="hover:bg-green-50"]:hover,
-:root :is(button, [role="button"])[class~="hover:!bg-green-50"]:hover,
 :root :is(button, [role="button"])[class~="hover:bg-emerald-50"]:hover,
-:root :is(button, [role="button"])[class~="hover:!bg-emerald-100"]:hover,
-:root :is(button, [role="button"])[class~="hover:!bg-sky-100"]:hover,
-:root :is(button, [role="button"])[class~="hover:!bg-violet-100"]:hover,
-:root :is(button, [role="button"])[class~="hover:!bg-amber-100"]:hover,
-:root :is(button, [role="button"])[class~="hover:bg-slate-50"]:hover,
-:root :is(button, [role="button"])[class~="hover:!bg-slate-100"]:hover {
+:root :is(button, [role="button"])[class~="hover:bg-slate-50"]:hover {
   color: var(--pw-accent-strong) !important;
   background-color: var(--pw-accent-soft) !important;
   border-color: var(--pw-accent-border) !important;
 }
 
-:root :is(button, [role="button"])[class~="!bg-slate-100"],
-:root :is(button, [role="button"])[class~="!bg-white"],
-:root :is(button, [role="button"])[class~="bg-white"] {
-  background-color: var(--pw-surface) !important;
-}
-
-:root :is(button, [role="button"])[class~="text-slate-400"],
-:root :is(button, [role="button"])[class~="!text-slate-400"],
-:root :is(button, [role="button"])[class~="text-slate-500"],
-:root :is(button, [role="button"])[class~="text-slate-600"],
-:root :is(button, [role="button"])[class~="text-slate-700"],
-:root :is(button, [role="button"])[class~="text-slate-300"],
-:root :is(button, [role="button"])[class~="text-stone-500"] {
-  color: var(--pw-muted) !important;
-}
-
-:root :is(button, [role="button"])[class~="text-slate-950"] {
-  color: var(--pw-text) !important;
-}
-
-:root :is(button, [role="button"])[class~="text-Main"],
-:root :is(button, [role="button"])[class~="!text-Main"],
 :root :is(button, [role="button"])[class~="text-green-400"],
 :root :is(button, [role="button"])[class~="text-green-500"],
 :root :is(button, [role="button"])[class~="text-green-600"],
 :root :is(button, [role="button"])[class~="text-green-700"],
-:root :is(button, [role="button"])[class~="text-orange-600"],
 :root :is(button, [role="button"])[class~="text-emerald-600"],
 :root :is(button, [role="button"])[class~="text-sky-500"],
 :root :is(button, [role="button"])[class~="text-sky-600"],
 :root :is(button, [role="button"])[class~="text-sky-700"],
+:root :is(button, [role="button"])[class~="text-blue-500"],
 :root :is(button, [role="button"])[class~="text-blue-600"],
 :root :is(button, [role="button"])[class~="text-purple-500"],
 :root :is(button, [role="button"])[class~="text-purple-600"],
-:root :is(button, [role="button"])[class~="text-orange-500"],
-:root :is(button, [role="button"])[class~="text-violet-600"],
 :root :is(button, [role="button"])[class~="text-violet-500"],
+:root :is(button, [role="button"])[class~="text-violet-600"],
+:root :is(button, [role="button"])[class~="text-orange-500"],
+:root :is(button, [role="button"])[class~="text-orange-600"],
 :root :is(button, [role="button"])[class~="text-amber-600"],
-:root :is(button, [role="button"])[class~="text-pink-700"],
-:root :is(button, [role="button"])[class~="!text-emerald-600"],
-:root :is(button, [role="button"])[class~="!text-sky-600"],
-:root :is(button, [role="button"])[class~="!text-blue-600"],
-:root :is(button, [role="button"])[class~="!text-violet-600"],
-:root :is(button, [role="button"])[class~="!text-amber-600"] {
-  color: var(--pw-accent) !important;
-}
-
-:root :is(button, [role="button"])[class~="hover:text-sky-600"]:hover,
-:root :is(button, [role="button"])[class~="hover:text-sky-700"]:hover,
-:root :is(button, [role="button"])[class~="hover:!text-sky-700"]:hover,
-:root :is(button, [role="button"])[class~="hover:!text-emerald-600"]:hover,
-:root :is(button, [role="button"])[class~="hover:!text-sky-600"]:hover,
-:root :is(button, [role="button"])[class~="hover:text-purple-700"]:hover,
-:root :is(button, [role="button"])[class~="hover:text-green-700"]:hover,
-:root :is(button, [role="button"])[class~="hover:text-orange-700"]:hover {
-  color: var(--pw-accent-strong) !important;
-}
-
-:root :is(button, [role="button"]) [class~="text-green-500"],
 :root :is(button, [role="button"]) [class~="text-green-400"],
+:root :is(button, [role="button"]) [class~="text-green-500"],
 :root :is(button, [role="button"]) [class~="text-green-600"],
 :root :is(button, [role="button"]) [class~="text-green-700"],
 :root :is(button, [role="button"]) [class~="text-emerald-600"],
@@ -584,10 +520,9 @@ body {
 :root :is(button, [role="button"]) [class~="text-purple-600"],
 :root :is(button, [role="button"]) [class~="text-violet-500"],
 :root :is(button, [role="button"]) [class~="text-violet-600"],
-:root :is(button, [role="button"]) [class~="text-orange-600"],
 :root :is(button, [role="button"]) [class~="text-orange-500"],
-:root :is(button, [role="button"]) [class~="text-amber-600"],
-:root :is(button, [role="button"]) [class~="text-pink-700"] {
+:root :is(button, [role="button"]) [class~="text-orange-600"],
+:root :is(button, [role="button"]) [class~="text-amber-600"] {
   color: var(--pw-accent) !important;
 }
 
@@ -603,22 +538,14 @@ body {
 :root :is(button, [role="button"])[class~="border-purple-600"],
 :root :is(button, [role="button"])[class~="border-violet-500"],
 :root :is(button, [role="button"])[class~="border-orange-300"],
-:root :is(button, [role="button"])[class~="border-orange-600"],
 :root :is(button, [role="button"])[class~="border-orange-500"],
-:root :is(button, [role="button"])[class~="border-pink-700"],
+:root :is(button, [role="button"])[class~="border-orange-600"],
 :root :is(button, [role="button"])[class~="border-blue-300"],
-:root :is(button, [role="button"])[class~="border-blue-500"],
-:root :is(button, [role="button"])[class~="border-emerald-600"] {
+:root :is(button, [role="button"])[class~="border-blue-500"] {
   border-color: var(--pw-accent-border) !important;
 }
 
 :root :is(button, [role="button"])[class~="hover:border-blue-500"]:hover,
 :root :is(button, [role="button"])[class~="hover:border-orange-500"]:hover {
   border-color: var(--pw-accent) !important;
-}
-
-:root :is(button, [role="button"])[class~="border-slate-200"],
-:root :is(button, [role="button"])[class~="border-gray-200"],
-:root :is(button, [role="button"])[class~="border-stone-500"] {
-  border-color: var(--pw-border) !important;
 }

@@ -1,5 +1,5 @@
 .station-journey { --sj-text:#1e293b; --sj-muted:#475569; --sj-bg:#f8fafc; --sj-card:#fff; --sj-border:#cbd5e1; --sj-blue:var(--pw-accent); --sj-blue-soft:var(--pw-accent-soft); --sj-orange:#9a4a10; --sj-orange-soft:#fff7ed; color:var(--sj-text); font-size:14px; line-height:1.65; }
-.dark .station-journey { --sj-text:#f1f5f9; --sj-muted:#cbd5e1; --sj-bg:#0f172a; --sj-card:#1e293b; --sj-border:#475569; --sj-blue:var(--pw-accent); --sj-blue-soft:color-mix(in srgb, var(--pw-accent) 18%, transparent); --sj-orange:#fdba74; --sj-orange-soft:#382719; }
+.dark .station-journey { --sj-text:#f1f5f9; --sj-muted:#cbd5e1; --sj-bg:#0f172a; --sj-card:#1e293b; --sj-border:#475569; --sj-blue:#93c5fd; --sj-blue-soft:#172b4d; --sj-orange:#fdba74; --sj-orange-soft:#382719; }
 .station-journey *, .station-journey *::before, .station-journey *::after { box-sizing:border-box; }
 .station-journey-intro { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:16px; }
 .station-journey-intro p { margin:0; color:var(--sj-muted); }

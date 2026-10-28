@@ -10,11 +10,11 @@
   --signin-soft: var(--pw-accent-soft);
   --signin-hover-border: var(--pw-accent-border);
   --signin-field-hover: var(--pw-accent-hover);
-  --signin-border: #D2DEDC;
-  --signin-card-border: #E1EAE9;
-  --signin-text: #14182B;
-  --signin-secondary: #5B6178;
-  --signin-placeholder: #6B7188;
+  --signin-border: var(--pw-control-border);
+  --signin-card-border: var(--pw-border);
+  --signin-text: var(--pw-text);
+  --signin-secondary: var(--pw-muted);
+  --signin-placeholder: var(--pw-muted);
   --signin-label: #2D3350;
   --signin-error: #E5484D;
   min-height: 100svh; background: #fff; color: var(--signin-text); color-scheme: light;
@@ -102,7 +102,7 @@
 .signin-page .ant-input-prefix { font-size: 18px; margin-inline-end: 10px; color: var(--signin-secondary); transition: color 150ms; }
 .signin-page .ant-input-affix-wrapper:not(.ant-input-affix-wrapper-disabled):hover { border-color: var(--signin-hover-border); background: var(--signin-field-hover); }
 .signin-page .ant-input-affix-wrapper-focused, .signin-page .ant-input-affix-wrapper:focus-within {
-  border-color: var(--signin-primary) !important; background: #fff !important; box-shadow: 0 0 0 4px color-mix(in srgb, var(--pw-accent) 16%, transparent);
+  border-color: var(--signin-primary) !important; background: #fff !important; box-shadow: 0 0 0 4px rgba(11,127,110,.16);
 }
 .signin-page .ant-input-affix-wrapper:focus-within .ant-input-prefix { color: var(--signin-primary); }
 .signin-page .ant-input:focus-visible { outline: none; }

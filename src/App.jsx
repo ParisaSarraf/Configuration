@@ -16,7 +16,7 @@ const ThemedApplication = () => {
                     <div className="app-theme-root" data-theme={globalTheme} style={getProductThemeVariables(globalTheme)}>
                         <RouterProvider router={router}/>
                     </div>
-                    </ConfigProvider>
+                </ConfigProvider>
             </ProductProvider>
         </ContextProvider>
     );

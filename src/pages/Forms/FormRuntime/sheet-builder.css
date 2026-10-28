@@ -27,20 +27,20 @@
 .sb-btn {
   height: 26px;
   padding: 0 9px;
-  border: 1px solid var(--pw-border);
+  border: 1px solid #e5e7eb;
   border-radius: 7px;
-  background: var(--pw-surface);
-  color: var(--pw-muted);
+  background: #fff;
+  color: #4b5563;
   font: inherit;
   font-size: 11px;
   cursor: pointer;
   transition: background .15s, border-color .15s, color .15s;
 }
-.sb-btn:hover { border-color: var(--pw-control-border); background: var(--pw-canvas); }
+.sb-btn:hover { border-color: #cbd5e1; background: #f8fafc; }
 .sb-btn.is-active { border-color: var(--pw-accent-border); background: var(--pw-accent-soft); color: var(--pw-accent-strong); }
 .sb-btn.is-primary { border-color: var(--pw-accent); background: var(--pw-accent); color: #fff; }
 .sb-btn.is-primary:hover { background: var(--pw-accent-strong); }
-.sb-btn.is-ghost { border-style: dashed; color: var(--pw-muted); }
+.sb-btn.is-ghost { border-style: dashed; color: #64748b; }
 .sb-sep {
   width: 1px;
   height: 16px;
@@ -128,7 +128,7 @@
 }
 .sb-cell.is-head { background: #dbe6f3; }
 .sb-cell.is-sub { background: #f1f5f9; }
-.sb-cell.is-selected { box-shadow: inset 0 0 0 2px var(--pw-accent); }
+.sb-cell.is-selected { box-shadow: inset 0 0 0 2px #2783de; }
 
 .sb-cell-input {
   width: 100%;
@@ -198,7 +198,7 @@
   cursor: pointer;
   transition: background .15s, border-color .15s, color .15s;
 }
-.sb-chip:hover { border-color: var(--pw-accent-border); background: var(--pw-accent-soft); }
+.sb-chip:hover { border-color: #cbd5e1; background: #f8fafc; }
 .sb-chip.is-active { border-color: var(--pw-accent); background: var(--pw-accent); color: #fff; }
 .sb-chip[disabled] { opacity: .4; cursor: not-allowed; }
 

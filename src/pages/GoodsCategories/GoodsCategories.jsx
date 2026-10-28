@@ -142,7 +142,7 @@ const GoodsCategories = () => {
 
   return (
     <ConfigProvider theme={getProductThemeConfig(activeThemeId)}>
-      <div className="pw-product-page" style={activeThemeVariables}>
+      <div className="pw-product-page">
         <section className="pw-product-header" aria-label="مشخصات محصول">
           <div className="pw-product-summary">
             <div className="pw-product-identity">

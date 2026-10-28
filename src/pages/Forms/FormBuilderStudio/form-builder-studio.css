@@ -58,7 +58,7 @@
 .studio-header > div > span { width: 1px; height: 30px; background: var(--studio-border); }
 .studio-header h1 { margin: 0; overflow: hidden; font-size: 19px; font-weight: 700; line-height: 1.4; text-overflow: ellipsis; white-space: nowrap; }
 .studio-header p { margin: 1px 0 0; color: var(--studio-muted); font-size: 11px; font-weight: 500; }
-.studio-header .ant-btn { height: 36px; color: var(--pw-muted); font-size: 12px; font-weight: 600; border-radius: 9px; }
+.studio-header .ant-btn { height: 36px; color: #524d70; font-size: 12px; font-weight: 600; border-radius: 9px; }
 .studio-header .ant-tag { margin: 0; padding: 4px 11px; font-size: 11px; font-weight: 600; line-height: 20px; border-radius: 999px; }
 
 /* ---------- Workspace shell ---------- */

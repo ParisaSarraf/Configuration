@@ -225,8 +225,8 @@
 }
 
 .process-builder__save.ant-btn:not(:disabled):hover {
-  background: var(--pw-accent-strong);
-  border-color: var(--pw-accent-strong);
+  background: #0b7c72;
+  border-color: #0b7c72;
   color: #ffffff;
 }
 
@@ -1230,8 +1230,8 @@
   --pb-rail: #0f1826;
 
   --pb-primary: var(--pw-accent);
-  --pb-primary-strong: var(--pw-accent-soft);
-  --pb-primary-soft: color-mix(in srgb, var(--pw-accent) 16%, transparent);
+  --pb-primary-strong: var(--pw-accent-strong);
+  --pb-primary-soft: var(--pw-accent-soft);
   --pb-accent: var(--pw-accent);
 
   --pb-chrome-top: #0f1826;
@@ -1578,21 +1578,21 @@
 }
 
 .process-builder__toolbar .ant-btn:not(:disabled):hover {
-  border-color: var(--pw-accent-border);
-  background: var(--pw-accent-soft);
-  color: var(--pw-accent);
+  border-color: #dce5f2;
+  background: #f2f6fc;
+  color: #4f46e5;
 }
 
 .process-builder__toolbar .ant-btn-primary:not(.process-builder__save) {
-  border-color: var(--pw-accent-border);
-  background: var(--pw-accent-soft);
-  color: var(--pw-accent-strong);
+  border-color: #cdd5ff;
+  background: #f1f3ff;
+  color: #4f46e5;
 }
 
 .process-builder__toolbar .ant-btn-primary:not(.process-builder__save):hover {
-  border-color: var(--pw-accent);
-  background: var(--pw-accent);
-  color: #fff;
+  border-color: #aeb8ff;
+  background: #e8ebff;
+  color: #4338ca;
 }
 
 .process-builder__icon-button {
@@ -1688,7 +1688,7 @@
   height: 16px;
   margin-inline-end: 8px;
   border-radius: 999px;
-  background: linear-gradient(180deg, var(--pw-accent), var(--pw-accent-strong));
+  background: linear-gradient(180deg, #6366f1, #818cf8);
 }
 
 .process-toolbox__hint {
@@ -1765,7 +1765,6 @@
   border: none;
   border-radius: 10px;
   background: var(--pw-accent);
-  color: #fff;
   box-shadow: 0 6px 14px color-mix(in srgb, var(--pw-accent) 18%, transparent);
 }
 
@@ -1830,15 +1829,15 @@
 }
 
 .process-edge-label--selected {
-  border-color: var(--pw-accent-border);
+  border-color: #8b91ff;
   box-shadow:
-    0 0 0 3px color-mix(in srgb, var(--pw-accent) 13%, transparent),
+    0 0 0 3px rgba(99, 102, 241, 0.13),
     0 4px 10px rgba(41, 56, 83, 0.08);
 }
 
 .process-edge-label__chip {
-  background: var(--pw-accent-soft);
-  color: var(--pw-accent-strong);
+  background: #eef2ff;
+  color: #4f46e5;
 }
 
 .process-panel {
@@ -1876,7 +1875,7 @@
 }
 
 .process-panel__tab--active {
-  color: var(--pw-accent);
+  color: #4f46e5;
   box-shadow: 0 2px 7px rgba(42, 57, 85, 0.08);
 }
 
@@ -1935,7 +1934,7 @@
   --pb-panel: #111a29;
   --pb-rail: #101a2b;
   --pb-accent: var(--pw-accent);
-  --pb-accent-soft: color-mix(in srgb, var(--pw-accent) 16%, transparent);
+  --pb-accent-soft: var(--pw-accent-soft);
   --pb-chrome-top: rgba(17, 26, 41, 0.96);
   --pb-chrome-text: #eef2ff;
   --pb-chrome-muted: #8c9ab0;

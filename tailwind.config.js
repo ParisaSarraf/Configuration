@@ -42,8 +42,13 @@ module.exports = {
     function ({ addComponents }) {
       addComponents({
         ".modal-button": {
-          "@apply bg-blue-500 text-white p-4 my-4 rounded-lg hover:bg-blue-600 dark:bg-blue-700 dark:hover:bg-blue-800":
-            {},
+          "@apply text-white p-4 my-4 rounded-lg": {},
+          "background-color": "var(--pw-accent, #087f70)",
+          "border-color": "var(--pw-accent, #087f70)",
+        },
+        ".modal-button:hover": {
+          "background-color": "var(--pw-accent-strong, #006d5e)",
+          "border-color": "var(--pw-accent-strong, #006d5e)",
         },
         ".card": {
           "@apply text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 p-4 border border-gray-400 shadow-sm drop-shadow-xl rounded-lg":
@@ -54,12 +59,22 @@ module.exports = {
             {},
         },
         ".BrandButton": {
-          "@apply bg-blue-500 hover:bg-blue-600 text-white":
-            {},
+          "@apply text-white": {},
+          "background-color": "var(--pw-accent, #087f70)",
+          "border-color": "var(--pw-accent, #087f70)",
+        },
+        ".BrandButton:hover": {
+          "background-color": "var(--pw-accent-strong, #006d5e)",
+          "border-color": "var(--pw-accent-strong, #006d5e)",
         },
         ".CardItem": {
-          "@apply flex items-center justify-center h-40 bg-white shadow-lg hover:shadow-xl transition-shadow text-purple-500 hover:text-white hover:bg-purple-500 text-lg font-medium rounded-sm rounded-tl-3xl rounded-br-3xl":
+          "@apply flex items-center justify-center h-40 bg-white shadow-lg hover:shadow-xl transition-shadow text-lg font-medium rounded-sm rounded-tl-3xl rounded-br-3xl":
             {},
+          color: "var(--pw-accent, #087f70)",
+        },
+        ".CardItem:hover": {
+          color: "#fff",
+          "background-color": "var(--pw-accent, #087f70)",
         },
       });
     },
