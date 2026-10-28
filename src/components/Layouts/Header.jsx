@@ -20,6 +20,7 @@ import { useAccessList } from "@/QueryServises/accsessQuery";
 import { useProductContext } from "../../Services/Context/ProductContext";
 import { resolveBuilderAccess } from "@/Services/access/builderAccess";
 
+// eslint-disable-next-line react/prop-types
 const CustomHeader = ({ children }) => {
   const { currentProduct } = useProductContext();
   const { handleLogout } = useMyAxios();
@@ -86,49 +87,37 @@ const CustomHeader = ({ children }) => {
     },
     { type: "divider" },
     {
-      key: "cartable",
-      label: <span className="text-sky-700 font-medium">کارتابل شخصی</span>,
-      icon: <UserOutlined className="text-sky-600" />,
+      key: "my-work",
+      label: <span className="font-medium">کارتابل من</span>,
+      icon: <UserOutlined />,
       onClick: () => navigate("/my-work"),
       className:
-        "!rounded-lg !my-0.5 !py-2.5 !px-3 transition-colors hover:!bg-sky-50",
-    },
-    {
-      key: "cartable-process-maker",
-      label: (
-        <span className="text-orange-700 font-medium">کارتابل فرآیندساز</span>
-      ),
-      icon: <FormOutlined className="text-orange-600" />,
-      onClick: () => navigate("/cartable-process-maker"),
-      className:
-        "!rounded-lg !my-0.5 !py-2.5 !px-3 transition-colors hover:!bg-orange-50",
+        "!rounded-lg !my-0.5 !py-2.5 !px-3 transition-colors cartable-menu-item",
     },
     {
       key: "change-password",
-      label: (
-        <span className="text-violet-700 font-medium">تغییر رمز عبور</span>
-      ),
-      icon: <SecurityScanOutlined className="text-violet-600" />,
+      label: <span className="font-medium">تغییر رمز عبور</span>,
+      icon: <SecurityScanOutlined />,
       onClick: () => navigate("/forget-password"),
       className:
-        "!rounded-lg !my-0.5 !py-2.5 !px-3 transition-colors hover:!bg-violet-50",
+        "!rounded-lg !my-0.5 !py-2.5 !px-3 transition-colors cartable-menu-item",
     },
     {
       key: "plan",
       label: (
-        <span className="text-emerald-700 font-medium">برنامه ریزی تولید</span>
+        <span className="font-medium">برنامه ریزی تولید</span>
       ),
-      icon: <SecurityScanOutlined className="text-emerald-600" />,
+      icon: <CalendarOutlined />,
       onClick: () => navigate("/plan"),
       className:
-        "!rounded-lg !my-0.5 !py-2.5 !px-3 transition-colors hover:!bg-emerald-50",
+        "!rounded-lg !my-0.5 !py-2.5 !px-3 transition-colors cartable-menu-item",
     },
     {
       key: "settings",
-      label: <span className="text-slate-700 font-medium">تنظیمات</span>,
-      icon: <SettingOutlined className="text-slate-500" />,
+      label: <span className="font-medium">تنظیمات</span>,
+      icon: <SettingOutlined />,
       className:
-        "!rounded-lg !my-0.5 !py-2.5 !px-3 transition-colors hover:!bg-slate-50",
+        "!rounded-lg !my-0.5 !py-2.5 !px-3 transition-colors cartable-menu-item",
       children: [
         {
           key: "base-data",
@@ -211,7 +200,7 @@ const CustomHeader = ({ children }) => {
                 <Tooltip title="فرم ساز" placement="bottom">
                   <button
                     onClick={() => navigate("/forms")}
-                    className="flex items-center gap-1.5 px-3 h-8 text-sm font-medium text-slate-600 hover:bg-white hover:text-sky-600 transition-colors"
+                    className="pw-themed-action flex items-center gap-1.5 px-3 h-8 text-sm font-medium text-slate-600 transition-colors"
                   >
                     <FormOutlined />
                     <span className="hidden md:inline">فرم ساز</span>
@@ -225,7 +214,7 @@ const CustomHeader = ({ children }) => {
                 <Tooltip title="فرایندساز" placement="bottom">
                   <button
                     onClick={() => navigate("/processes")}
-                    className="flex items-center gap-1.5 px-3 h-8 text-sm font-medium text-slate-600 hover:bg-white hover:text-emerald-600 transition-colors"
+                    className="pw-themed-action flex items-center gap-1.5 px-3 h-8 text-sm font-medium text-slate-600 transition-colors"
                   >
                     <PartitionOutlined />
                     <span className="hidden md:inline">فرایندساز</span>

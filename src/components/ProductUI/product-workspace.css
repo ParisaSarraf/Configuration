@@ -187,6 +187,14 @@
   border-color: var(--pw-border);
   color: var(--pw-muted);
 }
+.pw-topbar .pw-themed-action:hover {
+  color: var(--pw-accent) !important;
+  background: var(--pw-accent-soft) !important;
+}
+.cartable-menu-item:hover {
+  color: var(--pw-accent-strong, #006d5e) !important;
+  background: var(--pw-accent-soft, #e5f5f2) !important;
+}
 .pw-products-body {
   min-height: 0;
   overflow-y: auto;

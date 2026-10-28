@@ -1,141 +1,226 @@
-import { useEffect, useState } from "react";
-import { jwtDecode } from "jwt-decode";
-import Header from "@/components/Layouts/Header.jsx";
-import MyActivities from "@/pages/MyWork/MyActivities/MyActivities.jsx";
-import MyDocuments from "@/pages/MyWork/MyDocuments/MyDocuments.jsx";
-import MyPlan from "@/pages/MyWork/MyPlan/MyPlan.jsx";
+import { useEffect, useMemo, useState } from "react";
 import {
-  ArrowRightOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
   FileDoneOutlined,
   HistoryOutlined,
+  PartitionOutlined,
 } from "@ant-design/icons";
-import { Button } from "antd";
+import { Alert, Button, Empty } from "antd";
 import { useNavigate } from "react-router-dom";
+import Header from "@/components/Layouts/Header.jsx";
+import ProductThemePicker from "@/components/Theme/ProductThemePicker.jsx";
+import MyActivities from "@/pages/MyWork/MyActivities/MyActivities.jsx";
+import MyDocuments from "@/pages/MyWork/MyDocuments/MyDocuments.jsx";
+import MyPlan from "@/pages/MyWork/MyPlan/MyPlan.jsx";
 import Waiting from "@/pages/MyWork/Waiting/Waiting.jsx";
-import { useGetActivityUserPerformance } from "../../QueryServises/PanelQuery";
+import ProcessMaker from "@/pages/ProcessMaker/ProcessMaker.jsx";
+import {
+  useGetActivitiesInPlanState,
+  useGetActivityUserPerformance,
+  useGetDocumentWorkflowTasks,
+  useGetExpertActivity,
+  useGetExpertActivityInPlanState,
+} from "@/QueryServises/PanelQuery/index.js";
+import {
+  useProcessList,
+  useRequestsNeedUserAction,
+} from "@/QueryServises/workflowQuery/index.js";
+import { getUserFromToken } from "@/utils/ExportFromToken.js";
+import { useProductTheme } from "@/components/Theme/ProductThemeContext.jsx";
+import "./work-cartable.css";
+
+const ACCESS_QUERY_OPTIONS = {
+  retry: false,
+  staleTime: 60 * 1000,
+  refetchOnWindowFocus: false,
+};
+
+const isAccessDenied = (query) =>
+  query?.isError && [401, 403].includes(Number(query.error?.response?.status));
 
 const MyWork = () => {
   const navigate = useNavigate();
-  const [userName, setUserName] = useState("");
-  const { data: performanceData } = useGetActivityUserPerformance();
+  const { globalTheme } = useProductTheme();
+  const currentUser = useMemo(() => getUserFromToken(), []);
+  const [activeKey, setActiveKey] = useState(null);
+
+  // The current-user endpoints are the source of truth for personal sections.
+  // Keep every tab visible. Authorization errors are shown inside the
+  // selected section instead of removing it from navigation.
+  const activitiesAccess = useGetExpertActivity(ACCESS_QUERY_OPTIONS);
+  const waitingAccess = useGetExpertActivityInPlanState(ACCESS_QUERY_OPTIONS);
+  const planAccess = useGetActivitiesInPlanState(ACCESS_QUERY_OPTIONS);
+  const documentsAccess = useGetDocumentWorkflowTasks(ACCESS_QUERY_OPTIONS);
+  const performanceQuery = useGetActivityUserPerformance(ACCESS_QUERY_OPTIONS);
+
+  // Process-maker capabilities are resolved independently by the server:
+  // process-list permission exposes start/monitor, and need-action permission
+  // exposes the user's actionable requests.
+  const processListAccess = useProcessList(ACCESS_QUERY_OPTIONS);
+  const processActionsAccess = useRequestsNeedUserAction(
+    {},
+    ACCESS_QUERY_OPTIONS,
+  );
+
+  const activityAllowed = !isAccessDenied(activitiesAccess);
+  const waitingAllowed = !isAccessDenied(waitingAccess);
+  const planAllowed = !isAccessDenied(planAccess);
+  const documentsAllowed = !isAccessDenied(documentsAccess);
+  const processMakerAllowed =
+    !isAccessDenied(processListAccess) ||
+    !isAccessDenied(processActionsAccess);
+
+  const sections = useMemo(
+    () => [
+      {
+        key: "activities",
+        label: "فعالیت‌های باقیمانده",
+        icon: <HistoryOutlined />,
+        allowed: activityAllowed,
+        content: <MyActivities />,
+      },
+      {
+        key: "waiting",
+        label: "در انتظار تأیید",
+        icon: <ClockCircleOutlined />,
+        allowed: waitingAllowed,
+        content: <Waiting />,
+      },
+      {
+        key: "plans",
+        label: "کارهای من",
+        icon: <CheckCircleOutlined />,
+        allowed: planAllowed,
+        content: <MyPlan />,
+      },
+      {
+        key: "documents",
+        label: "اسناد من",
+        icon: <FileDoneOutlined />,
+        allowed: documentsAllowed,
+        content: <MyDocuments />,
+      },
+      {
+        key: "processes",
+        label: "فرآیندساز",
+        icon: <PartitionOutlined />,
+        allowed: processMakerAllowed,
+        content: <ProcessMaker embedded />,
+      },
+    ],
+    [
+      activityAllowed,
+      waitingAllowed,
+      planAllowed,
+      documentsAllowed,
+      processMakerAllowed,
+    ],
+  );
+  const visibleSections = sections;
 
   useEffect(() => {
-    const getUsernameFromToken = () => {
-      try {
-        const accessToken = localStorage.getItem("accessToken");
+    if (
+      !visibleSections.some((section) => section.key === activeKey) &&
+      visibleSections.length
+    ) {
+      setActiveKey(visibleSections[0].key);
+    }
+  }, [activeKey, visibleSections]);
 
-        if (!accessToken) {
-          console.warn("No access token found");
-          setUserName("کاربر");
-          return;
-        }
-
-        const decodedToken = jwtDecode(accessToken);
-        const name =
-          decodedToken?.name ||
-          decodedToken?.username ||
-          decodedToken?.fullName ||
-          decodedToken?.sub ||
-          "کاربر";
-
-        setUserName(name);
-      } catch (error) {
-        console.error("Error decoding token:", error);
-        setUserName("کاربر");
-      }
-    };
-
-    getUsernameFromToken();
-  }, []);
-
-  const items = [
-    {
-      label: "فعالیت های باقیمانده",
-      key: "1",
-      icon: <HistoryOutlined />,
-      children: <MyActivities />,
-      activeClass: "bg-sky-200 text-sky-800 shadow-md",
-      inactiveClass: "text-sky-700 hover:bg-sky-100",
-    },
-    {
-      label: "فعالیت های در انتطار تایید",
-      key: "2",
-      icon: <ClockCircleOutlined />,
-      children: <Waiting />,
-      activeClass: "bg-pink-200 text-pink-800 shadow-md",
-      inactiveClass: "text-pink-700 hover:bg-pink-100",
-    },
-    {
-      label: "کارهای من",
-      key: "3",
-      icon: <CheckCircleOutlined />,
-      children: <MyPlan />,
-      activeClass: "bg-violet-200 text-violet-800 shadow-md",
-      inactiveClass: "text-violet-700 hover:bg-violet-100",
-    },
-    {
-      label: "اسناد باقیمانده من",
-      key: "4",
-      icon: <FileDoneOutlined />,
-      children: <MyDocuments />,
-      activeClass: "bg-emerald-200 text-emerald-800 shadow-md",
-      inactiveClass: "text-emerald-700 hover:bg-emerald-100",
-    },
-  ];
-
-  const [activeKey, setActiveKey] = useState(items[0].key);
-  const activeComponent = items.find(
-    (item) => item.key === activeKey
-  )?.children;
+  const activeSection = visibleSections.find(
+    (section) => section.key === activeKey,
+  );
 
   return (
-    <div className="min-h-screen bg-slate-50" dir="rtl">
+    <div
+      className="work-cartable"
+      data-theme={globalTheme}
+      dir="rtl"
+    >
       <Header />
-      <div className="p-4 sm:p-6 lg:p-8 max-w-screen-2xl mx-auto">
-        <header className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-          <div>
-            <Button
-              type="text"
-              icon={<ArrowRightOutlined />}
-              onClick={() => navigate("/")}
-              className="flex items-center text-slate-600 hover:!text-sky-700 mb-4"
-            >
-              بازگشت به صفحه اصلی
-            </Button>
-            <div className="w-full flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                کارتابل <span className="text-sky-600">{userName}</span>
+      <div className="work-cartable__container">
+        <header className="work-cartable__header">
+          <div className="work-cartable__heading">
+            <div>
+              <Button
+                type="text"
+                onClick={() => navigate("/")}
+                className="work-cartable__back"
+              >
+                بازگشت به صفحه اصلی
+              </Button>
+              <h1>
+                کارتابل{" "}
+                <span>{currentUser?.displayName || "کاربر"}</span>
               </h1>
-              <div className="flex items-center gap-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl px-5 py-3 shadow-sm border border-blue-100">
-                <span className="text-lg font-semibold text-slate-700">
-                  درصد عملکرد:
-                </span>
-                <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-                  {performanceData?.[0]?.avg_performance}٪
-                </span>
-              </div>
+              <p>همهٔ کارهای شخصی و گردش‌های کاری شما در یکجا</p>
+            </div>
+            <div className="work-cartable__header-actions">
+              {performanceQuery.data?.[0]?.avg_performance != null ? (
+                <div className="work-cartable__performance">
+                  <span>درصد عملکرد</span>
+                  <strong>
+                    {performanceQuery.data[0].avg_performance}٪
+                  </strong>
+                </div>
+              ) : null}
+              <ProductThemePicker
+                moduleKey="global"
+                moduleLabel="کل سیستم"
+                globalOnly
+              />
             </div>
           </div>
 
-          <div className="bg-slate-100 p-1 flex items-center gap-1 rounded-xl border border-slate-200">
-            {items.map((item) => (
-              <button
-                key={item.key}
-                onClick={() => setActiveKey(item.key)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${activeKey === item.key ? item.activeClass : item.inactiveClass
+          {visibleSections.length ? (
+            <nav
+              className="work-cartable__nav"
+              aria-label="بخش‌های کارتابل"
+            >
+              {visibleSections.map((section) => (
+                <button
+                  key={section.key}
+                  type="button"
+                  className={`work-cartable__nav-item ${
+                    activeKey === section.key ? "is-active" : ""
                   }`}
-              >
-                {item.icon}
-                <span>{item.label}</span>
-              </button>
-            ))}
-          </div>
+                  aria-current={activeKey === section.key ? "page" : undefined}
+                  onClick={() => setActiveKey(section.key)}
+                >
+                  <span className="work-cartable__nav-icon">
+                    {section.icon}
+                  </span>
+                  <span>{section.label}</span>
+                </button>
+              ))}
+            </nav>
+          ) : null}
         </header>
 
-        <main className="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
-          <div>{activeComponent}</div>
+        <main className="work-cartable__content">
+          {activeSection ? (
+            <section
+              key={activeSection.key}
+              className="work-cartable__section"
+              aria-label={activeSection.label}
+            >
+              {activeSection.allowed || activeSection.key === "processes" ? (
+                activeSection.content
+              ) : (
+                <Alert
+                  type="warning"
+                  showIcon
+                  message="شما دسترسی مشاهده این بخش را ندارید."
+                />
+              )}
+            </section>
+          ) : (
+            <Empty
+              className="work-cartable__empty"
+              description="برای بخش‌های کارتابل دسترسی فعالی ندارید."
+            />
+          )}
         </main>
       </div>
     </div>

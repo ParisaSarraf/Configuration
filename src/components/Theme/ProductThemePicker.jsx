@@ -4,7 +4,8 @@ import { Button, Popover, Radio, Tooltip } from "antd";
 import { useProductTheme } from "./ProductThemeContext";
 import { PRODUCT_THEME_OPTIONS, getProductThemeVariables } from "./productThemes";
 
-const ProductThemePicker = ({ moduleKey, moduleLabel }) => {
+// eslint-disable-next-line react/prop-types
+const ProductThemePicker = ({ moduleKey, moduleLabel, globalOnly = false }) => {
   const [open, setOpen] = useState(false);
   const [scope, setScope] = useState("module");
   const {
@@ -14,14 +15,15 @@ const ProductThemePicker = ({ moduleKey, moduleLabel }) => {
     setModuleTheme,
   } = useProductTheme();
 
-  const selectedTheme =
-    scope === "module"
+  const selectedTheme = globalOnly
+    ? globalTheme
+    : scope === "module"
       ? moduleThemes[moduleKey] || globalTheme
       : globalTheme;
   const pickerStyle = getProductThemeVariables(selectedTheme);
 
   const handleThemeChange = (themeId) => {
-    if (scope === "global") {
+    if (globalOnly || scope === "global") {
       setGlobalTheme(themeId);
     } else {
       setModuleTheme(moduleKey, themeId);
@@ -30,19 +32,25 @@ const ProductThemePicker = ({ moduleKey, moduleLabel }) => {
 
   const content = (
     <div className="pw-theme-picker" dir="rtl" style={pickerStyle}>
-      <div className="pw-theme-picker__heading">اعمال تم برای</div>
-      <Radio.Group
-        className="pw-theme-picker__scope"
-        value={scope}
-        onChange={(event) => setScope(event.target.value)}
-        optionType="button"
-        buttonStyle="solid"
-        size="small"
-      >
-        <Radio.Button value="module">فقط {moduleLabel}</Radio.Button>
-        <Radio.Button value="global">پیش‌فرض همه بخش‌ها</Radio.Button>
-      </Radio.Group>
-      <div className="pw-theme-picker__heading">رنگ‌بندی</div>
+      {globalOnly ? null : (
+        <>
+          <div className="pw-theme-picker__heading">اعمال تم برای</div>
+          <Radio.Group
+            className="pw-theme-picker__scope"
+            value={scope}
+            onChange={(event) => setScope(event.target.value)}
+            optionType="button"
+            buttonStyle="solid"
+            size="small"
+          >
+            <Radio.Button value="module">فقط {moduleLabel}</Radio.Button>
+            <Radio.Button value="global">پیش‌فرض همه بخش‌ها</Radio.Button>
+          </Radio.Group>
+        </>
+      )}
+      <div className="pw-theme-picker__heading">
+        {globalOnly ? "رنگ‌بندی کل سیستم" : "رنگ‌بندی"}
+      </div>
       <Radio.Group
         className="pw-theme-picker__options"
         value={selectedTheme}
@@ -61,7 +69,7 @@ const ProductThemePicker = ({ moduleKey, moduleLabel }) => {
           </Radio>
         ))}
       </Radio.Group>
-      {scope === "module" && moduleThemes[moduleKey] ? (
+      {!globalOnly && scope === "module" && moduleThemes[moduleKey] ? (
         <Button
           type="link"
           size="small"

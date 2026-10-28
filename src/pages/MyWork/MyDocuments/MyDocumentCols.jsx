@@ -60,7 +60,7 @@ export const MyDocumentCols = (onOpenWorkflow) => {
                     onOpenWorkflow?.(record);
                   }}
                   disabled={!record?.id}
-                  className="text-purple-600 hover:!text-purple-800"
+                  className="work-cartable__action"
                 />
               </Tooltip>
            ),

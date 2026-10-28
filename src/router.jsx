@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import MainLayout from "./components/Layouts/MainLayout";
 import SignIn from "./components/SignIn/SignIn";
 import NotFound from "./pages/NotFound/NotFound";
@@ -24,7 +24,6 @@ import FormFiller from "./pages/Forms/FormRuntime/FormFiller";
 import Processes from "./pages/Processes/Processes";
 import ProcessBuilder from "./pages/Processes/ProcessBuilder/ProcessBuilder";
 import ProcessDashboard from "./pages/Processes/ProcessDashboard";
-import ProcessMaker from "./pages/ProcessMaker/ProcessMaker";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
 const router = createBrowserRouter([
@@ -235,7 +234,7 @@ const router = createBrowserRouter([
     path: "/cartable-process-maker",
     element: (
       <ProtectedRoute>
-        <ProcessMaker />
+        <Navigate to="/my-work" replace />
       </ProtectedRoute>
     ),
   },

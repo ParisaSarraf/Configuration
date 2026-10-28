@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMyAxios } from "../../hooks/useMyAxios";
 import { workflowApi } from "../../Services/workflow/workflowApi";
 import { syncProcessGraph } from "../../Services/workflow/workflowPayloads";
+import { getUserFromToken } from "@/utils/ExportFromToken.js";
 
 export const processListKey = ["workflow", "processes"];
 export const processInfoKey = (id) => ["workflow", "process", id];
@@ -197,6 +198,31 @@ export const useProcessRequests = (
     queryFn: () => workflowApi.getProcessRequests(myAxios, processId, filters),
     enabled: Boolean(processId),
     ...queryOptions,
+  });
+};
+
+export const useDeleteRequest = () => {
+  const { myAxios } = useMyAxios();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (requestId) => {
+      const user = getUserFromToken();
+      if (user?.is_staff !== true && user?.is_superuser !== true) {
+        throw new Error("فقط مدیر سیستم مجاز به حذف درخواست است.");
+      }
+      return workflowApi.deleteRequest(myAxios, requestId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: requestsKey });
+      queryClient.invalidateQueries({
+        queryKey: ["workflow", "process-requests"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["workflow", "requests", "need-action"],
+      });
+      queryClient.invalidateQueries({ queryKey: processKpisKey });
+      queryClient.invalidateQueries({ queryKey: ["workflow", "process"] });
+    },
   });
 };
 

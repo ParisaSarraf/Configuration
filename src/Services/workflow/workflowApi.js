@@ -182,6 +182,8 @@ export const workflowApi = Object.freeze({
   getRequests: (client, signal) => get(client, ENDPOINTS.requests, signal),
   getRequestById: (client, id, signal) =>
     get(client, `${ENDPOINTS.requestById}${id}`, signal),
+  deleteRequest: (client, id, signal) =>
+    remove(client, `/workflow/delete-request/${id}`, signal),
   getRequestPathById: (client, id, signal) =>
     get(client, `/workflow/get-request-path-by-id/${id}`, signal),
   getRequestStateHistoryById: (client, id, signal) =>

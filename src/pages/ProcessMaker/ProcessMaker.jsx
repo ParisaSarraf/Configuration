@@ -8,7 +8,6 @@ import {
   Pagination,
   Select,
   Tag,
-  Tooltip,
 } from "antd";
 import {
   ArrowRightOutlined,
@@ -17,7 +16,6 @@ import {
   DashboardOutlined,
   EditOutlined,
   EyeOutlined,
-  InboxOutlined,
   PartitionOutlined,
   PlusOutlined,
   ReloadOutlined,
@@ -27,6 +25,7 @@ import {
 import Header from "@/components/Layouts/Header.jsx";
 import { getApiErrorMessage } from "@/Services/forms/formUtils";
 import { getUserFromToken } from "@/utils/ExportFromToken";
+import { useProductTheme } from "@/components/Theme/ProductThemeContext.jsx";
 import CartableTaskModal from "./components/CartableTaskModal";
 import ProcessRequestsModal from "./components/ProcessRequestsModal";
 import { requestRowsFromResponse } from "./components/ProcessRequestsModal";
@@ -80,8 +79,13 @@ const readCurrentUser = () => {
   };
 };
 
-const ProcessMakerCartable = () => {
+const isAccessDenied = (query) =>
+  query?.isError && [401, 403].includes(Number(query.error?.response?.status));
+
+// eslint-disable-next-line react/prop-types
+const ProcessMakerCartable = ({ embedded = false }) => {
   const navigate = useNavigate();
+  const { globalTheme } = useProductTheme();
   const { isOpen, modalType, modalData, setModal, closeModal } = useModal();
 
   const currentUser = useMemo(readCurrentUser, []);
@@ -128,6 +132,28 @@ const ProcessMakerCartable = () => {
     ...permissionSensitiveQueryOptions,
     enabled: Boolean(actionTabIsVisible && actionProcessId),
   });
+
+  // Authorization errors belong in the active panel, not in tab visibility.
+  const visibleProcessTabs = useMemo(
+    () => [
+      {
+        value: TABS.TODO,
+        label: "ثبت درخواست جدید",
+        icon: <PlusOutlined />,
+      },
+      {
+        value: TABS.PROCESSES,
+        label: "درخواست‌های جاری",
+        icon: <PartitionOutlined />,
+      },
+      {
+        value: TABS.ACTIONS,
+        label: "نیازمند اقدام من",
+        icon: <ThunderboltOutlined />,
+      },
+    ],
+    [],
+  );
 
   useEffect(() => {
     setPage(1);
@@ -301,7 +327,8 @@ const ProcessMakerCartable = () => {
   const isTodo = tab === TABS.TODO;
   const isProcesses = tab === TABS.PROCESSES;
   const isActions = tab === TABS.ACTIONS;
-  const dataSource =
+  const activeQuery = isActions ? userActionsQuery : processListQuery;
+  const dataSource = isAccessDenied(activeQuery) ? [] :
     (isTodo
       ? filteredTodo
       : isActions
@@ -342,7 +369,9 @@ const ProcessMakerCartable = () => {
     : isActions
         ? userActionsQuery.error
         : processListQuery.error;
-  const isForbidden = Number(activeError?.response?.status) === 403;
+  const isForbidden = [401, 403].includes(
+    Number(activeError?.response?.status),
+  );
   const errorMessage = isForbidden
     ? isActions
       ? "شما دسترسی مشاهده ارسال‌ها و درخواست‌های فرایند را ندارید."
@@ -355,91 +384,69 @@ const ProcessMakerCartable = () => {
       );
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-      <Header />
+    <div
+      className={`work-cartable-process ${embedded ? "is-embedded" : ""}`}
+      data-theme={globalTheme}
+      dir="rtl"
+    >
+      {!embedded ? <Header /> : null}
 
-      <div className="mx-auto max-w-[1500px] p-3 sm:p-5">
-        <Button
-          type="text"
-          icon={<ArrowRightOutlined />}
-          onClick={() => navigate(-1)}
-          className="mb-3 text-slate-500"
-        >
-          بازگشت
-        </Button>
+      <div className="work-cartable-process__container">
+        {!embedded ? (
+          <Button
+            type="text"
+            icon={<ArrowRightOutlined />}
+            onClick={() => navigate(-1)}
+            className="work-cartable-process__back"
+          >
+            بازگشت
+          </Button>
+        ) : null}
 
-        <div className="grid gap-4 lg:grid-cols-[250px_minmax(0,1fr)]">
-          <aside className="h-fit overflow-hidden rounded-3xl bg-slate-950 p-4 text-white shadow-xl lg:sticky lg:top-4">
-            <div className="rounded-2xl bg-gradient-to-bl from-blue-600 to-indigo-600 p-4">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 text-xl">
+        <div className="work-cartable-process__layout">
+          <aside className="work-cartable-process__nav">
+            <div className="work-cartable-process__nav-header">
+              <div className="work-cartable-process__nav-mark">
                 <ThunderboltOutlined />
               </div>
-              <h1 className="mb-1 mt-4 text-lg font-black"> کارتابل فرآیند ها</h1>
-              <p className="m-0 text-[11px] leading-6 text-blue-100">
+              <h1>کارتابل فرآیندها</h1>
+              <p>
                 {currentUser.name}، کارهای مهم امروز شما اینجاست.
               </p>
             </div>
 
-            <nav className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
-              {[
-                {
-                  value: TABS.TODO,
-                  label: "ثبت درخواست جدید",
-                  detail: "شروع یک گردش کار",
-                  icon: <PlusOutlined />,
-                  count: cartableSummary.processes,
-                },
-                {
-                  value: TABS.PROCESSES,
-                  label: "درخواست‌های جاری",
-                  detail: "رصد و پیگیری فرایندها",
-                  icon: <PartitionOutlined />,
-                  count: cartableSummary.current,
-                },
-                {
-                  value: TABS.ACTIONS,
-                  label: "نیازمند اقدام من",
-                  detail: "کارهای منتظر تصمیم",
-                  icon: <ThunderboltOutlined />,
-                  count: cartableSummary.actions,
-                },
-              ].map((item) => {
+            <nav className="work-cartable-process__nav-items">
+              {visibleProcessTabs.map((item) => {
                 const active = tab === item.value;
+                const count =
+                  item.value === TABS.TODO
+                    ? cartableSummary.processes
+                    : item.value === TABS.PROCESSES
+                      ? cartableSummary.current
+                      : cartableSummary.actions;
+                const detail =
+                  item.value === TABS.TODO
+                    ? "شروع یک گردش کار"
+                    : item.value === TABS.PROCESSES
+                      ? "رصد و پیگیری فرایندها"
+                      : "کارهای منتظر تصمیم";
                 return (
                   <button
                     key={item.value}
                     type="button"
                     onClick={() => setTab(item.value)}
-                    className={`flex items-center gap-3 rounded-2xl border p-3 text-right transition ${
-                      active
-                        ? "border-white/20 bg-white text-slate-950 shadow-lg"
-                        : "border-transparent bg-white/5 text-slate-300 hover:bg-white/10"
+                    className={`work-cartable-process__nav-item ${
+                      active ? "is-active" : ""
                     }`}
                   >
-                    <span
-                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
-                        active
-                          ? "bg-blue-50 text-blue-600"
-                          : "bg-white/10 text-white"
-                      }`}
-                    >
+                    <span className="work-cartable-process__nav-icon">
                       {item.icon}
                     </span>
                     <span className="min-w-0 flex-1">
-                      <strong className="block truncate text-xs">
-                        {item.label}
-                      </strong>
-                      <small
-                        className={`block truncate text-[9px] ${
-                          active ? "text-slate-400" : "text-slate-500"
-                        }`}
-                      >
-                        {item.detail}
-                      </small>
+                      <strong>{item.label}</strong>
+                      <small>{detail}</small>
                     </span>
-                    <b className="text-sm tabular-nums">
-                      {item.count.toLocaleString("fa-IR")}
-                    </b>
+                    <b>{count.toLocaleString("fa-IR")}</b>
                   </button>
                 );
               })}
@@ -447,21 +454,17 @@ const ProcessMakerCartable = () => {
           </aside>
 
           <main className="min-w-0">
-            <section className="relative overflow-hidden rounded-3xl bg-gradient-to-bl from-slate-900 via-slate-900 to-indigo-950 p-5 text-white shadow-xl sm:p-7">
-              <div className="absolute -left-16 -top-24 h-56 w-56 rounded-full bg-blue-500/20 blur-3xl" />
-              <div className="relative flex flex-wrap items-end justify-between gap-4">
+            <section className="work-cartable-process__hero">
+              <div>
                 <div>
-                  <div className="mb-2 text-[11px] font-semibold text-blue-300">
-                     
-                  </div>
-                  <h2 className="m-0 text-xl font-black sm:text-3xl">
+                  <h2>
                     {isActions
                       ? "صف کارهای امروز شما"
                       : isProcesses
                         ? " فرایندهای جاری"
                         : "یک درخواست تازه شروع کنید"}
                   </h2>
-                  <p className="mb-0 mt-2 max-w-2xl text-xs leading-6 text-slate-400">
+                  <p>
                     {isActions
                       ? "درخواست‌های منتظر تصمیم، تکمیل فرم و ارجاع بعدی بدون پراکندگی در چند صفحه."
                       : isProcesses
@@ -470,7 +473,6 @@ const ProcessMakerCartable = () => {
                   </p>
                 </div>
                 <Button
-                  ghost
                   icon={<ReloadOutlined />}
                   loading={isRefreshing}
                   onClick={handleRefresh}
@@ -482,27 +484,27 @@ const ProcessMakerCartable = () => {
 
             <div className="mt-3 grid grid-cols-2 gap-3 xl:grid-cols-4">
               {[
-                ["فرایند فعال", cartableSummary.processes, <PartitionOutlined />, "text-blue-500"],
-                ["در حال گردش", cartableSummary.current, <BarChartOutlined />, "text-indigo-500"],
-                ["تکمیل‌شده", cartableSummary.completed, <CheckCircleOutlined />, "text-emerald-500"],
-                ["منتظر من", cartableSummary.actions, <ThunderboltOutlined />, "text-amber-500"],
-              ].map(([label, value, icon, tone]) => (
+                ["فرایند فعال", cartableSummary.processes, <PartitionOutlined key="process" />],
+                ["در حال گردش", cartableSummary.current, <BarChartOutlined key="current" />],
+                ["تکمیل‌شده", cartableSummary.completed, <CheckCircleOutlined key="completed" />],
+                ["منتظر من", cartableSummary.actions, <ThunderboltOutlined key="actions" />],
+              ].map(([label, value, icon]) => (
                 <div
                   key={label}
-                  className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+                  className="work-cartable-process__metric"
                 >
                   <div>
-                    <div className="text-[10px] text-slate-400">{label}</div>
-                    <strong className="mt-1 block text-xl tabular-nums text-slate-900 dark:text-white">
+                    <div className="work-cartable-process__metric-label">{label}</div>
+                    <strong>
                       {value.toLocaleString("fa-IR")}
                     </strong>
                   </div>
-                  <span className={`text-xl ${tone}`}>{icon}</span>
+                  <span className="work-cartable-process__metric-icon">{icon}</span>
                 </div>
               ))}
             </div>
 
-            <section className="mt-4 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 dark:border-slate-800 dark:bg-slate-900">
+            <section className="work-cartable-process__panel">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <h3 className="m-0 text-base font-black text-slate-900 dark:text-white">
@@ -561,7 +563,7 @@ const ProcessMakerCartable = () => {
 
               {hasError ? (
                 <Alert
-                  type="error"
+                  type={isForbidden ? "warning" : "error"}
                   showIcon
                   className="mt-4"
                   message={errorMessage}
@@ -588,7 +590,7 @@ const ProcessMakerCartable = () => {
                           return (
                             <article
                               key={record.rowKey || record.id || record.requestId}
-                              className="group rounded-3xl border border-slate-200 bg-white p-4 transition hover:-translate-y-1 hover:border-amber-300 hover:shadow-xl dark:border-slate-700 dark:bg-slate-900"
+                              className="work-cartable-process__card group rounded-3xl p-4 transition hover:-translate-y-1 hover:shadow-xl"
                             >
                               <div className="flex items-start justify-between gap-3">
                                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-lg text-amber-500 dark:bg-amber-950/40">
@@ -634,9 +636,9 @@ const ProcessMakerCartable = () => {
                           return (
                             <article
                               key={record.id}
-                              className="overflow-hidden rounded-3xl border border-slate-200 bg-white transition hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-900"
+                              className="work-cartable-process__card overflow-hidden transition hover:-translate-y-1 hover:shadow-xl"
                             >
-                              <div className="bg-gradient-to-bl from-slate-900 to-indigo-950 p-4 text-white">
+                              <div className="work-cartable-process__process-card-header p-4">
                                 <div className="flex items-center justify-between gap-3">
                                   <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10">
                                     <PartitionOutlined />
@@ -644,7 +646,7 @@ const ProcessMakerCartable = () => {
                                   <Button
                                     size="small"
                                     type="text"
-                                    className="!text-white/70"
+                                    className="work-cartable-process__dashboard-action"
                                     icon={<DashboardOutlined />}
                                     onClick={() =>
                                       navigate(`/processes/${record.id}/dashboard`)
@@ -692,7 +694,7 @@ const ProcessMakerCartable = () => {
                         return (
                           <article
                             key={record.id}
-                            className="group rounded-3xl border border-slate-200 bg-white p-5 transition hover:-translate-y-1 hover:border-blue-300 hover:shadow-xl dark:border-slate-700 dark:bg-slate-900"
+                              className="work-cartable-process__card group rounded-3xl p-5 transition hover:-translate-y-1 hover:shadow-xl"
                           >
                             <div className="flex items-start justify-between gap-3">
                               <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-xl text-blue-600 dark:bg-blue-950/40">
@@ -794,6 +796,9 @@ const ProcessMakerCartable = () => {
   );
 };
 
-const ProcessMaker = () => <ProcessMakerCartable />;
+// eslint-disable-next-line react/prop-types
+const ProcessMaker = ({ embedded = false }) => (
+  <ProcessMakerCartable embedded={embedded} />
+);
 
 export default ProcessMaker;

@@ -4,11 +4,20 @@ import { referThenSign, verifySignatureSave } from "@/pages/Forms/FormRuntime/re
 import { getUserFromToken } from "@/utils/ExportFromToken";
 import { BASEURL } from "@/Services/axiosInstance";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Alert, App, Button, Empty, Select, Skeleton } from "antd";
+import {
+  Alert,
+  App,
+  Button,
+  Empty,
+  Popconfirm,
+  Select,
+  Skeleton,
+} from "antd";
 import {
   CalendarOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
+  DeleteOutlined,
   EditOutlined,
   FilterOutlined,
   PaperClipOutlined,
@@ -37,6 +46,7 @@ import {
   useProcessInfo,
   useProcessRequests,
   useRequestPathById,
+  useDeleteRequest,
 } from "@/QueryServises/workflowQuery";
 import {
   asCategories,
@@ -572,10 +582,15 @@ export const RequestWorkPanel = ({ record, onCompleted }) => {
 };
 
 const ProcessRequestsModal = ({ open, process, onClose }) => {
+  const { message } = App.useApp();
   const processId = process?.id ?? null;
   const [stateType, setStateType] = useState("");
   const [stateId, setStateId] = useState(null);
   const [workRecord, setWorkRecord] = useState(null);
+  const deleteRequestMutation = useDeleteRequest();
+  const currentUser = useMemo(() => getUserFromToken(), []);
+  const isAdmin =
+    currentUser?.is_staff === true || currentUser?.is_superuser === true;
 
   useEffect(() => {
     if (!open) return;
@@ -601,6 +616,21 @@ const ProcessRequestsModal = ({ open, process, onClose }) => {
     () => requestRowsFromResponse(responseData, process),
     [responseData, process],
   );
+
+  const handleDeleteRequest = async (record) => {
+    const requestId = Number(record?.requestId);
+    if (!isAdmin || !Number.isFinite(requestId) || requestId <= 0) return;
+
+    try {
+      await deleteRequestMutation.mutateAsync(requestId);
+      if (String(workRecord?.requestId) === String(requestId))
+        setWorkRecord(null);
+      await query.refetch();
+      message.success("درخواست با موفقیت حذف شد.");
+    } catch (error) {
+      message.error(getApiErrorMessage(error, "حذف درخواست انجام نشد."));
+    }
+  };
 
   const title = (
     <div className="py-0.5">
@@ -651,13 +681,37 @@ const ProcessRequestsModal = ({ open, process, onClose }) => {
             </div>
           </div>
 
-          <Button
-            type="primary"
-            icon={<EditOutlined />}
-            onClick={() => setWorkRecord(record)}
-          >
-            تکمیل و ارجاع
-          </Button>
+          <div className="flex items-center justify-end gap-2">
+            <Button
+              type="primary"
+              icon={<EditOutlined />}
+              onClick={() => setWorkRecord(record)}
+            >
+              تکمیل و ارجاع
+            </Button>
+            {isAdmin ? (
+              <Popconfirm
+                title="حذف درخواست"
+                description={`درخواست «${record.title || "بدون عنوان"}» حذف شود؟ این عملیات قابل بازگشت نیست.`}
+                okText="حذف"
+                cancelText="انصراف"
+                okButtonProps={{
+                  danger: true,
+                  loading: deleteRequestMutation.isPending,
+                }}
+                onConfirm={() => handleDeleteRequest(record)}
+              >
+                <Button
+                  danger
+                  type="text"
+                  aria-label={`حذف درخواست ${record.title || record.requestId}`}
+                  icon={<DeleteOutlined />}
+                  loading={deleteRequestMutation.isPending}
+                  disabled={!record.requestId || deleteRequestMutation.isPending}
+                />
+              </Popconfirm>
+            ) : null}
+          </div>
         </div>
       </article>
     );
