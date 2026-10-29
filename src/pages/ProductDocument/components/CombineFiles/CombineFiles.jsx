@@ -804,7 +804,7 @@ const CombineFiles = ({
                 <Form.Item
                   label="بازه بازبینی"
                   required
-                  help="پیش از تایید سند، تاریخ بازبینی با PUT ثبت می‌شود"
+                  help=" "
                 >
                   <Select
                     value={reviewPeriod}

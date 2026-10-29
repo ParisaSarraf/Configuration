@@ -82,7 +82,7 @@ export function SignIn() {
               { required: true, message: "لطفا نام کاربری خود را وارد کنید" },
             ]}
           >
-            <Input size="large" prefix={<UserOutlined aria-hidden="true" />} placeholder="مثلاً: ali.ahmadi"
+            <Input size="large" prefix={<UserOutlined aria-hidden="true" />} placeholder="نام کاربری خود را وارد کنید."
               autoComplete="username" autoFocus autoCapitalize="none" autoCorrect="off" spellCheck={false} dir="auto" />
           </Form.Item>
 
@@ -91,13 +91,13 @@ export function SignIn() {
             label="رمز عبور"
             extra={capsLock ? <span className="signin-caps-warning" role="status"><WarningOutlined aria-hidden="true" /> کلید Caps Lock روشن است.</span> : null}
             rules={[
-              { required: true, message: "لطفا رمز عبور خود را وارد کنید" },
+              { required: true, message: "لطفا رمز عبور خود را وارد کنید." },
             ]}
           >
             <Input.Password
               size="large"
               prefix={<LockOutlined aria-hidden="true" />}
-              placeholder="رمز عبور خود را وارد کنید"
+              placeholder="رمز عبور خود را وارد کنید."
               autoComplete="current-password"
               onKeyDown={event => setCapsLock(event.getModifierState('CapsLock'))}
               onKeyUp={event => setCapsLock(event.getModifierState('CapsLock'))}
