@@ -680,35 +680,17 @@ const CombineFiles = ({
     }
 
     const files = [
-      modalData?.file_1
-        ? {
-            uid: "-1",
-            name: "فایل غیرقابل ویرایش",
-            url: BASEURL.replace("/api/v1", "") + modalData.file_1,
-          }
-        : null,
-      modalData?.file_2
-        ? {
-            uid: "-2",
-            name: "قابل ویرایش",
-            url: BASEURL.replace("/api/v1", "") + modalData.file_2,
-          }
-        : null,
-      modalData?.file_3
-        ? {
-            uid: "-3",
-            name: "فایل پشتیبان تولید",
-            url: BASEURL.replace("/api/v1", "") + modalData.file_3,
-          }
-        : null,
-      modalData?.file_4
-        ? {
-            uid: "-4",
-            name: "ارسال به کارفرما/پیمانکار",
-            url: BASEURL.replace("/api/v1", "") + modalData.file_4,
-          }
-        : null,
-    ].filter(Boolean);
+      { key: "file_1", name: "فایل غیرقابل ویرایش" },
+      { key: "file_2", name: "قابل ویرایش" },
+      { key: "file_3", name: "فایل پشتیبان تولید" },
+      { key: "file_4", name: "ارسال به کارفرما/پیمانکار" },
+    ]
+      .filter(({ key }) => Boolean(editionRecord?.[key]))
+      .map(({ key, name }) => ({
+        uid: key,
+        name,
+        url: BASEURL.replace("/api/v1", "") + editionRecord[key],
+      }));
 
     if (!files.length) return <div>فایلی موجود نیست</div>;
 

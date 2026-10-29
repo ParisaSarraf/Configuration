@@ -1,0 +1,104 @@
+/* Scoped to this portal-mounted dialog: no changes to other modals. */
+.pw-access-dialog.ant-modal {
+  --pw-surface: #fff;
+  --pw-text: #191d34;
+  --pw-muted: #555f7d;
+  --pw-border: #dce6e8;
+  --pw-accent: #087f70;
+  --pw-accent-strong: #006d5e;
+  --pw-accent-soft: #e5f5f2;
+  --pw-accent-border: #afe4db;
+  --pw-focus: #148e80;
+  direction: rtl;
+  max-width: calc(100vw - 32px);
+  color: var(--pw-text);
+}
+.pw-access-dialog *, .pw-access-dialog *::before, .pw-access-dialog *::after { box-sizing: border-box; }
+.pw-access-dialog :is(.ant-modal-content, .ant-modal-container) {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 48px);
+  max-height: calc(100dvh - 48px);
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--pw-border);
+  border-radius: 16px;
+  background: var(--pw-surface);
+}
+.pw-access-dialog .ant-modal-header {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 24px 24px 20px;
+  border-bottom: 1px solid var(--pw-border);
+  background: var(--pw-surface);
+}
+.pw-access-dialog .ant-modal-close {
+  inset-inline-end: 16px;
+  top: 20px;
+  width: 44px;
+  height: 44px;
+  color: var(--pw-muted);
+}
+.pw-access-dialog .ant-modal-body { display: flex; flex-direction: column; min-height: 0; padding: 0 24px; overflow: auto; }
+.pw-access-dialog .ant-modal-footer { flex-shrink: 0; margin: 0; padding: 16px 24px; border-top: 1px solid var(--pw-border); }
+.pw-access-heading { display: flex; align-items: center; gap: 12px; padding-inline-end: 44px; }
+.pw-access-heading-icon {
+  display: grid; place-items: center; flex: 0 0 48px; height: 48px;
+  color: var(--pw-accent-strong); background: var(--pw-accent-soft); border-radius: 12px; font-size: 24px;
+}
+.pw-access-heading-copy { min-width: 0; }
+.pw-access-dialog .pw-access-heading h2 { margin: 0; font-size: 20px; font-weight: 700; line-height: 1.6; color: var(--pw-text); }
+.pw-access-dialog .pw-access-heading p { margin: 4px 0 0; color: var(--pw-muted); font-size: 14px; font-weight: 400; line-height: 1.7; overflow-wrap: anywhere; }
+.pw-access-body { display: flex; flex-direction: column; gap: 24px; min-height: 0; padding: 24px 0; font-size: 14px; line-height: 1.7; }
+.pw-access-section-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+.pw-access-dialog .pw-access-section-heading h3 { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--pw-text); font-size: 16px; font-weight: 600; line-height: 1.7; }
+.pw-access-section-heading h3 .anticon { color: var(--pw-muted); }
+.pw-access-count { flex-shrink: 0; font-size: 14px; color: var(--pw-muted); font-variant-numeric: tabular-nums; }
+.pw-access-roles { flex-shrink: 0; }
+.pw-access-dialog .pw-access-role-list { display: flex; flex-wrap: wrap; gap: 8px; max-height: 96px; overflow: auto; list-style: none; margin: 0; padding: 0; }
+.pw-access-role-list li { padding: 6px 12px; border: 1px solid var(--pw-accent-border); border-radius: 8px; background: var(--pw-accent-soft); color: var(--pw-accent-strong); overflow-wrap: anywhere; max-width: 100%; }
+.pw-access-permissions { display: flex; flex-direction: column; min-height: 0; }
+.pw-access-dialog .pw-access-search { flex-shrink: 0; min-height: 44px; border-radius: 8px; }
+.pw-access-search .ant-input-prefix { margin-inline-end: 8px; color: var(--pw-muted); }
+.pw-access-search input { font-size: 16px; }
+.pw-access-search input::placeholder { color: var(--pw-muted); opacity: 1; }
+.pw-access-dialog .pw-access-result { flex-shrink: 0; color: var(--pw-muted); margin: 8px 0 12px; font-size: 14px; }
+.pw-access-dialog .pw-access-permission-list {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;
+  margin: 0; padding: 2px 2px 4px; list-style: none;
+  min-height: 0; max-height: 340px; overflow: auto; overscroll-behavior: contain;
+  scrollbar-width: thin; scrollbar-color: var(--pw-border) transparent;
+}
+.pw-access-permission { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 1px solid var(--pw-border); border-radius: 8px; background: var(--pw-surface); }
+.pw-access-check { display: grid; place-items: center; flex: 0 0 24px; height: 24px; margin-top: 2px; border-radius: 6px; color: var(--pw-accent-strong); background: var(--pw-accent-soft); font-size: 13px; }
+.pw-access-permission-copy { min-width: 0; overflow-wrap: anywhere; }
+.pw-access-dialog .pw-access-path { margin: 0 0 4px; color: var(--pw-muted); font-size: 14px; line-height: 1.6; }
+.pw-access-dialog .pw-access-permission-title { margin: 0; color: var(--pw-text); font-size: 14px; font-weight: 600; line-height: 1.8; }
+.pw-access-muted { margin: 0; color: var(--pw-muted); }
+.pw-access-state { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; min-height: 200px; padding: 24px; text-align: center; color: var(--pw-muted); }
+.pw-access-state p { margin: 0; font-size: 14px; }
+.pw-access-state--empty { min-height: 160px; border: 1px dashed var(--pw-border); border-radius: 8px; }
+.pw-access-state--empty > .anticon { font-size: 24px; }
+.pw-access-error { padding: 8px 0; }
+.pw-access-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.pw-access-footer > span { display: flex; align-items: center; gap: 8px; color: var(--pw-muted); font-size: 14px; }
+.pw-access-footer .ant-btn { min-height: 44px; min-width: 88px; border-radius: 8px; }
+.pw-access-dialog .ant-btn { min-height: 44px; min-width: 44px; }
+.pw-access-dialog .ant-input-clear-icon { display: inline-grid; place-items: center; width: 44px; height: 44px; margin-block: -6px; }
+@media (prefers-reduced-motion: reduce) {
+  .pw-access-dialog *, .pw-access-dialog *::before, .pw-access-dialog *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+.pw-access-dialog :focus-visible { outline: 2px solid var(--pw-focus); outline-offset: 2px; }
+@media (max-width: 600px) {
+  .pw-access-dialog.ant-modal { max-width: calc(100vw - 24px); margin: 12px auto; }
+  .pw-access-dialog :is(.ant-modal-content, .ant-modal-container) { max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); border-radius: 12px; }
+  .pw-access-dialog .ant-modal-header { padding: 20px 16px 16px; }
+  .pw-access-dialog .ant-modal-close { top: 16px; inset-inline-end: 8px; }
+  .pw-access-dialog .ant-modal-body { padding: 0 16px; }
+  .pw-access-dialog .ant-modal-footer { padding: 12px 16px; }
+  .pw-access-body { gap: 20px; padding: 20px 0; }
+  .pw-access-heading { gap: 10px; }
+  .pw-access-heading-icon { flex-basis: 40px; height: 40px; font-size: 22px; }
+  .pw-access-dialog .pw-access-heading h2 { font-size: 18px; }
+  .pw-access-dialog .pw-access-permission-list { grid-template-columns: minmax(0, 1fr); }
+}

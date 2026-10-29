@@ -64,7 +64,7 @@ const StateSpecificTable = ({ productId, state, filters = {} }) => {
       />
 
       <CombineFiles
-        productId={productId}
+        productId={modalData?.product?.id ?? productId}
         isOpen={modalType === "SpecificAutomationFiles" && isOpen}
         modalData={modalData}
         modalMode={modalMode}
@@ -75,7 +75,7 @@ const StateSpecificTable = ({ productId, state, filters = {} }) => {
       />
 
       <DetailModal
-        productId={productId}
+        productId={modalData?.product?.id ?? productId}
         isOpen={modalType === "SpecificEditionDetail" && isOpen}
         modalMode={modalMode}
         modalData={modalData}
