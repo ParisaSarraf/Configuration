@@ -153,11 +153,11 @@ const DocumentWorkflowGraph = ({ steps, currentState, logs }) => {
                 <div className="truncate text-[11px] font-bold text-slate-700">
                   {person}
                 </div>
-                {role ? (
+                {/* {role ? (
                   <div className="truncate text-[9px] text-slate-400">
                     {role}
                   </div>
-                ) : null}
+                ) : null} */}
                 <div className="mt-1 text-[9px] text-slate-500" dir="ltr">
                   {item.changed_at
                     ? georgianDateTimeToJalaliDateTime(item.changed_at)
