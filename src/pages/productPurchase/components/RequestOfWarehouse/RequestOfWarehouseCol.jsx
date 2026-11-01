@@ -61,7 +61,7 @@ const RequestOfWarehouseCol = () => {
             type="number"
             min={0}
             placeholder={isActivePurchaseProduct(record) ? "تعداد را وارد کنید" : "غیرفعال"}
-            step="0.01"
+            step="1"
             disabled={!isActivePurchaseProduct(record)}
           />
         </Form.Item>
