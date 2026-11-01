@@ -9,10 +9,11 @@ export const useProductRequirementList = (id, queryOptions) => {
 	const { myAxios } = useMyAxios();
 	return useQuery({
 		queryKey: useProductRequirementListKey(id),
+		enabled: id != null,
 		queryFn: () =>
 			id
 				? myAxios
-						.get(`/product/get-product-requirement-tree/${id}`)
+						.get(`/product/get-product-requirement-edition-tree/${id}`)
 						.then((response) => response?.data)
 				: Promise.resolve(null),
 		...queryOptions,
@@ -27,6 +28,7 @@ export const useProductRequirementAcceptor = (id, queryOptions) => {
 	const { myAxios } = useMyAxios();
 	return useQuery({
 		queryKey: useProductRequirementAcceptorKey(id),
+		enabled: id != null,
 		queryFn: () =>
 			id
 				? myAxios

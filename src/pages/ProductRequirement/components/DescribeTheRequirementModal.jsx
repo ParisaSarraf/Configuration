@@ -1,4 +1,13 @@
-import { Checkbox, Col, Form, Input, message, Row, TreeSelect } from "antd";
+import { useEffect } from "react";
+import {
+  Col,
+  Form,
+  Input,
+  message,
+  Row,
+  Select,
+  TreeSelect,
+} from "antd";
 import Modal from "../../../components/Modal";
 import FileUploader from "../../../components/FileUploader/FileUploader";
 import { useRequirementList } from "../../../QueryServises/requirementQuery";
@@ -6,28 +15,58 @@ import {
   useCreatepRroductRequirement,
   useUpdateProductRequirement,
 } from "../../../QueryServises/productRequirementQuery";
+import { useRoleList } from "../../../QueryServises/roleQuery";
 
 const DescribeTheRequirementModal = ({
   isOpen,
   modalMode,
   closeModal,
   currentProduct,
+  modalData,
   refetch,
 }) => {
   const [form] = Form.useForm();
+  useEffect(() => {
+    if (!isOpen) return;
+    form.resetFields();
+    // A category row supplies only the category ID; never an edition ID.
+    if (modalMode === "add" && modalData?.id != null) {
+      form.setFieldsValue({ requirementType: modalData.id });
+    }
+  }, [isOpen, modalMode, modalData, form]);
+
   const { data: requirementList } = useRequirementList();
   const { mutateAsync: createProductRequirement } =
     useCreatepRroductRequirement();
   const { mutateAsync: updateProductRequirement } =
     useUpdateProductRequirement();
+  const { data: roleList } = useRoleList();
+
+  // Watch the source field — "طراحی" is an option of the source Select
+  const requirementSource = Form.useWatch("requirementSource", form);
+  const isDesignSource = requirementSource === "طراحی";
+
+  // Clear dependent fields when leaving "طراحی"
+  const handleSourceChange = (value) => {
+    if (value !== "طراحی") {
+      form.setFieldsValue({
+        requirementOwner: undefined,
+        requirementLogic: undefined,
+      });
+    }
+  };
 
   const onFinish = async (values) => {
     const payload = {
       product_id: currentProduct?.id,
       requirement_tree_id: values.requirementType,
+      requirement_source: values.requirementSource,
+      requirement_owner: values.requirementOwner,
+      requirement_logic: values.requirementLogic,
       description: values.description,
-      state: 10,
       pass_comment: values.pass_comment,
+      code: values.code,
+      state: 10,
       file: values.file?.[0]?.originFileObj,
       file_description: values.file_description?.[0]?.originFileObj,
       file_2: values.file_2?.[0]?.originFileObj,
@@ -65,7 +104,7 @@ const DescribeTheRequirementModal = ({
 
   const getTreeSelectOptions = (data, modalMode = null, modalData = null) => {
     return data.map((item) => {
-      const titleFields = ["persian_title"];
+      const titleFields = ["title", "persian_title", "english_title"];
       let title = "بدون عنوان";
       for (const field of titleFields) {
         if (item[field]) {
@@ -139,7 +178,7 @@ const DescribeTheRequirementModal = ({
           </Col>
         </Row>
 
-        <Row gutter={[24]}>
+        {/* <Row gutter={[24]}>
           <Col span={24}>
             <h4 className="mb-4">فایل‌های پیوست</h4>
             <Row gutter={[16]}>
@@ -159,7 +198,7 @@ const DescribeTheRequirementModal = ({
               ))}
             </Row>
           </Col>
-        </Row>
+        </Row> */}
 
         <Row gutter={[24]}>
           <Col span={24}>
@@ -170,6 +209,79 @@ const DescribeTheRequirementModal = ({
         </Row>
 
         <Row gutter={[24]}>
+          <Col span={8}>
+            <Form.Item
+              label="منبع الزام"
+              name="requirementSource"
+              // rules={[
+              //   { required: true, message: "لطفا منبع الزام را انتخاب کنید" },
+              // ]}
+            >
+              <Select
+                onChange={handleSourceChange}
+                options={[
+                  { value: "استاندارد", label: "استاندارد", otherField: "c11" },
+                  {
+                    value: "الزام کارفرما",
+                    label: "الزام کارفرما",
+                    otherField: "b11",
+                  },
+                  { value: "پیوست فنی", label: "پیوست فنی", otherField: "b33" },
+                  { value: "طراحی", label: "طراحی", otherField: "d44" },
+                ]}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item
+              label="متولی الزام"
+              name="requirementOwner"
+              // rules={[
+              //   {
+              //     required: isDesignSource,
+              //     message: "لطفا متولی الزام را انتخاب کنید",
+              //   },
+              // ]}
+            >
+              <Select
+                // disabled={!isDesignSource}
+                // placeholder={
+                //   isDesignSource
+                //     ? "انتخاب متولی الزام"
+                //     : "فقط برای منبع طراحی فعال است"
+                // }
+                options={roleList?.map((role) => ({
+                  value: role.id,
+                  label: role.name,
+                }))}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item
+              label="منطق الزام"
+              name="requirementLogic"
+              // rules={[
+              //   {
+              //     required: isDesignSource,
+              //     message: "لطفا منطق الزام را انتخاب کنید",
+              //   },
+              // ]}
+            >
+              <Select
+                disabled={!isDesignSource}
+                placeholder={
+                  isDesignSource
+                    ? "انتخاب منطق الزام"
+                    : "فقط برای منبع طراحی فعال است"
+                }
+                options={[]}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        {/* <Row gutter={[24]}>
           <Col span={24}>
             <div className="flex flex-wrap gap-4">
               <Form.Item name="preparer" valuePropName="checked">
@@ -183,9 +295,9 @@ const DescribeTheRequirementModal = ({
               </Form.Item>
             </div>
           </Col>
-        </Row>
+        </Row> */}
 
-        <Row gutter={[24]}>
+        {/* <Row gutter={[24]}>
           {["تهیه کننده", "بازبین", "تصویب کننده"].map((title, index) => (
             <Col xs={24} md={8} key={index}>
               <Form.Item label={`امضای ${title}`} name={`signature_${index}`}>
@@ -196,7 +308,7 @@ const DescribeTheRequirementModal = ({
               </Form.Item>
             </Col>
           ))}
-        </Row>
+        </Row> */}
       </Form>
     </Modal>
   );

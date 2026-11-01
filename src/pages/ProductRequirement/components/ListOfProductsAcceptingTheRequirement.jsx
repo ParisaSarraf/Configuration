@@ -1,41 +1,23 @@
-import { Card, Spin } from "antd";
+import { Alert, Button, Card, Empty } from "antd";
 import Tree from "../../../components/Tree";
 import { useProductRequirementAcceptor } from "../../../QueryServises/productRequirementQuery";
 
-const ListOfProductsAcceptingTheRequirement = ({ setSelectProduct, selectedProductRequirement }) => {
-    const { data: productList = [], isLoading } = useProductRequirementAcceptor(selectedProductRequirement);
-
-    const transformDataToTreeView = (productList) => {
-        if (!productList) return [];
-        const transformNode = (node) => ({
-            title: `${node.persian_title}- (${node.code})`,
-            id: node.id,
-            children: node.children && node.children.length > 0
-                ? node.children.map(child => transformNode(child))
-                : undefined,
-        });
-        const productDoc = Array.isArray(productList) ? productList : [productList];
-        return productDoc.map((document) => transformNode(document));
-    };
-    const treeData = transformDataToTreeView(productList);
-
-
-    return (
-        <Card
-            title="لیست محصولات پذیرنده الزام"
-            loading={isLoading}
-        >
-            <Tree
-                mode="tree"
-                data={treeData}
-                showLine
-                checkable={false}
-                onSelect={(selectedKeys, { node }) => {
-                    setSelectProduct(node.id)
-                }}
-            />
-        </Card>
-    );
-};
-
-export default ListOfProductsAcceptingTheRequirement;
+export default function ListOfProductsAcceptingTheRequirement({ selectedProductRequirement }) {
+  const { data, isLoading, isError, refetch } = useProductRequirementAcceptor(selectedProductRequirement);
+  const transform = (nodes, path = "") => (Array.isArray(nodes) ? nodes : []).map((node) => {
+    const key = `${path}/product-${node.id}`;
+    return { key, id: node.id,
+      title: <span>{node.title || node.persian_title || node.name || "بدون عنوان"}
+        {node.code && <> — <bdi dir="ltr">{node.code}</bdi></>}</span>,
+      children: transform(node.children, key) };
+  });
+  const treeData = transform(Array.isArray(data) ? data : data ? [data] : []);
+  return <Card title="لیست محصولات پذیرنده الزام" loading={selectedProductRequirement != null && isLoading}>
+    {selectedProductRequirement == null ? <Empty description="یک الزام یا نسخه را از درخت انتخاب کنید" />
+      : isError ? <Alert type="error" message="دریافت محصولات پذیرنده ناموفق بود"
+        action={<Button onClick={() => refetch()}>تلاش دوباره</Button>} />
+      : !treeData.length ? <Empty description="محصول پذیرنده‌ای ثبت نشده است" />
+      : <Tree key={selectedProductRequirement} mode="tree" data={treeData} showLine checkable={false}
+        showRightClickMenu={false} />}
+  </Card>;
+}
