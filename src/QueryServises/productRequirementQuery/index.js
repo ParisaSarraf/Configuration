@@ -39,16 +39,12 @@ export const useProductRequirementAcceptor = (id, queryOptions) => {
 	});
 };
 
-export const useCreatepRroductRequirement = () => {
+export const useCreateProductRequirement = () => {
 	const { myAxios } = useMyAxios();
 	return useMutation({
 		mutationFn: (params) => {
 			return myAxios
-				.post(`/product/add-product-requirement/`, params, {
-					headers: {
-						"Content-Type": "multipart/form-data",
-					},
-				})
+				.post(`/product/add-product-requirement/`, params)
 				.then((response) => {
 					return response?.data;
 				});
