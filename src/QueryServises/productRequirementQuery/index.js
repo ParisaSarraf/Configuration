@@ -125,3 +125,14 @@ export const useUpdateProductRequirementExported = () => {
 		},
 	});
 };
+
+export const useCreateProductRequirementEdition = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: (formData) => myAxios.post(
+      "/product/add-product-requirment-edition/",
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } },
+    ).then((response) => response.data),
+  });
+};

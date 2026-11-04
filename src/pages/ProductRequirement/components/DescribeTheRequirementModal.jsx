@@ -1,334 +1,96 @@
-import { useEffect, useRef, useState } from "react";
-import {
-  Alert,
-  Button,
-  Col,
-  Form,
-  Input,
-  message,
-  Row,
-  Select,
-  TreeSelect,
-} from "antd";
+import { useMemo, useRef, useState } from "react";
+import { Alert, Button, Col, Form, Input, message, Row, Select, Upload } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 import Modal from "../../../components/Modal";
-import { useRequirementList } from "../../../QueryServises/requirementQuery";
-import {
-  useCreateProductRequirement,
-  useUpdateProductRequirement,
-} from "../../../QueryServises/productRequirementQuery";
+import { useProductContext } from "../../../Services/Context/ProductContext";
+import { useCreateProductRequirementEdition, useProductRequirementList } from "../../../QueryServises/productRequirementQuery";
 import { useRoleList } from "../../../QueryServises/roleQuery";
+import { buildEditionFormData, getSourceEditionOptions, normalizeEditionSearch } from "../utils/editionForm";
 
-const DescribeTheRequirementModal = ({
-  isOpen,
-  modalMode,
-  closeModal,
-  currentProduct,
-  modalData,
-  refetch,
-}) => {
+const DescribeTheRequirementModal = ({ isOpen, closeModal, modalData, refetch }) => {
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
   const submitLock = useRef(false);
-  useEffect(() => {
-    if (!isOpen) return;
-    form.resetFields();
-    // A category row supplies only the category ID; never an edition ID.
-    if (modalMode === "add" && modalData?.id != null) {
-      form.setFieldsValue({ requirementType: modalData.id });
-    }
-  }, [isOpen, modalMode, modalData, form]);
-
-  const { data: requirementList, isFetching: requirementsFetching, isError: requirementsError, refetch: refetchRequirements } =
-    useRequirementList({ placeholderData: undefined });
-  const { mutateAsync: createProductRequirement } =
-    useCreateProductRequirement();
-  const { mutateAsync: updateProductRequirement } =
-    useUpdateProductRequirement();
-  const { data: roleList } = useRoleList();
-
-  // Watch the source field — "طراحی" is an option of the source Select
-  const requirementSource = Form.useWatch("requirementSource", form);
-  const isDesignSource = requirementSource === "طراحی";
-
-  // Clear dependent fields when leaving "طراحی"
-  const handleSourceChange = (value) => {
-    if (value !== "طراحی") {
-      form.setFieldsValue({
-        requirementOwner: undefined,
-        requirementLogic: undefined,
-      });
-    }
-  };
+  // activeProducts is ordered by opening time; do not silently substitute the current product.
+  const { activeProducts } = useProductContext();
+  const rootProduct = activeProducts?.[0];
+  const rootProductId = rootProduct?.id;
+  const requirement = modalData?.product_requirements;
+  const { data: sourceData, isFetching: sourcesFetching, isError: sourcesError, refetch: refetchSources } =
+    useProductRequirementList(rootProductId, { enabled: isOpen && rootProductId != null });
+  const { data: roles, isFetching: rolesFetching, isError: rolesError, refetch: refetchRoles } =
+    useRoleList({ enabled: isOpen, placeholderData: undefined });
+  const { mutateAsync: createEdition } = useCreateProductRequirementEdition();
+  const sourceOptions = useMemo(() => getSourceEditionOptions(sourceData), [sourceData]);
 
   const onFinish = async (values) => {
     if (submitLock.current) return;
     submitLock.current = true;
     setSubmitting(true);
-    const payload = {
-      product_id: currentProduct?.id,
-      requirement_tree_id: values.requirementType,
-      requirement_source: values.requirementSource,
-      requirement_owner: values.requirementOwner,
-      requirement_logic: values.requirementLogic,
-      description: values.description,
-      pass_comment: values.pass_comment,
-      code: values.code,
-      state: 10,
-      file: values.file?.[0]?.originFileObj,
-      file_description: values.file_description?.[0]?.originFileObj,
-      file_2: values.file_2?.[0]?.originFileObj,
-      file_3: values.file_3?.[0]?.originFileObj,
-      file_4: values.file_4?.[0]?.originFileObj,
-      file_5: values.file_5?.[0]?.originFileObj,
-    };
     try {
-      if (modalMode === "add") {
-        await createProductRequirement(payload);
-        message.success("الزام با موفقیت اضافه شد");
-        await refetch();
-      } else {
-        if (!modalData?.id) {
-          throw new Error("Missing product requirement ID for edit");
-        }
-        await updateProductRequirement({
-          productRequirementId: modalData.id,
-          ...payload,
-        });
-        message.success("الزام با موفقیت ویرایش شد");
-        await refetch();
+      const payload = buildEditionFormData(requirement?.id, values);
+      await createEdition(payload);
+      message.success("نسخه الزام با موفقیت ثبت شد");
+      // The POST succeeded even if reloading the list fails: do not invite a duplicate submission.
+      try {
+        const result = await refetch();
+        if (result?.isError) message.warning("نسخه ثبت شد، اما به‌روزرسانی فهرست ناموفق بود");
+      } catch {
+        message.warning("نسخه ثبت شد، اما به‌روزرسانی فهرست ناموفق بود");
       }
-
       closeModal();
     } catch (error) {
-      console.error("Error:", error);
-      const errorMessage =
-        error.response?.data?.message ||
-        error.message ||
-        "موفقیت آمیز نبود، دوباره امتحان کنید";
-      message.error(errorMessage);
+      message.error(error?.response?.data?.detail || error?.response?.data?.message || error?.message || "ثبت نسخه الزام ناموفق بود");
     } finally {
       submitLock.current = false;
       setSubmitting(false);
     }
   };
 
-  const getTreeSelectOptions = (data, modalMode = null, modalData = null) => {
-    return data.map((item) => {
-      const titleFields = ["title", "persian_title", "english_title"];
-      let title = "بدون عنوان";
-      for (const field of titleFields) {
-        if (item[field]) {
-          title = item[field];
-          if (field !== "code" && item.code) {
-            title = ` ${title}`;
-          }
-          break;
-        }
-      }
-      return {
-        title: title,
-        value: item.id,
-        children: item.children
-          ? getTreeSelectOptions(item.children, modalMode, modalData)
-          : [],
-      };
-    });
-  };
-
   return (
     <Modal
-      isOpen={isOpen}
-      title={`${modalMode === "edit" ? "ویرایش" : "توصیف"} الزام`}
-      size={700}
+      isOpen={isOpen} title="تعریف نسخه الزام" size={700}
       onClose={() => { if (!submitLock.current) closeModal(); }}
       onSubmit={() => { if (!submitLock.current) form.submit(); }}
-      loading={submitting}
-      closable={!submitting}
-      maskClosable={!submitting}
-      keyboard={!submitting}
-      mode={modalMode}
-      className="scroll-modal"
-      destroyOnClose
+      loading={submitting} closable={!submitting} maskClosable={!submitting}
+      keyboard={!submitting} className="scroll-modal" destroyOnClose
     >
-      {requirementsError && !requirementList && <Alert type="error" showIcon message="دریافت انواع الزام ناموفق بود" action={<Button onClick={() => refetchRequirements()}>تلاش دوباره</Button>} />}
-      <Form form={form} layout="vertical" className="p-4" onFinish={onFinish}>
-        <Row gutter={[24]}>
-          <Col span={24}>
-            <Form.Item
-              label="نوع الزام"
-              name="requirementType"
-              rules={[
-                { required: true, message: "لطفا نوع الزام را انتخاب کنید" },
-              ]}
-            >
-              <TreeSelect
-                loading={requirementsFetching}
-                disabled={requirementsFetching && !requirementList}
-                treeData={getTreeSelectOptions(requirementList || [])}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row gutter={[24]}>
+      <Form form={form} layout="vertical" onFinish={onFinish}>
+        <Form.Item label="الزام محصول">
+          <Input value={requirement?.title || (requirement?.id != null ? `الزام ${requirement.id}` : "انتخاب نشده")} disabled />
+        </Form.Item>
+        {requirement?.id == null && <Alert type="error" showIcon message="شناسه الزام محصول موجود نیست" />}
+        {rootProductId == null && <Alert type="warning" showIcon message="محصول سرشاخه در فهرست محصولات باز موجود نیست؛ انتخاب منبع در دسترس نیست." />}
+        {sourcesError && <Alert type="error" showIcon message="دریافت نسخه‌های محصول سرشاخه ناموفق بود" action={<Button onClick={() => refetchSources()}>تلاش دوباره</Button>} />}
+        <Form.Item label="نسخه منبع الزام" name="source_requirement_edition_id" extra={rootProductId != null ? `محصول سرشاخه: ${rootProduct?.name || rootProduct?.persian_title || rootProductId} — فقط نسخه‌ها قابل انتخاب‌اند.` : undefined}>
+          <Select
+            showSearch allowClear loading={sourcesFetching}
+            disabled={rootProductId == null || (sourcesError && sourceData == null)}
+            placeholder="جستجو و انتخاب نسخه منبع"
+            options={sourceOptions}
+            filterOption={(input, option) => normalizeEditionSearch(option?.searchText).includes(normalizeEditionSearch(input))}
+            notFoundContent={sourcesFetching ? "در حال بارگذاری..." : "موردی یافت نشد"}
+          />
+        </Form.Item>
+        {rolesError && <Alert type="error" showIcon message="دریافت لیست سمت‌ها ناموفق بود" action={<Button onClick={() => refetchRoles()}>تلاش دوباره</Button>} />}
+        <Row gutter={16}>
           <Col xs={24} md={12}>
-            <Form.Item
-              label="توصیف الزام"
-              name="pass_comment"
-              rules={[
-                { required: true, message: "لطفا توصیف الزام را وارد کنید" },
-              ]}
-            >
-              <Input.TextArea rows={1} placeholder="توصیف الزام" />
+            <Form.Item label="متولی الزام (سمت)" name="trustee_id">
+              <Select showSearch allowClear optionFilterProp="label" loading={rolesFetching}
+                disabled={rolesError && !roles} placeholder="انتخاب سمت"
+                options={(Array.isArray(roles) ? roles : []).map((role) => ({ value: role.id, label: role.name }))} />
             </Form.Item>
           </Col>
-          <Col xs={24} md={12}>
-            <Form.Item
-              label="کد الزام"
-              name="code"
-              rules={[
-                { required: true, message: "لطفا کد الزام را وارد کنید" },
-              ]}
-            >
-              <Input placeholder="مثل: REQ-001" />
-            </Form.Item>
-          </Col>
+          <Col xs={24} md={12}><Form.Item label="کد نسخه" name="code"><Input /></Form.Item></Col>
         </Row>
-
-        {/* <Row gutter={[24]}>
-          <Col span={24}>
-            <h4 className="mb-4">فایل‌های پیوست</h4>
-            <Row gutter={[16]}>
-              {[1, 2, 3, 4, 5].map((num) => (
-                <Col xs={24} md={12} key={num}>
-                  <Form.Item
-                    label={`فایل پیوست ${num > 1 ? num : ""}`}
-                    name={`file${num > 1 ? "_" + num : ""}`}
-                    extra="حداکثر حجم فایل 10MB"
-                  >
-                    <FileUploader
-                      accept="image/*,.pdf"
-                      title={`بارگذاری فایل ${num > 1 ? num : ""}`}
-                    />
-                  </Form.Item>
-                </Col>
-              ))}
-            </Row>
-          </Col>
-        </Row> */}
-
-        <Row gutter={[24]}>
-          <Col span={24}>
-            <Form.Item label="توضیحات تکمیلی" name="description">
-              <Input.TextArea rows={4} placeholder="هرگونه توضیح اضافی..." />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row gutter={[24]}>
-          <Col span={8}>
-            <Form.Item
-              label="منبع الزام"
-              name="requirementSource"
-              // rules={[
-              //   { required: true, message: "لطفا منبع الزام را انتخاب کنید" },
-              // ]}
-            >
-              <Select
-                onChange={handleSourceChange}
-                options={[
-                  { value: "استاندارد", label: "استاندارد", otherField: "c11" },
-                  {
-                    value: "الزام کارفرما",
-                    label: "الزام کارفرما",
-                    otherField: "b11",
-                  },
-                  { value: "پیوست فنی", label: "پیوست فنی", otherField: "b33" },
-                  { value: "طراحی", label: "طراحی", otherField: "d44" },
-                ]}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              label="متولی الزام"
-              name="requirementOwner"
-              // rules={[
-              //   {
-              //     required: isDesignSource,
-              //     message: "لطفا متولی الزام را انتخاب کنید",
-              //   },
-              // ]}
-            >
-              <Select
-                // disabled={!isDesignSource}
-                // placeholder={
-                //   isDesignSource
-                //     ? "انتخاب متولی الزام"
-                //     : "فقط برای منبع طراحی فعال است"
-                // }
-                options={roleList?.map((role) => ({
-                  value: role.id,
-                  label: role.name,
-                }))}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              label="منطق الزام"
-              name="requirementLogic"
-              // rules={[
-              //   {
-              //     required: isDesignSource,
-              //     message: "لطفا منطق الزام را انتخاب کنید",
-              //   },
-              // ]}
-            >
-              <Select
-                disabled={!isDesignSource}
-                placeholder={
-                  isDesignSource
-                    ? "انتخاب منطق الزام"
-                    : "فقط برای منبع طراحی فعال است"
-                }
-                options={[]}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        {/* <Row gutter={[24]}>
-          <Col span={24}>
-            <div className="flex flex-wrap gap-4">
-              <Form.Item name="preparer" valuePropName="checked">
-                <Checkbox>تهیه کننده</Checkbox>
-              </Form.Item>
-              <Form.Item name="reviewer" valuePropName="checked">
-                <Checkbox>بازبین</Checkbox>
-              </Form.Item>
-              <Form.Item name="approver" valuePropName="checked">
-                <Checkbox>تصویب کننده</Checkbox>
-              </Form.Item>
-            </div>
-          </Col>
-        </Row> */}
-
-        {/* <Row gutter={[24]}>
-          {["تهیه کننده", "بازبین", "تصویب کننده"].map((title, index) => (
-            <Col xs={24} md={8} key={index}>
-              <Form.Item label={`امضای ${title}`} name={`signature_${index}`}>
-                <FileUploader
-                  accept="image/*,.pdf"
-                  title={`بارگذاری امضای ${title}`}
-                />
-              </Form.Item>
-            </Col>
-          ))}
-        </Row> */}
+        <Form.Item label="دلیل" name="reason"><Input.TextArea rows={2} /></Form.Item>
+        <Form.Item label="توضیحات" name="description"><Input.TextArea rows={3} /></Form.Item>
+        <Form.Item label="فایل" name="file" valuePropName="fileList" getValueFromEvent={(event) => Array.isArray(event) ? event : event?.fileList}>
+          <Upload beforeUpload={() => false} maxCount={1}><Button icon={<UploadOutlined />}>انتخاب فایل</Button></Upload>
+        </Form.Item>
+        <Form.Item label="توضیح فایل" name="file_description"><Input.TextArea rows={2} /></Form.Item>
       </Form>
     </Modal>
   );
 };
-
 export default DescribeTheRequirementModal;

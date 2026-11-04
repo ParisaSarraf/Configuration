@@ -13,6 +13,7 @@ export default function RequirementTreeView({
   onRetry,
   onDelete,
   onAcknowledge,
+  onEdition,
   onSelectRequirement,
   onShowEdition,
 }) {
@@ -107,7 +108,7 @@ export default function RequirementTreeView({
                   className="text-green-500 hover:text-green-700"
                   onClick={(event) => {
                     event.stopPropagation();
-                    onAcknowledge?.(node.requirement);
+                    onEdition?.(node.requirement);
                   }}
                 />
               </Space>
@@ -134,7 +135,7 @@ export default function RequirementTreeView({
         children: transform(node.children),
       }));
     return transform(buildRequirementTree(data));
-  }, [data, onDelete, onAcknowledge, onShowEdition]);
+  }, [data, onDelete, onAcknowledge, onEdition, onShowEdition]);
 
   return isLoading ? (
     <div role="status" className="flex justify-center items-center min-h-[160px]">
