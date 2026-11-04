@@ -1,4 +1,4 @@
-import { Button, Card, Descriptions, Empty, message, Modal, Tag } from "antd";
+import { Alert, Button, Card, Descriptions, Empty, message, Modal, Spin, Tag } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import useModal from "../../../hooks/useModal";
@@ -21,7 +21,7 @@ export default function ProductRequirementTree({
 }) {
   const { isOpen, modalMode, modalData, modalType, setModal, closeModal } =
     useModal();
-  const { data, isLoading, isError, refetch } = useProductRequirementList(
+  const { data, isFetching, isError, refetch } = useProductRequirementList(
     currentProduct?.id,
   );
   const { mutateAsync: deleteRequirement } = useDeleteProductRequirement();
@@ -74,14 +74,22 @@ export default function ProductRequirementTree({
         />
       }
     >
+      {currentProduct?.id && isFetching && data != null && (
+        <div role="status" className="mb-2"><Spin size="small" /> در حال به‌روزرسانی...</div>
+      )}
+      {currentProduct?.id && isError && data != null && (
+        <Alert type="error" showIcon message="به‌روزرسانی الزامات ناموفق بود؛ داده‌های قبلی نمایش داده می‌شوند"
+          action={<Button onClick={() => refetch()}>تلاش دوباره</Button>} />
+      )}
       {!currentProduct?.id ? (
         <Empty description="ابتدا یک محصول انتخاب کنید" />
       ) : (
         <RequirementTreeView
           data={data}
           productId={currentProduct.id}
-          isLoading={isLoading}
-          isError={isError}
+          isLoading={isFetching && data == null}
+          isError={isError && data == null}
+          onRetry={refetch}
           onDelete={handleDelete}
           onSelectRequirement={setSelectedProductRequirement}
           onShowEdition={setDetail}

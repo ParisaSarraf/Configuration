@@ -9,6 +9,7 @@ export const useProductRequirementList = (id, queryOptions) => {
 	const { myAxios } = useMyAxios();
 	return useQuery({
 		queryKey: useProductRequirementListKey(id),
+		placeholderData: undefined,
 		enabled: id != null,
 		queryFn: () =>
 			id
@@ -28,6 +29,7 @@ export const useProductRequirementAcceptor = (id, queryOptions) => {
 	const { myAxios } = useMyAxios();
 	return useQuery({
 		queryKey: useProductRequirementAcceptorKey(id),
+		placeholderData: undefined,
 		enabled: id != null,
 		queryFn: () =>
 			id

@@ -67,6 +67,7 @@ const Modal = ({
       centered
       onCancel={onClose}
       onOk={onSubmit}
+      confirmLoading={loading}
       className={className}
       footer={modalFooter}
       destroyOnClose

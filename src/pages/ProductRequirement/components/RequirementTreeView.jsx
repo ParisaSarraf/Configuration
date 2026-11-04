@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button, Space } from "antd";
+import { Alert, Button, Empty, Space, Spin } from "antd";
 import { DeleteOutlined, EyeOutlined, RightOutlined } from "@ant-design/icons";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import Tree from "../../../components/Tree";
@@ -10,6 +10,7 @@ export default function RequirementTreeView({
   productId,
   isLoading,
   isError,
+  onRetry,
   onDelete,
   onAcknowledge,
   onSelectRequirement,
@@ -42,6 +43,7 @@ export default function RequirementTreeView({
     }
   };
 
+  
   const treeData = useMemo(() => {
     const transform = (nodes) =>
       nodes.map((node) => ({
@@ -122,14 +124,15 @@ export default function RequirementTreeView({
     return transform(buildRequirementTree(data));
   }, [data, onDelete, onAcknowledge, onShowEdition]);
 
-  return isLoading || isError ? (
-    <div className="flex justify-center items-center min-h-[160px]">
-      {isLoading ? (
-        <span className="text-slate-500">در حال بارگذاری...</span>
-      ) : (
-        <span className="text-red-500">خطا در بارگذاری داده‌ها</span>
-      )}
+  return isLoading ? (
+    <div role="status" className="flex justify-center items-center min-h-[160px]">
+      <Spin tip="در حال بارگذاری الزامات..." size="large"><div style={{ minWidth: 180, minHeight: 80 }} /></Spin>
     </div>
+  ) : isError ? (
+    <Alert type="error" showIcon message="خطا در بارگذاری الزامات"
+      action={<Button onClick={() => onRetry?.()}>تلاش دوباره</Button>} />
+  ) : !treeData.length ? (
+    <Empty description="الزامی برای این محصول ثبت نشده است" />
   ) : (
     <Tree
       className="custom-product-tree"

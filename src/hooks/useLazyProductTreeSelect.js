@@ -56,7 +56,9 @@ import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useMyAxios } from "@/hooks/useMyAxios";
 
-export const useLazyProductTreeSelect = (initialData = []) => {
+const EMPTY_PRODUCT_TREE = [];
+
+export const useLazyProductTreeSelect = (initialData = EMPTY_PRODUCT_TREE) => {
   const queryClient = useQueryClient();
   const { myAxios } = useMyAxios();
   const [treeData, setTreeData] = useState([]);
@@ -76,7 +78,7 @@ export const useLazyProductTreeSelect = (initialData = []) => {
     if (initialData && Array.isArray(initialData) && initialData.length > 0) {
       setTreeData(initialData.map(mapNode));
     } else {
-      setTreeData([]); // Reset to empty array if initialData is not a valid array
+      setTreeData((previous) => previous.length ? [] : previous); // Avoid an empty-state render loop
     }
   }, [initialData]);
 

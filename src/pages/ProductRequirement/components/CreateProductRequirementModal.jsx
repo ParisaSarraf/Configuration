@@ -1,4 +1,5 @@
-import { Col, Form, Input, message, Row, TreeSelect } from "antd";
+import { useRef, useState } from "react";
+import { Alert, Button, Col, Form, Input, message, Row, TreeSelect } from "antd";
 import Modal from "../../../components/Modal";
 import { useRequirementList } from "../../../QueryServises/requirementQuery";
 import { useCreateProductRequirement } from "../../../QueryServises/productRequirementQuery";
@@ -12,10 +13,16 @@ const CreateProductRequirementModal = ({
   currentProduct
 }) => {
   const [form] = Form.useForm();
-  const { data: requirementList } = useRequirementList();
+  const [submitting, setSubmitting] = useState(false);
+  const submitLock = useRef(false);
+  const { data: requirementList, isFetching: requirementsFetching, isError: requirementsError, refetch: refetchRequirements } =
+    useRequirementList({ placeholderData: undefined });
   const { mutateAsync: createProductRequirement } = useCreateProductRequirement();
 
   const onFinish = async (values) => {
+    if (submitLock.current) return;
+    submitLock.current = true;
+    setSubmitting(true);
     const payload = {
       product_id: currentProduct?.id,
       requirement_tree_id: values.requirementId,
@@ -27,15 +34,7 @@ const CreateProductRequirementModal = ({
         message.success("الزام با موفقیت اضافه شد");
         await refetch();
       } else {
-        if (!modalData?.id) {
-          throw new Error("Missing product requirement ID for edit");
-        }
-        // await updateProductRequirement({
-        //   productRequirementId: modalData.id,
-        //   ...payload,
-        // });
-        message.success("الزام با موفقیت ویرایش شد");
-        await refetch();
+        throw new Error("ویرایش الزام از این فرم پشتیبانی نمی‌شود");
       }
 
       closeModal();
@@ -46,6 +45,9 @@ const CreateProductRequirementModal = ({
         error.message ||
         "موفقیت آمیز نبود، دوباره امتحان کنید";
       message.error(errorMessage);
+    } finally {
+      submitLock.current = false;
+      setSubmitting(false);
     }
   };
 
@@ -77,12 +79,17 @@ const CreateProductRequirementModal = ({
       isOpen={isOpen}
       title={`${modalMode === "edit" ? "ویرایش" : "توصیف"} الزام`}
       size={700}
-      onClose={closeModal}
-      onSubmit={() => form.submit()}
+      onClose={() => { if (!submitLock.current) closeModal(); }}
+      onSubmit={() => { if (!submitLock.current) form.submit(); }}
+      loading={submitting}
+      closable={!submitting}
+      maskClosable={!submitting}
+      keyboard={!submitting}
       mode={modalMode}
       className="scroll-modal"
       destroyOnClose
     >
+      {requirementsError && !requirementList && <Alert type="error" showIcon message="دریافت انواع الزام ناموفق بود" action={<Button onClick={() => refetchRequirements()}>تلاش دوباره</Button>} />}
       <Form form={form} layout="vertical" onFinish={onFinish}>
         <Row gutter={16}>
           <Col span={8}>
@@ -106,6 +113,8 @@ const CreateProductRequirementModal = ({
               ]}
             >
               <TreeSelect
+                loading={requirementsFetching}
+                disabled={requirementsFetching && !requirementList}
                 treeData={getTreeSelectOptions(requirementList || [])}
               />
             </Form.Item>

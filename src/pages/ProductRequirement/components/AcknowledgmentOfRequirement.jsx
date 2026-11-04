@@ -1,4 +1,6 @@
-import { Col, Form, Input, message, Row } from "antd";
+import { useRef, useState } from "react";
+import { Alert, Button, Col, Form, Input, message, Row } from "antd";
+import { useQueryClient } from "@tanstack/react-query";
 import Modal from "../../../components/Modal";
 import FileUploader from "../../../components/FileUploader/FileUploader";
 import {
@@ -17,7 +19,11 @@ const AcknowledgmentOfRequirement = ({
   refetch,
 }) => {
   const [form] = Form.useForm();
-  const { data: productData } = useRootProduct();
+  const [submitting, setSubmitting] = useState(false);
+  const submitLock = useRef(false);
+  const queryClient = useQueryClient();
+  const { data: productData, isFetching: productsFetching, isError: productsError, refetch: refetchProducts } =
+    useRootProduct(undefined, { placeholderData: undefined });
   const { mutateAsync: createProductRequirementExported } =
     useCreatepProductRequirementExported();
   const { mutateAsync: updateProductRequirementExported } =
@@ -25,6 +31,9 @@ const AcknowledgmentOfRequirement = ({
   const { treeData, loadChildren } = useLazyProductTreeSelect(productData);
 
   const onFinish = async (values) => {
+    if (submitLock.current) return;
+    submitLock.current = true;
+    setSubmitting(true);
     const productRequirementId = modalData?.product_requirements?.id;
 
     const payload = {
@@ -38,6 +47,7 @@ const AcknowledgmentOfRequirement = ({
         await createProductRequirementExported(payload);
         message.success("الزام با موفقیت اضافه شد");
         await refetch();
+        await queryClient.invalidateQueries({ queryKey: ["product-requirement-acceptor", productRequirementId] });
       } else {
         if (!modalData?.id) {
           throw new Error("Missing product requirement ID for edit");
@@ -57,6 +67,9 @@ const AcknowledgmentOfRequirement = ({
         error.message ||
         "موفقیت آمیز نبود، دوباره امتحان کنید";
       message.error(errorMessage);
+    } finally {
+      submitLock.current = false;
+      setSubmitting(false);
     }
   };
 
@@ -65,10 +78,15 @@ const AcknowledgmentOfRequirement = ({
       isOpen={isOpen}
       title={`${modalMode === "edit" ? "ویرایش" : "تصدیق"} الزام`}
       size={600}
-      onClose={closeModal}
-      onSubmit={() => form.submit()}
+      onClose={() => { if (!submitLock.current) closeModal(); }}
+      onSubmit={() => { if (!submitLock.current) form.submit(); }}
+      loading={submitting}
+      closable={!submitting}
+      maskClosable={!submitting}
+      keyboard={!submitting}
       mode={modalMode}
     >
+      {productsError && !productData && <Alert type="error" showIcon message="دریافت محصولات ناموفق بود" action={<Button onClick={() => refetchProducts()}>تلاش دوباره</Button>} />}
       <Form layout="vertical" onFinish={onFinish} form={form}>
         <Row gutter={[16, 16]}>
           <Col span={24}>
@@ -89,6 +107,8 @@ const AcknowledgmentOfRequirement = ({
                             /> */}
               <TsLazy
                 treeData={treeData}
+                loading={productsFetching}
+                disabled={productsFetching && !productData}
                 loadData={loadChildren}
                 labelInValue
                 placeholder="شاخه والد"
