@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Alert, Button, Empty, Space, Spin } from "antd";
-import { DeleteOutlined, EyeOutlined, RightOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EyeOutlined, PlusOutlined, RightOutlined } from "@ant-design/icons";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import Tree from "../../../components/Tree";
 import { buildRequirementTree } from "../utils/requirementTree";
@@ -92,7 +92,19 @@ export default function RequirementTreeView({
                   icon={<RightOutlined />}
                   title="تصدیق الزام"
                   aria-label="تصدیق الزام"
-                  className="text-sky-500 hover:text-sky-700"
+                  className="text-blue-500 hover:text-blue-700"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onAcknowledge?.(node.requirement);
+                  }}
+                />
+                <Button
+                  size="small"
+                  type="text"
+                  icon={<PlusOutlined />}
+                  title="تعریف الزام"
+                  aria-label="تعریف الزام"
+                  className="text-green-500 hover:text-green-700"
                   onClick={(event) => {
                     event.stopPropagation();
                     onAcknowledge?.(node.requirement);

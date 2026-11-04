@@ -116,6 +116,13 @@ export default function ProductRequirementTree({
               type: "AcknowledgmentOfRequirement",
             })
           }
+          onEdition={(requirement) =>
+            setModal({
+              mode: "add",
+              data: { product_requirements: requirement },
+              type: "DescribeTheRequirementModal",
+            })
+          }
         />
       )}
       {isOpen && modalType === "CreateProductRequirementModal" && (
