@@ -1,4 +1,14 @@
-import { Alert, Button, Card, Descriptions, Empty, message, Modal, Spin, Tag } from "antd";
+import {
+  Alert,
+  Button,
+  Card,
+  Descriptions,
+  Empty,
+  message,
+  Modal,
+  Spin,
+  Tag,
+} from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import useModal from "../../../hooks/useModal";
@@ -75,11 +85,17 @@ export default function ProductRequirementTree({
       }
     >
       {currentProduct?.id && isFetching && data != null && (
-        <div role="status" className="mb-2"><Spin size="small" /> در حال به‌روزرسانی...</div>
+        <div role="status" className="mb-2">
+          <Spin size="small" /> در حال به‌روزرسانی...
+        </div>
       )}
       {currentProduct?.id && isError && data != null && (
-        <Alert type="error" showIcon message="به‌روزرسانی الزامات ناموفق بود؛ داده‌های قبلی نمایش داده می‌شوند"
-          action={<Button onClick={() => refetch()}>تلاش دوباره</Button>} />
+        <Alert
+          type="error"
+          showIcon
+          message="به‌روزرسانی الزامات ناموفق بود؛ داده‌های قبلی نمایش داده می‌شوند"
+          action={<Button onClick={() => refetch()}>تلاش دوباره</Button>}
+        />
       )}
       {!currentProduct?.id ? (
         <Empty description="ابتدا یک محصول انتخاب کنید" />
