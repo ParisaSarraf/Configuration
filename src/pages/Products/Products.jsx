@@ -46,7 +46,7 @@ const Products = ({onSelect}) => {
   };
 
   const renderContent = () => {
-    if (isError) {
+    if (isError && !productData) {
       return <ErrorDisplay onRetry={refetch} />;
     }
     return (
@@ -54,8 +54,8 @@ const Products = ({onSelect}) => {
         productData={productData}
         setModal={setModal}
         refetch={refetch}
-        isLoading={isFetching}
-        isError={isError}
+        isLoading={isFetching && !productData}
+        isError={isError && !productData}
         selectedKeys={selectedKeys}
         onChange={handleTreeChange}
         onProductClick={(product) => { handleProductSelect(product); onSelect?.(); }}
@@ -149,7 +149,7 @@ const Products = ({onSelect}) => {
       </div>
 
       <div className="pw-products-body">
-        {isFetching ? <ProductListSkeleton /> : renderContent()}
+        {isFetching && !productData ? <ProductListSkeleton /> : renderContent()}
       </div>
 
       <ProductModal

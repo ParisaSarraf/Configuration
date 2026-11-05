@@ -20,6 +20,18 @@ import ZipProgressModal from "../../../components/ZipProgressModal/ZipProgressMo
 
 const LOCAL_STORAGE_KEY = "productTreeExpandedKeys";
 
+// Only keys are stored; product data is always loaded again through the API.
+const readExpandedKeys = () => {
+  try {
+    const value = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]");
+    return Array.isArray(value)
+      ? [...new Set(value.filter((key) => typeof key === "string" || typeof key === "number").map(String))]
+      : [];
+  } catch {
+    return [];
+  }
+};
+
 const ProductTree = ({
   productData,
   setModal,
@@ -31,7 +43,10 @@ const ProductTree = ({
 }) => {
   const { myAxios } = useMyAxios();
   const { mutate: deleteProduct, isLoading: isDeleting } = useDeleteProduct();
-  const [expandedKeys, setExpandedKeys] = useState([]);
+  const [expandedKeys, setExpandedKeys] = useState(readExpandedKeys);
+  const expandedKeysRef = useRef(expandedKeys);
+  const restoringKeysRef = useRef(new Set());
+  const failedRestoreKeysRef = useRef(new Set());
   const [exportProductId, setExportProductId] = useState(null);
   const [searchLoading, setSearchLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
@@ -76,18 +91,48 @@ const ProductTree = ({
     return filterNodes(treeData);
   }, [treeData, statusFilter]);
 
-  useEffect(() => {
-    setExpandedKeys([]);
-  }, []);
-
-  const handleExpand = (keys) => {
+  const updateExpandedKeys = (keys) => {
+    expandedKeysRef.current = keys;
+    setExpandedKeys(keys);
     try {
-      setExpandedKeys(keys);
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(keys));
     } catch (error) {
-      console.error("Failed to save expanded keys", error);
+      // Tree interaction must still work when browser storage is unavailable.
+      console.warn("Failed to save expanded product keys", error);
     }
   };
+
+  const handleExpand = (keys) => {
+    const previousKeys = new Set(expandedKeysRef.current);
+    keys.forEach((key) => {
+      if (!previousKeys.has(key)) failedRestoreKeysRef.current.delete(key);
+    });
+    updateExpandedKeys(keys);
+  };
+
+  // An expanded key alone cannot restore a lazy tree: its children must be
+  // fetched first. Each successful load exposes the next expanded level.
+  useEffect(() => {
+    const expanded = new Set(expandedKeys);
+    const pending = restoringKeysRef.current;
+    const failed = failedRestoreKeysRef.current;
+    const visit = (nodes) => {
+      nodes.forEach((node) => {
+        if (!node) return;
+        if (expanded.has(node.key) && !node.isLeaf && !Array.isArray(node.children)
+            && !pending.has(node.key) && !failed.has(node.key)) {
+          pending.add(node.key);
+          loadChildren(node).catch((error) => {
+            failed.add(node.key);
+            console.warn("Failed to restore product branch", error);
+            message.warning("بازیابی یکی از شاخه‌ها ناموفق بود؛ شاخه را دوباره باز کنید.");
+          }).finally(() => pending.delete(node.key));
+        }
+        if (Array.isArray(node.children)) visit(node.children);
+      });
+    };
+    visit(treeData);
+  }, [treeData, expandedKeys, loadChildren]);
 
   const handleSearch = async (rawCode) => {
     const fullCode = rawCode?.trim();
@@ -113,7 +158,7 @@ const ProductTree = ({
         targetNode,
       } = await expandToPath(idPath);
 
-      setExpandedKeys((prev) => Array.from(new Set([...prev, ...pathKeys])));
+      updateExpandedKeys(Array.from(new Set([...expandedKeysRef.current, ...pathKeys])));
 
       if (targetNode?.productData) {
         onProductClick(targetNode.productData);
