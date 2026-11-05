@@ -165,6 +165,16 @@ export const useHideProduct = () => {
   });
 };
 
+export const useChangeProductStatus = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: ({ id, status }) =>
+      myAxios
+        .patch(`/product/change-product-status/${id}/`, { status })
+        .then((response) => response?.data),
+  });
+};
+
 export const useUpdateProduct = () => {
   const { myAxios } = useMyAxios();
   return useMutation({

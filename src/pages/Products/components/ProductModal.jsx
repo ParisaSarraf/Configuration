@@ -173,22 +173,8 @@ const ProductModal = ({
     if (!isOpen) return;
     form.resetFields();
 
-    const statusMap = {
-      active: "فعال",
-      inactive: "غیرفعال",
-      temp: "موقت",
-    };
-
     // ===== EDIT MODE =====
     if (modalMode === "edit" && modalData) {
-      // status
-      const statusValue = modalData.status
-        ? {
-            value: modalData.status,
-            label: statusMap[modalData.status],
-          }
-        : null;
-
       // personality
       const personalityValue = modalData.product_personalities?.[0]
         ? {
@@ -269,7 +255,6 @@ const ProductModal = ({
         employer_code: modalData.employer_code,
         final_code: modalData.final_code,
 
-        status: statusValue,
         personality_id: personalityValue,
         alternative_personality_id: AlternativePersonalityValue,
 
@@ -728,7 +713,6 @@ const ProductModal = ({
       quantity: values.quantity,
 
       warehouse_code: values.warehouse_code,
-      status: values.status,
       weight: values.weight,
       height: values.height,
       width: values.width,
@@ -910,20 +894,6 @@ const ProductModal = ({
               </Form.Item>
             </Col>
 
-            {/* وضعیت */}
-            {/* <Col span={6}>
-              <Form.Item label="وضعیت" name="status">
-                <Select
-                  placeholder="وضعیت"
-                  style={{ width: "100%" }}
-                  options={[
-                    { label: "فعال", value: "active" },
-                    { label: "غیرفعال", value: "inactive" },
-                    { label: "موقت", value: "temp" },
-                  ]}
-                />
-              </Form.Item>
-            </Col> */}
           </>
 
           <Divider orientation="start">

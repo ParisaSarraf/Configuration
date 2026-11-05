@@ -2,6 +2,7 @@ const STATUS_LABELS = {
     active: 'فعال',
     inactive: 'غیرفعال',
     draft: 'پیش‌نویس',
+    temp: 'موقت',
 };
 
 const ProductStatus = ({status}) => (

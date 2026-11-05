@@ -353,6 +353,10 @@
   color: #9b3636;
   background: #fff0f0;
 }
+.pw-status--temp {
+  color: #8a5a00;
+  background: #fff4d6;
+}
 .pw-product-page {
   min-width: 0;
 }

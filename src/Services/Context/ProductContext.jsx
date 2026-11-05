@@ -19,6 +19,16 @@ export const ProductProvider = ({ children }) => {
     }
   };
 
+  // A context-menu action must not change which product is selected.
+  const updateProductStatus = (productId, status) => {
+    const update = (product) =>
+      product && String(product.id) === String(productId)
+        ? { ...product, status }
+        : product;
+    setCurrentProduct((product) => update(product));
+    setActiveProducts((products) => products.map(update));
+  };
+
   const closeProductTab = (productId) => {
     setActiveProducts(activeProducts.filter((p) => p.id !== productId));
     if (currentProduct?.id === productId) {
@@ -32,6 +42,7 @@ export const ProductProvider = ({ children }) => {
         activeProducts,
         currentProduct,
         handleProductSelect,
+        updateProductStatus,
         closeProductTab,
       }}
     >

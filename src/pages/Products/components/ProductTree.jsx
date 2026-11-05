@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Empty, Input, message, Modal } from "antd";
+import { Empty, Input, message, Modal, Select } from "antd";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -7,9 +8,11 @@ import {
   PlusOutlined,
   FileZipOutlined,
   SearchOutlined,
+  SwapOutlined,
 } from "@ant-design/icons";
 import { useMyAxios } from "@/hooks/useMyAxios";
-import { useDeleteProduct } from "../../../QueryServises/productQuery";
+import { useChangeProductStatus, useDeleteProduct, useProductByIdKey } from "../../../QueryServises/productQuery";
+import { useProductContext } from "../../../Services/Context/ProductContext";
 import { useExportExcelProductChildrenBomMutation } from "@/QueryServises/ExcelExporterQuery/index.js";
 import { handleDownload } from "@utils/HandleDownload.js";
 import ProductTreeEtc from "../../../components/Tree/ProductTree";
@@ -43,6 +46,11 @@ const ProductTree = ({
   onProductClick,
 }) => {
   const { myAxios } = useMyAxios();
+  const queryClient = useQueryClient();
+  const { updateProductStatus } = useProductContext();
+  const { mutateAsync: changeProductStatus, isPending: isChangingStatus } = useChangeProductStatus();
+  const [statusTarget, setStatusTarget] = useState(null);
+  const [nextStatus, setNextStatus] = useState(undefined);
   const { mutate: deleteProduct, isLoading: isDeleting } = useDeleteProduct();
   const [expandedKeys, setExpandedKeys] = useState(readExpandedKeys);
   const expandedKeysRef = useRef(expandedKeys);
@@ -66,7 +74,7 @@ const ProductTree = ({
       .filter(Boolean);
   }, [productData]);
 
-  const { treeData, loadChildren, expandToPath } =
+  const { treeData, loadChildren, expandToPath, updateNodeStatus } =
     useLazyProductTree(baseTreeData);
 
   useEffect(() => {
@@ -187,6 +195,45 @@ const ProductTree = ({
     }
   };
 
+  const handleChangeStatus = async () => {
+    if (!statusTarget || !nextStatus || isChangingStatus) return;
+    const id = statusTarget.id;
+    try {
+      await changeProductStatus({ id, status: nextStatus });
+
+      // Keep cached lazy branches and the visible tree in sync after confirmation.
+      const updateProducts = (products) => {
+        if (!Array.isArray(products)) return products;
+        let changed = false;
+        const updated = products.map((product) => {
+          const children = updateProducts(product.children);
+          const matches = String(product.id) === String(id);
+          if (!matches && children === product.children) return product;
+          changed = true;
+          return { ...product, ...(matches ? { status: nextStatus } : {}),
+            ...(children !== product.children ? { children } : {}) };
+        });
+        return changed ? updated : products;
+      };
+      queryClient.setQueriesData({ queryKey: ["child", "product"] }, updateProducts);
+      queryClient.setQueriesData({ queryKey: ["root", "product"] }, updateProducts);
+      queryClient.setQueryData(useProductByIdKey(id), (product) =>
+        product ? { ...product, status: nextStatus } : product,
+      );
+      updateNodeStatus(id, nextStatus);
+      updateProductStatus(id, nextStatus);
+      setStatusTarget(null);
+      message.success("وضعیت محصول با موفقیت تغییر کرد");
+    } catch (error) {
+      if (isAuthorizationError(error)) {
+        showAuthorizationError(error, "تغییر وضعیت محصول");
+      } else {
+        const detail = error.response?.data?.detail || error.response?.data?.message;
+        message.error(typeof detail === "string" ? detail : "خطا در تغییر وضعیت محصول");
+      }
+    }
+  };
+
   const handleRightClickAction = (actionKey, node) => {
     const genusId = node.id;
 
@@ -213,6 +260,9 @@ const ProductTree = ({
           });
         },
       });
+    } else if (actionKey === "changeStatus") {
+      setStatusTarget(node.productData);
+      setNextStatus(node.productData?.status || undefined);
     } else if (actionKey === "edit") {
       setModal({ mode: "edit", data: node.productData });
     } else if (actionKey === "addToParent") {
@@ -249,6 +299,15 @@ const ProductTree = ({
         <div className="flex items-center gap-2">
           <EditOutlined />
           <span>ویرایش شاخه</span>
+        </div>
+      ),
+    },
+    {
+      key: "changeStatus",
+      label: (
+        <div className="flex items-center gap-2">
+          <SwapOutlined />
+          <span>تغییر وضعیت محصول</span>
         </div>
       ),
     },
@@ -330,6 +389,37 @@ const ProductTree = ({
           onExpand={handleExpand}
         />
       </div>
+
+      <Modal
+        title="تغییر وضعیت محصول"
+        open={!!statusTarget}
+        onCancel={() => setStatusTarget(null)}
+        onOk={handleChangeStatus}
+        okText="ذخیره"
+        cancelText="انصراف"
+        confirmLoading={isChangingStatus}
+        closable={!isChangingStatus}
+        maskClosable={!isChangingStatus}
+        keyboard={!isChangingStatus}
+        cancelButtonProps={{ disabled: isChangingStatus }}
+        okButtonProps={{ disabled: !nextStatus || nextStatus === statusTarget?.status }}
+        destroyOnClose
+      >
+        <p>وضعیت «{statusTarget?.persian_title || statusTarget?.code}» را انتخاب کنید.</p>
+        <Select
+          aria-label="وضعیت محصول"
+          style={{ width: "100%" }}
+          placeholder="انتخاب وضعیت"
+          value={nextStatus}
+          onChange={setNextStatus}
+          disabled={isChangingStatus}
+          options={[
+            { label: "فعال", value: "active" },
+            { label: "غیرفعال", value: "inactive" },
+            { label: "موقت", value: "temp" },
+          ]}
+        />
+      </Modal>
 
       {zipTask && (
         <ZipProgressModal

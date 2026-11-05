@@ -92,5 +92,17 @@ export const useLazyProductTree = (initialData = []) => {
     };
   };
 
-  return { treeData, loadChildren, expandToPath };
+  const updateNodeStatus = (id, status) => {
+    const updateNodes = (nodes) => nodes.map((node) => {
+      const children = Array.isArray(node.children)
+        ? updateNodes(node.children)
+        : node.children;
+      if (String(node.id) !== String(id)) return { ...node, children };
+      const product = { ...node.productData, status };
+      return { ...node, ...mapProductToTreeNode(product), children };
+    });
+    setTreeData((previous) => updateNodes(previous));
+  };
+
+  return { treeData, loadChildren, expandToPath, updateNodeStatus };
 };
