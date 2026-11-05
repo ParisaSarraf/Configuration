@@ -57,7 +57,7 @@ const AcknowledgmentOfRequirement = ({ isOpen, modalData, currentProduct, closeM
       try {
         const result = await refetch();
         await Promise.all([
-          queryClient.invalidateQueries({ queryKey: ["product-requirement-acceptor", requirement?.id] }),
+          queryClient.invalidateQueries({ queryKey: ["product-requirement-acceptor", edition?.id] }),
           queryClient.invalidateQueries({ queryKey: ["product-requirement-tree", values.to_product_id] }),
         ]);
         if (result?.isError) message.warning("ارسال انجام شد، اما به‌روزرسانی فهرست ناموفق بود");

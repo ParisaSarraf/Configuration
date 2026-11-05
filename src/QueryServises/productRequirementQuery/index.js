@@ -32,7 +32,7 @@ export const useProductRequirementAcceptor = (id, queryOptions) => {
 		placeholderData: undefined,
 		enabled: id != null,
 		queryFn: () =>
-			id
+			id != null
 				? myAxios
 						.get(`/product/get-product-requirement-acceptor/${id}`)
 						.then((response) => response?.data)

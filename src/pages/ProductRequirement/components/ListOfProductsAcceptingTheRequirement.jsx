@@ -1,24 +1,33 @@
-import { Alert, Button, Card, Empty } from "antd";
+import { Alert, Button, Card, Empty, Spin } from "antd";
 import Tree from "../../../components/Tree";
 import { useProductRequirementAcceptor } from "../../../QueryServises/productRequirementQuery";
+import { mapAcceptorProducts } from "../utils/acceptorProducts";
 
-export default function ListOfProductsAcceptingTheRequirement({ selectedProductRequirement }) {
-  const { data, isFetching, isError, refetch } = useProductRequirementAcceptor(selectedProductRequirement);
-  const transform = (nodes, path = "") => (Array.isArray(nodes) ? nodes : []).map((node) => {
-    const key = `${path}/product-${node.id}`;
-    return { key, id: node.id,
-      title: <span>{node.title || node.persian_title || node.name || "بدون عنوان"}
-        {node.code && <> — <bdi dir="ltr">{node.code}</bdi></>}</span>,
-      children: transform(node.children, key) };
-  });
-  const treeData = transform(Array.isArray(data) ? data : data ? [data] : []);
-  return <Card title="لیست محصولات پذیرنده الزام" loading={selectedProductRequirement != null && isFetching && data == null}>
-    {selectedProductRequirement != null && isFetching && data != null && <div role="status">در حال به‌روزرسانی...</div>}
-    {selectedProductRequirement == null ? <Empty description="یک الزام یا نسخه را از درخت انتخاب کنید" />
-      : isError ? <Alert type="error" message="دریافت محصولات پذیرنده ناموفق بود"
-        action={<Button onClick={() => refetch()}>تلاش دوباره</Button>} />
-      : !treeData.length ? <Empty description="محصول پذیرنده‌ای ثبت نشده است" />
-      : <Tree key={selectedProductRequirement} mode="tree" data={treeData} showLine checkable={false}
-        showRightClickMenu={false} />}
+export default function ListOfProductsAcceptingTheRequirement({ selectedEdition }) {
+  const editionId = selectedEdition?.id;
+  const { data, isFetching, isError, isSuccess, refetch } = useProductRequirementAcceptor(editionId);
+  const products = mapAcceptorProducts(data);
+  const treeData = products?.map((product) => ({
+    ...product,
+    title: <span>{product.title}
+      {product.code != null && product.code !== "" && <> — <bdi dir="ltr">{product.code}</bdi></>}
+      {product.id != null && <span> (شناسه: <bdi dir="ltr">{product.id}</bdi>)</span>}
+    </span>,
+    isLeaf: true,
+  }));
+  const selectedLabel = selectedEdition?.full_code || selectedEdition?.code || editionId;
+
+  return <Card title="لیست محصولات پذیرنده نسخه الزام">
+    {editionId == null ? <Empty description="برای نمایش محصولات پذیرنده، یک نسخه از درخت انتخاب کنید" /> : <>
+      <div className="mb-3">نسخه انتخاب‌شده: <bdi dir="ltr">{selectedLabel}</bdi></div>
+      {isFetching && <div role="status" className="mb-2"><Spin size="small" /> در حال دریافت محصولات پذیرنده...</div>}
+      {isError && <Alert type="error" showIcon className="mb-2"
+        message={products ? "به‌روزرسانی محصولات پذیرنده ناموفق بود؛ داده‌های قبلی نمایش داده می‌شوند" : "دریافت محصولات پذیرنده ناموفق بود"}
+        action={<Button onClick={() => refetch()}>تلاش دوباره</Button>} />}
+      {!isFetching && isSuccess && !products && <Alert type="error" showIcon
+        message="پاسخ محصولات پذیرنده معتبر نیست" action={<Button onClick={() => refetch()}>تلاش دوباره</Button>} />}
+      {products && (products.length ? <Tree key={editionId} mode="tree" data={treeData} showLine checkable={false}
+        showRightClickMenu={false} /> : <Empty description="این نسخه هنوز به محصولی ارسال نشده است" />)}
+    </>}
   </Card>;
 }

@@ -10,7 +10,7 @@ import {
 } from "@ant-design/icons";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import Tree from "../../../components/Tree";
-import { buildRequirementTree, canDeleteRequirement, canAddRequirementEdition, canExportRequirementEdition, getRequirementState } from "../utils/requirementTree";
+import { buildRequirementTree, canDeleteRequirement, canAddRequirementEdition, canExportRequirementEdition, getRequirementState, getSelectedEdition } from "../utils/requirementTree";
 import { canRunRequirementWorkflow } from "../utils/requirementWorkflow";
 
 export default function RequirementTreeView({
@@ -22,7 +22,7 @@ export default function RequirementTreeView({
   onDelete,
   onAcknowledge,
   onEdition,
-  onSelectRequirement,
+  onSelectEdition,
   onShowEdition,
   onWorkflow,
 }) {
@@ -183,9 +183,7 @@ export default function RequirementTreeView({
       expandedKeys={expansion.scope === storageKey ? expansion.keys : []}
       onExpand={handleExpand}
       onSelect={(_, { node, selected }) => {
-        onSelectRequirement?.(
-          selected && node.requirement ? node.requirement.id : null,
-        );
+        onSelectEdition?.(getSelectedEdition(node, selected));
       }}
       onDoubleClick={(_, node) => {
         if (node.kind === "edition") onShowEdition?.(node);

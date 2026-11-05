@@ -50,7 +50,7 @@ export default function ImportedRequirementWorkflowModal({ isOpen, node, closeMo
       message.success("مرحله تخصیص با موفقیت تغییر کرد");
       try {
         const result = await refetch();
-        await queryClient.invalidateQueries({ queryKey: ["product-requirement-acceptor", requirement?.id] });
+        await queryClient.invalidateQueries({ queryKey: ["product-requirement-acceptor", edition?.id] });
         if (result?.isError) message.warning("مرحله ثبت شد، اما به‌روزرسانی درخت ناموفق بود");
       } catch { message.warning("مرحله ثبت شد، اما به‌روزرسانی درخت ناموفق بود"); }
     } catch (error) {

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildRequirementTree, canDeleteRequirement, canAddRequirementEdition, canExportRequirementEdition, filterRequirementTree, getBranchKeys, countRequirements, getRequirementState, getAssignmentState } from "../utils/requirementTree.js";
+import { buildRequirementTree, canDeleteRequirement, canAddRequirementEdition, canExportRequirementEdition, filterRequirementTree, getBranchKeys, countRequirements, getRequirementState, getAssignmentState, getSelectedEdition } from "../utils/requirementTree.js";
 const data = [{ id: 4, code: "PH", title: "فیزیکی", children: [{ id: 5, title: "استاندارد", children: [{ id: 6, title: "آزمون و تست", children: [{ id: 7, title: "بسته بندی و حمل ونقل", children: [], product_requirements: [{ id: 25, title: "hard test", product_id: 179, editions: [{ id: 3, full_code: "SY11-10-340-001/PHSTQCPT-222", code: "222", state: 10, assigned_to: [] }] }] }] }] }] }, { id: 10, title: "requiremet tree test", product_requirements: [{ id: 24, title: "TEST TITLE", imported: true, editions: [{ id: 2, full_code: "sy12/10-222", state: 10, assigned_to: [{ id: 7, to_product_id: 179, is_current_product: true }] }] }], children: [] }];
 const flatten = (nodes) => nodes.flatMap((node) => [node, ...flatten(node.children)]);
 test("all category, requirement and edition levels from supplied shape", () => {
@@ -73,4 +73,13 @@ test("imported requirements cannot be exported or have editions added", () => {
  assert.equal(canExportRequirementEdition({ id: 24 }, {}), false);
  assert.deepEqual([10, 20, 30].map(s => getAssignmentState(s).label), ["اجرا", "تصویب", "صحه‌گذاری"]);
  assert.equal(getAssignmentState(40).label, "وضعیت 40");
+});
+
+test("only selecting an edition supplies its own id to the acceptor panel", () => {
+ const node = { kind: "edition", requirement: { id: 24 }, edition: { id: 9, full_code: "SY/123", code: "123" } };
+ assert.deepEqual(getSelectedEdition(node, true), { id: 9, full_code: "SY/123", code: "123" });
+ assert.equal(getSelectedEdition(node, false), null);
+ assert.equal(getSelectedEdition({ kind: "requirement", requirement: { id: 24 } }, true), null);
+ assert.equal(getSelectedEdition({ kind: "category" }, true), null);
+ assert.equal(getSelectedEdition({ kind: "edition", edition: {} }, true), null);
 });

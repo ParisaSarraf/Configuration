@@ -19,6 +19,13 @@ export function canAddRequirementEdition(requirement) {
   return requirement?.id != null && requirement.imported !== true;
 }
 
+// A requirement or category is not an edition and must never be sent to
+// the edition-specific acceptor endpoint.
+export function getSelectedEdition(node, selected) {
+  if (!selected || node?.kind !== "edition" || node.edition?.id == null) return null;
+  return { id: node.edition.id, full_code: node.edition.full_code, code: node.edition.code };
+}
+
 export function buildRequirementTree(data) {
   const visitCategory = (category, parentPath = "") => {
     const key = `${parentPath}/category-${category.id}`;

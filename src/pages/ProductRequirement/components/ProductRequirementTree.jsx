@@ -42,7 +42,7 @@ const getAttachmentUrl = (file) => {
 
 export default function ProductRequirementTree({
   currentProduct,
-  setSelectedProductRequirement,
+  setSelectedEdition,
 }) {
   const { isOpen, modalMode, modalData, modalType, setModal, closeModal } =
     useModal();
@@ -69,7 +69,7 @@ export default function ProductRequirementTree({
       async onOk() {
         try {
           await deleteRequirement(requirement.id);
-          setSelectedProductRequirement(null);
+          setSelectedEdition(null);
           message.success("الزام محصول حذف شد");
           await refetch();
         } catch (error) {
@@ -123,7 +123,7 @@ export default function ProductRequirementTree({
           isError={isError && data == null}
           onRetry={refetch}
           onDelete={handleDelete}
-          onSelectRequirement={setSelectedProductRequirement}
+          onSelectEdition={setSelectedEdition}
           onShowEdition={setDetail}
           onWorkflow={(node) => setModal({ mode: "edit", data: node, type: "RequirementWorkflowModal" })}
           onAcknowledge={(node) => {
