@@ -1,5 +1,14 @@
 import { useRef, useState } from "react";
-import { Alert, Button, Col, Form, Input, message, Row, TreeSelect } from "antd";
+import {
+  Alert,
+  Button,
+  Col,
+  Form,
+  Input,
+  message,
+  Row,
+  TreeSelect,
+} from "antd";
 import Modal from "../../../components/Modal";
 import { useRequirementList } from "../../../QueryServises/requirementQuery";
 import { useCreateProductRequirement } from "../../../QueryServises/productRequirementQuery";
@@ -10,14 +19,19 @@ const CreateProductRequirementModal = ({
   refetch,
   modalMode,
   modalData,
-  currentProduct
+  currentProduct,
 }) => {
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
   const submitLock = useRef(false);
-  const { data: requirementList, isFetching: requirementsFetching, isError: requirementsError, refetch: refetchRequirements } =
-    useRequirementList({ placeholderData: undefined });
-  const { mutateAsync: createProductRequirement } = useCreateProductRequirement();
+  const {
+    data: requirementList,
+    isFetching: requirementsFetching,
+    isError: requirementsError,
+    refetch: refetchRequirements,
+  } = useRequirementList({ placeholderData: undefined });
+  const { mutateAsync: createProductRequirement } =
+    useCreateProductRequirement();
 
   const onFinish = async (values) => {
     if (submitLock.current) return;
@@ -78,21 +92,34 @@ const CreateProductRequirementModal = ({
     <Modal
       isOpen={isOpen}
       title={`${modalMode === "edit" ? "ویرایش" : "توصیف"} الزام`}
-      size={700}
-      onClose={() => { if (!submitLock.current) closeModal(); }}
-      onSubmit={() => { if (!submitLock.current) form.submit(); }}
+      size={600}
+      onClose={() => {
+        if (!submitLock.current) closeModal();
+      }}
+      onSubmit={() => {
+        if (!submitLock.current) form.submit();
+      }}
       loading={submitting}
       closable={!submitting}
       maskClosable={!submitting}
       keyboard={!submitting}
       mode={modalMode}
-      className="scroll-modal"
+      // className="scroll-modal"
       destroyOnClose
     >
-      {requirementsError && !requirementList && <Alert type="error" showIcon message="دریافت انواع الزام ناموفق بود" action={<Button onClick={() => refetchRequirements()}>تلاش دوباره</Button>} />}
+      {requirementsError && !requirementList && (
+        <Alert
+          type="error"
+          showIcon
+          message="دریافت انواع الزام ناموفق بود"
+          action={
+            <Button onClick={() => refetchRequirements()}>تلاش دوباره</Button>
+          }
+        />
+      )}
       <Form form={form} layout="vertical" onFinish={onFinish}>
-        <Row gutter={16}>
-          <Col span={8}>
+        <Row gutter={24}>
+          <Col span={12}>
             <Form.Item
               label="الزام"
               name="title"
@@ -104,7 +131,7 @@ const CreateProductRequirementModal = ({
             </Form.Item>
           </Col>
 
-          <Col span={8}>
+          <Col span={12}>
             <Form.Item
               label="نوع الزام"
               name="requirementId"
