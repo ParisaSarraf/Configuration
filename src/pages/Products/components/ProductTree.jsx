@@ -10,13 +10,14 @@ import {
 } from "@ant-design/icons";
 import { useMyAxios } from "@/hooks/useMyAxios";
 import { useDeleteProduct } from "../../../QueryServises/productQuery";
-import { useExportExcelProductChildrenBom } from "@/QueryServises/ExcelExporterQuery/index.js";
+import { useExportExcelProductChildrenBomMutation } from "@/QueryServises/ExcelExporterQuery/index.js";
 import { handleDownload } from "@utils/HandleDownload.js";
 import ProductTreeEtc from "../../../components/Tree/ProductTree";
 import { useCreateZipReport } from "../../../QueryServises/productDocumentQuery";
 import { useLazyProductTree } from "../../../hooks/useLazyProductTree";
 import { mapProductToTreeNode } from "../../../utils/mapProductToTreeNode";
 import ZipProgressModal from "../../../components/ZipProgressModal/ZipProgressModal";
+import { isAuthorizationError, showAuthorizationError } from "@/utils/exportAccessError";
 
 const LOCAL_STORAGE_KEY = "productTreeExpandedKeys";
 
@@ -47,15 +48,14 @@ const ProductTree = ({
   const expandedKeysRef = useRef(expandedKeys);
   const restoringKeysRef = useRef(new Set());
   const failedRestoreKeysRef = useRef(new Set());
-  const [exportProductId, setExportProductId] = useState(null);
   const [searchLoading, setSearchLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
   const searchRef = useRef(null);
 
-  const { data: exportExcelData, isFetching: isExporting } =
-    useExportExcelProductChildrenBom(exportProductId);
+  const { mutateAsync: exportExcel, isPending: isExporting } =
+    useExportExcelProductChildrenBomMutation();
 
-  const { mutate: createZip, isLoading: isRequestingZip } =
+  const { mutate: createZip, isPending: isRequestingZip } =
     useCreateZipReport();
   const [zipTask, setZipTask] = useState(null);
 
@@ -170,15 +170,22 @@ const ProductTree = ({
     }
   };
 
-  useEffect(() => {
-    if (exportExcelData && exportProductId) {
-      handleDownload(
-        exportExcelData.url,
-        exportExcelData.fileName,
-        setExportProductId,
-      );
+  const handleExcelExport = async (productId) => {
+    if (productId == null || isExporting) return;
+    message.loading({ content: "درحال آماده‌سازی...", key: "exporting", duration: 0 });
+    try {
+      const result = await exportExcel(productId);
+      handleDownload(result.url, result.fileName);
+    } catch (error) {
+      if (isAuthorizationError(error)) {
+        showAuthorizationError(error, "خروجی اکسل");
+      } else {
+        message.error("خطا در دریافت خروجی اکسل");
+      }
+    } finally {
+      message.destroy("exporting");
     }
-  }, [exportExcelData, exportProductId]);
+  };
 
   const handleRightClickAction = (actionKey, node) => {
     const genusId = node.id;
@@ -211,8 +218,7 @@ const ProductTree = ({
     } else if (actionKey === "addToParent") {
       setModal({ mode: "addToParent", data: node.productData });
     } else if (actionKey === "exportExcel") {
-      setExportProductId(node?.productData?.id);
-      message.loading({ content: "درحال آماده‌سازی...", key: "exporting" });
+      handleExcelExport(node?.productData?.id);
     } else if (actionKey === "downloadZip") {
       const fileName =
         node?.productData?.persian_title || node?.productData?.code;
@@ -225,8 +231,12 @@ const ProductTree = ({
             message.error("خطا: شناسه وظیفه دریافت نشد");
           }
         },
-        onError: () => {
-          message.error("خطا در شروع ساخت فایل ZIP");
+        onError: (error) => {
+          if (isAuthorizationError(error)) {
+            showAuthorizationError(error, "دانلود مستندات");
+          } else {
+            message.error("خطا در شروع ساخت فایل ZIP");
+          }
         },
       });
     }
@@ -263,6 +273,7 @@ const ProductTree = ({
     },
     {
       key: "exportExcel",
+      disabled: isExporting,
       label: (
         <div className="flex items-center gap-2">
           <FileExcelOutlined />
@@ -272,6 +283,7 @@ const ProductTree = ({
     },
     {
       key: "downloadZip",
+      disabled: isRequestingZip,
       label: (
         <div className="flex items-center gap-2">
           <FileZipOutlined />
@@ -303,7 +315,7 @@ const ProductTree = ({
         <ProductTreeEtc
           className="pw-product-tree"
           data={visibleTreeData}
-          isLoading={isLoading || isDeleting || isExporting || isRequestingZip}
+          isLoading={isLoading || isDeleting}
           isError={isError}
           onSelect={(_, { node }) => onProductClick(node.productData)}
           selectedKeys={selectedKeys}

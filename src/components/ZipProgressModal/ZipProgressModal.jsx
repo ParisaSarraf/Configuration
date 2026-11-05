@@ -2,9 +2,10 @@ import { useEffect } from "react";
 import { useZipReportStatus } from "../../QueryServises/productDocumentQuery";
 import { message, Modal, Progress, Typography } from "antd";
 import { BASEURL } from "../../Services/axiosInstance";
+import { isAuthorizationError, showAuthorizationError } from "../../utils/exportAccessError";
 
 const ZipProgressModal = ({ uuid, fileName, onDone, onClose }) => {
-  const { data, isError } = useZipReportStatus(uuid, { enabled: true });
+  const { data, isError, error } = useZipReportStatus(uuid, { enabled: true });
 
   const status = data?.status;
   const percent = data?.progress_percent ?? 0;
@@ -25,10 +26,14 @@ const ZipProgressModal = ({ uuid, fileName, onDone, onClose }) => {
     onDone();
   }
   if (status === "FAILURE" || isError) {
-    message.error("خطا در ساخت فایل ZIP");
+    if (isError && isAuthorizationError(error)) {
+      showAuthorizationError(error, "دانلود مستندات");
+    } else {
+      message.error("خطا در ساخت فایل ZIP");
+    }
     onClose();
   }
-  }, [status, isError]);
+  }, [status, isError, error]);
 
   const progressStatus =
     status === "SUCCESS" ? "success" : isError ? "exception" : "active";

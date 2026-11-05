@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMyAxios } from "@/hooks/useMyAxios.js";
 
 export const useExportExcelProductPurchase = (id, queryOptions) => {
@@ -172,31 +172,37 @@ export const useExportExcelProductIntroduction = (id, queryOptions) => {
 //   });
 // };
 
+// Shared by the query and the explicitly triggered export mutation.
+const fetchProductChildrenBom = async (myAxios, id) => {
+  const response = await myAxios.get(`/product/get-product-csv-by-id/${id}`, {
+    responseType: "blob",
+  });
+  const blob = new Blob([response.data], { type: "text/csv;charset=utf-8;" });
+  const url = window.URL.createObjectURL(blob);
+  let fileName;
+  const disposition = response.headers["content-disposition"];
+  if (disposition) {
+    const match = disposition.match(/filename\*?=(?:UTF-8'')?["']?([^"';]+)["']?/i);
+    if (match?.[1]) fileName = decodeURIComponent(match[1]);
+  }
+  return { url, fileName };
+};
+
 export const useExportExcelProductChildrenBom = (id, queryOptions) => {
   const { myAxios } = useMyAxios();
   return useQuery({
     queryKey: ["confirmed-product", id],
-    queryFn: () =>
-      id
-        ? myAxios
-            .get(`/product/get-product-csv-by-id/${id}`, { responseType: "blob" })
-            .then((response) => {
-              const blob = new Blob([response.data], { type: "text/csv;charset=utf-8;" });
-              const url = window.URL.createObjectURL(blob);
-
-              let fileName ; 
-              const disposition = response.headers["content-disposition"];
-              if (disposition) {
-                const match = disposition.match(/filename\*?=(?:UTF-8'')?["']?([^"';]+)["']?/i);
-                if (match?.[1]) {
-                  fileName = decodeURIComponent(match[1]);
-                }
-              }
-
-              return { url, fileName };
-            })
-        : Promise.resolve(null),
+    queryFn: () => id ? fetchProductChildrenBom(myAxios, id) : Promise.resolve(null),
     ...queryOptions,
     enabled: !!id,
+  });
+};
+
+// Exports are actions: a mutation avoids reusing an already-revoked cached URL.
+export const useExportExcelProductChildrenBomMutation = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: (id) => fetchProductChildrenBom(myAxios, id),
+    retry: false,
   });
 };
