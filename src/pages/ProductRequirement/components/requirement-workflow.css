@@ -1,0 +1,74 @@
+/* Requirement workflow only; leaves the rest of the app's modals unchanged. */
+.requirement-workflow-modal .ant-modal-content {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 12px;
+}
+.requirement-workflow-modal .ant-modal-close { top: 21px; inset-inline-end: 22px; color: var(--pw-muted, #555f7d); }
+.requirement-workflow-modal .ant-modal-body { max-height: calc(100vh - 80px); overflow-y: auto; }
+.rw-shell {
+  --rw-ink: var(--pw-text, #191d34);
+  --rw-muted: var(--pw-muted, #555f7d);
+  --rw-accent: var(--pw-accent-strong, #006d5e);
+  --rw-border: var(--pw-border, #dce6e8);
+  background: var(--pw-surface, #fff);
+  color: var(--rw-ink);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.rw-header { display: flex; align-items: flex-start; gap: 16px; padding: 27px 32px 24px; border-bottom: 1px solid var(--rw-border); }
+.rw-heading-icon { width: 48px; height: 48px; flex: none; display: grid; place-items: center; color: var(--rw-accent); background: var(--pw-accent-soft, #e5f5f2); border: 1px solid var(--pw-accent-border, #afe4db); border-radius: 12px; font-size: 22px; }
+.rw-heading-copy { min-width: 0; padding-inline-end: 34px; }
+.rw-eyebrow { color: var(--rw-accent); font-size: 13px; font-weight: 700; }
+.rw-heading-copy h2 { margin: 1px 0 0; color: var(--rw-ink); font-size: 21px; line-height: 1.45; font-weight: 700; }
+.rw-heading-copy p, .rw-section-head p { margin: 3px 0 0; color: var(--rw-muted); font-size: 14px; }
+.rw-summary { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin: 24px 32px 0; padding: 18px 20px; background: var(--pw-canvas, #f2f7f7); border: 1px solid var(--rw-border); border-radius: 10px; }
+.rw-summary-main, .rw-current { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; }
+.rw-summary-main strong { max-width: 100%; overflow-wrap: anywhere; font-size: 16px; }
+.rw-caption { color: var(--rw-muted); font-size: 13px; }
+.rw-version { color: var(--rw-muted); overflow-wrap: anywhere; font-size: 13px; }
+.rw-version bdi { font-weight: 600; }
+.rw-current { flex: none; }
+.rw-current-badge { display: inline-flex; align-items: center; gap: 7px; padding: 4px 10px; border: 1px solid var(--pw-accent-border, #afe4db); border-radius: 999px; background: var(--pw-accent-soft, #e5f5f2); color: var(--rw-accent); font-weight: 700; }
+.rw-current-dot { width: 7px; height: 7px; flex: none; border-radius: 50%; background: var(--rw-accent); }
+.rw-section { margin: 28px 32px 0; }
+.rw-section-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
+.rw-section-head h3 { margin: 0; color: var(--rw-ink); font-size: 16px; font-weight: 700; }
+.rw-counter { flex: none; color: var(--rw-muted); font-size: 13px; }
+.rw-stages { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; padding: 0; margin: 12px 0 0; list-style: none; }
+.rw-stages--three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.rw-stage { min-width: 0; display: flex; flex-direction: column; gap: 12px; min-height: 110px; padding: 13px 12px; background: var(--pw-accent-hover, #f6faf9); border: 1px solid var(--rw-border); border-radius: 8px; }
+.rw-stage.is-current { background: var(--pw-accent-soft, #e5f5f2); border-color: var(--pw-accent, #087f70); box-shadow: inset 0 0 0 1px var(--pw-accent, #087f70); }
+.rw-stage.is-past { background: var(--pw-canvas, #f2f7f7); }
+.rw-stage-marker { width: 27px; height: 27px; flex: none; display: grid; place-items: center; border: 1px solid var(--pw-control-border, #cddcde); border-radius: 50%; color: var(--rw-muted); font-size: 13px; font-weight: 700; }
+.rw-stage.is-current .rw-stage-marker { background: var(--rw-accent); border-color: var(--rw-accent); color: white; }
+.rw-stage.is-past .rw-stage-marker { background: var(--pw-accent-soft, #e5f5f2); border-color: var(--pw-accent-border, #afe4db); color: var(--rw-accent); }
+.rw-stage-copy { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
+.rw-stage-copy strong { color: var(--rw-ink); font-size: 14px; overflow-wrap: anywhere; }
+.rw-stage-copy small { color: var(--rw-muted); font-size: 12px; }
+.rw-stage.is-current .rw-stage-copy small { color: var(--rw-accent); font-weight: 700; }
+.rw-required { margin-inline-start: 5px; color: #8a5653; font-size: 12px; font-weight: 400; }
+.rw-comment-section .ant-input { min-height: 92px; padding: 10px 12px; border-color: var(--pw-control-border, #cddcde); border-radius: 8px; resize: vertical; font-size: 14px; }
+.rw-comment-section .ant-input:focus { border-color: var(--pw-focus, #148e80); box-shadow: 0 0 0 2px var(--pw-accent-border, #afe4db); }
+.rw-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 28px; padding: 18px 32px; background: var(--pw-accent-hover, #f6faf9); border-top: 1px solid var(--rw-border); }
+.rw-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.rw-footer .ant-btn { min-height: 42px; border-radius: 8px; font-weight: 600; }
+.rw-footer .ant-btn-primary:not(:disabled) { background: var(--rw-accent); }
+.rw-footer .ant-btn-primary:not(:disabled):hover { background: var(--rw-accent); filter: brightness(.92); }
+@media (max-width: 600px) {
+  .requirement-workflow-modal .ant-modal-body { max-height: calc(100vh - 48px); }
+  .rw-header { padding: 22px 20px; }
+  .rw-summary { margin: 20px 20px 0; padding: 14px; align-items: flex-start; }
+  .rw-section { margin: 24px 20px 0; }
+  .rw-stages, .rw-stages--three { grid-template-columns: 1fr; gap: 6px; }
+  .rw-stage { min-height: 0; flex-direction: row; align-items: center; gap: 12px; padding: 9px 12px; }
+  .rw-stage-copy { flex-direction: row; justify-content: space-between; align-items: center; gap: 8px; width: 100%; }
+  .rw-footer { align-items: stretch; flex-direction: column-reverse; padding: 16px 20px; }
+  .rw-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .rw-actions .ant-btn { height: auto; min-height: 44px; white-space: normal; }
+  .rw-close { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .requirement-workflow-modal * { transition: none !important; } }
+
+.rw-assignment-selector .ant-select { width: 100%; }
+.rw-assignment-selector .ant-select-selector { min-height: 42px; }

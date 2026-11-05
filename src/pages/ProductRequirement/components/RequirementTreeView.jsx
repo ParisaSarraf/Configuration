@@ -1,9 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Button, Empty, Space, Spin } from "antd";
-import { DeleteOutlined, EyeOutlined, PlusOutlined, RightOutlined } from "@ant-design/icons";
+import { Alert, Button, Empty, Space, Spin, Tag } from "antd";
+import {
+  DeleteOutlined,
+  EyeOutlined,
+  FileDoneOutlined,
+  ImportOutlined,
+  PlusOutlined,
+  RightOutlined,
+} from "@ant-design/icons";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import Tree from "../../../components/Tree";
-import { buildRequirementTree } from "../utils/requirementTree";
+import { buildRequirementTree, canDeleteRequirement, canAddRequirementEdition, canExportRequirementEdition, getRequirementState } from "../utils/requirementTree";
+import { canRunRequirementWorkflow } from "../utils/requirementWorkflow";
 
 export default function RequirementTreeView({
   data,
@@ -16,6 +24,7 @@ export default function RequirementTreeView({
   onEdition,
   onSelectRequirement,
   onShowEdition,
+  onWorkflow,
 }) {
   const storageKey = `productRequirementTreeExpandedKeys:${productId}`;
   const [expansion, setExpansion] = useState({ scope: null, keys: [] });
@@ -44,7 +53,6 @@ export default function RequirementTreeView({
     }
   };
 
-  
   const treeData = useMemo(() => {
     const transform = (nodes) =>
       nodes.map((node) => ({
@@ -53,20 +61,15 @@ export default function RequirementTreeView({
           <div className="flex flex-row justify-between items-center w-full">
             {node.kind === "edition" ? (
               <span className="w-full gap-2">
-                <bdi dir="ltr">{node.label}</bdi> -
+                <bdi dir="ltr">{node.label}</bdi>{" "}
+                {node.isImported && (
+                  <Tag color="blue" icon={<ImportOutlined />} title="این نسخه به محصول جاری وارد شده است">
+                    واردشده
+                  </Tag>
+                )} -
                 <FiberManualRecordIcon
                   fontSize="small"
-                  className={
-                    node.edition.state === 10
-                      ? "text-[#f5222d]"
-                      : node.edition.state === 20
-                        ? "text-[#faad14]"
-                        : node.edition.state === 30
-                          ? "text-[#52c41a]"
-                          : node.edition.state === 40
-                            ? "text-[#722ed1]"
-                            : "text-[#faad14]"
-                  }
+                  style={{ color: getRequirementState(node.edition.state).color }}
                 />
                 {node.edition.description}
               </span>
@@ -75,6 +78,7 @@ export default function RequirementTreeView({
             )}
             {node.kind === "requirement" && (
               <Space>
+                {canDeleteRequirement(node.requirement) && (
                 <Button
                   size="small"
                   type="text"
@@ -87,19 +91,9 @@ export default function RequirementTreeView({
                     onDelete?.(node.requirement);
                   }}
                 />
-                <Button
-                  size="small"
-                  type="text"
-                  icon={<RightOutlined />}
-                  title="تصدیق الزام"
-                  aria-label="تصدیق الزام"
-                  className="text-blue-500 hover:text-blue-700"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onAcknowledge?.(node.requirement);
-                  }}
-                />
-                <Button
+                )}
+
+                {canAddRequirementEdition(node.requirement) && <Button
                   size="small"
                   type="text"
                   icon={<PlusOutlined />}
@@ -110,11 +104,31 @@ export default function RequirementTreeView({
                     event.stopPropagation();
                     onEdition?.(node.requirement);
                   }}
-                />
+                />}
               </Space>
             )}
             {node.kind === "edition" && (
               <Space>
+                {(canRunRequirementWorkflow(node.requirement, node.edition) || (node.requirement?.imported === true && node.edition?.id != null)) && (
+                  <Button size="small" type="text" icon={<FileDoneOutlined />}
+                    title="روال الزام" aria-label="روال الزام"
+                    className="text-purple-500 hover:text-purple-700"
+                    onClick={(event) => { event.stopPropagation(); onWorkflow?.(node); }} />
+                )}
+                {canExportRequirementEdition(node.requirement, node.edition) && (
+                <Button
+                  size="small"
+                  type="text"
+                  icon={<RightOutlined />}
+                  title="ارسال نسخه به زیرمحصول"
+                  aria-label="ارسال نسخه به زیرمحصول"
+                  className="text-blue-500 hover:text-blue-700"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onAcknowledge?.(node);
+                  }}
+                />
+                )}
                 <Button
                   size="small"
                   type="text"
@@ -135,15 +149,24 @@ export default function RequirementTreeView({
         children: transform(node.children),
       }));
     return transform(buildRequirementTree(data));
-  }, [data, onDelete, onAcknowledge, onEdition, onShowEdition]);
+  }, [data, onDelete, onAcknowledge, onEdition, onShowEdition, onWorkflow]);
 
   return isLoading ? (
-    <div role="status" className="flex justify-center items-center min-h-[160px]">
-      <Spin tip="در حال بارگذاری الزامات..." size="large"><div style={{ minWidth: 180, minHeight: 80 }} /></Spin>
+    <div
+      role="status"
+      className="flex justify-center items-center min-h-[160px]"
+    >
+      <Spin tip="در حال بارگذاری الزامات..." size="large">
+        <div style={{ minWidth: 180, minHeight: 80 }} />
+      </Spin>
     </div>
   ) : isError ? (
-    <Alert type="error" showIcon message="خطا در بارگذاری الزامات"
-      action={<Button onClick={() => onRetry?.()}>تلاش دوباره</Button>} />
+    <Alert
+      type="error"
+      showIcon
+      message="خطا در بارگذاری الزامات"
+      action={<Button onClick={() => onRetry?.()}>تلاش دوباره</Button>}
+    />
   ) : !treeData.length ? (
     <Empty description="الزامی برای این محصول ثبت نشده است" />
   ) : (

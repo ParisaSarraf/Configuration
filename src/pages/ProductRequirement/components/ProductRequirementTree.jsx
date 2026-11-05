@@ -15,7 +15,10 @@ import useModal from "../../../hooks/useModal";
 import DescribeTheRequirementModal from "./DescribeTheRequirementModal";
 import AcknowledgmentOfRequirement from "./AcknowledgmentOfRequirement";
 import RequirementTreeView from "./RequirementTreeView";
-import { getRequirementState } from "../utils/requirementTree";
+import RequirementWorkflowModal from "./RequirementWorkflowModal";
+import ImportedRequirementWorkflowModal from "./ImportedRequirementWorkflowModal";
+import { canDeleteRequirement, canAddRequirementEdition, canExportRequirementEdition, getRequirementState, getAssignmentState } from "../utils/requirementTree";
+import { BASEURL } from "../../../Services/axiosInstance";
 import {
   useDeleteProductRequirement,
   useProductRequirementList,
@@ -24,6 +27,18 @@ import CreateProductRequirementModal from "./CreateProductRequirementModal";
 
 const showValue = (value) =>
   value == null || value === "" ? "—" : String(value);
+
+// API files may be absolute URLs or paths relative to the API server.
+const getAttachmentUrl = (file) => {
+  if (typeof file !== "string" || !file.trim()) return null;
+  try {
+    const apiOrigin = new URL(BASEURL || "/", window.location.origin).origin;
+    const url = new URL(file.trim(), `${apiOrigin}/`);
+    return ["http:", "https:"].includes(url.protocol) ? url.href : null;
+  } catch {
+    return null;
+  }
+};
 
 export default function ProductRequirementTree({
   currentProduct,
@@ -44,7 +59,7 @@ export default function ProductRequirementTree({
     });
 
   const handleDelete = (requirement) => {
-    if (requirement?.id == null) return;
+    if (!canDeleteRequirement(requirement)) return;
     Modal.confirm({
       title: "حذف الزام محصول",
       content: `الزام «${requirement.title || requirement.id}» حذف شود؟`,
@@ -70,6 +85,7 @@ export default function ProductRequirementTree({
   };
   const edition = detail?.edition;
   const state = getRequirementState(edition?.state);
+  const assignments = Array.isArray(edition?.assigned_to) ? edition.assigned_to : [];
 
   return (
     <Card
@@ -109,20 +125,23 @@ export default function ProductRequirementTree({
           onDelete={handleDelete}
           onSelectRequirement={setSelectedProductRequirement}
           onShowEdition={setDetail}
-          onAcknowledge={(requirement) =>
+          onWorkflow={(node) => setModal({ mode: "edit", data: node, type: "RequirementWorkflowModal" })}
+          onAcknowledge={(node) => {
+            if (!canExportRequirementEdition(node?.requirement, node?.edition)) return;
             setModal({
               mode: "add",
-              data: { product_requirements: requirement },
+              data: { product_requirements: node.requirement, edition: node.edition },
               type: "AcknowledgmentOfRequirement",
-            })
-          }
-          onEdition={(requirement) =>
+            });
+          }}
+          onEdition={(requirement) => {
+            if (!canAddRequirementEdition(requirement)) return;
             setModal({
               mode: "add",
               data: { product_requirements: requirement },
               type: "DescribeTheRequirementModal",
-            })
-          }
+            });
+          }}
         />
       )}
       {isOpen && modalType === "CreateProductRequirementModal" && (
@@ -145,11 +164,17 @@ export default function ProductRequirementTree({
           refetch={refetch}
         />
       )}
+      {isOpen && modalType === "RequirementWorkflowModal" && (
+        modalData?.requirement?.imported === true
+          ? <ImportedRequirementWorkflowModal isOpen node={modalData} closeModal={closeModal} refetch={refetch} />
+          : <RequirementWorkflowModal isOpen node={modalData} closeModal={closeModal} refetch={refetch} />
+      )}
       {isOpen && modalType === "AcknowledgmentOfRequirement" && (
         <AcknowledgmentOfRequirement
           isOpen
           modalMode={modalMode}
           modalData={modalData}
+          currentProduct={currentProduct}
           closeModal={closeModal}
           refetch={refetch}
         />
@@ -191,20 +216,34 @@ export default function ProductRequirementTree({
           <Descriptions.Item label="فایل">
             {edition?.file ? "فایل پیوست دارد" : "بدون پیوست"}
           </Descriptions.Item>
-          <Descriptions.Item label="محصولات تخصیص‌یافته">
-            {edition?.assigned_to?.length
-              ? edition.assigned_to.map((assignment) => (
-                  <div key={assignment.id}>
-                    محصول {assignment.to_product_id}{" "}
-                    {assignment.is_current_product && "(محصول جاری)"}
-                    {" — "}
-                    {getRequirementState(assignment.state).label}
-                    {assignment.pass_comment && ` — ${assignment.pass_comment}`}
-                  </div>
-                ))
-              : "هنوز تخصیص داده نشده است"}
-          </Descriptions.Item>
+
         </Descriptions>
+        <h3 className="mt-4 mb-3">جزئیات محصولات تخصیص‌یافته</h3>
+        {assignments.length ? assignments.map((assignment, index) => {
+          const assignmentState = getAssignmentState(assignment?.state);
+          const attachmentUrl = getAttachmentUrl(assignment?.file_1);
+          return (
+            <Card key={`${assignment?.id ?? "assignment"}-${index}`} size="small"
+              title={`تخصیص ${index + 1}`} className="mb-3">
+              <Descriptions bordered column={1} size="small" style={{ overflowWrap: "anywhere" }}>
+                <Descriptions.Item label="شناسه تخصیص">{showValue(assignment?.id)}</Descriptions.Item>
+                <Descriptions.Item label="شناسه محصول مقصد">{showValue(assignment?.to_product_id)}</Descriptions.Item>
+                <Descriptions.Item label="محصول جاری">
+                  {assignment?.is_current_product === true ? "بله" : assignment?.is_current_product === false ? "خیر" : "نامشخص"}
+                </Descriptions.Item>
+                <Descriptions.Item label="وضعیت">
+                  <Tag color={assignmentState.color}>{assignmentState.label}</Tag>
+                  {assignment?.state != null && ` (${assignment.state})`}
+                </Descriptions.Item>
+                <Descriptions.Item label="نظر / توضیحات">{showValue(assignment?.pass_comment)}</Descriptions.Item>
+                <Descriptions.Item label="فایل ضمیمه">
+                  {attachmentUrl ? <a href={attachmentUrl} target="_blank" rel="noopener noreferrer">مشاهده فایل</a>
+                    : assignment?.file_1 ? "فایل پیوست دارد (آدرس قابل نمایش نیست)" : "بدون پیوست"}
+                </Descriptions.Item>
+              </Descriptions>
+            </Card>
+          );
+        }) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="هنوز تخصیص داده نشده است" />}
       </Modal>
     </Card>
   );

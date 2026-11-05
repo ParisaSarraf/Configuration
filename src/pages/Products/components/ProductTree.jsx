@@ -253,23 +253,26 @@ const ProductTree = ({
       </div>
       {!visibleTreeData.length && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="محصولی یافت نشد"/>}
 
-      <ProductTreeEtc
-        className="pw-product-tree"
-        data={visibleTreeData}
-        isLoading={isLoading || isDeleting || isExporting || isRequestingZip}
-        isError={isError}
-        onSelect={(_, { node }) => onProductClick(node.productData)}
-        selectedKeys={selectedKeys}
-        showLine={true}
-        checkable={false}
-        showIcon={false}
-        blockNode
-        loadData={loadChildren}
-        rightClickMenuItems={rightClickMenuItems}
-        onRightClickAction={handleRightClickAction}
-        expandedKeys={expandedKeys}
-        onExpand={handleExpand}
-      />
+      <p className="pw-product-tree-hint">برای دیدن شاخه‌های عمیق، درخت را افقی پیمایش کنید.</p>
+      <div className="pw-product-tree-scroll" role="region" aria-label="درخت محصولات؛ برای مشاهده شاخه‌های عمیق به صورت افقی پیمایش کنید" tabIndex={0}>
+        <ProductTreeEtc
+          className="pw-product-tree"
+          data={visibleTreeData}
+          isLoading={isLoading || isDeleting || isExporting || isRequestingZip}
+          isError={isError}
+          onSelect={(_, { node }) => onProductClick(node.productData)}
+          selectedKeys={selectedKeys}
+          showLine={true}
+          checkable={false}
+          showIcon={false}
+          blockNode
+          loadData={loadChildren}
+          rightClickMenuItems={rightClickMenuItems}
+          onRightClickAction={handleRightClickAction}
+          expandedKeys={expandedKeys}
+          onExpand={handleExpand}
+        />
+      </div>
 
       {zipTask && (
         <ZipProgressModal

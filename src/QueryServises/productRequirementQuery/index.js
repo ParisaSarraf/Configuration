@@ -136,3 +136,23 @@ export const useCreateProductRequirementEdition = () => {
     ).then((response) => response.data),
   });
 };
+
+// Workflow for an edition belonging to a non-imported requirement.
+export const useChangeProductRequirementEditionState = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: ({ id, state, comment }) =>
+      myAxios.patch(`/product/change-state-product-requirement-edition/${id}`, { state, comment })
+        .then((response) => response.data),
+  });
+};
+
+// An imported edition progresses on the current product's assignment record.
+export const useChangeExportedRequirementEditionState = () => {
+  const { myAxios } = useMyAxios();
+  return useMutation({
+    mutationFn: ({ id, state, comment }) =>
+      myAxios.patch(`/product/change-product-requirement-edition-exported-state/${id}`, { state, comment })
+        .then((response) => response.data),
+  });
+};

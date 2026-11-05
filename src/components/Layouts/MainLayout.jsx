@@ -44,20 +44,21 @@ const MainLayout = () => {
         <ConfigProvider theme={getProductThemeConfig(globalTheme)}>
             <div className="product-workspace" data-theme={globalTheme} dir="rtl">
                 <aside className={`pw-sidebar ${isSidebarOpen ? '' : 'pw-sidebar--collapsed'}`} aria-label="فهرست محصولات">
-                    {isSidebarOpen && <Products/>}
+                    <div hidden={!isSidebarOpen} style={{height: '100%'}}>
+                        <Products/>
+                    </div>
                 </aside>
                 <Drawer
                     className="pw-mobile-drawer"
                     title="فهرست محصولات"
                     placement="right"
-                    width="min(340px, 90vw)"
+                    width="min(420px, 94vw)"
                     open={isMobileOpen}
                     onClose={() => setMobileOpen(false)}
                     afterOpenChange={(open) => { if (!open) toggleRef.current?.focus(); }}
-                    destroyOnClose
                     rootStyle={themeVariables}
                 >
-                    {isMobileOpen && <Products onSelect={() => setMobileOpen(false)}/>}
+                    <Products onSelect={() => setMobileOpen(false)}/>
                 </Drawer>
                 <div className="pw-main">
                     <CustomHeader>

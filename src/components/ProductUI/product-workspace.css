@@ -82,8 +82,8 @@
   outline-offset: 3px;
 }
 .pw-sidebar {
-  flex: 0 0 288px;
-  width: 288px;
+  flex: 0 0 clamp(340px, 27vw, 420px);
+  width: clamp(340px, 27vw, 420px);
   min-width: 0;
   background: var(--pw-surface);
   border-inline-end: 1px solid var(--pw-border);
@@ -262,8 +262,29 @@
   color: var(--pw-accent-strong);
   font-weight: 700;
 }
-/* Keep the original small single-line tree, not product cards. */
+/* Deep branches scroll independently instead of squeezing their labels. */
+.pw-product-tree-hint {
+  margin: 0 0 8px;
+  color: var(--pw-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.pw-product-tree-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--pw-control-border) transparent;
+}
+.pw-product-tree-scroll:focus-visible {
+  outline: 2px solid var(--pw-focus);
+  outline-offset: -2px;
+  border-radius: 4px;
+}
 .pw-product-tree.ant-tree {
+  width: max-content;
+  min-width: 100%;
   background: transparent;
   color: var(--pw-muted);
   font-size: 12px;
@@ -297,7 +318,7 @@
 }
 .pw-product-tree .ant-tree-title span {
   font-size: 12px;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
 }
 .pw-product-tree .MuiSvgIcon-root {
   width: 12px;
@@ -803,14 +824,6 @@
   }
 }
 @media (max-width: 1199px) {
-  .pw-sidebar {
-    flex-basis: 288px;
-    width: 288px;
-  }
-  .pw-sidebar--collapsed {
-    flex-basis: 0;
-    width: 0;
-  }
   .pw-content {
     padding-inline: 20px;
   }

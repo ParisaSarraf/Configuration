@@ -3,6 +3,22 @@ const asArray = (value) => Array.isArray(value) ? value : [];
 const normalizeText = (value) => String(value ?? "")
   .toLocaleLowerCase().replace(/ي/g, "ی").replace(/ك/g, "ک").trim();
 
+// Imported requirements belong to another product and must not be deleted here.
+export function canDeleteRequirement(requirement) {
+  return requirement?.id != null && requirement.imported !== true;
+}
+
+// An imported edition cannot be re-exported. A source edition must have
+// reached approval (20) or a later known stage before it can be exported.
+export function canExportRequirementEdition(requirement, edition) {
+  return edition?.id != null && requirement?.imported !== true
+    && [20, 30, 40, 50].includes(Number(edition?.state));
+}
+
+export function canAddRequirementEdition(requirement) {
+  return requirement?.id != null && requirement.imported !== true;
+}
+
 export function buildRequirementTree(data) {
   const visitCategory = (category, parentPath = "") => {
     const key = `${parentPath}/category-${category.id}`;
@@ -23,6 +39,9 @@ export function buildRequirementTree(data) {
           category,
           requirement,
           edition,
+          // "imported" is on the requirement, but assignments identify which edition reached this product.
+          isImported: requirement.imported === true && asArray(edition.assigned_to)
+            .some((assignment) => assignment?.is_current_product === true),
           children: [],
           isLeaf: true,
         })),
@@ -64,12 +83,27 @@ export function countRequirements(nodes) {
     + countRequirements(node.children), 0);
 }
 
-// State names are not specified by the API contract. Show raw codes, not guessed labels.
-// Add confirmed backend labels here later: 10: { label: "...", color: "..." }.
-export const REQUIREMENT_STATES = {};
+// Workflow labels supplied for product requirement editions and assignments.
+export const REQUIREMENT_STATES = {
+  10: { label: "تهیه", color: "#f5222d" },
+  20: { label: "تایید", color: "#fa8c16" },
+  30: { label: "اجرا", color: "#1677ff" },
+  40: { label: "تصویب", color: "#722ed1" },
+  50: { label: "صحه‌گذاری", color: "#52c41a" },
+};
 export function getRequirementState(state) {
   return REQUIREMENT_STATES[state] || {
     label: state == null ? "وضعیت نامشخص" : `وضعیت ${state}`,
     color: "default",
   };
+}
+
+// Assignment state codes are distinct from the source edition's five stages.
+export function getAssignmentState(state) {
+  const states = {
+    10: { label: "اجرا", color: "#1677ff" },
+    20: { label: "تصویب", color: "#722ed1" },
+    30: { label: "صحه‌گذاری", color: "#52c41a" },
+  };
+  return states[state] || { label: state == null ? "وضعیت نامشخص" : `وضعیت ${state}`, color: "default" };
 }
