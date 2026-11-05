@@ -1,4 +1,4 @@
-import { Button, Card } from "antd";
+import { Button, Card, message } from "antd";
 import useModal from "../../hooks/useModal";
 import { useProductContext } from "../../Services/Context/ProductContext";
 import DocumentProductModal from "./components/DocumentProductModal";
@@ -49,6 +49,8 @@ const ProductDocuments = () => {
               <Button
                 className="modal-button"
                 icon={<PlusOutlined />}
+                aria-label="افزودن سند"
+                disabled={!currentProduct?.id}
                 onClick={() =>
                   setModal({
                     mode: "add",

@@ -6,7 +6,7 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import Tree from "../../../components/Tree";
-import { Button, message, Modal, Space } from "antd";
+import { Alert, Button, Empty, message, Modal, Space, Spin } from "antd";
 import {
   useDeleteProductDocument,
   useDeleteProductDocumentEdition,
@@ -22,9 +22,12 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
 
   const {
     data: productDocument,
-    isLoading,
+    isFetching,
     isError,
-  } = useProductDocumentTreeById(selectedProductId);
+  } = useProductDocumentTreeById(selectedProductId, {
+    enabled: selectedProductId != null,
+    placeholderData: undefined,
+  });
 
   const { mutate: deleteProductDocument } = useDeleteProductDocument();
   const { mutate: deleteProductDocumentEdition } =
@@ -48,10 +51,6 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
       console.error("Failed to save expanded keys to localStorage", error);
     }
   };
-
-  useEffect(() => {
-    if (selectedProductId) refetch();
-  }, [selectedProductId, refetch]);
 
   const handleDeleteEdition = (editionId) => {
     Modal.confirm({
@@ -328,29 +327,42 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
 
   return (
     <>
-      {isLoading || isError ? (
-        <div className="flex justify-center items-center min-h-[160px]">
-          {isLoading ? (
-            <span className="text-slate-500">در حال بارگذاری...</span>
-          ) : (
-            <span className="text-red-500">خطا در بارگذاری داده‌ها</span>
-          )}
+      {!selectedProductId ? (
+        <Empty description="ابتدا یک محصول انتخاب کنید" />
+      ) : isFetching && productDocument == null ? (
+        <div role="status" className="flex justify-center items-center min-h-[160px]">
+          <Spin tip="در حال بارگذاری اسناد..." size="large">
+            <div style={{ minWidth: 180, minHeight: 80 }} />
+          </Spin>
         </div>
+      ) : isError && productDocument == null ? (
+        <Alert type="error" showIcon message="خطا در بارگذاری اسناد"
+          action={<Button onClick={() => refetch()}>تلاش دوباره</Button>} />
       ) : (
-        <Tree
-          className="custom-product-tree"
-          data={treeData}
-          isLoading={isLoading}
-          isError={isError}
-          showLine={true}
-          checkable={false}
-          showIcon={false}
-          blockNode
-          rightClickMenuItems={rightClickMenu}
-          onRightClickAction={handleRightClickAction}
-          expandedKeys={expandedKeys}
-          onExpand={handleExpand}
-        />
+        <>
+          {isFetching && productDocument != null && (
+            <div role="status" className="mb-2"><Spin size="small" /> در حال به‌روزرسانی...</div>
+          )}
+          {isError && productDocument != null && (
+            <Alert type="error" showIcon
+              message="به‌روزرسانی اسناد ناموفق بود؛ داده‌های قبلی نمایش داده می‌شوند"
+              action={<Button onClick={() => refetch()}>تلاش دوباره</Button>} />
+          )}
+          {!treeData.length ? <Empty description="سندی برای این محصول ثبت نشده است" /> : (
+            <Tree
+              className="custom-product-tree"
+              data={treeData}
+              showLine={true}
+              checkable={false}
+              showIcon={false}
+              blockNode
+              rightClickMenuItems={rightClickMenu}
+              onRightClickAction={handleRightClickAction}
+              expandedKeys={expandedKeys}
+              onExpand={handleExpand}
+            />
+          )}
+        </>
       )}
     </>
   );

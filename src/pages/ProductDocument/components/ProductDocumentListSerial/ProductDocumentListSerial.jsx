@@ -1,12 +1,15 @@
 import { useCallback, useMemo } from "react";
 import {
+  Alert,
   Button,
   Card,
+  Empty,
   Form,
   message,
   Modal,
   Select,
   Space,
+  Spin,
   Tooltip,
 } from "antd";
 import { useProductSerialById } from "@/QueryServises/productSerialQuery/index.js";
@@ -173,11 +176,17 @@ const ProductDocumentListSerial = ({
   setSerialLabel,
 }) => {
   const fileAccess = useDocumentFileAccess(currentProduct?.id);
-  const { data: ProductSerialList } = useProductSerialById(currentProduct?.id);
+  const { data: ProductSerialList, isFetching: isFetchingSerials,
+    isError: isSerialsError, refetch: refetchSerials } = useProductSerialById(currentProduct?.id, {
+      enabled: currentProduct?.id != null, placeholderData: undefined,
+    });
   const { mutateAsync: deleteProductEditionlog } = useDeleteProductEditionlog();
   const { mutateAsync: updateDocumentState } = usePatchDocumentEditionLog();
-  const { data: ProductDocumentData, refetch: refetchProductDocumentData } =
-    useProductDocumentEditionLogsBySerialById(serialId);
+  const { data: ProductDocumentData, refetch: refetchProductDocumentData,
+    isFetching: isFetchingDocuments, isError: isDocumentsError } =
+    useProductDocumentEditionLogsBySerialById(serialId, {
+      enabled: serialId != null, placeholderData: undefined,
+    });
 
   const serials = useMemo(
     () => ProductSerialList?.serials || [],
@@ -320,10 +329,17 @@ const ProductDocumentListSerial = ({
         <Select
           className="w-full"
           options={SerialListOption}
+          value={serialId ?? undefined}
+          loading={isFetchingSerials}
+          disabled={!currentProduct?.id || (isFetchingSerials && ProductSerialList == null)}
           onChange={handleSerialChange}
           placeholder="انتخاب سریال"
         />
       </Form.Item>
+      {isSerialsError && currentProduct?.id && (
+        <Alert type="error" showIcon className="mb-2" message="خطا در دریافت سریال‌ها"
+          action={<Button onClick={() => refetchSerials()}>تلاش دوباره</Button>} />
+      )}
       <Card
         className="shadow-sm border-gray-100 overflow-hidden"
         title={
@@ -339,27 +355,42 @@ const ProductDocumentListSerial = ({
           </div>
         }
       >
-        <TableAntd
-          className="rtl-table--fit"
-          scroll={{}}
-          tableLayout="fixed"
-          dataSource={tableData}
-          columns={ProductDocumentListSerialCol}
-          expandable={{
-            expandedRowRender,
-            rowExpandable: (record) =>
-              record.documents && record.documents.length > 0,
-          }}
-          locale={{
-            emptyText: (
-              <div className="py-10">
-                <p className="text-gray-400">
-                  لطفاً برای مشاهده اسناد، ابتدا یک سریال انتخاب کنید
-                </p>
-              </div>
-            ),
-          }}
-        />
+        {!serialId ? (
+          <Empty description="برای مشاهده اسناد، ابتدا یک سریال انتخاب کنید" />
+        ) : isFetchingDocuments && ProductDocumentData == null ? (
+          <div role="status" className="flex justify-center items-center min-h-[160px]">
+            <Spin tip="در حال بارگذاری اسناد..." size="large">
+              <div style={{ minWidth: 180, minHeight: 80 }} />
+            </Spin>
+          </div>
+        ) : isDocumentsError && ProductDocumentData == null ? (
+          <Alert type="error" showIcon message="خطا در بارگذاری اسناد سریال"
+            action={<Button onClick={() => refetchProductDocumentData()}>تلاش دوباره</Button>} />
+        ) : (
+          <>
+            {isFetchingDocuments && ProductDocumentData != null && (
+              <div role="status" className="mb-2"><Spin size="small" /> در حال به‌روزرسانی...</div>
+            )}
+            {isDocumentsError && ProductDocumentData != null && (
+              <Alert type="error" showIcon className="mb-2"
+                message="به‌روزرسانی اسناد ناموفق بود؛ داده‌های قبلی نمایش داده می‌شوند"
+                action={<Button onClick={() => refetchProductDocumentData()}>تلاش دوباره</Button>} />
+            )}
+            {tableData.length ? (
+              <TableAntd
+                className="rtl-table--fit"
+                scroll={{}}
+                tableLayout="fixed"
+                dataSource={tableData}
+                columns={ProductDocumentListSerialCol}
+                expandable={{
+                  expandedRowRender,
+                  rowExpandable: (record) => record.documents && record.documents.length > 0,
+                }}
+              />
+            ) : <Empty description="سندی برای این سریال ثبت نشده است" />}
+          </>
+        )}
       </Card>
     </>
   );
