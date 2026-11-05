@@ -65,7 +65,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/forget-password",
-    element: <ForgetPassword />,
+    element: <ProtectedRoute><ForgetPassword /></ProtectedRoute>,
     errorElement: <NotFound />,
   },
   {

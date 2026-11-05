@@ -2,18 +2,16 @@ import { Form, Input, Button, Typography, message, Checkbox, Alert, Popover, Con
 import { UserOutlined, LockOutlined, EyeOutlined, EyeInvisibleOutlined, WarningOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import { useContext, useState } from "react";
 import { MainContext } from "../../Services/Context/AuthContext";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { SignInFn } from "../../Services/authService";
 
 import KineticGrid from "../KineticGrid/KineticGrid";
+import BrandLogo from "./BrandLogo";
 import "./SignIn.css";
 import fa_IR from "antd/locale/fa_IR";
 import { signInTheme } from "./signInTheme";
 
 const { Title, Paragraph } = Typography;
-
-// Original Illustrator paths: inner components rotate once, then settle.
-const BrandLogo = ({ small = false }) => <span className={`signin-logo${small ? ' signin-logo--small' : ''}`} role="img" aria-label="نشان گروه مهندسی صادق یکتا"><picture><source media="(prefers-reduced-motion: reduce)" srcSet="/brand/sata.svg" /><img src="/brand/sata-motion.svg" alt="" /></picture></span>;
 
 export function SignIn() {
   const navigate = useNavigate();
@@ -110,7 +108,9 @@ export function SignIn() {
 
           <div className="signin-options">
             <Checkbox aria-describedby="signin-remember-help" title="این گزینه فعلاً فقط نمایشی است">مرا به خاطر بسپار</Checkbox>
-            <Link to="/forget-password" className="signin-link">فراموشی رمز</Link>
+            <Popover trigger="click" content={<span>برای بازیابی رمز عبور، با مدیر سامانه تماس بگیرید.</span>}>
+              <button type="button" className="signin-link">فراموشی رمز</button>
+            </Popover>
           </div>
           <span id="signin-remember-help" className="sr-only">این گزینه فعلاً نمایشی است و ماندگاری نشست را تغییر نمی‌دهد.</span>
           <Button className="signin-submit" aria-label={loading ? "در حال ورود…" : "ورود"} type="primary" htmlType="submit" block size="large" loading={loading} disabled={loading}>
