@@ -884,7 +884,7 @@ const ProductModal = ({
             </Col>
 
             {/* تعداد */}
-            <Col span={6}>
+            <Col span={8}>
               <Form.Item
                 label="تعداد"
                 name="quantity"
@@ -897,21 +897,21 @@ const ProductModal = ({
             </Col>
 
             {/* کد نهایی */}
-            <Col span={6}>
+            <Col span={8}>
               <Form.Item label="کد نهایی" name="final_code">
                 <Input value={finalCode} disabled />
               </Form.Item>
             </Col>
 
             {/* کد کارفرما */}
-            <Col span={6}>
+            <Col span={8}>
               <Form.Item label="کد کارفرما" name="employer_code">
                 <Input />
               </Form.Item>
             </Col>
 
             {/* وضعیت */}
-            <Col span={6}>
+            {/* <Col span={6}>
               <Form.Item label="وضعیت" name="status">
                 <Select
                   placeholder="وضعیت"
@@ -923,7 +923,7 @@ const ProductModal = ({
                   ]}
                 />
               </Form.Item>
-            </Col>
+            </Col> */}
           </>
 
           <Divider orientation="start">
