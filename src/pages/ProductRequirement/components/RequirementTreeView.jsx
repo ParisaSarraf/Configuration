@@ -10,12 +10,14 @@ import {
 } from "@ant-design/icons";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import Tree from "../../../components/Tree";
+import RequirementDescription from "./RequirementDescription";
 import { buildRequirementTree, canDeleteRequirement, canAddRequirementEdition, canExportRequirementEdition, getRequirementState, getSelectedEdition } from "../utils/requirementTree";
 import { canRunRequirementWorkflow } from "../utils/requirementWorkflow";
 
 export default function RequirementTreeView({
   data,
   productId,
+  focusEditionId,
   isLoading,
   isError,
   onRetry,
@@ -44,6 +46,24 @@ export default function RequirementTreeView({
     setExpansion({ scope: storageKey, keys });
   }, [storageKey]);
 
+  // When arriving from an acceptor, reveal the selected edition in its product tree.
+  useEffect(() => {
+    if (focusEditionId == null || !data) return;
+    const findParents = (nodes, parents = []) => {
+      for (const node of nodes) {
+        if (node.kind === "edition" && String(node.edition?.id) === String(focusEditionId)) return parents;
+        const found = findParents(node.children, [...parents, node.key]);
+        if (found) return found;
+      }
+      return null;
+    };
+    const parents = findParents(buildRequirementTree(data));
+    if (parents) setExpansion((previous) => ({
+      scope: storageKey,
+      keys: [...new Set([...(previous.scope === storageKey ? previous.keys : []), ...parents])],
+    }));
+  }, [data, focusEditionId, storageKey]);
+
   const handleExpand = (keys) => {
     setExpansion({ scope: storageKey, keys });
     try {
@@ -62,19 +82,20 @@ export default function RequirementTreeView({
             {node.kind === "edition" ? (
               <span className="w-full gap-2">
                 <bdi dir="ltr">{node.label}</bdi>{" "}
+                {focusEditionId != null && String(node.edition.id) === String(focusEditionId) && <Tag color="purple">نسخه انتخاب‌شده</Tag>}
                 {node.isImported && (
                   <Tag color="blue" icon={<ImportOutlined />} title="این نسخه به محصول جاری وارد شده است">
                     واردشده
                   </Tag>
-                )} -
+                )} {" "}
                 <FiberManualRecordIcon
                   fontSize="small"
                   style={{ color: getRequirementState(node.edition.state).color }}
                 />
-                {node.edition.description}
+                <RequirementDescription value={node.edition} />
               </span>
             ) : (
-              <span>{node.label}</span>
+              <span>{node.label}{node.kind === "requirement" && <RequirementDescription value={node.requirement} />}</span>
             )}
             {node.kind === "requirement" && (
               <Space>
@@ -149,7 +170,7 @@ export default function RequirementTreeView({
         children: transform(node.children),
       }));
     return transform(buildRequirementTree(data));
-  }, [data, onDelete, onAcknowledge, onEdition, onShowEdition, onWorkflow]);
+  }, [data, focusEditionId, onDelete, onAcknowledge, onEdition, onShowEdition, onWorkflow]);
 
   return isLoading ? (
     <div

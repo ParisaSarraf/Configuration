@@ -93,11 +93,7 @@ export const useCreatepProductRequirementExported = () => {
 	return useMutation({
 		mutationFn: (params) => {
 			return myAxios
-				.post(`/product/add-product-requirement-exported/`, params, {
-					headers: {
-						"Content-Type": "multipart/form-data",
-					},
-				})
+				.post(`/product/add-product-requirement-exported/`, params)
 				.then((response) => {
 					return response?.data;
 				});
@@ -108,11 +104,11 @@ export const useCreatepProductRequirementExported = () => {
 export const useUpdateProductRequirementExported = () => {
 	const { myAxios } = useMyAxios();
 	return useMutation({
-		mutationFn: ({ productRequirementExportedId, ...params }) => {
+		mutationFn: ({ productRequirementExportedId, formData }) => {
 			return myAxios
 				.put(
 					`/product/update-product-requirement-exported/${productRequirementExportedId}`,
-					params,
+					formData,
 					{
 						headers: {
 							"Content-Type": "multipart/form-data",

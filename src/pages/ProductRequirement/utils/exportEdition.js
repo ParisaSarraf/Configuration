@@ -26,15 +26,26 @@ export function replaceDestinationChildren(nodes, id, children) {
     : node.children ? { ...node, children: replaceDestinationChildren(node.children, id, children) } : node);
 }
 
-export function buildExportEditionFormData(editionId, values) {
-  if (editionId == null || editionId === "") throw new Error("نسخه الزام انتخاب نشده است");
-  if (values.to_product_id == null || values.to_product_id === "") throw new Error("محصول مقصد انتخاب نشده است");
-  const form = new FormData();
-  form.append("product_requirement_edition_id", String(editionId));
-  form.append("to_product_id", String(values.to_product_id));
-  form.append("state", "10");
-  if (values.pass_comment != null && values.pass_comment !== "") form.append("pass_comment", values.pass_comment);
-  const file = values.file_1?.[0]?.originFileObj;
-  if (file) form.append("file_1", file);
-  return form;
+// The API accepts one destination per request and a list of edition IDs.
+export function buildExportEditionPayload(editionId, destinationId, comment) {
+  if (editionId == null || String(editionId).trim() === "") throw new Error("نسخه الزام انتخاب نشده است");
+  const destination = Number(destinationId);
+  if (!Number.isSafeInteger(destination) || destination <= 0) throw new Error("محصول مقصد معتبر نیست");
+  const payload = {
+    product_requirement_edition_ids: [String(editionId)],
+    to_product_id: destination,
+    state: 10,
+  };
+  if (typeof comment === "string" && comment.trim()) payload.pass_comment = comment;
+  return payload;
+}
+
+// Never automatically resend successful or ambiguous operations.
+export function retryableDestinationIds(ids, results) {
+  return ids.filter((id) => !results[String(id)] || results[String(id)].status === "failed");
+}
+
+export function exportFailureStatus(error) {
+  const status = Number(error?.response?.status);
+  return status >= 400 && status < 500 && status !== 408 ? "failed" : "unknown";
 }

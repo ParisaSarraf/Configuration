@@ -76,7 +76,6 @@ const ProductDocuments = () => {
               <div className="flex flex-row gap-2">
                 <AddProductDocumentListSerialLogModal
                   serialId={serialId}
-                  currentProduct={currentProduct}
                   isOpen={isOpen && modalType === "AddLogEdition"}
                   modalMode={modalMode}
                   modalData={modalData}
@@ -145,7 +144,6 @@ const ProductDocuments = () => {
       />
 
       <EditionDetailViewModal
-        productId={currentProduct?.id}
         isOpen={modalType === "EditionDetailView" && isOpen}
         modalMode={modalMode}
         modalType={modalType}

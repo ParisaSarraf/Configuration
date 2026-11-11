@@ -22,12 +22,8 @@ import {
 import { DeleteOutlined, EyeFilled, CheckCircleOutlined } from "@ant-design/icons";
 import { BASEURL } from "@/Services/axiosInstance.js";
 import { TableAntd } from "../../../../components/TableAntd/TableAntd";
-import useDocumentFileAccess from "@/hooks/useDocumentFileAccess";
 
-const showAccessError = () =>
-  message.error("شما اجازه مشاهده این فایل را ندارید");
-
-const DocumentsTable = ({ documents, onDelete, onView, onConfirm, canViewEdition }) => {
+const DocumentsTable = ({ documents, onDelete, onView, onConfirm }) => {
   const documentData = useMemo(() => {
     const flatData = [];
 
@@ -97,18 +93,12 @@ const DocumentsTable = ({ documents, onDelete, onView, onConfirm, canViewEdition
         title: "فایل",
         dataIndex: ["logData", "file"],
         key: "log_file",
-        render: (fileUrl, record) =>
-          fileUrl && !canViewEdition(record.editionData?.id, record.editionData?.state) ? "شما اجازه مشاهده این فایل را ندارید" : fileUrl ? (
+        render: (fileUrl) =>
+          fileUrl ? (
             <a
               href={`${BASEURL.replace("/api/v1", "")}${fileUrl}`}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={(event) => {
-                if (!canViewEdition(record.editionData?.id, record.editionData?.state)) {
-                  event.preventDefault();
-                  showAccessError();
-                }
-              }}
             >
               مشاهده
             </a>
@@ -152,7 +142,7 @@ const DocumentsTable = ({ documents, onDelete, onView, onConfirm, canViewEdition
           ) : null,
       },
     ],
-    [onDelete, onView, onConfirm, canViewEdition],
+    [onDelete, onView, onConfirm],
   );
 
   return (
@@ -175,7 +165,6 @@ const ProductDocumentListSerial = ({
   setModal,
   setSerialLabel,
 }) => {
-  const fileAccess = useDocumentFileAccess(currentProduct?.id);
   const { data: ProductSerialList, isFetching: isFetchingSerials,
     isError: isSerialsError, refetch: refetchSerials } = useProductSerialById(currentProduct?.id, {
       enabled: currentProduct?.id != null, placeholderData: undefined,
@@ -296,7 +285,6 @@ const ProductDocumentListSerial = ({
     (productRecord) => (
       <DocumentsTable
         documents={productRecord.documents}
-        canViewEdition={fileAccess.canViewEdition}
         onDelete={handleDeleteLogEdition}
         onView={handleShowDetailEdiotnLog}
         onConfirm={handleConfirmDocument}
@@ -307,7 +295,6 @@ const ProductDocumentListSerial = ({
       handleDeleteLogEdition,
       handleShowDetailEdiotnLog,
       handleConfirmDocument,
-      fileAccess.canViewEdition,
     ],
   );
 

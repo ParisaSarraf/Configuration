@@ -20,6 +20,7 @@ const ENDPOINTS = Object.freeze({
   requestById: "/workflow/get-request-by-id/",
   requestsNeedUserAction: "/workflow/get-requests-need-user-action/",
   processRequests: "/workflow/get-process-requests-by-id/",
+  searchProcessRequests: "/workflow/search-in-process-requests/",
   addRequest: "/workflow/add-request/",
   doAction: "/workflow/do-action/",
 });
@@ -214,6 +215,13 @@ export const workflowApi = Object.freeze({
       .get(`${ENDPOINTS.processRequests}${id}`, { signal, params })
       .then((response) => response.data);
   },
+  searchProcessRequests: (client, id, term, signal) =>
+    client
+      .get(`${ENDPOINTS.searchProcessRequests}${id}`, {
+        signal,
+        params: { term },
+      })
+      .then((response) => response.data),
   createRequest: (client, payload, signal) =>
     createRequestAndResolveId(client, payload, signal),
   doAction: (client, payload, signal) =>

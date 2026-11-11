@@ -17,6 +17,8 @@ import AcknowledgmentOfRequirement from "./AcknowledgmentOfRequirement";
 import RequirementTreeView from "./RequirementTreeView";
 import RequirementWorkflowModal from "./RequirementWorkflowModal";
 import ImportedRequirementWorkflowModal from "./ImportedRequirementWorkflowModal";
+import ExportedAttachmentModal from "./ExportedAttachmentModal";
+import { findEditionInTree } from "../utils/requirementWorkflow";
 import { RequirementWorkflowHistory, useRequirementWorkflowHistory } from "./RequirementWorkflowHistory";
 import { IMPORTED_WORKFLOW_STEPS } from "../utils/importedRequirementWorkflow";
 import { canDeleteRequirement, canAddRequirementEdition, canExportRequirementEdition, getRequirementState, getAssignmentState } from "../utils/requirementTree";
@@ -55,6 +57,7 @@ function ExportedWorkflowHistoryModal({ assignment, onClose }) {
 export default function ProductRequirementTree({
   currentProduct,
   setSelectedEdition,
+  focusEditionId,
 }) {
   const { isOpen, modalMode, modalData, modalType, setModal, closeModal } =
     useModal();
@@ -64,6 +67,7 @@ export default function ProductRequirementTree({
   const { mutateAsync: deleteRequirement } = useDeleteProductRequirement();
   const [detail, setDetail] = useState(null);
   const [historyAssignment, setHistoryAssignment] = useState(null);
+  const [fileAssignment, setFileAssignment] = useState(null);
   const addRequirement = (category = null) =>
     setModal({
       mode: "add",
@@ -132,6 +136,7 @@ export default function ProductRequirementTree({
         <RequirementTreeView
           data={data}
           productId={currentProduct.id}
+          focusEditionId={focusEditionId}
           isLoading={isFetching && data == null}
           isError={isError && data == null}
           onRetry={refetch}
@@ -238,7 +243,10 @@ export default function ProductRequirementTree({
           return (
             <Card key={`${assignment?.id ?? "assignment"}-${index}`} size="small"
               title={`تخصیص ${index + 1}`} className="mb-3"
-              extra={assignment?.id != null && <Button size="small" onClick={() => setHistoryAssignment(assignment)}>روال تخصیص</Button>}>
+              extra={assignment?.id != null && <div className="flex flex-wrap gap-2">
+                <Button size="small" onClick={() => setFileAssignment(assignment)}>ویرایش فایل</Button>
+                <Button size="small" onClick={() => setHistoryAssignment(assignment)}>روال تخصیص</Button>
+              </div>}>
               <Descriptions bordered column={1} size="small" style={{ overflowWrap: "anywhere" }}>
                 <Descriptions.Item label="شناسه تخصیص">{showValue(assignment?.id)}</Descriptions.Item>
                 <Descriptions.Item label="شناسه محصول مقصد">{showValue(assignment?.to_product_id)}</Descriptions.Item>
@@ -259,6 +267,12 @@ export default function ProductRequirementTree({
           );
         }) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="هنوز تخصیص داده نشده است" />}
       </Modal>
+      {fileAssignment && <ExportedAttachmentModal assignment={fileAssignment} editionId={edition?.id}
+        refetch={refetch} onClose={() => setFileAssignment(null)} onSaved={(data) => {
+          const fresh = findEditionInTree(data, detail?.requirement?.id, edition?.id);
+          if (fresh) setDetail((previous) => previous && ({ ...previous, ...fresh }));
+          else setDetail(null);
+        }} />}
       {historyAssignment && <ExportedWorkflowHistoryModal assignment={historyAssignment} onClose={() => setHistoryAssignment(null)} />}
     </Card>
   );

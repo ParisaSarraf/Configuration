@@ -201,6 +201,18 @@ export const useProcessRequests = (
   });
 };
 
+export const useSearchProcessRequests = (processId, term, queryOptions = {}) => {
+  const { myAxios } = useMyAxios();
+  return useQuery({
+    // Share the process-requests prefix so mutations invalidate search results too.
+    queryKey: ["workflow", "process-requests", processId, "search", term],
+    queryFn: ({ signal }) =>
+      workflowApi.searchProcessRequests(myAxios, processId, term, signal),
+    enabled: Boolean(processId && term),
+    ...queryOptions,
+  });
+};
+
 export const useDeleteRequest = () => {
   const { myAxios } = useMyAxios();
   const queryClient = useQueryClient();

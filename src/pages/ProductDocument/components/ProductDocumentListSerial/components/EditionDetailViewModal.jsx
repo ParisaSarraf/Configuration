@@ -1,4 +1,3 @@
-import useDocumentFileAccess from "@/hooks/useDocumentFileAccess";
 import Modal from "../../../../../components/Modal";
 import { renderFileButton } from "@/components/DetailModal/DetailModal.jsx";
 import { georgianDateToJalaliDate } from "@utils/timeTool.jsx";
@@ -25,9 +24,7 @@ const EditionDetailViewModal = ({
   modalMode,
   modalData,
   closeModal,
-  productId,
 }) => {
-  const fileAccess = useDocumentFileAccess(productId, isOpen);
   const editionData = modalData?.logRecord;
   const specificLog = modalData?.logRecord?.logData;
 
@@ -67,7 +64,7 @@ const EditionDetailViewModal = ({
         <div className={"p-4 border rounded-xl border-blue-200 border-dashed"}>
           <SectionTitle title="فایل‌ها" />
           <InfoRow label="فایل لاگ">
-            {renderFileButton("فایل بررسی", specificLog?.file, true, editionData?.editionData?.state, undefined, fileAccess.canViewEdition(editionData?.editionData?.id, editionData?.editionData?.state))}
+            {renderFileButton("فایل بررسی", specificLog?.file)}
           </InfoRow>
           {/* <InfoRow label="فایل ۱">
                         {renderFileButton("فایل ۱", editionData?.file_1, true)}

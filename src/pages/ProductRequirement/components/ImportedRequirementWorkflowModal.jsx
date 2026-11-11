@@ -12,6 +12,8 @@ import {
 } from "../utils/importedRequirementWorkflow";
 import "./requirement-workflow.css";
 import { RequirementWorkflowHistory, useRequirementWorkflowHistory } from "./RequirementWorkflowHistory";
+import ExportedAttachmentModal from "./ExportedAttachmentModal";
+import { findEditionInTree } from "../utils/requirementWorkflow";
 
 export default function ImportedRequirementWorkflowModal({ isOpen, node, closeModal, refetch }) {
   const { getThemeForModule } = useProductTheme();
@@ -25,6 +27,7 @@ export default function ImportedRequirementWorkflowModal({ isOpen, node, closeMo
   });
   const [comment, setComment] = useState("");
   const [busy, setBusy] = useState(false);
+  const [fileAssignment, setFileAssignment] = useState(null);
   const submitLock = useRef(false);
   const queryClient = useQueryClient();
   const { mutateAsync: changeState } = useChangeExportedRequirementEditionState();
@@ -91,6 +94,8 @@ export default function ImportedRequirementWorkflowModal({ isOpen, node, closeMo
                   value: item.id,
                   label: `تخصیص ${item.id} — محصول ${item.to_product_id ?? "نامشخص"} — ${getAssignmentState(item.state).label}`,
                 }))} />
+              {assignment && <div className="mt-3"><Button disabled={busy}
+                onClick={() => setFileAssignment(assignment)}>افزودن یا ویرایش فایل تخصیص</Button></div>}
             </>
           )}
         </section>
@@ -121,6 +126,12 @@ export default function ImportedRequirementWorkflowModal({ isOpen, node, closeMo
           </div>
         </footer>
       </div>
+      {fileAssignment && <ExportedAttachmentModal assignment={fileAssignment} editionId={edition?.id}
+        refetch={refetch} onClose={() => setFileAssignment(null)} onSaved={(data) => {
+          const fresh = findEditionInTree(data, requirement?.id, edition?.id);
+          if (fresh) setAssignments(getCurrentProductAssignments(fresh.edition));
+          else closeModal();
+        }} />}
     </Modal>
   );
 }

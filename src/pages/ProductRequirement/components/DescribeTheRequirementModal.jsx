@@ -197,7 +197,7 @@ const DescribeTheRequirementModal = ({
             </Form.Item>
           </Col>
         </Row>
-        <Form.Item label="دلیل" name="reason">
+        <Form.Item label="شرح کامل" name="reason">
           <Input.TextArea rows={2} />
         </Form.Item>
         <Form.Item label="توضیحات" name="description">

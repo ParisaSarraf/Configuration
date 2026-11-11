@@ -9,6 +9,7 @@ import {
   App,
   Button,
   Empty,
+  Input,
   Popconfirm,
   Select,
   Skeleton,
@@ -21,6 +22,7 @@ import {
   EditOutlined,
   FilterOutlined,
   PaperClipOutlined,
+  SearchOutlined,
   SendOutlined,
   StopOutlined,
   UserOutlined,
@@ -45,6 +47,7 @@ import {
   useLockedFieldsByProcessId,
   useProcessInfo,
   useProcessRequests,
+  useSearchProcessRequests,
   useRequestPathById,
   useDeleteRequest,
 } from "@/QueryServises/workflowQuery";
@@ -586,6 +589,8 @@ const ProcessRequestsModal = ({ open, process, onClose }) => {
   const processId = process?.id ?? null;
   const [stateType, setStateType] = useState("");
   const [stateId, setStateId] = useState(null);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [workRecord, setWorkRecord] = useState(null);
   const deleteRequestMutation = useDeleteRequest();
   const currentUser = useMemo(() => getUserFromToken(), []);
@@ -596,26 +601,49 @@ const ProcessRequestsModal = ({ open, process, onClose }) => {
     if (!open) return;
     setStateType("");
     setStateId(null);
+    setSearch("");
+    setDebouncedSearch("");
     setWorkRecord(null);
   }, [open, processId]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search.trim()), 350);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const processInfoQuery = useProcessInfo(processId, {
     enabled: Boolean(open && processId),
     staleTime: 60 * 1000,
   });
   const filters = useMemo(() => ({ stateId, stateType }), [stateId, stateType]);
-  const query = useProcessRequests(processId, filters, {
-    enabled: Boolean(open && processId),
-    keepPreviousData: true,
+  const term = search.trim();
+  const isSearching = Boolean(term);
+  const isDebouncing = isSearching && term !== debouncedSearch;
+  const requestsQuery = useProcessRequests(processId, filters, {
+    enabled: Boolean(open && processId && !isSearching),
   });
+  const searchQuery = useSearchProcessRequests(processId, debouncedSearch, {
+    enabled: Boolean(open && processId && isSearching && !isDebouncing),
+  });
+  const query = isSearching ? searchQuery : requestsQuery;
 
   const processInfo = pickProcessInfo(processInfoQuery.data);
   const states = asArray(processInfo?.process_states);
   const responseData = useMemo(() => unwrapPayload(query.data), [query.data]);
-  const rows = useMemo(
-    () => requestRowsFromResponse(responseData, process),
-    [responseData, process],
-  );
+  const rows = useMemo(() => {
+    const result = requestRowsFromResponse(responseData, process);
+    if (!isSearching) return result;
+    // The search endpoint only accepts term; retain the stage filters locally.
+    const aliases = {
+      complete: ["complete", "completed", "done"],
+      cancelled: ["cancelled", "canceled", "cancel"],
+      denied: ["denied", "rejected", "reject"],
+    };
+    return result.filter((row) =>
+      (!stateId || String(row.currentStateId) === String(stateId)) &&
+      (!stateType || (aliases[stateType] || [stateType]).includes(row.stateType)),
+    );
+  }, [responseData, process, isSearching, stateId, stateType]);
 
   const handleDeleteRequest = async (record) => {
     const requestId = Number(record?.requestId);
@@ -638,7 +666,7 @@ const ProcessRequestsModal = ({ open, process, onClose }) => {
         درخواست‌های جاری «{process?.name || "فرایند"}»
       </div>
       <div className="mt-1 text-xs font-normal text-slate-400">
-        {rows.length.toLocaleString("fa-IR")} مورد مطابق فیلتر
+        {isDebouncing || query.isLoading ? "در حال جست‌وجو..." : `${rows.length.toLocaleString("fa-IR")} مورد مطابق فیلتر`}
       </div>
     </div>
   );
@@ -731,6 +759,19 @@ const ProcessRequestsModal = ({ open, process, onClose }) => {
         destroyOnClose
         footer={null}
       >
+        <div className="mb-4">
+          <label htmlFor="process-request-search" className="mb-1 block text-xs text-slate-500">
+            جست‌وجو در مقادیر فرم درخواست‌ها
+          </label>
+          <Input
+            id="process-request-search"
+            allowClear
+            prefix={<SearchOutlined className="text-slate-400" />}
+            placeholder="متن موردنظر را در فرم‌ها جست‌وجو کنید"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+        </div>
         <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-end dark:border-slate-700 dark:bg-slate-900">
           <div className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-200">
             <FilterOutlined className="text-blue-500" />
@@ -782,7 +823,7 @@ const ProcessRequestsModal = ({ open, process, onClose }) => {
           )}
         </div>
 
-        {query.isLoading ? (
+        {isDebouncing || query.isLoading ? (
           <Skeleton active paragraph={{ rows: 8 }} />
         ) : query.isError ? (
           <Alert
@@ -790,7 +831,7 @@ const ProcessRequestsModal = ({ open, process, onClose }) => {
             showIcon
             message={getApiErrorMessage(
               query.error,
-              "دریافت درخواست‌های فرایند انجام نشد.",
+              isSearching ? "جست‌وجوی درخواست‌ها انجام نشد." : "دریافت درخواست‌های فرایند انجام نشد.",
             )}
             action={
               <Button size="small" onClick={() => query.refetch()}>
@@ -803,7 +844,7 @@ const ProcessRequestsModal = ({ open, process, onClose }) => {
         ) : (
           <Empty
             className="py-14"
-            description="درخواستی مطابق فیلتر انتخاب‌شده وجود ندارد."
+            description={isSearching ? "درخواستی مطابق متن جست‌وجو و فیلترهای انتخاب‌شده پیدا نشد." : "درخواستی مطابق فیلتر انتخاب‌شده وجود ندارد."}
           />
         )}
       </Modal>

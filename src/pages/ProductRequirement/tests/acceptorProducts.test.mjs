@@ -19,3 +19,23 @@ test("handles empty, duplicate, and invalid responses safely", () => {
   assert.notEqual(rows[0].key, rows[1].key);
   assert.equal(rows[0].title, "محصول بدون عنوان");
 });
+
+test("maps the nested acceptor response without confusing product and requirement IDs", () => {
+  const requirementTree = [{ id: 9, title: "سایر", product_requirements: [
+    { id: 28, product_id: 10139, title: "الزام واردشده", imported: true,
+      editions: [{ id: 14, state: 30, assigned_to: [{ id: 20, to_product_id: 10843, is_current_product: true, state: 10 }] }] },
+    { id: 30, product_id: 10843, title: "الزام محصول", imported: false, editions: [] },
+  ], children: [] }];
+  const [item] = mapAcceptorProducts([{ product: { id: 10843, persian_title: "برد نمایشگر" }, requirement_tree: requirementTree }]);
+  assert.equal(item.id, 10843);
+  assert.equal(item.product.id, 10843);
+  assert.equal(item.title, "برد نمایشگر");
+  assert.strictEqual(item.requirementTree, requirementTree);
+  assert.equal(item.requirementTree[0].product_requirements[0].editions[0].assigned_to[0].state, 10);
+});
+
+test("rejects malformed nested results rather than presenting them as an empty list", () => {
+  assert.equal(mapAcceptorProducts([{ product: null, requirement_tree: [] }]), null);
+  assert.equal(mapAcceptorProducts([{ product: { id: 10843 }, requirement_tree: null }]), null);
+  assert.equal(mapAcceptorProducts([{ product: { id: 10843 } }]), null);
+});
