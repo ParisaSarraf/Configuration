@@ -11,7 +11,11 @@ import {
   SwapOutlined,
 } from "@ant-design/icons";
 import { useMyAxios } from "@/hooks/useMyAxios";
-import { useChangeProductStatus, useDeleteProduct, useProductByIdKey } from "../../../QueryServises/productQuery";
+import {
+  useChangeProductStatus,
+  useDeleteProduct,
+  useProductByIdKey,
+} from "../../../QueryServises/productQuery";
 import { useProductContext } from "../../../Services/Context/ProductContext";
 import { useExportExcelProductChildrenBomMutation } from "@/QueryServises/ExcelExporterQuery/index.js";
 import { handleDownload } from "@utils/HandleDownload.js";
@@ -20,7 +24,10 @@ import { useCreateZipReport } from "../../../QueryServises/productDocumentQuery"
 import { useLazyProductTree } from "../../../hooks/useLazyProductTree";
 import { mapProductToTreeNode } from "../../../utils/mapProductToTreeNode";
 import ZipProgressModal from "../../../components/ZipProgressModal/ZipProgressModal";
-import { isAuthorizationError, showAuthorizationError } from "@/utils/exportAccessError";
+import {
+  isAuthorizationError,
+  showAuthorizationError,
+} from "@/utils/exportAccessError";
 
 const LOCAL_STORAGE_KEY = "productTreeExpandedKeys";
 
@@ -29,7 +36,15 @@ const readExpandedKeys = () => {
   try {
     const value = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]");
     return Array.isArray(value)
-      ? [...new Set(value.filter((key) => typeof key === "string" || typeof key === "number").map(String))]
+      ? [
+          ...new Set(
+            value
+              .filter(
+                (key) => typeof key === "string" || typeof key === "number",
+              )
+              .map(String),
+          ),
+        ]
       : [];
   } catch {
     return [];
@@ -48,7 +63,8 @@ const ProductTree = ({
   const { myAxios } = useMyAxios();
   const queryClient = useQueryClient();
   const { updateProductStatus } = useProductContext();
-  const { mutateAsync: changeProductStatus, isPending: isChangingStatus } = useChangeProductStatus();
+  const { mutateAsync: changeProductStatus, isPending: isChangingStatus } =
+    useChangeProductStatus();
   const [statusTarget, setStatusTarget] = useState(null);
   const [nextStatus, setNextStatus] = useState(undefined);
   const { mutate: deleteProduct, isLoading: isDeleting } = useDeleteProduct();
@@ -91,11 +107,13 @@ const ProductTree = ({
   // Keep matching descendants and their ancestry without changing lazy-loaded data.
   const visibleTreeData = useMemo(() => {
     if (statusFilter === "all") return treeData;
-    const filterNodes = (nodes = []) => nodes.flatMap((node) => {
-      const children = filterNodes(node.children);
-      return node.productData?.status === statusFilter || children.length
-        ? [{...node, children: children.length ? children : undefined}] : [];
-    });
+    const filterNodes = (nodes = []) =>
+      nodes.flatMap((node) => {
+        const children = filterNodes(node.children);
+        return node.productData?.status === statusFilter || children.length
+          ? [{ ...node, children: children.length ? children : undefined }]
+          : [];
+      });
     return filterNodes(treeData);
   }, [treeData, statusFilter]);
 
@@ -127,14 +145,23 @@ const ProductTree = ({
     const visit = (nodes) => {
       nodes.forEach((node) => {
         if (!node) return;
-        if (expanded.has(node.key) && !node.isLeaf && !Array.isArray(node.children)
-            && !pending.has(node.key) && !failed.has(node.key)) {
+        if (
+          expanded.has(node.key) &&
+          !node.isLeaf &&
+          !Array.isArray(node.children) &&
+          !pending.has(node.key) &&
+          !failed.has(node.key)
+        ) {
           pending.add(node.key);
-          loadChildren(node).catch((error) => {
-            failed.add(node.key);
-            console.warn("Failed to restore product branch", error);
-            message.warning("بازیابی یکی از شاخه‌ها ناموفق بود؛ شاخه را دوباره باز کنید.");
-          }).finally(() => pending.delete(node.key));
+          loadChildren(node)
+            .catch((error) => {
+              failed.add(node.key);
+              console.warn("Failed to restore product branch", error);
+              message.warning(
+                "بازیابی یکی از شاخه‌ها ناموفق بود؛ شاخه را دوباره باز کنید.",
+              );
+            })
+            .finally(() => pending.delete(node.key));
         }
         if (Array.isArray(node.children)) visit(node.children);
       });
@@ -166,7 +193,9 @@ const ProductTree = ({
         targetNode,
       } = await expandToPath(idPath);
 
-      updateExpandedKeys(Array.from(new Set([...expandedKeysRef.current, ...pathKeys])));
+      updateExpandedKeys(
+        Array.from(new Set([...expandedKeysRef.current, ...pathKeys])),
+      );
 
       if (targetNode?.productData) {
         onProductClick(targetNode.productData);
@@ -180,7 +209,11 @@ const ProductTree = ({
 
   const handleExcelExport = async (productId) => {
     if (productId == null || isExporting) return;
-    message.loading({ content: "درحال آماده‌سازی...", key: "exporting", duration: 0 });
+    message.loading({
+      content: "درحال آماده‌سازی...",
+      key: "exporting",
+      duration: 0,
+    });
     try {
       const result = await exportExcel(productId);
       handleDownload(result.url, result.fileName);
@@ -210,13 +243,22 @@ const ProductTree = ({
           const matches = String(product.id) === String(id);
           if (!matches && children === product.children) return product;
           changed = true;
-          return { ...product, ...(matches ? { status: nextStatus } : {}),
-            ...(children !== product.children ? { children } : {}) };
+          return {
+            ...product,
+            ...(matches ? { status: nextStatus } : {}),
+            ...(children !== product.children ? { children } : {}),
+          };
         });
         return changed ? updated : products;
       };
-      queryClient.setQueriesData({ queryKey: ["child", "product"] }, updateProducts);
-      queryClient.setQueriesData({ queryKey: ["root", "product"] }, updateProducts);
+      queryClient.setQueriesData(
+        { queryKey: ["child", "product"] },
+        updateProducts,
+      );
+      queryClient.setQueriesData(
+        { queryKey: ["root", "product"] },
+        updateProducts,
+      );
       queryClient.setQueryData(useProductByIdKey(id), (product) =>
         product ? { ...product, status: nextStatus } : product,
       );
@@ -228,8 +270,11 @@ const ProductTree = ({
       if (isAuthorizationError(error)) {
         showAuthorizationError(error, "تغییر وضعیت محصول");
       } else {
-        const detail = error.response?.data?.detail || error.response?.data?.message;
-        message.error(typeof detail === "string" ? detail : "خطا در تغییر وضعیت محصول");
+        const detail =
+          error.response?.data?.detail || error.response?.data?.message;
+        message.error(
+          typeof detail === "string" ? detail : "خطا در تغییر وضعیت محصول",
+        );
       }
     }
   };
@@ -355,22 +400,54 @@ const ProductTree = ({
   return (
     <>
       <div className="pw-product-search">
-        <Input.Search ref={searchRef} allowClear loading={searchLoading}
-          aria-label="جستجوی کد کامل محصول" placeholder="جستجوی کد کامل محصول..."
-          onSearch={handleSearch} enterButton={<SearchOutlined/>}/>
+        <Input.Search
+          ref={searchRef}
+          allowClear
+          loading={searchLoading}
+          aria-label="جستجوی کد کامل محصول"
+          placeholder="جستجوی کد کامل محصول..."
+          onSearch={handleSearch}
+          enterButton={<SearchOutlined />}
+        />
         <kbd>Ctrl K</kbd>
       </div>
-      <div className="pw-product-filters" role="group" aria-label="فیلتر وضعیت محصولات">
-        {[{key: "all", label: "همه"}, {key: "active", label: "فعال"}, {key: "inactive", label: "غیرفعال"}].map((filter) => (
-          <button key={filter.key} type="button" aria-pressed={statusFilter === filter.key}
+      <div
+        className="pw-product-filters"
+        role="group"
+        aria-label="فیلتر وضعیت محصولات"
+      >
+        {[
+          { key: "all", label: "همه" },
+          { key: "active", label: "فعال" },
+          { key: "inactive", label: "غیرفعال" },
+        ].map((filter) => (
+          <button
+            key={filter.key}
+            type="button"
+            aria-pressed={statusFilter === filter.key}
             className={statusFilter === filter.key ? "is-active" : ""}
-            onClick={() => setStatusFilter(filter.key)}>{filter.label}</button>
+            onClick={() => setStatusFilter(filter.key)}
+          >
+            {filter.label}
+          </button>
         ))}
       </div>
-      {!visibleTreeData.length && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="محصولی یافت نشد"/>}
+      {!visibleTreeData.length && (
+        <Empty
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description="محصولی یافت نشد"
+        />
+      )}
 
-      <p className="pw-product-tree-hint">برای دیدن شاخه‌های عمیق، درخت را افقی پیمایش کنید.</p>
-      <div className="pw-product-tree-scroll" role="region" aria-label="درخت محصولات؛ برای مشاهده شاخه‌های عمیق به صورت افقی پیمایش کنید" tabIndex={0}>
+      <p className="pw-product-tree-hint">
+        برای دیدن شاخه‌های عمیق، درخت را افقی پیمایش کنید.
+      </p>
+      <div
+        className="pw-product-tree-scroll"
+        role="region"
+        aria-label="درخت محصولات؛ برای مشاهده شاخه‌های عمیق به صورت افقی پیمایش کنید"
+        tabIndex={0}
+      >
         <ProductTreeEtc
           className="pw-product-tree"
           data={visibleTreeData}
@@ -402,10 +479,15 @@ const ProductTree = ({
         maskClosable={!isChangingStatus}
         keyboard={!isChangingStatus}
         cancelButtonProps={{ disabled: isChangingStatus }}
-        okButtonProps={{ disabled: !nextStatus || nextStatus === statusTarget?.status }}
+        okButtonProps={{
+          disabled: !nextStatus || nextStatus === statusTarget?.status,
+        }}
         destroyOnClose
       >
-        <p>وضعیت «{statusTarget?.persian_title || statusTarget?.code}» را انتخاب کنید.</p>
+        <p>
+          وضعیت «{statusTarget?.persian_title || statusTarget?.code}» را انتخاب
+          کنید.
+        </p>
         <Select
           aria-label="وضعیت محصول"
           style={{ width: "100%" }}
