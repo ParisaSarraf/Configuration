@@ -17,6 +17,8 @@ import AcknowledgmentOfRequirement from "./AcknowledgmentOfRequirement";
 import RequirementTreeView from "./RequirementTreeView";
 import RequirementWorkflowModal from "./RequirementWorkflowModal";
 import ImportedRequirementWorkflowModal from "./ImportedRequirementWorkflowModal";
+import { RequirementWorkflowHistory, useRequirementWorkflowHistory } from "./RequirementWorkflowHistory";
+import { IMPORTED_WORKFLOW_STEPS } from "../utils/importedRequirementWorkflow";
 import { canDeleteRequirement, canAddRequirementEdition, canExportRequirementEdition, getRequirementState, getAssignmentState } from "../utils/requirementTree";
 import { BASEURL } from "../../../Services/axiosInstance";
 import {
@@ -40,6 +42,16 @@ const getAttachmentUrl = (file) => {
   }
 };
 
+function ExportedWorkflowHistoryModal({ assignment, onClose }) {
+  const history = useRequirementWorkflowHistory(assignment.id, "product_requirement_edition_exported", IMPORTED_WORKFLOW_STEPS);
+  return <Modal open title="روال الزام صادرشده" footer={null} width={880} onCancel={onClose} destroyOnClose>
+    <div dir="rtl">
+      <p>تخصیص {assignment.id} — محصول مقصد {showValue(assignment.to_product_id)}</p>
+      <RequirementWorkflowHistory history={history} steps={IMPORTED_WORKFLOW_STEPS} currentState={assignment.state} />
+    </div>
+  </Modal>;
+}
+
 export default function ProductRequirementTree({
   currentProduct,
   setSelectedEdition,
@@ -51,6 +63,7 @@ export default function ProductRequirementTree({
   );
   const { mutateAsync: deleteRequirement } = useDeleteProductRequirement();
   const [detail, setDetail] = useState(null);
+  const [historyAssignment, setHistoryAssignment] = useState(null);
   const addRequirement = (category = null) =>
     setModal({
       mode: "add",
@@ -224,7 +237,8 @@ export default function ProductRequirementTree({
           const attachmentUrl = getAttachmentUrl(assignment?.file_1);
           return (
             <Card key={`${assignment?.id ?? "assignment"}-${index}`} size="small"
-              title={`تخصیص ${index + 1}`} className="mb-3">
+              title={`تخصیص ${index + 1}`} className="mb-3"
+              extra={assignment?.id != null && <Button size="small" onClick={() => setHistoryAssignment(assignment)}>روال تخصیص</Button>}>
               <Descriptions bordered column={1} size="small" style={{ overflowWrap: "anywhere" }}>
                 <Descriptions.Item label="شناسه تخصیص">{showValue(assignment?.id)}</Descriptions.Item>
                 <Descriptions.Item label="شناسه محصول مقصد">{showValue(assignment?.to_product_id)}</Descriptions.Item>
@@ -245,6 +259,7 @@ export default function ProductRequirementTree({
           );
         }) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="هنوز تخصیص داده نشده است" />}
       </Modal>
+      {historyAssignment && <ExportedWorkflowHistoryModal assignment={historyAssignment} onClose={() => setHistoryAssignment(null)} />}
     </Card>
   );
 }

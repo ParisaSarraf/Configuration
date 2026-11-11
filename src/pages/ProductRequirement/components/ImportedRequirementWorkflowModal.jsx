@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { Alert, Button, Input, message, Modal, Select } from "antd";
-import { ArrowLeftOutlined, ArrowRightOutlined, CheckOutlined, FileDoneOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, ArrowRightOutlined, FileDoneOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { useProductTheme } from "../../../components/Theme/ProductThemeContext";
 import { getProductThemeVariables } from "../../../components/Theme/productThemes";
@@ -11,6 +11,7 @@ import {
   getImportedTransitionTarget, getImportedWorkflowIndex,
 } from "../utils/importedRequirementWorkflow";
 import "./requirement-workflow.css";
+import { RequirementWorkflowHistory, useRequirementWorkflowHistory } from "./RequirementWorkflowHistory";
 
 export default function ImportedRequirementWorkflowModal({ isOpen, node, closeModal, refetch }) {
   const { getThemeForModule } = useProductTheme();
@@ -28,6 +29,7 @@ export default function ImportedRequirementWorkflowModal({ isOpen, node, closeMo
   const queryClient = useQueryClient();
   const { mutateAsync: changeState } = useChangeExportedRequirementEditionState();
   const assignment = assignments.find((item) => String(item.id) === String(selectedId));
+  const history = useRequirementWorkflowHistory(assignment?.id, "product_requirement_edition_exported", IMPORTED_WORKFLOW_STEPS);
   const state = assignment?.state;
   const index = getImportedWorkflowIndex(state);
   const unknown = assignment && index < 0;
@@ -48,6 +50,7 @@ export default function ImportedRequirementWorkflowModal({ isOpen, node, closeMo
       setAssignments((items) => items.map((item) => String(item.id) === String(payload.id) ? { ...item, state: payload.state } : item));
       setComment("");
       message.success("مرحله تخصیص با موفقیت تغییر کرد");
+      history.refetch();
       try {
         const result = await refetch();
         await queryClient.invalidateQueries({ queryKey: ["product-requirement-acceptor", edition?.id] });
@@ -96,16 +99,8 @@ export default function ImportedRequirementWorkflowModal({ isOpen, node, closeMo
             <p>جایگاه تخصیص انتخاب‌شده در مسیر سه‌مرحله‌ای</p></div>
             {index >= 0 && <span className="rw-counter">مرحله {index + 1} از ۳</span>}</div>
           {unknown && <Alert type="warning" showIcon message={`وضعیت تخصیص (${state ?? "نامشخص"}) خارج از مراحل شناخته‌شده است؛ تغییر مرحله امکان‌پذیر نیست.`} />}
-          <ol className="rw-stages rw-stages--three" aria-label="مراحل سه‌گانه الزام واردشده">
-            {IMPORTED_WORKFLOW_STEPS.map((step, stepIndex) => {
-              const isCurrent = index === stepIndex;
-              const isPast = index >= 0 && stepIndex < index;
-              return <li key={step.value} className={`rw-stage${isCurrent ? " is-current" : ""}${isPast ? " is-past" : ""}`} aria-current={isCurrent ? "step" : undefined}>
-                <span className="rw-stage-marker" aria-hidden="true">{isPast ? <CheckOutlined /> : stepIndex + 1}</span>
-                <span className="rw-stage-copy"><strong>{step.label}</strong><small>{isCurrent ? "مرحله فعلی" : isPast ? "مرحله پیشین" : (index >= 0 && stepIndex === index + 1) ? "مرحله بعدی" : "در انتظار"}</small></span>
-              </li>;
-            })}
-          </ol>
+          {assignment && <RequirementWorkflowHistory history={history} steps={IMPORTED_WORKFLOW_STEPS} currentState={state} />}
+
         </section>
         <section className="rw-section rw-comment-section" aria-labelledby="imported-workflow-comment">
           <div className="rw-section-head"><div><h3 id="imported-workflow-comment">توضیح تغییر مرحله <span className="rw-required">الزامی</span></h3>

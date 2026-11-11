@@ -22,7 +22,7 @@ const ForgetPassword = () => {
     if (isPending) return;
     setResult(null);
     try {
-      // await changePass({ old_password: previousPassword, new_password: newPassword });
+      await changePass({ old_password: previousPassword, new_password: newPassword });
       form.resetFields();
       setResult({ type: "success", text: "رمز عبور با موفقیت تغییر کرد." });
     } catch (error) {
