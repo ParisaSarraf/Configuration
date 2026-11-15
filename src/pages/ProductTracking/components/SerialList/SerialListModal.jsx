@@ -28,18 +28,14 @@ const SerialListModal = ({
     useCreateProductSerial();
   const { isPending: isUpdating, mutateAsync: updateProductSerial } =
     useUpdateProductSerial();
-  const parentCode = currentProduct?.productData?.parent_code;
-  const { data: productSerial } = useProductSerialById(parentCode);
   const [form] = Form.useForm();
-
-  console.log(modalData);
   
   useEffect(() => {
     if (modalMode === "edit" && modalData) {
       form.setFieldsValue({
         serial: modalData?.serial,
         product_id: modalData?.product_id,
-        parent_id: modalData?.parent_id,
+        // parent_id: modalData?.parent_id,
         contractor_id: modalData.contractor?.id ?? null,
         date: georgianDateToJalaliDate(modalData?.date),
       });
@@ -51,7 +47,7 @@ const SerialListModal = ({
   const onFinish = async (values) => {
     const payload = {
       product_id: currentProduct?.id,
-      parent_id: values.parent_id || null,
+      // parent_id: values.parent_id || null,
       contractor_id: values.contractor_id,
       serial: values.serial,
       date: jalaliDateToGeorgianDate(values?.date),
@@ -80,6 +76,8 @@ const SerialListModal = ({
 
   const employersData =
     contractorData?.filter((item) => item.is_employer === true) || [];
+  const contractorsData =
+    contractorData?.filter((item) => item.is_employer === false) || [];
 
   return (
     <Modal
@@ -108,15 +106,22 @@ const SerialListModal = ({
             </Form.Item>
           </Col>
           <Col xs={24} sm={8}>
-            <Form.Item name="parent_id" label="سریال های شاخه والد">
-              <Select
+            <Form.Item name="contractor_id" label="نام پیمانکار">
+               <Select
+                showSearch
+                optionFilterProp="label"
+                filterOption={(input, option) =>
+                  normalizeContractorSearch(option?.label).includes(
+                    normalizeContractorSearch(input)
+                  )
+                }
                 options={
-                  productSerial?.serials?.map((item) => ({
-                    label: item.serial,
+                  contractorsData?.map((item) => ({
+                    label: item.name,
                     value: item.id,
                   })) || []
                 }
-                placeholder="سریال های شاخه والد"
+                placeholder="نام پیمانکار"
                 allowClear
               />
             </Form.Item>
