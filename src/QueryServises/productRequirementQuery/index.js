@@ -57,11 +57,11 @@ export const useCreateProductRequirement = () => {
 export const useUpdateProductRequirement = () => {
 	const { myAxios } = useMyAxios();
 	return useMutation({
-		mutationFn: ({ productRequirementId, ...params }) => {
+		mutationFn: ({ productRequirementId, formData }) => {
 			return myAxios
 				.put(
 					`/product/update-product-requirement/${productRequirementId}`,
-					params,
+					formData,
 					{
 						headers: {
 							"Content-Type": "multipart/form-data",

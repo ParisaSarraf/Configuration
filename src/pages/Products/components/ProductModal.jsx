@@ -11,10 +11,12 @@ import {
   Row,
   Select,
 } from "antd";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   useCreateProduct,
   useFinalCodeProductById,
+  useProductById,
   useUpdateProduct,
 } from "../../../QueryServises/productQuery";
 import {
@@ -42,6 +44,15 @@ import {
 import TsLazy from "../../../components/LazyTreeSelect/LazyTreeSelect";
 import { useLazyProductTreeSelect } from "../../../hooks/useLazyProductTreeSelect";
 import {
+  buildFinalProductCode,
+  flattenLookupItems,
+  includeProductSelectionsInTree,
+  productTreeSelection,
+  relationSelection,
+  relationshipId,
+  unwrapProductResponse,
+} from "../utils/productEdit";
+import {
   getPersonalityWarehouseProposal,
   normalizePersonalityWarehouseCode,
   personalityWarehouseCodeExists,
@@ -53,9 +64,6 @@ import {
   readGenusStandardCodes,
   standardWarehouseCodeExists,
 } from "../../../Services/standardWarehouseCodes";
-
-const flattenLookupItems = (items = []) =>
-  items.flatMap((item) => [item, ...flattenLookupItems(item.children || [])]);
 
 const getCreatedRecord = (payload) =>
   payload?.data ?? payload?.result ?? payload;
@@ -78,6 +86,8 @@ const ProductModal = ({
   productData,
 }) => {
   const [form] = Form.useForm();
+  const queryClient = useQueryClient();
+  const changedFields = useRef(new Set());
   const [quickForm] = Form.useForm();
   const [quickCreate, setQuickCreate] = useState(null);
   const [quickSearch, setQuickSearch] = useState({});
@@ -105,6 +115,13 @@ const ProductModal = ({
     setSelectedAlternativePersonalityId,
   ] = useState(null);
   const [selectedParentCodeId, setSelectedParentCodeId] = useState(null);
+  const codePartsDirty = useRef(false);
+  const parentSelection = relationSelection(modalData, "parent");
+  const codeParentSelection = relationSelection(modalData, "parent_code");
+  const lookupParentId = modalMode === "edit" ? parentSelection?.value : null;
+  const lookupCodeParentId = modalMode === "edit" ? codeParentSelection?.value : null;
+  const parentLookup = useProductById(lookupParentId, { enabled: Boolean(isOpen && lookupParentId) });
+  const codeParentLookup = useProductById(lookupCodeParentId, { enabled: Boolean(isOpen && lookupCodeParentId) });
   const [genusStandardOptions, setGenusStandardOptions] = useState([]);
   const [alterNativeGenusStandardOptions, setAlterNativeGenusStandardOptions] =
     useState([]);
@@ -125,9 +142,10 @@ const ProductModal = ({
     useCreateCoreSetting();
   const { mutateAsync: createStandardCode, isPending: isCreatingStandard } =
     useCreateStandardCode();
-  const { data: parentCodeData } = useFinalCodeProductById(
-    selectedParentCodeId?.value,
-  );
+  const parentCodeQuery = useFinalCodeProductById(selectedParentCodeId?.value, {
+    enabled: Boolean(isOpen && selectedParentCodeId?.value),
+  });
+  const parentCodeData = parentCodeQuery.data;
   const { data: standardCodesResponse, refetch: refetchStandardCodes } =
     useStandardCodePersonalityById(selectedPersonalityId?.value);
 
@@ -137,9 +155,19 @@ const ProductModal = ({
   } = useStandardCodePersonalityById(selectedAlternativePersonalityId?.value);
 
   const selectedGenusValue = Form.useWatch("genus_id", form);
+  const selectedParentValue = Form.useWatch("parent_id", form);
+  const selectedCodeParentValue = Form.useWatch("parent_code_id", form);
   const selectedAlternativeGenusValue = Form.useWatch(
     "alternative_genus_id",
     form,
+  );
+  const productTreeOptions = useMemo(
+    () =>
+      includeProductSelectionsInTree(treeData, [
+        selectedParentValue,
+        selectedCodeParentValue,
+      ]),
+    [treeData, selectedParentValue, selectedCodeParentValue],
   );
   const quickWarehouseCode = Form.useWatch("warehouse_code", quickForm);
   const selectedIdentityCodes = codesForIdentity(
@@ -167,11 +195,14 @@ const ProductModal = ({
       )
     : null;
 
-  const parentCodeId = parentCodeData?.code || "";
+  const parentCodeId = parentCodeData?.code ?? "";
+  const parentCodeReady = parentCodeQuery.isSuccess && parentCodeData?.code != null;
 
   useEffect(() => {
     if (!isOpen) return;
     form.resetFields();
+    codePartsDirty.current = false;
+    changedFields.current = new Set();
 
     // ===== EDIT MODE =====
     if (modalMode === "edit" && modalData) {
@@ -194,14 +225,9 @@ const ProductModal = ({
           }
         : null;
 
-      // parent
-      const parentValue = modalData.parent_code
-        ? {
-            value: modalData.parent_code.id,
-            label:
-              modalData.parent_code.persian_title || modalData.parent_code.code,
-          }
-        : null;
+      // The actual parent and the code parent are independent relationships.
+      const parentValue = relationSelection(modalData, "parent");
+      const codeParentValue = relationSelection(modalData, "parent_code");
 
       // casing
       const casingValue = modalData.casing
@@ -259,7 +285,7 @@ const ProductModal = ({
         alternative_personality_id: AlternativePersonalityValue,
 
         parent_id: parentValue,
-        parent_code_id: parentValue,
+        parent_code_id: codeParentValue,
 
         casing_id: casingValue,
         genus_id: genusValue,
@@ -295,11 +321,14 @@ const ProductModal = ({
       setProductCode(modalData.code || "");
       setSelectedPersonalityId(personalityValue);
       setSelectedAlternativePersonalityId(AlternativePersonalityValue);
-      setSelectedParentCodeId(parentValue);
+      setSelectedParentCodeId(codeParentValue);
+      setFinalCode(modalData.final_code ?? "");
     }
 
     // ===== ADD TO PARENT =====
     else if (modalMode === "addToParent" && modalData) {
+      setProductCode("");
+      setFinalCode("");
       const parentValue = {
         value: modalData.id,
         label: modalData.persian_title || modalData.code,
@@ -316,6 +345,7 @@ const ProductModal = ({
     // ===== ADD MODE =====
     else if (modalMode === "add") {
       setProductCode("");
+      setFinalCode("");
       setSelectedPersonalityId(null);
       setSelectedAlternativePersonalityId(null);
       setSelectedParentCodeId(null);
@@ -328,14 +358,48 @@ const ProductModal = ({
     }
   }, [isOpen, modalMode, modalData]);
 
+  // Resolve titles for IDs without overwriting a user's later selection.
   useEffect(() => {
-    const newFinalCode = `${parentCodeId || ""}-${productCode || ""}`;
-    setFinalCode(newFinalCode);
-    form.setFieldsValue({ final_code: newFinalCode });
-  }, [parentCodeId, productCode]);
+    if (!isOpen || modalMode !== "edit") return;
+    for (const [field, id, response] of [
+      ["parent_id", lookupParentId, parentLookup.data],
+      ["parent_code_id", lookupCodeParentId, codeParentLookup.data],
+    ]) {
+      if (id == null || changedFields.current.has(field)) continue;
+      const selected = form.getFieldValue(field);
+      const product = unwrapProductResponse(response, id);
+      if (String(selected?.value) !== String(id)) continue;
+
+      const fromProduct = product
+        ? relationSelection({ parent: product }, "parent")
+        : null;
+      const next =
+        (fromProduct && fromProduct.label !== `محصول ${id}` && fromProduct) ||
+        productTreeSelection(treeData, id);
+      if (next && next.label !== selected?.label) form.setFieldValue(field, next);
+    }
+  }, [
+    isOpen,
+    modalMode,
+    lookupParentId,
+    lookupCodeParentId,
+    parentLookup.data,
+    codeParentLookup.data,
+    treeData,
+    form,
+  ]);
 
   useEffect(() => {
-    const genera = flattenLookupItems(genusData || []);
+    if (!isOpen) return;
+    if (modalMode === "edit" && !codePartsDirty.current) return;
+    if (selectedParentCodeId?.value && !parentCodeReady) return;
+    const newFinalCode = buildFinalProductCode(selectedParentCodeId?.value ? parentCodeId : "", productCode);
+    setFinalCode(newFinalCode);
+    form.setFieldsValue({ final_code: newFinalCode });
+  }, [isOpen, modalMode, parentCodeId, productCode, selectedParentCodeId?.value, parentCodeReady, form]);
+
+  useEffect(() => {
+    const genera = flattenLookupItems(genusData);
     const optionsFor = (selection) => {
       const genus = genera.find(
         (item) => String(item.id) === String(selection?.value),
@@ -428,9 +492,7 @@ const ProductModal = ({
       };
     }
     const refreshed = refetchResult?.data ?? [];
-    const match = flattenLookupItems(
-      Array.isArray(refreshed) ? refreshed : [],
-    ).find(
+    const match = flattenLookupItems(refreshed).find(
       (item) => String(item?.name || item?.title || "").trim() === name.trim(),
     );
     return match ? { value: match.id, label: match.name || match.title } : null;
@@ -707,6 +769,15 @@ const ProductModal = ({
     isCreatingStandard;
 
   const onFinish = (values) => {
+    if (codePartsDirty.current && selectedParentCodeId?.value && !parentCodeReady) {
+      message.warning("ابتدا دریافت کد والد باید با موفقیت کامل شود");
+      return;
+    }
+    if (modalMode === "edit" && [["parent_id", "parent"], ["parent_code_id", "parent_code"]].some(([field, relation]) =>
+      changedFields.current.has(field) && relationshipId(modalData, relation) != null && !values[field]?.value)) {
+      message.warning("پاک‌کردن والد نیازمند پشتیبانی API است؛ برای ادامه یک محصول انتخاب کنید");
+      return;
+    }
     const payload = {
       persian_title: values.persian_title,
       code: values.code,
@@ -728,7 +799,9 @@ const ProductModal = ({
       // brand2: values.brand2,
       // brand2_desc: values.brand2_desc,
       employer_code: values.employer_code,
-      final_code: finalCode,
+      final_code: codePartsDirty.current
+        ? buildFinalProductCode(selectedParentCodeId?.value ? parentCodeId : "", values.code)
+        : finalCode,
 
       parent_id: values.parent_id?.value,
       parent_code_id: values.parent_code_id?.value,
@@ -766,9 +839,12 @@ const ProductModal = ({
           finalPayload[key] = newVal;
         }
       });
-      if (values.code === modalData?.code) {
-        delete finalPayload.code;
+      if (values.code === modalData?.code) delete finalPayload.code;
+      for (const [field, relation] of [["parent_id", "parent"], ["parent_code_id", "parent_code"]]) {
+        if (!changedFields.current.has(field) || String(payload[field] ?? "") === String(relationshipId(modalData, relation) ?? ""))
+          delete finalPayload[field];
       }
+      if (!codePartsDirty.current) delete finalPayload.final_code;
     }
 
     const actionPayload = modalMode === "edit" ? finalPayload : payload;
@@ -779,12 +855,19 @@ const ProductModal = ({
         : createProduct(actionPayload);
 
     action
-      .then(() => {
-        message.success(
-          modalMode === "edit" ? "محصول ویرایش شد" : "محصول اضافه شد",
-        );
+      .then(async () => {
+        message.success(modalMode === "edit" ? "محصول ویرایش شد" : "محصول اضافه شد");
         closeModal();
-        modalMode !== "edit" && refetch();
+        try {
+          if (modalMode === "edit") {
+            await queryClient.invalidateQueries({ queryKey: ["child", "product"] });
+            await queryClient.invalidateQueries({ queryKey: ["product", modalData.id] });
+          }
+          const result = await refetch();
+          if (result?.isError) message.warning("محصول ذخیره شد، اما به‌روزرسانی درخت ناموفق بود");
+        } catch {
+          message.warning("محصول ذخیره شد، اما به‌روزرسانی درخت ناموفق بود");
+        }
       })
       .catch((error) => {
         message.error(error.response?.data?.message || "خطا در عملیات");
@@ -804,7 +887,8 @@ const ProductModal = ({
       className="scroll-modal"
       destroyOnClose
     >
-      <Form form={form} layout="vertical" onFinish={onFinish}>
+      <Form form={form} layout="vertical" onFinish={onFinish}
+        onValuesChange={(changed) => Object.keys(changed).forEach((field) => changedFields.current.add(field))}>
         <Row gutter={16}>
           <Divider orientation="start">
             <h1 className="font-bold">اطلاعات اصلی</h1>
@@ -815,7 +899,7 @@ const ProductModal = ({
             <Col span={6}>
               <Form.Item name="parent_id" label="شاخه والد">
                 <TsLazy
-                  treeData={treeData}
+                  treeData={productTreeOptions}
                   loadData={loadChildren}
                   labelInValue
                   placeholder="شاخه والد"
@@ -828,14 +912,19 @@ const ProductModal = ({
             <Col span={6}>
               <Form.Item name="parent_code_id" label="ارث بری کد">
                 <TsLazy
-                  treeData={treeData}
+                  treeData={productTreeOptions}
                   loadData={loadChildren}
                   labelInValue
                   placeholder="ارث بری کد"
+                  onChange={(value) => { codePartsDirty.current = true; setSelectedParentCodeId(value ?? null); }}
                   allowClear
                 />
               </Form.Item>
             </Col>
+
+            {codePartsDirty.current && selectedParentCodeId?.value && (parentCodeQuery.isError || (parentCodeQuery.isSuccess && !parentCodeReady)) && (
+              <Col span={24}><Alert type="error" showIcon message="دریافت کد والد ناموفق بود" action={<Button onClick={() => parentCodeQuery.refetch()}>تلاش دوباره</Button>} /></Col>
+            )}
 
             {/* عنوان فارسی */}
             <Col span={6}>
@@ -862,7 +951,7 @@ const ProductModal = ({
                 <Input
                   placeholder="کد محصول"
                   value={productCode}
-                  onChange={(e) => setProductCode(e.target.value)}
+                  onChange={(e) => { codePartsDirty.current = true; setProductCode(e.target.value); }}
                 />
               </Form.Item>
             </Col>

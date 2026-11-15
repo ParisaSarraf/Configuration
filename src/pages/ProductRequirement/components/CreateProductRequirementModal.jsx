@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Alert,
   Button,
@@ -11,7 +11,10 @@ import {
 } from "antd";
 import Modal from "../../../components/Modal";
 import { useRequirementList } from "../../../QueryServises/requirementQuery";
-import { useCreateProductRequirement } from "../../../QueryServises/productRequirementQuery";
+import {
+  useCreateProductRequirement,
+  useUpdateProductRequirement,
+} from "../../../QueryServises/productRequirementQuery";
 
 const CreateProductRequirementModal = ({
   isOpen,
@@ -32,6 +35,28 @@ const CreateProductRequirementModal = ({
   } = useRequirementList({ placeholderData: undefined });
   const { mutateAsync: createProductRequirement } =
     useCreateProductRequirement();
+  const { mutateAsync: updateProductRequirement } =
+    useUpdateProductRequirement();
+
+  const requirement = modalData?.requirement ?? modalData;
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (modalMode === "edit" && requirement) {
+      form.setFieldsValue({
+        title: requirement.title ?? "",
+        code: requirement.code ?? "",
+        requirementId:
+          requirement.requirement_tree_id ??
+          requirement.requirement_tree?.id ??
+          requirement.requirement?.id ??
+          requirement.requirement_id ??
+          undefined,
+      });
+    } else {
+      form.resetFields();
+    }
+  }, [isOpen, modalMode, requirement, form]);
 
   const onFinish = async (values) => {
     if (submitLock.current) return;
@@ -41,16 +66,28 @@ const CreateProductRequirementModal = ({
       product_id: currentProduct?.id,
       requirement_tree_id: values.requirementId,
       title: values.title,
+      code: values.code,
     };
     try {
       if (modalMode === "add") {
         await createProductRequirement(payload);
         message.success("الزام با موفقیت اضافه شد");
-        await refetch();
       } else {
-        throw new Error("ویرایش الزام از این فرم پشتیبانی نمی‌شود");
+        const formData = new FormData();
+        formData.append("product_id", String(payload.product_id));
+        formData.append(
+          "requirement_tree_id",
+          String(payload.requirement_tree_id),
+        );
+        formData.append("title", payload.title);
+        await updateProductRequirement({
+          productRequirementId: requirement.id,
+          formData,
+        });
+        message.success("الزام محصول ویرایش شد");
       }
 
+      await refetch();
       closeModal();
     } catch (error) {
       console.error("Error:", error);
@@ -119,7 +156,7 @@ const CreateProductRequirementModal = ({
       )}
       <Form form={form} layout="vertical" onFinish={onFinish}>
         <Row gutter={24}>
-          <Col span={12}>
+          <Col span={8}>
             <Form.Item
               label="الزام"
               name="title"
@@ -130,8 +167,19 @@ const CreateProductRequirementModal = ({
               <Input placeholder="نام الزام محصول" />
             </Form.Item>
           </Col>
+          <Col span={8}>
+            <Form.Item
+              label="کد الزام"
+              name="code"
+              rules={[
+                { required: true, message: "لطفا کد الزام را انتخاب کنید" },
+              ]}
+            >
+              <Input placeholder="کد الزام محصول" />
+            </Form.Item>
+          </Col>
 
-          <Col span={12}>
+          <Col span={8}>
             <Form.Item
               label="نوع الزام"
               name="requirementId"
@@ -142,7 +190,11 @@ const CreateProductRequirementModal = ({
               <TreeSelect
                 loading={requirementsFetching}
                 disabled={requirementsFetching && !requirementList}
-                treeData={getTreeSelectOptions(requirementList || [])}
+                treeData={getTreeSelectOptions(
+                  requirementList || [],
+                  modalMode,
+                  modalData,
+                )}
               />
             </Form.Item>
           </Col>

@@ -23,6 +23,7 @@ import ProductTreeEtc from "../../../components/Tree/ProductTree";
 import { useCreateZipReport } from "../../../QueryServises/productDocumentQuery";
 import { useLazyProductTree } from "../../../hooks/useLazyProductTree";
 import { mapProductToTreeNode } from "../../../utils/mapProductToTreeNode";
+import { productTreeParent, unwrapProductResponse } from "../utils/productEdit";
 import ZipProgressModal from "../../../components/ZipProgressModal/ZipProgressModal";
 import {
   isAuthorizationError,
@@ -75,6 +76,7 @@ const ProductTree = ({
   const [searchLoading, setSearchLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
   const searchRef = useRef(null);
+  const editLoadRequestId = useRef(0);
 
   const { mutateAsync: exportExcel, isPending: isExporting } =
     useExportExcelProductChildrenBomMutation();
@@ -280,6 +282,8 @@ const ProductTree = ({
   };
 
   const handleRightClickAction = (actionKey, node) => {
+    const requestId = ++editLoadRequestId.current;
+    message.destroy("product-edit-load");
     const genusId = node.id;
 
     if (actionKey === "delete") {
@@ -309,7 +313,33 @@ const ProductTree = ({
       setStatusTarget(node.productData);
       setNextStatus(node.productData?.status || undefined);
     } else if (actionKey === "edit") {
-      setModal({ mode: "edit", data: node.productData });
+      const id = node?.productData?.id;
+      if (id == null) return;
+      message.loading({ content: "در حال دریافت اطلاعات محصول...", key: "product-edit-load", duration: 0 });
+      queryClient.fetchQuery({
+        queryKey: useProductByIdKey(id),
+        queryFn: () => myAxios.get(`/product/get-product-by-id/${id}`).then((response) => response.data),
+        staleTime: 0,
+      }).then((response) => {
+        if (requestId !== editLoadRequestId.current) return;
+        const product = unwrapProductResponse(response, id);
+        if (!product) throw new Error("اطلاعات محصول معتبر نیست");
+        const merged = { ...node.productData, ...product };
+        // Some API responses omit parent_id. In edit mode, the loaded tree is
+        // the source of truth for the product's actual branch parent.
+        if (!("parent_id" in product) && !("parent" in product)) {
+          const treeParent = productTreeParent(treeData, id);
+          if (treeParent?.productData) merged.parent = treeParent.productData;
+        }
+        // An ID in the detail response is newer than a tree node’s cached object.
+        if ("parent_id" in product && !("parent" in product)) merged.parent = undefined;
+        if ("parent_code_id" in product && !("parent_code" in product)) merged.parent_code = undefined;
+        setModal({ mode: "edit", data: merged });
+      }).catch(() => {
+        if (requestId === editLoadRequestId.current) message.error("دریافت جزئیات محصول ناموفق بود؛ دوباره تلاش کنید");
+      }).finally(() => {
+        if (requestId === editLoadRequestId.current) message.destroy("product-edit-load");
+      });
     } else if (actionKey === "addToParent") {
       setModal({ mode: "addToParent", data: node.productData });
     } else if (actionKey === "exportExcel") {

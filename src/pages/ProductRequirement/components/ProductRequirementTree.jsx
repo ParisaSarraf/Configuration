@@ -141,6 +141,13 @@ export default function ProductRequirementTree({
           isError={isError && data == null}
           onRetry={refetch}
           onDelete={handleDelete}
+          onEditRequirement={(requirement) =>
+            setModal({
+              mode: "edit",
+              data: requirement,
+              type: "CreateProductRequirementModal",
+            })
+          }
           onSelectEdition={setSelectedEdition}
           onShowEdition={setDetail}
           onWorkflow={(node) => setModal({ mode: "edit", data: node, type: "RequirementWorkflowModal" })}

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Alert, Button, Empty, Space, Spin, Tag } from "antd";
 import {
   DeleteOutlined,
+  EditOutlined,
   EyeOutlined,
   FileDoneOutlined,
   ImportOutlined,
@@ -22,6 +23,7 @@ export default function RequirementTreeView({
   isError,
   onRetry,
   onDelete,
+  onEditRequirement,
   onAcknowledge,
   onEdition,
   onSelectEdition,
@@ -100,6 +102,19 @@ export default function RequirementTreeView({
             {node.kind === "requirement" && (
               <Space>
                 {canDeleteRequirement(node.requirement) && (
+                  <Button
+                    size="small"
+                    type="text"
+                    icon={<EditOutlined />}
+                    title="ویرایش الزام محصول"
+                    aria-label="ویرایش الزام محصول"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onEditRequirement?.(node.requirement);
+                    }}
+                  />
+                )}
+                {canDeleteRequirement(node.requirement) && (
                 <Button
                   size="small"
                   type="text"
@@ -170,7 +185,7 @@ export default function RequirementTreeView({
         children: transform(node.children),
       }));
     return transform(buildRequirementTree(data));
-  }, [data, focusEditionId, onDelete, onAcknowledge, onEdition, onShowEdition, onWorkflow]);
+  }, [data, focusEditionId, onDelete, onEditRequirement, onAcknowledge, onEdition, onShowEdition, onWorkflow]);
 
   return isLoading ? (
     <div
