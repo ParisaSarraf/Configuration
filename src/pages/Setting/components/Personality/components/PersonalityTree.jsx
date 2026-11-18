@@ -121,7 +121,6 @@ const PersonalityTable = ({
             <Button
               type="text"
               size="small"
-              icon={expandedRowKeys.includes(record.key) ? <FolderOpenOutlined /> : <FolderOutlined />}
               onClick={(e) => {
                 e.stopPropagation();
                 toggleExpand(record.key, Array.isArray(record.children) && record.children.length > 0);
