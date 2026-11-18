@@ -228,7 +228,8 @@ export const useUpdateFormCategory = () => {
   });
 };
 
-export const useFormCategoryByIdKey = (id) => ["form", "category", id];
+const formCategoryDetailsKey = ["form", "category"];
+export const useFormCategoryByIdKey = (id) => [...formCategoryDetailsKey, id];
 export const useFormCategoryById = (id, queryOptions) => {
   const { myAxios } = useMyAxios();
   return useQuery({
@@ -261,8 +262,12 @@ export const useCreateFormDefinition = () => {
   });
 };
 
+const formDefinitionByIdKey = (id) => ["form", "definition", id];
+export { formDefinitionByIdKey as useFormDefinitionByIdKey };
+
 export const useUpdateFormDefinition = () => {
   const { myAxios } = useMyAxios();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ FormDefinitionId, ...params }) => {
       return myAxios
@@ -271,14 +276,22 @@ export const useUpdateFormDefinition = () => {
           return response?.data;
         });
     },
+    onSuccess: (_, { FormDefinitionId }) =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: formDefinitionsKey, refetchType: "none" }),
+        queryClient.invalidateQueries({ queryKey: formCategoryDetailsKey, refetchType: "none" }),
+        queryClient.invalidateQueries({
+          queryKey: formDefinitionByIdKey(FormDefinitionId),
+          refetchType: "none",
+        }),
+      ]),
   });
 };
 
-export const useFormDefinitionByIdKey = (id) => ["form", "definition", id];
 export const useFormDefinitionById = (id, queryOptions) => {
   const { myAxios } = useMyAxios();
   return useQuery({
-    queryKey: useFormDefinitionByIdKey(id),
+    queryKey: formDefinitionByIdKey(id),
     queryFn: () =>
       id
         ? myAxios

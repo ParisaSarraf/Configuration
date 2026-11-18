@@ -253,6 +253,7 @@ const CategoryLeftSidebar = ({
       />
       <FormDefinitionModal
         refetch={refetch}
+        categories={categories}
         isOpen={modalType === "createFormDefinitionCategory" && isOpen}
         modalData={modalData}
         modalMode={modalMode}

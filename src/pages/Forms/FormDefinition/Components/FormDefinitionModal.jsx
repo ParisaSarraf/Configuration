@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Col, Form, Input, InputNumber, Checkbox, Row, message } from "antd";
+import { Col, Form, Input, InputNumber, Row, Select, message } from "antd";
 import Modal from "../../../../components/Modal";
 import {
   useCreateFormDefinition,
@@ -13,6 +13,7 @@ const FormDefinitionModal = ({
   closeModal,
   modalMode,
   modalData,
+  categories = [],
   refetch,
 }) => {
   const [form] = Form.useForm();
@@ -25,31 +26,50 @@ const FormDefinitionModal = ({
 
   const isEdit = modalMode === "edit";
   const isPending = isCreating || isUpdating;
+  const currentCategoryId = modalData?.category?.id ?? modalData?.category_id;
+  const selectedCategoryId = currentCategoryId == null ? undefined : Number(currentCategoryId);
+  const categoryOptions = categories.map(({ id, name }) => ({
+    value: Number(id),
+    label: name,
+  }));
+  if (
+    isEdit &&
+    selectedCategoryId !== undefined &&
+    !categoryOptions.some(({ value }) => value === selectedCategoryId)
+  ) {
+    categoryOptions.push({
+      value: selectedCategoryId,
+      label: modalData.category?.name ?? String(selectedCategoryId),
+    });
+  }
 
   const onFinish = async (values) => {
     const payload = {
       category_id: isEdit
-        ? (modalData?.category?.id ?? modalData?.category_id ?? null)
+        ? (values.category_id ?? selectedCategoryId ?? null)
         : modalData?.id,
       name: values.name,
       description: values.description,
-      is_active: values.is_active ?? true,
       version: values.version,
       close_date: jalaliDateToGeorgianDate(values.close_date) || null,
-      max_submissions: values.max_submissions ?? null,
       success_message: values.success_message || "",
-      success_redirect_url: values.success_redirect_url || "",
     };
 
     try {
       if (isEdit && modalData?.id) {
         await updateDefinition({
           FormDefinitionId: modalData.id,
+          created_by_id: modalData.created_by?.id ?? modalData.created_by_id ?? null,
           ...payload,
         });
         message.success("فرم با موفقیت ویرایش شد.");
       } else {
-        await createDefinition(payload);
+        await createDefinition({
+          ...payload,
+          is_active: values.is_active ?? true,
+          max_submissions: values.max_submissions ?? null,
+          success_redirect_url: values.success_redirect_url || "",
+        });
         message.success("فرم با موفقیت ایجاد شد.");
       }
       closeModal();
@@ -68,23 +88,20 @@ const FormDefinitionModal = ({
     }
     if (isEdit && modalData) {
       form.setFieldsValue({
-        category_id: modalData.category?.id,
+        category_id: selectedCategoryId,
         name: modalData.name,
         description: modalData.description,
-        is_active: modalData.is_active ,
         version: modalData.version,
         close_date: georgianDateToJalaliDate(modalData.close_date).replaceAll(
           "/",
           "-",
         ),
-        max_submissions: modalData.max_submissions ?? null,
         success_message: modalData.success_message || "",
-        success_redirect_url: modalData.success_redirect_url || "",
       });
     } else {
       form.resetFields();
     }
-  }, [isOpen, isEdit, modalData, form]);
+  }, [isOpen, isEdit, modalData, form, selectedCategoryId]);
 
   return (
     <Modal
@@ -132,6 +149,19 @@ const FormDefinitionModal = ({
               noStyle
             />
           </Col>
+
+          {isEdit && (
+            <Col span={24}>
+              <Form.Item name="category_id" label="دسته‌بندی">
+                <Select
+                  showSearch
+                  optionFilterProp="label"
+                  options={categoryOptions}
+                  placeholder="دسته‌بندی فرم را انتخاب کنید"
+                />
+              </Form.Item>
+            </Col>
+          )}
 
           <Col span={24}>
             <Form.Item name="description" label="توضیحات">

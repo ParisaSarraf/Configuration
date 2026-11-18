@@ -57,7 +57,6 @@ const CategoryMain = ({
     categoryId === null ||
     categoryId === undefined ||
     categoryId === "";
-  // «همه» شناسه‌ی دسته‌بندی نیست؛ فهرست عمومی فرم‌ها مسیر جداگانه دارد.
   const allFormsQuery = useFormDefinitions({ enabled: showAllForms });
   const categoryFormsQuery = useFormCategoryById(
     showAllForms ? null : categoryId,
@@ -331,6 +330,7 @@ const CategoryMain = ({
       />
       <FormDefinitionModal
         refetch={refreshAll}
+        categories={categories}
         isOpen={modalType === "createFormDefinitionCategory" && isOpen}
         modalData={modalData}
         modalMode={modalMode}
