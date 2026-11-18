@@ -117,20 +117,6 @@ const PersonalityTable = ({
             cursor: 'pointer'
           }}
         >
-          {Array.isArray(record.children) && record.children.length > 0 && (
-            <Button
-              type="text"
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleExpand(record.key, Array.isArray(record.children) && record.children.length > 0);
-              }}
-              style={{ marginLeft: '8px' }}
-            />
-          )}
-          {!record.hasChildren && (
-            <span style={{ width: '24px', display: 'inline-block', marginLeft: '8px' }}></span>
-          )}
           <span>{text}</span>
         </div>
       ),
