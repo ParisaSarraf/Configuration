@@ -64,6 +64,7 @@ import {
   readGenusStandardCodes,
   standardWarehouseCodeExists,
 } from "../../../Services/standardWarehouseCodes";
+import CasingFields from "../../Setting/components/Casing/components/CasingFields";
 
 const getCreatedRecord = (payload) =>
   payload?.data ?? payload?.result ?? payload;
@@ -570,6 +571,8 @@ const ProductModal = ({
       } else if (quickCreate.type === "casing") {
         created = await createCasing({
           name,
+          english_name: values.english_name?.trim() || null,
+          symbol: values.symbol?.trim() || null,
           type: "casing",
           order: 0,
         });
@@ -1684,6 +1687,8 @@ const ProductModal = ({
               onPressEnter={() => quickForm.submit()}
             />
           </Form.Item>
+
+          {quickCreate?.type === "casing" && <CasingFields />}
 
           {quickCreate?.type === "personality" ? (
             <>

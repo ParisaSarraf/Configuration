@@ -3,6 +3,7 @@ import { Button, Col, Form, Input, message, Row } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useCreateCoreSetting, useUpdateCoreSetting } from "../../../../../QueryServises/settingQuery";
 import Modal from "../../../../../components/Modal";
+import CasingFields from "./CasingFields";
 
 const CasingModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refetch }) => {
     const [form] = Form.useForm();
@@ -13,8 +14,8 @@ const CasingModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refet
         if (modalMode === "edit" && modalData) {
             form.setFieldsValue({
                 name: modalData.name,
-                type: modalData.type || "casing",
-
+                english_name: modalData.english_name ?? "",
+                symbol: modalData.symbol ?? "",
             });
         } else if (modalMode === "add") {
             form.resetFields();
@@ -24,6 +25,8 @@ const CasingModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refet
     const onFinishForm = (values) => {
         const payload = {
             name: values.name,
+            english_name: values.english_name?.trim() || null,
+            symbol: values.symbol?.trim() || null,
             type: "casing",
             order: modalMode === "edit" ? (modalData?.order ?? 0) : 0
         };
@@ -73,9 +76,6 @@ const CasingModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refet
                     form={form}
                     layout="vertical"
                     onFinish={onFinishForm}
-                    initialValues={{
-                        type: "case"
-                    }}
                 >
                     <Row gutter={16}>
                         <Col span={24}>
@@ -86,6 +86,7 @@ const CasingModal = ({ isOpen, modalMode, modalData, closeModal, setModal, refet
                             >
                                 <Input placeholder="پوشش" />
                             </Form.Item>
+                            <CasingFields />
                         </Col>
 
                     </Row>

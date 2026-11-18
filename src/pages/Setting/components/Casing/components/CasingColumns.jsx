@@ -1,10 +1,12 @@
 import { Button, Flex } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 
+const renderOptionalField = (value) => value ? <bdi>{value}</bdi> : "—";
+
 export const CasingColumns = ({ handleDelete, handleEdit }) => [
   {
     title: "ردیف",
-    key: "name",
+    key: "rowNumber",
     render: (_, __, index) => index + 1,
   },
 
@@ -12,6 +14,18 @@ export const CasingColumns = ({ handleDelete, handleEdit }) => [
     title: "نام",
     dataIndex: "name",
     key: "name",
+  },
+  {
+    title: "نام انگلیسی",
+    dataIndex: "english_name",
+    key: "english_name",
+    render: renderOptionalField,
+  },
+  {
+    title: "کد اختصاری",
+    dataIndex: "symbol",
+    key: "symbol",
+    render: renderOptionalField,
   },
   {
     title: "عملیات",
