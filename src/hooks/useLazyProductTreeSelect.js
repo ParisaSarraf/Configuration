@@ -68,7 +68,7 @@ export const useLazyProductTreeSelect = (initialData = EMPTY_PRODUCT_TREE) => {
     value: item.id,
     key: item.id,
     id: item.id,
-    isLeaf: !item.has_children,
+    isLeaf: !(item.children?.length || item.has_children),
     children:
       item.children?.length > 0 ? item.children.map(mapNode) : undefined,
   });
@@ -84,7 +84,7 @@ export const useLazyProductTreeSelect = (initialData = EMPTY_PRODUCT_TREE) => {
 
   const updateNodes = (list, key, children) =>
     list.map((node) => {
-      if (node.key === key) return { ...node, children };
+      if (node.key === key) return { ...node, children, isLeaf: children.length === 0 };
       if (node.children)
         return { ...node, children: updateNodes(node.children, key, children) };
       return node;
@@ -93,7 +93,7 @@ export const useLazyProductTreeSelect = (initialData = EMPTY_PRODUCT_TREE) => {
   const loadChildren = async (node) => {
     const { key, id } = node;
 
-    if (node.children && node.children.length > 0) return;
+    if (node.isLeaf || Array.isArray(node.children)) return;
 
     try {
       const data = await queryClient.fetchQuery({

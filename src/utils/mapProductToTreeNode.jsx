@@ -33,6 +33,7 @@ export const mapProductToTreeNode = (item, showHidden = false) => {
     node.children = item.children
       .map((child) => mapProductToTreeNode(child, showHidden))
       .filter(Boolean);
+    node.isLeaf = node.children.length === 0;
   } else if (item.has_children) {
     node.children = undefined;
   }

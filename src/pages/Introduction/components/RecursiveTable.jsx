@@ -1,10 +1,11 @@
 import {TableAntd} from '../../../components/TableAntd/TableAntd';
+import {normalizeNestedRows} from '../../../components/TableAntd/normalizeNestedRows';
 
 const RecursiveTable = ({dataSource, columns, expandedRowKeys, onExpandedRowsChange}) => (
     <TableAntd
         className="pw-product-table"
         columns={columns}
-        dataSource={dataSource}
+        dataSource={normalizeNestedRows(dataSource)}
         rowKey="id"
         scroll={{x: 960}}
         pagination={{

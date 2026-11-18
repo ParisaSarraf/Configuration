@@ -1,9 +1,10 @@
 import {ConfigProvider, Table} from 'antd';
 import {DocumentCol} from './DocumentCol';
 import fa_IR from 'antd/locale/fa_IR';
+import {normalizeNestedRows} from '../../../components/TableAntd/normalizeNestedRows';
 
 
-const DocumentTable = ({documentData}) => {
+const DocumentTable = ({documentData, isLoading}) => {
 
     return (
         <div>
@@ -12,7 +13,8 @@ const DocumentTable = ({documentData}) => {
                 <Table
                     bordered
                     columns={DocumentCol}
-                    dataSource={documentData}
+                    loading={isLoading}
+                    dataSource={normalizeNestedRows(documentData)}
                     rowKey="id"
                     pagination={{
                         defaultPageSize: 5,

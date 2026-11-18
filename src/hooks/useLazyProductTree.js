@@ -19,7 +19,7 @@ export const useLazyProductTree = (initialData = []) => {
       .map((node) => {
         if (!node) return null;
         if (node.key === key) {
-          return { ...node, children };
+          return { ...node, children, isLeaf: children.length === 0 };
         }
         if (node.children) {
           return {
@@ -49,8 +49,8 @@ export const useLazyProductTree = (initialData = []) => {
   };
 
   const loadChildren = async (node) => {
-    const { key, id, children } = node;
-    if (children?.length) return;
+    const { key, id, children, isLeaf } = node;
+    if (isLeaf || Array.isArray(children)) return;
     await fetchAndSetChildren(id, key);
   };
 
@@ -99,7 +99,7 @@ export const useLazyProductTree = (initialData = []) => {
         : node.children;
       if (String(node.id) !== String(id)) return { ...node, children };
       const product = { ...node.productData, status };
-      return { ...node, ...mapProductToTreeNode(product), children };
+      return { ...node, ...mapProductToTreeNode(product), children, isLeaf: node.isLeaf };
     });
     setTreeData((previous) => updateNodes(previous));
   };

@@ -17,7 +17,7 @@ export const normalizeRequirements = (list, parentId = null) => {
             is_definable: node.is_definable,
             life_cycle: node.life_cycle,
             parentId,
-            children,
+            children: children?.length ? children : undefined,
         };
     });
 };

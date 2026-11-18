@@ -6,6 +6,7 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import Tree from "../../../components/Tree";
+import ContentLoadingIndicator from "../../../components/LoadingIndicator/ContentLoadingIndicator.jsx";
 import { Alert, Button, Empty, message, Modal, Space, Spin } from "antd";
 import {
   useDeleteProductDocument,
@@ -330,11 +331,7 @@ const ProductDocumentTree = ({ currentProduct, setModal, refetch }) => {
       {!selectedProductId ? (
         <Empty description="ابتدا یک محصول انتخاب کنید" />
       ) : isFetching && productDocument == null ? (
-        <div role="status" className="flex justify-center items-center min-h-[160px]">
-          <Spin tip="در حال بارگذاری اسناد..." size="large">
-            <div style={{ minWidth: 180, minHeight: 80 }} />
-          </Spin>
-        </div>
+        <ContentLoadingIndicator message="در حال بارگذاری اسناد..." />
       ) : isError && productDocument == null ? (
         <Alert type="error" showIcon message="خطا در بارگذاری اسناد"
           action={<Button onClick={() => refetch()}>تلاش دوباره</Button>} />

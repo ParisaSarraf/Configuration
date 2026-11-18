@@ -1,9 +1,12 @@
 import { useState, useMemo, useCallback } from "react";
 import { Dropdown, message, Tree as AntTree, TreeSelect } from "antd";
 import { DownOutlined } from "@ant-design/icons";
+import { normalizeTreeBranches } from "./normalizeTreeBranches";
 
 const Tree = ({
   data,
+  treeData: providedTreeData,
+  fieldNames,
   isLoading,
   isError,
   onChange, // برای checkable و mode="select"
@@ -105,6 +108,8 @@ const Tree = ({
     [onRightClickAction, rightClickNode, titleField]
   );
 
+  const hasLoadData = Boolean(loadData);
+  const treeChildrenField = fieldNames?.children;
   const treeData = useMemo(() => {
     const transform = (dataList) => {
       if (!dataList || dataList.length === 0) return [];
@@ -120,8 +125,12 @@ const Tree = ({
           : undefined,
       }));
     };
-    return data ? transform(data) : [];
-  }, [data, titleField, keyField, childrenField]);
+    return normalizeTreeBranches(
+      providedTreeData ?? transform(data),
+      hasLoadData,
+      treeChildrenField,
+    );
+  }, [data, providedTreeData, titleField, keyField, childrenField, hasLoadData, treeChildrenField]);
 
   if (isLoading) return loadingComponent;
   if (isError) return errorComponent;
@@ -130,6 +139,8 @@ const Tree = ({
     return (
       <TreeSelect
         treeData={treeData}
+        fieldNames={fieldNames}
+        loadData={loadData}
         placeholder={placeholder}
         treeDefaultExpandAll
         showSearch={showSearch}
@@ -166,6 +177,7 @@ const Tree = ({
           expandAction="switcher"
           onRightClick={showRightClickMenu ? handleRightClick : undefined}
           treeData={treeData}
+          fieldNames={fieldNames}
           showLine={showLine}
           checkable={checkable}
           onSelect={handleSelect}

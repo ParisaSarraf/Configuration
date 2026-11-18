@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Button, Empty, Space, Spin, Tag } from "antd";
+import { Alert, Button, Empty, Space, Tag } from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -11,6 +11,7 @@ import {
 } from "@ant-design/icons";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import Tree from "../../../components/Tree";
+import ContentLoadingIndicator from "../../../components/LoadingIndicator/ContentLoadingIndicator.jsx";
 import RequirementDescription from "./RequirementDescription";
 import { buildRequirementTree, canDeleteRequirement, canAddRequirementEdition, canExportRequirementEdition, getRequirementState, getSelectedEdition } from "../utils/requirementTree";
 import { canRunRequirementWorkflow } from "../utils/requirementWorkflow";
@@ -188,14 +189,7 @@ export default function RequirementTreeView({
   }, [data, focusEditionId, onDelete, onEditRequirement, onAcknowledge, onEdition, onShowEdition, onWorkflow]);
 
   return isLoading ? (
-    <div
-      role="status"
-      className="flex justify-center items-center min-h-[160px]"
-    >
-      <Spin tip="در حال بارگذاری الزامات..." size="large">
-        <div style={{ minWidth: 180, minHeight: 80 }} />
-      </Spin>
-    </div>
+    <ContentLoadingIndicator message="در حال بارگذاری الزامات..." />
   ) : isError ? (
     <Alert
       type="error"

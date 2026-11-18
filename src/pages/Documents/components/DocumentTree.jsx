@@ -8,7 +8,7 @@ import Tree from "../../../components/Tree";
 import {DeleteOutlined, EditOutlined} from "@ant-design/icons";
 
 const DocumentTree = ({setModal}) => {
-    const {data: documentData, isFetching, refetch} = useDocumentList();
+    const {data: documentData, isFetching, isError, refetch} = useDocumentList();
     const {mutate: deleteDocument} = useDeleteDocument();
 
     const transformDataToTreeFormat = (documentData) => {
@@ -108,7 +108,7 @@ const DocumentTree = ({setModal}) => {
             mode="tree"
             data={treeData}
             isLoading={isFetching}
-            isError={isFetching}
+            isError={isError}
             showLine={true}
             checkable={false}
             rightClickMenuItems={rightClickMenuItems}

@@ -1,9 +1,12 @@
 import { useState, useMemo, useCallback } from "react";
 import { Dropdown, Tree as AntTree, TreeSelect } from "antd";
 import { DownOutlined } from "@ant-design/icons";
+import { normalizeTreeBranches } from "./normalizeTreeBranches";
 
 const ProductTreeEtc = ({
   data,
+  treeData: providedTreeData,
+  fieldNames,
   isLoading,
   isError,
   onChange,
@@ -97,6 +100,8 @@ const ProductTreeEtc = ({
     [onRightClickAction, rightClickNode],
   );
 
+  const hasLoadData = Boolean(loadData);
+  const treeChildrenField = fieldNames?.children;
   const treeData = useMemo(() => {
     const transform = (dataList) => {
       if (!dataList || dataList.length === 0) return [];
@@ -111,8 +116,12 @@ const ProductTreeEtc = ({
           : undefined,
       }));
     };
-    return data ? transform(data) : [];
-  }, [data, titleField, keyField, childrenField]);
+    return normalizeTreeBranches(
+      providedTreeData ?? transform(data),
+      hasLoadData,
+      treeChildrenField,
+    );
+  }, [data, providedTreeData, titleField, keyField, childrenField, hasLoadData, treeChildrenField]);
 
   if (isLoading) return loadingComponent;
   if (isError) return errorComponent;
@@ -121,6 +130,8 @@ const ProductTreeEtc = ({
     return (
       <TreeSelect
         treeData={treeData}
+        fieldNames={fieldNames}
+        loadData={loadData}
         placeholder={placeholder}
         treeDefaultExpandAll
         showSearch={showSearch}
@@ -150,6 +161,7 @@ const ProductTreeEtc = ({
           expandAction="switcher"
           onRightClick={showRightClickMenu ? handleRightClick : undefined}
           treeData={treeData}
+          fieldNames={fieldNames}
           showLine={showLine}
           checkable={checkable}
           onSelect={handleSelect}

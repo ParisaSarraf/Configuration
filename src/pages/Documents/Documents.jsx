@@ -9,7 +9,7 @@ import DocumentTable from "./components/DocumentTable";
 
 const Documents = () => {
   const { isOpen, modalMode, modalData, setModal, closeModal } = useModal();
-  const { data: documentData, refetch } = useDocumentList();
+  const { data: documentData, isFetching, refetch } = useDocumentList();
 
   // const flattenData = (data) => {
   //     if (!data) return [];
@@ -55,7 +55,7 @@ const Documents = () => {
             <DocumentTree setModal={setModal} refetch={refetch} />
           </div>
           <div className="w-3/4 ">
-            <DocumentTable refetch={refetch} documentData={documentData} />
+            <DocumentTable documentData={documentData} isLoading={isFetching} />
           </div>
         </div>
       </Card>

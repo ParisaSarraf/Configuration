@@ -22,6 +22,7 @@ import {
 import { DeleteOutlined, EyeFilled, CheckCircleOutlined } from "@ant-design/icons";
 import { BASEURL } from "@/Services/axiosInstance.js";
 import { TableAntd } from "../../../../components/TableAntd/TableAntd";
+import ContentLoadingIndicator from "../../../../components/LoadingIndicator/ContentLoadingIndicator.jsx";
 
 const DocumentsTable = ({ documents, onDelete, onView, onConfirm }) => {
   const documentData = useMemo(() => {
@@ -345,11 +346,7 @@ const ProductDocumentListSerial = ({
         {!serialId ? (
           <Empty description="برای مشاهده اسناد، ابتدا یک سریال انتخاب کنید" />
         ) : isFetchingDocuments && ProductDocumentData == null ? (
-          <div role="status" className="flex justify-center items-center min-h-[160px]">
-            <Spin tip="در حال بارگذاری اسناد..." size="large">
-              <div style={{ minWidth: 180, minHeight: 80 }} />
-            </Spin>
-          </div>
+          <ContentLoadingIndicator message="در حال بارگذاری اسناد..." />
         ) : isDocumentsError && ProductDocumentData == null ? (
           <Alert type="error" showIcon message="خطا در بارگذاری اسناد سریال"
             action={<Button onClick={() => refetchProductDocumentData()}>تلاش دوباره</Button>} />

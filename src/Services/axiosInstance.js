@@ -1,4 +1,5 @@
 import axios from "axios";
+import { trackRequests } from "./requestActivity.js";
 
 export const BASEURL = import.meta.env.VITE_APP_BASE_URL;
 
@@ -8,6 +9,7 @@ export const BASEURL = import.meta.env.VITE_APP_BASE_URL;
 const myAxios = axios.create({
     baseURL: BASEURL,
     timeout: 50000,
+    adapter: trackRequests((config) => axios.getAdapter(axios.defaults.adapter, config)(config)),
     headers: {
         Accept: "*/*",
         "Content-Type": "application/json",

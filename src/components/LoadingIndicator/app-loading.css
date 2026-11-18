@@ -1,0 +1,62 @@
+.app-loading-bar {
+  position: fixed;
+  z-index: 2000;
+  inset: 0 0 auto;
+  height: 4px;
+  overflow: hidden;
+  background: var(--pw-accent-soft, #e0e7ff);
+  pointer-events: none;
+}
+
+.app-loading-bar > span {
+  display: block;
+  width: 35%;
+  height: 100%;
+  margin-left: auto;
+  background: var(--pw-accent-strong, #4338ca);
+  animation: app-loading-sweep 1.2s ease-in-out infinite;
+}
+
+@keyframes app-loading-sweep {
+  from { transform: translateX(100%); }
+  to { transform: translateX(-290%); }
+}
+
+.app-page-loading {
+  display: grid;
+  place-items: center;
+  min-height: 160px;
+}
+
+.app-page-loading-space {
+  min-width: 180px;
+  min-height: 80px;
+}
+
+.app-content-loading {
+  position: fixed;
+  z-index: 900;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.app-content-loading .app-page-loading {
+  min-height: 112px;
+  padding: 8px 12px;
+  border: 1px solid var(--pw-border, #dce6e8);
+  border-radius: 12px;
+  background: var(--pw-surface, #fff);
+}
+
+.app-theme-root:has(.app-page-loading[role="status"], .ant-table-wrapper .ant-spin-spinning) > .app-content-loading {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-loading-bar > span {
+    width: 100%;
+    animation: none;
+  }
+}

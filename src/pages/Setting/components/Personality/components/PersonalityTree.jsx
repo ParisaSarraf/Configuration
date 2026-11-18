@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { message, Modal, Table, Button, Space, Input } from "antd";
-import { EditOutlined, DeleteOutlined, FolderOutlined, FolderOpenOutlined } from "@ant-design/icons";
+import { message, Modal, Table, Button, Space } from "antd";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { normalizeNestedRows } from "../../../../../components/TableAntd/normalizeNestedRows";
 import {
   useDeletePersonalityProduct,
   usePersonalityProductList,
@@ -18,7 +19,6 @@ const PersonalityTable = ({
     useDeletePersonalityProduct();
 
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
-  const [selectRow, setSecletdRow] = useState(false)
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
 
@@ -85,22 +85,12 @@ const PersonalityTable = ({
     if (record && record.id) {
       setPersonalityId(record.id);
       setSelectedPersonalityLabel(record.name);
-      setSecletdRow(true);
       setSelectedRowKeys([record.id]);
     } else {
       setPersonalityId(null);
       setSelectedPersonalityLabel(null);
-      setSecletdRow(false);
       setSelectedRowKeys([]);
     }
-  };
-  
-  const toggleExpand = (key, hasChildren) => {
-    if (!hasChildren) return;
-    const newExpandedKeys = expandedRowKeys.includes(key)
-      ? expandedRowKeys.filter(k => k !== key)
-      : [...expandedRowKeys, key];
-    handleExpand(newExpandedKeys);
   };
 
   const columns = [
@@ -108,18 +98,6 @@ const PersonalityTable = ({
       title: "نام هویت",
       dataIndex: "name",
       key: "name",
-      render: (text, record) => (
-        <div
-          style={{
-            paddingRight: `${record.level * 20}px`,
-            display: 'flex',
-            alignItems: 'center',
-            cursor: 'pointer'
-          }}
-        >
-          <span>{text}</span>
-        </div>
-      ),
     },
     {
       title: "کد طبقه بندی",
@@ -181,7 +159,12 @@ const PersonalityTable = ({
           },
         })}
         columns={columns}
-        dataSource={data}
+        dataSource={normalizeNestedRows(data)}
+        expandable={{
+          expandedRowKeys,
+          onExpandedRowsChange: handleExpand,
+          indentSize: 20,
+        }}
         loading={isFetching || isDeleting}
         pagination={false}
         size="small"
